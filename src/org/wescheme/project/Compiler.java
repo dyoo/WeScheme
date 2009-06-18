@@ -2,13 +2,10 @@ package org.wescheme.project;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.IOException;
 
 import javax.servlet.http.HttpServlet;
 
 import org.mozilla.javascript.*;
-
-//TODO Compiler is hosed. Argh.
 
 @SuppressWarnings("deprecation")
 public class Compiler extends HttpServlet
