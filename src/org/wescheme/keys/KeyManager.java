@@ -45,7 +45,6 @@ public class KeyManager {
 
 	}
 	
-	@SuppressWarnings({ "unchecked", "unused" })
 	public static void rotateKeys() throws KeyNotFoundException, CacheException{
 		Cache cache;
 		PersistenceManager pm = PMF.get().getPersistenceManager();

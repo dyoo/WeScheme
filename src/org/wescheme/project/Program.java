@@ -26,13 +26,11 @@ public class Program {
 	private String owner_;
 	@Persistent
 	private String author_;
-	@SuppressWarnings("unused")
 	@Persistent
 	private long time_;
 	@SuppressWarnings("unused")
 	@Persistent
 	private boolean published_ = false;
-	@SuppressWarnings("unused")
 	@Persistent
 	private List<Capability> capabilities_;
 	
