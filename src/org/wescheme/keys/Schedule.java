@@ -60,11 +60,11 @@ public class Schedule implements Comparable<Schedule> {
 	public int compareTo(Schedule s) {
 		
 		if( from_ == s.to_ ){
-			return 1;
+			return -1;
 		}
 		
 		if( to_ == s.from_ ){
-			return -1;
+			return 1;
 		}
 		
 		return 0;

@@ -13,7 +13,8 @@ public class AddDropbox extends HttpServlet {
 	private static final long serialVersionUID = -3189019553237054108L;
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp){
-		//TODO put this in a transaction?
+		//TODO put this in a transaction
+		//TODO Dropbox URLs must be unguessable -- i.e. cryptographically secure
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		SessionManager sm = new SessionManager();
 		try {
