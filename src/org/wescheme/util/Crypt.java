@@ -21,6 +21,7 @@ public class Crypt {
 		try {
 			prng = SecureRandom.getInstance("SHA1PRNG");
 			SHA256 = MessageDigest.getInstance("SHA-256");
+
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
