@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE web-app PUBLIC
+ "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+ "http://java.sun.com/dtd/web-app_2_3.dtd">
+
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
+	<servlet>
+		<servlet-name>keyServer</servlet-name>
+		<servlet-class>org.wescheme.keys.KeyServer</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>keyServer</servlet-name>
+		<url-pattern>/keyServer</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>programManager</servlet-name>
+		<servlet-class>org.wescheme.project.ProgramManager</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>programManager</servlet-name>
+		<url-pattern>/programManager</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>publish</servlet-name>
+		<servlet-class>org.wescheme.project.Publish</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>publish</servlet-name>
+		<url-pattern>/publish</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>createUser</servlet-name>
+		<servlet-class>org.wescheme.user.CreateUser</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>createUser</servlet-name>
+		<url-pattern>/createUser</url-pattern>
+	</servlet-mapping>
+	
+	
+		<servlet>
+		<servlet-name>logout</servlet-name>
+		<servlet-class>org.wescheme.user.Logout</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>logout</servlet-name>
+		<url-pattern>/logout</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>index</servlet-name>
+		<jsp-file>index.jsp</jsp-file>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>index</servlet-name>servlet-name>
+		<url-pattetrn>/index.html</url-pattetrn>
+	</servlet-mapping>
+
+</web-app>
