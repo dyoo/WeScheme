@@ -36,7 +36,7 @@ public class ObjectCode {
 	}
 	
 	public String toString(){
-		return obj_.toString();
+		return obj_.getValue();
 	}
 	
 }

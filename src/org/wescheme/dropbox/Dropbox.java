@@ -4,6 +4,8 @@ package org.wescheme.dropbox;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
@@ -13,6 +15,7 @@ import org.wescheme.project.Program;
 
 @PersistenceCapable()
 public class Dropbox {
+
 	@SuppressWarnings("unused")
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
@@ -31,6 +34,10 @@ public class Dropbox {
 		bins_ = new HashMap<String, Bin>();
 		ownerName_ = owner;
 		title_ = title;
+	}
+	
+	public String owner(){
+		return ownerName_;
 	}
 	
 	public void addBin(String binName){
@@ -60,7 +67,15 @@ public class Dropbox {
 		return title_;
 	}
 	
+	public static Dropbox getDropbox(PersistenceManager pm, Long dbid){
 	
+		return pm.getObjectById(Dropbox.class, dbid);
+		
+	}
+	
+	public Bin getBin(String bin){
+		return bins_.get(bin);
+	}
 	
 	
 	

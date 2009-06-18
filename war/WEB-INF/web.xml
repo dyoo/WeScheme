@@ -9,6 +9,11 @@
 		<servlet-class>org.wescheme.keys.KeyServer</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
+	<servlet>
+		<servlet-name>initCompiler</servlet-name>
+		<servlet-class>org.wescheme.project.Compiler</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>keyServer</servlet-name>
 		<url-pattern>/keyServer</url-pattern>

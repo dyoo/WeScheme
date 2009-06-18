@@ -4,30 +4,24 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import javax.servlet.http.HttpServlet;
+
 import org.mozilla.javascript.*;
 
 //TODO Compiler is hosed. Argh.
 
 @SuppressWarnings("deprecation")
-public class Compiler
+public class Compiler extends HttpServlet
 {
 	private static final long serialVersionUID = 6867416066840862239L;
 	static Context cx = Context.enter();
 	static Scriptable scope = cx.initStandardObjects();	// retrieve the scope
 	static Function compiler;
-	
-	static {
+
+	public void init() {
+		try{
 		cx = Context.enter();
 		scope = cx.initStandardObjects();
-		try {
-			initCompiler();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
-	static public void initCompiler() throws IOException {
 		FileReader fileReader = new FileReader("compiler.js");
 		BufferedReader inputReader = new BufferedReader(fileReader);
 		String compilerSrc = "";
@@ -42,12 +36,16 @@ public class Compiler
 		               
 		
 		compiler = (Function)fObj;
-		
+		System.out.println("Compiler initialized.");
+		} catch (Exception e){
+			System.out.println("Compiler initialization failed.");
+		}
 	}
 	
 	public static ObjectCode compile(SourceCode src){
 		String srcText = src.toString();
 		Object functionArgs[] = { srcText };
+		System.out.println(srcText);
 		String result = Context.toString(compiler.call(cx, scope, scope, functionArgs));
 		return new ObjectCode(result);
 	}
