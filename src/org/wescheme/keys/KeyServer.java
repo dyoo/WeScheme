@@ -15,7 +15,7 @@ public class KeyServer extends HttpServlet {
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)	throws IOException 
 	{	
 		rotate();
-		resp.sendRedirect("index.html");
+		resp.sendRedirect("index.jsp");
 		
 	}
 	

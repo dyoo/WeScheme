@@ -22,7 +22,7 @@ public class SourceCode {
 	}
 	
 	public String toString(){
-		return src_.toString();
+		return src_.getValue();
 	}
 	
 }

@@ -1,4 +1,11 @@
-<!-- Indices written at Wed, 17 Jun 2009 18:52:09 UTC -->
+<!-- Indices written at Thu, 18 Jun 2009 15:42:26 UTC -->
 
-<datastore-indexes/>
+<datastore-indexes>
 
+    <!-- Used 1 time in query history -->
+    <datastore-index kind="ObjectCode" ancestor="true" source="auto"/>
+
+    <!-- Used 1 time in query history -->
+    <datastore-index kind="SourceCode" ancestor="true" source="auto"/>
+
+</datastore-indexes>
