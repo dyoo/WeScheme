@@ -23,7 +23,7 @@ public class Dropbox {
 	@Persistent
 	Integer binId_;
 	@Persistent
-	Map<Integer, String> bins_;
+	HashMap<Integer, Bin> bins_;
 	@Persistent
 	String title_;
 	@Persistent
@@ -33,7 +33,7 @@ public class Dropbox {
 	
 	public Dropbox(String owner, String title){
 		binId_ = 0;
-		bins_ = new HashMap<Integer, String>();
+		bins_ = new HashMap<Integer, Bin>();
 		ownerName_ = owner;
 		title_ = title;
 	}
@@ -46,7 +46,7 @@ public class Dropbox {
 		
 		//TODO addBin /must/ be done within a transaction to avoid race conditions
 		
-		bins_.put(binId_, binName);
+		bins_.put(binId_, new Bin(binName));
 		++binId_;
 	}
 	
@@ -63,12 +63,16 @@ public class Dropbox {
 		return title_;
 	}
 	
+	// necessary?
 	public static Dropbox getDropbox(PersistenceManager pm, Long dbid){
 	
 		return pm.getObjectById(Dropbox.class, dbid);
 		
 	}
-		
+	
+	public long id(){
+		return id;
+	}
 	
 	
 }

@@ -1,8 +1,5 @@
 package org.wescheme.dropbox;
 
-import java.io.IOException;
-
-import javax.cache.CacheException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Transaction;
 import javax.servlet.http.HttpServlet;
@@ -15,9 +12,6 @@ import org.wescheme.user.SessionManager;
 import org.wescheme.user.UnauthorizedUserException;
 import org.wescheme.util.Base64;
 import org.wescheme.util.PMF;
-import org.wescheme.util.Crypt.KeyNotFoundException;
-
-import com.google.appengine.api.datastore.Key;
 
 public class AddProject extends HttpServlet {
 
@@ -34,19 +28,21 @@ public class AddProject extends HttpServlet {
 				Session userSession;
 				SessionManager sm = new SessionManager();
 				userSession = sm.authenticate(req, resp);
-				Long id = (Long) Base64.decodeToObject(req.getParameter("dbid"));
-				Long pid = (Long) Base64.decodeToObject(req.getParameter("pid"));
-				String binName = req.getParameter("bin");
-				Dropbox db = Dropbox.getDropbox(pm, id);
-				Program prog = (Program) pm.getObjectById(pid);
+				
+				Long dbID = (Long) Base64.decodeToObject(req.getParameter("dbID"));
+				Integer binID = (Integer) Base64.decodeToObject(req.getParameter("binID"));
+				Long progID = (Long) Base64.decodeToObject(req.getParameter("progID"));
+				
+				Dropbox db = Dropbox.getDropbox(pm, dbID);
+				Program prog = (Program) pm.getObjectById(progID);
 			
 				if( userSession.getName() != prog.getOwner() ){
 					throw new UnauthorizedUserException();
 				}
 			
-				Bin bin = db.getBin(binName);
-				bin.add(prog, db.owner());
-				pm.makePersistent(db);
+				Entry entry = new Entry(db, binID, prog);
+				pm.makePersistent(entry);
+				
 				tx.commit();
 				pm.close();
 		
