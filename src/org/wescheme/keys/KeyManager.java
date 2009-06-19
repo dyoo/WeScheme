@@ -27,13 +27,14 @@ public class KeyManager {
 			CacheFactory cf = CacheManager.getInstance().getCacheFactory();
 			cache = cf.createCache(Collections.emptyMap());
 	
-			//TODO Something is amiss with the priority queue. It orders Schedule tasks as they appear below without regards to the comparator function.
 			keySchedule = new PriorityQueue<Schedule>();
 			keySchedule.add(new Schedule(null, "freshKey", 8, 1));
 			keySchedule.add(new Schedule("freshKey", "staleKey", 8, 1));
 			keySchedule.add(new Schedule(null, "dailyKey", 8, 24));
 			keySchedule.add(new Schedule("dailyKey", "staleDailyKey", 8, 24));
 		
+			System.out.println(Crypt.Token())
+			
 			for( Schedule s : keySchedule ){
 				s.execute(cache, pm);
 			}

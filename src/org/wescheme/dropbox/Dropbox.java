@@ -20,9 +20,10 @@ public class Dropbox {
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
 	private Long id;
-	
 	@Persistent
-	Map<String, Bin> bins_;
+	Integer binId_;
+	@Persistent
+	Map<Integer, String> bins_;
 	@Persistent
 	String title_;
 	@Persistent
@@ -31,7 +32,8 @@ public class Dropbox {
 	Date expiry_;
 	
 	public Dropbox(String owner, String title){
-		bins_ = new HashMap<String, Bin>();
+		binId_ = 0;
+		bins_ = new HashMap<Integer, String>();
 		ownerName_ = owner;
 		title_ = title;
 	}
@@ -41,22 +43,16 @@ public class Dropbox {
 	}
 	
 	public void addBin(String binName){
-		Bin bin = new Bin(binName);
-		bins_.put(binName, bin);
-	}
-	
-	public void addToBin(Program p, String binName) throws DropboxException{
-		Bin b = bins_.get(binName);
-		if( null == b ){ throw new DropboxException(); }
 		
-		b.add(p, ownerName_);
+		//TODO addBin /must/ be done within a transaction to avoid race conditions
+		
+		bins_.put(binId_, binName);
+		++binId_;
 	}
 	
 	public class DropboxException extends Exception {
-		private static final long serialVersionUID = 2852466072637433454L;
-		
+		private static final long serialVersionUID = 2852466072637433454L;	
 	}
-	
 	
 	// display dumps the dropBox and its contents such that it can be sent to the client
 	public String display(){
@@ -72,11 +68,7 @@ public class Dropbox {
 		return pm.getObjectById(Dropbox.class, dbid);
 		
 	}
-	
-	public Bin getBin(String bin){
-		return bins_.get(bin);
-	}
-	
+		
 	
 	
 }
