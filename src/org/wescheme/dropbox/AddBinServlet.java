@@ -12,7 +12,7 @@ import org.wescheme.user.SessionManager;
 import org.wescheme.util.Base64;
 import org.wescheme.util.PMF;
 
-public class AddBin extends HttpServlet {
+public class AddBinServlet extends HttpServlet {
 	private static final long serialVersionUID = -182869406403756507L;
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp){

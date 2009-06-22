@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.wescheme.util.Base64;
 import org.wescheme.util.Crypt;
 
-public class Confirmation extends HttpServlet {
+public class ConfirmationServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 4278468977009746717L;
 

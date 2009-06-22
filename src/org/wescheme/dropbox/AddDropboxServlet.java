@@ -9,7 +9,7 @@ import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.util.PMF;
 
-public class AddDropbox extends HttpServlet {
+public class AddDropboxServlet extends HttpServlet {
 	private static final long serialVersionUID = -3189019553237054108L;
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp){

@@ -42,18 +42,6 @@ public class Publish extends HttpServlet{
 				System.out.println("Published as " + userSession.getName());
 			}
 
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (CacheException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (KeyNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (UnauthorizedUserException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 		} finally {
 			pm.close();
 		}

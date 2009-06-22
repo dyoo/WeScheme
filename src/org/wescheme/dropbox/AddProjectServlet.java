@@ -13,7 +13,7 @@ import org.wescheme.user.UnauthorizedUserException;
 import org.wescheme.util.Base64;
 import org.wescheme.util.PMF;
 
-public class AddProject extends HttpServlet {
+public class AddProjectServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1927887337443757869L;
 
