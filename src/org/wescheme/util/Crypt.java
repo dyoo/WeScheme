@@ -23,7 +23,6 @@ public class Crypt {
 			SHA256 = MessageDigest.getInstance("SHA-256");
 
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -110,8 +109,7 @@ public class Crypt {
 		public Token(String s, Key key){
 			_val = hash(s + key.toString());
 		}
-		
-		// TODO This constructor is used for serialization.
+
 		public Token(String s){
 			_val = s.getBytes();
 		}

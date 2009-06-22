@@ -38,7 +38,7 @@ public class SessionManager {
 	}
 
 	
-	public Session authenticate(HttpServletRequest req, HttpServletResponse resp) throws ClassNotFoundException, CacheException, KeyNotFoundException, UnauthorizedUserException {
+	public Session authenticate(HttpServletRequest req, HttpServletResponse resp) {
 			Cache cache;
 			PersistenceManager pm = PMF.get().getPersistenceManager();
 		try { 
@@ -54,13 +54,11 @@ public class SessionManager {
 			
 					Crypt.Key fk = KeyManager.retrieveKey(pm, cache, "freshKey");
 					Crypt.Key sk = KeyManager.retrieveKey(pm, cache, "staleKey");
-					//resp.getWriter().println("checking freshKey.");
+				
 					if( userSession.isValid(userToken, fk) ){
-						//resp.getWriter().println("worked.");
 						return userSession;
 					} 
-					
-					//resp.getWriter().println("checking staleKey.");	
+						
 					if( userSession.isValid(userToken, sk) ){
 						issueSession(userSession, resp);
 						return userSession;
@@ -68,7 +66,8 @@ public class SessionManager {
 				} finally {
 					pm.close();
 			}
-		} catch (IOException e){
+		} catch (Exception e){
+			//TODO perhaps we want finer control over errors.
 			return null;
 		}
 			return null;
@@ -90,7 +89,7 @@ public class SessionManager {
 	    }
 	}
 	
-	public Session authWeScheme(HttpServletRequest req, HttpServletResponse resp) throws UnauthorizedUserException{
+	public Session authWeScheme(HttpServletRequest req, HttpServletResponse resp) {
 		String username = req.getParameter("user");
     	String password = req.getParameter("password");
     	PersistenceManager pm = PMF.get().getPersistenceManager();
