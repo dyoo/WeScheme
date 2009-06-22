@@ -13,7 +13,7 @@ import org.wescheme.util.PMF;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import org.wescheme.user.Confirmation;
+import org.wescheme.user.ConfirmationServlet;
 
 // WeSchemeUser provides an alternative authentication schema to Google Apps Engine.
 
@@ -67,7 +67,7 @@ public class WeSchemeUser{
 				pm.getObjectById(WeSchemeUser.class, k);
 				throw new UnauthorizedUserException();
 			} catch (JDOObjectNotFoundException e) {
-				String key = Confirmation.sendConfirmationEmail(email);
+				String key = ConfirmationServlet.sendConfirmationEmail(email);
 				WeSchemeUser u = new WeSchemeUser(username, password, email, key);
 				pm.makePersistent(u);
 				tx.commit();

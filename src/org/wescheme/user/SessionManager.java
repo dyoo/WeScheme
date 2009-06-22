@@ -163,7 +163,7 @@ public class SessionManager {
 	    if( session != null ){
 	    	// install the token into the user's cookie.
 		    issueSession(session, resp);
-	    	resp.sendRedirect("index.html");
+	    	resp.sendRedirect("index.jsp");
 	    } 	
 		} catch (UnauthorizedUserException e) {
 			resp.sendRedirect("login.jsp");

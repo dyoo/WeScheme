@@ -29,6 +29,15 @@
 	</servlet-mapping>
 	
 	<servlet>
+		<servlet-name>dropbox</servlet-name>
+		<servlet-class>org.wescheme.dropbox.DropboxServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>dropbox</servlet-name>
+		<url-pattern>/dropbox</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
 		<servlet-name>publish</servlet-name>
 		<servlet-class>org.wescheme.project.Publish</servlet-class>
 	</servlet>
