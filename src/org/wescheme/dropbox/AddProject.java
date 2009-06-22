@@ -19,11 +19,9 @@ public class AddProject extends HttpServlet {
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp){
 		PersistenceManager pm = PMF.get().getPersistenceManager();
-		Transaction tx = pm.currentTransaction();
+		
 		try {
-			try {
-				tx.begin();
-				//	TODO this must be done in a transaction.
+		
 			
 				Session userSession;
 				SessionManager sm = new SessionManager();
@@ -42,18 +40,7 @@ public class AddProject extends HttpServlet {
 			
 				Entry entry = new Entry(db, binID, prog);
 				pm.makePersistent(entry);
-				
-				tx.commit();
 				pm.close();
-		
-			} finally {
-				if(tx.isActive()){
-					tx.rollback();
-				}
-			
-				pm.close();
-			
-			}
 		} catch (Exception e){
 			System.err.println("Error while adding project");
 			//TODO make error handling robust.

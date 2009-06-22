@@ -60,7 +60,7 @@ public class Dropbox {
 	}
 	
 	public String display(boolean byOwner){
-		return title_;
+		return title_ + ": " + bins_.toString();
 	}
 	
 	// necessary?
