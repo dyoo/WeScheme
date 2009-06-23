@@ -16,7 +16,7 @@ public class AddDropboxServlet extends HttpServlet {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		SessionManager sm = new SessionManager();
 		try {
-			if( sm.isIntentional(req, resp)){
+			if( true || sm.isIntentional(req, resp)){
 				Session s = sm.authenticate(req, resp);
 				String name = s.getName();
 				String title = req.getParameter("title");
@@ -26,7 +26,7 @@ public class AddDropboxServlet extends HttpServlet {
 				pm.close();
 			}
 			
-			resp.sendRedirect("dropboxes");
+			resp.sendRedirect("dropbox");
 		} catch (Exception e ) {
 			// TODO `Authenticate` must throw fewer exceptions. Perhaps 'AuthenticationFailedException' 
 			e.printStackTrace();

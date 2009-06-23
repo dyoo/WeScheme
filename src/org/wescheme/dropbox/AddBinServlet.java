@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
-import org.wescheme.util.Base64;
 import org.wescheme.util.PMF;
 
 public class AddBinServlet extends HttpServlet {
@@ -17,38 +16,33 @@ public class AddBinServlet extends HttpServlet {
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp){
 		PersistenceManager pm = PMF.get().getPersistenceManager();
-	
+		
 		try{
-		try{
+			
 			Session userSession;
 			SessionManager sm = new SessionManager();
 			userSession = sm.authenticate(req, resp);
-			Long dbID = (Long) Base64.decodeToObject(req.getParameter("dbID"));
-				
+			Long dbID = new Long(req.getParameter("dbid"));
+			
 			String binName = req.getParameter("binName");
-				
+			
+			System.out.println("Entered addBin as " + userSession.getName() + " with dbid " + dbID + " and bin " + binName);
+			
 			Dropbox db = Dropbox.getDropbox(pm, dbID);
 				
-			if( userSession.getName() != db.owner() ){
+			if( userSession.getName().equals(db.owner()) ){
 				db.addBin(binName);
-			} 
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
 		} finally { 
 				//TODO finalize bin adding
 				pm.close();
 				
 				try {
-					resp.sendRedirect("displayDB");
+					resp.sendRedirect("/dropbox");
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				} // TODO make this AJAXian
 			}
-		}
+	}
 }
