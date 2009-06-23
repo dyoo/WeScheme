@@ -11,11 +11,11 @@ import org.mozilla.javascript.*;
 public class Compiler extends HttpServlet
 {
 	private static final long serialVersionUID = 6867416066840862239L;
-	static Context cx = Context.enter();
-	static Scriptable scope = cx.initStandardObjects();	// retrieve the scope
+	static Context cx;
+	static Scriptable scope;	// retrieve the scope
 	static Function compiler;
 
-	public void init() {
+	static {
 		try{
 		cx = Context.enter();
 		scope = cx.initStandardObjects();
@@ -29,21 +29,32 @@ public class Compiler extends HttpServlet
 		}
 		
 		cx.evaluateString(scope, compilerSrc, "<cmd>", 1, null); // add the compiler to the scope
+		cx.seal(null);
+		
 		Object fObj = scope.get("compile", scope);
 		               
 		
 		compiler = (Function)fObj;
-		System.out.println("Compiler initialized.");
+		System.out.println("Compiler initialized: ");
+		System.out.println(cx.toString());
+		Object functionArgs[] = { "1" };
+		String result = Context.toString(compiler.call(cx, scope, scope, functionArgs));
+		System.out.println(result);
+		cx.exit();
 		} catch (Exception e){
 			System.out.println("Compiler initialization failed.");
 		}
 	}
 	
+	public void init() {}
+	
 	public static ObjectCode compile(SourceCode src){
+		cx.enter();
 		String srcText = src.toString();
 		Object functionArgs[] = { srcText };
 		System.out.println(srcText);
 		String result = Context.toString(compiler.call(cx, scope, scope, functionArgs));
+		cx.exit();
 		return new ObjectCode(result);
 	}
 	
