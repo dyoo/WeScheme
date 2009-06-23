@@ -27,6 +27,7 @@ Welcome anonymous!
 <form method="POST" action="http://localhost:8080/publish">
 
 <textarea cols="120" rows="20" name="code"></textarea>
+<input type="checkbox" name="publish" value="publish">
 <input type="submit" name="Publish">
 
 </form>
