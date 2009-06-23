@@ -1,11 +1,10 @@
-<!-- Indices written at Thu, 18 Jun 2009 15:42:26 UTC -->
+<!-- Indices written at Tue, 23 Jun 2009 18:19:59 UTC -->
 
 <datastore-indexes>
 
-    <!-- Used 1 time in query history -->
-    <datastore-index kind="ObjectCode" ancestor="true" source="auto"/>
-
-    <!-- Used 1 time in query history -->
-    <datastore-index kind="SourceCode" ancestor="true" source="auto"/>
+    <!-- Used 2 times in query history -->
+    <datastore-index kind="Bin" ancestor="true" source="auto">
+        <property name="bins__INTEGER_IDX" direction="asc"/>
+    </datastore-index>
 
 </datastore-indexes>

@@ -29,12 +29,21 @@
 	</servlet-mapping>
 	
 	<servlet>
-		<servlet-name>dropbox</servlet-name>
-		<servlet-class>org.wescheme.dropbox.DropboxServlet</servlet-class>
+		<servlet-name>addDropbox</servlet-name>
+		<servlet-class>org.wescheme.dropbox.AddDropboxServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>dropbox</servlet-name>
-		<url-pattern>/dropbox</url-pattern>
+		<servlet-name>addDropbox</servlet-name>
+		<url-pattern>/addDropbox</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>addBin</servlet-name>
+		<servlet-class>org.wescheme.dropbox.AddBinServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>addBin</servlet-name>
+		<url-pattern>/addBin</url-pattern>
 	</servlet-mapping>
 	
 	<servlet>
@@ -48,7 +57,7 @@
 	
 	<servlet>
 		<servlet-name>createUser</servlet-name>
-		<servlet-class>org.wescheme.user.CreateUser</servlet-class>
+		<servlet-class>org.wescheme.user.CreateUserServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>createUser</servlet-name>
@@ -58,7 +67,7 @@
 	
 		<servlet>
 		<servlet-name>logout</servlet-name>
-		<servlet-class>org.wescheme.user.Logout</servlet-class>
+		<servlet-class>org.wescheme.user.LogoutServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>logout</servlet-name>
@@ -72,6 +81,15 @@
 	<servlet-mapping>
 		<servlet-name>index</servlet-name>servlet-name>
 		<url-pattetrn>/index.html</url-pattetrn>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>dropbox</servlet-name>
+		<jsp-file>dropbox.jsp</jsp-file>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>dropbox</servlet-name>
+		<url-pattern>/dropbox</url-pattern>
 	</servlet-mapping>
 
 </web-app>

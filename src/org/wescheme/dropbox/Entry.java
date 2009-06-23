@@ -42,4 +42,8 @@ public class Entry {
 	}
 	
 	
+	public String toDiv(){
+		return "<div>" + project_.getSource().toString() + "</div>";
+	}
+	
 }

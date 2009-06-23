@@ -31,10 +31,13 @@ public class Publish extends HttpServlet{
 				long startTime = System.currentTimeMillis();
 		
 				String code = req.getParameter("code");
+				Integer publish = new Integer(req.getParameter("publish"));
 				resp.setContentType("text/plain");
 			
 				Program prog = new Program(code, userSession);
-				prog.publish();
+				if( 1 == publish ){
+					prog.publish();
+				}
 				pm.makePersistent(prog);
 			
 				long duration = System.currentTimeMillis() - startTime;
