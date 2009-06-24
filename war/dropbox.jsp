@@ -253,12 +253,14 @@ function loader() {
 <div>
 
 <div class="list" id="items1">
+<div>Your programs</div>
 <div class="item"><i>PLT</i> Scheme</div>
 <div class="item">Haskell</div>
 <div class="item">ML</div>
 </div>
 
 <div class="list" id="items2">
+<div>Dropbox Bins</div>
 <div class="item">Monads</div>
 <div class="item">Arrows</div>
 <div class="item">Applicative Functors</div>
