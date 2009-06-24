@@ -84,6 +84,15 @@
 	</servlet-mapping>
 
 	<servlet>
+		<servlet-name>myDropboxes</servlet-name>
+		<jsp-file>myDropboxes.jsp</jsp-file>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>myDropboxes</servlet-name>
+		<url-pattern>/myDropboxes</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
 		<servlet-name>dropbox</servlet-name>
 		<jsp-file>dropbox.jsp</jsp-file>
 	</servlet>
