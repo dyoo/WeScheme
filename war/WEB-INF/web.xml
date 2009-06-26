@@ -45,6 +45,15 @@
 		<servlet-name>addBin</servlet-name>
 		<url-pattern>/addBin</url-pattern>
 	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>addProject</servlet-name>
+		<servlet-class>org.wescheme.dropbox.AddProjectServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>addProject</servlet-name>
+		<url-pattern>/addProject</url-pattern>
+	</servlet-mapping>
 	
 	<servlet>
 		<servlet-name>publish</servlet-name>

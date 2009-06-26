@@ -19,6 +19,8 @@ public class Program {
 	private Long id;
 	
 	@Persistent
+	private String title_;
+	@Persistent
 	private ObjectCode obj_;
 	@Persistent
 	private SourceCode src_;
@@ -46,31 +48,23 @@ public class Program {
 		updateTime();
 	}
 	
-	public Program(Program p, Session owner){
-		src_ = p.src_;
-		owner_ = owner.getName();
+	// TODO When you add a program to your own dropbox, it's indistinguishable from a program that you wrote... This is bad and silly.
+	public Program(Program p, String owner){
+		src_ = new SourceCode(p.src_.toString());
+		owner_ = owner;
 		author_ = p.author_;
 		capabilities_ = p.capabilities_;
-		
-		if( p.obj_.isTrusted() ){
-			obj_ = p.obj_;
+		time_ = System.currentTimeMillis();
+		if( obj_ != null && p.obj_.isTrusted() ){
+			obj_ = new ObjectCode(p.obj_.toString());
 		} else {
 			obj_ = null;
 		}
 	}
-	
-	public Program(Program p) {
-		src_ = p.src_;
-		obj_ = p.obj_;
-		owner_ = p.owner_;
-		author_ = p.author_;
-		time_ = p.time_;
-		// TODO flesh out the copy constructor.
-	}
+
 	
 	public Program clone(String owner){
-		Program p = new Program(this);
-		p.setOwner(owner);
+		Program p = new Program(this, owner);
 		return p;
 	}
 
@@ -115,5 +109,14 @@ public class Program {
 	public String getOwner(){
 		return owner_;
 	}
+	
+	public Long getId(){
+		return id;
+	}
+	
+	public Long getTime(){
+		return time_;
+	}
+	
 	
 }

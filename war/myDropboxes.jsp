@@ -28,7 +28,7 @@
 			List<Dropbox> dbl = (List<Dropbox>) query.execute(s.getName());
 			for( Dropbox d : dbl ){	
 %>
-	<p><b><%= d.display(s.getName()) %></b></p>
+	<p><b><%= d.display(s.getName()) %></b><i><%= d.getId() %></i></p>
 <%
 			}
 		} finally {

@@ -13,7 +13,7 @@ public class LogoutServlet extends HttpServlet {
 	{	
 		SessionManager sm = new SessionManager();
 		sm.logout(req, resp);
-		resp.sendRedirect("index.html");
+		resp.sendRedirect("index.jsp");
 		
 	}
 	

@@ -3,6 +3,7 @@ package org.wescheme.dropbox;
 import java.io.IOException;
 
 import javax.jdo.PersistenceManager;
+import javax.jdo.Transaction;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,9 +17,10 @@ public class AddBinServlet extends HttpServlet {
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp){
 		PersistenceManager pm = PMF.get().getPersistenceManager();
+		Transaction tx = pm.currentTransaction();
 		
 		try{
-			
+			tx.begin();
 			Session userSession;
 			SessionManager sm = new SessionManager();
 			userSession = sm.authenticate(req, resp);
@@ -34,7 +36,10 @@ public class AddBinServlet extends HttpServlet {
 				db.addBin(binName);
 			}
 		} finally { 
-				//TODO finalize bin adding
+			//TODO Should we retry if we have contention? There shouldn't be races in bin creation.
+			if(tx.isActive()){
+				tx.rollback();
+			}
 				pm.close();
 				
 				try {
