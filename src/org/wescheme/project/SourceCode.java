@@ -11,7 +11,7 @@ import org.wescheme.util.XML;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Text;
 @PersistenceCapable
-public class SourceCode implements XML {
+public class SourceCode extends XML {
 	@SuppressWarnings("unused")
 	@PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
@@ -28,7 +28,6 @@ public class SourceCode implements XML {
 		return src_.getValue();
 	}
 
-	@Override
 	public Element toXML() {
 		Element root = new Element("source");
 		root.setText(src_.toString());

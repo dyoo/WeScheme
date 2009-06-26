@@ -2,6 +2,7 @@
 <%@ page import="org.wescheme.user.Session" %>
 <%@ page import="org.wescheme.dropbox.Dropbox" %>
 <%@ page import="javax.jdo.Query" %>
+<%@ page import="org.jdom.output.XMLOutputter" %>
 <%@ page import="java.util.List" %>
 <%@ page import="javax.jdo.PersistenceManager" %>
 <%@ page import="org.wescheme.util.PMF" %>
@@ -17,6 +18,7 @@
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		SessionManager sm = new SessionManager();
 		Session s = sm.authenticate(request, response);
+		XMLOutputter x = new XMLOutputter();
 		
 		if( s != null ) {
 
@@ -28,7 +30,7 @@
 			List<Dropbox> dbl = (List<Dropbox>) query.execute(s.getName());
 			for( Dropbox d : dbl ){	
 %>
-	<p><b><%= d.display(s.getName()) %></b><i><%= d.getId() %></i></p>
+	<p><b><%= x.outputString(d.toXML()) %></b><i><%= d.getId() %></i></p>
 <%
 			}
 		} finally {

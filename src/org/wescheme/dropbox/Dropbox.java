@@ -103,7 +103,7 @@ public class Dropbox extends XML {
 		for( Bin b : bins_){
 			root.addContent(XML.makeElement("bin", b));
 		}
-		
+		System.out.println(root);
 		return root;
 	}
 	
