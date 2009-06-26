@@ -27,6 +27,18 @@ function newsubmit(event) {
     this._submit();
 }
 
+function instrumentedSend(body){
+
+	if( body == null || body == ""){
+		body = "?";
+	} else {
+		body += "&";
+	}
+	
+	body += "token=" + getCookie("token");
+	this._send(body);
+}
+
 // capture the onsubmit event on all forms
 window.addEventListener('submit', newsubmit, true);
 
@@ -34,3 +46,6 @@ window.addEventListener('submit', newsubmit, true);
 // so we need to redefine the submit method of the HTMLFormElement class.
 HTMLFormElement.prototype._submit = HTMLFormElement.prototype.submit;
 HTMLFormElement.prototype.submit = newsubmit;
+
+XMLHttpRequest.prototype._send = XMLHttpRequest.prototype.send;
+XMLHttpRequest.prototype.send = instrumentedSend;
