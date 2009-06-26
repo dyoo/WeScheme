@@ -2,7 +2,6 @@ package org.wescheme.project;
 
 import java.io.IOException;
 
-import javax.cache.CacheException;
 import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -10,9 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
-import org.wescheme.user.UnauthorizedUserException;
 import org.wescheme.util.PMF;
-import org.wescheme.util.Crypt.KeyNotFoundException;
 
 public class Publish extends HttpServlet{
 

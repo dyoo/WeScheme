@@ -12,10 +12,11 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.Query;
 
-import org.wescheme.util.HTML;
+import org.jdom.Element;
+import org.wescheme.util.XML;
 
 @PersistenceCapable()
-public class Dropbox {
+public class Dropbox extends XML {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
@@ -26,8 +27,6 @@ public class Dropbox {
 	String title_;
 	@Persistent
 	String ownerName_;
-	@Persistent
-	Date expiry_;
 	
 	public Long getId(){
 		return id;
@@ -57,27 +56,7 @@ public class Dropbox {
 	public String getTitle(){
 		return title_;
 	}
-	
-	// display dumps the dropBox and its contents such that it can be sent to the client
-	public String display(){
-		return display("");
-	}
-	
-	public String display(String user){
-		String displayString = "<a href=\"/displayDropbox?dbid=" + id + "\">" + title_ + "</a>";
-		displayString += HTML.toTable(bins_);
-		if( user.equals(ownerName_) ){
-			displayString +=
-			"<form method='POST' action='addBin'>"	+
-			"<input type='text' name='binName'></input>" +
-			"<input type='hidden' name='dbid' value='" + id + "'></input>" +
-			"<input type='submit' value='Add Bin'></input>" +
-			"</form>";
-		}
 		
-		return displayString;
-		
-	}
 	
 	@SuppressWarnings("unchecked")
 	public String getContents(PersistenceManager pm, String user){
@@ -112,6 +91,20 @@ public class Dropbox {
 	
 	public List<Bin> getBins(){
 		return new LinkedList<Bin>(bins_);
+	}
+
+	@Override
+	public Element toXML() {
+		Element root = new Element("dropbox");
+		root.addContent(XML.makeElement("dbid", id));
+		root.addContent(XML.makeElement("title", title_));
+		root.addContent(XML.makeElement("owner", ownerName_));
+		
+		for( Bin b : bins_){
+			root.addContent(XML.makeElement("bin", b));
+		}
+		
+		return root;
 	}
 	
 	

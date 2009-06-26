@@ -5,10 +5,13 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import org.jdom.Element;
+import org.wescheme.util.XML;
+
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Text;
 @PersistenceCapable
-public class SourceCode {
+public class SourceCode implements XML {
 	@SuppressWarnings("unused")
 	@PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
@@ -23,6 +26,13 @@ public class SourceCode {
 	
 	public String toString(){
 		return src_.getValue();
+	}
+
+	@Override
+	public Element toXML() {
+		Element root = new Element("source");
+		root.setText(src_.toString());
+		return root;
 	}
 	
 }
