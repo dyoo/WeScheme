@@ -5,10 +5,13 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import org.jdom.Element;
+import org.wescheme.util.XML;
+
 import com.google.appengine.api.datastore.Key;
 
 @PersistenceCapable()
-public class Bin {
+public class Bin extends XML {
 
 	public Bin(String binName) {
 		name_ 	  = binName;
@@ -42,5 +45,11 @@ public class Bin {
 	//private Validity validity_;
 	@Persistent
 	private String name_; 
+	
+	public Element toXML(){
+		Element root = new Element("bin");
+		root.addContent(XML.makeElement("name", name_));
+		return root;
+	}
 	
 }

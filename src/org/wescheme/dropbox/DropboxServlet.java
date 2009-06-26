@@ -16,6 +16,7 @@ import org.wescheme.util.PMF;
 public class DropboxServlet extends HttpServlet {
 	private static final long serialVersionUID = 3502366250772332984L;
 
+	@SuppressWarnings("unchecked")
 	public void service(HttpServletRequest req, HttpServletResponse resp){
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		

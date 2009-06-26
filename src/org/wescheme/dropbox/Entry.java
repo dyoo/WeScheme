@@ -1,18 +1,14 @@
 package org.wescheme.dropbox;
 
-import java.util.Calendar;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
-import javax.jdo.identity.LongIdentity;
-
-import org.wescheme.project.Program;
-
-import com.google.appengine.api.datastore.Key;
+import org.jdom.Element;
+import org.wescheme.util.XML;
 
 @PersistenceCapable()
-public class Entry {
+public class Entry extends XML {
 
         @SuppressWarnings("unused")
         @PrimaryKey
@@ -22,13 +18,15 @@ public class Entry {
         private Long project_;
 
         // kludgey back pointers.
-        @Persistent
+        @SuppressWarnings("unused")
+		@Persistent
         private Long dbID_;
-        @Persistent
+        @SuppressWarnings("unused")
+		@Persistent
         private String binID_;
 
         // @Persistent
-        //String comments_; //TODO Do we want a string that is guaranteed by its type to be web safe?
+        //String comments_;
 
 
         public Entry(Long db, String binID, Long pid){
@@ -42,5 +40,15 @@ public class Entry {
         
         public String toString(){
         	return project_.toString();
+        }
+        
+        public Element toXML(){
+        	Element root = new Element("entry");
+        	root.addContent(XML.makeElement("eid", id));
+        	root.addContent(XML.makeElement("pid", project_));
+        	root.addContent(XML.makeElement("dbid", dbID_));
+        	root.addContent(XML.makeElement("bid", binID_));
+        	
+        	return root;
         }
 }

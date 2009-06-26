@@ -7,13 +7,14 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import org.jdom.Element;
 import org.wescheme.program.capability.Capability;
 import org.wescheme.user.Session;
+import org.wescheme.util.XML;
 
 @PersistenceCapable()
-public class Program {
+public class Program extends XML {
 
-	@SuppressWarnings("unused")
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
 	private Long id;
@@ -48,7 +49,6 @@ public class Program {
 		updateTime();
 	}
 	
-	// TODO When you add a program to your own dropbox, it's indistinguishable from a program that you wrote... This is bad and silly.
 	public Program(Program p, String owner){
 		src_ = new SourceCode(p.src_.toString());
 		owner_ = owner;
@@ -66,11 +66,6 @@ public class Program {
 	public Program clone(String owner){
 		Program p = new Program(this, owner);
 		return p;
-	}
-
-	private void setOwner(String owner) {
-		owner_ = owner;
-		
 	}
 
 	public void publish(){
@@ -116,6 +111,26 @@ public class Program {
 	
 	public Long getTime(){
 		return time_;
+	}
+
+	
+	public Element toXML() {
+		
+		Element root = new Element("Program");
+		
+		root.addContent(src_.toXML());
+		
+		if( null != obj_){
+			root.addContent(obj_.toXML());
+		}
+		
+		root.addContent(XML.makeElement("title", title_));
+		root.addContent(XML.makeElement("owner", owner_));
+		root.addContent(XML.makeElement("author", author_));
+		root.addContent(XML.makeElement("modified", time_));
+		
+		return root;
+		
 	}
 	
 	
