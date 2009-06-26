@@ -1,28 +1,10 @@
-<!-- Indices written at Thu, 25 Jun 2009 16:49:52 UTC -->
+<!-- Indices written at Fri, 26 Jun 2009 19:16:32 UTC -->
 
 <datastore-indexes>
 
-    <!-- Used 3 times in query history -->
-    <datastore-index kind="Program" ancestor="false" source="auto">
-        <property name="author_" direction="asc"/>
-        <property name="owner_" direction="asc"/>
-        <property name="time_" direction="desc"/>
-    </datastore-index>
-
-    <!-- Used 6 times in query history -->
-    <datastore-index kind="ObjectCode" ancestor="true" source="auto"/>
-
-    <!-- Used 9 times in query history -->
-    <datastore-index kind="SourceCode" ancestor="true" source="auto"/>
-
-    <!-- Used 2 times in query history -->
+    <!-- Used 1 time in query history -->
     <datastore-index kind="Bin" ancestor="true" source="auto">
         <property name="bins__INTEGER_IDX" direction="asc"/>
-    </datastore-index>
-
-    <!-- Used 3 times in query history -->
-    <datastore-index kind="Capability" ancestor="true" source="auto">
-        <property name="capabilities__INTEGER_IDX" direction="asc"/>
     </datastore-index>
 
 </datastore-indexes>

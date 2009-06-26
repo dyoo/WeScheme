@@ -16,7 +16,7 @@ import org.wescheme.util.PMF;
 public class DropboxServlet extends HttpServlet {
 	private static final long serialVersionUID = 3502366250772332984L;
 
-	@SuppressWarnings("unchecked")
+	
 	public void service(HttpServletRequest req, HttpServletResponse resp){
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		
@@ -35,10 +35,11 @@ public class DropboxServlet extends HttpServlet {
 				query.declareParameters("String ownerParam");
 				
 				try {
+					@SuppressWarnings({ "unchecked" })
 					List<Dropbox> dbl = (List<Dropbox>) query.execute(userSession.getName());
 					resp.getWriter().println("got " + dbl.size() + " dropboxes");
 					for( Dropbox d : dbl ){
-						resp.getWriter().println(d.display(userSession.getName()));
+						resp.getWriter().print(d.toXML());
 					}
 				} finally {
 					query.closeAll();
