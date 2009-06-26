@@ -40,21 +40,22 @@ public class Compiler extends HttpServlet
 		Object functionArgs[] = { "1" };
 		String result = Context.toString(compiler.call(cx, scope, scope, functionArgs));
 		System.out.println(result);
-		cx.exit();
+		Context.exit();
 		} catch (Exception e){
 			System.out.println("Compiler initialization failed.");
 		}
 	}
 	
+	// init() forces compiler initialization
 	public void init() {}
 	
 	public static ObjectCode compile(SourceCode src){
-		cx.enter();
+		Context.enter();
 		String srcText = src.toString();
 		Object functionArgs[] = { srcText };
 		System.out.println(srcText);
 		String result = Context.toString(compiler.call(cx, scope, scope, functionArgs));
-		cx.exit();
+		Context.exit();
 		return new ObjectCode(result);
 	}
 	
