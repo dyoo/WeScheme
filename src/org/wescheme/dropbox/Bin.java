@@ -28,6 +28,12 @@ public class Bin {
 		return true;
 	}
 	
+	public String print(){
+		return
+		"<div class=\"list\" id=\"" + getName() + "\">" +
+		"<div class=\"header\">" + getName() + "</div></div>";
+	}
+	
 	@SuppressWarnings("unused")
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)

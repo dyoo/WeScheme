@@ -29,6 +29,10 @@ public class Dropbox {
 	@Persistent
 	Date expiry_;
 	
+	public Long getId(){
+		return id;
+	}
+	
 	public Dropbox(String owner, String title){
 		bins_ = new LinkedList<Bin>();
 		ownerName_ = owner;
@@ -48,6 +52,10 @@ public class Dropbox {
 	
 	public class DropboxException extends Exception {
 		private static final long serialVersionUID = 2852466072637433454L;	
+	}
+	
+	public String getTitle(){
+		return title_;
 	}
 	
 	// display dumps the dropBox and its contents such that it can be sent to the client
@@ -82,7 +90,7 @@ public class Dropbox {
 			
 			List<Entry> results = (List<Entry>) query.execute(id);
 			for (Entry e : results) {
-				result += e.toDiv();
+				result += " " + e;
 			}
 			    
 		}
@@ -90,7 +98,6 @@ public class Dropbox {
 		return result;
 		
 	}
-	
 	
 	// necessary?
 	public static Dropbox getDropbox(PersistenceManager pm, Long dbid){
@@ -102,6 +109,12 @@ public class Dropbox {
 	public long id(){
 		return id;
 	}
+	
+	public List<Bin> getBins(){
+		return new LinkedList<Bin>(bins_);
+	}
+	
+	
 	
 	
 }
