@@ -1,4 +1,6 @@
-package org.wescheme.dropbox;
+package org.wescheme.servlet;
+
+import java.io.IOException;
 
 import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServlet;
@@ -17,19 +19,25 @@ public class AddDropboxServlet extends HttpServlet {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		SessionManager sm = new SessionManager();
 		try {
-			if( true || sm.isIntentional(req, resp)){
-				Session s = sm.authenticate(req, resp);
-				String name = s.getName();
-				String title = req.getParameter("title");
+			if( !sm.isIntentional(req, resp)) {
+				resp.sendError(500);
+			} else try {
 				
-				Dropbox db = new Dropbox(name, title);
-				pm.makePersistent(db);
-				pm.close();
+					Session s = sm.authenticate(req, resp);
+					String name = s.getName();
+					String title = req.getParameter("title");
+					
+					Dropbox db = new Dropbox(name, title);
+					pm.makePersistent(db);
+					pm.close();
+				
+					resp.sendRedirect("dropbox");
+			} catch (Exception e ) {
+				// TODO `Authenticate` must throw fewer exceptions. Perhaps 'AuthenticationFailedException' 
+				e.printStackTrace();
 			}
-			
-			resp.sendRedirect("dropbox");
-		} catch (Exception e ) {
-			// TODO `Authenticate` must throw fewer exceptions. Perhaps 'AuthenticationFailedException' 
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

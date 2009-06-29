@@ -26,7 +26,15 @@ public class AddProjectServlet extends HttpServlet {
 
 			Session userSession;
 			SessionManager sm = new SessionManager();
+			
+			if( !sm.isIntentional(req, resp) ){
+				resp.sendError(500);
+				return;
+			}
+			
 			userSession = sm.authenticate(req, resp);
+			
+			
 			String userName = userSession.getName();
 			Long dbID = new Long(req.getParameter("dbID"));
 			String binID = req.getParameter("binID");
