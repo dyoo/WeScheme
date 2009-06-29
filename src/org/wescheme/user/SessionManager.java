@@ -31,7 +31,7 @@ public class SessionManager {
 		Cookie[] cookies 	= req.getCookies();
 		String token		= Cookies.getCookie(cookies, "token");
 		
-		if( tokenPOST == null || token == null ){ return false; }
+		if( tokenPOST == null || token == null || tokenPOST == "" || token == "" ){ return false; }
 
 		return (tokenPOST.equals(token) && tokenPOST != "");
 		

@@ -8,12 +8,12 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.Transaction;
 
+import org.wescheme.servlet.ConfirmationServlet;
 import org.wescheme.util.Crypt;
 import org.wescheme.util.PMF;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import org.wescheme.user.ConfirmationServlet;
 
 // WeSchemeUser provides an alternative authentication schema to Google Apps Engine.
 
