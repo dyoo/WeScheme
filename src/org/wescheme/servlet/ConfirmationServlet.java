@@ -1,7 +1,13 @@
 package org.wescheme.servlet;
 
 
+import java.util.Collections;
 import java.util.Properties;
+
+import javax.cache.CacheException;
+import javax.cache.CacheFactory;
+import javax.cache.CacheManager;
+import javax.jdo.PersistenceManager;
 import javax.mail.MessagingException;
 import javax.mail.Message;
 import javax.mail.Session;
@@ -13,9 +19,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.wescheme.keys.KeyManager;
 import org.wescheme.util.Base64;
 import org.wescheme.util.Crypt;
+import org.wescheme.util.PMF;
+import org.wescheme.util.Crypt.KeyNotFoundException;
 
+import javax.cache.Cache;
 public class ConfirmationServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 4278468977009746717L;
@@ -25,16 +35,19 @@ public class ConfirmationServlet extends HttpServlet {
 		req.getParameter("name");
 	}
 	
-	public static String sendConfirmationEmail(String addy){
 	
+	public static String sendConfirmationEmail(String addy) throws CacheException, KeyNotFoundException{
+	
+		
+		
 		Properties props = new Properties();
 		Session session = Session.getDefaultInstance(props, null);
 		
-		String key = Base64.encodeBytes(Crypt.getBytes(8));
-
+		Crypt.Token t = KeyManager.generateToken(addy, "dailykey");
+		
 		String msgBody = 
 			"You registered for WeScheme. To complete your WeScheme registration, please follow this link:\n" +
-			"http://www.WeScheme.org/CompleteRegistration?code=" + key + "&name=" + addy +
+			"http://www.WeScheme.org/CompleteRegistration?code=" + t.toString() + "&name=" + addy +
 			"\nThanks,\nThe WeScheme Team";
 		
 		try {
@@ -50,7 +63,7 @@ public class ConfirmationServlet extends HttpServlet {
 			} catch (MessagingException e) {
 				e.printStackTrace();
 			}
-		return key;
+		return t.toString();
 		
 	}
 }
