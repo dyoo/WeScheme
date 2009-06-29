@@ -1,10 +1,13 @@
-package org.wescheme.user;
+package org.wescheme.servlet;
 
 import java.io.IOException;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.wescheme.user.UnauthorizedUserException;
+import org.wescheme.user.WeSchemeUser;
 
 public class CreateUserServlet extends HttpServlet  {
 	private static final long serialVersionUID = 9165706971511057523L;

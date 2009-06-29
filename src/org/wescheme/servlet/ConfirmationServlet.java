@@ -1,4 +1,4 @@
-package org.wescheme.user;
+package org.wescheme.servlet;
 
 
 import java.util.Properties;

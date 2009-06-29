@@ -1,4 +1,4 @@
-package org.wescheme.project;
+package org.wescheme.servlet;
 
 import java.io.IOException;
 
@@ -7,11 +7,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.wescheme.project.Program;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.util.PMF;
 
-public class SaveProgram extends HttpServlet{
+public class SaveProjectServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 4038563388689831368L;
 	

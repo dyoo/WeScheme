@@ -8,12 +8,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.wescheme.dropbox.Dropbox;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.user.UnauthorizedUserException;
 import org.wescheme.util.PMF;
 
-public class DropboxServlet extends HttpServlet {
+public class ShowDropboxServlet extends HttpServlet {
 	private static final long serialVersionUID = 3502366250772332984L;
 
 	
