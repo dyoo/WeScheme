@@ -13,12 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.wescheme.util.PMF;
 
-public class ProgramManager extends HttpServlet {
+public class ProgramManager {
 
-	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = -2759673641570840242L;
 
 	@SuppressWarnings("unchecked")
@@ -29,21 +25,7 @@ public class ProgramManager extends HttpServlet {
 		List<Program> programs = (List<Program>) query.execute();
 		return programs;
 	}
-	
-	public void service(HttpServletRequest req, HttpServletResponse resp) throws IOException{
-		
-		Program prog;
-		List<Program> programs = getPrograms();
-		resp.getWriter().println("got " + programs.size() + " programs");
-		Iterator<Program> pitr = programs.iterator();
-		
-		while( pitr.hasNext() ){
-			prog = (Program) pitr.next();
-		
-			resp.getWriter().println(prog.getOwner() + ": " + prog.getObject());
-			
-		}
-	}
+
 		
 }
 	
