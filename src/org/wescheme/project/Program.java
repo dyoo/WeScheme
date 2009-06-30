@@ -36,6 +36,8 @@ public class Program extends XML {
 	private boolean published_ = false;
 	@Persistent
 	private List<Capability> capabilities_;
+	@Persistent
+	private Long backlink_;
 	
 	private void updateTime(){
 		time_ = System.currentTimeMillis();
@@ -66,6 +68,10 @@ public class Program extends XML {
 	public Program clone(String owner){
 		Program p = new Program(this, owner);
 		return p;
+	}
+	
+	public void setBacklink(Long bl){
+		backlink_ = bl;
 	}
 
 	public void publish(){
@@ -144,6 +150,10 @@ public class Program extends XML {
 
 	public String getAuthor() {
 		return author_;
+	}
+	
+	public void setAuthor(String author) {
+		author_ = author;
 	}
 	
 	
