@@ -30,7 +30,7 @@ public class AddBinServlet extends HttpServlet {
 			SessionManager sm = new SessionManager();
 			userSession = sm.authenticate(req, resp);
 			
-			if( sm.isIntentional(req, resp) ){
+			if( !sm.isIntentional(req, resp) ){
 				throw new UnauthorizedUserException();
 			}
 			
@@ -45,8 +45,6 @@ public class AddBinServlet extends HttpServlet {
 			if( userSession.getName().equals(db.owner()) ){
 				db.addBin(binName);
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
 		} catch (UnauthorizedUserException e) {
 			try {
 				resp.sendError(500);

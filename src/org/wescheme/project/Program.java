@@ -17,20 +17,20 @@ public class Program extends XML {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-	private Long id;
+	protected Long id;
 	
 	@Persistent
-	private String title_;
+	protected String title_;
 	@Persistent
-	private ObjectCode obj_;
+	protected ObjectCode obj_;
 	@Persistent
-	private SourceCode src_;
+	protected SourceCode src_;
 	@Persistent
-	private String owner_;
+	protected String owner_;
 	@Persistent
-	private String author_;
+	protected String author_;
 	@Persistent
-	private long time_;
+	protected long time_;
 	@SuppressWarnings("unused")
 	@Persistent
 	private boolean published_ = false;
@@ -131,6 +131,19 @@ public class Program extends XML {
 		
 		return root;
 		
+	}
+
+	public boolean isPublished() {
+		
+		return published_;
+	}
+
+	public String getTitle() {
+		return title_;
+	}
+
+	public String getAuthor() {
+		return author_;
 	}
 	
 	

@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
@@ -120,6 +121,10 @@ public class Crypt {
 		
 		public String toString(){
 			return Base64.encodeBytes(_val);
+		}
+		
+		public boolean equals(Token t){
+			return Arrays.equals(_val, t._val);
 		}
 	}
 	

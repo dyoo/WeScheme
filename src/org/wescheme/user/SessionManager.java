@@ -26,7 +26,7 @@ import com.google.appengine.api.users.UserServiceFactory;
 public class SessionManager {
 	
 	// test for POST data double submission to ward against CSRF.
-	public boolean isIntentional(HttpServletRequest req, HttpServletResponse resp) throws IOException{
+	public boolean isIntentional(HttpServletRequest req, HttpServletResponse resp) {
 		String tokenPOST 	= req.getParameter("token");
 		Cookie[] cookies 	= req.getCookies();
 		String token		= Cookies.getCookie(cookies, "token");
@@ -176,14 +176,9 @@ public class SessionManager {
 
 	public void logout(HttpServletRequest req, HttpServletResponse resp) {
 	
-		try {
-			if( isIntentional(req, resp) ){
-				resp.addCookie(new Cookie("session", ""));
-				resp.addCookie(new Cookie("token", ""));			
-			}
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if( isIntentional(req, resp) ){
+			resp.addCookie(new Cookie("session", ""));
+			resp.addCookie(new Cookie("token", ""));			
 		}
 		
 	}
