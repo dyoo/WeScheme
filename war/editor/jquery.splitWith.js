@@ -25,7 +25,7 @@
       var range = document.body.createTextRange(tar);
       range.moveToElementText();
       range.select();
-    } else if (window.getSelection()) {
+    } else if (window.getSelection) {
       var range = document.createRange();
       range.selectNodeContents(tar);
       window.getSelection().addRange(range);
