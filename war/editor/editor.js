@@ -4,8 +4,22 @@ var keyHold = false;
 var savedContents = "";
 
 
+
+// makeBreak: key-event -> void
+function makeBreak(e){
+  
+  jQuery(e.target).children("br").replaceWith(">");
+  jQuery(e.target).splitWith('>', $("<br />").addClass("userBreak"));
+  
+
+
+}
+
+
 // makeSexpr: key-event -> void
 function makeSexpr(e){
+ 
+  var tar = jQuery(e.target);
  
  var sexpr =  
    $("<div/>")
@@ -27,8 +41,10 @@ function makeSexpr(e){
        $("<div />")
          .addClass("closeParen")
          .text(")"));
- jQuery(e.target).splitWith('(', sexpr);
-  
+   tar.splitWith('(', sexpr);
+   tar.rectify();
+ 
+   
  keyHold = false;
 }
 
@@ -36,6 +52,12 @@ function makeSexpr(e){
 function sexprKeyHandler(e){
   e.stopPropagation();
   if( keyHold ){ return false; }
+
+  switch(e.keyCode){
+    case 13:
+      setTimeout(function(){makeBreak(e);},1);
+      break;
+  }
 
   switch(e.charCode){
     case 40:
