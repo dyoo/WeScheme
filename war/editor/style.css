@@ -18,7 +18,6 @@
   .sexpr {
     font-family: monospace;
     display: inline-table;
-    white-space: nowrap;
     padding: 0em;
     margin: 0em;
   }
