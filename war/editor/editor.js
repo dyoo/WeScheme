@@ -1,5 +1,10 @@
 var keyHold = false;
 
+
+var savedContents = "";
+
+
+// makeSexpr: key-event -> void
 function makeSexpr(e){
  
  var sexpr =  
@@ -27,6 +32,7 @@ function makeSexpr(e){
  keyHold = false;
 }
 
+// sexprKeyHandler: key-event -> void
 function sexprKeyHandler(e){
   e.stopPropagation();
   if( keyHold ){ return false; }
@@ -43,9 +49,61 @@ function sexprKeyHandler(e){
 }
 
 
+// stringKeyHandler: key-event -> void
 function stringKeyHandler(e){
 
 }
 
+
+// isParen: key-event -> boolean
 function isParen(e){ return (e.charCode == 40); }
+
+// isQuote: key-event -> boolean
 function isQuote(e){ return (e.charCode == 34); }
+
+
+// serialize: node -> string
+function serialize(node) {
+    return $(node).html()
+}
+
+
+// unserialize: string node -> void
+function unserialize(text, node) {
+    $(node).html(text);
+}
+
+
+// doSave: -> void
+// Save the contents of the buffer.
+function doSave() {
+    savedContents = serialize($("#editor"));
+}
+
+
+
+// doRestore: -> void
+// Restore the contents of the buffer.
+function doRestore() {
+    var editor = $("#editor");
+    unserialize(savedContents, editor);
+}
+
+
+
+// Hooking up the save button.
+$(document).ready(function() {
+    $("#save").click(function(e) {
+	doSave();
+	e.preventDefault();
+    });
+
+    $("#restore").click(function(e) {
+	doRestore();
+	e.preventDefault();
+    });
+
+
+    // Do an initial save.
+    doSave();
+});
