@@ -16,7 +16,6 @@ function makeString(e){
   var str =
     $("<div/>")
      .addClass("string")
-     .attr("onkeypress","stringKeyHandler(event)")
      .append(
        $("<div />")
          .addClass("openQuote")
@@ -34,6 +33,8 @@ function makeString(e){
        $("<div />")
          .addClass("closeQuote")
          .text('"'));
+
+  str.keypress(stringKeyHandler);
 
 
   tar.splitWith('"', str);
@@ -90,22 +91,32 @@ function makeSpace(e){
 
 function globalKeyHandler(e){
 
+    console.log(e);
+    console.log(e.data);
+
   switch(e.keyCode){
-    case 13:
+  case 13:                   // newline
       setTimeout(function(){makeBreak(e);},1);
       break;
-    case 32:
+  case 32:                   // space
       setTimeout(function(){makeSpace(e);},1);
       break;
-    case 37:
+  case 37:                   // left
       setTimeout(function(){leftKey(e);},1);
       break;
-    case 39:  
+  case 39:                 // right
       setTimeout(function(){rightKey(e);},1);
       break;
   }
-
 }
+
+
+function leftKey(e) {
+}
+
+function rightKey(e) {
+}
+
 
 
 // sexprKeyHandler: key-event -> void
@@ -113,20 +124,18 @@ function sexprKeyHandler(e){
 
   e.stopPropagation();
 
-  globalKeyHandler(e);
-
   switch(e.charCode){
-    case 34:
+  case 34:                 // quote
       setTimeout(function(){makeString(e);},1);
       break;
-    case 40:
+  case 40:                 // paren
       setTimeout(function(){makeSexpr(e);},1);
       break;
     default:
+      globalKeyHandler(e);
   }
 
   setTimeout(function(){
-//    console.log(jQuery(e.target).html());
     jQuery(e.target).parents(".body").indent();
     },2);
 
@@ -184,18 +193,22 @@ function doRestore() {
 
 
 
-// Hooking up the save button.
+
 $(document).ready(function() {
+
+    // Set the default keyhandler of the editor.
+    $("#editor").keypress(sexprKeyHandler);
+
+
+    // Hooking up the save and restore buttons.
     $("#save").click(function(e) {
 	doSave();
 	e.preventDefault();
     });
-
     $("#restore").click(function(e) {
 	doRestore();
 	e.preventDefault();
     });
-
 
     // Do an initial save.
     doSave();
