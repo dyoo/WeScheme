@@ -84,8 +84,25 @@ public class KeyManager {
 		}
 	}
 	
-	public Crypt.Token generateToken(String username, Crypt.Key k){
-		return new Crypt.Token(username, k);
+	public static Crypt.Token generateToken(String text, String keyName){
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		try {
+			try {
+				CacheFactory cf;
+				cf = CacheManager.getInstance().getCacheFactory();
+				Cache cache = cf.createCache(Collections.emptyMap());
+				Crypt.Key k = KeyManager.retrieveKey(pm, cache, keyName);
+				return generateToken(text, k);
+			} catch (Exception e) {
+				return null;
+			}
+		} finally {
+			pm.close();
+		}
+	}
+	
+	public static Crypt.Token generateToken(String text, Crypt.Key k){
+		return new Crypt.Token(text, k);
 	}
 	
 }

@@ -1,6 +1,7 @@
 package org.wescheme.user;
 import java.util.Arrays;
 
+import javax.cache.CacheException;
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.PersistenceCapable;
@@ -8,12 +9,13 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 import javax.jdo.Transaction;
 
+import org.wescheme.servlet.ConfirmationServlet;
 import org.wescheme.util.Crypt;
 import org.wescheme.util.PMF;
+import org.wescheme.util.Crypt.KeyNotFoundException;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-import org.wescheme.user.ConfirmationServlet;
 
 // WeSchemeUser provides an alternative authentication schema to Google Apps Engine.
 
@@ -22,15 +24,13 @@ public class WeSchemeUser{
 
     @PrimaryKey
     @Persistent
-	private String _name;			// user domain is implicitly "wescheme.org"
+	private String _name;			
     @Persistent
     private long _salt; 			// salt for password storage
     @Persistent
     private byte[] _digest;			// the hash of the salted password
 	@Persistent
 	private boolean _active;		// is the account active?
-	@Persistent
-	private String _key;			// key used for account activation
 	@SuppressWarnings("unused")
 	@Persistent
 	private String _email;
@@ -55,7 +55,7 @@ public class WeSchemeUser{
 		
 	}
 	
-	public static void createUser(String username, String password, String email) throws UnauthorizedUserException{
+	public static void createUser(String username, String password, String email) throws UnauthorizedUserException, CacheException, KeyNotFoundException{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Transaction tx = pm.currentTransaction();
 
@@ -67,7 +67,7 @@ public class WeSchemeUser{
 				pm.getObjectById(WeSchemeUser.class, k);
 				throw new UnauthorizedUserException();
 			} catch (JDOObjectNotFoundException e) {
-				String key = ConfirmationServlet.sendConfirmationEmail(email);
+				String key = ConfirmationServlet.sendConfirmationEmail(username, email);
 				WeSchemeUser u = new WeSchemeUser(username, password, email, key);
 				pm.makePersistent(u);
 				tx.commit();
@@ -81,10 +81,8 @@ public class WeSchemeUser{
 			
 	}
 
-	public boolean activate(String key){
-		if( key == _key ){
-			_active = true;
-		}
+	public boolean activate(){
+		_active = true;
 		return _active;
 	}
 	
@@ -96,8 +94,7 @@ public class WeSchemeUser{
     	_name = username;
     	_salt = Crypt.makeLong();
     	_digest = makePasswordHash(password, _salt);
-    	_active = true;
-    	_key  	= key;
+    	_active = true; //TODO in production, this should be false.
     	_email 	= email;
     }
 	
