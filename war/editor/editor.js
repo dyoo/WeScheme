@@ -1,6 +1,3 @@
-var keyHold = false;
-
-
 var savedContents = "";
 
 
@@ -95,8 +92,8 @@ function makeSpace(e){
 
 // sexprKeyHandler: key-event -> void
 function sexprKeyHandler(e){
+
   e.stopPropagation();
-  if( keyHold ){ return false; }
 
   switch(e.keyCode){
     case 13:
@@ -111,7 +108,6 @@ function sexprKeyHandler(e){
       setTimeout(function(){makeString(e);},1);
       break;
     case 40:
-      keyHold = true;
       setTimeout(function(){makeSexpr(e);},1);
       break;
     default:

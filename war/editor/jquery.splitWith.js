@@ -4,11 +4,7 @@
 	
 	    var prefix;
 	    var suffix;
-	    var toFocus = null;
-	    
-	    if( elem != null ){
-	      toFocus = $(elem).children(".body").children(".data");
-	    }
+
 	
 		if (typeof split == "string"){
 			
@@ -39,15 +35,9 @@
    		this.append(prototypeNode.clone(true).text(suffix));
    	}
     
-    if( toFocus == null ){
-      toFocus = this.children(":last");
-    }
-    
     this.unbind("keypress");
     this.addClass("wrapper");
     this.attr("contenteditable","false");
-    
-    toFocus.focus();
 
 
  

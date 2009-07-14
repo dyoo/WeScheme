@@ -10,12 +10,12 @@
     height: 100%;
     padding: 1em;
     background-color: SteelBlue;
-    font-size: 1.5em;
+    font-size: 1.25em;
     display: block;
   }
 
   .string {
-    color : lightgreen;
+    font-style: oblique;
   }
 
   .sexpr {
