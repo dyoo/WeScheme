@@ -99,19 +99,29 @@ function globalKeyHandler(e){
       setTimeout(function(){makeSpace(e);},1);
       break;
   case 37:                   // left
-      setTimeout(function(){leftKey(e);},1);
+      leftKey(e);
       break;
   case 39:                 // right
-      setTimeout(function(){rightKey(e);},1);
+      rightKey(e);
       break;
   }
 }
 
 
 function leftKey(e) {
+    var aSelection = getCursorSelection();
+    if(aSelection.atStart()) {
+	e.preventDefault();
+	console.log("should jump left");
+    }
 }
 
 function rightKey(e) {
+    var aSelection = getCursorSelection();
+    if (aSelection.atEnd()) {
+	e.preventDefault();
+	console.log("should jump right");
+    }
 }
 
 
