@@ -88,12 +88,7 @@ function makeSpace(e){
 
 }
 
-
-
-// sexprKeyHandler: key-event -> void
-function sexprKeyHandler(e){
-
-  e.stopPropagation();
+function globalKeyHandler(e){
 
   switch(e.keyCode){
     case 13:
@@ -101,7 +96,24 @@ function sexprKeyHandler(e){
       break;
     case 32:
       setTimeout(function(){makeSpace(e);},1);
+      break;
+    case 37:
+      setTimeout(function(){leftKey(e);},1);
+      break;
+    case 39:  
+      setTimeout(function(){rightKey(e);},1);
+      break;
   }
+
+}
+
+
+// sexprKeyHandler: key-event -> void
+function sexprKeyHandler(e){
+
+  e.stopPropagation();
+
+  globalKeyHandler(e);
 
   switch(e.charCode){
     case 34:
@@ -127,10 +139,11 @@ function stringKeyHandler(e){
 	e.stopPropagation();
 	
 	switch(e.keyCode){
-      case 13:
-        setTimeout(function(){makeBreak(e);},1);
-        break;
+      case 13: 			// space
+      case 32: 			// return
+        return;
       default:
+        globalKeyHandler(e);
     }
 }
 

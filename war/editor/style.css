@@ -32,12 +32,18 @@
     top: 0px;
   }
 
+  .data {
+    display: inline;
+    padding: 0em;
+    margin:  0em;
+  }
 
   .closeParen {
     position: relative;
     display: inline;
     bottom: 0px;
     right: 0em;
+    
   }
 
   .body {
