@@ -40,7 +40,12 @@ function makeString(e){
 
 
   tar.splitWith('"', str);
-  tar.children(".string").children(".body").contentFocus();
+  
+  str.children(".body").children(".data").focus();
+  str.children(".body").children(".data").contentFocus();
+
+//  tar.children(".string").children(".body").contentFocus();
+
 
 }
 
@@ -71,7 +76,11 @@ function makeSexpr(e){
          .addClass("closeParen")
          .text(")"));
    tar.splitWith('(', sexpr);
-   tar.children(".string").children(".body").contentFocus();
+
+  sexpr.children(".body").children(".data").focus();
+  sexpr.children(".body").children(".data").contentFocus();
+
+
 }
 
 // makeSpace: key-event -> void
@@ -109,7 +118,7 @@ function sexprKeyHandler(e){
   }
 
   setTimeout(function(){
-    console.log(jQuery(e.target).html());
+//    console.log(jQuery(e.target).html());
     jQuery(e.target).parents(".body").indent();
     },2);
 
