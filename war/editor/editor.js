@@ -9,7 +9,39 @@ var savedContents = "";
 function makeBreak(e){
 
   jQuery(e.target).splitWith($("<br />").addClass("userBreak"));
+  jQuery(e.target).children("br").next().contentFocus();
   
+}
+
+// makeString: key-event -> void
+function makeString(e){
+  var tar = jQuery(e.target);
+  var str =
+    $("<div/>")
+     .addClass("string")
+     .attr("onkeypress","stringKeyHandler(event)")
+     .append(
+       $("<div />")
+         .addClass("openQuote")
+         .text('"'))
+     .append(
+       $("<div />")
+         .addClass("body")
+         .attr("contenteditable","false")    
+         .append(
+           $("<div />")
+             .addClass("data")
+             .attr("contenteditable","true")
+             .text("...")))
+     .append(
+       $("<div />")
+         .addClass("closeQuote")
+         .text('"'));
+
+
+  tar.splitWith('"', str);
+  tar.children(".string").children(".body").contentFocus();
+
 }
 
 
@@ -39,6 +71,7 @@ function makeSexpr(e){
          .addClass("closeParen")
          .text(")"));
    tar.splitWith('(', sexpr);
+   tar.children(".string").children(".body").contentFocus();
 }
 
 // makeSpace: key-event -> void
@@ -48,6 +81,8 @@ function makeSpace(e){
 
 
 }
+
+
 
 // sexprKeyHandler: key-event -> void
 function sexprKeyHandler(e){
@@ -63,6 +98,9 @@ function sexprKeyHandler(e){
   }
 
   switch(e.charCode){
+    case 34:
+      setTimeout(function(){makeString(e);},1);
+      break;
     case 40:
       keyHold = true;
       setTimeout(function(){makeSexpr(e);},1);
@@ -81,7 +119,14 @@ function sexprKeyHandler(e){
 
 // stringKeyHandler: key-event -> void
 function stringKeyHandler(e){
-
+	e.stopPropagation();
+	
+	switch(e.keyCode){
+      case 13:
+        setTimeout(function(){makeBreak(e);},1);
+        break;
+      default:
+    }
 }
 
 
