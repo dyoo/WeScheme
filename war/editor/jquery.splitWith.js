@@ -1,35 +1,35 @@
 (function($){
 
-	$.fn.splitWith = function(ch, elem){
+	$.fn.splitWith = function(split, elem){
 	
-    var txt = this.text();
-    var loc = txt.indexOf(ch);
-    var prefix = txt.substring(0,loc);
-    var suffix = txt.substring(loc+1);
+	    var prefix;
+	    var suffix;
+	
+		if (typeof split == "string"){
+			
+			 var txt = this.text();
+		     var loc = txt.indexOf(split);
+             prefix = txt.substring(0,loc);
+             suffix = txt.substring(loc+1);
 
-    var prefNode = this.clone(true).empty().text(prefix);
-    var sufNode  = this.clone(true).empty().text(suffix);
-    
-    this.empty();
-    this.append(prefNode);
+		     
+		} else if (elem == null){
+		     elem = split;
+			 var nodes = $(this).contents();
+			 prefix = nodes.get(0).nodeValue;
+			 suffix = nodes.get(2).nodeValue;
+		}
+		
+	this.empty();
+    var prefNode = this.clone(true).text(prefix);
+    var sufNode  = this.clone(true).text(suffix);
+    this.append(prefNode); 
     this.append(elem);
     this.append(sufNode);
     this.unbind("keypress");
     this.addClass("wrapper");
     this.attr("contenteditable","false");
-    var tar = this.find(".data").get(1);
-
-    tar.focus();
-
-    if (document.selection) {
-      var range = document.body.createTextRange(tar);
-      range.moveToElementText();
-      range.select();
-    } else if (window.getSelection) {
-      var range = document.createRange();
-      range.selectNodeContents(tar);
-      window.getSelection().addRange(range);
-    }
+ 
   }
 
 })(jQuery);  
