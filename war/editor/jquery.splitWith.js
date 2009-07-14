@@ -49,16 +49,7 @@
     
     toFocus.focus();
 
-    if (document.selection) {
-      var range = document.body.createTextRange(toFocus);
-      range.moveToElementText();
-      range.select();
-    } else if (window.getSelection) {
-      var range = document.createRange();
-      range.selectNodeContents($(toFocus).get(0));
-      window.getSelection().addRange(range);
-    }
-   
+
  
   }
 
