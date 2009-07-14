@@ -14,6 +14,9 @@
     display: block;
   }
 
+  .string {
+    color : lightgreen;
+  }
 
   .sexpr {
     font-family: monospace;
@@ -28,6 +31,7 @@
     left: 0px;
     top: 0px;
   }
+
 
   .closeParen {
     position: relative;
