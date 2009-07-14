@@ -1,4 +1,4 @@
-package org.wescheme.dropbox;
+package org.wescheme.servlet;
 
 import java.io.IOException;
 
@@ -8,22 +8,32 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.wescheme.dropbox.Dropbox;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
+import org.wescheme.user.UnauthorizedUserException;
 import org.wescheme.util.PMF;
 
 public class AddBinServlet extends HttpServlet {
 	private static final long serialVersionUID = -182869406403756507L;
-
+	
 	public void doPost(HttpServletRequest req, HttpServletResponse resp){
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Transaction tx = pm.currentTransaction();
 		
 		try{
+			
+			
+			
 			tx.begin();
 			Session userSession;
 			SessionManager sm = new SessionManager();
 			userSession = sm.authenticate(req, resp);
+			
+			if( !sm.isIntentional(req, resp) ){
+				throw new UnauthorizedUserException();
+			}
+			
 			Long dbID = new Long(req.getParameter("dbid"));
 			
 			String binName = req.getParameter("binName");
@@ -35,8 +45,13 @@ public class AddBinServlet extends HttpServlet {
 			if( userSession.getName().equals(db.owner()) ){
 				db.addBin(binName);
 			}
+		} catch (UnauthorizedUserException e) {
+			try {
+				resp.sendError(500);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 		} finally { 
-			//TODO Should we retry if we have contention? There shouldn't be races in bin creation.
 			if(tx.isActive()){
 				tx.rollback();
 			}

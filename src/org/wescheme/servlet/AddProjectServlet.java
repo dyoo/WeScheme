@@ -1,10 +1,12 @@
-package org.wescheme.dropbox;
+package org.wescheme.servlet;
 
 import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.wescheme.dropbox.Dropbox;
+import org.wescheme.dropbox.Entry;
 import org.wescheme.project.Program;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
@@ -15,6 +17,7 @@ public class AddProjectServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1927887337443757869L;
 
+	@SuppressWarnings("unused")
 	public void doPost(HttpServletRequest req, HttpServletResponse resp){
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		
@@ -23,7 +26,15 @@ public class AddProjectServlet extends HttpServlet {
 
 			Session userSession;
 			SessionManager sm = new SessionManager();
+			
+			if( !sm.isIntentional(req, resp) ){
+				resp.sendError(500);
+				return;
+			}
+			
 			userSession = sm.authenticate(req, resp);
+			
+			
 			String userName = userSession.getName();
 			Long dbID = new Long(req.getParameter("dbID"));
 			String binID = req.getParameter("binID");

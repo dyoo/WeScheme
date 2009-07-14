@@ -1,10 +1,15 @@
-package org.wescheme.user;
+package org.wescheme.servlet;
 
 import java.io.IOException;
 
+import javax.cache.CacheException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.wescheme.user.UnauthorizedUserException;
+import org.wescheme.user.WeSchemeUser;
+import org.wescheme.util.Crypt.KeyNotFoundException;
 
 public class CreateUserServlet extends HttpServlet  {
 	private static final long serialVersionUID = 9165706971511057523L;
@@ -19,6 +24,12 @@ public class CreateUserServlet extends HttpServlet  {
 			//sm.login(req, resp);
 			resp.getWriter().println("created " + req.getParameter("user"));
 		} catch (UnauthorizedUserException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (CacheException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (KeyNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

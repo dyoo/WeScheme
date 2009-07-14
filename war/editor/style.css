@@ -1,0 +1,52 @@
+  div {
+    display: inline;
+    padding: 0px;
+  }
+
+  .editor {
+    max-height: 600px;
+    max-width: 800px;
+    width: 100%;
+    height: 100%;
+    padding: 1em;
+    background-color: SteelBlue;
+    font-size: 1.25em;
+    display: block;
+  }
+
+  .string {
+    font-style: oblique;
+  }
+
+  .sexpr {
+    font-family: monospace;
+    display: inline-table;
+    padding: 0em;
+    margin: 0em;
+  }
+
+  .openParen {
+    position: relative;
+    display: table-cell;
+    left: 0px;
+    top: 0px;
+  }
+
+  .data {
+    display: inline;
+    padding: 0em;
+    margin:  0em;
+  }
+
+  .closeParen {
+    position: relative;
+    display: inline;
+    bottom: 0px;
+    right: 0em;
+    
+  }
+
+  .body {
+    display: inline;
+  }
+  
