@@ -20,7 +20,6 @@ CursorSelection.prototype.atStart = function() {
 };
 
 CursorSelection.prototype.atEnd = function() {
-    //return this.start == 0;
     return this.start == this.end && this.node.text().length == this.end;
 
 };

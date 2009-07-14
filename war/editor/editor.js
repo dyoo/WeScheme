@@ -104,15 +104,25 @@ function globalKeyHandler(e){
   case 39:                 // right
       rightKey(e);
       break;
+  case 8:
+      backspaceKey(e);
+      break;
+  case 46:
+      deleteKey(e);
+      break;
+ 
   }
 }
 
 
+// FIXME: We may need to do something clever here, at least according to
+// http://stackoverflow.com/questions/202285/trigger-a-keypress-with-jqueryand-specify-which-key-was-pressed
 function leftKey(e) {
+
     var aSelection = getCursorSelection();
     if(aSelection.atStart()) {
 	e.preventDefault();
-	console.log("should jump left");
+	console.log("We should jump left");
     }
 }
 
@@ -120,9 +130,30 @@ function rightKey(e) {
     var aSelection = getCursorSelection();
     if (aSelection.atEnd()) {
 	e.preventDefault();
-	console.log("should jump right");
+	console.log("We should jump right");
     }
 }
+
+
+function backspaceKey(e) {
+    var aSelection = getCursorSelection();
+    if (aSelection.atStart()) {
+	e.preventDefault();
+	console.log("We should delete backward");
+    }
+}
+
+function deleteKey(e) {
+    var aSelection = getCursorSelection();
+    console.log(aSelection);
+    if (aSelection.atEnd()) {
+	e.preventDefault();
+	console.log("We should delete forward");
+    }
+}
+
+
+
 
 
 
@@ -130,6 +161,8 @@ function rightKey(e) {
 function sexprKeyHandler(e){
 
   e.stopPropagation();
+  console.log(e);
+
 
   switch(e.charCode){
   case 34:                 // quote
@@ -196,6 +229,8 @@ function doSave() {
 function doRestore() {
     var editor = $("#editor");
     unserialize(savedContents, editor);
+    // FIXME: reinstate key handlers.
+
 }
 
 
