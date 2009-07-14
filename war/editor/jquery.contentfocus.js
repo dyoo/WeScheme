@@ -8,7 +8,6 @@
     } else if (window.getSelection) {
       var range = document.createRange();
 
-      console.log(this);
       range.selectNodeContents($(this).get(0));
       window.getSelection().addRange(range);
     }

@@ -91,9 +91,6 @@ function makeSpace(e){
 
 function globalKeyHandler(e){
 
-    console.log(e);
-    console.log(e.data);
-
   switch(e.keyCode){
   case 13:                   // newline
       setTimeout(function(){makeBreak(e);},1);
