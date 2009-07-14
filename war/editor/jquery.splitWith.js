@@ -4,7 +4,11 @@
 	
 	    var prefix;
 	    var suffix;
-	    var toFocus = elem;
+	    var toFocus = null;
+	    
+	    if( elem != null ){
+	      toFocus = $(elem).children(".body").children(".data");
+	    }
 	
 		if (typeof split == "string"){
 			
@@ -22,20 +26,23 @@
 			 
 		}
 		
+	var prototypeNode = this.clone(true).empty();
+	this.empty();
 	
-    var prefNode = this.clone(true).text(prefix);
-    
-    
-    var sufNode  = this.clone(true).text(suffix);
-    this.empty();
-    
-    if( toFocus == null ){
-      toFocus = sufNode;
+	if( jQuery.trim(prefix) != "" && prefix != null ){
+    	this.append(prototypeNode.clone(true).text(prefix));
     }
     
-    this.append(prefNode); 
     this.append(elem);
-    this.append(sufNode);
+    
+    if( jQuery.trim(suffix) != "" && suffix != null ){
+   		this.append(prototypeNode.clone(true).text(suffix));
+   	}
+    
+    if( toFocus == null ){
+      toFocus = this.children(":last");
+    }
+    
     this.unbind("keypress");
     this.addClass("wrapper");
     this.attr("contenteditable","false");
