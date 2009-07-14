@@ -42,7 +42,7 @@ function makeSexpr(e){
          .addClass("closeParen")
          .text(")"));
    tar.splitWith('(', sexpr);
-   tar.rectify();
+   
  
    
  keyHold = false;
@@ -66,6 +66,11 @@ function sexprKeyHandler(e){
       break;
     default:
   }
+
+  setTimeout(function(){
+    console.log(jQuery(e.target).html());
+    jQuery(e.target).parents(".body").indent();
+    },2);
 
   return true;
 }
