@@ -57,4 +57,36 @@
       return p;
     }
 
+    
+
+    $.fn.successorWith = function(f){
+       var p = $(this).predecessor();
+       while(true) {
+        if( f(p) ){
+          return p;
+        }
+        if( p.size() != 0 ){
+          p = $(p).predecessor();
+        } else {
+          return p;
+        }
+      }
+    }
+
+    }
+
+    $.fn.predecessorWith = function(f){
+  
+     var p = $(this).predecessor();
+     while(true) {
+        if( f(p) ){
+          return p;
+        }
+        if( p.size() != 0 ){
+          p = $(p).predecessor();
+        } else {
+          return p;
+        }
+      }
+    }
 })(jQuery);
