@@ -122,7 +122,15 @@ function leftKey(e) {
     var aSelection = getCursorSelection();
     if(aSelection.atStart()) {
 	e.preventDefault();
-	console.log("We should jump left");
+	var predecessor = aSelection.node.predecessorWith(
+	    function(p){ 
+		return p.attr("contenteditable") == "true";
+	    });
+	if (predecessor.size() > 0) {
+	    predecessor.focus();
+	    predecessor.contentFocus();
+	}
+
     }
 }
 
@@ -130,7 +138,15 @@ function rightKey(e) {
     var aSelection = getCursorSelection();
     if (aSelection.atEnd()) {
 	e.preventDefault();
-	console.log("We should jump right");
+	var successor =	aSelection.node.successorWith(
+	    function(p){ 
+		return p.attr("contenteditable") == "true";
+	    });
+
+	if (successor.size() > 0) {
+	    successor.focus();
+	    successor.contentFocus();
+	}
     }
 }
 
