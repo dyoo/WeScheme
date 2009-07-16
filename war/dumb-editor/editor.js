@@ -53,8 +53,10 @@ var WeSchemeEditor;
 	jQuery.post(ajaxUrl, data, callback, type);
     };
 	
+
     WeSchemeEditor.prototype.run = function() {
     };
+
 
 
 
