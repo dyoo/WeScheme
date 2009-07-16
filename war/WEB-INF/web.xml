@@ -110,7 +110,24 @@
 		<servlet-name>openEditor</servlet-name>
 		<url-pattern>/openEditor</url-pattern>
 	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>openEditor</servlet-name>
+		<servlet-class>org.wescheme.servlet.OpenEditor</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>openEditor</servlet-name>
+		<url-pattern>/openEditor</url-pattern>
+	</servlet-mapping>
 	
+	<servlet>
+		<servlet-name>ajaxHandler</servlet-name>
+		<servlet-class>org.wescheme.servlet.AjaxHandler</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ajaxHandler</servlet-name>
+		<url-pattern>/ajax</url-pattern>
+	</servlet-mapping>
 	
 
 </web-app>

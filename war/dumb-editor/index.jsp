@@ -3,7 +3,10 @@
 <script src="editor.js"></script>
 <script src="textcontainer.js"></script>
 <script src="../compiler.js"></script>
+
+<!-- Order dependent -->
 <script src="../editor/jquery.js"></script>
+
 <script>
   jQuery(document).ready(function() {
   var myEditor = new WeSchemeEditor(
