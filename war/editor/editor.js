@@ -4,8 +4,10 @@ var savedContents = "";
 
 // makeBreak: key-event -> void
 function makeBreak(e){
-
-  jQuery(e.target).splitWith($("<br />").addClass("userBreak"));
+  var brk = $("<br />")
+             .addClass("userBreak")
+             .attr("contenteditable","true");
+  jQuery(e.target).splitWith(brk);
   jQuery(e.target).children("br").next().contentFocus();
   
 }
