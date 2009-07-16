@@ -100,5 +100,17 @@
 		<servlet-name>dropbox</servlet-name>
 		<url-pattern>/dropbox</url-pattern>
 	</servlet-mapping>
+	
+	
+	<servlet>
+		<servlet-name>openEditor</servlet-name>
+		<servlet-class>org.wescheme.servlet.OpenEditor</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>openEditor</servlet-name>
+		<url-pattern>/openEditor</url-pattern>
+	</servlet-mapping>
+	
+	
 
 </web-app>
