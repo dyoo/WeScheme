@@ -16,6 +16,7 @@ var WeSchemeEditor;
 
     WeSchemeEditor.prototype.save = function() {
 	var that = this;
+
 	if (this.pid == false) {
 	    var data = { action: "saveNew",
 			 code: this.defn.getCode()};
@@ -33,10 +34,13 @@ var WeSchemeEditor;
 	                 pid: this.pid };
 	    var type = "text";
 	    var callback = function(data) {
+		console.log("Saving as " + data);
 	    };
 	    jQuery.post(ajaxUrl, data, callback, type);
 	}
     };
+
+
 
     WeSchemeEditor.prototype.load = function() {
 	var data = { action: "load",
