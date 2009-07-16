@@ -35,12 +35,8 @@
    		this.append(prototypeNode.clone(true).text(suffix));
    	}
     
-    this.unbind("keypress");
-    this.addClass("wrapper");
-    this.attr("contenteditable","false");
-
-
- 
+    this.unwrap();
+    
   }
 
 })(jQuery);  

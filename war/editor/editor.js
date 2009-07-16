@@ -124,13 +124,15 @@ function leftKey(e) {
     var aSelection = getCursorSelection();
     if(aSelection.atStart()) {
 	e.preventDefault();
+  console.log("at left");
 	var predecessor = aSelection.node.predecessorWith(
 	    function(p){ 
-		return p.attr("contenteditable") == "true";
+		return p.attr("contenteditable") == "true" && p.children().size() == 0;
 	    });
 	if (predecessor.size() > 0) {
-	    predecessor.focus();
-	    predecessor.contentFocus();
+      console.log(predecessor.text());
+	    predecessor.get(0).focus();
+      predecessor.focusEnd();
 	}
 
     }
@@ -142,12 +144,11 @@ function rightKey(e) {
 	e.preventDefault();
 	var successor =	aSelection.node.successorWith(
 	    function(p){ 
-		return p.attr("contenteditable") == "true";
+		return p.attr("contenteditable") == "true" && p.children().size() == 0;
 	    });
 
 	if (successor.size() > 0) {
-	    successor.focus();
-	    successor.contentFocus();
+	    successor.focusStart();
 	}
     }
 }
