@@ -6,10 +6,22 @@ var savedContents = "";
 function makeBreak(e){
   var brk = $("<br />")
              .addClass("userBreak")
-             .attr("contenteditable","true");
+             .attr("contenteditable","false");
   jQuery(e.target).splitWith(brk);
-  jQuery(e.target).children("br").next().contentFocus();
-  
+  brk.next().focusStart();
+}
+
+// makeSpace: key-event -> void
+function makeSpace(e){
+
+  var tar = jQuery(e.target);
+  var space =
+    $("<div/>")
+      .addClass("space");
+
+  tar.splitWith(" ", space);
+  space.next().focusStart();
+
 }
 
 // makeString: key-event -> void
@@ -68,7 +80,7 @@ function makeSexpr(e){
          .attr("contenteditable","false")
          .append(
            $("<div />")
-             .addClass("data")
+             .addClass("data ")
              .attr("contenteditable","true")
              .text("...")))
      .append(
@@ -83,22 +95,12 @@ function makeSexpr(e){
 
 }
 
-// makeSpace: key-event -> void
-function makeSpace(e){
-
-  var tar = jQuery(e.target);
-
-
-}
 
 function globalKeyHandler(e){
 
   switch(e.keyCode){
   case 13:                   // newline
       setTimeout(function(){makeBreak(e);},1);
-      break;
-  case 32:                   // space
-      setTimeout(function(){makeSpace(e);},1);
       break;
   case 37:                   // left
       leftKey(e);
@@ -113,6 +115,13 @@ function globalKeyHandler(e){
       deleteKey(e);
       break;
  
+  }
+
+  switch(e.charCode){
+      case 32:                   // space
+      setTimeout(function(){makeSpace(e);},1);
+      break;
+
   }
 }
 

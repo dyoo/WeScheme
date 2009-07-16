@@ -1,5 +1,6 @@
 (function($){
 
+  // node -> void
 	$.fn.unwrap = function(elem){
 		var elements;
 		
