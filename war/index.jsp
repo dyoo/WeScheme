@@ -24,7 +24,10 @@ Welcome anonymous!
 
 <% } %>
 
-<form method="POST" action="http://localhost:8080/publish">
+<a href="/openEditor">Open Editor</a>
+
+
+<form method="POST" action="/publish">
 
 <textarea cols="120" rows="20" name="code"></textarea>
 <input type="checkbox" name="publish" value="publish">
@@ -33,14 +36,14 @@ Welcome anonymous!
 </form>
 <p>
 Fetch programs:
-<form method="POST" action="http://localhost:8080/programManager">
+<form method="POST" action="/programManager">
 <input type="submit" value="fetch programs">
 
 </form>
 </p>
 <p>
 Create User:
-<form method="POST" action="http://localhost:8080/createUser">
+<form method="POST" action="/createUser">
 
 <textarea cols="20" rows="1" name="user"></textarea>
 <textarea cols="20" rows="1" name="email"></textarea>
@@ -51,12 +54,12 @@ Create User:
 </p>
 
 <a href="login.jsp">Login</a>
-<form method="POST" action="http://localhost:8080/logout">
+<form method="POST" action="/logout">
 <input type="submit" name="logout" value="logout">
 </form>
 <p>
 Key Server:
-<form method="POST" action="http://localhost:8080/keyServer">
+<form method="POST" action="/keyServer">
 <input type="submit" name="Create User">
 </form>
 </p>
