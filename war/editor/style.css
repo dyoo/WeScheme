@@ -38,6 +38,11 @@
     margin:  0em;
   }
 
+  .space {
+   display: inline;
+   padding: 0.25em;
+  }
+
   .closeParen {
     position: relative;
     display: inline;
