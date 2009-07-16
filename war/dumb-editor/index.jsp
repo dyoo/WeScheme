@@ -4,15 +4,31 @@
 <script src="textcontainer.js"></script>
 <script src="../compiler.js"></script>
 
+
+
+<!-- Evaluation and world runtime stuff -->
+<!-- FIXME: bundle into single js for convenience. -->
+<script src="runtime/namespace.js"></script>
+<script src="runtime/kernel.js"></script>
+<script src="runtime/world-config.js"></script>
+<script src="runtime/platform.js"></script>
+<script src="runtime/world.js"></script>
+<script src="runtime/jsworld/jsworld.js"></script>
+<script src="runtime/jsworld.js"></script>
+
+
+
+
 <!-- Order dependent -->
 <script src="../editor/jquery.js"></script>
 
 <script>
   jQuery(document).ready(function() {
   var myEditor = new WeSchemeEditor(
-  { defn: new WeSchemeTextContainer(jQuery("#defn").get(0)),
-  repl: new WeSchemeTextContainer(jQuery("#inter").get(0)),
-  statusbar: new WeSchemeTextContainer(jQuery("#statusbar").get(0)) });
+  { defn: new WeSchemeTextContainer(jQuery("#defn")),
+    repl: new WeSchemeTextContainer(jQuery("#inter")),
+    jsworldDiv: jQuery("#jsworld-div").get(0),
+    statusbar: new WeSchemeTextContainer(jQuery("#statusbar")) });
   
   jQuery("#save").click(function() { myEditor.save(); });
   jQuery("#load").click(function() { myEditor.load(); });
@@ -38,6 +54,12 @@
 <textarea id="inter" style="width:100%; height:45%">
 </textarea>
 </div>
+
+
+
+<!-- FIXME: make this appear or disappear depending on usage. -->
+<div id="jsworld-div"></div>
+
 
 
 
