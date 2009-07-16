@@ -1,79 +1,67 @@
 (function ($){
 
+    // Inorder traversal: Visit a node, then visit its children.
+
+
+    // Returns the immediate predecessor to this node.
     $.fn.predecessor = function(){
-      var p = this;
-      var t;
+	var p = this;
+	if (p.prev().size() > 0) {
+	    p = p.prev();
+	    while(p.children(":last").size() > 0) {
+		p = p.children(":last");
+	    }
+	    return p;
+	} else {
+	    return p.parent();
+	}
+    };
+    
 
-      // Grab the node to our left, if it doesn't exist, go up until we find one
-      do{
-        t = $(p).prev();
-        if( t.size() == 0 ){
-          t = p.parent();
-        } else {
-          p = t;
-          break;
-        }
-        p = t;
-      } while( p.size() == 0 )
-      
-      t = p;
-
-      //Descend to the right
-      do{
-       p = t;
-       t = $(p).children(":last");
-
-      } while( t.size() == 1 )
-
-      return p;
-
-    }
-
+    // Returns the immediate successor to this node.
     $.fn.successor = function(){
-      var p = this;
-      var t;
+	var p = this;
+	
+	// Descend toward the left if we can
+	if (p.children(":first").size() > 0) {
+	    return p.children(":first");
+	}
 
-      // Grab the node to our left, if it doesn't exist, go up until we find one
-      do{
-        t = $(p).next();
-        if( t.size() == 0 ){
-          t = p.parent();
-        } else {
-          p = t;
-          break;
-        }
-        p = t;
-      } while( p.size() == 0 )
-      
-      t = p;
+	while(p.size() > 0 && p.next().size() == 0) {
+	    p = p.parent();
+	}
+	return p.next();
+    };
 
-      //Descend to the right
-      do{
-       p = t;
-       t = $(p).children(":first");
 
-      } while( t.size() == 1 )
+    // Return the successor leaf node.
+    $.fn.leafSuccessor = function() {
+	return this.successorWith(function(p) { return p.children().size() == 0; });
+    };
 
-      return p;
-    }
 
+
+    // Return the predecessor leaf node;
+    $.fn.leafPredecessor = function() {
+	return this.predecessorWith(function(p) { return p.children().size() == 0; });
+    };
     
 
     $.fn.successorWith = function(f){
-       var p = $(this).predecessor();
+       var p = $(this).successor();
        while(true) {
         if( f(p) ){
           return p;
         }
         if( p.size() != 0 ){
-          p = $(p).predecessor();
+          p = $(p).successor();
         } else {
           return p;
         }
-      }
-    }
+       }
+    };
+    
 
-    }
 
     $.fn.predecessorWith = function(f){
   
@@ -88,5 +76,5 @@
           return p;
         }
       }
-    }
+    };
 })(jQuery);
