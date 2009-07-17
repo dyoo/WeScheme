@@ -1,15 +1,21 @@
 <html>
 <head>
+
+<script src="../editor/jquery.js"></script>
+<script src="../editor/jquery.createdomnodes.js"></script>
+
+
 <script src="editor.js"></script>
 <script src="textcontainer.js"></script>
-<script src="../compiler.js"></script>
-
+<script src="interaction.js"></script>
 
 
 <!-- Evaluation and world runtime stuff -->
 <!-- FIXME: bundle into single js for convenience. -->
-<script src="runtime/namespace.js"></script>
 <script src="runtime/kernel.js"></script>
+<script src="runtime/compiler.js"></script>
+<script src="runtime/read.js"></script>
+<script src="runtime/namespace.js"></script>
 <script src="runtime/world-config.js"></script>
 <script src="runtime/platform.js"></script>
 <script src="runtime/world.js"></script>
@@ -17,16 +23,12 @@
 <script src="runtime/jsworld.js"></script>
 
 
-
-
-<!-- Order dependent -->
-<script src="../editor/jquery.js"></script>
-
 <script>
   jQuery(document).ready(function() {
   var myEditor = new WeSchemeEditor(
   { defn: new WeSchemeTextContainer(jQuery("#defn").get(0)),
-    repl: new WeSchemeTextContainer(jQuery("#inter").get(0)),
+
+    interactions: jQuery("#inter").get(0),
     jsworldDiv: jQuery("#jsworld-div").get(0),
     statusbar: jQuery("#statusbar"),
     filenameDiv: jQuery("#filenameArea") });
@@ -56,8 +58,7 @@
 
 
 <div>
-<textarea id="inter" style="width:100%; height:45%">
-</textarea>
+<div id="inter" style="width:100%; height:45%"></div>
 </div>
 
 

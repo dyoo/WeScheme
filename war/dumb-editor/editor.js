@@ -5,10 +5,13 @@ var WeSchemeEditor;
 
 
     WeSchemeEditor = function(attrs) {
-	// defn, repl, and statusbar are assumed to be Containers.
+	// defn and statusbar are assumed to be Containers.
 	// The only container we've got so far are TextContainers.
 	this.defn = attrs.defn;  // TextAreaContainer
-	this.repl = attrs.repl;  // TextAreaContainer
+
+	this.interactions = new WeSchemeInteractions(attrs.interactions);
+	this.interactions.reset();
+
 
 	this.statusbar = attrs.statusbar; // JQuery
 	this.filenameDiv = attrs.filenameDiv; // JQuery
@@ -61,6 +64,8 @@ var WeSchemeEditor;
 	
 
     WeSchemeEditor.prototype.run = function() {
+	this.interactions.reset();
+	this.interactions.runCode(this.defn.getCode());
     };
 
 
