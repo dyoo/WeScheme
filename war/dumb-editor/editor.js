@@ -33,14 +33,12 @@ var WeSchemeEditor;
 	    };
 	    jQuery.post("/saveProject", data, callback, type);
 	} else {
-	    console.log("saving as " + this.pid);
 	    var data = { code: this.defn.getCode(),
 	                 pid: this.pid };
 	    var type = "text";
 	    var callback = function(data) {
 		that.notifyOnStatusBar("Program " + that.pid + " saved")
 		that.filenameDiv.text(data);
-		console.log("ok");
 	    };
 	    jQuery.post("/saveProject", data, callback, type);
 	}
