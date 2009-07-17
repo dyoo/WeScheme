@@ -1,14 +1,17 @@
 var WeSchemeTextContainer;
 
 (function() {
-    // container: jquery
+    // container: textarea
     WeSchemeTextContainer = function(container) {
 	this.container = container;
     };
 
     WeSchemeTextContainer.prototype.getCode = function() {
-	var result = this.container.get(0).value;
-	console.log(result);
+	var result = this.container.value;
 	return result;
     };
+
+    WeSchemeTextContainer.prototype.setCode = function(code) {
+	this.container.value = code;
+    }
 })();

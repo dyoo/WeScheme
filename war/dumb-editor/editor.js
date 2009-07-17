@@ -7,9 +7,9 @@ var WeSchemeEditor;
     WeSchemeEditor = function(attrs) {
 	// defn, repl, and statusbar are assumed to be Containers.
 	// The only container we've got so far are TextContainers.
-	this.defn = attrs.defn;
-	this.repl = attrs.repl;
-	this.statusbar = attrs.statusbar;
+	this.defn = attrs.defn;  // TextAreaContainer
+	this.repl = attrs.repl;  // TextAreaContainer
+	this.statusbar = attrs.statusbar; // JQuery
 
 	this.pid = false;
     };
@@ -24,8 +24,7 @@ var WeSchemeEditor;
 	    var callback = function(data) {
 		// The data contains the pid of the saved program.
 		that.pid = data;
-		console.log("hurrah, we were able to save.");
-		console.log("data is " + data);
+		that.notifyOnStatusBar("Program " + that.pid + " saved")
 	    };
 	    jQuery.post(ajaxUrl, data, callback, type);
 	} else {
@@ -34,7 +33,7 @@ var WeSchemeEditor;
 	                 pid: this.pid };
 	    var type = "text";
 	    var callback = function(data) {
-		console.log("Saving as " + data);
+		that.notifyOnStatusBar("Program " + that.pid + " saved")
 	    };
 	    jQuery.post(ajaxUrl, data, callback, type);
 	}
@@ -43,12 +42,14 @@ var WeSchemeEditor;
 
 
     WeSchemeEditor.prototype.load = function() {
+	var that = this;
 	var data = { action: "load",
 		     code: this.defn.getCode(),
 		     pid: this.pid };
 	var type = "text";
 	var callback = function(data) {
-	    this.defn.setCode(data);
+	    that.defn.setCode(data);
+	    that.notifyOnStatusBar("Program " + that.pid + " loaded")
 	};
 	jQuery.post(ajaxUrl, data, callback, type);
     };
@@ -56,6 +57,16 @@ var WeSchemeEditor;
 
     WeSchemeEditor.prototype.run = function() {
     };
+
+
+
+    WeSchemeEditor.prototype.notifyOnStatusBar = function(msg) {
+	var that = this;
+	this.statusbar.show();
+	this.statusbar.text(msg);
+	this.statusbar.fadeIn("slow",
+			      function() { that.statusbar.fadeOut(5000); });
+    }
 
 
 
