@@ -28,7 +28,8 @@
   { defn: new WeSchemeTextContainer(jQuery("#defn").get(0)),
     repl: new WeSchemeTextContainer(jQuery("#inter").get(0)),
     jsworldDiv: jQuery("#jsworld-div").get(0),
-    statusbar: jQuery("#statusbar") });
+    statusbar: jQuery("#statusbar"),
+    filenameDiv: jQuery("#filenameArea") });
   
   jQuery("#save").click(function() { myEditor.save(); });
   jQuery("#load").click(function() { myEditor.load(); });
@@ -43,6 +44,10 @@
 <span><input id="load" type="button" value="Load"></input></span>
 <span><input id="run" type="button" value="Run"></input></span>
 </span>
+
+
+<div id="filenameArea" style="background-color: lightgrey">Unknown</div>
+
 
 <div>
 <textarea id="defn" style="width:100%; height:45%">

@@ -9,7 +9,9 @@ var WeSchemeEditor;
 	// The only container we've got so far are TextContainers.
 	this.defn = attrs.defn;  // TextAreaContainer
 	this.repl = attrs.repl;  // TextAreaContainer
+
 	this.statusbar = attrs.statusbar; // JQuery
+	this.filenameDiv = attrs.filenameDiv; // JQuery
 
 	this.pid = false;
     };
@@ -25,6 +27,7 @@ var WeSchemeEditor;
 		// The data contains the pid of the saved program.
 		that.pid = data;
 		that.notifyOnStatusBar("Program " + that.pid + " saved")
+		that.filenameDiv.text(data);
 	    };
 	    jQuery.post(ajaxUrl, data, callback, type);
 	} else {
@@ -34,6 +37,7 @@ var WeSchemeEditor;
 	    var type = "text";
 	    var callback = function(data) {
 		that.notifyOnStatusBar("Program " + that.pid + " saved")
+		that.filenameDiv.text(data);
 	    };
 	    jQuery.post(ajaxUrl, data, callback, type);
 	}
@@ -49,6 +53,7 @@ var WeSchemeEditor;
 	var type = "text";
 	var callback = function(data) {
 	    that.defn.setCode(data);
+	    that.filenameDiv.text(that.pid);
 	    that.notifyOnStatusBar("Program " + that.pid + " loaded")
 	};
 	jQuery.post(ajaxUrl, data, callback, type);
