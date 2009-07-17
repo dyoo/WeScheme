@@ -10,6 +10,9 @@ WeSchemeInteractions = (function () {
 	    this.prompt = undefined;
 	    this.namespace = undefined;
 	    this.pinfo = undefined;
+
+	    this.prompt = jQuery("<div style='width:100%'><span>&gt;&gt;&gt; <input id=type='text' style='width: 75%'></span></div>");
+	    this.interactionsDiv.append(this.prompt);
     };
 
     
@@ -24,9 +27,12 @@ WeSchemeInteractions = (function () {
     // reset: -> void
     // Clears out the interactions.
     WeSchemeInteractions.prototype.reset = function() {
+	var that = this;
 	this.interactionsDiv.empty();
-	this.prompt = jQuery("<div style='width:100%'><span>&gt;&gt;&gt; <textarea style='width: 75%'></textarea></span></div>");
+	this.prompt = jQuery("<div style='width:100%'><span>&gt;&gt;&gt; <input id=type='text' style='width: 75%'></span></div>");
 	this.interactionsDiv.append(this.prompt);
+
+	this.prompt.contents().keypress(function(e) { that.maybeRunPrompt(e) });
 
 	this.addToInteractions("WeScheme Interactions");
 	this.addToInteractions("---");
@@ -80,20 +86,15 @@ WeSchemeInteractions = (function () {
     };
 
 
-//     // Evaluate the code that's in the prompt.
-//     function runPrompt() {
-// 	addToInteractions(">>> " + this.prompt.value + "\n");
-// 	this.runCode(this.prompt.value);
-// 	this.prompt.value = "";
-//     }
 
 
-
-//     function maybeRunPrompt(keyEvent) {
-// 	if (keyEvent.keyCode == 13) {
-// 	    runPrompt();
-// 	}
-//     }
+    WeSchemeInteractions.prototype.maybeRunPrompt = function(keyEvent) {
+ 	if (keyEvent.keyCode == 13) {
+	    this.addToInteractions(">>> " + this.prompt.find("input").get(0).value + "\n");
+	    this.runCode(this.prompt.find("input").get(0).value);
+ 	} else {
+	}
+    }
 
     return WeSchemeInteractions;
 })();
