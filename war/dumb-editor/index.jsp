@@ -3,6 +3,8 @@
 
 <script src="../editor/jquery.js"></script>
 <script src="../editor/jquery.createdomnodes.js"></script>
+<script src="../safeSubmit.js"></script>
+
 
 
 <script src="editor.js"></script>
