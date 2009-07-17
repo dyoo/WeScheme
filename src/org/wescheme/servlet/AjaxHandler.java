@@ -68,6 +68,7 @@ public class AjaxHandler extends HttpServlet {
 				PrintWriter writer = res.getWriter();
 				writer.write(prog.getId() + "");
 				writer.close();
+				System.out.println("program " + prog.getId() + " saved");
 			}
 		} finally {
 			pm.close();
@@ -97,13 +98,34 @@ public class AjaxHandler extends HttpServlet {
 				PrintWriter writer = res.getWriter();
 				writer.write(prog.getId() + "");
 				writer.close();
+				System.out.println("program " + prog.getId() + "saved.");
 			}
 		} finally {
 			pm.close();
 		}
 	}
 
+	// load a file
+	// params: pid
+	// output: code
+	private void doLoad(HttpServletRequest req, HttpServletResponse res) throws IOException {	
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		Session userSession;
+		SessionManager sm = new SessionManager();
+		try {
+			userSession = sm.authenticate(req, res);			
+			if( null != userSession ){				
+				Long id = (Long) Long.parseLong(req.getParameter("pid"));
+				Key k = KeyFactory.createKey("Program", id);
+    			Program prog = pm.getObjectById(Program.class, k);
+				res.setContentType("text/plain");
+				PrintWriter writer = res.getWriter();
+				writer.write(prog.getSource().toString());
+				writer.close();
+			}
+		} finally {
+			pm.close();
+		}
 	
-	private void doLoad(HttpServletRequest req, HttpServletResponse res) {	
 	}
 }

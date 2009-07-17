@@ -25,10 +25,10 @@
 <script>
   jQuery(document).ready(function() {
   var myEditor = new WeSchemeEditor(
-  { defn: new WeSchemeTextContainer(jQuery("#defn")),
-    repl: new WeSchemeTextContainer(jQuery("#inter")),
+  { defn: new WeSchemeTextContainer(jQuery("#defn").get(0)),
+    repl: new WeSchemeTextContainer(jQuery("#inter").get(0)),
     jsworldDiv: jQuery("#jsworld-div").get(0),
-    statusbar: new WeSchemeTextContainer(jQuery("#statusbar")) });
+    statusbar: jQuery("#statusbar") });
   
   jQuery("#save").click(function() { myEditor.save(); });
   jQuery("#load").click(function() { myEditor.load(); });
@@ -61,9 +61,7 @@
 <div id="jsworld-div"></div>
 
 
-
-
-<div id="statusbar"></div>
+<div id="statusbar" style="background-color: lightgrey"></div>
 
 </body>
 
