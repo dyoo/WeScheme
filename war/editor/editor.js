@@ -24,6 +24,33 @@ function makeSpace(e){
 
 }
 
+// makeLiteral : key-event -> void
+function makeLiteral(e){
+  var tar = jQuery(e.target);
+  var lit =
+    $("<div/>")
+     .addClass("literal")
+     .append($("<div/>").addClass("space"))
+     .append(
+       $("<div />")
+         .addClass("tick")
+         .text('\''))
+     .append(
+       $("<div />")
+         .addClass("body")
+         .attr("contenteditable","false")
+         .append(
+           $("<div />")
+             .addClass("data")
+             .attr("contenteditable","true")
+             .text("...")))
+     .append($("<div/>").addClass("space"));
+  tar.splitWith("'", lit);
+  lit.children(".body").children(".data").focus();
+  lit.children(".body").children(".data").contentFocus();
+
+}
+
 // makeString: key-event -> void
 function makeString(e){
   var tar = jQuery(e.target);
@@ -55,8 +82,6 @@ function makeString(e){
   
   str.children(".body").children(".data").focus();
   str.children(".body").children(".data").contentFocus();
-
-//  tar.children(".string").children(".body").contentFocus();
 
 
 }
@@ -195,6 +220,9 @@ function sexprKeyHandler(e){
   switch(e.charCode){
   case 34:                 // quote
       setTimeout(function(){makeString(e);},1);
+      break;
+  case 39:
+      setTimeout(function(){makeLiteral(e);},1);
       break;
   case 40:                 // paren
       setTimeout(function(){makeSexpr(e);},1);
