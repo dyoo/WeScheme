@@ -21,6 +21,12 @@ public class SaveProjectServlet extends HttpServlet{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Session userSession;
 		SessionManager sm = new SessionManager();
+		
+		if( !sm.isIntentional(req, resp) ){
+			resp.sendError(401);
+			return;
+		}
+		
 		try {
 			
 			userSession = sm.authenticate(req, resp);
@@ -34,15 +40,21 @@ public class SaveProjectServlet extends HttpServlet{
 				Program prog = new Program(code, userSession);
 				pm.makePersistent(prog);
 			
+				resp.getWriter().println(prog.getId());
+				
 				long duration = System.currentTimeMillis() - startTime;
 				System.out.println("Took " + duration/1000 + " seconds.");	
 				System.out.println("Saved as " + userSession.getName());
+			} else {
+				
+				resp.sendError(401);
+				return;
 			}
 
 		} finally {
 			pm.close();
 		}
 		
-		resp.sendRedirect("index.jsp");
+		
 	}
 }

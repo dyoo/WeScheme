@@ -2,14 +2,10 @@ package org.wescheme.servlet;
 
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.Properties;
 
 import javax.cache.CacheException;
-import javax.cache.CacheFactory;
-import javax.cache.CacheManager;
 import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
 import javax.mail.MessagingException;
 import javax.mail.Message;
 import javax.mail.Session;
@@ -21,7 +17,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.wescheme.dropbox.Dropbox;
 import org.wescheme.keys.KeyManager;
 import org.wescheme.user.WeSchemeUser;
 import org.wescheme.util.Base64;
@@ -31,22 +26,16 @@ import org.wescheme.util.Crypt.KeyNotFoundException;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
-
-import javax.cache.Cache;
-public class ConfirmationServlet extends HttpServlet {
+public class ConfirmationServlet extends HttpServlet  {
 
 	private static final long serialVersionUID = 4278468977009746717L;
 
-	public void doGet(HttpServletRequest req, HttpServletResponse resp){
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException{
 		Crypt.Token code;
 		try {
 			code = (Crypt.Token) Base64.decodeToObject(req.getParameter("code"));
 		} catch (Exception e){
-			try {
-				resp.sendError(500);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			resp.sendError(500);			
 			return;
 		}
 		

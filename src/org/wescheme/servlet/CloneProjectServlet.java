@@ -18,7 +18,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 
 public class CloneProjectServlet {
 
-	public void doPost(HttpServletRequest req, HttpServletResponse resp){
+	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		
 		try {
@@ -28,7 +28,7 @@ public class CloneProjectServlet {
 			SessionManager sm = new SessionManager();
 			
 			if( !sm.isIntentional(req, resp) ){
-				resp.sendError(500);
+				resp.sendError(401);
 				return;
 			}
 			
@@ -38,7 +38,7 @@ public class CloneProjectServlet {
 			Program prog = pm.getObjectById(Program.class, pid);
 			
 			if( !prog.getOwner().equals(userSession.getName()) && !prog.isPublished()){
-				resp.sendError(500);
+				resp.sendError(401);
 				return;
 			}
 			Program cloned = prog.clone(userSession.getName());
@@ -48,12 +48,14 @@ public class CloneProjectServlet {
 			
 			pm.makePersistent(cloned);
 			
+			resp.getWriter().println(cloned.getId());
+			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			resp.sendError(500);
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
+			resp.sendError(500);
 		} finally {
 			pm.close();
 		}
