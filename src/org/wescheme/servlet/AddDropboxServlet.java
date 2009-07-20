@@ -31,7 +31,7 @@ public class AddDropboxServlet extends HttpServlet {
 					pm.makePersistent(db);
 					pm.close();
 				
-					resp.sendRedirect("dropbox");
+					resp.getWriter().println(db.getId());
 			} catch (Exception e ) {
 				// TODO `Authenticate` must throw fewer exceptions. Perhaps 'AuthenticationFailedException' 
 				e.printStackTrace();

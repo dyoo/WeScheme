@@ -61,6 +61,7 @@ public class AddProjectServlet extends HttpServlet {
 				pm.makePersistent(entry);
 			}
 			pm.close();
+			resp.sendError(200);
 					
 		} catch (Exception e){
 			System.err.println("Error while adding project");
