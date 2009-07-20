@@ -12,6 +12,9 @@ import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.util.PMF;
 
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+
 public class SaveProjectServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 4038563388689831368L;
@@ -21,14 +24,13 @@ public class SaveProjectServlet extends HttpServlet{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Session userSession;
 		SessionManager sm = new SessionManager();
-		
+
 		if( !sm.isIntentional(req, resp) ){
 			resp.sendError(401);
 			return;
 		}
 		
 		try {
-			
 			userSession = sm.authenticate(req, resp);
 			
 			if( null != userSession ){
