@@ -5,10 +5,13 @@ var WeSchemeEditor;
 
 
     WeSchemeEditor = function(attrs) {
-	// defn, repl, and statusbar are assumed to be Containers.
+	// defn and statusbar are assumed to be Containers.
 	// The only container we've got so far are TextContainers.
 	this.defn = attrs.defn;  // TextAreaContainer
-	this.repl = attrs.repl;  // TextAreaContainer
+
+	this.interactions = new WeSchemeInteractions(attrs.interactions);
+	this.interactions.reset();
+
 
 	this.statusbar = attrs.statusbar; // JQuery
 	this.filenameDiv = attrs.filenameDiv; // JQuery
@@ -20,8 +23,7 @@ var WeSchemeEditor;
 	var that = this;
 
 	if (this.pid == false) {
-	    var data = { action: "saveNew",
-			 code: this.defn.getCode()};
+	    var data = { code: this.defn.getCode()};
 	    var type = "text";
 	    var callback = function(data) {
 		// The data contains the pid of the saved program.
@@ -29,17 +31,18 @@ var WeSchemeEditor;
 		that.notifyOnStatusBar("Program " + that.pid + " saved")
 		that.filenameDiv.text(data);
 	    };
-	    jQuery.post(ajaxUrl, data, callback, type);
+	    jQuery.post("/saveProject", data, callback, type);
 	} else {
-	    var data = { action: "save",
-			 code: this.defn.getCode(),
+	    console.log("saving as " + this.pid);
+	    var data = { code: this.defn.getCode(),
 	                 pid: this.pid };
 	    var type = "text";
 	    var callback = function(data) {
 		that.notifyOnStatusBar("Program " + that.pid + " saved")
 		that.filenameDiv.text(data);
+		console.log("ok");
 	    };
-	    jQuery.post(ajaxUrl, data, callback, type);
+	    jQuery.post("/saveProject", data, callback, type);
 	}
     };
 
@@ -61,16 +64,18 @@ var WeSchemeEditor;
 	
 
     WeSchemeEditor.prototype.run = function() {
+	this.interactions.reset();
+	this.interactions.runCode(this.defn.getCode());
     };
 
 
 
     WeSchemeEditor.prototype.notifyOnStatusBar = function(msg) {
 	var that = this;
-	this.statusbar.show();
+	//this.statusbar.show();
 	this.statusbar.text(msg);
-	this.statusbar.fadeIn("slow",
-			      function() { that.statusbar.fadeOut(5000); });
+	//this.statusbar.fadeIn("slow",
+	//		      function() { that.statusbar.fadeOut(5000); });
     }
 
 
