@@ -1,11 +1,20 @@
 var savedContents = "";
 
+// mergeElements: element -> element -> element
+function mergeElements(a,b){
+
+  a.text(a.text() + b.text());
+  b.remove();
+
+  return true;
+}
 
 
 // makeBreak: key-event -> void
 function makeBreak(e){
   var brk = $("<br />")
              .addClass("userBreak")
+             .addClass("wspace")
              .attr("contenteditable","false");
   jQuery(e.target).splitWith(brk);
   brk.next().focusStart();
@@ -17,6 +26,7 @@ function makeSpace(e){
   var tar = jQuery(e.target);
   var space =
     $("<div/>")
+      .addClass("wspace")
       .addClass("space");
 
   tar.splitWith(" ", space);
@@ -30,24 +40,21 @@ function makeLiteral(e){
   var lit =
     $("<div/>")
      .addClass("literal")
-     .append($("<div/>").addClass("space"))
      .append(
        $("<div />")
          .addClass("tick")
-         .text('\''))
-     .append(
-       $("<div />")
-         .addClass("body")
          .attr("contenteditable","false")
-         .append(
-           $("<div />")
-             .addClass("data")
-             .attr("contenteditable","true")
-             .text("...")))
-     .append($("<div/>").addClass("space"));
+         .text('\''))
+      .append(
+        $("<div />")
+          .addClass("data")
+          .attr("contenteditable","true")
+          .text("..."))
   tar.splitWith("'", lit);
-  lit.children(".body").children(".data").focus();
-  lit.children(".body").children(".data").contentFocus();
+
+  lit.keypress(literalKeyHandler);
+  lit.children(".data").focus();
+  lit.children(".data").contentFocus();
 
 }
 
@@ -63,13 +70,9 @@ function makeString(e){
          .text('"'))
      .append(
        $("<div />")
-         .addClass("body")
-         .attr("contenteditable","false")    
-         .append(
-           $("<div />")
-             .addClass("data")
-             .attr("contenteditable","true")
-             .text("...")))
+         .addClass("data")
+         .attr("contenteditable","true")
+         .text("..."))
      .append(
        $("<div />")
          .addClass("closeQuote")
@@ -80,8 +83,8 @@ function makeString(e){
 
   tar.splitWith('"', str);
   
-  str.children(".body").children(".data").focus();
-  str.children(".body").children(".data").contentFocus();
+  str.children(".data").focus();
+  str.children(".data").contentFocus();
 
 
 }
@@ -124,6 +127,9 @@ function makeSexpr(e){
 function globalKeyHandler(e){
 
   switch(e.keyCode){
+  case 8:                   //backspace
+      setTimeout(function(){backspace(e);},1);
+      break;
   case 13:                   // newline
       setTimeout(function(){makeBreak(e);},1);
       break;
@@ -150,6 +156,25 @@ function globalKeyHandler(e){
   }
 }
 
+function backspace(e) {
+    var aSelection = getCursorSelection();
+    var tar = aSelection.node;
+    if(aSelection.atStart()) {
+        var pred = tar.predecessor();
+        if( pred.hasClass("wspace") ){
+            pred.remove();
+            pred = tar.predecessor();
+        } 
+
+        var len = tar.length;
+
+        if( mergeElements(tar, pred) ){
+            tar.focusAt(len);
+        }
+    }
+  
+
+}
 
 // FIXME: We may need to do something clever here, at least according to
 // http://stackoverflow.com/questions/202285/trigger-a-keypress-with-jqueryand-specify-which-key-was-pressed
@@ -238,6 +263,18 @@ function sexprKeyHandler(e){
   return true;
 }
 
+
+// literalKeyHandler: key-event -> void
+function literalKeyHandler(e){
+  e.stopPropagation();
+  switch(e.charCode){
+    case 32:
+      alert(1);
+      setTimeout(function(){makeBreak(e);},1);
+      break;
+    case 32:
+  }
+}
 
 // stringKeyHandler: key-event -> void
 function stringKeyHandler(e){
