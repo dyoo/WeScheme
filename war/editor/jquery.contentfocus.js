@@ -36,7 +36,7 @@
     
 
   }
-
+ 
   $.fn.focusStart = function(){
     if (window.getSelection) {
       var range = window.getSelection().getRangeAt(0);
@@ -57,6 +57,17 @@
     }
 
     
+
+  }
+
+  $.fn.focusAt = function(loc){
+    if (window.getSelection) {
+      var range = window.getSelection().getRangeAt(0);
+
+     range.setStart(this.contents().get(0),loc);
+     range.setEnd(this.contents().get(0),loc);
+
+    }
 
   }
 
