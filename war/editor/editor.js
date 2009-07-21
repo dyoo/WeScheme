@@ -1,6 +1,6 @@
 var savedContents = "";
 
-// mergeElements: element -> element -> element
+// mergeElements: element -> element -> bool
 function mergeElements(a,b){
 
   a.text(a.text() + b.text());
