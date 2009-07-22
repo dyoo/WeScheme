@@ -118,7 +118,7 @@ function makeSexpr(e){
        $("<div />")
          .addClass("closeParen")
          .text(")"));
-   tar.splitWith('(', sexpr);
+  sexpr.insertAtSelection();
 
   sexpr.children(".body").children(".data").focus();
   sexpr.children(".body").children(".data").contentFocus();
@@ -253,7 +253,8 @@ function sexprKeyHandler(e){
       setTimeout(function(){makeLiteral(e);},1);
       break;
   case 40:                 // paren
-      setTimeout(function(){makeSexpr(e);},1);
+      makeSexpr(e);
+      e.preventDefault();
       break;
     default:
       globalKeyHandler(e);
