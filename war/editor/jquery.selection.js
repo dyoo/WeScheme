@@ -77,4 +77,17 @@
         }
       }
     };
+
+
+    // Inserts at the current selection.
+    // node: jquery
+    $.fn.insertAtSelection = function() {
+	var range = window.getSelection().getRangeAt(0);
+	range.collapse(false);
+	for (var i = 0; i < this.length ; i++) {
+	    var child = this.get(i);
+	    range.insertNode(child);
+	    range.collapse(false);
+	}
+    }
 })(jQuery);
