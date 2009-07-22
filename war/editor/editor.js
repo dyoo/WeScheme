@@ -2,17 +2,6 @@ var savedContents = "";
 
 
 
-
-// mergeElements: element -> element -> bool
-function mergeElements(a,b){
-
-  a.text(a.text() + b.text());
-  b.remove();
-
-  return true;
-}
-
-
 // makeBreak: key-event -> void
 function makeBreak(e){
   var brk = $("<br />")
@@ -168,16 +157,14 @@ function backspace(e) {
             pred = tar.predecessor();
         } 
 
-	
+
 	// If the predecessor is itself a data, we must merge.
 	if (pred.hasClass("data")) {
 	    var len = pred.text().length;
-	    debugLog("merging");
-	    debugLog(pred);
-	    debugLog(tar);
-	    if( mergeElements(pred, tar) ){
-		pred.focusAt(len);
-	    }
+	    pred.text(pred.text() + tar.text());
+	    tar.remove();
+	    pred.focusAt(len);
+	    // By this time, the target is destroyed.
 	}
 	// Otherwise, if there's no predecessor, we lift the structure up.
 	else if (pred.length == 0) {
