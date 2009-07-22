@@ -125,7 +125,6 @@ function makeSexpr(e){
 
 
 function globalKeyHandler(e){
-
   switch(e.keyCode){
   case 8:                   //backspace
       backspace(e);
@@ -143,7 +142,6 @@ function globalKeyHandler(e){
   case 46:
       deleteKey(e);
       break;
- 
   }
 
   switch(e.charCode){
@@ -151,26 +149,40 @@ function globalKeyHandler(e){
       makeSpace(e);
       e.preventDefault();
       break;
-
   }
 }
 
+
+// backspace: key-event -> void
 function backspace(e) {
     var aSelection = getCursorSelection();
     var tar = aSelection.node;
+
+    // If we're at the start edge, merge with the previous sibling.
     if(aSelection.atStart()) {
+	e.preventDefault();
+
         var pred = tar.predecessor();
         if( pred.hasClass("wspace") ){
             pred.remove();
             pred = tar.predecessor();
         } 
 
-        var len = tar.length;
-
-        if( mergeElements(tar, pred) ){
-            tar.focusAt(len);
-        }
-	e.preventDefault();
+	
+	// If the predecessor is itself a data, we must merge.
+	if (pred.hasClass("data")) {
+	    var len = pred.text().length;
+	    debugLog("merging");
+	    debugLog(pred);
+	    debugLog(tar);
+	    if( mergeElements(pred, tar) ){
+		pred.focusAt(len);
+	    }
+	}
+	// Otherwise, if there's no predecessor, we lift the structure up.
+	else if (pred.length == 0) {
+	    debugLog("we should lift");
+	}
     } else {
 	return true;
     }
@@ -183,13 +195,13 @@ function leftKey(e) {
     var aSelection = getCursorSelection();
     if(aSelection.atStart()) {
 	e.preventDefault();
-  debugLog("at left");
+	//  debugLog("at left");
 	var predecessor = aSelection.node.predecessorWith(
 	    function(p){ 
 		return p.attr("contenteditable") == "true" && p.children().size() == 0;
 	    });
 	if (predecessor.size() > 0) {
-      debugLog(predecessor.text());
+	    //      debugLog(predecessor.text());
 	    predecessor.get(0).focus();
       predecessor.focusEnd();
 	}
@@ -216,10 +228,10 @@ function rightKey(e) {
 
 function deleteKey(e) {
     var aSelection = getCursorSelection();
-    debugLog(aSelection);
+    //    debugLog(aSelection);
     if (aSelection.atEnd()) {
 	e.preventDefault();
-	debugLog("We should delete forward");
+	//	debugLog("We should delete forward");
     }
 }
 
@@ -232,9 +244,9 @@ function deleteKey(e) {
 function sexprKeyHandler(e){
 
   e.stopPropagation();
-  debugLog("sexprKeyHandler");
-  debugLog(e.target);
-  debugLog(e);
+  //  debugLog("sexprKeyHandler");
+  //  debugLog(e.target);
+  //  debugLog(e);
 
 
   switch(e.charCode){
@@ -275,7 +287,7 @@ function literalKeyHandler(e){
 
 // stringKeyHandler: key-event -> void
 function stringKeyHandler(e){
-    debugLog("stringKeyHandler");
+    //    debugLog("stringKeyHandler");
 	e.stopPropagation();
 	
 	switch(e.keyCode){
