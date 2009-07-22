@@ -323,10 +323,10 @@ function doSave() {
 // doRestore: -> void
 // Restore the contents of the buffer.
 function doRestore() {
-    var editor = $("#editor");
-    unserialize(savedContents, editor);
-    editor.find(":literal").keypress(literalKeyHandler);
-    editor.find(":string").keypress(stringKeyHandler);
+    unserialize(savedContents, jQuery("#editor"));
+    jQuery("#editor").keypress(sexprKeyHandler);
+    jQuery("#editor").find(":literal").keypress(literalKeyHandler);
+    jQuery("#editor").find(":string").keypress(stringKeyHandler);
 }
 
 
