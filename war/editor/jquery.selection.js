@@ -79,16 +79,26 @@
     };
 
 
-    // Inserts at the current selection.
+    // Splits and inserts at the current selection.
     // node: jquery
-    $.fn.insertAtSelection = function() {
+    $.fn.splitAndInsertAtSelection = function() {
 	var range = window.getSelection().getRangeAt(0);
 	range.deleteContents();
 	range.collapse(false);
-	for (var i = 0; i < this.length ; i++) {
-	    var child = this.get(i);
-	    range.insertNode(child);
-	    range.collapse(false);
+
+	// Assumption: The selection is on a "data" text node.
+	var dataNode = $(range.startContainer).parent();
+	var originalText = dataNode.text();
+	var prefixNode = dataNode.clone(true).empty().text(originalText.substring(0, range.startOffset));
+	var suffixNode = dataNode.clone(true).empty().text(originalText.substring(range.startOffset));
+	suffixNode.insertAfter(dataNode);
+	for (var i = this.length-1; i >= 0 ; i--) {
+	    var child = this.eq(i);
+	    child.insertAfter(dataNode);
 	}
+	prefixNode.insertAfter(dataNode);
+	dataNode.remove();
     }
+
+
 })(jQuery);

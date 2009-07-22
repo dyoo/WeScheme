@@ -19,27 +19,25 @@ function makeBreak(e){
              .addClass("userBreak")
              .addClass("wspace")
              .attr("contenteditable","false");
-  jQuery(e.target).splitWith(brk);
+  brk.splitAndInsertAtSelection();
+  //  jQuery(e.target).splitWith(brk);
   brk.next().focusStart();
 }
 
 // makeSpace: key-event -> void
 function makeSpace(e){
-
-  var tar = jQuery(e.target);
   var space =
     $("<div/>")
       .addClass("wspace")
       .addClass("space");
 
-  tar.splitWith(" ", space);
+  space.splitAndInsertAtSelection();
   space.next().focusStart();
 
 }
 
 // makeLiteral : key-event -> void
 function makeLiteral(e){
-  var tar = jQuery(e.target);
   var lit =
     $("<div/>")
      .addClass("literal")
@@ -53,7 +51,7 @@ function makeLiteral(e){
           .addClass("data")
           .attr("contenteditable","true")
           .text("..."))
-  tar.splitWith("'", lit);
+  lit.splitAndInsertAtSelection();
 
   lit.keypress(literalKeyHandler);
   lit.children(".data").focus();
@@ -81,11 +79,10 @@ function makeString(e){
          .addClass("closeQuote")
          .text('"'));
 
-  str.keypress(stringKeyHandler);
 
+  str.splitAndInsertAtSelection();
+  str.find(":data").keypress(stringKeyHandler);
 
-  tar.splitWith('"', str);
-  
   str.children(".data").focus();
   str.children(".data").contentFocus();
 
@@ -118,7 +115,7 @@ function makeSexpr(e){
        $("<div />")
          .addClass("closeParen")
          .text(")"));
-  sexpr.insertAtSelection();
+  sexpr.splitAndInsertAtSelection();
 
   sexpr.children(".body").children(".data").focus();
   sexpr.children(".body").children(".data").contentFocus();
@@ -134,7 +131,8 @@ function globalKeyHandler(e){
       setTimeout(function(){backspace(e);},1);
       break;
   case 13:                   // newline
-      setTimeout(function(){makeBreak(e);},1);
+      makeBreak(e);
+      e.preventDefault();
       break;
   case 37:                   // left
       leftKey(e);
@@ -153,7 +151,8 @@ function globalKeyHandler(e){
 
   switch(e.charCode){
       case 32:                   // space
-      setTimeout(function(){makeSpace(e);},1);
+      makeSpace(e);
+      e.preventDefault();
       break;
 
   }
@@ -242,15 +241,19 @@ function deleteKey(e) {
 function sexprKeyHandler(e){
 
   e.stopPropagation();
+  debugLog("sexprKeyHandler");
+  debugLog(e.target);
   debugLog(e);
 
 
   switch(e.charCode){
   case 34:                 // quote
-      setTimeout(function(){makeString(e);},1);
+      makeString(e);
+      e.preventDefault();
       break;
   case 39:
-      setTimeout(function(){makeLiteral(e);},1);
+      makeLiteral(e);
+      e.preventDefault();
       break;
   case 40:                 // paren
       makeSexpr(e);
@@ -274,7 +277,8 @@ function literalKeyHandler(e){
   switch(e.charCode){
     case 32:
       alert(1);
-      setTimeout(function(){makeBreak(e);},1);
+      makeBreak(e);
+      e.preventDefault();
       break;
     case 32:
   }
@@ -282,6 +286,7 @@ function literalKeyHandler(e){
 
 // stringKeyHandler: key-event -> void
 function stringKeyHandler(e){
+    debugLog("stringKeyHandler");
 	e.stopPropagation();
 	
 	switch(e.keyCode){
@@ -325,9 +330,7 @@ function doSave() {
 // Restore the contents of the buffer.
 function doRestore() {
     unserialize(savedContents, jQuery("#editor"));
-    jQuery("#editor").keypress(sexprKeyHandler);
-    jQuery("#editor").find(":literal").keypress(literalKeyHandler);
-    jQuery("#editor").find(":string").keypress(stringKeyHandler);
+    // fixme: restore the key handlers
 }
 
 
