@@ -16,9 +16,9 @@
   $.fn.focusEnd = function(){
     if (window.getSelection) {
      var range = window.getSelection().getRangeAt(0);
-     console.log("Focus end: " + this.text() + "(" + this.text().length + ")");
-     console.log(this);
-     console.log(this.contents().get(0));
+     debugLog("Focus end: " + this.text() + "(" + this.text().length + ")");
+     debugLog(this);
+     debugLog(this.contents().get(0));
      range.setStart(this.contents().get(0),this.text().length);
      range.setEnd(this.contents().get(0),this.text().length);
      
@@ -41,7 +41,7 @@
     if (window.getSelection) {
       var range = window.getSelection().getRangeAt(0);
 
-     console.log("Focus start: " + this.text() + "(" + this.text().length + ")");
+     debugLog("Focus start: " + this.text() + "(" + this.text().length + ")");
      range.setStart(this.contents().get(0),0);
      range.setEnd(this.contents().get(0),0);
      

@@ -1,5 +1,8 @@
 var savedContents = "";
 
+
+
+
 // mergeElements: element -> element -> bool
 function mergeElements(a,b){
 
@@ -183,13 +186,13 @@ function leftKey(e) {
     var aSelection = getCursorSelection();
     if(aSelection.atStart()) {
 	e.preventDefault();
-  console.log("at left");
+  debugLog("at left");
 	var predecessor = aSelection.node.predecessorWith(
 	    function(p){ 
 		return p.attr("contenteditable") == "true" && p.children().size() == 0;
 	    });
 	if (predecessor.size() > 0) {
-      console.log(predecessor.text());
+      debugLog(predecessor.text());
 	    predecessor.get(0).focus();
       predecessor.focusEnd();
 	}
@@ -217,16 +220,16 @@ function backspaceKey(e) {
     var aSelection = getCursorSelection();
     if (aSelection.atStart()) {
 	e.preventDefault();
-	console.log("We should delete backward");
+	debugLog("We should delete backward");
     }
 }
 
 function deleteKey(e) {
     var aSelection = getCursorSelection();
-    console.log(aSelection);
+    debugLog(aSelection);
     if (aSelection.atEnd()) {
 	e.preventDefault();
-	console.log("We should delete forward");
+	debugLog("We should delete forward");
     }
 }
 
@@ -239,7 +242,7 @@ function deleteKey(e) {
 function sexprKeyHandler(e){
 
   e.stopPropagation();
-  console.log(e);
+  debugLog(e);
 
 
   switch(e.charCode){
