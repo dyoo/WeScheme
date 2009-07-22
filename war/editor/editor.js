@@ -150,7 +150,7 @@ function backspace(e) {
     // If we're at the start edge, merge with the previous sibling.
     if(aSelection.atStart()) {
 	e.preventDefault();
-
+	
         var pred = tar.predecessor();
         if( pred.hasClass("wspace") ){
             pred.remove();
@@ -171,7 +171,15 @@ function backspace(e) {
 	    debugLog("we should lift");
 	}
     } else {
-	return true;
+	e.preventDefault();
+	// Manually doing backspace deletion to avoid the introduction
+	// of the weird <br _mozdirty="" type="_moz"> stuff.
+	var range = window.getSelection().getRangeAt(0);
+	if (range.startOffset == range.endOffset) {
+	    range.setStart(range.startContainer, range.startOffset - 1);
+	}
+	range.deleteContents();
+	return false;
     }
 }
 
@@ -251,7 +259,7 @@ function sexprKeyHandler(e){
       globalKeyHandler(e);
   }
 
-  jQuery(e.target).parents(".body").indent();
+  //  jQuery(e.target).parents(".body").indent();
 
   return true;
 }
