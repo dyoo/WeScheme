@@ -43,16 +43,6 @@
    padding: 0.25em;
   }
 
-  .define-indentation {
-   margin-left: 1em;
-  }
-  
-  .lambda-indentation {
-   margin-left: 1em;
-  }
-
-
-
   .closeParen {
     position: relative;
     display: inline;

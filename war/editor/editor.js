@@ -1,6 +1,7 @@
 var savedContents = "";
 
 
+
 // makeBreak: key-event -> void
 function makeBreak(e){
   var brk = $("<br />")
