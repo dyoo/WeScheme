@@ -89,8 +89,8 @@
 	// Assumption: The selection is on a "data" text node.
 	var dataNode = $(range.startContainer).parent();
 	var originalText = dataNode.text();
-	var prefixNode = dataNode.clone(true).empty().text(originalText.substring(0, range.startOffset));
-	var suffixNode = dataNode.clone(true).empty().text(originalText.substring(range.startOffset));
+	var prefixNode = dataNode.clone(true).empty().text(originalText.substring(0, range.startOffset)).attr("contenteditable", "true");
+	var suffixNode = dataNode.clone(true).empty().text(originalText.substring(range.startOffset)).attr("contenteditable", "true");
 	suffixNode.insertAfter(dataNode);
 	for (var i = this.length-1; i >= 0 ; i--) {
 	    var child = this.eq(i);
