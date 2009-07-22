@@ -1,7 +1,6 @@
 var savedContents = "";
 
 
-
 // makeBreak: key-event -> void
 function makeBreak(e){
   var brk = $("<br />")
@@ -182,13 +181,11 @@ function leftKey(e) {
     var aSelection = getCursorSelection();
     if(aSelection.atStart()) {
 	e.preventDefault();
-	//  debugLog("at left");
 	var predecessor = aSelection.node.predecessorWith(
 	    function(p){ 
 		return p.attr("contenteditable") == "true" && p.children().size() == 0;
 	    });
 	if (predecessor.size() > 0) {
-	    //      debugLog(predecessor.text());
 	    predecessor.get(0).focus();
       predecessor.focusEnd();
 	}
