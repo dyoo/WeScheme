@@ -128,7 +128,7 @@ function globalKeyHandler(e){
 
   switch(e.keyCode){
   case 8:                   //backspace
-      setTimeout(function(){backspace(e);},1);
+      backspace(e);
       break;
   case 13:                   // newline
       makeBreak(e);
@@ -139,9 +139,6 @@ function globalKeyHandler(e){
       break;
   case 39:                 // right
       rightKey(e);
-      break;
-  case 8:
-      backspaceKey(e);
       break;
   case 46:
       deleteKey(e);
@@ -173,9 +170,10 @@ function backspace(e) {
         if( mergeElements(tar, pred) ){
             tar.focusAt(len);
         }
+	e.preventDefault();
+    } else {
+	return true;
     }
-  
-
 }
 
 // FIXME: We may need to do something clever here, at least according to
@@ -215,13 +213,6 @@ function rightKey(e) {
 }
 
 
-function backspaceKey(e) {
-    var aSelection = getCursorSelection();
-    if (aSelection.atStart()) {
-	e.preventDefault();
-	debugLog("We should delete backward");
-    }
-}
 
 function deleteKey(e) {
     var aSelection = getCursorSelection();
@@ -263,9 +254,7 @@ function sexprKeyHandler(e){
       globalKeyHandler(e);
   }
 
-  setTimeout(function(){
-    jQuery(e.target).parents(".body").indent();
-    },2);
+  jQuery(e.target).parents(".body").indent();
 
   return true;
 }
