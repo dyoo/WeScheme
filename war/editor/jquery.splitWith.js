@@ -13,9 +13,9 @@
        //if we don't have three nodes, then we're on the edge
        if( nodes.size() < 3){
          var range = window.getSelection().getRangeAt(0);
-         //debugLog("Selection location " + range.startOffset);
+         debugLog("Selection location " + range.startOffset);
          if( range.startOffset != 0 ){
-           //debugLog(nodes);
+           debugLog(nodes);
            prefix = "";
            suffix = nodes.get(1).nodeValue;
          } else {
@@ -25,8 +25,8 @@
            suffix = nodes.get(0).nodeValue;
          }
 
-         //debugLog("prefix: " + prefix);
-         //debugLog("suffix: " + suffix);
+         debugLog("prefix: " + prefix);
+         debugLog("suffix: " + suffix);
 
        } else {
            prefix = nodes.get(0).nodeValue;
