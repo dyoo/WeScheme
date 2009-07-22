@@ -83,6 +83,7 @@
     // node: jquery
     $.fn.insertAtSelection = function() {
 	var range = window.getSelection().getRangeAt(0);
+	range.deleteContents();
 	range.collapse(false);
 	for (var i = 0; i < this.length ; i++) {
 	    var child = this.get(i);
