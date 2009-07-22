@@ -325,8 +325,8 @@ function doSave() {
 function doRestore() {
     var editor = $("#editor");
     unserialize(savedContents, editor);
-    // FIXME: reinstate key handlers.
-
+    editor.find(":literal").keypress(literalKeyHandler);
+    editor.find(":string").keypress(stringKeyHandler);
 }
 
 
