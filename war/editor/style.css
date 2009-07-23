@@ -8,7 +8,7 @@
     max-width: 800px;
     width: 100%;
     height: 100%;
-    padding: 1em;
+    padding: 0em;
     background-color: LightSteelBlue;
     font-size: 1em;
     display: block;
@@ -33,7 +33,7 @@
   }
 
   .data {
-    display: inline;
+    display: inline-block;
     padding: 0em;
     margin:  0em;
   }
@@ -41,6 +41,7 @@
   .space {
    display: inline;
    padding-left: 1em;
+   margin: 0em;
   }
 
   .closeParen {

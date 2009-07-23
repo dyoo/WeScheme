@@ -40,18 +40,25 @@
     
     var kids = $(n).children();
     var distance = null;
-   
+    var hasSpace = false;
+
     c.nextAll().each(function(){
       var elm = jQuery(this);
       
+      if( elm.hasClass("space") ){ hasSpace = true; console.log(hasSpace); }
+
       if( null == distance && elm.hasClass("userBreak") ){
-        distance = 1;
+        if( hasSpace ){
+          distance = 2;
+        } else {
+          distance = 1;
+        }
       }
 
       if( null == distance && 
           !elm.hasClass("wspace") &&
           elm.text().length != 0 ){
-        distance = c.text().length - 1;
+        distance = c.text().length - 1 ;
       }
 
     });
