@@ -259,7 +259,7 @@ function sexprKeyHandler(e){
       globalKeyHandler(e);
   }
 
-  //  jQuery(e.target).parents(".body").indent();
+  jQuery(e.target).parents(".body:first").indent();
 
   return true;
 }
