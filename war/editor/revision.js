@@ -17,7 +17,9 @@ function RevisionController (sz){
 
   }
   this.store = function(jqo){ 
-  
+
+    
+
     before.push(jqo.clone(true));
     after = new Array();  
 
