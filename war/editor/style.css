@@ -10,7 +10,7 @@
     height: 100%;
     padding: 1em;
     background-color: LightSteelBlue;
-    font-size: 1.25em;
+    font-size: 1em;
     display: block;
   }
 
@@ -40,7 +40,7 @@
 
   .space {
    display: inline;
-   padding: 0.25em;
+   padding-left: 1em;
   }
 
   .closeParen {
