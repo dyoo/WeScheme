@@ -19,22 +19,11 @@ import com.google.appengine.api.datastore.KeyFactory;
 
 public class LoadProjectServlet extends HttpServlet {
 
-	public void doGet(HttpServletRequest req, HttpServletResponse resp){
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		
 			PersistenceManager pm = PMF.get().getPersistenceManager();
 			Session userSession;
 			SessionManager sm = new SessionManager();
-			
-			if( !sm.isIntentional(req,resp)){
-				
-					try {
-						resp.sendError(500);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-				
-			}
 			
 			try {
 				
@@ -46,14 +35,10 @@ public class LoadProjectServlet extends HttpServlet {
 	    			Program prog = pm.getObjectById(Program.class, k);
 					resp.getWriter().print(prog.toXML());
 				} else {
-					resp.sendError(500);
+					resp.sendError(403);
 				}
-				
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
+				resp.sendError(500);
 				e.printStackTrace();
 			} finally {
 				pm.close();

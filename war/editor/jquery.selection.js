@@ -77,4 +77,28 @@
         }
       }
     };
+
+
+    // Splits and inserts at the current selection.
+    // node: jquery
+    $.fn.splitAndInsertAtSelection = function() {
+	var range = window.getSelection().getRangeAt(0);
+	range.deleteContents();
+	range.collapse(false);
+
+	// Assumption: The selection is on a "data" text node.
+	var dataNode = $(range.startContainer).parent();
+	var originalText = dataNode.text();
+	var prefixNode = dataNode.clone(true).empty().text(originalText.substring(0, range.startOffset)).attr("contenteditable", "true");
+	var suffixNode = dataNode.clone(true).empty().text(originalText.substring(range.startOffset)).attr("contenteditable", "true");
+	suffixNode.insertAfter(dataNode);
+	for (var i = this.length-1; i >= 0 ; i--) {
+	    var child = this.eq(i);
+	    child.insertAfter(dataNode);
+	}
+	prefixNode.insertAfter(dataNode);
+	dataNode.remove();
+    }
+
+
 })(jQuery);

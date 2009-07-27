@@ -25,40 +25,38 @@ public class SaveProjectServlet extends HttpServlet{
 		Session userSession;
 		SessionManager sm = new SessionManager();
 
-		if( !sm.isIntentional(req,resp)){		
-			try {
-				resp.sendError(500);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		
+		if( !sm.isIntentional(req, resp) ){
+			resp.sendError(401);
+			return;
 		}
 		
 		try {
 			userSession = sm.authenticate(req, resp);
-			// TODO: this must be done in a transaction.
-			if( null != userSession ){		
-				if (req.getParameter("pid") != null) {
-					String code = req.getParameter("code");
-					Long id = (Long) Long.parseLong(req.getParameter("pid"));
-					Key k = KeyFactory.createKey("Program", id);
-	    			Program prog = pm.getObjectById(Program.class, k);
-	    			prog.updateSource(code);
-	    			pm.makePersistent(prog);	    	
-	    			
-					resp.getWriter().print(prog.getId());
-				} else {				
-					String code = req.getParameter("code");
-					resp.setContentType("text/plain");
+			
+			if( null != userSession ){
+				long startTime = System.currentTimeMillis();
+		
+				String code = req.getParameter("code");
+				resp.setContentType("text/plain");
+			
+				Program prog = new Program(code, userSession);
+				pm.makePersistent(prog);
+			
+				resp.getWriter().println(prog.getId());
 				
-					Program prog = new Program(code, userSession);
-					pm.makePersistent(prog);
-					resp.getWriter().print(prog.getId());
-				}
-			}		
+				long duration = System.currentTimeMillis() - startTime;
+				System.out.println("Took " + duration/1000 + " seconds.");	
+				System.out.println("Saved as " + userSession.getName());
+			} else {
+				
+				resp.sendError(401);
+				return;
+			}
+
 		} finally {
 			pm.close();
 		}
+		
+		
 	}
 }

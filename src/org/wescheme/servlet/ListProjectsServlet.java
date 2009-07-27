@@ -9,33 +9,21 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.wescheme.dropbox.Dropbox;
 import org.wescheme.project.Program;
 import org.wescheme.project.ProgramDigest;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.user.UnauthorizedUserException;
-import org.wescheme.util.Base64;
 import org.wescheme.util.PMF;
 
 public class ListProjectsServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = 6291188410939739681L;
 
-	public void doGet(HttpServletRequest req, HttpServletResponse resp){
+	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Session userSession;
 		SessionManager sm = new SessionManager();
-	
-		if( !sm.isIntentional(req,resp)){		
-			try {
-				resp.sendError(500);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		
-		}
 	
 		try {
 		
@@ -62,10 +50,10 @@ public class ListProjectsServlet extends HttpServlet {
 			}
 		
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			resp.sendError(500);
 			e.printStackTrace();
 		} catch (UnauthorizedUserException e) {
-			// TODO Auto-generated catch block
+			resp.sendError(401);
 			e.printStackTrace();
 		} finally {
 			pm.close();
