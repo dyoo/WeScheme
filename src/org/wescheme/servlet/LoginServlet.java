@@ -16,8 +16,7 @@ public class LoginServlet extends HttpServlet {
 	{	
 		SessionManager sm = new SessionManager();
 		try {
-			sm.login(req, resp);
-			resp.sendRedirect("index.jsp"); // TODO instead we should bounce the user back to the page that asked them to auth
+			sm.login(req, resp); // This method fires its own HTTP responses.
 		} catch (KeyNotFoundException e) {
 			e.printStackTrace();
 		}
