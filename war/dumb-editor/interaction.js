@@ -10,6 +10,9 @@ WeSchemeInteractions = (function () {
 	    this.prompt = undefined;
 	    this.namespace = undefined;
 	    this.pinfo = undefined;
+
+	    this.prompt = jQuery("<div style='width:100%'><span>&gt;&gt;&gt; <input id=type='text' style='width: 75%'></span></div>");
+	    this.interactionsDiv.append(this.prompt);
     };
 
     
@@ -24,9 +27,12 @@ WeSchemeInteractions = (function () {
     // reset: -> void
     // Clears out the interactions.
     WeSchemeInteractions.prototype.reset = function() {
+	var that = this;
 	this.interactionsDiv.empty();
-	this.prompt = jQuery("<div style='width:100%'><span>&gt;&gt;&gt; <textarea style='width: 75%'></textarea></span></div>");
+	this.prompt = jQuery("<div style='width:100%'><span>&gt;&gt;&gt; <input id=type='text' style='width: 75%'></span></div>");
 	this.interactionsDiv.append(this.prompt);
+
+	this.prompt.contents().keypress(function(e) { that.maybeRunPrompt(e) });
 
 	this.addToInteractions("WeScheme Interactions");
 	this.addToInteractions("---");
@@ -53,9 +59,19 @@ WeSchemeInteractions = (function () {
     }
 
 
+    WeSchemeInteractions.prototype.prepareToRun = function() {
+	var that = this;
+	plt.world.MobyJsworld.makeToplevelNode = function() {
+	    var area = jQuery("<div>hello</div>");
+	    that.prompt.before(area);
+	    return area.get(0);
+	};
+    }
+
     // Evaluate the source code and accumulate its effects.
     WeSchemeInteractions.prototype.runCode = function(aSource) {
 	var that = this;
+	this.prepareToRun();
 	try {
 	    var program = readSchemeExpressions(aSource);
 	    var compiledProgram = 
@@ -80,20 +96,15 @@ WeSchemeInteractions = (function () {
     };
 
 
-//     // Evaluate the code that's in the prompt.
-//     function runPrompt() {
-// 	addToInteractions(">>> " + this.prompt.value + "\n");
-// 	this.runCode(this.prompt.value);
-// 	this.prompt.value = "";
-//     }
 
 
-
-//     function maybeRunPrompt(keyEvent) {
-// 	if (keyEvent.keyCode == 13) {
-// 	    runPrompt();
-// 	}
-//     }
+    WeSchemeInteractions.prototype.maybeRunPrompt = function(keyEvent) {
+ 	if (keyEvent.keyCode == 13) {
+	    this.addToInteractions(">>> " + this.prompt.find("input").get(0).value + "\n");
+	    this.runCode(this.prompt.find("input").get(0).value);
+ 	} else {
+	}
+    }
 
     return WeSchemeInteractions;
 })();
