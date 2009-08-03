@@ -21,7 +21,6 @@ var WeSchemeEditor;
 
     WeSchemeEditor.prototype.save = function() {
 	var that = this;
-
 	if (this.pid == false) {
 	    var data = { code: this.defn.getCode()};
 	    var type = "text";

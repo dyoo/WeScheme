@@ -15,8 +15,7 @@ public class LogoutServlet extends HttpServlet {
 	{	
 		SessionManager sm = new SessionManager();
 		sm.logout(req, resp);
-		resp.sendError(418); //I'm a teapot
-		
+		resp.sendRedirect("/");		
 	}
 	
 	

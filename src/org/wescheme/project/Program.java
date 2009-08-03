@@ -5,6 +5,7 @@ import java.util.List;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
+import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PrimaryKey;
 
 import org.jdom.Element;
@@ -12,7 +13,8 @@ import org.wescheme.program.capability.Capability;
 import org.wescheme.user.Session;
 import org.wescheme.util.XML;
 
-@PersistenceCapable()
+
+@PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Program extends XML {
 
 	@PrimaryKey
@@ -31,7 +33,6 @@ public class Program extends XML {
 	protected String author_;
 	@Persistent
 	protected long time_;
-	@SuppressWarnings("unused")
 	@Persistent
 	private boolean published_ = false;
 	@Persistent
@@ -42,6 +43,7 @@ public class Program extends XML {
 	private void updateTime(){
 		time_ = System.currentTimeMillis();
 	}
+	
 	
 	public Program(String src, Session owner){
 		title_ = "Unknown";
@@ -58,6 +60,7 @@ public class Program extends XML {
 		author_ = p.author_;
 		capabilities_ = p.capabilities_;
 		time_ = System.currentTimeMillis();
+		this.backlink_ = p.getId();
 		if( obj_ != null && p.obj_.isTrusted() ){
 			obj_ = new ObjectCode(p.obj_.toString());
 		} else {
@@ -71,10 +74,7 @@ public class Program extends XML {
 		return p;
 	}
 	
-	public void setBacklink(Long bl){
-		backlink_ = bl;
-	}
-
+	
 	public void publish(){
 		if( null == obj_ || !obj_.isTrusted() ){
 			build();
@@ -100,7 +100,7 @@ public class Program extends XML {
 	}
 	
 	public void updateSource(String src){
-		this.src_ = new SourceCode(src);
+		this.setSrc_(new SourceCode(src));
 		this.obj_ = null;
 		updateTime();
 	}
@@ -108,6 +108,11 @@ public class Program extends XML {
 	public SourceCode getSource(){
 		return src_;
 	}
+	
+	private void setSrc_(SourceCode src) {
+		this.src_ = src;
+	}
+	
 	
 	public ObjectCode getObject(){
 		return obj_;
@@ -119,6 +124,10 @@ public class Program extends XML {
 	
 	public Long getId(){
 		return id;
+	}
+	
+	public Long getBacklink() {
+		return this.backlink_;
 	}
 	
 	public Long getTime(){
