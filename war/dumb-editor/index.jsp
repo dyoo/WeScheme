@@ -1,32 +1,39 @@
 <html>
 <head>
 
-<script src="../editor/jquery.js"></script>
-<script src="../editor/jquery.createdomnodes.js"></script>
-<script src="../safeSubmit.js"></script>
+<script src="/editor/jquery.js"></script>
+<script src="/editor/jquery.createdomnodes.js"></script>
+<script src="/safeSubmit.js"></script>
 
 
 
-<script src="editor.js"></script>
-<script src="textcontainer.js"></script>
-<script src="interaction.js"></script>
+<script src="/dumb-editor/editor.js"></script>
+<script src="/dumb-editor/textcontainer.js"></script>
+<script src="/dumb-editor/interaction.js"></script>
 
 
 <!-- Evaluation and world runtime stuff -->
 <!-- FIXME: bundle into single js for convenience. -->
-<script src="runtime/kernel.js"></script>
-<script src="runtime/compiler.js"></script>
-<script src="runtime/read.js"></script>
-<script src="runtime/namespace.js"></script>
-<script src="runtime/world-config.js"></script>
-<script src="runtime/platform.js"></script>
-<script src="runtime/world.js"></script>
-<script src="runtime/jsworld/jsworld.js"></script>
-<script src="runtime/jsworld.js"></script>
+<script src="/dumb-editor/runtime/kernel.js"></script>
+<script src="/dumb-editor/runtime/compiler.js"></script>
+<script src="/dumb-editor/runtime/read.js"></script>
+<script src="/dumb-editor/runtime/namespace.js"></script>
+<script src="/dumb-editor/runtime/world-config.js"></script>
+<script src="/dumb-editor/runtime/platform.js"></script>
+<script src="/dumb-editor/runtime/world.js"></script>
+<script src="/dumb-editor/runtime/jsworld/jsworld.js"></script>
+<script src="/dumb-editor/runtime/jsworld.js"></script>
 
 
 <script>
   jQuery(document).ready(function() {
+
+  // Fixme: trigger file load if the pid has been provided.
+<% if (request.getParameter("pid") != null) { %>
+    jQuery("#pidArea").text("<%= request.getParameter("pid")%>");
+<% } %>
+
+
   var myEditor = new WeSchemeEditor(
   { defn: new WeSchemeTextContainer(jQuery("#defn").get(0)),
 
@@ -42,8 +49,7 @@
   jQuery("#back").click(function()  { window.location = "/"; });
 
 
-  // Fixme: trigger file load if the pid has been provided.
-
+  myEditor.load();
   });
 </script>
 </head>
@@ -59,7 +65,7 @@
 
 
 <span>
-<div id="filenameArea" style="background-color: lightgrey">Unknown</div>
+<div id="filenameArea" style="background-color: lightgrey"></div>
 <div id="pidArea" style="background-color: lightgrey">Unknown</div>
 </span>
 

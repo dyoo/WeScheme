@@ -1,16 +1,14 @@
 package org.wescheme.servlet;
 
 import javax.jdo.PersistenceManager;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.wescheme.dropbox.Dropbox;
-import org.wescheme.dropbox.Entry;
-import org.wescheme.project.Program;
+
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
-import org.wescheme.user.UnauthorizedUserException;
 import org.wescheme.util.PMF;
 
 
@@ -28,10 +26,18 @@ public class OpenEditor extends HttpServlet {
 	 */
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp){
+		doIt(req, resp);
+	}
+
+	public void doPost(HttpServletRequest req, HttpServletResponse resp){
+		doIt(req, resp);
+	}
+
+	private void doIt(HttpServletRequest req, HttpServletResponse resp) {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		
 		try {
-/*			SessionManager sm = new SessionManager();			
+			SessionManager sm = new SessionManager();			
 			if( !sm.isIntentional(req, resp) ){
 				resp.sendError(500);
 				return;
@@ -40,17 +46,14 @@ public class OpenEditor extends HttpServlet {
 			if (userSession == null) {
 				resp.sendError(500);
 			}
-			*/
-			resp.sendRedirect("/dumb-editor/index.jsp");
+			RequestDispatcher dispatcher = 
+					getServletContext().getRequestDispatcher("/dumb-editor/index.jsp");
+			dispatcher.include(req, resp);
+			
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		} finally {				
 			pm.close();
 		}
-	
 	}
-	
-	
-	
-	
 }

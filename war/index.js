@@ -15,12 +15,19 @@ function loadProgramList() {
 				.addClass("ProgramTitle"));
 		var modifiedDiv = (jQuery("<div/>").text(digest.find("modified").text())
 				   .addClass("ProgramModified"));
+		var form = (jQuery("<form/>")
+			    .attr("method", "post")
+			    .attr("action",   "/openEditor?pid=" + 
+				  digest.find("id").text())
+			    .append(jQuery("<input/>")
+				    .attr("value", "Open")
+				    .attr("type", "submit")));
 		var newEntry = (jQuery("<li/>")
-				.append(jQuery("<a/>")
+				.append(jQuery("<div/>")
 					.append(titleDiv)
 					.append(idDiv)
 					.append(modifiedDiv)
-					.attr("href", "/openEditor?pid=" + digest.find("id").text()))
+					.append(form))
 				.addClass("ProgramEntry"));
 		programListDiv.append(newEntry);
 

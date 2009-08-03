@@ -13,48 +13,62 @@ var WeSchemeEditor;
 
 
 	this.statusbar = attrs.statusbar; // JQuery
+	this.pidDiv = attrs.pidDiv; // JQuery
 	this.filenameDiv = attrs.filenameDiv; // JQuery
+	this.filenameEntry = (jQuery("<input/>").
+			      attr("type", "text").
+			      attr("value", "Unknown"));
+	this.filenameDiv.append(this.filenameEntry);
 
 	// pid: (or false number)
 	this.pid = false;
+	if (this.pidDiv.text() != "Unknown") {
+	    this.pid = parseInt(this.pidDiv.text());
+	}
     };
 
     WeSchemeEditor.prototype.save = function() {
 	var that = this;
 	if (this.pid == false) {
-	    var data = { code: this.defn.getCode()};
+	    var data = { title: this.filenameEntry.attr("value"),
+			 code: this.defn.getCode()};
 	    var type = "text";
 	    var callback = function(data) {
 		// The data contains the pid of the saved program.
 		that.pid = parseInt(data);
 		that.notifyOnStatusBar("Program " + that.pid + " saved")
-		that.filenameDiv.text(data);
+		that.pidDiv.text(data);
+		that.filenameEntry.value = data;
 	    };
 	    jQuery.post("/saveProject", data, callback, type);
 	} else {
-	    var data = { code: this.defn.getCode(),
-	                 pid: this.pid };
+	    var data = { pid: this.pid,
+			 title: this.filenameEntry.attr("value"),
+			 code: this.defn.getCode()};
 	    var type = "text";
 	    var callback = function(data) {
 		that.notifyOnStatusBar("Program " + that.pid + " saved")
-		that.filenameDiv.text(data);
+		that.pidDiv.text(data);
+		that.filenameEntry.value = data;
 	    };
 	    jQuery.post("/saveProject", data, callback, type);
 	}
     };
 
 
-
     WeSchemeEditor.prototype.load = function() {
-	var that = this;
-	var data = { pid: this.pid };
-	var type = "xml";
-	var callback = function(data) {
-	    var dom = jQuery(data);
-	    that.defn.setCode(dom.find("source").text());
-	    that.notifyOnStatusBar("Program " + that.pid + " loaded")
-	};
-	jQuery.get("/loadProject", data, callback, type);
+	if (this.pid) {
+	    var that = this;
+	    var data = { pid: this.pid };
+	    var type = "xml";
+	    var callback = function(data) {
+		var dom = jQuery(data);
+		that.filenameEntry.attr("value", dom.find("title").text());
+		that.defn.setCode(dom.find("source").text());
+		that.notifyOnStatusBar("Program " + that.pid + " loaded")
+	    };
+	    jQuery.get("/loadProject", data, callback, type);
+	}
     };
 	
 
