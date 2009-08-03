@@ -22,16 +22,16 @@ public class SaveProjectServlet extends HttpServlet{
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)	throws IOException 
 	{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
-		Session userSession;
 		SessionManager sm = new SessionManager();
 
 		if( !sm.isIntentional(req, resp) ){
+			System.out.println("Not intentional");
 			resp.sendError(401);
 			return;
 		}
 		
 		try {
-			userSession = sm.authenticate(req, resp);
+			Session userSession = sm.authenticate(req, resp);
 			
 			if( null != userSession ){				
 				String code = req.getParameter("code");
@@ -50,6 +50,7 @@ public class SaveProjectServlet extends HttpServlet{
 					resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				}
 			} else {				
+				System.out.println("userSession was null.");
 				resp.sendError(401);
 				return;
 			}
