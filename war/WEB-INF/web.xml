@@ -1,143 +1,156 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE web-app PUBLIC
- "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
- "http://java.sun.com/dtd/web-app_2_3.dtd">
+	  "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+	  "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
-	<servlet>
-		<servlet-name>keyServer</servlet-name>
-		<servlet-class>org.wescheme.keys.KeyServer</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-	<servlet>
-		<servlet-name>initCompiler</servlet-name>
-		<servlet-class>org.wescheme.project.Compiler</servlet-class>
-		<load-on-startup>2</load-on-startup>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>keyServer</servlet-name>
-		<url-pattern>/keyServer</url-pattern>
-	</servlet-mapping>
-	
-	<servlet>
-		<servlet-name>addDropbox</servlet-name>
-		<servlet-class>org.wescheme.servlet.AddDropboxServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>addDropbox</servlet-name>
-		<url-pattern>/addDropbox</url-pattern>
-	</servlet-mapping>
-	
-	<servlet>
-		<servlet-name>addBin</servlet-name>
-		<servlet-class>org.wescheme.servlet.AddBinServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>addBin</servlet-name>
-		<url-pattern>/addBin</url-pattern>
-	</servlet-mapping>
+  <servlet>
+    <servlet-name>keyServer</servlet-name>
+    <servlet-class>org.wescheme.keys.KeyServer</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+  <servlet>
+    <servlet-name>initCompiler</servlet-name>
+    <servlet-class>org.wescheme.project.Compiler</servlet-class>
+    <load-on-startup>2</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>keyServer</servlet-name>
+    <url-pattern>/keyServer</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>addDropbox</servlet-name>
+    <servlet-class>org.wescheme.servlet.AddDropboxServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>addDropbox</servlet-name>
+    <url-pattern>/addDropbox</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>addBin</servlet-name>
+    <servlet-class>org.wescheme.servlet.AddBinServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>addBin</servlet-name>
+    <url-pattern>/addBin</url-pattern>
+  </servlet-mapping>
 
-	<servlet>
-		<servlet-name>addProject</servlet-name>
-		<servlet-class>org.wescheme.servlet.AddProjectServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>addProject</servlet-name>
-		<url-pattern>/addProject</url-pattern>
-	</servlet-mapping>
-	
-	<servlet>
-		<servlet-name>publish</servlet-name>
-		<servlet-class>org.wescheme.project.Publish</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>publish</servlet-name>
-		<url-pattern>/publish</url-pattern>
-	</servlet-mapping>
-	
-	<servlet>
-		<servlet-name>createUser</servlet-name>
-		<servlet-class>org.wescheme.servlet.CreateUserServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>createUser</servlet-name>
-		<url-pattern>/createUser</url-pattern>
-	</servlet-mapping>
-	
-	
-	<servlet>
-		<servlet-name>logout</servlet-name>
-		<servlet-class>org.wescheme.servlet.LogoutServlet</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>logout</servlet-name>
-		<url-pattern>/logout</url-pattern>
-	</servlet-mapping>
-	
-	<servlet>
-		<servlet-name>index</servlet-name>
-		<jsp-file>index.jsp</jsp-file>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>index</servlet-name>servlet-name>
-		<url-pattetrn>/index.html</url-pattetrn>
-	</servlet-mapping>
+  <servlet>
+    <servlet-name>addProject</servlet-name>
+    <servlet-class>org.wescheme.servlet.AddProjectServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>addProject</servlet-name>
+    <url-pattern>/addProject</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>publish</servlet-name>
+    <servlet-class>org.wescheme.project.Publish</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>publish</servlet-name>
+    <url-pattern>/publish</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>createUser</servlet-name>
+    <servlet-class>org.wescheme.servlet.CreateUserServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>createUser</servlet-name>
+    <url-pattern>/createUser</url-pattern>
+  </servlet-mapping>
+  
+  
+  <servlet>
+    <servlet-name>logout</servlet-name>
+    <servlet-class>org.wescheme.servlet.LogoutServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>logout</servlet-name>
+    <url-pattern>/logout</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>index</servlet-name>
+    <jsp-file>index.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>index</servlet-name>servlet-name>
+    <url-pattetrn>/index.html</url-pattetrn>
+  </servlet-mapping>
 
-	<servlet>
-		<servlet-name>myDropboxes</servlet-name>
-		<jsp-file>myDropboxes.jsp</jsp-file>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>myDropboxes</servlet-name>
-		<url-pattern>/myDropboxes</url-pattern>
-	</servlet-mapping>
-	
-	<servlet>
-		<servlet-name>dropbox</servlet-name>
-		<jsp-file>dropbox.jsp</jsp-file>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>dropbox</servlet-name>
-		<url-pattern>/dropbox</url-pattern>
-	</servlet-mapping>
-	
-	
+  <servlet>
+    <servlet-name>myDropboxes</servlet-name>
+    <jsp-file>myDropboxes.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>myDropboxes</servlet-name>
+    <url-pattern>/myDropboxes</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>dropbox</servlet-name>
+    <jsp-file>dropbox.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>dropbox</servlet-name>
+    <url-pattern>/dropbox</url-pattern>
+  </servlet-mapping>
+  
+  
 
-	<servlet>
-		<servlet-name>openEditor</servlet-name>
-		<servlet-class>org.wescheme.servlet.OpenEditor</servlet-class>
-	</servlet>
-	
-	
-	<servlet-mapping>
-		<servlet-name>openEditor</servlet-name>
-		<url-pattern>/openEditor</url-pattern>
-	</servlet-mapping>
-	
-	
-    <servlet>
-        <servlet-name>saveProject</servlet-name>
-        <servlet-class>org.wescheme.servlet.SaveProjectServlet</servlet-class>
-    </servlet>
-    
-    
-    <servlet-mapping>
-        <servlet-name>saveProject</servlet-name>
-        <url-pattern>/saveProject</url-pattern>
-    </servlet-mapping>
+  <servlet>
+    <servlet-name>openEditor</servlet-name>
+    <servlet-class>org.wescheme.servlet.OpenEditor</servlet-class>
+  </servlet>
+  
+  
+  <servlet-mapping>
+    <servlet-name>openEditor</servlet-name>
+    <url-pattern>/openEditor</url-pattern>
+  </servlet-mapping>
 
 
+  <servlet>
+    <servlet-name>listProjects</servlet-name>
+    <servlet-class>org.wescheme.servlet.ListProjectsServlet</servlet-class>
+  </servlet>
+  
+  
+  <servlet-mapping>
+    <servlet-name>listProjects</servlet-name>
+    <url-pattern>/listProjects</url-pattern>
+  </servlet-mapping>
 
-    <servlet>
-        <servlet-name>loadProject</servlet-name>
-        <servlet-class>org.wescheme.servlet.LoadProjectServlet</servlet-class>
-    </servlet>
-    
-    
-    <servlet-mapping>
-        <servlet-name>loadProject</servlet-name>
-        <url-pattern>/loadProject</url-pattern>
-    </servlet-mapping>
+  
+  
+  <servlet>
+    <servlet-name>saveProject</servlet-name>
+    <servlet-class>org.wescheme.servlet.SaveProjectServlet</servlet-class>
+  </servlet>
+  
+  
+  <servlet-mapping>
+    <servlet-name>saveProject</servlet-name>
+    <url-pattern>/saveProject</url-pattern>
+  </servlet-mapping>
+
+
+
+  <servlet>
+    <servlet-name>loadProject</servlet-name>
+    <servlet-class>org.wescheme.servlet.LoadProjectServlet</servlet-class>
+  </servlet>
+  
+  
+  <servlet-mapping>
+    <servlet-name>loadProject</servlet-name>
+    <url-pattern>/loadProject</url-pattern>
+  </servlet-mapping>
 
 
 </web-app>

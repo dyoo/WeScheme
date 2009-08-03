@@ -3,26 +3,45 @@
 <html>
 <head>
 
+<script src="editor/jquery.js"></script>
+<script src="editor/jquery.createdomnodes.js"></script>
 <script src="safeSubmit.js"></script>
+<script src="index.js"></script>
+
+<script>
+<% SessionManager sm = new SessionManager(); 
+   Session s = sm.authenticate(request, response);
+   if( s != null ) {
+%>
+     var userName = "<%= s.getName()%>";
+<% } else { %>
+     var userName = undefined;
+<% } %>
+</script>
+
 
 </head>
 <body>
 
 
+
+
 <%
-		SessionManager sm = new SessionManager();
-		Session s = sm.authenticate(request, response);
-		
-		if( s != null ) {
+if( s != null ) {
 %>
-
-
 
 Welcome <%= s.getName() %>
 
 <form method="POST" action="/logout">
 <input type="submit" name="logout" value="logout">
 </form>
+
+<h2>Your programs</h2>
+<ul id="programList"></ul>
+
+
+
+
 
 
 <% } else { %>

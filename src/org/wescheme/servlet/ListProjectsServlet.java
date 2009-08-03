@@ -1,6 +1,8 @@
 package org.wescheme.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.List;
 
 import javax.jdo.PersistenceManager;
@@ -9,6 +11,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
 import org.wescheme.project.Program;
 import org.wescheme.project.ProgramDigest;
 import org.wescheme.user.Session;
@@ -34,16 +38,22 @@ public class ListProjectsServlet extends HttpServlet {
 			}
 			
 			Query query = pm.newQuery(Program.class);
-			query.setFilter("ownerName_ == ownerParam");
+			query.setFilter("owner_ == ownerParam");
 			query.declareParameters("String ownerParam");
 			
 			try {
 				@SuppressWarnings({ "unchecked" })
 				List<Program> pl = (List<Program>) query.execute(userSession.getName());
-				
+
+				Element elt = new Element("ListProjects");
 				for( Program d : pl ){
-					resp.getWriter().print((new ProgramDigest(d)).toXML());
+					elt.addContent(new ProgramDigest(d).toXML());
 				}
+				PrintWriter w = resp.getWriter();
+				XMLOutputter outputter = new XMLOutputter();
+				w.write(outputter.outputString(elt));
+				w.close();
+				
 				
 			} finally {
 				query.closeAll();
