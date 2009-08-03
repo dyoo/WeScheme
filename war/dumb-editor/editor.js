@@ -1,7 +1,6 @@
 var WeSchemeEditor;
 
 (function() {
-    var ajaxUrl = "/ajax";
 
 
     WeSchemeEditor = function(attrs) {
@@ -49,16 +48,14 @@ var WeSchemeEditor;
 
     WeSchemeEditor.prototype.load = function() {
 	var that = this;
-	var data = { action: "load",
-		     code: this.defn.getCode(),
-		     pid: this.pid };
+	var data = { pid: this.pid };
 	var type = "text";
 	var callback = function(data) {
 	    that.defn.setCode(data);
 	    that.filenameDiv.text(that.pid);
 	    that.notifyOnStatusBar("Program " + that.pid + " loaded")
 	};
-	jQuery.post(ajaxUrl, data, callback, type);
+	jQuery.post("/loadProject", data, callback, type);
     };
 	
 
