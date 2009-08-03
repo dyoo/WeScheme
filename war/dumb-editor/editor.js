@@ -16,6 +16,7 @@ var WeSchemeEditor;
 	this.statusbar = attrs.statusbar; // JQuery
 	this.filenameDiv = attrs.filenameDiv; // JQuery
 
+	// pid: (or false number)
 	this.pid = false;
     };
 
@@ -27,7 +28,7 @@ var WeSchemeEditor;
 	    var type = "text";
 	    var callback = function(data) {
 		// The data contains the pid of the saved program.
-		that.pid = data;
+		that.pid = parseInt(data);
 		that.notifyOnStatusBar("Program " + that.pid + " saved")
 		that.filenameDiv.text(data);
 	    };
