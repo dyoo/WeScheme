@@ -59,9 +59,19 @@ WeSchemeInteractions = (function () {
     }
 
 
+    WeSchemeInteractions.prototype.prepareToRun = function() {
+	var that = this;
+	plt.world.MobyJsworld.makeToplevelNode = function() {
+	    var area = jQuery("<div>hello</div>");
+	    that.prompt.before(area);
+	    return area.get(0);
+	};
+    }
+
     // Evaluate the source code and accumulate its effects.
     WeSchemeInteractions.prototype.runCode = function(aSource) {
 	var that = this;
+	this.prepareToRun();
 	try {
 	    var program = readSchemeExpressions(aSource);
 	    var compiledProgram = 
