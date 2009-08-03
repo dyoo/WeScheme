@@ -46,7 +46,8 @@ public class SaveProjectServlet extends HttpServlet{
 					resp.getWriter().println(prog.getId());					
 				} else {
 					// FIXME: needs better error message.
-					resp.sendError(401);
+					System.out.println("Something bad happened: " + code + ", "  + pid);
+					resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
 				}
 			} else {				
 				resp.sendError(401);

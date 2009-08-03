@@ -16,16 +16,34 @@
 		if( s != null ) {
 %>
 
+
+
 Welcome <%= s.getName() %>
 
+<form method="POST" action="/logout">
+<input type="submit" name="logout" value="logout">
+</form>
+
+
 <% } else { %>
-
-Welcome anonymous!
-
+Welcome anonymous!   <a href="login.jsp">Login</a>
 <% } %>
 
-<a href="/openEditor">Open Editor</a>
 
+
+
+
+
+<div><a href="/openEditor">Open Editor</a></div>
+
+
+
+<!-- Everything below this point is for debugging purposes -->
+
+<hr/>
+
+
+<h2>Debug stuff</h2>
 
 <form method="POST" action="/publish">
 
@@ -53,10 +71,6 @@ Create User:
 </form>
 </p>
 
-<a href="login.jsp">Login</a>
-<form method="POST" action="/logout">
-<input type="submit" name="logout" value="logout">
-</form>
 <p>
 Key Server:
 <form method="POST" action="/keyServer">

@@ -44,6 +44,7 @@ public class Program extends XML {
 	}
 	
 	public Program(String src, Session owner){
+		title_ = null;
 		src_ = new SourceCode(src);
 		obj_ = null;
 		owner_ 	= owner.getName();
@@ -92,7 +93,12 @@ public class Program extends XML {
 		obj_ = Compiler.compile(src_);
 		updateTime();
 	}
-		
+	
+	public void updateTitle(String newTitle) {
+		title_ = newTitle;
+		updateTime();
+	}
+	
 	public void updateSource(String src){
 		src_ = new SourceCode(src);
 		obj_ = null;
