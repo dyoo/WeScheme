@@ -55,7 +55,7 @@ var WeSchemeEditor;
 	    that.filenameDiv.text(that.pid);
 	    that.notifyOnStatusBar("Program " + that.pid + " loaded")
 	};
-	jQuery.post("/loadProject", data, callback, type);
+	jQuery.get("/loadProject", data, callback, type);
     };
 	
 
