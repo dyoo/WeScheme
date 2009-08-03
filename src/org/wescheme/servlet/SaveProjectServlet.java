@@ -25,7 +25,6 @@ public class SaveProjectServlet extends HttpServlet{
 		SessionManager sm = new SessionManager();
 
 		if( !sm.isIntentional(req, resp) ){
-			System.out.println("Not intentional");
 			resp.sendError(401);
 			return;
 		}
@@ -70,7 +69,6 @@ public class SaveProjectServlet extends HttpServlet{
 		Key k = KeyFactory.createKey("Program", id);
 		Program prog = pm.getObjectById(Program.class, k);
 		prog.updateSource(code);
-		pm.makePersistent(prog);
 		return prog;
 	}
 }

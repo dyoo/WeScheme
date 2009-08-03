@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jdom.output.XMLOutputter;
 import org.wescheme.project.Program;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
@@ -33,10 +34,11 @@ public class LoadProjectServlet extends HttpServlet {
 				userSession = sm.authenticate(req, resp);
 				
 				if( null != userSession ){
+					XMLOutputter outputter = new XMLOutputter();
 					Long id = (Long) Long.parseLong(req.getParameter("pid"));
 					Key k = KeyFactory.createKey("Program", id);
 	    			Program prog = pm.getObjectById(Program.class, k);
-					resp.getWriter().print(prog.toXML());
+					resp.getWriter().print(outputter.outputString(prog.toXML()));
 				} else {
 					resp.sendError(403);
 				}

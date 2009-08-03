@@ -49,10 +49,10 @@ var WeSchemeEditor;
     WeSchemeEditor.prototype.load = function() {
 	var that = this;
 	var data = { pid: this.pid };
-	var type = "text";
+	var type = "xml";
 	var callback = function(data) {
-	    that.defn.setCode(data);
-	    that.filenameDiv.text(that.pid);
+	    var dom = jQuery(data);
+	    that.defn.setCode(dom.find("source").text());
 	    that.notifyOnStatusBar("Program " + that.pid + " loaded")
 	};
 	jQuery.get("/loadProject", data, callback, type);
@@ -72,9 +72,7 @@ var WeSchemeEditor;
 	this.statusbar.text(msg);
 	this.statusbar.fadeIn("slow",
 			      function() { that.statusbar.fadeOut(5000); });
-    }
-
-
+    };
 
 
 })();

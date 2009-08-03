@@ -30,7 +30,7 @@ public class SourceCode extends XML {
 
 	public Element toXML() {
 		Element root = new Element("source");
-		root.setText(src_.toString());
+		root.setText(src_.getValue());
 		return root;
 	}
 	
