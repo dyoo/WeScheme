@@ -44,7 +44,7 @@ public class Program extends XML {
 	}
 	
 	public Program(String src, Session owner){
-		title_ = null;
+		title_ = "Unknown";
 		src_ = new SourceCode(src);
 		obj_ = null;
 		owner_ 	= owner.getName();
