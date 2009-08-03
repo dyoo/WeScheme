@@ -72,8 +72,8 @@ var WeSchemeEditor;
 	var that = this;
 	//this.statusbar.show();
 	this.statusbar.text(msg);
-	//this.statusbar.fadeIn("slow",
-	//		      function() { that.statusbar.fadeOut(5000); });
+	this.statusbar.fadeIn("slow",
+			      function() { that.statusbar.fadeOut(5000); });
     }
 
 

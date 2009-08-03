@@ -36,7 +36,7 @@ public class ShowDropboxServlet extends HttpServlet {
 		try {
 			@SuppressWarnings({ "unchecked" })
 			List<Dropbox> dbl = (List<Dropbox>) query.execute(userSession.getName());
-			resp.getWriter().println("got " + dbl.size() + " dropboxes");
+//			resp.getWriter().println("got " + dbl.size() + " dropboxes");
 			for( Dropbox d : dbl ){	resp.getWriter().print(d.toXML()); }
 		} finally {
 			query.closeAll();
