@@ -102,14 +102,6 @@
 	</servlet-mapping>
 	
 	
-	<servlet>
-		<servlet-name>openEditor</servlet-name>
-		<servlet-class>org.wescheme.servlet.OpenEditor</servlet-class>
-	</servlet>
-	<servlet-mapping>
-		<servlet-name>openEditor</servlet-name>
-		<url-pattern>/openEditor</url-pattern>
-	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>openEditor</servlet-name>
@@ -123,21 +115,32 @@
 	</servlet-mapping>
 	
 	
-	<servlet>
-		<servlet-name>saveProject</servlet-name>
-		<servlet-class>org.wescheme.servlet.SaveProjectServlet</servlet-class>
-	</servlet>
-	
-	
-	<servlet-mapping>
-		<servlet-name>saveProject</servlet-name>
-		<url-pattern>/saveProject</url-pattern>
-	</servlet-mapping>
-	
-	
-	
-	
-	
+    <servlet>
+        <servlet-name>saveProject</servlet-name>
+        <servlet-class>org.wescheme.servlet.SaveProjectServlet</servlet-class>
+    </servlet>
+    
+    
+    <servlet-mapping>
+        <servlet-name>saveProject</servlet-name>
+        <url-pattern>/saveProject</url-pattern>
+    </servlet-mapping>
+
+
+
+    <servlet>
+        <servlet-name>loadProject</servlet-name>
+        <servlet-class>org.wescheme.servlet.LoadProjectServlet</servlet-class>
+    </servlet>
+    
+    
+    <servlet-mapping>
+        <servlet-name>loadProject</servlet-name>
+        <url-pattern>/loadProject</url-pattern>
+    </servlet-mapping>
+
+
+
 	
 	
 	<servlet>

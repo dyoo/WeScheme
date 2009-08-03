@@ -33,30 +33,42 @@ public class SaveProjectServlet extends HttpServlet{
 		try {
 			userSession = sm.authenticate(req, resp);
 			
-			if( null != userSession ){
-				long startTime = System.currentTimeMillis();
-		
+			if( null != userSession ){				
 				String code = req.getParameter("code");
-				resp.setContentType("text/plain");
-			
-				Program prog = new Program(code, userSession);
-				pm.makePersistent(prog);
-			
-				resp.getWriter().println(prog.getId());
-				
-				long duration = System.currentTimeMillis() - startTime;
-				System.out.println("Took " + duration/1000 + " seconds.");	
-				System.out.println("Saved as " + userSession.getName());
-			} else {
-				
+				String pid = req.getParameter("pid");
+				if (code != null && pid == null) {
+					Program prog = saveNewProgram(pm, userSession, code);
+					resp.setContentType("text/plain");
+					resp.getWriter().println(prog.getId());					
+				} else if (code != null && pid != null) {
+					Program prog = saveExistingProgram(pm, pid, code);
+					resp.setContentType("text/plain");
+					resp.getWriter().println(prog.getId());					
+				} else {
+					// FIXME: needs better error message.
+					resp.sendError(401);
+				}
+			} else {				
 				resp.sendError(401);
 				return;
 			}
-
 		} finally {
 			pm.close();
-		}
-		
-		
+		}		
+	}
+	
+	private Program saveNewProgram(PersistenceManager pm, Session userSession, String code) {
+		Program prog = new Program(code, userSession);
+		pm.makePersistent(prog);
+		return prog;
+	}
+	
+	private Program saveExistingProgram(PersistenceManager pm, String pid, String code) {
+		Long id = (Long) Long.parseLong(pid);
+		Key k = KeyFactory.createKey("Program", id);
+		Program prog = pm.getObjectById(Program.class, k);
+		prog.updateSource(code);
+		pm.makePersistent(prog);
+		return prog;
 	}
 }
