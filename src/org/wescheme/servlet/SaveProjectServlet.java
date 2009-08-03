@@ -36,10 +36,12 @@ public class SaveProjectServlet extends HttpServlet{
 				String code = req.getParameter("code");
 				String pid = req.getParameter("pid");
 				if (code != null && pid == null) {
+					System.out.println("Saving new program");
 					Program prog = saveNewProgram(pm, userSession, code);
 					resp.setContentType("text/plain");
 					resp.getWriter().println(prog.getId());					
 				} else if (code != null && pid != null) {
+					System.out.println("Saving existing program");
 					Program prog = saveExistingProgram(pm, pid, code);
 					resp.setContentType("text/plain");
 					resp.getWriter().println(prog.getId());					
@@ -59,16 +61,17 @@ public class SaveProjectServlet extends HttpServlet{
 	}
 	
 	private Program saveNewProgram(PersistenceManager pm, Session userSession, String code) {
-		Program prog = new Program(code, userSession);
-		pm.makePersistent(prog);
-		return prog;
+			Program prog = new Program(code, userSession);
+			pm.makePersistent(prog);
+			return prog;
 	}
 	
 	private Program saveExistingProgram(PersistenceManager pm, String pid, String code) {
-		Long id = (Long) Long.parseLong(pid);
-		Key k = KeyFactory.createKey("Program", id);
-		Program prog = pm.getObjectById(Program.class, k);
-		prog.updateSource(code);
-		return prog;
+			Long id = (Long) Long.parseLong(pid);
+			Key k = KeyFactory.createKey("Program", id);
+			Program prog = pm.getObjectById(Program.class, k);
+			prog.updateSource(code);
+			pm.makePersistent(prog);
+			return prog;
 	}
 }

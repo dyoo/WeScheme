@@ -1,6 +1,7 @@
 package org.wescheme.project;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
@@ -10,8 +11,10 @@ import org.wescheme.util.XML;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Text;
-@PersistenceCapable
+
+@PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class SourceCode extends XML {
+
 	@SuppressWarnings("unused")
 	@PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
@@ -19,8 +22,10 @@ public class SourceCode extends XML {
 
 	@Persistent
 	private Text src_;
+		
 	
 	public SourceCode(String src){
+		this.key = null;
 		src_ = new Text(src);
 	}
 	

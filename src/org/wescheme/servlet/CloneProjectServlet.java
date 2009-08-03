@@ -44,7 +44,6 @@ public class CloneProjectServlet {
 			Program cloned = prog.clone(userSession.getName());
 			cloned.unpublish();
 			cloned.setAuthor(userSession.getName());
-			cloned.setBacklink(pid);
 			
 			pm.makePersistent(cloned);
 			
