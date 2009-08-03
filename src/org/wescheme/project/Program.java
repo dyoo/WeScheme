@@ -100,8 +100,8 @@ public class Program extends XML {
 	}
 	
 	public void updateSource(String src){
-		src_ = new SourceCode(src);
-		obj_ = null;
+		this.src_ = new SourceCode(src);
+		this.obj_ = null;
 		updateTime();
 	}
 	
