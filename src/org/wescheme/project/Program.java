@@ -1,5 +1,6 @@
 package org.wescheme.project;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
@@ -26,7 +27,7 @@ public class Program extends XML {
 	@Persistent
 	protected ObjectCode obj_;
 	@Persistent
-	protected SourceCode src_;
+	protected List<SourceCode> srcs_;
 	@Persistent
 	protected String owner_;
 	@Persistent
@@ -47,7 +48,8 @@ public class Program extends XML {
 	
 	public Program(String src, Session owner){
 		title_ = "Unknown";
-		src_ = new SourceCode(src);
+		srcs_ = new ArrayList<SourceCode>();
+		srcs_.add(new SourceCode(src));
 		obj_ = null;
 		owner_ 	= owner.getName();
 		author_ = owner_;
@@ -55,7 +57,8 @@ public class Program extends XML {
 	}
 	
 	public Program(Program p, String owner){
-		src_ = new SourceCode(p.src_.toString());
+		srcs_ = new ArrayList<SourceCode>();
+		srcs_.add(new SourceCode(p.getSource().toString()));
 		owner_ = owner;
 		author_ = p.author_;
 		capabilities_ = p.capabilities_;
@@ -90,7 +93,7 @@ public class Program extends XML {
 	}
 	
 	public void build(){
-		obj_ = Compiler.compile(src_);
+		obj_ = Compiler.compile(srcs_.get(0));
 		updateTime();
 	}
 	
@@ -100,17 +103,18 @@ public class Program extends XML {
 	}
 	
 	public void updateSource(String src){
-		this.setSrc_(new SourceCode(src));
+		this.setSource(new SourceCode(src));
 		this.obj_ = null;
 		updateTime();
 	}
 	
 	public SourceCode getSource(){
-		return src_;
+		return srcs_.get(0);
 	}
 	
-	private void setSrc_(SourceCode src) {
-		this.src_ = src;
+	private void setSource(SourceCode src) {
+		this.srcs_.clear();
+		this.srcs_.add(src);
 	}
 	
 	
@@ -139,7 +143,7 @@ public class Program extends XML {
 		
 		Element root = new Element("Program");
 		
-		root.addContent(src_.toXML());
+		root.addContent(getSource().toXML());
 		
 		if( null != obj_){
 			root.addContent(obj_.toXML());
