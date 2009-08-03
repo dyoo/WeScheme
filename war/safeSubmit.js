@@ -35,7 +35,7 @@ function instrumentedSend(body){
 		body += "&";
 	}
 	
-	body += "token=" + getCookie("token");
+        body += "token=" + encodeURIComponent(getCookie("token"));
 
 	return this._send(body);
 }
