@@ -33,22 +33,19 @@ public class SaveProjectServlet extends HttpServlet{
 			Session userSession = sm.authenticate(req, resp);
 			
 			if( null != userSession ){				
+				String title = req.getParameter("title");
 				String code = req.getParameter("code");
 				String pid = req.getParameter("pid");
-				if (code != null && pid == null) {
+				if (pid == null) {
 					System.out.println("Saving new program");
-					Program prog = saveNewProgram(pm, userSession, code);
-					resp.setContentType("text/plain");
-					resp.getWriter().println(prog.getId());					
-				} else if (code != null && pid != null) {
-					System.out.println("Saving existing program");
-					Program prog = saveExistingProgram(pm, pid, code);
+					Program prog = saveNewProgram(pm, userSession, title, code);
 					resp.setContentType("text/plain");
 					resp.getWriter().println(prog.getId());					
 				} else {
-					// FIXME: needs better error message.
-					System.out.println("Something bad happened: " + code + ", "  + pid);
-					resp.sendError(HttpServletResponse.SC_BAD_REQUEST);
+					System.out.println("Saving existing program");
+					Program prog = saveExistingProgram(pm, pid, title, code);
+					resp.setContentType("text/plain");
+					resp.getWriter().println(prog.getId());					
 				}
 			} else {				
 				System.out.println("userSession was null.");
@@ -60,16 +57,18 @@ public class SaveProjectServlet extends HttpServlet{
 		}		
 	}
 	
-	private Program saveNewProgram(PersistenceManager pm, Session userSession, String code) {
+	private Program saveNewProgram(PersistenceManager pm, Session userSession, String title, String code) {
 			Program prog = new Program(code, userSession);
+			prog.updateTitle(title);
 			pm.makePersistent(prog);
 			return prog;
 	}
 	
-	private Program saveExistingProgram(PersistenceManager pm, String pid, String code) {
+	private Program saveExistingProgram(PersistenceManager pm, String pid, String title, String code) {
 			Long id = (Long) Long.parseLong(pid);
 			Key k = KeyFactory.createKey("Program", id);
 			Program prog = pm.getObjectById(Program.class, k);
+			prog.updateTitle(title);
 			prog.updateSource(code);
 			pm.makePersistent(prog);
 			return prog;
