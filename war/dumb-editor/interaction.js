@@ -68,15 +68,9 @@ WeSchemeInteractions = (function () {
 	var newArea = jQuery("<div style='width: 100%'></div>");
 	newArea.text(interactionVal);
 	this.prompt.before(newArea);
+	this.interactionsDiv.attr("scrollTop", this.interactionsDiv.attr("scrollHeight"));
     };
 
-
-    // addErrorToInteractions: string -> void
-    // Adds a notification that something bad happened.
-    // TODO: do something colorful.
-    WeSchemeInteractions.prototype.addErrorToInteractions = function(val) {
-	this.interactions.append(val);
-    }
 
 
     WeSchemeInteractions.prototype.prepareToRun = function() {
