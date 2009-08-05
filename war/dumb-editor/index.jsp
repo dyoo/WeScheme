@@ -1,6 +1,8 @@
 <html>
 <head>
 
+<link rel="stylesheet" type="text/css" href="/dumb-editor/style.css" />
+
 <script src="/editor/jquery.js"></script>
 <script src="/editor/jquery.createdomnodes.js"></script>
 <script src="/safeSubmit.js"></script>
@@ -44,7 +46,6 @@
     filenameDiv: jQuery("#filenameArea") });
   
   jQuery("#save").click(function() { myEditor.save(); });
-  jQuery("#load").click(function() { myEditor.load(); });
   jQuery("#run").click(function()  { myEditor.run(); });
   jQuery("#back").click(function()  { window.location = "/"; });
 
@@ -57,7 +58,6 @@
 
 <span>
 <span><input id="save" type="button" value="Save"></input></span>
-<span><input id="load" type="button" value="Load"></input></span>
 <span><input id="run" type="button" value="Run"></input></span>
 <span><input id="back" type="button" value="Back to main"></input></span>
 </span>
@@ -65,7 +65,8 @@
 
 
 <span>
-<div id="filenameArea" style="background-color: lightgrey"></div>
+<div id="filenameArea" style="background-color: lightgrey">
+</div>
 <div id="pidArea" style="background-color: lightgrey">Unknown</div>
 </span>
 
