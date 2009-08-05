@@ -7,3 +7,7 @@
 #back {
     margin-left: 100px;
 }
+
+#inter {
+    overflow: auto;
+}
