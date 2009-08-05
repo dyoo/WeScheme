@@ -66,7 +66,7 @@ var WeSchemeEditor;
 	    that.notifyOnStatusBar("Program " + that.pid + " saved")
 	    that.pidDiv.text(data);
 	    that.filenameEntry.value = data;
-	    that.afterSave();
+	    that.afterSaveOrClone();
 	}
 
 	function onFirstSave() {
@@ -100,6 +100,21 @@ var WeSchemeEditor;
     };
 
 
+    WeSchemeEditor.prototype._clone = function() {
+	if (this.pid) {
+	    var that = this;
+	    var data = { pid: this.pid };
+	    var type = "text";
+	    var callback = function(data) {
+		that.notifyOnStatusBar("Program " + that.pid + " cloned");
+		window.location = "/openEditor?pid=" + encodeURIComponent(parseInt(data));
+	    };
+	    jQuery.post("/cloneProject", data, callback, type);
+	}
+    };
+
+
+
     WeSchemeEditor.prototype.load = function() {
 	if (this.pid) {
 	    var that = this;
@@ -117,10 +132,6 @@ var WeSchemeEditor;
     };
 	
 
-    WeSchemeEditor.prototype._clone = function() {
-	// FILL ME IN
-    };
-
 
     WeSchemeEditor.prototype.publish = function() {
 	if (this.pid) {
@@ -128,11 +139,12 @@ var WeSchemeEditor;
 	    var data = { pid: this.pid };
 	    var type = "xml";
 	    var callback = function(data) {
+		var dom = jQuery(data);
 		console.log(dom.find("published").text());
 		that.setIsPublished(dom.find("published").text() == "true" ? true : false);
 		that.notifyOnStatusBar("Program " + that.pid + " published")
 	    };
-	    jQuery.post("/publish", data, callback, type);
+	    jQuery.post("/publishProject", data, callback, type);
 	}
     };
 
