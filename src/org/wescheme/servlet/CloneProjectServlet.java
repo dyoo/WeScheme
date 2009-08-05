@@ -6,7 +6,6 @@ import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jdom.output.XMLOutputter;
 import org.wescheme.project.Program;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
