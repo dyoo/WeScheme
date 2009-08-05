@@ -16,12 +16,14 @@
 
 <!-- Evaluation and world runtime stuff -->
 <!-- FIXME: bundle into single js for convenience. -->
+<script src="/dumb-editor/runtime/types.js"></script>
 <script src="/dumb-editor/runtime/kernel.js"></script>
 <script src="/dumb-editor/runtime/compiler.js"></script>
 <script src="/dumb-editor/runtime/read.js"></script>
 <script src="/dumb-editor/runtime/namespace.js"></script>
 <script src="/dumb-editor/runtime/world-config.js"></script>
 <script src="/dumb-editor/runtime/platform.js"></script>
+<script src="/dumb-editor/runtime/lib.js"></script>
 <script src="/dumb-editor/runtime/world.js"></script>
 <script src="/dumb-editor/runtime/jsworld/jsworld.js"></script>
 <script src="/dumb-editor/runtime/jsworld.js"></script>
