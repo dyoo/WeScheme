@@ -9,14 +9,20 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jdom.Element;
+import org.jdom.output.XMLOutputter;
 import org.wescheme.dropbox.Dropbox;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
-import org.wescheme.user.UnauthorizedUserException;
 import org.wescheme.util.PMF;
 
 public class ShowDropboxServlet extends HttpServlet {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2158283583083003253L;
+
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try {
@@ -36,8 +42,13 @@ public class ShowDropboxServlet extends HttpServlet {
 		try {
 			@SuppressWarnings({ "unchecked" })
 			List<Dropbox> dbl = (List<Dropbox>) query.execute(userSession.getName());
-//			resp.getWriter().println("got " + dbl.size() + " dropboxes");
-			for( Dropbox d : dbl ){	resp.getWriter().print(d.toXML()); }
+			XMLOutputter outputter = new XMLOutputter();
+			Element parent = new Element("Dropboxes");
+			for( Dropbox d : dbl ){	
+				parent.addContent(d.toXML());
+			}
+			resp.setContentType("text/xml");
+			resp.getWriter().print(outputter.outputString(parent)); 			
 		} finally {
 			query.closeAll();
 		}

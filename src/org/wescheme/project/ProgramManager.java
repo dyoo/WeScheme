@@ -1,15 +1,11 @@
 package org.wescheme.project;
 
-import java.io.IOException;
-import java.util.Iterator;
 import java.util.List;
 
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 
 import org.wescheme.util.PMF;
 

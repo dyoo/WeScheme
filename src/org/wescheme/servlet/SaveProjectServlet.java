@@ -3,7 +3,6 @@ package org.wescheme.servlet;
 import java.io.IOException;
 
 import javax.jdo.PersistenceManager;
-import javax.jdo.Transaction;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -38,12 +37,10 @@ public class SaveProjectServlet extends HttpServlet{
 				String code = req.getParameter("code");
 				String pid = req.getParameter("pid");
 				if (pid == null) {
-					System.out.println("Saving new program");
 					Program prog = saveNewProgram(pm, userSession, title, code);
 					resp.setContentType("text/plain");
 					resp.getWriter().println(prog.getId());					
 				} else {
-					System.out.println("Saving existing program");
 					Program prog = saveExistingProgram(pm, pid, title, code);
 					resp.setContentType("text/plain");
 					resp.getWriter().println(prog.getId());					
