@@ -24,8 +24,8 @@ var WeSchemeEditor;
 
 	this.isPublished = false;
 
-	// saveButton: (jqueryof button)
-	this.saveButton = attrs.saveButton;
+	// saveOrCloneButton: (jqueryof button)
+	this.saveOrCloneButton = attrs.saveOrCloneButton;
 	// publishButton: (jqueryof button)
 	this.publishButton = attrs.publishButton;
 
@@ -39,16 +39,25 @@ var WeSchemeEditor;
     };
 
 
-    // afterSave: -> void
+    // afterSaveOrClone: -> void
     // Clears out the dirty tag off of the editable things.
     // 
-    WeSchemeEditor.prototype.afterSave = function() {
+    WeSchemeEditor.prototype.afterSaveOrClone = function() {
 	this.filenameEntry.removeClass("dirty");
 	this.defn.removeClass("dirty");
     };
 
 
-    WeSchemeEditor.prototype.save = function() {
+    WeSchemeEditor.prototype.saveOrClone = function() {
+	if (! this.isPublished) {
+	    this._save();
+	} else {
+	    this._clone();
+	}
+    }
+
+
+    WeSchemeEditor.prototype._save = function() {
 	var that = this;
 
 	function saveProjectCallback(data) {
@@ -100,7 +109,7 @@ var WeSchemeEditor;
 		var dom = jQuery(data);
 		that.filenameEntry.attr("value", dom.find("title").text());
 		that.defn.setCode(dom.find("source").text());
-		that.setIsPublished(dom.find("source").text() == "true" ? true : false);
+		that.setIsPublished(dom.find("published").text() == "true" ? true : false);
 		that.notifyOnStatusBar("Program " + that.pid + " loaded")
 	    };
 	    jQuery.get("/loadProject", data, callback, type);
@@ -108,16 +117,22 @@ var WeSchemeEditor;
     };
 	
 
+    WeSchemeEditor.prototype._clone = function() {
+	// FILL ME IN
+    };
+
+
     WeSchemeEditor.prototype.publish = function() {
 	if (this.pid) {
 	    var that = this;
 	    var data = { pid: this.pid };
 	    var type = "xml";
 	    var callback = function(data) {
-		that.setIsPublished(true);
+		console.log(dom.find("published").text());
+		that.setIsPublished(dom.find("published").text() == "true" ? true : false);
 		that.notifyOnStatusBar("Program " + that.pid + " published")
 	    };
-	    jQuery.get("/loadProject", data, callback, type);
+	    jQuery.post("/publish", data, callback, type);
 	}
     };
 
@@ -143,11 +158,11 @@ var WeSchemeEditor;
     WeSchemeEditor.prototype.setIsPublished = function(isPublished) {
 	this.isPublished = isPublished;
 	if (this.isPublished) {
-	    this.saveButton.attr("value", "Clone");
-	    this.publishButton.attr("enabled", "false");
+	    this.saveOrCloneButton.attr("value", "Clone");
+	    this.publishButton.attr("disabled", "true");
 	} else {
-	    this.saveButton.attr("value", "Save");
-	    this.publishButton.attr("enabled", "true");
+	    this.saveOrCloneButton.attr("value", "Save");
+	    this.publishButton.removeAttr("disabled");
 	}
     }
 
