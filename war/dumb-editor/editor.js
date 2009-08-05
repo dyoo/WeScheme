@@ -4,6 +4,7 @@ var WeSchemeEditor;
 
 
     WeSchemeEditor = function(attrs) {
+	var that = this;
 	// defn and statusbar are assumed to be Containers.
 	// The only container we've got so far are TextContainers.
 	this.defn = attrs.defn;  // TextAreaContainer
@@ -17,7 +18,8 @@ var WeSchemeEditor;
 	this.filenameDiv = attrs.filenameDiv; // JQuery
 	this.filenameEntry = (jQuery("<input/>").
 			      attr("type", "text").
-			      attr("value", "Unknown"));
+			      attr("value", "Unknown").
+			      change(function() { that.filenameEntry.addClass("dirty")}));;
 	this.filenameDiv.append(this.filenameEntry);
 
 	// pid: (or false number)
@@ -25,7 +27,19 @@ var WeSchemeEditor;
 	if (this.pidDiv.text() != "Unknown") {
 	    this.pid = parseInt(this.pidDiv.text());
 	}
+
+	this.defn.addChangeListener(function() { this.addClass("dirty"); });
     };
+
+
+    // afterSave: -> void
+    // Clears out the dirty tag off of the editable things.
+    // 
+    WeSchemeEditor.prototype.afterSave = function() {
+	this.filenameEntry.removeClass("dirty");
+	this.defn.removeClass("dirty");
+    };
+
 
     WeSchemeEditor.prototype.save = function() {
 	var that = this;
@@ -39,6 +53,7 @@ var WeSchemeEditor;
 		that.notifyOnStatusBar("Program " + that.pid + " saved")
 		that.pidDiv.text(data);
 		that.filenameEntry.value = data;
+		that.afterSave();
 	    };
 	    jQuery.post("/saveProject", data, callback, type);
 	} else {
@@ -50,6 +65,7 @@ var WeSchemeEditor;
 		that.notifyOnStatusBar("Program " + that.pid + " saved")
 		that.pidDiv.text(data);
 		that.filenameEntry.value = data;
+		that.afterSave();
 	    };
 	    jQuery.post("/saveProject", data, callback, type);
 	}

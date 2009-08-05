@@ -1,0 +1,5 @@
+.dirty {
+    border-style: double;
+    border-width: thick;
+    border-color: yellow;
+}

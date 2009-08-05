@@ -11,7 +11,7 @@ WeSchemeInteractions = (function () {
 	    this.namespace = undefined;
 	    this.pinfo = undefined;
 
-	    this.prompt = jQuery("<div style='width:100%'><span>&gt;&gt;&gt; <input id=type='text' style='width: 75%'></span></div>");
+	    this.prompt = jQuery("<div style='width:100%'><span>&gt; <input id=type='text' style='width: 75%'></span></div>");
 	    this.interactionsDiv.append(this.prompt);
     };
 
@@ -29,7 +29,7 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.reset = function() {
 	var that = this;
 	this.interactionsDiv.empty();
-	this.prompt = jQuery("<div style='width:100%'><span>&gt;&gt;&gt; <input id=type='text' style='width: 75%'></span></div>");
+	this.prompt = jQuery("<div style='width:100%'><span>&gt; <input id=type='text' style='width: 75%'></span></div>");
 	this.interactionsDiv.append(this.prompt);
 
 	this.prompt.contents().keypress(function(e) { that.maybeRunPrompt(e) });
@@ -100,7 +100,7 @@ WeSchemeInteractions = (function () {
 
     WeSchemeInteractions.prototype.maybeRunPrompt = function(keyEvent) {
  	if (keyEvent.keyCode == 13) {
-	    this.addToInteractions(">>> " + this.prompt.find("input").get(0).value + "\n");
+	    this.addToInteractions("> " + this.prompt.find("input").get(0).value + "\n");
 	    this.runCode(this.prompt.find("input").get(0).value);
  	} else {
 	}
