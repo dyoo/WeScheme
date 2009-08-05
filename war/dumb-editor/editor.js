@@ -103,6 +103,7 @@ var WeSchemeEditor;
     WeSchemeEditor.prototype.run = function() {
 	this.interactions.reset();
 	this.interactions.runCode(this.defn.getCode());
+	this.notifyOnStatusBar("Executed code");
     };
 
 
@@ -112,7 +113,7 @@ var WeSchemeEditor;
 	//this.statusbar.show();
 	this.statusbar.text(msg);
 	this.statusbar.fadeIn("slow",
-			      function() { that.statusbar.fadeOut(5000); });
+			      function() { that.statusbar.fadeOut("slow"); });
     };
 
 
