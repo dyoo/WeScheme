@@ -6,13 +6,15 @@ WeSchemeInteractions = (function () {
 
     // WeSchemeInteractions: div -> WeScheme
     function WeSchemeInteractions(interactionsDiv) { 
-	    this.interactionsDiv = jQuery(interactionsDiv);
-	    this.prompt = undefined;
-	    this.namespace = undefined;
-	    this.pinfo = undefined;
+	this.interactionsDiv = jQuery(interactionsDiv);
+	this.prompt = undefined;
+	this.namespace = undefined;
+	this.pinfo = undefined;
 
-	    this.prompt = jQuery("<div style='width:100%'><span>&gt; <input id=type='text' style='width: 75%'></span></div>");
-	    this.interactionsDiv.append(this.prompt);
+	this.prompt = jQuery("<div style='width:100%'><span>&gt; <input type='text' style='width: 75%'></span></div>");
+	this.interactionsDiv.append(this.prompt);
+	// history: (listof string)
+	this.history = [];
     };
 
     
@@ -29,10 +31,10 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.reset = function() {
 	var that = this;
 	this.interactionsDiv.empty();
-	this.prompt = jQuery("<div style='width:100%'><span>&gt; <input id=type='text' style='width: 75%'></span></div>");
+	this.prompt = jQuery("<div style='width:100%'><span>&gt; <input type='text' style='width: 75%'></span></div>");
 	this.interactionsDiv.append(this.prompt);
 
-	this.prompt.contents().keypress(function(e) { that.maybeRunPrompt(e) });
+	this.prompt.contents().keydown(function(e) { that.maybeRunPrompt(e) });
 
 	this.addToInteractions("WeScheme Interactions");
 	this.addToInteractions("---");
@@ -80,18 +82,17 @@ WeSchemeInteractions = (function () {
 	    var defns = compiled_dash_program_dash_defns(compiledProgram);
 	    var interFunc = compiled_dash_program_dash_toplevel_dash_exprs(compiledProgram);
 	    var runToplevel = this.namespace.eval(defns, interFunc);
-         
+            
 	    runToplevel(function(val) {
-		    if (val != undefined) {
-			that.addToInteractions(val.toWrittenString() + "\n");
-		    }
-		});
+		if (val != undefined) {
+		    that.addToInteractions(val.toWrittenString() + "\n");
+		}
+	    });
 
 	    // Update the pinfo.
 	    this.pinfo = compiled_dash_program_dash_pinfo(compiledProgram);
 	} catch (err) {
 	    this.addToInteractions(err.toString() + "\n");
-	    throw err;
 	}
     };
 
@@ -100,9 +101,22 @@ WeSchemeInteractions = (function () {
 
     WeSchemeInteractions.prototype.maybeRunPrompt = function(keyEvent) {
  	if (keyEvent.keyCode == 13) {
-	    this.addToInteractions("> " + this.prompt.find("input").get(0).value + "\n");
-	    this.runCode(this.prompt.find("input").get(0).value);
- 	} else {
+	    var nextCode = this.prompt.find("input").attr("value");
+	    this.addToInteractions("> " + nextCode + "\n");
+	    this.runCode(nextCode);
+	    this.history.push(nextCode);
+	    this.prompt.find("input").attr("value", "");
+	    return false;
+ 	} else if (keyEvent.keyCode == 38) {
+	    this.history.unshift(this.prompt.find("input").attr("value"));
+	    this.prompt.find("input").attr("value", this.history.pop());
+	    return false;
+ 	} else if (keyEvent.keyCode == 40) {
+	    this.history.push(this.prompt.find("input").attr("value"));
+	    this.prompt.find("input").attr("value", this.history.shift());
+	    return false;
+	} else {
+	    return true;
 	}
     }
 
