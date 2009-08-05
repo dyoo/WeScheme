@@ -15,9 +15,25 @@ WeSchemeInteractions = (function () {
 	this.interactionsDiv.append(this.prompt);
 	// history: (listof string)
 	this.history = [];
+	
+	this.listeners = [];
     };
 
     
+    WeSchemeInteractions.prototype.addIntentListener = function(l) {
+	this.listeners.push(l);
+    }
+
+
+    WeSchemeInteractions.prototype._notifyIntent = function(type, arg) {
+	for(var i = 0; i < this.listeners.length; i++) {
+	    try {
+		this.listeners[i].apply(this, [type, arg]);
+	    } catch (e) {}
+	}
+    }
+
+
     // freshPinfo: -> pinfo
     // Returns a new Pinfo object with a good toplevel environment.
     function freshPinfo() {
@@ -29,6 +45,7 @@ WeSchemeInteractions = (function () {
     // reset: -> void
     // Clears out the interactions.
     WeSchemeInteractions.prototype.reset = function() {
+	this._notifyIntent("action", "before-reset");
 	var that = this;
 	this.interactionsDiv.empty();
 	this.prompt = jQuery("<div style='width:100%'><span>&gt; <input type='text' style='width: 75%'></span></div>");
@@ -40,7 +57,8 @@ WeSchemeInteractions = (function () {
 	this.addToInteractions("---");
 	this.namespace = new Namespace();
 	this.pinfo = freshPinfo();
-	//	this.prompt.value = "";
+
+	this._notifyIntent("action", "after-reset");
     }
 
 
@@ -72,6 +90,7 @@ WeSchemeInteractions = (function () {
 
     // Evaluate the source code and accumulate its effects.
     WeSchemeInteractions.prototype.runCode = function(aSource) {
+	this._notifyIntent("action", "before-run");
 	var that = this;
 	this.prepareToRun();
 	try {
@@ -91,6 +110,7 @@ WeSchemeInteractions = (function () {
 
 	    // Update the pinfo.
 	    this.pinfo = compiled_dash_program_dash_pinfo(compiledProgram);
+	    this._notifyIntent("action", "after-run");
 	} catch (err) {
 	    this.addToInteractions(err.toString() + "\n");
 	}
