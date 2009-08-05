@@ -46,7 +46,5 @@ public class Publish extends HttpServlet{
 		} finally {
 			pm.close();
 		}
-		
-		resp.sendRedirect("index.jsp");
 	}	
 }
