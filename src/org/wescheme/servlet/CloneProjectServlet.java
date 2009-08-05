@@ -9,12 +9,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.wescheme.project.Program;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
-import org.wescheme.user.WeSchemeUser;
 import org.wescheme.util.Base64;
 import org.wescheme.util.PMF;
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
 
 public class CloneProjectServlet {
 
@@ -46,7 +43,7 @@ public class CloneProjectServlet {
 			cloned.setAuthor(userSession.getName());
 			
 			pm.makePersistent(cloned);
-			
+			resp.setContentType("text/plain");
 			resp.getWriter().println(cloned.getId());
 			
 		} catch (IOException e) {
