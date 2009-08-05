@@ -140,7 +140,6 @@ var WeSchemeEditor;
 	    var type = "xml";
 	    var callback = function(data) {
 		var dom = jQuery(data);
-		console.log(dom.find("published").text());
 		that.setIsPublished(dom.find("published").text() == "true" ? true : false);
 		that.notifyOnStatusBar("Program " + that.pid + " published")
 	    };
