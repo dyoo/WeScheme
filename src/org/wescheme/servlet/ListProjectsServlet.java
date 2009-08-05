@@ -45,8 +45,8 @@ public class ListProjectsServlet extends HttpServlet {
 				List<Program> pl = (List<Program>) query.execute(userSession.getName());
 
 				Element elt = new Element("ProgramDigests");
-				for( Program d : pl ){
-					elt.addContent(new ProgramDigest(d).toXML());
+				for( Program p : pl ){
+					elt.addContent(new ProgramDigest(p).toXML());
 				}
 				PrintWriter w = resp.getWriter();
 				XMLOutputter outputter = new XMLOutputter();

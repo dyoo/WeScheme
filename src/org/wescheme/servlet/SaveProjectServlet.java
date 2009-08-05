@@ -18,35 +18,28 @@ import com.google.appengine.api.datastore.KeyFactory;
 public class SaveProjectServlet extends HttpServlet{
 
 	private static final long serialVersionUID = 4038563388689831368L;
-	
+
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)	throws IOException 
 	{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		SessionManager sm = new SessionManager();
-
+		
 		if( !sm.isIntentional(req, resp) ){
 			resp.sendError(401);
 			return;
 		}
-		
+		String title = req.getParameter("title");
+		String code = req.getParameter("code");
+		String pid = req.getParameter("pid");
 		try {
 			Session userSession = sm.authenticate(req, resp);
-			
-			if( null != userSession ){				
-				String title = req.getParameter("title");
-				String code = req.getParameter("code");
-				String pid = req.getParameter("pid");
+			if( null != userSession ){			
 				if (pid == null) {
-					Program prog = saveNewProgram(pm, userSession, title, code);
-					resp.setContentType("text/plain");
-					resp.getWriter().println(prog.getId());					
+					saveNewProgram(pm, userSession, resp, title, code);
 				} else {
-					Program prog = saveExistingProgram(pm, pid, title, code);
-					resp.setContentType("text/plain");
-					resp.getWriter().println(prog.getId());					
-				}
-			} else {				
-				System.out.println("userSession was null.");
+					saveExistingProgram(pm, userSession, resp, pid, title, code);
+					}
+			} else {
 				resp.sendError(401);
 				return;
 			}
@@ -55,21 +48,33 @@ public class SaveProjectServlet extends HttpServlet{
 		}		
 	}
 
-	private Program saveNewProgram(PersistenceManager pm, Session userSession, String title, String code) {
+	private void saveNewProgram(PersistenceManager pm, Session userSession,
+			HttpServletResponse resp,
+			String title, String code) throws IOException {
 		Program prog = new Program(code, userSession);
 		prog.updateTitle(title);
 		pm.makePersistent(prog);
-		return prog;
+
+		resp.setContentType("text/plain"); 
+		resp.getWriter().println(prog.getId());					
 	}
 
-	private Program saveExistingProgram(PersistenceManager pm, String pid, String title, String code) {
 
+	private void saveExistingProgram(PersistenceManager pm, Session userSession,
+			HttpServletResponse resp,
+			String pid, String title, String code) throws IOException {
+		// Preconditions: the program is owned by the user, and has not been published yet.
 		Long id = (Long) Long.parseLong(pid);
-		Key k = KeyFactory.createKey("Program", id);
-		Program prog = pm.getObjectById(Program.class, k);
-		prog.updateTitle(title);
-		prog.updateSource(code);
-		return prog;
-
+		Program prog = pm.getObjectById(Program.class, id);
+		if (prog.getOwner().equals(userSession.getName()) && !prog.isPublished()) {
+			prog.updateTitle(title);
+			prog.updateSource(code);
+		
+			resp.setContentType("text/plain");
+			resp.getWriter().println(prog.getId());					
+		} else {
+			// FIXME: throw an error that the client can recognize!
+			throw new RuntimeException("Cannot save program: either not owner, or program published");
+		}
 	}
 }
