@@ -26,6 +26,9 @@ public class Program extends XML {
 	protected String title_;
 	@Persistent
 	protected ObjectCode obj_;
+
+	// Kludge: haven't figured out how to get JDO to update an existing
+	// child element in a one-to-one relationship.
 	@Persistent
 	protected List<SourceCode> srcs_;
 	@Persistent
@@ -153,7 +156,7 @@ public class Program extends XML {
 		root.addContent(XML.makeElement("owner", owner_));
 		root.addContent(XML.makeElement("author", author_));
 		root.addContent(XML.makeElement("modified", time_));
-		
+		root.addContent(XML.makeElement("published", published_));
 		return root;
 		
 	}
