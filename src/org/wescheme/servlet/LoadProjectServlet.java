@@ -38,6 +38,7 @@ public class LoadProjectServlet extends HttpServlet {
 					Long id = (Long) Long.parseLong(req.getParameter("pid"));
 					Key k = KeyFactory.createKey("Program", id);
 	    			Program prog = pm.getObjectById(Program.class, k);
+	    			resp.setContentType("text/xml");
 					resp.getWriter().print(outputter.outputString(prog.toXML()));
 				} else {
 					resp.sendError(403);
