@@ -1,4 +1,4 @@
-package org.wescheme.project;
+package org.wescheme.servlet;
 
 import java.io.IOException;
 
@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.jdom.output.XMLOutputter;
+import org.wescheme.project.Program;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.util.PMF;
@@ -24,32 +26,27 @@ public class Publish extends HttpServlet{
 			
 			userSession = sm.authenticate(req, resp);
 			
-			if( null != userSession ){
-				long startTime = System.currentTimeMillis();
-		
-				String code = req.getParameter("code");
-				String shouldPublish = req.getParameter("publish");
-				if( null == shouldPublish ){ shouldPublish = ""; }
 				
-				resp.setContentType("text/plain");
-			
-				Program prog = new Program(code, userSession);
-				
-				if( shouldPublish.equals("publish") ){
+			if( null != userSession ) {
+				XMLOutputter outputter = new XMLOutputter();
+				Program prog = pm.getObjectById(Program.class,
+						Long.parseLong(req.getParameter("pid")));
+				if (prog.getOwner().equals(userSession.getName()) &&
+						!prog.isPublished()) {
 					prog.publish();
+					resp.setContentType("text/xml");
+					resp.getWriter().print(outputter.outputString(prog.toXML()));
+				} else {
+					// FIXME: how do we raise errors?
+					throw new RuntimeException("Either doesn't own Project or Project already published");
 				}
-				pm.makePersistent(prog);
-			
-				long duration = System.currentTimeMillis() - startTime;
-				System.out.println("Took " + duration/1000 + " seconds.");	
-				System.out.println("Published as " + userSession.getName());
+			} else {
+				resp.sendError(403);
 			}
-
 		} finally {
 			pm.close();
 		}
 		
 		resp.sendRedirect("index.jsp");
-	}
-	
+	}	
 }

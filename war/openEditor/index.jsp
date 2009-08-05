@@ -40,13 +40,16 @@
 
   var myEditor = new WeSchemeEditor(
   { defn: new WeSchemeTextContainer(jQuery("#defn").get(0)),
-
     interactions: jQuery("#inter").get(0),
     jsworldDiv: jQuery("#jsworld-div").get(0),
     statusbar: jQuery("#statusbar"),
     pidDiv: jQuery("#pidArea"),
-    filenameDiv: jQuery("#filenameArea") });
+    filenameDiv: jQuery("#filenameArea"),
+
+    saveButton : jQuery("#save"),
+    publishButton : jQuery("#publish")});
   
+
   jQuery("#save").click(function() { myEditor.save(); });
   jQuery("#run").click(function()  { myEditor.run(); });
   jQuery("#back").click(function()  { window.location = "/"; });
@@ -61,6 +64,7 @@
 <span>
 <span><input id="save" type="button" value="Save"></input></span>
 <span><input id="run" type="button" value="Run"></input></span>
+<span><input id="publish" type="button" value="Publish"></input></span>
 <span><input id="back" type="button" value="Back to main"></input></span>
 </span>
 

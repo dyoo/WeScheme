@@ -48,7 +48,7 @@
   
   <servlet>
     <servlet-name>publish</servlet-name>
-    <servlet-class>org.wescheme.project.Publish</servlet-class>
+    <servlet-class>org.wescheme.servlet.Publish</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>publish</servlet-name>
