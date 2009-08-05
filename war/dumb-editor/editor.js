@@ -43,31 +43,43 @@ var WeSchemeEditor;
 
     WeSchemeEditor.prototype.save = function() {
 	var that = this;
+
+	function saveProjectCallback(data) {
+	    // The data contains the pid of the saved program.
+	    that.pid = parseInt(data);
+	    that.notifyOnStatusBar("Program " + that.pid + " saved")
+	    that.pidDiv.text(data);
+	    that.filenameEntry.value = data;
+	    that.afterSave();
+	}
+
+	function onFirstSave() {
+	    var data = { title: that.filenameEntry.attr("value"),
+			 code: that.defn.getCode()};
+	    var type = "text";
+	    jQuery.post("/saveProject", 
+			data, 
+			function(data) { 
+			    saveProjectCallback(data); 
+			    // We want the reload button to work from this
+			    // point forward, so let's change the history.
+			    window.location = "/openEditor?pid=" + encodeURIComponent(that.pid);
+			},
+			type);
+	}
+
+	function onUpdate() {
+	    var data = { pid: that.pid,
+			 title: that.filenameEntry.attr("value"),
+			 code: that.defn.getCode()};
+	    var type = "text";
+	    jQuery.post("/saveProject", data, saveProjectCallback, type);
+	}
+
 	if (this.pid == false) {
-	    var data = { title: this.filenameEntry.attr("value"),
-			 code: this.defn.getCode()};
-	    var type = "text";
-	    var callback = function(data) {
-		// The data contains the pid of the saved program.
-		that.pid = parseInt(data);
-		that.notifyOnStatusBar("Program " + that.pid + " saved")
-		that.pidDiv.text(data);
-		that.filenameEntry.value = data;
-		that.afterSave();
-	    };
-	    jQuery.post("/saveProject", data, callback, type);
+	    onFirstSave();
 	} else {
-	    var data = { pid: this.pid,
-			 title: this.filenameEntry.attr("value"),
-			 code: this.defn.getCode()};
-	    var type = "text";
-	    var callback = function(data) {
-		that.notifyOnStatusBar("Program " + that.pid + " saved")
-		that.pidDiv.text(data);
-		that.filenameEntry.value = data;
-		that.afterSave();
-	    };
-	    jQuery.post("/saveProject", data, callback, type);
+	    onUpdate();
 	}
     };
 
