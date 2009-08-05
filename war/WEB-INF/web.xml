@@ -105,7 +105,7 @@
 
   <servlet>
     <servlet-name>openEditor</servlet-name>
-    <jsp-file>/dumb-editor/index.jsp</jsp-file>
+    <jsp-file>/openEditor/index.jsp</jsp-file>
   </servlet>
   
   
