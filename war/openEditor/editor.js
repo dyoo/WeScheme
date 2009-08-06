@@ -1,19 +1,15 @@
 var WeSchemeEditor;
 
 (function() {
-
-
     WeSchemeEditor = function(attrs) {
 	var that = this;
-	// defn and statusbar are assumed to be Containers.
+	// defn is assumed to be Containers.
 	// The only container we've got so far are TextContainers.
 	this.defn = attrs.defn;  // TextAreaContainer
 
 	this.interactions = new WeSchemeInteractions(attrs.interactions);
 	this.interactions.reset();
 
-
-	this.statusbar = attrs.statusbar; // JQuery
 	this.pidDiv = attrs.pidDiv; // JQuery
 	this.filenameDiv = attrs.filenameDiv; // JQuery
 	this.filenameEntry = (jQuery("<input/>").
@@ -42,7 +38,38 @@ var WeSchemeEditor;
 	});
 
 
+//	startAutosaveMonitor(this);
     };
+
+
+    
+
+
+
+//     // Every few seconds, will check if the program hasn't been saved yet.
+//     function startAutosaveMonitor(editor) {
+// 	var currentTimer = false;
+// 	function restartTimerListener(action, category, data) {
+// 	    if (action == "notify" && 
+// 		category == "before-save" && 
+// 		data instanceof WeSchemeEditor) {
+		
+// 	    }
+// 	}
+
+// 	function beginTimeout() {
+// 	    return setTimeout(function() {
+// 		if (! editor.isPublished) {
+// 		    editor.saveOrClone();
+// 		}
+// 	    },
+// 			      TIMEOUT_DELAY);
+// 	}
+
+
+//     }
+
+
 
 
 
@@ -67,7 +94,6 @@ var WeSchemeEditor;
 	    that.filenameEntry.value = data;
 
 	    WeSchemeIntentBus.notify("after-save", that);
-	    that.notifyOnStatusBar("Program " + that.pid + " saved")
 	}
 
 	function onFirstSave() {
@@ -108,7 +134,6 @@ var WeSchemeEditor;
 	    var type = "text";
 	    var callback = function(data) {
 		WeSchemeIntentBus.notify("after-clone", that);
-		that.notifyOnStatusBar("Program " + that.pid + " cloned");
 		window.location = "/openEditor?pid=" + encodeURIComponent(parseInt(data));
 	    };
 	    WeSchemeIntentBus.notify("before-clone", this);
@@ -130,7 +155,6 @@ var WeSchemeEditor;
 		that._setIsPublished(dom.find("published").text() == "true" ? true : false);
 
 		WeSchemeIntentBus.notify("after-load", that);
-		that.notifyOnStatusBar("Program " + that.pid + " loaded")
 	    };
 	    WeSchemeIntentBus.notify("before-load", this);
 	    jQuery.get("/loadProject", data, callback, type);
@@ -148,7 +172,6 @@ var WeSchemeEditor;
 		var dom = jQuery(data);
 		that._setIsPublished(dom.find("published").text() == "true" ? true : false);
 		WeSchemeIntentBus.notify("after-publish", that);
-		that.notifyOnStatusBar("Program " + that.pid + " published")
 	    };
 	    WeSchemeIntentBus.notify("before-publish", this);
 	    jQuery.post("/publishProject", data, callback, type);
@@ -161,17 +184,9 @@ var WeSchemeEditor;
 	this.interactions.reset();
 	this.interactions.runCode(this.defn.getCode());
 	WeSchemeIntentBus.notify("after-run", this);
-	this.notifyOnStatusBar("Executed definitions");
     };
 
 
-
-    WeSchemeEditor.prototype.notifyOnStatusBar = function(msg) {
-	var that = this;
-	this.statusbar.text(msg);
-	this.statusbar.fadeIn("slow",
-			      function() { that.statusbar.fadeOut("slow"); });
-    };
 
 
 

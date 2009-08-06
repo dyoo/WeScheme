@@ -25,7 +25,9 @@ var WeSchemeIntentBus = (function() {
 	for(var i = 0; i < this.listeners.length; i++) {
 	    try {
 		this.listeners[i].apply(this, ["notify", category, data]);
-	    } catch (e) {}
+	    } catch (e) {
+		debugLog(e);
+	    }
 	}
     };
 
