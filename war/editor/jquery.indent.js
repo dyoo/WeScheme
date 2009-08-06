@@ -4,6 +4,8 @@
 	
 	   //TODO: If the first element has not changed, do not fire.
 	   
+    console.log($(this).text());
+
  		$(this).children().removeClass("begin-like define-like lambda-like string-node unknown-node begin-indent define-indent lambda-indent");
         
         var head = $(this).children(":first");
@@ -45,7 +47,7 @@
     c.nextAll().each(function(){
       var elm = jQuery(this);
       
-      if( elm.hasClass("space") ){ hasSpace = true; console.log(hasSpace); }
+      if( elm.hasClass("space") ){ hasSpace = true;  }
 
       if( null == distance && elm.hasClass("userBreak") ){
         if( hasSpace ){

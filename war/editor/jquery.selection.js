@@ -98,7 +98,6 @@
 	}
 	prefixNode.insertAfter(dataNode);
 	dataNode.remove();
-    }
-
+  }
 
 })(jQuery);
