@@ -19,7 +19,9 @@ var WeSchemeEditor;
 	this.filenameEntry = (jQuery("<input/>").
 			      attr("type", "text").
 			      attr("value", "Unknown").
-			      change(function() { that.filenameEntry.addClass("dirty")}));;
+			      change(function() { 
+				  WeSchemeIntentBus.notify("filename-changed", that);
+			      }));;
 	this.filenameDiv.append(this.filenameEntry);
 
 	this.isPublished = false;
@@ -35,17 +37,14 @@ var WeSchemeEditor;
 	    this.pid = parseInt(this.pidDiv.text());
 	}
 
-	this.defn.addChangeListener(function() { this.addClass("dirty"); });
+	this.defn.addChangeListener(function() {
+	    WeSchemeIntentBus.notify("definitions-changed", that);
+	});
+
+
     };
 
 
-    // afterSaveOrClone: -> void
-    // Clears out the dirty tag off of the editable things.
-    // 
-    WeSchemeEditor.prototype.afterSaveOrClone = function() {
-	this.filenameEntry.removeClass("dirty");
-	this.defn.removeClass("dirty");
-    };
 
 
     WeSchemeEditor.prototype.saveOrClone = function() {
@@ -63,10 +62,12 @@ var WeSchemeEditor;
 	function saveProjectCallback(data) {
 	    // The data contains the pid of the saved program.
 	    that.pid = parseInt(data);
-	    that.notifyOnStatusBar("Program " + that.pid + " saved")
+	    WeSchemeIntentBus.notify("before-save", that);
 	    that.pidDiv.text(data);
 	    that.filenameEntry.value = data;
-	    that.afterSaveOrClone();
+
+	    WeSchemeIntentBus.notify("after-save", that);
+	    that.notifyOnStatusBar("Program " + that.pid + " saved")
 	}
 
 	function onFirstSave() {
@@ -106,9 +107,11 @@ var WeSchemeEditor;
 	    var data = { pid: this.pid };
 	    var type = "text";
 	    var callback = function(data) {
+		WeSchemeIntentBus.notify("after-clone", that);
 		that.notifyOnStatusBar("Program " + that.pid + " cloned");
 		window.location = "/openEditor?pid=" + encodeURIComponent(parseInt(data));
 	    };
+	    WeSchemeIntentBus.notify("before-clone", this);
 	    jQuery.post("/cloneProject", data, callback, type);
 	}
     };
@@ -124,9 +127,12 @@ var WeSchemeEditor;
 		var dom = jQuery(data);
 		that.filenameEntry.attr("value", dom.find("title").text());
 		that.defn.setCode(dom.find("source").text());
-		that.setIsPublished(dom.find("published").text() == "true" ? true : false);
+		that._setIsPublished(dom.find("published").text() == "true" ? true : false);
+
+		WeSchemeIntentBus.notify("after-load", that);
 		that.notifyOnStatusBar("Program " + that.pid + " loaded")
 	    };
+	    WeSchemeIntentBus.notify("before-load", this);
 	    jQuery.get("/loadProject", data, callback, type);
 	}
     };
@@ -140,26 +146,28 @@ var WeSchemeEditor;
 	    var type = "xml";
 	    var callback = function(data) {
 		var dom = jQuery(data);
-		console.log(dom.find("published").text());
-		that.setIsPublished(dom.find("published").text() == "true" ? true : false);
+		that._setIsPublished(dom.find("published").text() == "true" ? true : false);
+		WeSchemeIntentBus.notify("after-publish", that);
 		that.notifyOnStatusBar("Program " + that.pid + " published")
 	    };
+	    WeSchemeIntentBus.notify("before-publish", this);
 	    jQuery.post("/publishProject", data, callback, type);
 	}
     };
 
 
     WeSchemeEditor.prototype.run = function() {
+	WeSchemeIntentBus.notify("before-run", this);
 	this.interactions.reset();
 	this.interactions.runCode(this.defn.getCode());
-	this.notifyOnStatusBar("Executed code");
+	WeSchemeIntentBus.notify("after-run", this);
+	this.notifyOnStatusBar("Executed definitions");
     };
 
 
 
     WeSchemeEditor.prototype.notifyOnStatusBar = function(msg) {
 	var that = this;
-	//this.statusbar.show();
 	this.statusbar.text(msg);
 	this.statusbar.fadeIn("slow",
 			      function() { that.statusbar.fadeOut("slow"); });
@@ -167,7 +175,7 @@ var WeSchemeEditor;
 
 
 
-    WeSchemeEditor.prototype.setIsPublished = function(isPublished) {
+    WeSchemeEditor.prototype._setIsPublished = function(isPublished) {
 	this.isPublished = isPublished;
 	if (this.isPublished) {
 	    this.saveOrCloneButton.attr("value", "Clone");
@@ -179,6 +187,6 @@ var WeSchemeEditor;
     }
 
 
-
+    WeSchemeEditor.prototype.toString = function() { return "WeSchemeEditor()"; };
 
 })();

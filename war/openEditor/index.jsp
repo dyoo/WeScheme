@@ -6,9 +6,10 @@
 <script src="/editor/jquery.js"></script>
 <script src="/editor/jquery.createdomnodes.js"></script>
 <script src="/safeSubmit.js"></script>
+<script src="/editor/debug.js"></script>
 
 
-
+<script src="/openEditor/intent.js"></script>
 <script src="/openEditor/editor.js"></script>
 <script src="/openEditor/textcontainer.js"></script>
 <script src="/openEditor/interaction.js"></script>
@@ -57,6 +58,13 @@
 
 
   myEditor.load();
+
+
+  // For debugging:
+  WeSchemeIntentBus.addNotifyListener(function(action, category, data) {
+     debugLog(action + ": " + category + " " + data.toString());
+  });
+
   });
 </script>
 </head>
