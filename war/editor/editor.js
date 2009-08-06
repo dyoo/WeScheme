@@ -114,36 +114,42 @@ function makeSexpr(e){
 
 
 function globalKeyHandler(e){
+  
+
   switch(e.keyCode){
   case 8:                   //backspace
       backspace(e);
-      break;
+      return;
   case 13:                   // newline
       makeBreak(e);
       e.preventDefault();
-      break;
+      return;
   case 37:                   // left
       leftKey(e);
-      break;
+      return;
   case 39:                 // right
       rightKey(e);
-      break;
+      return;
   case 46:
       deleteKey(e);
-      break;
+      return;
   }
 
   switch(e.charCode){
-      case 32:                   // space
+  case 32:                   // space
       makeSpace(e);
       e.preventDefault();
-      break;
+      return;
+  default:
+      return;
   }
 }
 
 
 // backspace: key-event -> void
 function backspace(e) {
+    
+
     var aSelection = getCursorSelection();
     var tar = aSelection.node;
 
@@ -151,25 +157,48 @@ function backspace(e) {
     if(aSelection.atStart()) {
 	e.preventDefault();
 	
-        var pred = tar.predecessor();
+          
+
+        var pred = tar.parent(":first").prev(":first");
+    
         if( pred.hasClass("wspace") ){
             pred.remove();
             pred = tar.predecessor();
         } 
+    
+        if( pred.hasClass("openParen") ){
+          // We need to walk up to the S-expr
+          var sexpr = tar.parent().parent();
+          var body = tar.parent();
+          var lastNode = tar.parent().children(":last"); // the last node might be the same as tar
+          
+          // burn off divs
+          
+          body.unwrap();
+          sexpr.children(".openParen").remove();
+          sexpr.children(".closeParen").remove();
+
+          var prev = sexpr.prev(":first");
+          var next = sexpr.next(":first");
+          sexpr.unwrap();
+
+          if( lastNode.hasClass("data") && next.hasClass("data") ){
+            lastNode.text(lastNode.text() + next.text());
+            next.remove();
+          }
 
 
-	// If the predecessor is itself a data, we must merge.
-	if (pred.hasClass("data")) {
-	    var len = pred.text().length;
-	    pred.text(pred.text() + tar.text());
-	    tar.remove();
-	    pred.focusAt(len);
-	    // By this time, the target is destroyed.
-	}
-	// Otherwise, if there's no predecessor, we lift the structure up.
-	else if (pred.length == 0) {
-	    debugLog("we should lift");
-	}
+          if( tar.hasClass("data") && prev.hasClass("data") ){
+            var len = prev.text().length;
+            tar.text(prev.text() + tar.text());
+            prev.remove();
+            tar.focusAt(len);
+          } else {
+            tar.focusAt(0);
+          }
+        }
+        
+
     } else {
 	e.preventDefault();
 	// Manually doing backspace deletion to avoid the introduction
@@ -259,7 +288,7 @@ function sexprKeyHandler(e){
       globalKeyHandler(e);
   }
 
-  jQuery(e.target).parents(".body:first").indent();
+  setTimeout(function(){jQuery(e.target).parents(".body:first").indent();},1);
 
   return true;
 }
@@ -327,14 +356,10 @@ function doRestore() {
     // fixme: restore the key handlers
 }
 
-
-
-
 $(document).ready(function() {
 
     // Set the default keyhandler of the editor.
     $("#editor").keypress(sexprKeyHandler);
-
 
     // Hooking up the save and restore buttons.
     $("#save").click(function(e) {

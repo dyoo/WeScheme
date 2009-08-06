@@ -22,7 +22,7 @@
 			s = sm.authGoogle(us);
 			if( s != null ){				// we've authenticated against google
 				sm.issueSession(s, response);	// issue the session
-				response.sendRedirect(us.createLogoutURL(request.getRequestURI()));	// discard google credentials
+				response.sendRedirect(request.getRequestURI());	// discard google credentials
 			} else {
 
 				// Let's try to authenticate against WeScheme!
