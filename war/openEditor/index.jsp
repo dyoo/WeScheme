@@ -81,22 +81,23 @@
 
 
 <span>
-<div id="filenameArea" style="background-color: lightgrey">
+<div id="filenameLabel">Project name:</div>
+<div id="filenameArea">
 </div>
-<div id="pidArea" style="background-color: lightgrey">Unknown</div>
+<div id="pidArea">Unknown</div>
 </span>
 
 
 
 
 <div>
-<textarea id="defn" style="width:100%; height:45%">
+<textarea id="defn">
 </textarea>
 </div>
 
 
 <div>
-<div id="inter" style="width:100%; height:45%"></div>
+<div id="inter"></div>
 </div>
 
 
@@ -105,7 +106,7 @@
 <div id="jsworld-div"></div>
 
 
-<div id="statusbar" style="background-color: lightgrey"></div>
+<div id="statusbar"></div>
 
 </body>
 
