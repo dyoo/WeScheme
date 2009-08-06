@@ -1,5 +1,6 @@
 
 #statusbar {
+    width: 100%
     overflow: auto;
     background-color: lightgrey;
 }
@@ -18,6 +19,12 @@
 #pidArea {
     background-color: lightgrey;
 }
+
+#run {
+    margin-left: 100px;
+    margin-right: 100px;
+}
+
 
 /* Back to main */
 #back {
@@ -38,5 +45,3 @@
     width:100%;
     height:45%;
 }
-
-

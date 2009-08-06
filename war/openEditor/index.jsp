@@ -48,11 +48,13 @@
     pidDiv: jQuery("#pidArea"),
     filenameDiv: jQuery("#filenameArea"),
 
-    saveOrCloneButton : jQuery("#saveOrClone"),
+    saveButton : jQuery("#save"),
+    cloneButton : jQuery("#clone"),
+
     publishButton : jQuery("#publish")});
   
-
-  jQuery("#saveOrClone").click(function() { myEditor.saveOrClone(); });
+  jQuery("#save").click(function() { myEditor.save(); });
+  jQuery("#clone").click(function() { myEditor.clone(); });
   jQuery("#run").click(function()  { myEditor.run(); });
   jQuery("#publish").click(function()  { myEditor.publish(); });
   jQuery("#back").click(function()  { window.location = "/"; });
@@ -72,7 +74,8 @@
 <body>
 
 <span>
-<span><input id="saveOrClone" type="button" value="Save"></input></span>
+<span><input id="save" type="button" value="Save"></input></span>
+<span><input id="clone" type="button" value="Clone"></input></span>
 <span><input id="run" type="button" value="Run"></input></span>
 <span><input id="publish" type="button" value="Publish"></input></span>
 <span><input id="back" type="button" value="Back to main"></input></span>
