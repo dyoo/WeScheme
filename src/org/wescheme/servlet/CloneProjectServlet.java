@@ -44,6 +44,10 @@ public class CloneProjectServlet extends javax.servlet.http.HttpServlet {
 			cloned.unpublish();
 			cloned.setAuthor(userSession.getName());
 			
+			if(req.getParameter("code") != null) {
+				cloned.updateSource(req.getParameter("code"));
+			}
+			
 			pm.makePersistent(cloned);
 			resp.setContentType("text/plain");
 			resp.getWriter().println(cloned.getId());

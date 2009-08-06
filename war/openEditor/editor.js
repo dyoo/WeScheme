@@ -3,7 +3,7 @@ var WeSchemeEditor;
 (function() {
 
     // The timeout between autosaving.
-    var AUTOSAVE_TIMEOUT = 5000;
+    var AUTOSAVE_TIMEOUT = 10000;
 
 
     WeSchemeEditor = function(attrs) {
@@ -15,6 +15,8 @@ var WeSchemeEditor;
 
 	this.interactions = new WeSchemeInteractions(attrs.interactions);
 	this.interactions.reset();
+
+	this.saveButton = attrs.saveButton;
 
 	this.pidDiv = attrs.pidDiv; // JQuery
 	this.filenameDiv = attrs.filenameDiv; // JQuery
@@ -28,8 +30,6 @@ var WeSchemeEditor;
 
 	this.isPublished = false;
 
-	// saveOrCloneButton: (jqueryof button)
-	this.saveOrCloneButton = attrs.saveOrCloneButton;
 	// publishButton: (jqueryof button)
 	this.publishButton = attrs.publishButton;
 
@@ -59,8 +59,21 @@ var WeSchemeEditor;
 		 category == 'definitions-changed') && 
 		data == editor) {
 		editor.isDirty = true;
-	    } else if ((category == 'after-save' && data == editor)) {
+
+		if (editor.isPublished) {
+		    editor.saveButton.attr("value", "Save");
+		    editor.saveButton.attr("disabled", "true");		
+		} else {
+		    editor.saveButton.attr("value", "Save");
+		    editor.saveButton.removeAttr("disabled");
+		}
+
+	    } else if (((category == 'after-save' || category == 'after-load') 
+			&& data == editor)) {
 		editor.isDirty = false;
+
+		editor.saveButton.attr("value", "Saved");
+		editor.saveButton.attr("disabled", "true");		
 	    }
 	});
     }
@@ -87,7 +100,7 @@ var WeSchemeEditor;
 	    if (editor.isDirty) {
 		WeSchemeIntentBus.notify("autosave", editor);
 		if (editor.pid && ! editor.isPublished) {
-		    editor.saveOrClone();
+		    editor.save();
 		}
 	    }
 	    clearTimeout(currentTimer);
@@ -107,16 +120,7 @@ var WeSchemeEditor;
 
 
 
-    WeSchemeEditor.prototype.saveOrClone = function() {
-	if (! this.isPublished) {
-	    this._save();
-	} else {
-	    this._clone();
-	}
-    }
-
-
-    WeSchemeEditor.prototype._save = function() {
+    WeSchemeEditor.prototype.save = function() {
 	var that = this;
 
 	function saveProjectCallback(data) {
@@ -160,10 +164,11 @@ var WeSchemeEditor;
     };
 
 
-    WeSchemeEditor.prototype._clone = function() {
+    WeSchemeEditor.prototype.clone = function() {
 	if (this.pid) {
 	    var that = this;
-	    var data = { pid: this.pid };
+	    var data = { pid: this.pid,
+		         code: that.defn.getCode() };
 	    var type = "text";
 	    var callback = function(data) {
 		WeSchemeIntentBus.notify("after-clone", that);
@@ -225,11 +230,13 @@ var WeSchemeEditor;
 
     WeSchemeEditor.prototype._setIsPublished = function(isPublished) {
 	this.isPublished = isPublished;
-	if (this.isPublished) {
-	    this.saveOrCloneButton.attr("value", "Clone");
+
+	if (isPublished) {
+	    this.publishButton.attr("value", "Published");
 	    this.publishButton.attr("disabled", "true");
+	    
 	} else {
-	    this.saveOrCloneButton.attr("value", "Save");
+	    this.publishButton.attr("value", "Publish");
 	    this.publishButton.removeAttr("disabled");
 	}
     }

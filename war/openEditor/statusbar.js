@@ -18,7 +18,7 @@ WeSchemeStatusBar = (function() {
 	    } else if (action == 'notify' && 
 		       category == 'after-load' && 
 		       data instanceof WeSchemeEditor) {
-		that.notify("Program " + data.pid + " loaded");	    
+		that.notify("Program " + data.pid + " loaded");
 	    } else if (action == 'notify' && 
 		       category == 'after-publish' && 
 		       data instanceof WeSchemeEditor) {
@@ -30,17 +30,16 @@ WeSchemeStatusBar = (function() {
 	    }
 	};
 
-
 	WeSchemeIntentBus.addNotifyListener(handleNotifyIntent);
     }
 
 
 
     WeSchemeStatusBar.prototype.notify = function(msg) {
-	var that = this;
 	this.statusbar.text(msg);
-	this.statusbar.fadeIn("slow",
-			      function() { that.statusbar.fadeOut("slow"); });
+// 	var that = this;
+// 	this.statusbar.append(jQuery("<div/>").text(msg));
+
     };
 
 
