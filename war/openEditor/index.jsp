@@ -11,6 +11,7 @@
 
 <script src="/openEditor/intent.js"></script>
 <script src="/openEditor/editor.js"></script>
+<script src="/openEditor/statusbar.js"></script>
 <script src="/openEditor/textcontainer.js"></script>
 <script src="/openEditor/interaction.js"></script>
 
@@ -38,12 +39,12 @@
     jQuery("#pidArea").text("<%= request.getParameter("pid")%>");
 <% } %>
 
+  var statusBar = new WeSchemeStatusBar(jQuery("#statusbar"));
 
   var myEditor = new WeSchemeEditor(
   { defn: new WeSchemeTextContainer(jQuery("#defn").get(0)),
     interactions: jQuery("#inter").get(0),
     jsworldDiv: jQuery("#jsworld-div").get(0),
-    statusbar: jQuery("#statusbar"),
     pidDiv: jQuery("#pidArea"),
     filenameDiv: jQuery("#filenameArea"),
 
@@ -62,7 +63,7 @@
 
   // For debugging:
   WeSchemeIntentBus.addNotifyListener(function(action, category, data) {
-     debugLog(action + ": " + category + " " + data.toString());
+     //debugLog(action + ": " + category + " " + data.toString());
   });
 
   });
