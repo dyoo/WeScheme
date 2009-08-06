@@ -1,0 +1,50 @@
+
+WeSchemeInteractions
+
+
+functions
+---------
+reset: -> void
+addToInteractions: string -> void
+runCode: string -> void
+
+
+intents
+-------
+action="notify", data="before-reset", this
+action="notify", data="after-reset", this
+action="notify", data="before-add-to-interactions", this
+action="notify", data="after-add-to-interactions", this
+action="notify", data="before-run", this
+action="notify", data="after-run", this
+
+
+======================================================================
+
+
+WeSchemeEditor
+
+functions
+---------
+
+saveOrClone: -> void
+load: -> void
+publish: -> void
+run: -> void
+
+intents
+-------
+action="notify", data="before-save", data=this
+action="notify", data="after-save", data=this
+action="notify", data="before-clone", data=this
+action="notify", data="after-clone", data=this
+action="notify", data="before-load", data=this
+action="notify", data="after-load", data=this
+action="notify", data="before-publish", data=this
+action="notify", data="after-publish", data=this
+action="notify", data="before-run", data=this
+action="notify", data="after-run", data=this
+
+action="notify", data="filename-changed", data=this
+action="notify", data="definitions-changed", data=this
+
