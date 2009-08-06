@@ -1,11 +1,17 @@
 var WeSchemeEditor;
 
 (function() {
+
+    // The timeout between autosaving.
+    var AUTOSAVE_TIMEOUT = 5000;
+
+
     WeSchemeEditor = function(attrs) {
 	var that = this;
 	// defn is assumed to be Containers.
 	// The only container we've got so far are TextContainers.
 	this.defn = attrs.defn;  // TextAreaContainer
+	this.isDirty = false;
 
 	this.interactions = new WeSchemeInteractions(attrs.interactions);
 	this.interactions.reset();
@@ -38,36 +44,63 @@ var WeSchemeEditor;
 	});
 
 
-//	startAutosaveMonitor(this);
+	startAutosaving(this);
+	startIsDirtyMonitor(this);
     };
 
 
+
+
+    // Maintains a monitor that watches whenever things get changed, and
+    // maintains the dirty attribute.
+    function startIsDirtyMonitor(editor) {
+	WeSchemeIntentBus.addNotifyListener(function(action, category, data) {
+	    if ((category == 'filename-changed' || 
+		 category == 'definitions-changed') && 
+		data == editor) {
+		editor.isDirty = true;
+	    } else if ((category == 'after-save' && data == editor)) {
+		editor.isDirty = false;
+	    }
+	});
+    }
     
 
 
 
-//     // Every few seconds, will check if the program hasn't been saved yet.
-//     function startAutosaveMonitor(editor) {
-// 	var currentTimer = false;
-// 	function restartTimerListener(action, category, data) {
-// 	    if (action == "notify" && 
-// 		category == "before-save" && 
-// 		data instanceof WeSchemeEditor) {
-		
-// 	    }
-// 	}
+    // Every few seconds, will check if the program hasn't been saved yet.
+    function startAutosaving(editor) {
+	var currentTimer = false;
 
-// 	function beginTimeout() {
-// 	    return setTimeout(function() {
-// 		if (! editor.isPublished) {
-// 		    editor.saveOrClone();
-// 		}
-// 	    },
-// 			      TIMEOUT_DELAY);
-// 	}
+	function restartTimerListener(action, category, data) {
+	    if (action == "notify" && 
+		category == "before-save" && 
+		data instanceof WeSchemeEditor) {
+		if (currentTimer) {
+		    clearTimeout(currentTimer);
+		}
+		currentTimer = beginTimer();
+	    }
+	}
 
+	function timerFiredOff() {
+	    if (editor.isDirty) {
+		WeSchemeIntentBus.notify("autosave", editor);
+		if (editor.pid && ! editor.isPublished) {
+		    editor.saveOrClone();
+		}
+	    }
+	    clearTimeout(currentTimer);
+	    currentTimer = beginTimer();
+	}
 
-//     }
+	function beginTimer() {
+	    return setTimeout(timerFiredOff, AUTOSAVE_TIMEOUT);
+	}
+
+	WeSchemeIntentBus.addNotifyListener(restartTimerListener);
+	currentTimer = beginTimer();
+    }
 
 
 
