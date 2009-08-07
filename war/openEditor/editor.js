@@ -39,9 +39,6 @@ var WeSchemeEditor;
 
 	// pid: (or false number)
 	this.pid = false;
-	if (this.pidDiv.text() != "Unknown") {
-	    this.pid = parseInt(this.pidDiv.text());
-	}
 
 	this.defn.addChangeListener(function() {
 	    WeSchemeIntentBus.notify("definitions-changed", that);
