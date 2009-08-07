@@ -28,49 +28,58 @@ public class LoadProjectServlet extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		
 			PersistenceManager pm = PMF.get().getPersistenceManager();
-			Session userSession;
-			SessionManager sm = new SessionManager();
-			
 			try {
-				
-				userSession = sm.authenticate(req, resp);
-				
-				if( null != userSession ){
-					Program prog = getProgram(pm, req);
-	    			XMLOutputter outputter = new XMLOutputter();
-	    			resp.setContentType("text/xml");
+				if (req.getParameter("pid") != null) {
+					Session userSession;
+					SessionManager sm = new SessionManager();
+					userSession = sm.authenticate(req, resp);
+					if( null != userSession ){
+						Program prog = getProgramByPid(pm, req.getParameter("pid"));
+						if (prog.getOwner().equals(userSession.getName())) {
+							XMLOutputter outputter = new XMLOutputter();
+							resp.setContentType("text/xml");
+							resp.getWriter().print(outputter.outputString(prog.toXML()));
+						} else {
+							throw new RuntimeException("Not owner");
+						}
+					} else {
+						resp.sendError(403);
+					}					
+				} else if (req.getParameter("publicId") != null) {
+					Program prog = getProgramByPublicId(pm, req.getParameter("publicId"));
+					XMLOutputter outputter = new XMLOutputter();
+					resp.setContentType("text/xml");
 					resp.getWriter().print(outputter.outputString(prog.toXML()));
 				} else {
-					resp.sendError(403);
+						throw new RuntimeException("pid or publicId parameter missing");
 				}
 			} finally {
 				pm.close();
 			}
 	}
 	
+	private Program getProgramByPid(PersistenceManager pm, String pid) {
+		Long id = (Long) Long.parseLong(pid);
+		Key k = KeyFactory.createKey("Program", id);
+		Program prog = pm.getObjectById(Program.class, k);
+		return prog;
+	}
+
+	
 	@SuppressWarnings("unchecked")
-	private Program getProgram(PersistenceManager pm, HttpServletRequest req) {
-		if (req.getParameter("pid") != null) {
-			Long id = (Long) Long.parseLong(req.getParameter("pid"));
-			Key k = KeyFactory.createKey("Program", id);
-			Program prog = pm.getObjectById(Program.class, k);
-			return prog;
-		} else if (req.getParameter("publicId") != null) {
-			javax.jdo.Query query = pm.newQuery(Program.class);
-			query.setFilter("publicId_ == param");
-			query.declareParameters("String param");
-			try {
-				List<Program> programs = (List<Program>) query.execute(req.getParameter("publicId"));
-				if (programs.size() == 1) {
-					return programs.get(0);
-				} else {
-					throw new RuntimeException("Could not find unique program with publicId=" + req.getParameter("publicId"));
-				}
-			} finally { 
-				query.closeAll();
+	private Program getProgramByPublicId(PersistenceManager pm, String publicId) {
+		javax.jdo.Query query = pm.newQuery(Program.class);
+		query.setFilter("publicId_ == param");
+		query.declareParameters("String param");
+		try {
+			List<Program> programs = (List<Program>) query.execute(publicId);
+			if (programs.size() == 1) {
+				return programs.get(0);
+			} else {
+				throw new RuntimeException("Could not find unique program with publicId=" + publicId);
 			}
-		} else {
-			throw new RuntimeException("pid or publicId parameter missing");
+		} finally { 
+			query.closeAll();
 		}
 	}	
 }
