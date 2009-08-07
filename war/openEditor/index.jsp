@@ -35,9 +35,6 @@
   jQuery(document).ready(function() {
 
   // Fixme: trigger file load if the pid has been provided.
-<% if (request.getParameter("pid") != null) { %>
-    jQuery("#pidArea").text("<%= request.getParameter("pid")%>");
-<% } %>
 
   var statusBar = new WeSchemeStatusBar(jQuery("#statusbar"));
 
@@ -47,6 +44,9 @@
     jsworldDiv: jQuery("#jsworld-div").get(0),
     pidDiv: jQuery("#pidArea"),
     filenameDiv: jQuery("#filenameArea"),
+
+    publicIdPane: jQuery("#publicIdPane"),
+    publicIdDiv: jQuery("#publicId"),
 
     saveButton : jQuery("#save"),
     cloneButton : jQuery("#clone"),
@@ -60,7 +60,11 @@
   jQuery("#back").click(function()  { window.location = "/"; });
 
 
-  myEditor.load();
+<% if (request.getParameter("pid") != null) { %>
+  myEditor.load({pid : <%= request.getParameter("pid") %> });
+<% } else if (request.getParameter("publicId") != null) { %>
+  myEditor.load({publicId : '<%= request.getParameter("publicId") %>' });
+<% } %>
 
 
   // For debugging:
@@ -85,10 +89,14 @@
 
 <span>
 <div id="filenameLabel">Project name:</div>
-<div id="filenameArea">
-</div>
-<div id="pidArea">Unknown</div>
+<div id="filenameArea"></div>
+<div id="pidArea"></div>
 </span>
+
+<div id="publicIdPane">
+  <div id="publicIdLabel">Public URL:</div>
+  <div id="publicId"></div>
+</div>
 
 
 

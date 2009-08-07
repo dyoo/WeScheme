@@ -20,6 +20,17 @@
     background-color: lightgrey;
 }
 
+
+
+#publicIdPane {
+    background-color: green;
+    clear: both;
+}
+#publicIdLabel {
+    float: left;
+}
+
+
 #run {
     margin-left: 100px;
     margin-right: 100px;

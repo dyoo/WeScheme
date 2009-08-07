@@ -13,7 +13,6 @@ import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.util.PMF;
 
-import com.google.appengine.api.datastore.Query;
 import java.util.List;
 
 public class SaveProjectServlet extends HttpServlet{
