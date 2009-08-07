@@ -133,8 +133,8 @@ plt.world.Kernel = plt.world.Kernel || {};
 	var newWindow = getBigBangWindow(width, height);
 	var canvas = 
 	    newWindow.document.getElementById("canvas");
-	canvas.width = width;
-	canvas.height = height;
+	canvas.width = width.toInteger();
+	canvas.height = height.toInteger();
 
 	resetWorld();
 
@@ -239,9 +239,6 @@ plt.world.Kernel = plt.world.Kernel || {};
     };
 
 
-    plt.world.Kernel.isImage = function(thing) {
-	return 'render' in thing;
-    };
 
 
     plt.world.Kernel.imageWidth = function(thing) {
@@ -300,7 +297,7 @@ plt.world.Kernel = plt.world.Kernel || {};
 	 plt.types.NumberTower.toInteger(h),
 	 s,
 	 c);
-	return updatePinhole(aRect, 0, 0);
+	return aRect.updatePinhole(0, 0);
     };
 
     plt.world.Kernel.rectangle = function(w, h, s, c) {
@@ -313,23 +310,7 @@ plt.world.Kernel = plt.world.Kernel || {};
     };
 
 
-    // Base class for all images.
-    function BaseImage(pinholeX, pinholeY) {
-	this.pinholeX = pinholeX;
-	this.pinholeY = pinholeY;
-    }
-
-
-    function updatePinhole(anImage, x, y) {
-	var aCopy = {};
-	for (attr in anImage) {
-	    aCopy[attr] = anImage[attr];
-	}
-	aCopy.pinholeX = x;
-	aCopy.pinholeY = y;
-	return aCopy;
-    }
-
+    var BaseImage = plt.Kernel.BaseImage;
 
     
     // SceneImage: primitive-number primitive-number (listof image) -> Scene
@@ -853,7 +834,7 @@ plt.world.Kernel = plt.world.Kernel || {};
     }
 
     effect_colon_set_dash_sound_dash_volume.prototype.run = function() {
-    	navigator.audio.setMusicVolume(this.volume);
+    	navigator.audio.setMusicVolume(this.volume.toInteger());
     }
 
     function make_dash_effect_colon_set_dash_sound_dash_volume(id0) {

@@ -26,6 +26,9 @@ public class Program extends XML {
 	protected String title_;
 	@Persistent
 	protected ObjectCode obj_;
+
+	// Kludge: haven't figured out how to get JDO to update an existing
+	// child element in a one-to-one relationship.
 	@Persistent
 	protected List<SourceCode> srcs_;
 	@Persistent
@@ -57,6 +60,7 @@ public class Program extends XML {
 	}
 	
 	public Program(Program p, String owner){
+		title_ = p.getTitle();
 		srcs_ = new ArrayList<SourceCode>();
 		srcs_.add(new SourceCode(p.getSource().toString()));
 		owner_ = owner;
@@ -74,6 +78,7 @@ public class Program extends XML {
 	
 	public Program clone(String owner){
 		Program p = new Program(this, owner);
+		p.title_ = p.title_ + " (clone)";
 		return p;
 	}
 	
@@ -148,12 +153,11 @@ public class Program extends XML {
 		if( null != obj_){
 			root.addContent(obj_.toXML());
 		}
-		
-		root.addContent(XML.makeElement("title", title_));
+		root.addContent(XML.makeElement("title", getTitle()));
 		root.addContent(XML.makeElement("owner", owner_));
 		root.addContent(XML.makeElement("author", author_));
 		root.addContent(XML.makeElement("modified", time_));
-		
+		root.addContent(XML.makeElement("published", published_));
 		return root;
 		
 	}
@@ -164,6 +168,7 @@ public class Program extends XML {
 	}
 
 	public String getTitle() {
+		if (title_ == null) { return "null"; }
 		return title_;
 	}
 

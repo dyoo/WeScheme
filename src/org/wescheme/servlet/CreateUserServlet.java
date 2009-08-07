@@ -7,8 +7,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.wescheme.user.Session;
-import org.wescheme.user.SessionManager;
+//import org.wescheme.user.Session;
+//import org.wescheme.user.SessionManager;
 import org.wescheme.user.UnauthorizedUserException;
 import org.wescheme.user.WeSchemeUser;
 import org.wescheme.util.Crypt.KeyNotFoundException;

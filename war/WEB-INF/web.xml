@@ -46,14 +46,6 @@
     <url-pattern>/addProject</url-pattern>
   </servlet-mapping>
   
-  <servlet>
-    <servlet-name>publish</servlet-name>
-    <servlet-class>org.wescheme.project.Publish</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>publish</servlet-name>
-    <url-pattern>/publish</url-pattern>
-  </servlet-mapping>
   
   <servlet>
     <servlet-name>createUser</servlet-name>
@@ -105,7 +97,7 @@
 
   <servlet>
     <servlet-name>openEditor</servlet-name>
-    <jsp-file>/dumb-editor/index.jsp</jsp-file>
+    <jsp-file>/openEditor/index.jsp</jsp-file>
   </servlet>
   
   
@@ -151,6 +143,27 @@
     <servlet-name>loadProject</servlet-name>
     <url-pattern>/loadProject</url-pattern>
   </servlet-mapping>
+
+
+  <servlet>
+    <servlet-name>publishProject</servlet-name>
+    <servlet-class>org.wescheme.servlet.Publish</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>publishProject</servlet-name>
+    <url-pattern>/publishProject</url-pattern>
+  </servlet-mapping>
+
+
+  <servlet>
+    <servlet-name>cloneProject</servlet-name>
+    <servlet-class>org.wescheme.servlet.CloneProjectServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>cloneProject</servlet-name>
+    <url-pattern>/cloneProject</url-pattern>
+  </servlet-mapping>
+
 
 
 </web-app>
