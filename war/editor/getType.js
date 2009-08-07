@@ -34,7 +34,7 @@ function testAgainst(arr){
   return function(e){
     var ii;
     for( ii = 0; ii < arr.length; ++ii ){    
-      if( jQuery.trim(e.text()) == arr[ii] ){
+      if( e.text() == arr[ii] ){
         return true;
       }
     }
