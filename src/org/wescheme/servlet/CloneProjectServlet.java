@@ -6,6 +6,7 @@ import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.wescheme.project.NameGenerator;
 import org.wescheme.project.Program;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
@@ -43,6 +44,11 @@ public class CloneProjectServlet extends javax.servlet.http.HttpServlet {
 			Program cloned = prog.clone(userSession.getName());
 			cloned.unpublish();
 			cloned.setAuthor(userSession.getName());
+			cloned.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueName(pm));
+			
+			if(req.getParameter("code") != null) {
+				cloned.updateSource(req.getParameter("code"));
+			}
 			
 			pm.makePersistent(cloned);
 			resp.setContentType("text/plain");

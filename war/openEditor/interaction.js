@@ -15,23 +15,9 @@ WeSchemeInteractions = (function () {
 	this.interactionsDiv.append(this.prompt);
 	// history: (listof string)
 	this.history = [];
-	
-	this.listeners = [];
     };
 
     
-    WeSchemeInteractions.prototype.addIntentListener = function(l) {
-	this.listeners.push(l);
-    }
-
-
-    WeSchemeInteractions.prototype._notifyIntent = function(type, arg) {
-	for(var i = 0; i < this.listeners.length; i++) {
-	    try {
-		this.listeners[i].apply(this, [type, arg]);
-	    } catch (e) {}
-	}
-    }
 
 
     // freshPinfo: -> pinfo
@@ -45,35 +31,37 @@ WeSchemeInteractions = (function () {
     // reset: -> void
     // Clears out the interactions.
     WeSchemeInteractions.prototype.reset = function() {
-	this._notifyIntent("action", "before-reset");
+	WeSchemeIntentBus.notify("before-reset", this);
 	var that = this;
 	this.interactionsDiv.empty();
 	this.prompt = jQuery("<div style='width:100%'><span>&gt; <input type='text' style='width: 75%'></span></div>");
 	this.interactionsDiv.append(this.prompt);
 
-	this.prompt.contents().keydown(function(e) { that.maybeRunPrompt(e) });
+	this.prompt.contents().keydown(function(e) { that._maybeRunPrompt(e) });
 
 	this.addToInteractions("WeScheme Interactions");
 	this.addToInteractions("---");
 	this.namespace = new Namespace();
 	this.pinfo = freshPinfo();
 
-	this._notifyIntent("action", "after-reset");
+	WeSchemeIntentBus.notify("after-reset", this);
     }
 
 
     // addToInteractions: string -> void
     // Adds a note to the interactions.
     WeSchemeInteractions.prototype.addToInteractions = function (interactionVal) {
+	WeSchemeIntentBus.notify("before-add-to-interactions", this);
 	var newArea = jQuery("<div style='width: 100%'></div>");
 	newArea.text(interactionVal);
 	this.prompt.before(newArea);
 	this.interactionsDiv.attr("scrollTop", this.interactionsDiv.attr("scrollHeight"));
+	WeSchemeIntentBus.notify("after-add-to-interactions", this);
     };
 
 
 
-    WeSchemeInteractions.prototype.prepareToRun = function() {
+    WeSchemeInteractions.prototype._prepareToRun = function() {
 	var that = this;
 	plt.world.MobyJsworld.makeToplevelNode = function() {
 	    var area = jQuery("<div>hello</div>");
@@ -84,9 +72,9 @@ WeSchemeInteractions = (function () {
 
     // Evaluate the source code and accumulate its effects.
     WeSchemeInteractions.prototype.runCode = function(aSource) {
-	this._notifyIntent("action", "before-run");
+	WeSchemeIntentBus.notify("before-run", this);
 	var that = this;
-	this.prepareToRun();
+	this._prepareToRun();
 	try {
 	    var program = readSchemeExpressions(aSource);
 	    var compiledProgram = 
@@ -104,7 +92,7 @@ WeSchemeInteractions = (function () {
 
 	    // Update the pinfo.
 	    this.pinfo = compiled_dash_program_dash_pinfo(compiledProgram);
-	    this._notifyIntent("action", "after-run");
+	    WeSchemeIntentBus.notify("after-run", this);
 	} catch (err) {
 	    this.addToInteractions(err.toString() + "\n");
 	}
@@ -113,7 +101,7 @@ WeSchemeInteractions = (function () {
 
 
 
-    WeSchemeInteractions.prototype.maybeRunPrompt = function(keyEvent) {
+    WeSchemeInteractions.prototype._maybeRunPrompt = function(keyEvent) {
  	if (keyEvent.keyCode == 13) {
 	    var nextCode = this.prompt.find("input").attr("value");
 	    this.addToInteractions("> " + nextCode + "\n");
@@ -133,6 +121,8 @@ WeSchemeInteractions = (function () {
 	    return true;
 	}
     }
+
+    WeSchemeInteractions.prototype.toString = function() { return "WeSchemeInteractions()"; };
 
     return WeSchemeInteractions;
 })();
