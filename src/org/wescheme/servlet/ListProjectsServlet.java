@@ -2,7 +2,6 @@ package org.wescheme.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.util.List;
 
 import javax.jdo.PersistenceManager;
@@ -45,10 +44,11 @@ public class ListProjectsServlet extends HttpServlet {
 				@SuppressWarnings({ "unchecked" })
 				List<Program> pl = (List<Program>) query.execute(userSession.getName());
 
-				Element elt = new Element("ListProjects");
-				for( Program d : pl ){
-					elt.addContent(new ProgramDigest(d).toXML());
+				Element elt = new Element("ProgramDigests");
+				for( Program p : pl ){
+					elt.addContent(new ProgramDigest(p).toXML());
 				}
+				resp.setContentType("text/xml");
 				PrintWriter w = resp.getWriter();
 				XMLOutputter outputter = new XMLOutputter();
 				w.write(outputter.outputString(elt));

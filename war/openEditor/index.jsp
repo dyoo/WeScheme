@@ -1,28 +1,32 @@
 <html>
 <head>
 
+<link rel="stylesheet" type="text/css" href="/openEditor/style.css" />
+
 <script src="/editor/jquery.js"></script>
 <script src="/editor/jquery.createdomnodes.js"></script>
 <script src="/safeSubmit.js"></script>
 
 
 
-<script src="/dumb-editor/editor.js"></script>
-<script src="/dumb-editor/textcontainer.js"></script>
-<script src="/dumb-editor/interaction.js"></script>
+<script src="/openEditor/editor.js"></script>
+<script src="/openEditor/textcontainer.js"></script>
+<script src="/openEditor/interaction.js"></script>
 
 
 <!-- Evaluation and world runtime stuff -->
 <!-- FIXME: bundle into single js for convenience. -->
-<script src="/dumb-editor/runtime/kernel.js"></script>
-<script src="/dumb-editor/runtime/compiler.js"></script>
-<script src="/dumb-editor/runtime/read.js"></script>
-<script src="/dumb-editor/runtime/namespace.js"></script>
-<script src="/dumb-editor/runtime/world-config.js"></script>
-<script src="/dumb-editor/runtime/platform.js"></script>
-<script src="/dumb-editor/runtime/world.js"></script>
-<script src="/dumb-editor/runtime/jsworld/jsworld.js"></script>
-<script src="/dumb-editor/runtime/jsworld.js"></script>
+<script src="/openEditor/runtime/types.js"></script>
+<script src="/openEditor/runtime/kernel.js"></script>
+<script src="/openEditor/runtime/compiler.js"></script>
+<script src="/openEditor/runtime/read.js"></script>
+<script src="/openEditor/runtime/namespace.js"></script>
+<script src="/openEditor/runtime/world-config.js"></script>
+<script src="/openEditor/runtime/platform.js"></script>
+<script src="/openEditor/runtime/lib.js"></script>
+<script src="/openEditor/runtime/world.js"></script>
+<script src="/openEditor/runtime/jsworld/jsworld.js"></script>
+<script src="/openEditor/runtime/jsworld.js"></script>
 
 
 <script>
@@ -36,16 +40,19 @@
 
   var myEditor = new WeSchemeEditor(
   { defn: new WeSchemeTextContainer(jQuery("#defn").get(0)),
-
     interactions: jQuery("#inter").get(0),
     jsworldDiv: jQuery("#jsworld-div").get(0),
     statusbar: jQuery("#statusbar"),
     pidDiv: jQuery("#pidArea"),
-    filenameDiv: jQuery("#filenameArea") });
+    filenameDiv: jQuery("#filenameArea"),
+
+    saveOrCloneButton : jQuery("#saveOrClone"),
+    publishButton : jQuery("#publish")});
   
-  jQuery("#save").click(function() { myEditor.save(); });
-  jQuery("#load").click(function() { myEditor.load(); });
+
+  jQuery("#saveOrClone").click(function() { myEditor.saveOrClone(); });
   jQuery("#run").click(function()  { myEditor.run(); });
+  jQuery("#publish").click(function()  { myEditor.publish(); });
   jQuery("#back").click(function()  { window.location = "/"; });
 
 
@@ -56,16 +63,17 @@
 <body>
 
 <span>
-<span><input id="save" type="button" value="Save"></input></span>
-<span><input id="load" type="button" value="Load"></input></span>
+<span><input id="saveOrClone" type="button" value="Save"></input></span>
 <span><input id="run" type="button" value="Run"></input></span>
+<span><input id="publish" type="button" value="Publish"></input></span>
 <span><input id="back" type="button" value="Back to main"></input></span>
 </span>
 
 
 
 <span>
-<div id="filenameArea" style="background-color: lightgrey"></div>
+<div id="filenameArea" style="background-color: lightgrey">
+</div>
 <div id="pidArea" style="background-color: lightgrey">Unknown</div>
 </span>
 

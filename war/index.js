@@ -7,13 +7,17 @@ function loadProgramList() {
 	var type = "xml";
 	var callback = function(data) {
 	    var dom = jQuery(data);
-	    dom.find("ProgramDigest").each(function() {
+	    dom.find("ProgramDigest").each(function() {	
 		var digest = jQuery(this);
+
+		var modifiedDate = new Date();
+		modifiedDate.setTime(parseInt(digest.find("modified").text()));
+
 		var idDiv = (jQuery("<div/>").text(digest.find("id").text())
 			     .addClass("ProgramId"));
 		var titleDiv = (jQuery("<div/>").text(digest.find("title").text())
 				.addClass("ProgramTitle"));
-		var modifiedDiv = (jQuery("<div/>").text(digest.find("modified").text())
+		var modifiedDiv = (jQuery("<div/>").text("Last modified: " + modifiedDate.toTimeString())
 				   .addClass("ProgramModified"));
 		var form = (jQuery("<form/>")
 			    .attr("method", "post")

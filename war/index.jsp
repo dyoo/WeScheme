@@ -3,6 +3,9 @@
 <html>
 <head>
 
+<link rel="stylesheet" type="text/css" href="style.css" />
+
+
 <script src="editor/jquery.js"></script>
 <script src="editor/jquery.createdomnodes.js"></script>
 <script src="safeSubmit.js"></script>
@@ -62,6 +65,8 @@ Welcome anonymous!   <a href="login.jsp">Login</a>
 <hr/>
 
 
+<%--
+
 <h2>Debug stuff</h2>
 
 <form method="POST" action="/publish">
@@ -98,6 +103,8 @@ Key Server:
 </p>
 
 
+
+--%>
 
 
 </body>
