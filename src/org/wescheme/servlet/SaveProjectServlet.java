@@ -13,7 +13,6 @@ import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.util.PMF;
 
-import java.util.List;
 
 public class SaveProjectServlet extends HttpServlet{
 
@@ -53,7 +52,7 @@ public class SaveProjectServlet extends HttpServlet{
 			String title, String code) throws IOException {
 		Program prog = new Program(code, userSession);
 		prog.updateTitle(title);
-		prog.setPublicId(findUniquePublicId(pm));
+		prog.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueName(pm));
 		pm.makePersistent(prog);
 
 		resp.setContentType("text/plain"); 
@@ -61,27 +60,7 @@ public class SaveProjectServlet extends HttpServlet{
 	}
 	
 	
-	// Generates a new id that's unique from any other program's public id.
-	@SuppressWarnings("unchecked")
-	private String findUniquePublicId(PersistenceManager pm) throws IOException {
-		javax.jdo.Query query = pm.newQuery(Program.class);
-		query.setFilter("publicId_ == param");
-		query.declareParameters("String param");
-		try {
-			while (true) {
-				String aName = NameGenerator.getInstance(getServletContext()).generateName();
-				List<Program> list = (List<Program>) query.execute(aName);
-				if (list.size() == 0) {
-					return aName;
-				}
-				else {
-					System.out.println("found duplicate for " + aName);
-				}
-			}
-		} finally {
-			query.closeAll();
-		}
-	}
+
 	
 
 
@@ -94,9 +73,9 @@ public class SaveProjectServlet extends HttpServlet{
 		if (prog.getOwner().equals(userSession.getName()) && !prog.isPublished()) {
 			prog.updateTitle(title);
 			prog.updateSource(code);
-			
+
 			if (prog.getPublicId() == null) {
-				prog.setPublicId(findUniquePublicId(pm));
+				prog.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueName(pm));
 			}
 		
 			resp.setContentType("text/plain");
