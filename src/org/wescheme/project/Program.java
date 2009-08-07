@@ -23,6 +23,9 @@ public class Program extends XML {
 	protected Long id;
 	
 	@Persistent
+	protected String publicId_;
+	
+	@Persistent
 	protected String title_;
 	@Persistent
 	protected ObjectCode obj_;
@@ -59,7 +62,7 @@ public class Program extends XML {
 		updateTime();
 	}
 	
-	public Program(Program p, String owner){
+	private Program(Program p, String owner){
 		title_ = p.getTitle();
 		srcs_ = new ArrayList<SourceCode>();
 		srcs_.add(new SourceCode(p.getSource().toString()));
@@ -143,16 +146,26 @@ public class Program extends XML {
 		return time_;
 	}
 
+	public String getPublicId() {
+		return this.publicId_;
+	}
+	
+	public void setPublicId(String id) {
+		this.publicId_ = id;
+	}
+	
+	
 	
 	public Element toXML() {
 		
 		Element root = new Element("Program");
-		
 		root.addContent(getSource().toXML());
 		
 		if( null != obj_){
 			root.addContent(obj_.toXML());
 		}
+		root.addContent(XML.makeElement("id", id));
+		if (publicId_ != null) { root.addContent(XML.makeElement("publicId", publicId_)); }
 		root.addContent(XML.makeElement("title", getTitle()));
 		root.addContent(XML.makeElement("owner", owner_));
 		root.addContent(XML.makeElement("author", author_));
