@@ -22,21 +22,19 @@
     height: auto;
     font-style: oblique;
     display: inline-table;
+    position: relative;
   }
 
   .sexpr {
     height: auto;
     font-family: monospace;
+    position: relative;
     display: inline-table;
     padding: 0em;
     margin: 0em;
   }
 
   .open {
-    position: relative;
-    display: table-cell;
-    left: 0px;
-    top: 0px;
   }
 
   .data {
@@ -52,15 +50,11 @@
   }
 
   .close {
-    position: relative;
-    display: inline;
-    bottom: 0px;
-    right: 0em;
-    
   }
 
   .body {
-    display: inline;
+    display: inline-block;
+    position: relative;
   }
 
 /* Cribbed from schemewiki */
