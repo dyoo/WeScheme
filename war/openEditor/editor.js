@@ -18,8 +18,12 @@ var WeSchemeEditor;
 
 	this.saveButton = attrs.saveButton;
 
-	this.pidDiv = attrs.pidDiv; // JQuery
+	this.pidDiv = attrs.pidDiv;           // JQuery
 	this.filenameDiv = attrs.filenameDiv; // JQuery
+
+	this.publicIdPane = attrs.publicIdPane;
+	this.publicIdDiv = attrs.publicIdDiv; // JQuery
+
 	this.filenameEntry = (jQuery("<input/>").
 			      attr("type", "text").
 			      attr("value", "Unknown").
@@ -181,23 +185,46 @@ var WeSchemeEditor;
 
 
 
-    WeSchemeEditor.prototype.load = function() {
-	if (this.pid) {
-	    var that = this;
-	    var data = { pid: this.pid };
-	    var type = "xml";
-	    var callback = function(data) {
-		var dom = jQuery(data);
-		that.filenameEntry.attr("value", dom.find("title").text());
-		that.defn.setCode(dom.find("source").text());
-		that._setIsPublished(dom.find("published").text() == "true" ? true : false);
+    WeSchemeEditor.prototype.load = function(attrs) {
 
-		WeSchemeIntentBus.notify("after-load", that);
-	    };
-	    WeSchemeIntentBus.notify("before-load", this);
-	    jQuery.get("/loadProject", data, callback, type);
+	var that = this;
+	var data;
+	if (attrs.pid) {
+	    data = { pid: attrs.pid };
+	} else if (attrs.publicId) {
+	    data = { publicId: attrs.publicId };
+	} else {
+	    throw new Error("pid or publicId required");
 	}
+	var type = "xml";
+	var callback = function(data) {
+	    var dom = jQuery(data);
+	    that.pidDiv.text(dom.find("id").text());
+	    that.pid = parseInt(dom.find("id").text());
+	    that.publicIdDiv.empty();
+	    var publicUrl = getAbsoluteUrl(
+		"/openEditor?publicId=" +
+		    encodeURIComponent(dom.find("publicId").text()));
+	    that.publicIdDiv.append(jQuery("<input/>")
+				    .attr("type", "text")
+				    .attr("size", publicUrl.length)
+				    .attr("value", publicUrl));
+	    that.filenameEntry.attr("value", dom.find("title").text());
+	    that.defn.setCode(dom.find("source").text());
+	    that._setIsPublished(dom.find("published").text() == "true" ?
+				 true : false);
+	    WeSchemeIntentBus.notify("after-load", that);
+	};
+	WeSchemeIntentBus.notify("before-load", this);
+	jQuery.get("/loadProject", data, callback, type);
     };
+
+
+    function getAbsoluteUrl(relativeUrl) {
+	var anchor = document.createElement("a");
+	anchor.href = relativeUrl;
+	return anchor.href;
+    }
 	
 
 
@@ -234,7 +261,6 @@ var WeSchemeEditor;
 	if (isPublished) {
 	    this.publishButton.attr("value", "Published");
 	    this.publishButton.attr("disabled", "true");
-	    
 	} else {
 	    this.publishButton.attr("value", "Publish");
 	    this.publishButton.removeAttr("disabled");
