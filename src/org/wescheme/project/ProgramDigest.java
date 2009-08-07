@@ -14,6 +14,8 @@ public class ProgramDigest {
 	Element root = new Element("ProgramDigest");
 		
 		root.addContent(XML.makeElement("id", program.getId()));		
+		if(program.getPublicId() != null)
+			root.addContent(XML.makeElement("publicId", program.getPublicId()));
 		root.addContent(XML.makeElement("title", program.getTitle()));
 		root.addContent(XML.makeElement("owner", program.getOwner()));
 		root.addContent(XML.makeElement("author", program.getAuthor()));
