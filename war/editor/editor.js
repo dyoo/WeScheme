@@ -1,7 +1,5 @@
 var savedContents = "";
 
-
-
 // makeBreak: key-event -> void
 function makeBreak(e){
   var brk = $("<br />")
@@ -9,7 +7,6 @@ function makeBreak(e){
              .addClass("wspace")
              .attr("contenteditable","false");
   brk.splitAndInsertAtSelection();
-  //  jQuery(e.target).splitWith(brk);
   brk.next().focusStart();
 }
 
@@ -39,7 +36,8 @@ function makeLiteral(e){
         $("<div />")
           .addClass("data")
           .attr("contenteditable","true")
-          .text("..."))
+          .text(" ")
+          .keypress(tempKeyHandler));
   lit.splitAndInsertAtSelection();
 
   lit.keypress(literalKeyHandler);
@@ -56,16 +54,18 @@ function makeString(e){
      .addClass("string")
      .append(
        $("<div />")
-         .addClass("openQuote")
+         .addClass("open")
          .text('"'))
      .append(
        $("<div />")
          .addClass("data")
          .attr("contenteditable","true")
-         .text("..."))
+         .text(" ")
+         .keypress(tempKeyHandler))
      .append(
        $("<div />")
-         .addClass("closeQuote")
+         .addClass("close")
+         .addClass("gray")
          .text('"'));
 
 
@@ -87,63 +87,94 @@ function makeSexpr(e){
  var sexpr =  
    $("<div/>")
      .addClass("sexpr")
+     .attr("contenteditable","false")
      .append(
        $("<div />")
-         .addClass("openParen")
+         .addClass("open")
          .text("("))
      .append(
        $("<div />")
-         .addClass("body")
-         .attr("contenteditable","false")
-         .append(
-           $("<div />")
-             .addClass("data ")
-             .attr("contenteditable","true")
-             .text("...")))
+         .addClass("data ")
+         .attr("contenteditable","true")
+         .html("&nbsp;")
+         .keypress(tempKeyHandler))
      .append(
        $("<div />")
-         .addClass("closeParen")
+         .addClass("close")
+         .addClass("gray")
          .text(")"));
   sexpr.splitAndInsertAtSelection();
 
-  sexpr.children(".body").children(".data").focus();
-  sexpr.children(".body").children(".data").contentFocus();
+  sexpr.children(".data").focus();
+  sexpr.children(".data").contentFocus();
 
 
 }
 
+function tempKeyHandler(e){
+  e.stopPropagation();
+  switch(e.keyCode){
+  case 8:                   //backspace
+  case 46:                  //delete
+    e.preventDefault();
+    break;
+  default:
+    var tar = $(e.target);
+    tar.text("");
+    tar.unbind('keypress',tempKeyHandler);
+  }
+}
+
+function leaveBlock(type, e){
+  var tar = $(e.target);
+  var range = window.getSelection().getRangeAt(0);
+
+  if(tar.next(":first").hasClass(type) 
+     && range.endOffset == tar.text().length ){
+    tar.next(":first").removeClass("gray");
+    tar.parent().next(":first").focusStart();
+    e.preventDefault(); 
+  }
+}
 
 function globalKeyHandler(e){
+  
+  console.log("reached the global key handler");
+
   switch(e.keyCode){
   case 8:                   //backspace
       backspace(e);
-      break;
+      return;
   case 13:                   // newline
       makeBreak(e);
       e.preventDefault();
-      break;
+      return;
   case 37:                   // left
       leftKey(e);
-      break;
+      return;
   case 39:                 // right
       rightKey(e);
-      break;
+      return;
   case 46:
       deleteKey(e);
-      break;
+      return;
   }
 
   switch(e.charCode){
-      case 32:                   // space
+  case 32:                   // space
       makeSpace(e);
       e.preventDefault();
-      break;
+      return;
+  default:
+      return;
   }
 }
 
 
 // backspace: key-event -> void
 function backspace(e) {
+    
+
     var aSelection = getCursorSelection();
     var tar = aSelection.node;
 
@@ -151,25 +182,49 @@ function backspace(e) {
     if(aSelection.atStart()) {
 	e.preventDefault();
 	
-        var pred = tar.predecessor();
+        var pred = tar.prev(":first");
+    
         if( pred.hasClass("wspace") ){
             pred.remove();
             pred = tar.predecessor();
+
+            if( pred.hasClass("data") ){
+              var loc = pred.text().length;
+              tar.text(pred.text() + tar.text());
+              pred.remove();              
+              tar.focusAt(loc); 
+            }
         } 
+    
+        if( pred.hasClass("open") ){
+          // We need to walk up to the S-expr
+          var sexpr = tar.parent();
+          var lastNode = tar.parent().children(":last"); // the last node might be the same as tar
+          
+          sexpr.children(".open").remove();
+          sexpr.children(".close").remove();
+
+          var prev = sexpr.prev(":first");
+          var next = sexpr.next(":first");
+          sexpr.unwrap();
+
+          if( lastNode.hasClass("data") && next.hasClass("data") ){
+            lastNode.text(lastNode.text() + next.text());
+            next.remove();
+          }
 
 
-	// If the predecessor is itself a data, we must merge.
-	if (pred.hasClass("data")) {
-	    var len = pred.text().length;
-	    pred.text(pred.text() + tar.text());
-	    tar.remove();
-	    pred.focusAt(len);
-	    // By this time, the target is destroyed.
-	}
-	// Otherwise, if there's no predecessor, we lift the structure up.
-	else if (pred.length == 0) {
-	    debugLog("we should lift");
-	}
+          if( tar.hasClass("data") && prev.hasClass("data") ){
+            var len = prev.text().length;
+            tar.text(prev.text() + tar.text());
+            prev.remove();
+            tar.focusAt(len);
+          } else {
+            tar.focusAt(0);
+          }
+        }
+        
+
     } else {
 	e.preventDefault();
 	// Manually doing backspace deletion to avoid the introduction
@@ -179,8 +234,13 @@ function backspace(e) {
 	    range.setStart(range.startContainer, range.startOffset - 1);
 	}
 	range.deleteContents();
-	return false;
-    }
+  }
+
+  if( tar.text().length == 0 ){
+    tar.html("&nbsp;");
+    tar.keypress(tempKeyHandler);
+  }
+
 }
 
 // FIXME: We may need to do something clever here, at least according to
@@ -228,14 +288,10 @@ function deleteKey(e) {
     }
 }
 
-
-
-
-
-
 // sexprKeyHandler: key-event -> void
 function sexprKeyHandler(e){
 
+  console.log("trapped a keypress in sexpr");
   e.stopPropagation();
   //  debugLog("sexprKeyHandler");
   //  debugLog(e.target);
@@ -255,11 +311,14 @@ function sexprKeyHandler(e){
       makeSexpr(e);
       e.preventDefault();
       break;
+  case 41:
+      leaveBlock("close",e);
+      break;
     default:
       globalKeyHandler(e);
   }
 
-  jQuery(e.target).parents(".body:first").indent();
+  setTimeout(function(){jQuery(e.target).parents(".data:first").indent();},1);
 
   return true;
 }
@@ -267,6 +326,8 @@ function sexprKeyHandler(e){
 
 // literalKeyHandler: key-event -> void
 function literalKeyHandler(e){
+  
+  console.log("trapped a keypress in literal");
   e.stopPropagation();
   switch(e.charCode){
     case 32:
@@ -280,13 +341,26 @@ function literalKeyHandler(e){
 
 // stringKeyHandler: key-event -> void
 function stringKeyHandler(e){
-    //    debugLog("stringKeyHandler");
 	e.stopPropagation();
+  e.cancelBubble = true;
+
+        console.log("trapped a keypress in string");
+  switch(e.charCode){
+      case 34:
+        leaveBlock("close",e);
+        break;
+      case 32:
+        return;
+      default:
+  }
 	
 	switch(e.keyCode){
-      case 13: 			// space
-      case 32: 			// return
-        return;
+      case 13:                   // newline
+        makeBreak(e);
+        e.preventDefault();
+      return;
+ 
+        break;
       default:
         globalKeyHandler(e);
     }
@@ -327,14 +401,10 @@ function doRestore() {
     // fixme: restore the key handlers
 }
 
-
-
-
 $(document).ready(function() {
 
     // Set the default keyhandler of the editor.
     $("#editor").keypress(sexprKeyHandler);
-
 
     // Hooking up the save and restore buttons.
     $("#save").click(function(e) {
