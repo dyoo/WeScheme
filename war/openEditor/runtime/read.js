@@ -91,9 +91,10 @@ function tokenize(s) {
       }
     }
 
+    var readExpr;
+    var readExprs;
 
-
-    function readExpr() {
+    readExpr = function() {
       var t;
       if (isType('(')) {
 	eat('(');
@@ -137,10 +138,10 @@ function tokenize(s) {
       } else {
 	throw new Error("Parse broke with token stream " + tokens);
       }
-    }
+    };
 
 
-    function readExprs() {
+    readExprs = function() {
       var result = plt.types.Empty.EMPTY;
       while (true) {
 	if (tokens.length == 0 || isType(')')) {
@@ -151,7 +152,7 @@ function tokenize(s) {
 	}
       }
       return plt.Kernel.reverse(result);
-    }
+    };
     
 
 
