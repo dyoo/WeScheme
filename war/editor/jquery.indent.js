@@ -4,15 +4,12 @@
 	
 	   //TODO: If the first element has not changed, do not fire.
 	   
-    console.log($(this).text());
-
  		$(this).children().removeClass("begin-like define-like lambda-like string-node unknown-node begin-indent define-indent lambda-indent");
         
-        var head = $(this).children(":first");
+    var head = $(this).children(":first");
  		var type = getType(head);    
-
-       head.addClass(type);
-       indenter(this);
+     head.addClass(type);
+     indenter(this);
     }	
  	
 
@@ -20,7 +17,6 @@
     if(!c.hasClass("define-like")){
         return;
     }
-
     var kids = $(n).children();
     var indentNext = false;
     kids.each(function(){

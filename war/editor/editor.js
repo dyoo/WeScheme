@@ -34,15 +34,18 @@ function makeLiteral(e){
          .text('\''))
       .append(
         $("<div />")
-          .addClass("data")
-          .attr("contenteditable","true")
-          .text(" ")
-          .keypress(tempKeyHandler));
+          .addClass("body")
+          .attr("contenteditable","false")
+          .append(
+            $("<div />")
+              .addClass("data")
+              .attr("contenteditable","true")
+              .html("&nbsp;")
+              .keypress(metaHandler(literalKeyHandler))));
+  
   lit.splitAndInsertAtSelection();
-
-  lit.keypress(literalKeyHandler);
-  lit.children(".data").focus();
-  lit.children(".data").contentFocus();
+  lit.children(".body").children(".data").focus();
+  lit.children(".body").children(".data").contentFocus();
 
 }
 
@@ -58,10 +61,14 @@ function makeString(e){
          .text('"'))
      .append(
        $("<div />")
-         .addClass("data")
-         .attr("contenteditable","true")
-         .text(" ")
-         .keypress(tempKeyHandler))
+         .addClass("body")
+         .attr("contenteditable","false")
+         .append(
+           $("<div />")
+             .addClass("data")
+             .attr("contenteditable","true")
+             .html("&nbsp;")
+             .keypress(metaHandler(stringKeyHandler))))
      .append(
        $("<div />")
          .addClass("close")
@@ -70,10 +77,8 @@ function makeString(e){
 
 
   str.splitAndInsertAtSelection();
-  str.find(":data").keypress(stringKeyHandler);
-
-  str.children(".data").focus();
-  str.children(".data").contentFocus();
+  str.children(".body").children(".data").focus();
+  str.children(".body").children(".data").contentFocus();
 
 
 }
@@ -94,53 +99,56 @@ function makeSexpr(e){
          .text("("))
      .append(
        $("<div />")
-         .addClass("data ")
-         .attr("contenteditable","true")
-         .html("&nbsp;")
-         .keypress(tempKeyHandler))
+         .addClass("body")
+         .attr("contenteditable","false")
+         .append(
+           $("<div />")
+             .addClass("data")
+             .attr("contenteditable","true")
+             .html("&nbsp;")
+             .keypress(metaHandler(sexprKeyHandler))))
      .append(
        $("<div />")
          .addClass("close")
          .addClass("gray")
          .text(")"));
+  
   sexpr.splitAndInsertAtSelection();
-
-  sexpr.children(".data").focus();
-  sexpr.children(".data").contentFocus();
+  sexpr.children(".body").children(".data").focus();
+  sexpr.children(".body").children(".data").contentFocus();
 
 
 }
 
-function tempKeyHandler(e){
-  e.stopPropagation();
-  switch(e.keyCode){
-  case 8:                   //backspace
-  case 46:                  //delete
-    e.preventDefault();
-    break;
-  default:
+function metaHandler(handler){
+  return function(e){
     var tar = $(e.target);
-    tar.text("");
-    tar.unbind('keypress',tempKeyHandler);
+    if( "&nbsp;" == tar.html()){
+      tar.text("");
+    } else {
+      handler(e);
+    }
+
   }
+
 }
 
 function leaveBlock(type, e){
   var tar = $(e.target);
   var range = window.getSelection().getRangeAt(0);
 
-  if(tar.next(":first").hasClass(type) 
-     && range.endOffset == tar.text().length ){
-    tar.next(":first").removeClass("gray");
-    tar.parent().next(":first").focusStart();
+  var nextNodes = tar.nextAll();
+  if((0 == nextNodes.length && (range.endOffset == tar.text().length) 
+     || tar.html() == "&nbsp;"
+     || tar.text() == " ")){
+    tar.parents(".body").parents(":first").children(":last").removeClass("gray");
+    tar.parents(".body").parents(":first").next(":first").focusStart();
     e.preventDefault(); 
   }
 }
 
 function globalKeyHandler(e){
   
-  console.log("reached the global key handler");
-
   switch(e.keyCode){
   case 8:                   //backspace
       backspace(e);
@@ -182,31 +190,47 @@ function backspace(e) {
     if(aSelection.atStart()) {
 	e.preventDefault();
 	
-        var pred = tar.prev(":first");
+        var prev = tar.prev(":first");
     
-        if( pred.hasClass("wspace") ){
-            pred.remove();
-            pred = tar.predecessor();
+        if( prev.hasClass("wspace") ){
+            prev.remove();
+            prev = tar.prev();
 
-            if( pred.hasClass("data") ){
-              var loc = pred.text().length;
-              tar.text(pred.text() + tar.text());
-              pred.remove();              
+            if( prev.hasClass("data") ){
+              var loc = prev.text().length;
+              tar.text(prev.text() + tar.text());
+              prev.remove();              
               tar.focusAt(loc); 
+              return;
             }
         } 
     
-        if( pred.hasClass("open") ){
-          // We need to walk up to the S-expr
-          var sexpr = tar.parent();
-          var lastNode = tar.parent().children(":last"); // the last node might be the same as tar
-          
-          sexpr.children(".open").remove();
-          sexpr.children(".close").remove();
+        var pred = tar.leafPredecessor();
 
-          var prev = sexpr.prev(":first");
-          var next = sexpr.next(":first");
-          sexpr.unwrap();
+        if( pred.hasClass("open") ){
+          // Walk up from the data node
+          var expr = pred.parent();
+          var lastNode = expr.children(":last"); // the last node might be the same as tar
+          
+          //remove the parens or quotes
+          expr.children(".open").remove();
+          expr.children(".close").remove();
+
+          var prev = expr.prev(":first");
+          var next = expr.next(":first");
+          
+          console.log(expr);
+
+          if( 1 == expr.children().length && "&nbsp;" == tar.html()){
+            var newTar = expr.leafPredecessor();
+            newTar.focusAt(newTar.text().length);
+            expr.remove();
+          } else {
+            var newTar = expr.leafPredecessor();
+            newTar.focusAt(newTar.text().length);
+            tar.parent().unwrap(); // unwrap the body
+            expr.unwrap();  // unwrap the container
+          }
 
           if( lastNode.hasClass("data") && next.hasClass("data") ){
             lastNode.text(lastNode.text() + next.text());
@@ -238,7 +262,6 @@ function backspace(e) {
 
   if( tar.text().length == 0 ){
     tar.html("&nbsp;");
-    tar.keypress(tempKeyHandler);
   }
 
 }
@@ -291,13 +314,9 @@ function deleteKey(e) {
 // sexprKeyHandler: key-event -> void
 function sexprKeyHandler(e){
 
-  console.log("trapped a keypress in sexpr");
   e.stopPropagation();
-  //  debugLog("sexprKeyHandler");
-  //  debugLog(e.target);
-  //  debugLog(e);
-
-
+  var tar = $(e.target).parents(".body:first");
+  
   switch(e.charCode){
   case 34:                 // quote
       makeString(e);
@@ -318,8 +337,7 @@ function sexprKeyHandler(e){
       globalKeyHandler(e);
   }
 
-  setTimeout(function(){jQuery(e.target).parents(".data:first").indent();},1);
-
+  setTimeout(function(){tar.indent();},1);
   return true;
 }
 
@@ -327,16 +345,17 @@ function sexprKeyHandler(e){
 // literalKeyHandler: key-event -> void
 function literalKeyHandler(e){
   
-  console.log("trapped a keypress in literal");
   e.stopPropagation();
   switch(e.charCode){
     case 32:
-      alert(1);
-      makeBreak(e);
       e.preventDefault();
-      break;
-    case 32:
+      $(e.target).parents(".literal").next(".data").focusAt(0);
+      makeSpace(e);
+      $(e.target).parents(".literal").next(".data").remove(); //TODO This code deletes an extra empty data element
+      return;
   }
+
+  globalKeyHandler(e);
 }
 
 // stringKeyHandler: key-event -> void
@@ -344,7 +363,6 @@ function stringKeyHandler(e){
 	e.stopPropagation();
   e.cancelBubble = true;
 
-        console.log("trapped a keypress in string");
   switch(e.charCode){
       case 34:
         leaveBlock("close",e);
