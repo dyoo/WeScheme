@@ -2,71 +2,136 @@ var WeSchemeEditor;
 
 (function() {
 
+    // The timeout between autosaving.
+    var AUTOSAVE_TIMEOUT = 10000;
+
 
     WeSchemeEditor = function(attrs) {
 	var that = this;
-	// defn and statusbar are assumed to be Containers.
+	// defn is assumed to be Containers.
 	// The only container we've got so far are TextContainers.
 	this.defn = attrs.defn;  // TextAreaContainer
+	this.isDirty = false;
 
 	this.interactions = new WeSchemeInteractions(attrs.interactions);
 	this.interactions.reset();
 
+	this.saveButton = attrs.saveButton;
 
-	this.statusbar = attrs.statusbar; // JQuery
-	this.pidDiv = attrs.pidDiv; // JQuery
+	this.pidDiv = attrs.pidDiv;           // JQuery
 	this.filenameDiv = attrs.filenameDiv; // JQuery
+
+	this.publicIdPane = attrs.publicIdPane;
+	this.publicIdDiv = attrs.publicIdDiv; // JQuery
+
 	this.filenameEntry = (jQuery("<input/>").
 			      attr("type", "text").
 			      attr("value", "Unknown").
-			      change(function() { that.filenameEntry.addClass("dirty")}));;
+			      change(function() { 
+				  WeSchemeIntentBus.notify("filename-changed", that);
+			      }));;
 	this.filenameDiv.append(this.filenameEntry);
 
 	this.isPublished = false;
 
-	// saveOrCloneButton: (jqueryof button)
-	this.saveOrCloneButton = attrs.saveOrCloneButton;
 	// publishButton: (jqueryof button)
 	this.publishButton = attrs.publishButton;
 
 	// pid: (or false number)
 	this.pid = false;
-	if (this.pidDiv.text() != "Unknown") {
-	    this.pid = parseInt(this.pidDiv.text());
-	}
 
-	this.defn.addChangeListener(function() { this.addClass("dirty"); });
+	this.defn.addChangeListener(function() {
+	    WeSchemeIntentBus.notify("definitions-changed", that);
+	});
+
+
+	startAutosaving(this);
+	startIsDirtyMonitor(this);
     };
 
 
-    // afterSaveOrClone: -> void
-    // Clears out the dirty tag off of the editable things.
-    // 
-    WeSchemeEditor.prototype.afterSaveOrClone = function() {
-	this.filenameEntry.removeClass("dirty");
-	this.defn.removeClass("dirty");
-    };
 
 
-    WeSchemeEditor.prototype.saveOrClone = function() {
-	if (! this.isPublished) {
-	    this._save();
-	} else {
-	    this._clone();
+    // Maintains a monitor that watches whenever things get changed, and
+    // maintains the dirty attribute.
+    function startIsDirtyMonitor(editor) {
+	WeSchemeIntentBus.addNotifyListener(function(action, category, data) {
+	    if ((category == 'filename-changed' || 
+		 category == 'definitions-changed') && 
+		data == editor) {
+		editor.isDirty = true;
+
+		if (editor.isPublished) {
+		    editor.saveButton.attr("value", "Save");
+		    editor.saveButton.attr("disabled", "true");		
+		} else {
+		    editor.saveButton.attr("value", "Save");
+		    editor.saveButton.removeAttr("disabled");
+		}
+
+	    } else if (((category == 'after-save' || category == 'after-load') 
+			&& data == editor)) {
+		editor.isDirty = false;
+
+		editor.saveButton.attr("value", "Saved");
+		editor.saveButton.attr("disabled", "true");		
+	    }
+	});
+    }
+    
+
+
+
+    // Every few seconds, will check if the program hasn't been saved yet.
+    function startAutosaving(editor) {
+	var currentTimer = false;
+
+	function restartTimerListener(action, category, data) {
+	    if (action == "notify" && 
+		category == "before-save" && 
+		data instanceof WeSchemeEditor) {
+		if (currentTimer) {
+		    clearTimeout(currentTimer);
+		}
+		currentTimer = beginTimer();
+	    }
 	}
+
+	function timerFiredOff() {
+	    if (editor.isDirty) {
+		WeSchemeIntentBus.notify("autosave", editor);
+		if (editor.pid && ! editor.isPublished) {
+		    editor.save();
+		}
+	    }
+	    clearTimeout(currentTimer);
+	    currentTimer = beginTimer();
+	}
+
+	function beginTimer() {
+	    return setTimeout(timerFiredOff, AUTOSAVE_TIMEOUT);
+	}
+
+	WeSchemeIntentBus.addNotifyListener(restartTimerListener);
+	currentTimer = beginTimer();
     }
 
 
-    WeSchemeEditor.prototype._save = function() {
+
+
+
+
+    WeSchemeEditor.prototype.save = function() {
 	var that = this;
 
 	function saveProjectCallback(data) {
 	    // The data contains the pid of the saved program.
 	    that.pid = parseInt(data);
-	    that.notifyOnStatusBar("Program " + that.pid + " saved")
+	    WeSchemeIntentBus.notify("before-save", that);
 	    that.pidDiv.text(data);
 	    that.filenameEntry.value = data;
-	    that.afterSaveOrClone();
+
+	    WeSchemeIntentBus.notify("after-save", that);
 	}
 
 	function onFirstSave() {
@@ -100,36 +165,63 @@ var WeSchemeEditor;
     };
 
 
-    WeSchemeEditor.prototype._clone = function() {
+    WeSchemeEditor.prototype.clone = function() {
 	if (this.pid) {
 	    var that = this;
-	    var data = { pid: this.pid };
+	    var data = { pid: this.pid,
+		         code: that.defn.getCode() };
 	    var type = "text";
 	    var callback = function(data) {
-		that.notifyOnStatusBar("Program " + that.pid + " cloned");
+		WeSchemeIntentBus.notify("after-clone", that);
 		window.location = "/openEditor?pid=" + encodeURIComponent(parseInt(data));
 	    };
+	    WeSchemeIntentBus.notify("before-clone", this);
 	    jQuery.post("/cloneProject", data, callback, type);
 	}
     };
 
 
 
-    WeSchemeEditor.prototype.load = function() {
-	if (this.pid) {
-	    var that = this;
-	    var data = { pid: this.pid };
-	    var type = "xml";
-	    var callback = function(data) {
-		var dom = jQuery(data);
-		that.filenameEntry.attr("value", dom.find("title").text());
-		that.defn.setCode(dom.find("source").text());
-		that.setIsPublished(dom.find("published").text() == "true" ? true : false);
-		that.notifyOnStatusBar("Program " + that.pid + " loaded")
-	    };
-	    jQuery.get("/loadProject", data, callback, type);
+    WeSchemeEditor.prototype.load = function(attrs) {
+
+	var that = this;
+	var data;
+	if (attrs.pid) {
+	    data = { pid: attrs.pid };
+	} else if (attrs.publicId) {
+	    data = { publicId: attrs.publicId };
+	} else {
+	    throw new Error("pid or publicId required");
 	}
+	var type = "xml";
+	var callback = function(data) {
+	    var dom = jQuery(data);
+	    that.pidDiv.text(dom.find("id").text());
+	    that.pid = parseInt(dom.find("id").text());
+	    that.publicIdDiv.empty();
+	    var publicUrl = getAbsoluteUrl(
+		"/openEditor?publicId=" +
+		    encodeURIComponent(dom.find("publicId").text()));
+	    that.publicIdDiv.append(jQuery("<input/>")
+				    .attr("type", "text")
+				    .attr("size", publicUrl.length)
+				    .attr("value", publicUrl));
+	    that.filenameEntry.attr("value", dom.find("title").text());
+	    that.defn.setCode(dom.find("source").text());
+	    that._setIsPublished(dom.find("published").text() == "true" ?
+				 true : false);
+	    WeSchemeIntentBus.notify("after-load", that);
+	};
+	WeSchemeIntentBus.notify("before-load", this);
+	jQuery.get("/loadProject", data, callback, type);
     };
+
+
+    function getAbsoluteUrl(relativeUrl) {
+	var anchor = document.createElement("a");
+	anchor.href = relativeUrl;
+	return anchor.href;
+    }
 	
 
 
@@ -140,44 +232,39 @@ var WeSchemeEditor;
 	    var type = "xml";
 	    var callback = function(data) {
 		var dom = jQuery(data);
-		that.setIsPublished(dom.find("published").text() == "true" ? true : false);
-		that.notifyOnStatusBar("Program " + that.pid + " published")
+		that._setIsPublished(dom.find("published").text() == "true" ? true : false);
+		WeSchemeIntentBus.notify("after-publish", that);
 	    };
+	    WeSchemeIntentBus.notify("before-publish", this);
 	    jQuery.post("/publishProject", data, callback, type);
 	}
     };
 
 
     WeSchemeEditor.prototype.run = function() {
+	WeSchemeIntentBus.notify("before-run", this);
 	this.interactions.reset();
 	this.interactions.runCode(this.defn.getCode());
-	this.notifyOnStatusBar("Executed code");
+	WeSchemeIntentBus.notify("after-run", this);
     };
 
 
 
-    WeSchemeEditor.prototype.notifyOnStatusBar = function(msg) {
-	var that = this;
-	//this.statusbar.show();
-	this.statusbar.text(msg);
-	this.statusbar.fadeIn("slow",
-			      function() { that.statusbar.fadeOut("slow"); });
-    };
 
 
-
-    WeSchemeEditor.prototype.setIsPublished = function(isPublished) {
+    WeSchemeEditor.prototype._setIsPublished = function(isPublished) {
 	this.isPublished = isPublished;
-	if (this.isPublished) {
-	    this.saveOrCloneButton.attr("value", "Clone");
+
+	if (isPublished) {
+	    this.publishButton.attr("value", "Published");
 	    this.publishButton.attr("disabled", "true");
 	} else {
-	    this.saveOrCloneButton.attr("value", "Save");
+	    this.publishButton.attr("value", "Publish");
 	    this.publishButton.removeAttr("disabled");
 	}
     }
 
 
-
+    WeSchemeEditor.prototype.toString = function() { return "WeSchemeEditor()"; };
 
 })();

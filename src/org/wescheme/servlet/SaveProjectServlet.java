@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.wescheme.project.NameGenerator;
 import org.wescheme.project.Program;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
@@ -51,11 +52,16 @@ public class SaveProjectServlet extends HttpServlet{
 			String title, String code) throws IOException {
 		Program prog = new Program(code, userSession);
 		prog.updateTitle(title);
+		prog.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueName(pm));
 		pm.makePersistent(prog);
 
 		resp.setContentType("text/plain"); 
 		resp.getWriter().println(prog.getId());					
 	}
+	
+	
+
+	
 
 
 	private void saveExistingProgram(PersistenceManager pm, Session userSession,
@@ -67,6 +73,10 @@ public class SaveProjectServlet extends HttpServlet{
 		if (prog.getOwner().equals(userSession.getName()) && !prog.isPublished()) {
 			prog.updateTitle(title);
 			prog.updateSource(code);
+
+			if (prog.getPublicId() == null) {
+				prog.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueName(pm));
+			}
 		
 			resp.setContentType("text/plain");
 			resp.getWriter().println(prog.getId());					
