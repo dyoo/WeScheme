@@ -25,7 +25,7 @@ function getType(jqo){
     return "lambda-like";
   }
   
-  return "unknown-node";
+  return "function-node";
 
 }
 
