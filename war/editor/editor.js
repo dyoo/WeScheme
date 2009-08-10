@@ -15,7 +15,8 @@ function makeSpace(e){
   var space =
     $("<div/>")
       .addClass("wspace")
-      .addClass("space");
+      .addClass("space")
+      .html("&nbsp;");
 
   space.splitAndInsertAtSelection();
   space.next().focusStart();
