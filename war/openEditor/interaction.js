@@ -106,17 +106,13 @@ WeSchemeInteractions = (function () {
 
 
     WeSchemeInteractions.prototype._updatePermissionList = function(permissionList) {
-	alert("updating permissionList");
 	// FIXME: we should notify the user what permissionList are being asked,
 	// and what to permit.
 	while (! permissionList.isEmpty()) {
-	    var startupCode = 
-		permission_dash__greaterthan_on_dash_start_dash_code(permissionList.first());
-	    this.namespace.eval(startupCode, 'undefined');
-	    alert("evaluated " + startupCode);
+	    var nextPermission = permissionList.first();
+	    plt.permission.runStartupCode(nextPermission);
 	    permissionList = permissionList.rest();
 	}
-	alert("permissionList updated");
     };
 
 
