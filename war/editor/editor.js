@@ -152,7 +152,7 @@ function globalKeyHandler(e){
   
   switch(e.keyCode){
   case 8:                   //backspace
-      backspace(e);
+      backspaceKey(e);
       return;
   case 13:                   // newline
       makeBreak(e);
@@ -181,7 +181,7 @@ function globalKeyHandler(e){
 
 
 // backspace: key-event -> void
-function backspace(e) {
+function backspaceKey(e) {
     
 
     var aSelection = getCursorSelection();
@@ -220,8 +220,6 @@ function backspace(e) {
           var prev = expr.prev(":first");
           var next = expr.next(":first");
           
-          console.log(expr);
-
           if( 1 == expr.children().length && "&nbsp;" == tar.html()){
             var newTar = expr.leafPredecessor();
             newTar.focusAt(newTar.text().length);

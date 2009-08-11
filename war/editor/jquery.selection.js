@@ -86,7 +86,7 @@
 	range.deleteContents();
 	range.collapse(false);
   
-  console.log($(range.startContainer).parent().text());
+  //console.log($(range.startContainer).parent().text());
 	// Assumption: The selection is on a "data" text node.
 	var dataNode = $(range.startContainer).parent();
 	var originalText = dataNode.text();
