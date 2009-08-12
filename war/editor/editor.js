@@ -56,10 +56,11 @@ function makeString(e){
   var str =
     $("<div/>")
      .addClass("string")
+     .keypress(metaHandler(stringKeyHandler))
      .append(
        $("<div />")
          .addClass("open")
-         .text('"'))
+         .html("&#147;"))
      .append(
        $("<div />")
          .addClass("body")
@@ -68,13 +69,12 @@ function makeString(e){
            $("<div />")
              .addClass("data")
              .attr("contenteditable","true")
-             .html("&nbsp;")
-             .keypress(metaHandler(stringKeyHandler))))
+             .html("&nbsp;")))
      .append(
        $("<div />")
          .addClass("close")
          .addClass("gray")
-         .text('"'));
+         .html("&#148;"));
 
 
   str.splitAndInsertAtSelection();
@@ -126,10 +126,9 @@ function metaHandler(handler){
     var tar = $(e.target);
     if( "&nbsp;" == tar.html()){
       tar.text("");
-    } else {
-      handler(e);
     }
-
+    
+    handler(e);
   }
 
 }
@@ -137,15 +136,9 @@ function metaHandler(handler){
 function leaveBlock(type, e){
   var tar = $(e.target);
   var range = window.getSelection().getRangeAt(0);
-  var nextNodes = tar.nextAll();
-  console.log("trying to leave: " + nextNodes.html() + " " + range.endOffset + " " + tar.text().length);
-  if((0 == nextNodes.length && (range.endOffset == tar.text().length) 
-     || tar.html() == "&nbsp;"
-     || tar.text() == " ")){
-    tar.parents(".body").parents(":first").children(":last").removeClass("gray");
-    tar.parents(".body").parents(":first").next(":first").focusStart();
-    e.preventDefault(); 
-  }
+  tar.parents(".body").parents(":first").children(":last").removeClass("gray");
+  tar.parents(".body").parents(":first").next(":first").focusStart();
+  e.preventDefault(); 
 }
 
 function globalKeyHandler(e){
@@ -364,7 +357,7 @@ function stringKeyHandler(e){
   switch(e.charCode){
       case 34:
         leaveBlock("close",e);
-        break;
+        return;
       default:
   }
 	
