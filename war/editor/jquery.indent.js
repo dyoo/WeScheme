@@ -4,15 +4,12 @@
 	
 	   //TODO: If the first element has not changed, do not fire.
 	   
-    console.log($(this).text());
-
- 		$(this).children().removeClass("begin-like define-like lambda-like string-node unknown-node begin-indent define-indent lambda-indent");
+ 		$(this).children().removeClass("begin-like define-like lambda-like string-node function-node begin-indent define-indent lambda-indent");
         
-        var head = $(this).children(":first");
+    var head = $(this).children(":first");
  		var type = getType(head);    
-
-       head.addClass(type);
-       indenter(this);
+     head.addClass(type);
+     indenter(this);
     }	
  	
 
@@ -20,7 +17,6 @@
     if(!c.hasClass("define-like")){
         return;
     }
-
     var kids = $(n).children();
     var indentNext = false;
     kids.each(function(){
@@ -36,7 +32,7 @@
   }
 
   function beginIndenter(n,c){
-    if(!(c.hasClass("begin-like") || c.hasClass("unknown-node"))){
+    if(!(c.hasClass("begin-like") || c.hasClass("function-node"))){
       return;
     }
     
@@ -78,6 +74,54 @@
       }
     });
   }
+
+  function functionIndenter(n,c){
+    if(!c.hasClass("function-node")){
+      return;
+    }
+    
+    var kids = $(n).children();
+    var distance = null;
+    var hasSpace = false;
+    var count = 0;
+    c.nextAll().each(function(){
+      ++count;
+
+      var elm = jQuery(this);
+      
+
+      if( elm.hasClass("space") ){ hasSpace = true;  }
+
+      if( null == distance && elm.hasClass("userBreak") ){
+        if( hasSpace ){
+          distance = 0;
+        } else {
+          distance = c.text().length + 1; 
+        }
+      }
+
+      if( null == distance && 
+          !elm.hasClass("wspace") &&
+          elm.text().length != 0 ){
+        distance = c.text().length - 1 ;
+      }
+
+    });
+    
+    var indentNext = false;
+
+    kids.each(function(){
+      var elm = jQuery(this);
+      
+      if( elm.hasClass("userBreak") ){
+            indentNext = true;
+      } else if(indentNext && !elm.hasClass("wspace")){
+        elm.attr("style","padding-left:" + distance + "em");
+        indentNext = false;
+      }
+    });
+  }
+
 
   function lambdaIndenter(n,c){
     if(!c.hasClass("lambda-like")){
@@ -127,6 +171,7 @@
       }
     beginIndenter(n,c);
     lambdaIndenter(n,c);
+    functionIndenter(n,c);
     defineIndenter(n,c);
   
     });

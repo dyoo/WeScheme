@@ -29,6 +29,8 @@
 <script src="/openEditor/runtime/world.js"></script>
 <script src="/openEditor/runtime/jsworld/jsworld.js"></script>
 <script src="/openEditor/runtime/jsworld.js"></script>
+<script src="/openEditor/runtime/permission.js"></script>
+<script src="/openEditor/runtime/world-stimuli.js"></script>
 
 
 <script>
