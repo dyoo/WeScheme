@@ -8,10 +8,14 @@ var WeSchemeEditor;
 
     WeSchemeEditor = function(attrs) {
 	var that = this;
+
+	this.userName = attrs.userName; // string
+
 	// defn is assumed to be Containers.
 	// The only container we've got so far are TextContainers.
 	this.defn = attrs.defn;  // TextAreaContainer
 	this.isDirty = false;
+	this.isOwner = true;
 
 	this.interactions = new WeSchemeInteractions(attrs.interactions);
 	this.interactions.reset();
@@ -196,6 +200,7 @@ var WeSchemeEditor;
 	var type = "xml";
 	var callback = function(data) {
 	    var dom = jQuery(data);
+
 	    that.pidDiv.text(dom.find("id").text());
 	    that.pid = parseInt(dom.find("id").text());
 	    that.publicIdDiv.empty();
@@ -210,6 +215,13 @@ var WeSchemeEditor;
 	    that.defn.setCode(dom.find("source").text());
 	    that._setIsPublished(dom.find("published").text() == "true" ?
 				 true : false);
+
+	    if (that.userName == dom.find("owner").text()) {
+		that._setIsOwner(true);
+	    } else {
+		that._setIsOwner(false);
+	    }
+
 	    WeSchemeIntentBus.notify("after-load", that);
 	};
 	WeSchemeIntentBus.notify("before-load", this);
@@ -261,6 +273,17 @@ var WeSchemeEditor;
 	} else {
 	    this.publishButton.attr("value", "Publish");
 	    this.publishButton.removeAttr("disabled");
+	}
+    }
+
+    WeSchemeEditor.prototype._setIsOwner = function(v) {
+	this.isOwner = v;
+	if (this.isOwner) {
+	    this.defn.setReadOnly(false);
+	    this.filenameEntry.removeAttr("readonly");
+	} else {
+	    this.defn.setReadOnly(true);
+	    this.filenameEntry.attr("readonly", "true");
 	}
     }
 

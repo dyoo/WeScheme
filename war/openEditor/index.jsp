@@ -33,6 +33,14 @@
 <script src="/openEditor/runtime/world-stimuli.js"></script>
 
 
+<%
+   org.wescheme.user.Session userSession = 
+   (new org.wescheme.user.SessionManager()).authenticate(request, response); 
+%>
+
+
+
+
 <script>
   jQuery(document).ready(function() {
 
@@ -40,8 +48,10 @@
 
   var statusBar = new WeSchemeStatusBar(jQuery("#statusbar"));
 
+
   var myEditor = new WeSchemeEditor(
-  { defn: new WeSchemeTextContainer(jQuery("#defn").get(0)),
+  { userName: "<%= userSession != null? userSession.getName() : null %>",
+    defn: new WeSchemeTextContainer(jQuery("#defn").get(0)),
     interactions: jQuery("#inter").get(0),
     jsworldDiv: jQuery("#jsworld-div").get(0),
     pidDiv: jQuery("#pidArea"),
