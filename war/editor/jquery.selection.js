@@ -64,7 +64,7 @@
 
 
     $.fn.predecessorWith = function(f){
-  
+ 
      var p = $(this).predecessor();
      while(true) {
         if( f(p) ){
@@ -86,9 +86,12 @@
 	range.deleteContents();
 	range.collapse(false);
   
-  console.log($(range.startContainer).parent().text());
-	// Assumption: The selection is on a "data" text node.
-	var dataNode = $(range.startContainer).parent();
+  if( $(range.startContainer).hasClass("data") ){
+    var dataNode = $(range.startContainer);
+  } else {
+    var dataNode = $(range.startContainer).parents(".data:first");
+  }
+
 	var originalText = dataNode.text();
 	var prefixNode = dataNode.clone(true).empty().text(originalText.substring(0, range.startOffset)).attr("contenteditable", "true");
 	var suffixNode = dataNode.clone(true).empty().text(originalText.substring(range.startOffset)).attr("contenteditable", "true");

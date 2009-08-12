@@ -5,15 +5,22 @@
 	   //TODO: If the first element has not changed, do not fire.
 	   
  		$(this).children().removeClass("begin-like define-like lambda-like string-node function-node begin-indent define-indent lambda-indent");
-        
-    var head = $(this).children(":first");
- 		var type = getType(head);    
-     head.addClass(type);
-     indenter(this);
+   
+    var head = $(this).children(".data").filter(function(index){return (jQuery.trim($(this).text()).length > 0)}).eq(0);
+
+     if( head.hasClass("data")){
+ 		   var type = getType(head);    
+       head.addClass(type);
+       indenter(this, head);
+      }
     }	
  	
 
   function defineIndenter(n,c){
+    
+    var offset = c.prevAll(".space").length;
+    var distance = 3;
+
     if(!c.hasClass("define-like")){
         return;
     }
@@ -25,14 +32,14 @@
       if( elm.hasClass("userBreak") ){
             indentNext = true;
         } else if( !elm.hasClass("wspace") && indentNext){
-            elm.attr("style", "padding-left: 1em");
+            elm.attr("style", "padding-left: " + distance + "em");
             indentNext = false;
         }
       });
   }
 
   function beginIndenter(n,c){
-    if(!(c.hasClass("begin-like") || c.hasClass("function-node"))){
+    if(!(c.hasClass("begin-like"))){
       return;
     }
     
@@ -163,16 +170,16 @@
     });
   }
 
-  function indenter(n){
-    var c = $(n).children(":first");
+  function indenter(n, head){
+
     $(n).children().each(function(){
       if(!$(this).hasClass("wspace")){
         $(this).removeAttr("style");
       }
-    beginIndenter(n,c);
-    lambdaIndenter(n,c);
-    functionIndenter(n,c);
-    defineIndenter(n,c);
+    beginIndenter(n,head);
+    lambdaIndenter(n,head);
+    functionIndenter(n,head);
+    defineIndenter(n,head);
   
     });
   }

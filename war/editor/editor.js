@@ -137,8 +137,8 @@ function metaHandler(handler){
 function leaveBlock(type, e){
   var tar = $(e.target);
   var range = window.getSelection().getRangeAt(0);
-
   var nextNodes = tar.nextAll();
+  console.log("trying to leave: " + nextNodes.html() + " " + range.endOffset + " " + tar.text().length);
   if((0 == nextNodes.length && (range.endOffset == tar.text().length) 
      || tar.html() == "&nbsp;"
      || tar.text() == " ")){
@@ -152,7 +152,7 @@ function globalKeyHandler(e){
   
   switch(e.keyCode){
   case 8:                   //backspace
-      backspace(e);
+      backspaceKey(e);
       return;
   case 13:                   // newline
       makeBreak(e);
@@ -181,8 +181,7 @@ function globalKeyHandler(e){
 
 
 // backspace: key-event -> void
-function backspace(e) {
-    
+function backspaceKey(e) {
 
     var aSelection = getCursorSelection();
     var tar = aSelection.node;
@@ -220,8 +219,6 @@ function backspace(e) {
           var prev = expr.prev(":first");
           var next = expr.next(":first");
           
-          console.log(expr);
-
           if( 1 == expr.children().length && "&nbsp;" == tar.html()){
             var newTar = expr.leafPredecessor();
             newTar.focusAt(newTar.text().length);
@@ -368,8 +365,6 @@ function stringKeyHandler(e){
       case 34:
         leaveBlock("close",e);
         break;
-      case 32:
-        return;
       default:
   }
 	
