@@ -85,6 +85,7 @@
 <span><input id="run" type="button" value="Run"></input></span>
 <span><input id="publish" type="button" value="Publish"></input></span>
 <span><input id="back" type="button" value="Back to main"></input></span>
+<span><a href="/openEditor/moby-user-api.txt">API docs</a></span>
 </span>
 
 
