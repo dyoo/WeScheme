@@ -9,7 +9,8 @@
     width: 100%;
     height: 100%;
     padding: 1em;
-    background-color: LightSteelBlue;
+    background-color: Black;
+    color: White;
     font-size: 1em;
     font-family: monospace;
     display: block;
@@ -26,7 +27,7 @@
   }
 
   .gray {
-    color: Gray;
+    color: Gainsboro;
   }
 
   .open {
