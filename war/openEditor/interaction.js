@@ -80,6 +80,11 @@ WeSchemeInteractions = (function () {
 	    var compiledProgram = 
 		program_dash__greaterthan_compiled_dash_program_slash_pinfo(program, this.pinfo);
 
+	    var newPinfo = 
+		compiled_dash_program_dash_pinfo(compiledProgram);
+
+	    that._updatePermissionList(pinfo_dash_permissions(newPinfo));
+
 	    var defns = compiled_dash_program_dash_defns(compiledProgram);
 	    var interFunc = compiled_dash_program_dash_toplevel_dash_exprs(compiledProgram);
 	    var runToplevel = this.namespace.eval(defns, interFunc);
@@ -91,10 +96,22 @@ WeSchemeInteractions = (function () {
 	    });
 
 	    // Update the pinfo.
-	    this.pinfo = compiled_dash_program_dash_pinfo(compiledProgram);
+	    this.pinfo = newPinfo;
 	    WeSchemeIntentBus.notify("after-run", this);
 	} catch (err) {
 	    this.addToInteractions(err.toString() + "\n");
+	    throw err;
+	}
+    };
+
+
+    WeSchemeInteractions.prototype._updatePermissionList = function(permissionList) {
+	// FIXME: we should notify the user what permissionList are being asked,
+	// and what to permit.
+	while (! permissionList.isEmpty()) {
+	    var nextPermission = permissionList.first();
+	    plt.permission.runStartupCode(nextPermission);
+	    permissionList = permissionList.rest();
 	}
     };
 
