@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -13,9 +16,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import sun.net.www.URLConnection;
-
 public class NetworkProxy extends HttpServlet {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 2565511296203717652L;
+
 	public void doGet(HttpServletRequest req, HttpServletResponse res) {
 		try {
 			URL url = new URL(req.getParameter("url"));
@@ -23,14 +29,9 @@ public class NetworkProxy extends HttpServlet {
 			res.setContentType(conn.getContentType());
 			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
 	        BufferedWriter writer = new BufferedWriter(res.getWriter());
-	        int b;
-	        while (true) {
-	        	b = in.read();
-	        	if (b == -1) {
-	        		break;
-	        	}
-	        	writer.write(b);
-	        }
+	        copyReaderToWriter(in, writer);
+	        in.close();
+	        writer.close();
 		} catch (MalformedURLException e) {
 			throw new RuntimeException(e);
 		} catch (IOException e) {
@@ -39,8 +40,36 @@ public class NetworkProxy extends HttpServlet {
 	}
 	
 	public void doPost(HttpServletRequest req, HttpServletResponse res) {
-		String url = req.getParameter("url");
-		String data = req.getParameter("data");
-		URLEncoder.encode(data);
+		try {
+			URL url = new URL(req.getParameter("url"));
+			String data = req.getParameter("data");
+			URLConnection conn = url.openConnection();			
+			URLEncoder.encode(data, "UTF-8");
+	        OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+	        wr.write(data);
+	        wr.flush();
+	        wr.close();
+	        res.setContentType(conn.getContentType());
+			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			BufferedWriter writer = new BufferedWriter(res.getWriter());
+			copyReaderToWriter(in, writer);
+			in.close();
+	        writer.close();
+		} catch (MalformedURLException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+		
+	private void copyReaderToWriter(Reader r, Writer w) throws IOException {
+        int b;
+        while (true) {
+        	b = r.read();
+        	if (b == -1) {
+        		break;
+        	}
+        	w.write(b);
+        }
 	}
 }
