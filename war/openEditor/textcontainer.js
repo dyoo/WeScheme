@@ -43,4 +43,12 @@ var WeSchemeTextContainer;
 	this.container.removeClass(aClass);
     };
 
+    WeSchemeTextContainer.prototype.setReadOnly = function(b) {
+	if (b) {
+	    this.container.attr("readonly", "true");
+	} else {
+	    this.container.removeAttr("readonly");
+	}
+    };
+
 })();
