@@ -2753,6 +2753,14 @@ var plt = plt || {};
     
 
 
+
+
+
+
+
+
+
+
     
     
     // Posns
@@ -2885,58 +2893,58 @@ var readSchemeExpressions;
 
 function tokenize(s) {
 
-  function replaceEscapes(s) {
-    return s.replace(/\\./g, function(match, submatch, index) {
-      // FIXME: add more escape sequences.
-      if (match == '\\n') {
-	return "\n";
-      }
-      else {
-	return match.substring(1);
-      }
-      });
+    function replaceEscapes(s) {
+	return s.replace(/\\./g, function(match, submatch, index) {
+	    // FIXME: add more escape sequences.
+	    if (match == '\\n') {
+		return "\n";
+	    }
+	    else {
+		return match.substring(1);
+	    }
+	});
     }
 
 
 
-  var tokens = [];
+    var tokens = [];
 
-  var PATTERNS = [['whitespace' , /^(\s+)/],
-		  ['comment' , /(^;[^\n]*)/],
-		  ['(' , /^(\(|\[)/],
-		  [')' , /^(\)|\])/],
-	          ['\'' , /^(\')/],
-		  ['`' , /^(`)/],
-		  [',' , /^(,)/],
-		  ['char', /^\#\\(newline)/],
-                  ['char', /^\#\\(.)/],
-		  ['number' , /^([+\-]?(?:\d+\.\d+|\d+\.|\.\d+|\d+))/],
-		  ['string' , /^"((?:([^\\"]|(\\.)))*)"/],      // comment (emacs getting confused with quote): " 
-		  ['symbol' ,/^([a-zA-Z\:\+\=\~\_\?\!\@\#\$\%\^\&\*\-\/\.\>\<][\w\:\+\=\~\_\?\!\@\#\$\%\^\&\*\-\/\.\>\<]*)/]
-		 ];
+    var PATTERNS = [['whitespace' , /^(\s+)/],
+		    ['comment' , /(^;[^\n]*)/],
+		    ['(' , /^(\(|\[)/],
+		    [')' , /^(\)|\])/],
+	            ['\'' , /^(\')/],
+		    ['`' , /^(`)/],
+		    [',' , /^(,)/],
+		    ['char', /^\#\\(newline)/],
+                    ['char', /^\#\\(.)/],
+		    ['number' , /^([+\-]?(?:\d+\.\d+|\d+\.|\.\d+|\d+))/],
+		    ['string' , /^"((?:([^\\"]|(\\.)))*)"/],      // comment (emacs getting confused with quote): " 
+['symbol' ,/^([a-zA-Z\:\+\=\~\_\?\!\@\#\$\%\^\&\*\-\/\.\>\<][\w\:\+\=\~\_\?\!\@\#\$\%\^\&\*\-\/\.\>\<]*)/]
+];
 
-  while (true) {
+while (true) {
     var shouldContinue = false;
     for (var i = 0; i < PATTERNS.length; i++) {
-      var patternName = PATTERNS[i][0];
-      var pattern = PATTERNS[i][1]
-      var result = s.match(pattern);
-      if (result != null) {
-	if (patternName == 'string') {
-	  result[1] = replaceEscapes(result[1]);
-        }
-	if (patternName != 'whitespace' && patternName != 'comment') {
-	  tokens.push([patternName, result[1]]);
+	var patternName = PATTERNS[i][0];
+	var pattern = PATTERNS[i][1]
+	var result = s.match(pattern);
+	if (result != null) {
+	    if (patternName == 'string') {
+		result[1] = replaceEscapes(result[1]);
+            }
+	    if (patternName != 'whitespace' && patternName != 'comment') {
+		tokens.push([patternName, result[1]]);
+	    }
+	    s = s.substring(result[0].length);
+	    shouldContinue = true;
 	}
-	s = s.substring(result[0].length);
-	shouldContinue = true;
-      }
     }
     if (! shouldContinue) {
-      break;
+	break;
     }
-  }
-  return [tokens, s];
+}
+return [tokens, s];
 }
 
 
@@ -2945,101 +2953,104 @@ function tokenize(s) {
 (function(){
 
 
-  readSchemeExpressions = function(s) {
-    var tokensAndError = tokenize(s);
-    var tokens = tokensAndError[0];
-    if (tokensAndError[1].length > 0) {
-	throw new Error("Error while tokenizing: the rest of the stream is: " + tokensAndError[1]);
-    }
+    readSchemeExpressions = function(s) {
+	var tokensAndError = tokenize(s);
+	var tokens = tokensAndError[0];
+	if (tokensAndError[1].length > 0) {
+	    throw new Error("Error while tokenizing: the rest of the stream is: " + tokensAndError[1]);
+	}
 
-    var quoteSymbol = plt.types.Symbol.makeInstance("quote");
-    var quasiquoteSymbol = plt.types.Symbol.makeInstance("quasiquote");
-    var unquoteSymbol = plt.types.Symbol.makeInstance("unquote");
-    var empty = plt.types.Empty.EMPTY;
+	var quoteSymbol = plt.types.Symbol.makeInstance("quote");
+	var quasiquoteSymbol = plt.types.Symbol.makeInstance("quasiquote");
+	var unquoteSymbol = plt.types.Symbol.makeInstance("unquote");
+	var empty = plt.types.Empty.EMPTY;
 
-    function isType(type) {
-      return (tokens.length > 0 && tokens[0][0] == type);
+	function isType(type) {
+	    return (tokens.length > 0 && tokens[0][0] == type);
+	}
+	
+	function eat(expectedType) {
+	    if (tokens.length == 0)
+		throw new Error("token stream exhausted while trying to eat " +
+				expectedType);
+	    var t = tokens.shift();
+	    if (t[0] == expectedType) {
+		return t;
+	    } else {
+		throw new Error("Unexpected token " + t);
+	    }
+	}
+
+	// NOTE: we define things in this funny way because of a bug in 
+	// Firefox 3.5.1 that says the error "can't access optimized closure"
+	var readExpr;
+	var readExprs;
+
+	readExpr = function() {
+	    var t;
+	    if (isType('(')) {
+		eat('(');
+		var result = readExprs();
+		eat(')');
+		return result;
+	    } else if (isType("'")) {
+		eat("'");
+		var quoted = readExpr();
+		return plt.Kernel.cons(quoteSymbol,
+				       plt.Kernel.cons(quoted, empty));
+	    } else if (isType('`')) {
+		eat("`");
+		return plt.Kernel.cons(quasiquoteSymbol,
+				       plt.Kernel.cons(quoted, empty));
+	    } else if (isType(',')) {
+		eat(",");
+		return plt.Kernel.cons(unquoteSymbol,
+				       plt.Kernel.cons(quoted, empty));
+	    } else if (isType('number')) {
+		t = eat('number');
+		if (t[1].match(/\./)) {
+		    return plt.types.FloatPoint.makeInstance(parseFloat(t[1]));
+		} else {
+		    return plt.types.Rational.makeInstance(parseInt(t[1]), 1);
+		}
+	    } else if (isType('string')) {
+		t = eat('string');
+		return plt.types.String.makeInstance(t[1]);
+	    } else if (isType('char')) {
+		t = eat('char');
+		if (t[1] == 'newline') {
+		    return plt.types.Char.makeInstance('\n');
+		}
+		else {
+		    return plt.types.Char.makeInstance(t[1]);
+		}
+	    } else if (isType('symbol')) {
+		t = eat('symbol');
+		return plt.types.Symbol.makeInstance(t[1]);
+	    } else {
+		throw new Error("Parse broke with token stream " + tokens);
+	    }
+	};
+
+
+	readExprs = function() {
+	    var result = plt.types.Empty.EMPTY;
+	    while (true) {
+		if (tokens.length == 0 || isType(')')) {
+		    break;
+		} else {
+		    var nextElt = readExpr();
+		    result = plt.types.Cons.makeInstance(nextElt, result);
+		}
+	    }
+	    return plt.Kernel.reverse(result);
+	};
+	
+
+
+	return readExprs();
     }
     
-    function eat(expectedType) {
-      if (tokens.length == 0)
-	throw new Error("token stream exhausted while trying to eat " +
-			expectedType);
-      var t = tokens.shift();
-      if (t[0] == expectedType) {
-	return t;
-      } else {
-	throw new Error("Unexpected token " + t);
-      }
-    }
-
-
-
-    function readExpr() {
-      var t;
-      if (isType('(')) {
-	eat('(');
-	var result = readExprs();
-	eat(')');
-	return result;
-      } else if (isType("'")) {
-	eat("'");
-	var quoted = readExpr();
-	return plt.Kernel.cons(quoteSymbol,
-				   plt.Kernel.cons(quoted, empty));
-      } else if (isType('`')) {
-	eat("`");
-	return plt.Kernel.cons(quasiquoteSymbol,
-				   plt.Kernel.cons(quoted, empty));
-      } else if (isType(',')) {
-	eat(",");
-	return plt.Kernel.cons(unquoteSymbol,
-				   plt.Kernel.cons(quoted, empty));
-      } else if (isType('number')) {
-	t = eat('number');
-	if (t[1].match(/\./)) {
-	  return plt.types.FloatPoint.makeInstance(parseFloat(t[1]));
-	} else {
-	  return plt.types.Rational.makeInstance(parseInt(t[1]), 1);
-	}
-      } else if (isType('string')) {
-	t = eat('string');
-	return plt.types.String.makeInstance(t[1]);
-      } else if (isType('char')) {
-        t = eat('char');
-	  if (t[1] == 'newline') {
-	      return plt.types.Char.makeInstance('\n');
-	  }
-          else {
-	      return plt.types.Char.makeInstance(t[1]);
-	  }
-      } else if (isType('symbol')) {
-	t = eat('symbol');
-	return plt.types.Symbol.makeInstance(t[1]);
-      } else {
-	throw new Error("Parse broke with token stream " + tokens);
-      }
-    }
-
-
-    function readExprs() {
-      var result = plt.types.Empty.EMPTY;
-      while (true) {
-	if (tokens.length == 0 || isType(')')) {
-	  break;
-	} else {
-	  var nextElt = readExpr();
-	  result = plt.types.Cons.makeInstance(nextElt, result);
-	}
-      }
-      return plt.Kernel.reverse(result);
-    }
-    
-
-
-    return readExprs();
-  }
-  
 }());
 
 function permission_colon_location() {  }
@@ -3106,6 +3117,22 @@ function make_dash_permission_colon_tilt() { return new permission_colon_tilt();
 
 function permission_colon_tilt_question_(obj) { 
               return obj != null && obj != undefined && obj instanceof permission_colon_tilt; }
+function permission_colon_shake() {  }
+                    permission_colon_shake.prototype = new plt.Kernel.Struct();
+permission_colon_shake.prototype.toWrittenString = function() { 
+                               return '(' + ['make-permission:shake'].join(' ') + ')'; };permission_colon_shake.prototype.toDisplayedString = permission_colon_shake.prototype.toWrittenString;
+
+permission_colon_shake.prototype.isEqual = function(other) {
+              if (other != null && other != undefined && other instanceof permission_colon_shake) {
+                return plt.types.Logic.TRUE;
+              } else {
+                return false;
+              }
+           } 
+function make_dash_permission_colon_shake() { return new permission_colon_shake(); }
+
+function permission_colon_shake_question_(obj) { 
+              return obj != null && obj != undefined && obj instanceof permission_colon_shake; }
 function permission_colon_internet() {  }
                     permission_colon_internet.prototype = new plt.Kernel.Struct();
 permission_colon_internet.prototype.toWrittenString = function() { 
@@ -3154,13 +3181,31 @@ function make_dash_permission_colon_wake_dash_lock() { return new permission_col
 
 function permission_colon_wake_dash_lock_question_(obj) { 
               return obj != null && obj != undefined && obj instanceof permission_colon_wake_dash_lock; }
-function permission_question_(datum) { return ((permission_colon_location_question_(datum))||(permission_colon_send_dash_sms_question_(datum))||(permission_colon_receive_dash_sms_question_(datum))||(permission_colon_tilt_question_(datum))||(permission_colon_internet_question_(datum))||(permission_colon_telephony_question_(datum))||(permission_colon_wake_dash_lock_question_(datum))); }
+function permission_question_(datum) { return ((permission_colon_location_question_(datum))||(permission_colon_send_dash_sms_question_(datum))||(permission_colon_receive_dash_sms_question_(datum))||(permission_colon_tilt_question_(datum))||(permission_colon_shake_question_(datum))||(permission_colon_internet_question_(datum))||(permission_colon_telephony_question_(datum))||(permission_colon_wake_dash_lock_question_(datum))); }
 var PERMISSION_colon_LOCATION; 
 var PERMISSION_colon_SEND_dash_SMS; 
 var PERMISSION_colon_TILT; 
+var PERMISSION_colon_SHAKE; 
 var PERMISSION_colon_INTERNET; 
 var PERMISSION_colon_TELEPHONY; 
 var PERMISSION_colon_WAKE_dash_LOCK; 
+function permission_dash_reference(a_dash_permission) { return ((permission_colon_location_question_(a_dash_permission)) ?
+ (plt.types.Symbol.makeInstance("PERMISSION:LOCATION")) :
+ ((permission_colon_send_dash_sms_question_(a_dash_permission)) ?
+ (plt.types.Symbol.makeInstance("PERMISSION:SEND-SMS")) :
+ ((permission_colon_receive_dash_sms_question_(a_dash_permission)) ?
+ (plt.types.Symbol.makeInstance("PERMISSION:RECEIVE-SMS")) :
+ ((permission_colon_tilt_question_(a_dash_permission)) ?
+ (plt.types.Symbol.makeInstance("PERMISSION:TILT")) :
+ ((permission_colon_shake_question_(a_dash_permission)) ?
+ (plt.types.Symbol.makeInstance("PERMISSION:SHAKE")) :
+ ((permission_colon_internet_question_(a_dash_permission)) ?
+ (plt.types.Symbol.makeInstance("PERMISSION:INTERNET")) :
+ ((permission_colon_telephony_question_(a_dash_permission)) ?
+ (plt.types.Symbol.makeInstance("PERMISSION:TELEPHONY")) :
+ ((permission_colon_wake_dash_lock_question_(a_dash_permission)) ?
+ (plt.types.Symbol.makeInstance("PERMISSION:WAKE-LOCK")) :
+ (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))))))))); }
 function permission_dash__greaterthan_android_dash_permissions(a_dash_permission) { return ((permission_colon_location_question_(a_dash_permission)) ?
  plt.Kernel.list([(plt.types.String.makeInstance("android.permission.ACCESS_LOCATION")),(plt.types.String.makeInstance("android.permission.ACCESS_GPS")),(plt.types.String.makeInstance("android.permission.ACCESS_COARSE_LOCATION")),(plt.types.String.makeInstance("android.permission.ACCESS_FINE_LOCATION"))]) :
  ((permission_colon_send_dash_sms_question_(a_dash_permission)) ?
@@ -3169,13 +3214,15 @@ function permission_dash__greaterthan_android_dash_permissions(a_dash_permission
  plt.Kernel.list([(plt.types.String.makeInstance("android.permission.RECEIVE_SMS"))]) :
  ((permission_colon_tilt_question_(a_dash_permission)) ?
  plt.Kernel.list([]) :
+ ((permission_colon_shake_question_(a_dash_permission)) ?
+ plt.Kernel.list([]) :
  ((permission_colon_internet_question_(a_dash_permission)) ?
  plt.Kernel.list([(plt.types.String.makeInstance("android.permission.INTERNET"))]) :
  ((permission_colon_telephony_question_(a_dash_permission)) ?
  plt.Kernel.list([(plt.types.String.makeInstance("android.permission.ACCESS_COARSE_UPDATES"))]) :
  ((permission_colon_wake_dash_lock_question_(a_dash_permission)) ?
  plt.Kernel.list([(plt.types.String.makeInstance("android.permission.WAKE_LOCK"))]) :
- (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond"))))))))))); }
+ (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))))))))); }
 function permission_dash__greaterthan_on_dash_start_dash_code(a_dash_permission) { return ((permission_colon_location_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("plt.platform.Platform.getInstance().getLocationService().startService();\n      plt.platform.Platform.getInstance().getLocationService().addLocationChangeListener(listener);")) :
  ((permission_colon_send_dash_sms_question_(a_dash_permission)) ?
@@ -3184,13 +3231,15 @@ function permission_dash__greaterthan_on_dash_start_dash_code(a_dash_permission)
  (plt.types.String.makeInstance("")) :
  ((permission_colon_tilt_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("plt.platform.Platform.getInstance().getTiltService().startService();\n      plt.platform.Platform.getInstance().getTiltService().addOrientationChangeListener(listener);\n      plt.platform.Platform.getInstance().getTiltService().addAccelerationChangeListener(listener);\n      plt.platform.Platform.getInstance().getTiltService().addShakeListener(listener);")) :
+ ((permission_colon_shake_question_(a_dash_permission)) ?
+ (plt.types.String.makeInstance("")) :
  ((permission_colon_internet_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("")) :
  ((permission_colon_telephony_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("")) :
  ((permission_colon_wake_dash_lock_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("")) :
- (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond"))))))))))); }
+ (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))))))))); }
 function permission_dash__greaterthan_on_dash_pause_dash_code(a_dash_permission) { return ((permission_colon_location_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("plt.platform.Platform.getInstance().getLocationService().shutdownService();")) :
  ((permission_colon_send_dash_sms_question_(a_dash_permission)) ?
@@ -3199,13 +3248,15 @@ function permission_dash__greaterthan_on_dash_pause_dash_code(a_dash_permission)
  (plt.types.String.makeInstance("")) :
  ((permission_colon_tilt_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("plt.platform.Platform.getInstance().getTiltService().shutdownService();")) :
+ ((permission_colon_shake_question_(a_dash_permission)) ?
+ (plt.types.String.makeInstance("")) :
  ((permission_colon_internet_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("")) :
  ((permission_colon_telephony_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("")) :
  ((permission_colon_wake_dash_lock_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("")) :
- (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond"))))))))))); }
+ (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))))))))); }
 function permission_dash__greaterthan_on_dash_destroy_dash_code(a_dash_permission) { return ((permission_colon_location_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("plt.platform.Platform.getInstance().getLocationService().shutdownService();")) :
  ((permission_colon_send_dash_sms_question_(a_dash_permission)) ?
@@ -3214,13 +3265,15 @@ function permission_dash__greaterthan_on_dash_destroy_dash_code(a_dash_permissio
  (plt.types.String.makeInstance("")) :
  ((permission_colon_tilt_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("plt.platform.Platform.getInstance().getTiltService().shutdownService();")) :
+ ((permission_colon_shake_question_(a_dash_permission)) ?
+ (plt.types.String.makeInstance("")) :
  ((permission_colon_internet_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("")) :
  ((permission_colon_telephony_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("")) :
  ((permission_colon_wake_dash_lock_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("")) :
- (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond"))))))))))); }
+ (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))))))))); }
 function env(bindings) { this.bindings = bindings; }
                     env.prototype = new plt.Kernel.Struct();
 env.prototype.toWrittenString = function() { 
@@ -4513,12 +4566,15 @@ return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types
 
 
 
+
 PERMISSION_colon_LOCATION = (make_dash_permission_colon_location());
 PERMISSION_colon_SEND_dash_SMS = (make_dash_permission_colon_send_dash_sms());
 PERMISSION_colon_TILT = (make_dash_permission_colon_tilt());
+PERMISSION_colon_SHAKE = (make_dash_permission_colon_shake());
 PERMISSION_colon_INTERNET = (make_dash_permission_colon_internet());
 PERMISSION_colon_TELEPHONY = (make_dash_permission_colon_telephony());
 PERMISSION_colon_WAKE_dash_LOCK = (make_dash_permission_colon_wake_dash_lock());
+
 
 
 
@@ -4688,9 +4744,9 @@ function bf(name, arity, java_dash_string) { return (make_dash_binding_colon_fun
 (function (toplevel_dash_expression_dash_show26) { 
 module_dash_path = (plt.types.String.makeInstance("moby/jsworld"));
  })(plt.Kernel.identity)
-return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("jsworld")),module_dash_path,plt.Kernel.list([(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("js-big-bang")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.TRUE,(plt.types.String.makeInstance("plt.world.MobyJsworld.bigBang")),plt.types.Empty.EMPTY,plt.types.Logic.FALSE)),(bf((plt.types.Symbol.makeInstance("js-div")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.div")))),(bf((plt.types.Symbol.makeInstance("js-p")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.p")))),(bf((plt.types.Symbol.makeInstance("js-button")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.button")))),(bf((plt.types.Symbol.makeInstance("js-button*")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.buttonStar")))),(bf((plt.types.Symbol.makeInstance("js-input")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.input")))),(bf((plt.types.Symbol.makeInstance("js-bidirectional-input")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.bidirectionalInput")))),(bf((plt.types.Symbol.makeInstance("js-text")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.text"))))])));
+return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("jsworld")),module_dash_path,plt.Kernel.list([(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("js-big-bang")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.TRUE,(plt.types.String.makeInstance("plt.world.MobyJsworld.bigBang")),plt.types.Empty.EMPTY,plt.types.Logic.FALSE)),(bf((plt.types.Symbol.makeInstance("js-div")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.div")))),(bf((plt.types.Symbol.makeInstance("js-p")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.p")))),(bf((plt.types.Symbol.makeInstance("js-button")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.button")))),(bf((plt.types.Symbol.makeInstance("js-button*")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.buttonStar")))),(bf((plt.types.Symbol.makeInstance("js-bidirectional-input")),(plt.types.Rational.makeInstance(3, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.bidirectionalInput")))),(bf((plt.types.Symbol.makeInstance("js-img")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.img")))),(bf((plt.types.Symbol.makeInstance("js-text")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.text"))))])));
               })());
-moby_dash_module_dash_binding = (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("moby")),(plt.types.String.makeInstance("moby/moby")),plt.Kernel.append((module_dash_binding_dash_bindings(world_dash_stub_dash_module)), [(module_dash_binding_dash_bindings(jsworld_dash_module)),(module_dash_binding_dash_bindings(telephony_dash_module)),(module_dash_binding_dash_bindings(location_dash_module))])));
+moby_dash_module_dash_binding = (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("moby")),(plt.types.String.makeInstance("moby/moby")),plt.Kernel.append((module_dash_binding_dash_bindings(world_dash_stub_dash_module)), [(module_dash_binding_dash_bindings(jsworld_dash_module)),(module_dash_binding_dash_bindings(telephony_dash_module)),(module_dash_binding_dash_bindings(location_dash_module)),(module_dash_binding_dash_bindings(net_dash_module))])));
 
 known_dash_modules = plt.Kernel.list([world_dash_module,world_dash_stub_dash_module,location_dash_module,tilt_dash_module,net_dash_module,parser_dash_module,bootstrap_dash_module,telephony_dash_module,moby_dash_module_dash_binding]);
 
