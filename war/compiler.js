@@ -4,1041 +4,66 @@
 // compile: string -> (list string, (listof string))
 var compile = (function() {
 var plt = plt || {};
- 
- 
- 
-//////////////////////////////////////////////////////////////////////
-// Kernel
+
+
+// Depends on kernel.js.
 (function() {
- 
-    function chainTest(test, first, second, rest) {
-  if (! test(first, second))
-      return false;
-  if (rest.length == 0)
-      return true;
-  if (! test(second, rest[0]))
-      return false;
-  for(var i = 0; i < rest.length - 1; i++) {
-      if (! test(rest[i], rest[i+1]))
-    return false;
-  }
-  return true;
-    }
- 
- 
-    function chainFind(comparator, first, rest) {
-  var i;
-  var best = first;
-  for(i = 0; i < rest.length; i++) {
-      if (! comparator(best, rest[i])) {
-    best = rest[i];
-      }
-  }
-  return best;
-    }
- 
- 
-    plt.Kernel = {
-  Struct: function () {
-  },
-  
-  struct_question_: function(thing) {
-      return thing instanceof this.Struct;
-  },
-  
-  number_question_ : function(x){
-      return (x instanceof plt.types.Rational || 
-	      x instanceof plt.types.FloatPoint ||
-	      x instanceof plt.types.Complex);
-  },
- 
-  equal_question_ : function(x, y) {
-    if (plt.Kernel.number_question_(x) && 
-	plt.Kernel.number_question_(y)) {
-	  if ("isEqual" in x) {
-	    return plt.types.NumberTower.equal(x, y);
-	  } else if ("isEqual" in y) {
-	    return plt.types.NumberTower.equal(y, x);
-	  } else {
-	    return x == y;
-	  }
-    } else {
-      return x.isEqual(y);
-    }
-  },
-  
-  eq_question_ : function(x, y){
-	return x == y;
-  }, 
- 
-  
-  identity : function (x){
-      return x;
-  },
- 
- 
-  cons: function(x, y) {
-      return plt.types.Cons.makeInstance(x, y);
-  },
- 
-  first: function(thing) {
-      return thing.first();
-  },
- 
-  rest: function(thing) {
-      return thing.rest();
-  },
- 
- 
-  second: function(thing) {
-      return thing.rest().first();
-  },
- 
-  third: function(thing) {
-      return thing.rest().rest().first();
-  },
- 
-  fourth: function(thing) {
-      return thing.rest().rest().rest().first();
-  },
- 
-  fifth: function(thing) {
-      return thing.rest().rest().rest().rest().first();
-  },
- 
- 
-  random: function(x) {
-      return plt.types.Rational.makeInstance
-      (Math.floor(plt.types.NumberTower.toInteger(x) * 
-      Math.random()),
-       1);
-  },
- 
-  floor: function(x) {
-  return x.floor();
-  },
- 
-  ceiling: function(x) {
-  return x.ceiling();
-  },
- 
-  sqrt: function(x) {
-	return x.sqrt();
-  },
- 
-  sqr: function(x) {
-      return plt.types.NumberTower.sqr(x);
-  },
- 
-  sin: function(x) {
-	return x.sin();
-  },
- 
-  cos: function(x) {
-	return x.cos();
-  },
- 
-  modulo: function(m, n) {
-      return plt.types.NumberTower.modulo(m, n);
-  },
- 
-  zero_question_: function(m) {
-      return plt.types.NumberTower.equal(m, plt.types.Rational.ZERO);
-  },
- 
- 
-  _equal__tilde_ : function(x, y, delta) {
-      // FIXME: check against other args too.
-      return plt.types.NumberTower.approxEqual(x, y, delta);
-  },
- 
-  abs: function(x) {
-      return plt.types.NumberTower.abs(x);
-  },
- 
-  add1 : function(x) {
-      return plt.types.NumberTower.add(x, plt.types.Rational.ONE);
-  },
- 
-  
-  sub1 : function(x) {
-      return plt.types.NumberTower.subtract(x, plt.types.Rational.ONE);
-  },
- 
- 
-  _plus_ : function(args) {
-      var i, sum = plt.types.Rational.ZERO;
-      for(i = 0; i < args.length; i++) {
-    sum = plt.types.NumberTower.add(sum, args[i]);
-      }
-      return sum;
-  },
- 
-  _dash_ : function(first, args) {
-      if (args.length == 0) {
-    return plt.types.NumberTower.subtract
-    (plt.types.Rational.ZERO, first);
-      }
- 
-      var i, diff = first;
-      for(i = 0; i < args.length; i++) {
-    diff = plt.types.NumberTower.subtract(diff, args[i]);
-      }
-      return diff;
-  },
- 
- 
-  _star_ : function(args) {
-      var i, prod = plt.types.Rational.ONE;
-      for(i = 0; i < args.length; i++) {
-    prod = plt.types.NumberTower.multiply(prod, args[i]);
-      }
-      return prod;    
-  },
- 
- 
-  _slash_ : function(first, args) {
-      var i, div = first;
-      for(i = 0; i < args.length; i++) {
-    div = plt.types.NumberTower.divide(div, args[i]);
-      }
-      return div;    
-  },
- 
- 
-  _equal_ : function(first, second, rest) {
-      // FIXME: check against other args too.
-      return chainTest(plt.types.NumberTower.equal,
-           first,
-           second,
-           rest);
-  },
- 
- 
-  _greaterthan__equal_: function(first, second, rest) {
-      return chainTest(plt.types.NumberTower.greaterThanOrEqual,
-           first,
-           second,
-           rest);
-  },
- 
-  _lessthan__equal_: function(first, second, rest) {
-      return chainTest(plt.types.NumberTower.lessThanOrEqual,
-           first,
-           second,
-           rest);
-  },
- 
-  _greaterthan_: function(first, second, rest) {
-      return chainTest(plt.types.NumberTower.greaterThan,
-           first,
-           second,
-           rest);
-  },
- 
-  _lessthan_: function(first, second, rest) {
-      return chainTest(plt.types.NumberTower.lessThan,
-           first,
-           second,
-           rest);
-  },
- 
-  min : function(first, rest) {
-      return chainFind(plt.types.NumberTower.lessThanOrEqual,
-           first, 
-           rest);
-  },
- 
-  max : function(first, rest) {
-      return chainFind(plt.types.NumberTower.greaterThanOrEqual,
-           first, 
-           rest);
-  },
- 
-  symbol_equal__question_: function(x, y) {
-      return x.isEqual(y);
-  },
- 
-  not : function(x) {
-      return !x;
-  },
 
 
-  inexact_dash__greaterthan_exact: function(x) {
-    return plt.types.NumberTower.toExact(x);
-  },
- 
-  number_dash__greaterthan_string: function(x) {
-      return plt.types.String.makeInstance(x.toString());
-  },
-  
-  conjugate: function(x){
-	return x.conjugate();
-  },
-  
-  magnitude: function(x){
-	return x.magnitude();
-  },
-  
-  log : function(x) {
-	return x.log();
-  },
-  
-  angle : function(x) {
-	return x.angle();
-  },
-  
-  atan : function(x) {
-	return x.atan();
-  },
-  
-  expt : function(x, y){
-	return plt.types.NumberTower.expt(x, y);
-  },
-  
-  exp : function(x){
-	return x.exp();
-  },
-  
-  acos : function(x){
-	return x.acos();
-  },
-  
-  asin : function(x){
-	return x.asin();
-  },
-  
-  tan : function(x){
-	return plt.types.NumberTower.divide(x.sin(), x.cos());
-  },
-  
-  complex_question_ : function(x){
-	return x instanceof plt.types.Complex || x instanceof plt.types.Rational || x instanceof plt.types.FloatPoint;
-  },
-  
-  cosh : function(x) {
-	return this._plus_([this.exp(x), this.exp(x.minus())]).half();
-  },
-  
-  sinh : function(x) {
-	return plt.types.NumberTower.subtract(this.exp(x), this.exp(x.minus())).half();
-  },
-  
-  denominator : function(x) {
-	return plt.types.Rational.makeInstance(x.d, 1);
-  },
-  
-  numerator : function(x){
-	return plt.types.Rational.makeInstance(x.n, 1);
-  },
-  
-  odd_question_ : function(x){
-	return (x.toInteger() % 2 == 1);
-  },
-  
-  even_question_ : function(x) {
-	return (x.toInteger() % 2 == 0);
-  },
-  
-  positive_question_ : function(x){
-	return this._greaterthan_(x, Rational.ZERO, []);
-  },
-  
-  negative_question_ : function(x){
-	return this._lessthan_(x, Rational.ZERO, []);
-  },
-  
-  imag_dash_part : function(x){
-	return x.imag_dash_part();
-  },
-  
-  real_dash_part : function(x){
-	return x.real_dash_part();
-  },
-  
-  integer_question_ : function(x){
-	return this.equal_question_(x, x.floor());
-  },
-  
-  make_dash_rectangular : function(x, y){
-	return plt.types.Complex.makeInstance(x.toFloat(), y.toFloat());
-  },
- 
-  max : function(first, rest){
-	var i, ret = first;
-	for (i = 0; i < rest.length; i++)
-		if (plt.types.NumberTower.greaterThan(rest[i], ret))
-			ret = rest[i];
-	return ret;
-  },
-  
-  min : function(first, rest){
-	var i, ret = first;
-	for (i = 0; i < rest.length; i++)
-		if (plt.types.NumberTower.lessThan(rest[i], ret))
-			ret = rest[i];
-	return ret;
-  },
-  
-  string_equal__question_ : function(first, second, rest){
-	return chainTest(function(x, y){return x.toString() == y.toString();}, first, second, rest);
-  },
-  
-  string_lessthan__equal__question_: function(first, second, rest){
-	return chainTest(function(x, y){return x.toString() <= y.toString();}, first, second, rest);
-  },
-  
-  string_lessthan__question_: function(first, second, rest){
-	return chainTest(function(x, y){return x.toString() < y.toString();}, first, second, rest);
-  },
-  
-  string_greaterthan__equal__question_: function(first, second, rest){
-	return chainTest(function(x, y){return x.toString() >= y.toString();}, first, second, rest);
-  },
-  
-  string_greaterthan__question_: function(first, second, rest){
-	return chainTest(function(x, y){return x.toString() > y.toString();}, first, second, rest);
-  },
-  
-  quotient : function(x, y){
-	return plt.types.Rational.makeInstance(plt.types.NumberTower.divide(x,y).floor(), 1);
-  },
-  
-  remainder : function(x, y) {
-	return plt.types.Rational.makeInstance(x.toInteger() % y.toInteger(), 1);
-  },
-  
-  real_question_ : function(x){
-      return (plt.Kernel.number_question_(x) &&
-	      x.isReal());
-  },
-  
-  
-  round : function(x){
-	return x.round();
-  },
-  
-  sgn : function(x){
-	if (this.positive_question_(x))
-		return plt.types.Rational.ONE;
-	if (this.negative_question_(x))
-		return plt.types.Rational.NEGATIVE_ONE;
-	else
-		return plt.types.Rational.ZERO;
-  },
-  
-  zero_question_ : function(x){
-		return plt.types.NumberTower.equal(x, plt.types.Rational.ZERO);
-  },
-  
-  boolean_equal__question_ : function(x, y){
-	return x == y;
-  },
-  
-  boolean_question_ : function(x){
-	return x == plt.types.Logic.TRUE || x == plt.types.Logic.FALSE;
-  },
-  
-  false_question_ : function(x){
-	return  x == plt.types.Logic.FALSE;
-  },
-  
-  not : function(x){
-	return x == plt.types.Logic.FALSE ? plt.types.Logic.TRUE : plt.types.Logic.FALSE;
-  },
-  
-  symbol_dash__greaterthan_string : function(x){
-	return plt.types.String.makeInstance(x);
-  },
-  
-  symbol_equal__question_ : function(x, y){
-	return x.val == y.val;
-  },
-  
-  symbol_question_ : function(x){
-	return x instanceof plt.types.Symbol;
-  },
-  
-  empty_question_ : function(x){
-	return x instanceof plt.types.Empty;
-  },
-  
-  append : function(first, rest){
-        var ret = first;
-	var i;
-	for (i = 0; i < rest.length; i++)
-		ret = ret.append(rest[i]);
-	return ret;
-  },
-  
-  reverse : function(lst){
-	var ret = plt.types.Empty.EMPTY;
-	while (!lst.isEmpty()){
-		ret = plt.types.Cons.makeInstance(lst.first(), ret);
-		lst = lst.rest();
-	}
-	
-	return ret;
-  }, 
-    
-  assq : function(x, lst){
-	while (!lst.isEmpty() && !plt.Kernel.eq_question_(x, lst.first().first()))
-		lst = lst.rest();
-	if (lst.isEmpty())
-		return plt.types.Logic.FALSE;
-	else return lst.first();
-  },
-  
-  caaar : function(lst){
-	return lst.first().first().first();
-  },
-  
-  caadr : function(lst){
-	return lst.first().first().rest();
-  },
-  
-  caar : function(lst){
-	return lst.first().first();
-  },
-  
-  cadar : function(lst){
-	return lst.first().rest().first();
-  },
-  
-  cadddr : function(lst){
-	return lst.rest().rest().rest().first();
-  },
-  
-  caddr : function(lst){
-	return lst.rest().rest().first();
-  },
-  
-  cadr : function(lst){
-	return lst.rest().first();
-  },
-  
-  car : function(lst){
-	return lst.first();
-  },
-  
-  cdaar : function(lst){
-	return lst.first().first().rest();
-  },
-  
-  cdadr : function(lst){
-	return lst.rest().first().rest();
-  },
-  
-  cdar : function(lst){
-	return lst.first().rest();
-  },
-  
-  cddar : function(lst){
-	return lst.first().rest().rest();
-  },
-  
-  cdddr : function(lst){
-	return lst.rest().rest().rest();
-  },
-  
-  cddr : function(lst){
-	return lst.rest().rest();
-  },
-  
-  cdr : function(lst){
-	return lst.rest();
-  },
-  
-  cons_question_: function(lst){
-	return lst instanceof plt.types.Cons;
-  },
-  
-  sixth : function(lst){
-	return lst.rest().rest().rest().rest().rest().first();
-  },
-  
-  seventh: function(lst){
-	return lst.rest().rest().rest().rest().rest().rest().first();
-  },
-  
-  eighth : function(lst){
-	return lst.rest().rest().rest().rest().rest().rest().rest().first();
-  },
-  
-  length : function(lst){
-	var ret = plt.types.Rational.ZERO;
-	for (; !lst.isEmpty(); lst = lst.rest())
-		ret = plt.Kernel.add1(ret);
-	return ret;
-  },
-  
-  list : function(items){
-	var ret = plt.types.Empty.EMPTY;
-	for (var i = items.length - 1; i >=0; i--)
-		ret = plt.types.Cons.makeInstance(items[i], ret);
-	return ret;
-  },
-  
-  list_star_ : function(items, otherItems){
-      var lastListItem = otherItems.pop();
-      otherItems.unshift(items);
-      return plt.Kernel.append(plt.Kernel.list(otherItems), [lastListItem]);
-  },
-  
-  list_dash_ref : function(lst, x){
-	var i = plt.types.Rational.ZERO;
-	for (; plt.Kernel._lessthan_(i, x,[]); i = plt.Kernel.add1(i))
-		lst = lst.rest();
-	return lst.first();
-  },
-  
-  member : function(item, lst){
-	while (!lst.isEmpty()){
-		if (plt.Kernel.equal_question_(item, lst.first()))
-			return true;
-		lst = lst.rest();
-	}
-	
-	return false;
-  },
-  
-  memq : function(item, lst){
-	while (!lst.isEmpty()){
-		if (plt.Kernel.eq_question_(item, lst.first()))
-			return lst;
-		lst = lst.rest();
-	}
-	
-	return false;
-  },
-  
-  eqv_question_ : function(x, y){
-	return x == y;
-  },
-  
-  memv : function(item, lst){
-	while (!lst.isEmpty()){
-		if (plt.Kernel.eqv_question_(item, lst.first()))
-			return lst;
-		lst = lst.rest();
-	}
-	
-	return false;
-  },
-  
-  null_question_ : function(x){
-	return x instanceof plt.types.Empty;
-  },
-   
-  empty_question_: function(x) {
-	return x instanceof plt.types.Empty;
-  },
-  
-  pair_question_ : function(x){
-	return x instanceof plt.types.Cons;
-  },
-  
-  string_dash__greaterthan_number : function(str){
-	var aNum = str * 1;
-	if (isNaN(aNum))
-		return false;
-	return plt.types.FloatPoint.makeInstance(aNum);
-  },
-  
-  string_dash__greaterthan_symbol : function(str){
-	return plt.types.Symbol.makeInstance(str);
-  },
-  
-  string_dash_append : function(arr){
-        return plt.types.String.makeInstance(arr.join(""));
-  },
-  
-  string_dash_ci_equal__question_ : function(first, second, rest){
-	first = first.toUpperCase();
-	second = second.toUpperCase();
-	for (var i = 0; i < rest.length; i++)
-		rest[i] = rest[i].toUpperCase();
-	return plt.Kernel.string_equal__question_(first, second, rest);
-  },
-  
-  string_dash_ci_lessthan__equal__question_ : function(first, second, rest){
-	first = first.toUpperCase();
-	second = second.toUpperCase();
-	for (var i = 0; i < rest.length; i++)
-		rest[i] = rest[i].toUpperCase();
-	return plt.Kernel.string_lessthan__equal__question_(first, second, rest);
-  },
-  
-  string_dash_ci_lessthan__question_ : function(first, second, rest){
-	first = first.toUpperCase();
-	second = second.toUpperCase();
-	for (var i = 0; i < rest.length; i++)
-		rest[i] = rest[i].toUpperCase();
-	return plt.Kernel.string_lessthan__question_(first, second, rest);
-  },
-  
-  string_dash_ci_greaterthan__question_ : function(first, second, rest){
-	return !plt.Kernel.string_dash_ci_lessthan__equal__question_(first, second, rest);
-  },
-  
-  string_dash_ci_greaterthan__equal__question_ : function(first, second, rest){
-	return !plt.Kernel.string_dash_ci_lessthan__question_(first, second, rest);
-  },
-  
-  string_dash_copy : function(str){
-	return plt.types.String.makeInstance(str);
-  },
-  
-  string_dash_length : function(str){
-	return plt.types.Rational.makeInstance(str.length, 1);
-  },
-  
-  string_dash_ref : function(str, i){
-	return str.charAt(i.toInteger());
-  },
-  
-  string_question_ : function(str){
-      return typeof(str) == 'string';
-  },
-  
-  substring : function(str, begin, end){
-	return str.toString().substring(begin.toInteger(), end.toInteger());
-  },
-
-  char_question_: function(x) {
-    return x instanceof plt.types.Char;
-  },
-  
-  char_dash__greaterthan_integer : function(ch){
-	var str = new String(ch.val);
-	return plt.types.Rational.makeInstance(str.charCodeAt(0), 1);
-  },
-  
-  integer_dash__greaterthan_char : function(n){
-	var str = String.fromCharCode(n.toInteger());
-	return plt.types.Char.makeInstance(str);
-  },
-  
-  char_dash_alphabetic_question_ : function(c){
-	var str = c.val.toString();
-	return (str >= "a" && str <= "z") || (str >= "A" && str <= "Z");
-  },
-  
-  char_equal__question_ : function(first, second, rest){
-	return chainTest(function(x, y){return x.isEqual(y);}, first, second, rest);
-  },
-  
-  char_lessthan__question_ : function(first, second, rest){
-	return chainTest(function(x, y){return x.val.toString() < y.val.toString()}, first, second, rest);
-  },
-  
-  char_lessthan__equal__question_ : function(first, second, rest){
-	return chainTest(function(x, y){return x.val.toString() <= y.val.toString()}, first, second, rest);
-  },
-  
-  char_greaterthan__question_ : function(first, second, rest){
-	return !char_lessthan__equal__question_(first, second, rest);
-  },
-  
-  char_greaterthan__equal__question_ : function(first, second, rest){
-	return !char_lessthan__question_(first, second, rest);
-  },
-  
-  char_dash_ci_equal__question_ : function(first, second, rest){
-	first = plt.types.Char.makeInstance(first.val.toUpperCase());
-	second = plt.types.Char.makeInstance(second.val.toUpperCase());
-	for (var i = 0; i < rest.length; i++)
-		rest[i] = plt.types.Char.makeInstance(rest[i].val.toUpperCase());
-	return plt.Kernel.char_equal__question_(first, second, rest);
-  },
-  
-  char_dash_ci_lessthan__question_ : function(first, second, rest){
-	first = plt.types.Char.makeInstance(first.val.toUpperCase());
-	second = plt.types.Char.makeInstance(second.val.toUpperCase());
-	for (var i = 0; i < rest.length; i++)
-		rest[i] = plt.types.Char.makeInstance(rest[i].val.toUpperCase());
-	return plt.Kernel.char_lessthan__question_(first, second, rest);
-  },
-
-  char_dash_ci_lessthan__equal__question_ : function(first, second, rest){
-	first = plt.types.Char.makeInstance(first.val.toUpperCase());
-	second = plt.types.Char.makeInstance(second.val.toUpperCase());
-	for (var i = 0; i < rest.length; i++)
-		rest[i] = plt.types.Char.makeInstance(rest[i].val.toUpperCase());
-	return plt.Kernel.char_lessthan__equal__question_(first, second, rest);
-  },
-  
-  char_dash_ci_greaterthan__question_ : function(first, second, rest){
-	return !plt.Kernel.char_dash_ci_lessthan__equal__question_(first,second,rest);
-  },
-  
-  char_dash_ci_greaterthan__equal__question_ : function(first, second, rest){
-	return !plt.Kernel.char_dash_ci_lessthan__question_(first,second,rest);
-  },
-  
-  char_dash_downcase : function(ch){
-	var down = ch.val.toString().toLowerCase();
-	return plt.types.Char.makeInstance(down);
-  },
-  
-  char_dash_lower_dash_case_question_ : function(ch){
-	return plt.Kernel.char_dash_alphabetic_question_(ch) && plt.Kernel.equal_question_(ch, plt.Kernel.char_dash_downcase(ch));
-  },
-  
-  char_dash_numeric_question_ : function(ch){
-	var str = ch.val.toString();
-	return (str >= "0" && str <= "9");
-  },
-  
-  char_dash_upcase : function(ch){
-	var up = ch.val.toString().toUpperCase();
-	return plt.types.Char.makeInstance(up);
-  },
-  
-  char_dash_upper_dash_case_question_ : function(ch){
-	return plt.Kernel.char_dash_alphabetic_question_(ch) && plt.Kernel.equal_question_(ch, plt.Kernel.char_dash_upcase(ch));
-  },
-  
-  char_dash_whitespace_question_ : function(ch){
-	return plt.Kernel.equal_question_(ch, plt.types.Char.makeInstance(" "));
-  },
-  
-  list_dash__greaterthan_string : function(lst){
-	var ret = "";
-	while (!lst.isEmpty()){
-		ret += lst.first().val.toString();
-		lst = lst.rest();
-	}
-	return plt.types.String.makeInstance(ret);
-  },
-  
-  make_dash_string : function(n, ch){
-	var ret = "";
-	var c = ch.val.toString();
-	var i = plt.types.Rational.ZERO;
-	for (;  plt.Kernel._lessthan_(i, n, []); i = plt.Kernel.add1(i))
-		ret += c;
-	return plt.types.String.makeInstance(ret);
-  },
-  
-  string_dash__greaterthan_list : function(str){
-	var s = str.toString();
-	var ret = plt.types.Empty.EMPTY;
-	for (var i = s.length - 1; i >= 0; i--){
-	    ret = plt.types.Cons.makeInstance
-		(plt.types.Char.makeInstance(s.charAt(i)),
-		 ret);
-	}
-	return ret;
-  },
-  
-  HEREEEEEEEEEEEEEEEEE : function(){}
-
-
-	
-  };
- 
-    function HashTable(inputHash) {
-	this.hash = inputHash;
-    }
-
-
-    // kernelMakeImmutableHashEq: list -> hash
-    plt.Kernel._kernelMakeImmutableHashEq = function(pairs) {
-	var myhash = {};
-	while (! pairs.isEmpty()) {
-	    var nextPair = pairs.first();
-	    var aKey = nextPair.first(); 
-	    var aVal = nextPair.rest(); 
-	    myhash[aKey] = aVal;
-	    pairs = pairs.rest();
-	}
-	return new HashTable(myhash);
-    };
-
-    // plt.Kernel._kernelHashSet: hash object value -> hash
-    plt.Kernel._kernelHashSet = function(obj, key, val) {
-	var newHash = {};
-	var hash = obj.hash;
-	for (var k in hash) {
-	    newHash[k] = hash[k];
-	}
-	newHash[key] = val;
-	return new HashTable(newHash);
-    };
-
-    plt.Kernel._kernelHashRef = function(obj, key, defaultVal) {
-	if (key in obj.hash) {
-	    return obj.hash[key];
-	} else {
-	    return defaultVal;
-	}
-    };
-
-    plt.Kernel._kernelHashMap = function(ht, f) {
-	var result = plt.types.Empty.EMPTY;
-	var key;
-	for (key in ht.hash) {
-	    var val = ht.hash[key];
-	    result = plt.Kernel.cons(f.apply(null, [[key, val]]),
-					 result);
-	}
-	return result;
-    };
-
-
-    plt.Kernel._resolveModulePath = function(path) {
-	return path;
-    };
-
-    plt.Kernel._normalizePath = function(path) {
-        return path;
-    };
-
-    plt.Kernel._pathToString = function(path) {
-        return path.toString();
-    };
-
-
-    plt.Kernel.map = function(f, arglists) {
-	var results = plt.types.Empty.EMPTY;
-	while (!arglists[0].isEmpty()) {
-	    var args = [];
-	    for (var i = 0; i < arglists.length; i++) {
-		args.push(arglists[i].first());
-		arglists[i] = arglists[i].rest();
-	    }
-	    results = plt.Kernel.cons(f.apply(null, [args]),
-					  results);
-	}
-	return plt.Kernel.reverse(results);
-    };
-
-    plt.Kernel.foldl = function(f, acc, arglists) {
-      var result = acc;
-      while (!arglists[0].isEmpty()) {
-	var args = [];
-	for (var i = 0; i < arglists.length; i++) {
-	  args.push(arglists[i].first());
-	  arglists[i] = arglists[i].rest();
-	}
-	args.push(result);
-	result = f.apply(null, [args]);
-      }
-      return result;
-    };
-
-    plt.Kernel.build_dash_list = function(n, f) {
-	var result = plt.types.Empty.EMPTY;
-	for(var i = 0; i < n.toInteger(); i++) {
-	    result = plt.Kernel.cons(f.apply(null, [[plt.types.Rational.makeInstance(i, 1)]]),
-					 result);
-	}
-	return plt.Kernel.reverse(result);
-    };
-
-    plt.Kernel.format = function(formatStr, args) {
-	// not right yet, but let's see how well this works.
-	return plt.types.String.makeInstance(formatStr + args.join(" "));
-    }
-
-
-    // args: arrayof plt.types.Char
-    plt.Kernel.string = function(args) {
-	var vals = [];
-	for(var i = 0; i < args.length; i++) {
-	    vals.push(args[i].getValue());
-	}
-	return plt.types.String.makeInstance(vals.join(""));
-    };
-
- 
- 
     //////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////
     // Types
- 
+    
     plt.types = plt.types || {};
- 
- 
- 
-    // Posns
- 
-    function posn(x,y) { this.x = x;
-       this.y = y; }
-    posn.prototype = new plt.Kernel.Struct();
-    posn.prototype.isEqual = function(other) {
-        if (other instanceof posn) {
-            return (((plt.Kernel.equal_question_((posn_dash_y(this)),(posn_dash_y(other)))))&&((((plt.Kernel.equal_question_((posn_dash_x(this)),(posn_dash_x(other)))))&&(plt.types.Logic.TRUE))));
-        } else {
-            return false;
-        }
-    } 
-    function make_dash_posn(id0,id1) { return new posn(id0,id1); }
-    function posn_dash_x(obj) { return obj.x; }
-    function posn_dash_y(obj) { return obj.y; }
-    function posn_question_(obj) { 
-        return obj instanceof posn ; 
-    }
- 
-    plt.Kernel.make_dash_posn = make_dash_posn;
-    plt.Kernel.posn_question_ = posn_question_;
-    plt.Kernel.posn_dash_x = posn_dash_x;
-    plt.Kernel.posn_dash_y = posn_dash_y;
- 
- 
-    plt.Kernel.error = function(msg, args) {
-	die(msg + ": " + args);
-    }
- 
- 
+    
+
+
+    // We are reusing the built-in Javascript boolean class here.
     plt.types.Logic = {
-  TRUE : true,
-  FALSE : false
+	TRUE : true,
+	FALSE : false
     };
- 
- 
-    function die(msg) {
-  // We're trying to error out so that we get a stack track from firebug.
-//  console.log(msg);
-//  console.trace();
-  throw new TypeError(msg.toString());
-    }
- 
- 
- 
-    // Strings
-    // For the moment, we just reuse Javascript strings.
-    plt.types.String = String;
-    plt.types.String.makeInstance = function(s) {
-	return s;
+    
+    Boolean.prototype.toWrittenString = function() {
+	if (this.valueOf()) { return "true"; }
+	return "false";
     };
-	
-	plt.types.String.prototype.isEqual = function(other){
-		return this.toString() == other.toString();
-	};
-	
-	// Chars
-	plt.types.Char = function(val){
-		this.val = val;
-	};
-	
-	plt.types.Char.makeInstance = function(val){
-		return new plt.types.Char(val);
-	};
+    Boolean.prototype.toDisplayedString = Boolean.prototype.toWrittenString;
 
-	plt.types.Char.prototype.toString = function() {
-	    return "#\\" + this.val;
-	};
 
-	plt.types.Char.prototype.getValue = function() {
-	    return this.val;
-	};
+    Boolean.prototype.isEqual = function(other){
+	return this == other;
+    };
 
-	plt.types.Char.prototype.isEqual = function(other){
-		return other instanceof plt.types.Char && this.val.toString() == other.val.toString();
-	};
-	
+
+
+
+    // Chars
+    // Char: string -> Char
+    plt.types.Char = function(val){
+	this.val = val;
+    };
+    
+    plt.types.Char.makeInstance = function(val){
+	return new plt.types.Char(val);
+    };
+
+    plt.types.Char.prototype.toWrittenString = function() {
+	return "#\\" + this.val;
+    };
+
+    plt.types.Char.prototype.toDisplayedString = function () {
+        return this.val;
+    };
+
+    plt.types.Char.prototype.getValue = function() {
+	return this.val;
+    };
+
+    plt.types.Char.prototype.isEqual = function(other){
+	return other instanceof plt.types.Char && this.val == other.val;
+    };
+    
     // Symbols
 
 
@@ -1047,7 +72,7 @@ var plt = plt || {};
     };
 
     var symbolCache = {};
- 
+    
     // makeInstance: string -> Symbol.
     plt.types.Symbol.makeInstance = function(val) {
 	// To ensure that we can eq? symbols with equal values.
@@ -1056,75 +81,88 @@ var plt = plt || {};
 	}
 	return symbolCache[val];
     };
- 
+    
     plt.types.Symbol.prototype.isEqual = function(other) {
-  return other instanceof plt.types.Symbol &&
-      this.val == other.val;
+	return other instanceof plt.types.Symbol &&
+	    this.val == other.val;
     };
- 
+    
+
     plt.types.Symbol.prototype.toString = function() {
-  return this.val;
+        return this.val;
     };
- 
- 
- 
+
+    plt.types.Symbol.prototype.toWrittenString = function() {
+	return this.val;
+    };
+
+    plt.types.Symbol.prototype.toDisplayedString = function() {
+	return this.val;
+    };
+
+    
+    
+    
     plt.types.Empty = function() {};
     plt.types.Empty.EMPTY = new plt.types.Empty();
 
 
     plt.types.Empty.prototype.isEqual = function(other) {
-      return other instanceof plt.types.Empty;
+	return other instanceof plt.types.Empty;
     };
 
     plt.types.Empty.prototype.first = function() {
-  die("first can't be applied on empty.");
+	die("first can't be applied on empty.");
     };
     plt.types.Empty.prototype.rest = function() {
-  die("rest can't be applied on empty.");
+	die("rest can't be applied on empty.");
     };
     plt.types.Empty.prototype.isEmpty = function() {
-  return true;
+	return true;
     };
-    plt.types.Empty.prototype.toString = function() { return "empty"; };
+    plt.types.Empty.prototype.toWrittenString = function() { return "empty"; };
+    plt.types.Empty.prototype.toDisplayedString = function() { return "empty"; };
 
- 
+
+
+    
+    // Empty.append: (listof X) -> (listof X)
     plt.types.Empty.prototype.append = function(b){
-      return b;
+	return b;
     }
- 
+    
     plt.types.Cons = function(f, r) {
-  this.f = f;
-  this.r = r;
+	this.f = f;
+	this.r = r;
     };
- 
+    
     plt.types.Cons.makeInstance = function(f, r) {
-  return new plt.types.Cons(f, r);
+	return new plt.types.Cons(f, r);
     };
 
 
     plt.types.Cons.prototype.isEqual = function(other) {
-      if (! (other instanceof plt.types.Cons)) {
-	return false;
-      }
-      return (plt.Kernel.equal_question_(this.first(), other.first()) &&
-	      plt.Kernel.equal_question_(this.rest(), other.rest()));
-    };
- 
-    plt.types.Cons.prototype.first = function() {
-  return this.f;
-    };
- 
-    plt.types.Cons.prototype.rest = function() {
-  return this.r;
-    };
- 
-    plt.types.Cons.prototype.isEmpty = function() {
-  return false;
+	if (! (other instanceof plt.types.Cons)) {
+	    return plt.types.Logic.FALSE;
+	}
+	return (plt.Kernel.equal_question_(this.first(), other.first()) &&
+		plt.Kernel.equal_question_(this.rest(), other.rest()));
     };
     
+    plt.types.Cons.prototype.first = function() {
+	return this.f;
+    };
+    
+    plt.types.Cons.prototype.rest = function() {
+	return this.r;
+    };
+    
+    plt.types.Cons.prototype.isEmpty = function() {
+	return false;
+    };
+    
+    // Cons.append: (listof X) -> (listof X)
     plt.types.Cons.prototype.append = function(b){
-	if (this.isEmpty())
-	    return b;
 	if (b.isEmpty())
 	    return this;
 	var ret = b;
@@ -1137,129 +175,152 @@ var plt = plt || {};
 	return ret;
     };
     
-    plt.types.Cons.prototype.toString = function() {
+    plt.types.Cons.prototype.toWrittenString = function() {
 	var texts = [];
 	var p = this;
 	while (! p.isEmpty()) {
-	    texts.push(p.first().toString());
+	    texts.push(p.first().toWrittenString());
 	    p = p.rest();
 	}
-	return "(" + texts.join(", ") + ")";
+	return "(" + texts.join(" ") + ")";
     };
 
- 
+
+    plt.types.Cons.prototype.toDisplayedString = function() {
+	var texts = [];
+	var p = this;
+	while (! p.isEmpty()) {
+	    texts.push(p.first().toDisplayedString());
+	    p = p.rest();
+	}
+	return "(" + texts.join(" ") + ")";
+    };
+
+    
     // Rationals
- 
+    
     function gcd(a, b) {
-  var t;
-  if (isNaN(a) || !isFinite(a)) {
-      die("not a number: " + a);
-  }
-  if (isNaN(b) || !isFinite(b)) {
-      die("not a number: " + b);
-  }
-  while (b != 0) {
-      t = a;
-      a = b;
-      b = t % b;
-  }
-  return a;
+	var t;
+	if (isNaN(a) || !isFinite(a)) {
+	    die("not a number: " + a);
+	}
+	if (isNaN(b) || !isFinite(b)) {
+	    die("not a number: " + b);
+	}
+	while (b != 0) {
+	    t = a;
+	    a = b;
+	    b = t % b;
+	}
+	return a;
     }
- 
+    
     plt.types.Rational = function(n, d) {
-  var divisor = gcd(Math.abs(n), Math.abs(d));
-  this.n = n / divisor;
-  this.d = d / divisor;
+	if (d == undefined) { d = 1; }
+	var divisor = gcd(Math.abs(n), Math.abs(d));
+	this.n = n / divisor;
+	this.d = d / divisor;
     };
- 
-    plt.types.Rational.prototype.toString = function() {
-  if (this.d == 1) {
-      return this.n + "";
-  } else {
-      return this.n + "/" + this.d;
-  }
+    
+    plt.types.Rational.prototype.toWrittenString = function() {
+	if (this.d == 1) {
+	    return this.n + "";
+	} else {
+	    return this.n + "/" + this.d;
+	}
     };
- 
+
+    plt.types.Rational.prototype.toDisplayedString = plt.types.Rational.prototype.toWrittenString;
+
+    
     plt.types.Rational.prototype.level = function() {
-  return 0;
+	return 0;
     };
- 
- 
+    
+    
     plt.types.Rational.prototype.lift = function(target) {
-		if (target.level() == 1)
-			return plt.types.FloatPoint.makeInstance(this.n / this.d);
-		if (target.level() == 2)	
-			return plt.types.Complex.makeInstance(this.n / this.d, 0);
-		throw new Error("invalid level of Number");
+	if (target.level() == 1)
+	    return plt.types.FloatPoint.makeInstance(this.n / this.d);
+	if (target.level() == 2)	
+	    return plt.types.Complex.makeInstance(this.n / this.d, 0);
+	throw new Error("invalid level of Number");
     };
- 
+    
     plt.types.Rational.prototype.isEqual = function(other) {
-  return other instanceof plt.types.Rational &&
-      this.n == other.n &&
-      this.d == other.d;
+	return other instanceof plt.types.Rational &&
+	    this.n == other.n &&
+	    this.d == other.d;
     };
- 
+
+    plt.types.Rational.prototype.isRational = function() {
+        return true;
+    };
+    
     plt.types.Rational.prototype.isReal = function() {
 	return true;
     };
 
- 
+    
     plt.types.Rational.prototype.add = function(other) {
-  return plt.types.Rational.makeInstance(this.n * other.d + 
-               this.d * other.n,
-               this.d * other.d);
+	return plt.types.Rational.makeInstance(this.n * other.d + 
+					       this.d * other.n,
+					       this.d * other.d);
     };
- 
+    
     plt.types.Rational.prototype.subtract = function(other) {
-  return plt.types.Rational.makeInstance((this.n * other.d) - 
-               (this.d * other.n),
-               (this.d * other.d));
+	return plt.types.Rational.makeInstance((this.n * other.d) - 
+					       (this.d * other.n),
+					       (this.d * other.d));
     };
- 
+    
     plt.types.Rational.prototype.multiply = function(other) {
-  return plt.types.Rational.makeInstance(this.n * other.n,
-               this.d * other.d);
+	return plt.types.Rational.makeInstance(this.n * other.n,
+					       this.d * other.d);
     };
- 
+    
     plt.types.Rational.prototype.divide = function(other) {
-  return plt.types.Rational.makeInstance(this.n * other.d,
-               this.d * other.n);
+	return plt.types.Rational.makeInstance(this.n * other.d,
+					       this.d * other.n);
     };
- 
+    
 
     plt.types.Rational.prototype.toExact = function() { 
-      return this;
+	return this;
     };
- 
+
+    plt.types.Rational.prototype.isExact = function() {
+        return true;
+    };
+    
     plt.types.Rational.prototype.toInteger = function() {
-  return Math.floor(this.n / this.d);  
+	return Math.floor(this.n / this.d);  
     };
- 
+    
     plt.types.Rational.prototype.toFloat = function() {
-  return this.n / this.d;
+	return this.n / this.d;
     };
- 
-	plt.types.Rational.prototype.toComplex = function(){
-		return plt.types.Complex.makeInstance(this.n / this.d, 0);
-	};
- 
+    
+    plt.types.Rational.prototype.toComplex = function(){
+	return plt.types.Complex.makeInstance(this.n / this.d, 0);
+    };
+    
     plt.types.Rational.prototype.greaterThan = function(other) {
 	return this.n*other.d > this.d*other.n;
     };
 
     plt.types.Rational.prototype.greaterThanOrEqual = function(other) {
-  return this.n*other.d >= this.d*other.n;
+	return this.n*other.d >= this.d*other.n;
     };
- 
+    
     plt.types.Rational.prototype.lessThan = function(other) {
-  return this.n*other.d < this.d*other.n;
+	return this.n*other.d < this.d*other.n;
     };
 
     plt.types.Rational.prototype.lessThanOrEqual = function(other) {
-  return this.n*other.d <= this.d*other.n;
+	return this.n*other.d <= this.d*other.n;
     };
 
- 
+    
     plt.types.Rational.prototype.sqrt = function() {
 	var result = Math.sqrt(this.n / this.d);
 	if (result == Math.floor(result)) {
@@ -1268,333 +329,362 @@ var plt = plt || {};
 	    return plt.types.FloatPoint.makeInstance(result);
 	}
     };
- 
+    
     plt.types.Rational.prototype.abs = function() {
-  return plt.types.Rational.makeInstance(Math.abs(this.n),
-               this.d);
+	return plt.types.Rational.makeInstance(Math.abs(this.n),
+					       this.d);
     };
- 
+    
     plt.types.Rational.prototype.floor = function() {
-  return plt.types.Rational.makeInstance(Math.floor(this.n / this.d), 1);
+	return plt.types.Rational.makeInstance(Math.floor(this.n / this.d), 1);
     };
- 
- 
+    
+    
     plt.types.Rational.prototype.ceiling = function() {
-  return plt.types.Rational.makeInstance(Math.ceil(this.n / this.d), 1);
+	return plt.types.Rational.makeInstance(Math.ceil(this.n / this.d), 1);
     };
-	
-	plt.types.Rational.prototype.conjugate = plt.types.Rational.prototype.abs;
-	
-	plt.types.Rational.prototype.magnitude = plt.types.Rational.prototype.abs;
-	
-	plt.types.Rational.prototype.log = function(){
-		return plt.types.FloatPoint.makeInstance(Math.log(this.n / this.d));
-	};
-	
-	plt.types.Rational.prototype.angle = function(){
-		if (0 == this.n)
-			throw new Error("angle: undefined for 0");
-		if (this.n > 0)
-			return plt.types.Rational.ZERO;
-		else
-			return plt.Kernel.pi;
-	};
-	
-	plt.types.Rational.prototype.atan = function(){
-		return plt.types.FloatPoint.makeInstance(Math.atan(this.n / this.d));
-	};
-	
-	plt.types.Rational.prototype.cos = function(){
-		return plt.types.FloatPoint.makeInstance(Math.cos(this.n / this.d));
-	};
-	
-	plt.types.Rational.prototype.sin = function(){
-		return plt.types.FloatPoint.makeInstance(Math.sin(this.n / this.d));
-	};
-	
-	plt.types.Rational.prototype.expt = function(a){
-		return plt.types.FloatPoint.makeInstance(Math.pow(this.n / this.d, a.n / a.d));
-	};
-	
-	plt.types.Rational.prototype.exp = function(){
-		return plt.types.FloatPoint.makeInstance(Math.exp(this.n / this.d));
-	};
-	
-	plt.types.Rational.prototype.acos = function(){
-		return plt.types.FloatPoint.makeInstance(Math.acos(this.n / this.d));
-	};
-	
-	plt.types.Rational.prototype.asin = function(){
-		return plt.types.FloatPoint.makeInstance(Math.asin(this.n / this.d));
-	};
-	
-	plt.types.Rational.prototype.imag_dash_part = function(){
-		return Rational.ZERO;
-	};
-	
-	plt.types.Rational.prototype.real_dash_part = function(){
-		return this;
-	};
-	
-	plt.types.Rational.prototype.round = function(){
-		return this;
-	};
-	
-	plt.types.Rational.prototype.HEREEEEEEEEEEEEEEEEE = function(){};
-	
-	plt.types.Rational.prototype.half = function(){
-		return plt.types.Rational.makeInstance(this.n, this.d * 2);
-	};
-	
-	plt.types.Rational.prototype.minus = function(){
-		return plt.types.Rational.makeInstance(0 - this.n, this.d);
-	};
- 
- 
+    
+    plt.types.Rational.prototype.conjugate = plt.types.Rational.prototype.abs;
+    
+    plt.types.Rational.prototype.magnitude = plt.types.Rational.prototype.abs;
+    
+    plt.types.Rational.prototype.log = function(){
+	return plt.types.FloatPoint.makeInstance(Math.log(this.n / this.d));
+    };
+    
+    plt.types.Rational.prototype.angle = function(){
+	if (0 == this.n)
+	    throw new Error("angle: undefined for 0");
+	if (this.n > 0)
+	    return plt.types.Rational.ZERO;
+	else
+	    return plt.Kernel.pi;
+    };
+    
+    plt.types.Rational.prototype.atan = function(){
+	return plt.types.FloatPoint.makeInstance(Math.atan(this.n / this.d));
+    };
+    
+    plt.types.Rational.prototype.cos = function(){
+	return plt.types.FloatPoint.makeInstance(Math.cos(this.n / this.d));
+    };
+    
+    plt.types.Rational.prototype.sin = function(){
+	return plt.types.FloatPoint.makeInstance(Math.sin(this.n / this.d));
+    };
+    
+    plt.types.Rational.prototype.expt = function(a){
+	return plt.types.FloatPoint.makeInstance(Math.pow(this.n / this.d, a.n / a.d));
+    };
+    
+    plt.types.Rational.prototype.exp = function(){
+	return plt.types.FloatPoint.makeInstance(Math.exp(this.n / this.d));
+    };
+    
+    plt.types.Rational.prototype.acos = function(){
+	return plt.types.FloatPoint.makeInstance(Math.acos(this.n / this.d));
+    };
+    
+    plt.types.Rational.prototype.asin = function(){
+	return plt.types.FloatPoint.makeInstance(Math.asin(this.n / this.d));
+    };
+    
+    plt.types.Rational.prototype.imag_dash_part = function(){
+	return plt.types.Rational.ZERO;
+    };
+    
+    plt.types.Rational.prototype.real_dash_part = function(){
+	return this;
+    };
+    
+    plt.types.Rational.prototype.round = function(){
+	return this;
+    };
+    
+    
+    plt.types.Rational.prototype.half = function(){
+	return plt.types.Rational.makeInstance(this.n, this.d * 2);
+    };
+    
+    plt.types.Rational.prototype.minus = function(){
+	return plt.types.Rational.makeInstance(0 - this.n, this.d);
+    };
+    
+    
     var _rationalCache = {};
     plt.types.Rational.makeInstance = function(n, d) {
-  if (n == undefined)
-      die("n undefined");
-  if (d == undefined)
-      die("d undefined");
- 
-  if (d < 0) {
-      n = -n;
-      d = -d;
-  }
- 
-  if (d == 1 && n in _rationalCache) {
-      return _rationalCache[n];
-  }
-  else {
-      return new plt.types.Rational(n, d);
-  }
+	if (n == undefined)
+	    die("n undefined");
+
+	if (d == undefined) { d = 1; }
+
+	
+	if (d < 0) {
+	    n = -n;
+	    d = -d;
+	}
+	
+	if (d == 1 && n in _rationalCache) {
+	    return _rationalCache[n];
+	}
+	else {
+	    return new plt.types.Rational(n, d);
+	}
     };
- 
+    
     _rationalCache = {};
     (function() {
-  var i;
-  for(i = -500; i < 500; i++)
-      _rationalCache[i] = new plt.types.Rational(i, 1);
+	var i;
+	for(i = -500; i < 500; i++) {
+	    _rationalCache[i] = new plt.types.Rational(i, 1);
+	}
     })();
     plt.types.Rational.NEGATIVE_ONE = _rationalCache[-1];
     plt.types.Rational.ZERO = _rationalCache[0];
     plt.types.Rational.ONE = _rationalCache[1];
- 
- 
- 
- 
- 
- 
+    
+    
+    
+    
+    
+    
     plt.types.FloatPoint = function(n) {
-  this.n = n;
+	this.n = n;
     };
- 
+    
     plt.types.FloatPoint.prototype.toExact = function() {
-      return plt.types.Rational.makeInstance(Math.floor(this.n), 1);
+	return plt.types.Rational.makeInstance(Math.floor(this.n), 1);
+    };
+
+    plt.types.FloatPoint.prototype.isExact = function() {
+	return false;
     };
 
 
     plt.types.FloatPoint.prototype.level = function() {
-  return 1;
+	return 1;
     };
- 
+    
     plt.types.FloatPoint.prototype.lift = function(target) {
-		return plt.types.Complex.makeInstance(this.n, 0);
+	return plt.types.Complex.makeInstance(this.n, 0);
     };
- 
-    plt.types.FloatPoint.prototype.toString = function() {
-  return this.n.toString();
+    
+    plt.types.FloatPoint.prototype.toWrittenString = function() {
+	return this.n.toString();
     };
- 
+    
+    plt.types.FloatPoint.prototype.toDisplayedString = plt.types.FloatPoint.prototype.toWrittenString;
+
+
     plt.types.FloatPoint.prototype.isEqual = function(other) {
-  return other instanceof plt.types.FloatPoint &&
-      this.n == other.n;
+	return other instanceof plt.types.FloatPoint &&
+	    this.n == other.n;
+    };
+
+
+    plt.types.FloatPoint.prototype.isRational = function() {
+        return false;
     };
 
     plt.types.FloatPoint.prototype.isReal = function() {
 	return true;
     };
- 
+    
     plt.types.FloatPoint.prototype.add = function(other) {
-  return plt.types.FloatPoint.makeInstance(this.n + other.n);
+	return plt.types.FloatPoint.makeInstance(this.n + other.n);
     };
- 
+    
     plt.types.FloatPoint.prototype.subtract = function(other) {
-  return plt.types.FloatPoint.makeInstance(this.n - other.n);
+	return plt.types.FloatPoint.makeInstance(this.n - other.n);
     };
- 
+    
     plt.types.FloatPoint.prototype.multiply = function(other) {
-  return plt.types.FloatPoint.makeInstance(this.n * other.n);
+	return plt.types.FloatPoint.makeInstance(this.n * other.n);
     };
- 
+    
     plt.types.FloatPoint.prototype.divide = function(other) {
-  return plt.types.FloatPoint.makeInstance(this.n / other.n);
+        return plt.types.FloatPoint.makeInstance(this.n / other.n);
     };
- 
- 
+    
+    
     plt.types.FloatPoint.prototype.toInteger = function() {
-  return Math.floor(this.n);  
+	return Math.floor(this.n);  
     };
- 
+    
     plt.types.FloatPoint.prototype.toFloat = function() {
-  return this.n;
+	return this.n;
     };
-	
-	plt.types.FloatPoint.prototype.toComplex = function(){
-		return plt.types.Complex.makeInstance(this.n, 0);
-	};
- 
+    
+    plt.types.FloatPoint.prototype.toComplex = function(){
+	return plt.types.Complex.makeInstance(this.n, 0);
+    };
+    
     plt.types.FloatPoint.prototype.floor = function() {
-  return plt.types.Rational.makeInstance(Math.floor(this.n), 1);
+	return plt.types.Rational.makeInstance(Math.floor(this.n), 1);
     };
- 
+    
     plt.types.FloatPoint.prototype.ceiling = function() {
-  return plt.types.Rational.makeInstance(Math.ceil(this.n), 1);
+	return plt.types.Rational.makeInstance(Math.ceil(this.n), 1);
     };
- 
+    
 
 
     plt.types.FloatPoint.prototype.greaterThan = function(other) {
 	return this.n > other.n;
     };
- 
+    
     plt.types.FloatPoint.prototype.greaterThanOrEqual = function(other) {
-  return this.n >= other.n;
+	return this.n >= other.n;
     };
- 
+    
     plt.types.FloatPoint.prototype.lessThan = function(other) {
-  return this.n < other.n;
+	return this.n < other.n;
     };
- 
+    
     plt.types.FloatPoint.prototype.lessThanOrEqual = function(other) {
 	return this.n <= other.n;
     };
 
- 
+    
     plt.types.FloatPoint.prototype.sqrt = function() {
 	if (this.n < 0)
-		return plt.types.Complex.makeInstance(0, Math.sqrt(0 - this.n));
+	    return plt.types.Complex.makeInstance(0, Math.sqrt(0 - this.n));
 	else
-		return plt.types.FloatPoint.makeInstance(Math.sqrt(this.n));
+	    return plt.types.FloatPoint.makeInstance(Math.sqrt(this.n));
     };
- 
+    
     plt.types.FloatPoint.prototype.abs = function() {
-  return plt.types.FloatPoint.makeInstance(Math.abs(this.n));
+	return plt.types.FloatPoint.makeInstance(Math.abs(this.n));
     };
- 
+    
     plt.types.FloatPoint.makeInstance = function(n) {
-  return new plt.types.FloatPoint(n);
+	return new plt.types.FloatPoint(n);
     };
+    
+    plt.types.FloatPoint.prototype.log = function(){
+	if (this.n < 0)
+	    return this.toComplex().log();
+	else
+	    return plt.types.FloatPoint.makeInstance(Math.log(this.n));
+    };
+    
+    plt.types.FloatPoint.prototype.angle = function(){
+	if (0 == this.n)
+	    throw new Error("angle: undefined for 0");
+	if (this.n > 0)
+	    return plt.types.Rational.ZERO;
+	else
+	    return plt.Kernel.pi;
+    };
+    
+    plt.types.FloatPoint.prototype.atan = function(){
+	return plt.types.FloatPoint.makeInstance(Math.atan(this.n));
+    };
+    
+    plt.types.FloatPoint.prototype.cos = function(){
+	return plt.types.FloatPoint.makeInstance(Math.cos(this.n));
+    };
+    
+    plt.types.FloatPoint.prototype.sin = function(){
+	return plt.types.FloatPoint.makeInstance(Math.sin(this.n));
+    };
+    
+    plt.types.FloatPoint.prototype.expt = function(a){
+	return plt.types.FloatPoint.makeInstance(Math.pow(this.n, a.n));
+    };
+    
+    plt.types.FloatPoint.prototype.exp = function(){
+	return plt.types.FloatPoint.makeInstance(Math.exp(this.n));
+    };
+    
+    plt.types.FloatPoint.prototype.acos = function(){
+	return plt.types.FloatPoint.makeInstance(Math.acos(this.n));
+    };
+    
+    plt.types.FloatPoint.prototype.asin = function(){
+	return plt.types.FloatPoint.makeInstance(Math.asin(this.n));
+    };
+    
+    plt.types.FloatPoint.prototype.imag_dash_part = function(){
+	return plt.types.Rational.ZERO;
+    };
+    
+    plt.types.FloatPoint.prototype.real_dash_part = function(){
+	return this;
+    };
+    
+    
+    plt.types.FloatPoint.prototype.round = function(){
+	if (plt.types.NumberTower.lessThan(this.subtract(plt.types.FloatPoint.makeInstance(0.5)).floor(), this.floor()).valueOf())
+	    return this.floor();
+	else 
+	    return this.ceiling();
 	
-	plt.types.FloatPoint.prototype.log = function(){
-		if (this.n < 0)
-			return this.toComplex().log();
-		else
-			return plt.types.FloatPoint.makeInstance(Math.log(this.n));
-	};
-	
-	plt.types.FloatPoint.prototype.angle = function(){
-		if (0 == this.n)
-			throw new Error("angle: undefined for 0");
-		if (this.n > 0)
-			return plt.types.Rational.ZERO;
-		else
-			return plt.Kernel.pi;
-	};
-	
-	plt.types.FloatPoint.prototype.atan = function(){
-		return plt.types.FloatPoint.makeInstance(Math.atan(this.n));
-	};
-	
-	plt.types.FloatPoint.prototype.cos = function(){
-		return plt.types.FloatPoint.makeInstance(Math.cos(this.n));
-	};
-	
-	plt.types.FloatPoint.prototype.sin = function(){
-		return plt.types.FloatPoint.makeInstance(Math.sin(this.n));
-	};
-	
-	plt.types.FloatPoint.prototype.expt = function(a){
-		return plt.types.FloatPoint.makeInstance(Math.pow(this.n, a.n));
-	};
-	
-	plt.types.FloatPoint.prototype.exp = function(){
-		return plt.types.FloatPoint.makeInstance(Math.exp(this.n));
-	};
-	
-	plt.types.FloatPoint.prototype.acos = function(){
-		return plt.types.FloatPoint.makeInstance(Math.acos(this.n));
-	};
-	
-	plt.types.FloatPoint.prototype.asin = function(){
-		return plt.types.FloatPoint.makeInstance(Math.asin(this.n));
-	};
-	
-	plt.types.FloatPoint.prototype.imag_dash_part = function(){
-		return plt.types.Rational.ZERO;
-	};
-	
-	plt.types.FloatPoint.prototype.real_dash_part = function(){
-		return this;
-	};
-	
-	
-	plt.types.FloatPoint.prototype.round = function(){
-		if (plt.types.NumberTower.lessThan(this.subtract(FloatPoint.makeInstance(0.5)).floor(), this.floor()))
-			return this.floor();
-		else 
-			return this.ceiling();
-			
-	};
-	
-	plt.types.FloatPoint.prototype.HEREEEEEEEEEEEEEEEEE = function(){};
-	
-	plt.types.FloatPoint.prototype.conjugate = plt.types.FloatPoint.prototype.abs;
-	
-	plt.types.FloatPoint.prototype.magnitude = plt.types.FloatPoint.prototype.abs;
-	
-	plt.types.FloatPoint.prototype.minus = function(){
-		return plt.types.FloatPoint.makeInstance(0 - this.n);
-	};
-	
-	plt.types.FloatPoint.prototype.half = function(){
-		return plt.types.FloatPoint.makeInstance(this.n / 2);
-	};	
-	
-	plt.types.FloatPoint.prototype.timesI = function(){
-		return plt.types.Complex.makeInstance(0, this.n);
-	};
- 
-    plt.Kernel.pi = plt.types.FloatPoint.makeInstance(Math.PI);
-    plt.Kernel.e = plt.types.FloatPoint.makeInstance(Math.E);
- 
-	plt.types.Complex = function(r, i){
-		this.r = plt.types.FloatPoint.makeInstance(r);
-		this.i = plt.types.FloatPoint.makeInstance(i);
-	};
- 
-	plt.types.Complex.makeInstance = function(r, i){
-		return new plt.types.Complex(r, i);
-	};
-	
-	plt.types.Complex.prototype.toExact = function() { 
-	  if (! this.isReal()) {
-	    throw new Error("inexact->exact: expects argument of type real number");
-	  }
-	  return this.r.toExact();
-	};
+    };
+    
+    
+    plt.types.FloatPoint.prototype.conjugate = plt.types.FloatPoint.prototype.abs;
+    
+    plt.types.FloatPoint.prototype.magnitude = plt.types.FloatPoint.prototype.abs;
+    
+    plt.types.FloatPoint.prototype.minus = function(){
+	return plt.types.FloatPoint.makeInstance(0 - this.n);
+    };
+    
+    plt.types.FloatPoint.prototype.half = function(){
+	return plt.types.FloatPoint.makeInstance(this.n / 2);
+    };	
+    
+    plt.types.FloatPoint.prototype.timesI = function(){
+	return plt.types.Complex.makeInstance(0, this.n);
+    };
+    
+    
+    plt.types.Complex = function(r, i){
+	this.r = plt.types.FloatPoint.makeInstance(r);
+	this.i = plt.types.FloatPoint.makeInstance(i);
+    };
+    
+    plt.types.Complex.makeInstance = function(r, i){
+	return new plt.types.Complex(r, i);
+    };
+    
+    plt.types.Complex.prototype.toWrittenString = function() {
+        return this.r.toWrittenString() + "+" + this.i.toWrittenString()+"i";
+    };
 
-	plt.types.Complex.prototype.level = function(){
-		return 2;
-	};
- 
-	plt.types.Complex.prototype.lift = function(target){
-		throw new Error("Don't know how to lift Complex number");
-	};
- 
-	plt.types.Complex.prototype.isEqual = function(other){
-		return other instanceof plt.types.Complex  && this.r.isEqual(other.r) && this.i.isEqual(other.i);
+    plt.types.Complex.prototype.toDisplayedString = plt.types.Complex.prototype.toWrittenString;
+
+
+    plt.types.Complex.prototype.isRational = function() {
+        return false;
+    };
+
+    plt.types.Complex.prototype.toExact = function() { 
+	if (! this.isReal()) {
+	    throw new Error("inexact->exact: expects argument of type real number");
+	}
+	return this.r.toExact();
+    };
+
+    plt.types.Complex.prototype.isExact = function() { 
+        // FIXME: correct this when the numerator and denominator are
+        // represented as generic numbers, and not as floats.
+        return false;
+    };
+
+
+
+    plt.types.Complex.prototype.level = function(){
+	return 2;
+    };
+    
+    plt.types.Complex.prototype.lift = function(target){
+	throw new Error("Don't know how to lift Complex number");
+    };
+    
+    plt.types.Complex.prototype.isEqual = function(other){
+	return other instanceof plt.types.Complex  && this.r.isEqual(other.r) && this.i.isEqual(other.i);
     };
 
     plt.types.Complex.prototype.greaterThan = function(other) {
@@ -1626,254 +716,253 @@ var plt = plt || {};
     };
 
 
+    
+    plt.types.Complex.prototype.abs = function(){
+	if (!plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
+	    throw new Error("abs: expects argument of type real number");
+	return this.r.abs();
+    };
+    
+    plt.types.Complex.prototype.toInteger = function(){
+	if (!plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
+	    throw new Error("toInteger: expects argument of type real number");
+	return this.r.toInteger();
+    };
+    
+    plt.types.Complex.prototype.toFloat = function(){
+	if (!plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
+	    throw new Error("toFloat: expects argument of type real number");
+	return this.r.toFloat();
+    };
+    
+    plt.types.Complex.prototype.toComplex = function(){
+	return plt.types.Complex.makeInstance(this.r.n, this.i.n);
+    };
+    
+    plt.types.Complex.prototype.add = function(other){
+	return plt.types.Complex.makeInstance(this.r.n + other.r.n, this.i.n + other.i.n);
+    };
+    
+    plt.types.Complex.prototype.subtract = function(other){
+	return plt.types.Complex.makeInstance(this.r.n - other.r.n, this.i.n - other.i.n);
+    };
+    
+    plt.types.Complex.prototype.multiply = function(other){
+	var r = this.r.n * other.r.n - this.i.n * other.i.n;
+	var i = this.r.n * other.i.n + this.i.n * other.r.n;
+	return plt.types.Complex.makeInstance(r, i);
+    };
+    
+    plt.types.Complex.prototype.divide = function(other){
+	var con = other.conjugate();
+	var up =  plt.types.NumberTower.multiply(this, con);
+	var down = plt.types.NumberTower.multiply(other, con);
+	return plt.types.Complex.makeInstance(up.r.n / down.r.n, up.i.n / down.r.n);
+    };
+    
+    plt.types.Complex.prototype.conjugate = function(){
+	return plt.types.Complex.makeInstance(this.r.n, 0 - this.i.n);
+    };
+    
+    plt.types.Complex.prototype.magnitude = function(){
+	var sum = plt.types.FloatPoint.makeInstance(this.r.n*this.r.n + this.i.n * this.i.n);
+	return plt.types.FloatPoint.makeInstance(sum.sqrt().n);
+    };
+    
+    plt.types.Complex.prototype.isReal = function(){
+	return this.i.n == 0;
+    };
+    
+    plt.types.Complex.prototype.sqrt = function(){
+	if (this.isReal())
+	    return this.r.sqrt();
 	
-	plt.types.Complex.prototype.abs = function(){
-		if (!plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO))
-			throw new Error("abs: expects argument of type real number");
-		return this.r.abs();
-	};
-	
-	plt.types.Complex.prototype.toInteger = function(){
-		if (!plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO))
-			throw new Error("toInteger: expects argument of type real number");
-		return this.r.toInteger();
-	};
-	
-	plt.types.Complex.prototype.toFloat = function(){
-		if (!plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO))
-			throw new Error("toFloat: expects argument of type real number");
-		return this.r.toFloat();
-	};
-	
-	plt.types.Complex.prototype.toComplex = function(){
-		return plt.types.Complex.makeInstance(this.r.n, this.i.n);
-	};
-	
-	plt.types.Complex.prototype.add = function(other){
-		return plt.types.Complex.makeInstance(this.r.n + other.r.n, this.i.n + other.i.n);
-	};
-	
-	plt.types.Complex.prototype.subtract = function(other){
-		return plt.types.Complex.makeInstance(this.r.n - other.r.n, this.i.n - other.i.n);
-	};
-	
-	plt.types.Complex.prototype.multiply = function(other){
-		var r = this.r.n * other.r.n - this.i.n * other.i.n;
-		var i = this.r.n * other.i.n + this.i.n * other.r.n;
-		return plt.types.Complex.makeInstance(r, i);
-	};
-	
-	plt.types.Complex.prototype.divide = function(other){
-		var con = other.conjugate();
-		var up =  plt.types.NumberTower.multiply(this, con);
-		var down = plt.types.NumberTower.multiply(other, con);
-		return plt.types.Complex.makeInstance(up.r.n / down.r.n, up.i.n / down.r.n);
-	};
-	
-	plt.types.Complex.prototype.conjugate = function(){
-		return plt.types.Complex.makeInstance(this.r.n, 0 - this.i.n);
-	};
-	
-	plt.types.Complex.prototype.magnitude = function(){
-		var sum = plt.types.FloatPoint.makeInstance(this.r.n*this.r.n + this.i.n * this.i.n);
-		return plt.types.FloatPoint.makeInstance(sum.sqrt().n);
-	};
-	
-	plt.types.Complex.prototype.isReal = function(){
-		return this.i.n == 0;
-	};
-	
-	plt.types.Complex.prototype.sqrt = function(){
-		if (this.isReal())
-			return this.r.sqrt();
-			
-		// http://en.wikipedia.org/wiki/Square_root#Square_roots_of_negative_and_complex_numbers	
-		var r_plus_x = plt.types.NumberTower.add(this.magnitude(), this.r);
+	// http://en.wikipedia.org/wiki/Square_root#Square_roots_of_negative_and_complex_numbers	
+	var r_plus_x = plt.types.NumberTower.add(this.magnitude(), this.r);
 
-		var r = r_plus_x.half().sqrt();
-		var i = plt.types.NumberTower.divide(this.i, plt.types.NumberTower.multiply(r_plus_x, plt.types.FloatPoint.makeInstance(2)).sqrt());
-		
-		return plt.types.Complex.makeInstance(r.toFloat(), i.toFloat());
-	};
+	var r = r_plus_x.half().sqrt();
+	var i = plt.types.NumberTower.divide(this.i, plt.types.NumberTower.multiply(r_plus_x, plt.types.FloatPoint.makeInstance(2)).sqrt());
 	
-	plt.types.Complex.prototype.log = function(){
-		return plt.types.Complex.makeInstance(this.magnitude().log().toFloat(), this.angle().toFloat());
-	};
+	return plt.types.Complex.makeInstance(r.toFloat(), i.toFloat());
+    };
+    
+    plt.types.Complex.prototype.log = function(){
+	return plt.types.Complex.makeInstance(this.magnitude().log().toFloat(), this.angle().toFloat());
+    };
+    
+    plt.types.Complex.prototype.angle = function(){
+	if (this.isReal())
+	    return this.r.angle();
+	if (0 == this.r.n){
+	    var tmp = plt.Kernel.pi.half();
+	    return this.i.n > 0 ? tmp : tmp.minus();
+	} else {
+	    var tmp = plt.types.NumberTower.divide(this.i.abs(), this.r.abs()).atan();
+	    if (this.r.n > 0)
+		return this.i.n > 0 ? tmp : tmp.minus();
+	    else
+		return this.i.n > 0 ? plt.Kernel.pi.subtract(tmp) : tmp.subtract(plt.Kernel.pi);
+	}
+    };
+    
+    plt.types.Complex.prototype.atan = function(){
+	if (this.isReal())
+	    return this.r.atan();
+	var iz = this.timesI();
+	var part1 = plt.types.Complex.makeInstance(1, iz.minus()).log();
+	var part2 = plt.types.Complex.makeInstance(1, iz).log();
+	return part1.subtract(part2).timesI().half();
+    };
+    
+    plt.types.Complex.prototype.cos = function(){
+	if (this.isReal())
+	    return this.r.cos();
+	var iz = this.timesI();
+	var iz_minus = iz.minus();
 	
-	plt.types.Complex.prototype.angle = function(){
-		if (this.isReal())
-			return this.r.angle();
-		if (0 == this.r.n){
-			var tmp = plt.Kernel.pi.half();
-			return this.i.n > 0 ? tmp : tmp.minus();
-		} else {
-			var tmp = plt.types.NumberTower.divide(this.i.abs(), this.r.abs()).atan();
-			if (this.r.n > 0)
-				return this.i.n > 0 ? tmp : tmp.minus();
-			else
-				return this.i.n > 0 ? plt.Kernel.pi.subtract(tmp) : tmp.subtract(plt.Kernel.pi);
-		}
-	};
+	return plt.types.NumberTower.add(iz.exp(), iz_minus.exp()).half();
+    };
+    
+    plt.types.Complex.prototype.sin = function(){
+	if (this.isReal())
+	    return this.r.sin();
+	var iz = this.timesI();
+	var iz_minus = iz.minus();
+	var z2 = plt.types.Complex.makeInstance(0, 2);
 	
-	plt.types.Complex.prototype.atan = function(){
-		if (this.isReal())
-			return this.r.atan();
-		var iz = this.timesI();
-		var part1 = plt.types.Complex.makeInstance(1, iz.minus()).log();
-		var part2 = plt.types.Complex.makeInstance(1, iz).log();
-		return part1.subtract(part2).timesI().half();
-	};
+	var exp_minus = plt.types.NumberTower.subtract(iz.exp(), iz_minus.exp());
 	
-	plt.types.Complex.prototype.cos = function(){
-		if (this.isReal())
-			return this.r.cos();
-		var iz = this.timesI();
-		var iz_minus = iz.minus();
-		
-		return plt.types.NumberTower.add(iz.exp(), iz_minus.exp()).half();
-	};
+	return plt.types.NumberTower.divide(exp_minus, z2);
+    };
+    
+    plt.types.Complex.prototype.expt= function(y){
+	var expo = y.multiply(this.log());
+	return expo.exp();
+    };
+    
+    plt.types.Complex.prototype.exp = function(){
+	var part1 = this.r.exp();
+	var part2 = plt.types.Complex.makeInstance(this.i.cos(), this.i.sin().timesI());
 	
-	plt.types.Complex.prototype.sin = function(){
-		if (this.isReal())
-			return this.r.sin();
-		var iz = this.timesI();
-		var iz_minus = iz.minus();
-		var z2 = plt.types.Complex.makeInstance(0, 2);
-		
-		var exp_minus = plt.types.NumberTower.subtract(iz.exp(), iz_minus.exp());
-		
-		return plt.types.NumberTower.divide(exp_minus, z2);
-	};
-	
-	plt.types.Complex.prototype.expt= function(y){
-		var expo = y.multiply(this.log());
-		return expo.exp();
-	};
-	
-	plt.types.Complex.prototype.exp = function(){
-		var part1 = this.r.exp();
-		var part2 = plt.types.Complex.makeInstance(this.i.cos(), this.i.sin().timesI());
-		
-		return plt.types.NumberTower.multiply(part1, part2);
-	};
-	
-	plt.types.Complex.prototype.acos = function(){
-		if (this.isReal())
-			return this.r.acos();
-		var pi_half = plt.Kernel.pi.half();
-		var iz = this.timesI();
-		var root = plt.types.NumberTower.subtract(plt.types.Rational.ONE, this.multiply(this)).sqrt();
-		var l = plt.types.NumberTower.add(iz, root).log().timesI();
-		return plt.types.NumberTower.add(pi_half, l);
-	};
-	
-	plt.types.Complex.prototype.asin = function(){
-		if (this.isReal())
-			return this.r.asin();
-		var iz = this.timesI();
-		var root = plt.types.NumberTower.subtract(plt.types.Rational.ONE, this.multiply(this)).sqrt();
-		var ret = plt.types.NumberTower.add(iz, root).log().timesI().minus();
-		// FIXME: missing return value!
-		throw new Error("");
-	};
-	
-	plt.types.Complex.prototype.ceiling = function(){
-		if (!this.isReal())
-			throw new Error("ceiling: can only be applied to real number");
-		return this.r.ceiling();
-	};
-	
-	plt.types.Complex.prototype.floor = function(){
-		if (!this.isReal())
-			throw new Error("floor: can only be applied to real number");
-		return this.r.floor();
-	};
-	
-	plt.types.Complex.prototype.imag_dash_part = function(){
-		return this.i;
-	};
-	
-	plt.types.Complex.prototype.real_dash_part = function(){
-		return this.r;
-	};
-	
-	plt.types.Complex.prototype.round = function(){
-		return this.r.round();
-	};
-	
-	plt.types.Complex.prototype.HEREEEEEEEEEEEEEEEEE = function(){};
-	
-	plt.types.Complex.prototype.timesI = function(){
-		return this.multiply(plt.types.Complex.makeInstance(0, 1));
-	};
-	
-	plt.types.Complex.prototype.minus = function(){
-		return plt.types.Complex.makeInstance(0 - this.r.n, 0 - this.i.n);
-	};
-	
-	plt.types.Complex.prototype.half = function(){
-		return plt.types.Complex.makeInstance(this.r.n/2, this.i.n/2);
-	};
- 
+	return plt.types.NumberTower.multiply(part1, part2);
+    };
+    
+    plt.types.Complex.prototype.acos = function(){
+	if (this.isReal())
+	    return this.r.acos();
+	var pi_half = plt.Kernel.pi.half();
+	var iz = this.timesI();
+	var root = plt.types.NumberTower.subtract(plt.types.Rational.ONE, this.multiply(this)).sqrt();
+	var l = plt.types.NumberTower.add(iz, root).log().timesI();
+	return plt.types.NumberTower.add(pi_half, l);
+    };
+    
+    plt.types.Complex.prototype.asin = function(){
+	if (this.isReal())
+	    return this.r.asin();
+	var iz = this.timesI();
+	var root = plt.types.NumberTower.subtract(plt.types.Rational.ONE, this.multiply(this)).sqrt();
+	var ret = plt.types.NumberTower.add(iz, root).log().timesI().minus();
+	// FIXME: missing return value!
+	throw new Error("");
+    };
+    
+    plt.types.Complex.prototype.ceiling = function(){
+	if (!this.isReal())
+	    throw new Error("ceiling: can only be applied to real number");
+	return this.r.ceiling();
+    };
+    
+    plt.types.Complex.prototype.floor = function(){
+	if (!this.isReal())
+	    throw new Error("floor: can only be applied to real number");
+	return this.r.floor();
+    };
+    
+    plt.types.Complex.prototype.imag_dash_part = function(){
+	return this.i;
+    };
+    
+    plt.types.Complex.prototype.real_dash_part = function(){
+	return this.r;
+    };
+    
+    plt.types.Complex.prototype.round = function(){
+	return this.r.round();
+    };
+    
+    
+    plt.types.Complex.prototype.timesI = function(){
+	return this.multiply(plt.types.Complex.makeInstance(0, 1));
+    };
+    
+    plt.types.Complex.prototype.minus = function(){
+	return plt.types.Complex.makeInstance(0 - this.r.n, 0 - this.i.n);
+    };
+    
+    plt.types.Complex.prototype.half = function(){
+	return plt.types.Complex.makeInstance(this.r.n/2, this.i.n/2);
+    };
+    
     //////////////////////////////////////////////////////////////////////
     // NumberTower.
     // 
     // Currently only support Rational and Floating.
     plt.types.NumberTower = {};
- 
- 
+    
+    
     plt.types.NumberTower.toInteger = function(num) {
-  return num.toInteger();
+	return num.toInteger();
     };
- 
+    
     plt.types.NumberTower.toFloat = function(num) {
-  return num.toFloat();
+	return num.toFloat();
     };
- 
+    
     plt.types.NumberTower.abs = function(n) {
-  return n.abs();
+	return n.abs();
     };
- 
+    
     plt.types.NumberTower.toExact = function(x) {
-      return x.toExact();
+	return x.toExact();
     };
 
     plt.types.NumberTower.add = function(x, y) {
-  if (x.level() < y.level()) x = x.lift(y);
-  if (y.level() < x.level()) y = y.lift(x);
-  return x.add(y);
+	if (x.level() < y.level()) x = x.lift(y);
+	if (y.level() < x.level()) y = y.lift(x);
+	return x.add(y);
     };
- 
+    
     plt.types.NumberTower.subtract = function(x, y) {
-  if (x.level() < y.level()) x = x.lift(y);
-  if (y.level() < x.level()) y = y.lift(x);
-  return x.subtract(y);
+	if (x.level() < y.level()) x = x.lift(y);
+	if (y.level() < x.level()) y = y.lift(x);
+	return x.subtract(y);
     };
- 
+    
     plt.types.NumberTower.multiply = function(x, y) {
-  if (x.level() < y.level()) x = x.lift(y);
-  if (y.level() < x.level()) y = y.lift(x);
-  return x.multiply(y);
+	if (x.level() < y.level()) x = x.lift(y);
+	if (y.level() < x.level()) y = y.lift(x);
+	return x.multiply(y);
     };
- 
+    
     plt.types.NumberTower.divide = function(x, y) {
-  if (x.level() < y.level()) x = x.lift(y);
-  if (y.level() < x.level()) y = y.lift(x);
-  return x.divide(y);
+	if (x.level() < y.level()) x = x.lift(y);
+	if (y.level() < x.level()) y = y.lift(x);
+	return x.divide(y);
     };
- 
+    
     plt.types.NumberTower.equal = function(x, y) {
 	if (x.level() < y.level()) x = x.lift(y);
-  if (y.level() < x.level()) y = y.lift(x);
+	if (y.level() < x.level()) y = y.lift(x);
 	
-  return x.isEqual(y);
+	return x.isEqual(y);
     };
- 
+    
     plt.types.NumberTower.approxEqual = function(x, y, delta) {
-  // fixme: use delta
-  return x.isEqual(y);
+	return plt.types.NumberTower.lessThan(plt.types.NumberTower.abs(plt.types.NumberTower.subtract(x, y)),
+                                              delta);
     };
-	
+    
     plt.types.NumberTower.greaterThanOrEqual = function(x, y){
 	if (x.level() < y.level()) x = x.lift(y);
 	if (y.level() < x.level()) y = y.lift(x);
@@ -1909,88 +998,1953 @@ var plt = plt || {};
 	    throw new Error("lessThan: couldn't be applied to complex number");
 	return x.lessThan(y);
     };
- 
+    
     plt.types.NumberTower.modulo = function(m, n) {
-  var result = 
-      plt.types.Rational.makeInstance(m.toInteger() % n.toInteger(),
-            1);
-  if (plt.types.NumberTower.lessThan(result, plt.types.Rational.ZERO)) {
-      return plt.types.NumberTower.add(result, n);
-  }
-  return result;
+	var result = 
+	    plt.types.Rational.makeInstance(m.toInteger() % n.toInteger(),
+					    1);
+	if (plt.types.NumberTower.lessThan(result, plt.types.Rational.ZERO).valueOf()) {
+	    return plt.types.NumberTower.add(result, n);
+	}
+	return result;
     };
- 
+    
     plt.types.NumberTower.sqr = function(x) {
-  return plt.types.NumberTower.multiply(x, x);
+	return plt.types.NumberTower.multiply(x, x);
     };
+    
+    plt.types.NumberTower.expt = function(x, y){
+	if (x.level() < y.level()) x = x.lift(y);
+	if (y.level() < x.level()) y = y.lift(x);
+	return x.expt(y);
+    };
+    
+
+
+
+
+
+
+    // Strings
+    // For the moment, we just reuse Javascript strings.
+    plt.types.String = String;
+    plt.types.String.makeInstance = function(s) {
+	return s.valueOf();
+    };
+    
+    plt.types.String.prototype.isEqual = function(other){
+	return this == other;
+    };
+    
+
+    plt.types.String.prototype.toWrittenString = function() {
+    	return '"' + this.replace(/["\\]/g,
+    	                       function(match, submatch, index) {
+                                       return "\\" + match;
+                                   }) + '"';
+    }
+
+    plt.types.String.prototype.toDisplayedString = function() {
+        return this;
+    }
+
+
+
+})();var plt = plt || {};
+
+
+//////////////////////////////////////////////////////////////////////
+// Kernel
+// Depends on types.js.
+//
+// FIXME: there's a circular dependency between types.js and
+// kernel.js.  It hasn't bitten us yet only because the circular
+// references are in functions, rather than toplevel expressions, but
+// we need to be careful.
+
+
+(function() {
+
+    
+
+
+
+
+    // Inheritance from pg 168: Javascript, the Definitive Guide.
+    function heir(p) {
+	function f() {}
+	f.prototype = p;
+	return new f();
+    }
+
+
+    //////////////////////////////////////////////////////////////////////
+
+    function MobyError(msg) {
+	this.msg = msg;
+    }
+    MobyTypeError.prototype.name= 'MobyError';
+    MobyTypeError.prototype.toString = function () { return "MobyError: " + this.msg }
+
+    
+
+    function MobyTypeError(msg) {
+	MobyError.call(this, msg);
+    }
+    MobyTypeError.prototype = heir(MobyError.prototype);
+    MobyTypeError.prototype.name= 'MobyTypeError';
+    MobyTypeError.prototype.toString = function () { return "MobyTypeError: " + this.msg }
+
+
+
+    function MobyRuntimeError(msg) {
+	MobyError.call(this, msg);
+    }
+    MobyRuntimeError.prototype = heir(MobyError.prototype);
+    MobyRuntimeError.prototype.name= 'MobyRuntimeError';
+    MobyRuntimeError.prototype.toString = function () { return "MobyRuntimeError: " + this.msg }
+
+    //////////////////////////////////////////////////////////////////////
+
+
+    // _gcd: integer integer -> integer
+    function _gcd(a, b) {
+	while (b != 0) {
+	    var t = a;
+	    a = b;
+	    b = t % b;
+	}
+	return a;
+    }
+
+    // _lcm: integer integer -> integer
+    function _lcm(a, b) {
+	return a * b / _gcd(a, b);
+    }
+
+
+    // Returns true if x is a number.
+    function isNumber(x) {
+	return (x != null && x != undefined && (x instanceof plt.types.Rational || 
+						x instanceof plt.types.FloatPoint ||
+						x instanceof plt.types.Complex));
+    }
+
+    function isSymbol(x) {
+	return (x != null && x != undefined && x instanceof plt.types.Symbol);
+    }
+
+    function isChar(x) {
+	return x != null && x != undefined && x instanceof plt.types.Char;
+    }
+
+    function isString(x) {
+	return typeof(x) == 'string';
+	//return x != null && x != undefined && x instanceof plt.types.String;
+    }
+
+    function isBoolean(x) {
+	return (x == plt.types.Logic.TRUE || x == plt.types.Logic.FALSE);
+    }
+
+    function isPair(x) {
+	return x != null && x != undefined && x instanceof plt.types.Cons;
+    }
+
+    function isEmpty(x) {
+	return x != null && x != undefined && x instanceof plt.types.Empty;
+    }
+
+    function isReal(x) {
+	return (isNumber(x) && x.isReal());
+
+    }
+
+    function isRational(x) {
+	return x != null && x != undefined && x instanceof plt.types.Rational;
+    }
+
+
+    function isComplex(x) {
+	return x != null && x != undefined && (x instanceof plt.types.Complex || 
+					       x instanceof plt.types.Rational ||
+					       x instanceof plt.types.FloatPoint);
+    }
+
+    function isFunction(x) {
+	return typeof(x) == 'function';
+    }
+
+
+    // Returns true if x is an integer.
+    function isInteger(x) {
+	return x != null && x != undefined && isNumber(x) && plt.types.NumberTower.equal(x, x.floor());
+    }
+
+    function isNatural(x) {
+	return x != null && x != undefined && isNumber(x) && plt.types.NumberTower.equal(x, x.floor()) && x.toInteger() >= 0;
+    }
+
+
+
+
+    // isAlphabeticString: string -> boolean
+    function isAlphabeticString(s) {
+	for(var i = 0; i < s.length; i++) {
+	    if (! ((s[i] >= "a" && s[i] <= "z") ||
+		   (s[i] >= "A" && s[i] <= "Z"))) {
+		return false;
+	    }
+	}
+	return true;
+    }
+
+    // isWhitespaceString: string -> boolean
+    var isWhitespaceString = (function() {
+	var pat = new RegExp("^\\s*$");
+	return function(s) {
+	    return (s.match(pat) ? true : false);
+	}
+    }());
+
+
+
+    function isImage(thing) {
+	return (thing != null && thing != undefined && thing instanceof BaseImage);
+    }
+
+
+
+    // arrayEach: (arrayof X) (X -> void) -> void
+    // Apply some function on each element of the array.
+    function arrayEach(arr, f) {
+	for (var i = 0; i < arr.length; i++) {
+	    f.apply(arr[i], [arr[i]]);
+	}
+    }
+
+
+    // Apply a chaining test on pairs of elements of the list [first, second, rest ...].
+    function chainTest(test, first, second, rest) {
+	if (! test(first, second).valueOf())
+	    return false;
+	if (rest.length == 0)
+	    return true;
+	if (! test(second, rest[0]).valueOf())
+	    return false;
+	for(var i = 0; i < rest.length - 1; i++) {
+	    if (! test(rest[i], rest[i+1]).valueOf())
+		return false;
+	}
+	return true;
+    }
+    
+
+    // Apply a search on pairs of elements of the list [first, rest ...].
+    function chainFind(comparator, first, rest) {
+	var i;
+	var best = first;
+	for(i = 0; i < rest.length; i++) {
+	    if (! (comparator(best, rest[i])).valueOf()) {
+		best = rest[i];
+	    }
+	}
+	return best;
+    }
+    
+
+    // Returns true if x is a list.
+    function isList(x) {
+	return x != null && x != undefined && ((x instanceof plt.types.Cons) || (x instanceof plt.types.Empty));
+    }
+
+
+    // Checks if x satisfies f.  If not, a MobyTypeError of msg is thrown.
+    function check(x, f, msg) {
+	if (! f(x)) {
+	    throw new MobyTypeError(msg);
+	}
+    }
+
+    // Throws exception if x is not a list.
+    function checkList(x, msg) {
+	if (! isList(x)) {
+	    throw new MobyTypeError(msg);
+	}
+    }
+
+    // Checks if x is a list of f.  If not, throws a MobyTypeError of msg.
+    function checkListof(x, f, msg) {
+	if (! isList(x)) {
+	    throw new MobyTypeError(msg);
+	}
+	while (! x.isEmpty()) {
+	    if (! f(x.first())) {
+		throw new MobyTypeError(msg);
+	    }
+	    x = x.rest();
+	}
+    }
+
+
+    // makeChainingComparator: (X -> boolean) string (X X (arrayof X) -> boolean) -> (X X (arrayof X) -> boolean) 
+    function makeChainingComparator(typeCheckF, typeName, comparisonF) {
+	return function(first, second, rest) {
+	    check(first, typeCheckF, "first must be a " + typeName);
+	    check(second, typeCheckF, "second must be a " + typeName);
+	    arrayEach(rest, 
+		      function(x) { check(x, typeCheckF, 
+					  "each argument must be a " + typeName) });
+	    return comparisonF(first, second, rest);
+	}
+    }
+
+
+
+    function makeNumericChainingComparator(test) {
+	return makeChainingComparator(isNumber, "number",
+				      function(first, second, rest) {
+					  return chainTest(test, first, second, rest);
+				      });
+    }
+
+    function makeCharChainingComparator(test) {
+	return makeChainingComparator(isChar, "char",
+				      function(first, second, rest) {
+					  return chainTest(test, first, second, rest);
+				      });
+    }
+
+
+    function makeStringChainingComparator(test) {
+	return makeChainingComparator(isString, "string",
+				      function(first, second, rest) {
+					  return chainTest(test, first, second, rest);
+				      });
+    }
+
+
+
+
+    plt.Kernel = {
 	
-	plt.types.NumberTower.expt = function(x, y){
-		if (x.level() < y.level()) x = x.lift(y);
-		if (y.level() < x.level()) y = y.lift(x);
-		return x.expt(y);
-	};
- 
- 
- 
- 
+	_heir : heir,
+
+
+	pi : plt.types.FloatPoint.makeInstance(Math.PI),
+	e : plt.types.FloatPoint.makeInstance(Math.E),
+
+
+	Struct: function () {
+	},
+
+	
+	struct_question_: function(thing) {
+	    return (thing != null && thing != undefined && thing instanceof plt.Kernel.Struct);
+	},
+	
+	number_question_ : function(x){
+	    return isNumber(x);
+	},
+	
+	equal_question_ : function(x, y) {
+	    if (plt.Kernel.number_question_(x).valueOf() && 
+		plt.Kernel.number_question_(y).valueOf()) {
+		if ("isEqual" in x) {
+		    return plt.types.NumberTower.equal(x, y);
+		} else if ("isEqual" in y) {
+		    return plt.types.NumberTower.equal(y, x);
+		} else {
+		    return (x == y);
+		}
+	    } else {
+		return x.isEqual(y);
+	    }
+	},
+
+
+	equal_tilde__question_ : function(x, y, delta) {
+	    check(delta, isNumber, "number");
+	    if (plt.Kernel.number_question_(x).valueOf() && 
+		plt.Kernel.number_question_(y).valueOf()) {
+		if ("isEqual" in x) {
+		    return plt.types.NumberTower.approxEqual(x, y, delta);
+		} else if ("isEqual" in y) {
+		    return plt.types.NumberTower.approxEqual(y, x, delta);
+		} else {
+		    return (x == y);
+		}
+	    } else {
+		return x.isEqual(y);
+	    }
+	},
+
+	
+	eq_question_ : function(x, y){
+	    return (x == y);
+	}, 
+	
+
+	eqv_question_ : function(x, y){
+	    if (isNumber(x) && isNumber(y)) {
+		return plt.types.NumberTower.equal(x, y);
+	    }
+	    return x == y;
+	},
+	
+
+	identity : function (x){
+	    return x;
+	},
+	
+	
+	cons: function(x, y) {
+	    checkList(y, "second argument to cons must be a list.");
+	    return plt.types.Cons.makeInstance(x, y);
+	},
+	
+	first: function(thing) {
+	    checkList(thing, "first must consume a list");
+	    return thing.first();
+	},
+	
+	rest: function(thing) {
+	    checkList(thing, "rest must consume a list");
+	    return thing.rest();
+	},
+	
+	
+	second: function(thing) {
+	    checkList(thing, "second must consume a list");
+	    return thing.rest().first();
+	},
+	
+	third: function(thing) {
+	    checkList(thing, "third must consume a list");
+	    return thing.rest().rest().first();
+	},
+	
+	fourth: function(thing) {
+	    checkList(thing, "fourth must consume a list");
+	    return thing.rest().rest().rest().first();
+	},
+	
+	fifth: function(thing) {
+	    checkList(thing, "fifth must consume a list");
+	    return thing.rest().rest().rest().rest().first();
+	},
+	
+	
+	random: function(x) {
+	    check(x, isInteger, "integer");
+	    return plt.types.Rational.makeInstance(Math.floor(plt.types.NumberTower.toInteger(x) * 
+							      Math.random()),
+						   1);
+	},
+	
+	current_dash_seconds: function () {
+	    return plt.types.Rational.makeInstance(new Date().getMilliseconds() / 1000);	    
+	},
+
+
+	floor: function(x) {
+	    check(x, isNumber, "number");
+	    return x.floor();
+	},
+	
+	ceiling: function(x) {
+	    check(x, isNumber, "number");
+	    return x.ceiling();
+	},
+	
+	sqrt: function(x) {
+	    check(x, isNumber, "number");
+	    return x.sqrt();
+	},
+
+	integer_dash_sqrt: function(x) {
+	    check(x, isInteger, "integer");
+	    return plt.types.Rational.makeInstance(x.sqrt().toInteger());
+	},
+	
+	sqr: function(x) {
+	    check(x, isNumber, "number");
+	    return plt.types.NumberTower.sqr(x);
+	},
+	
+	sin: function(x) {
+	    check(x, isNumber, "number");
+	    return x.sin();
+	},
+	
+	cos: function(x) {
+	    check(x, isNumber, "number");
+	    return x.cos();
+	},
+	
+	modulo: function(m, n) {
+	    check(m, isNumber, "number");
+	    check(n, isNumber, "number");
+	    return plt.types.NumberTower.modulo(m, n);
+	},
+	
+	zero_question_: function(m) {
+	    check(m, isNumber, "number");
+	    return plt.types.NumberTower.equal(m, plt.types.Rational.ZERO);
+	},
+	
+	
+	_equal__tilde_ : function(x, y, delta) {
+	    check(x, isNumber, "number");
+	    check(y, isNumber, "number");
+	    check(delta, isNumber, "number");
+	    return plt.types.NumberTower.approxEqual(x, y, delta);
+	},
+	
+	abs: function(x) {
+	    check(x, isNumber, "number");
+	    return plt.types.NumberTower.abs(x);
+	},
+	
+	add1 : function(x) {
+	    check(x, isNumber, "number");
+	    return plt.types.NumberTower.add(x, plt.types.Rational.ONE);
+	},
+	
+	
+	sub1 : function(x) {
+	    check(x, isNumber, "number");
+	    return plt.types.NumberTower.subtract(x, plt.types.Rational.ONE);
+	},
+	
+	
+	_plus_ : function(args) {
+	    arrayEach(args, function(x) { check(x, isNumber, "number") });
+	    var i, sum = plt.types.Rational.ZERO;
+	    for(i = 0; i < args.length; i++) {
+		sum = plt.types.NumberTower.add(sum, args[i]);
+	    }
+	    return sum;
+	},
+	
+
+	_dash_ : function(first, args) {
+	    check(first, isNumber, "number");
+	    arrayEach(args, function(x) { check(x, isNumber, "number") });
+	    if (args.length == 0) {
+		return plt.types.NumberTower.subtract
+		(plt.types.Rational.ZERO, first);
+	    }
+	    
+	    var i, diff = first;
+	    for(i = 0; i < args.length; i++) {
+		diff = plt.types.NumberTower.subtract(diff, args[i]);
+	    }
+	    return diff;
+	},
+	
+	
+	_star_ : function(args) {
+	    arrayEach(args, function(x) { check(x, isNumber, "number") });
+	    var i, prod = plt.types.Rational.ONE;
+	    for(i = 0; i < args.length; i++) {
+		prod = plt.types.NumberTower.multiply(prod, args[i]);
+	    }
+	    return prod;    
+	},
+	
+	
+	_slash_ : function(first, args) {
+	    check(first, isNumber, "number");
+	    arrayEach(args, function(x) { check(x, isNumber, "number") });
+	    var i, div = first;
+	    for(i = 0; i < args.length; i++) {
+		div = plt.types.NumberTower.divide(div, args[i]);
+	    }
+	    return div;    
+	},
+	
+
+	_equal_ : makeNumericChainingComparator(plt.types.NumberTower.equal),
+	_greaterthan__equal_: makeNumericChainingComparator(plt.types.NumberTower.greaterThanOrEqual),
+	_lessthan__equal_: makeNumericChainingComparator(plt.types.NumberTower.lessThanOrEqual),
+	_greaterthan_: makeNumericChainingComparator(plt.types.NumberTower.greaterThan),
+	_lessthan_: makeNumericChainingComparator(plt.types.NumberTower.lessThan),
+
+	
+	min : function(first, rest) {
+	    check(first, isNumber, "number");
+	    arrayEach(rest, function() { check(this, isNumber, "number"); });
+	    return chainFind(plt.types.NumberTower.lessThanOrEqual,
+			     first, 
+			     rest);
+	},
+	
+	max : function(first, rest) {
+	    check(first, isNumber, "number");
+	    arrayEach(rest, function() { check(this, isNumber, "number"); });
+	    return chainFind(plt.types.NumberTower.greaterThanOrEqual,
+			     first, 
+			     rest);
+	},
+	
+
+	lcm : function(first, rest) {
+	    check(first, isInteger, "number");
+	    arrayEach(rest, function() { check(this, isInteger, "number"); });
+	    var result = first.toInteger();
+	    for (var i = 0; i < rest.length; i++) {
+		result = _lcm(result, rest[i].toInteger());
+	    }
+	    return plt.types.Rational.makeInstance(result);
+	},
+
+	
+	gcd : function(first, rest) {
+	    check(first, isInteger, "number");
+	    arrayEach(rest, function() { check(this, isInteger, "number"); });	    
+	    var result = first.toInteger();
+	    for (var i = 0; i < rest.length; i++) {
+		result = _gcd(result, rest[i].toInteger());
+	    }
+	    return plt.types.Rational.makeInstance(result);
+	},
+
+	exact_dash__greaterthan_inexact: function(x) {
+	    check(x, isNumber, "number");
+	    return plt.types.FloatPoint.makeInstance(x.toFloat());
+	},
+	
+	inexact_dash__greaterthan_exact: function(x) {
+	    check(x, isNumber, "number");
+	    return plt.types.NumberTower.toExact(x);
+	},
+
+	exact_question_ : function(x) {
+	    check(x, isNumber, "number");
+	    return x.isExact();
+	},
+
+	inexact_question_ : function(x) {
+	    check(x, isNumber, "number");
+	    return ! x.isExact();
+	},
+	
+	rational_question_ : function(x) {
+	    return (plt.Kernel.number_question_(x) &&
+		    x.isRational());
+	},
+
+	number_dash__greaterthan_string: function(x) {
+	    check(x, isNumber, "number");
+	    return plt.types.String.makeInstance(x.toWrittenString());
+	},
+	
+	conjugate: function(x){
+	    check(x, isNumber, "number");
+	    return x.conjugate();
+	},
+	
+	magnitude: function(x){
+	    check(x, isNumber, "number");
+	    return x.magnitude();
+	},
+	
+	log : function(x) {
+	    check(x, isNumber, "number");
+	    return x.log();
+	},
+	
+	angle : function(x) {
+	    check(x, isNumber, "number");
+	    return x.angle();
+	},
+	
+	atan : function(x) {
+	    check(x, isNumber, "number");
+	    return x.atan();
+	},
+	
+	expt : function(x, y){
+	    check(x, isNumber, "number");
+	    check(y, isNumber, "number");
+	    return plt.types.NumberTower.expt(x, y);
+	},
+	
+	exp : function(x){
+	    check(x, isNumber, "number");
+	    return x.exp();
+	},
+	
+	acos : function(x){
+	    check(x, isNumber, "number");
+	    return x.acos();
+	},
+	
+	asin : function(x){
+	    check(x, isNumber, "number");
+	    return x.asin();
+	},
+	
+	tan : function(x){
+	    check(x, isNumber, "number");
+	    return plt.types.NumberTower.divide(x.sin(), x.cos());
+	},
+	
+	complex_question_ : function(x){
+	    return isComplex(x);
+	},
+	
+	cosh : function(x) {
+	    check(x, isNumber, "number");
+	    return this._plus_([this.exp(x), this.exp(x.minus())]).half();
+	},
+	
+	sinh : function(x) {
+	    check(x, isNumber, "number");
+	    return plt.types.NumberTower.subtract(this.exp(x), this.exp(x.minus())).half();
+	},
+	
+	denominator : function(x) {
+	    check(x, isRational, "rational");
+	    return plt.types.Rational.makeInstance(x.d, 1);
+	},
+	
+	numerator : function(x){
+	    check(x, isRational, "rational");
+	    return plt.types.Rational.makeInstance(x.n, 1);
+	},
+	
+	odd_question_ : function(x){
+	    check(x, isNumber, "number");
+	    return ((x.toInteger() % 2) == 1);
+	},
+	
+	even_question_ : function(x) {
+	    check(x, isNumber, "number");
+	    return ((x.toInteger() % 2) == 0);
+	},
+	
+	positive_question_ : function(x){
+	    check(x, isNumber, "number");
+	    return this._greaterthan_(x, plt.types.Rational.ZERO, []);
+	},
+	
+	negative_question_ : function(x){
+	    check(x, isNumber, "number");
+	    return this._lessthan_(x, plt.types.Rational.ZERO, []);
+	},
+	
+	imag_dash_part : function(x){
+	    check(x, isNumber, "number");
+	    return x.imag_dash_part();
+	},
+	
+	real_dash_part : function(x){
+	    check(x, isNumber, "number");
+	    return x.real_dash_part();
+	},
+	
+
+	make_dash_polar: function(r, theta) {
+	    var x = r.toFloat() * Math.cos(theta.toFloat());
+	    var y = r.toFloat() * Math.sin(theta.toFloat());
+	    return plt.types.Complex.makeInstance(x, y);
+	},
+
+	integer_question_ : function(x){
+	    check(x, isNumber, "number");
+	    return this.equal_question_(x, x.floor());
+	},
+	
+	make_dash_rectangular : function(x, y){
+	    return plt.types.Complex.makeInstance(x.toFloat(), y.toFloat());
+	},
+	
+	quotient : function(x, y){
+	    check(x, isNumber, "number");
+	    check(y, isNumber, "number");
+	    return plt.types.Rational.makeInstance(plt.types.NumberTower.divide(x,y).floor().toInteger(),
+						   1);
+	},
+	
+	remainder : function(x, y) {
+	    check(x, isNumber, "number");
+	    check(y, isNumber, "number");
+	    return plt.types.Rational.makeInstance(x.toInteger() % y.toInteger(), 1);
+	},
+	
+
+	real_question_ : function(x){
+	    return isReal(x);
+	},
+	
+	
+	round : function(x){
+	    check(x, isNumber, "number");
+	    return x.round();
+	},
+	
+	sgn : function(x){
+	    check(x, isNumber, "number");
+	    if (this.positive_question_(x).valueOf())
+		return plt.types.Rational.ONE;
+	    if (this.negative_question_(x).valueOf())
+		return plt.types.Rational.NEGATIVE_ONE;
+	    else
+		return plt.types.Rational.ZERO;
+	},
+	
+
+
+	boolean_equal__question_ : function(x, y){
+	    check(x, isBoolean, "boolean");
+	    check(y, isBoolean, "boolean");
+	    return x == y;
+	},
+	
+	boolean_question_ : function(x){
+	    return isBoolean(x);
+	},
+	
+	false_question_ : function(x){
+	    return (x == plt.types.Logic.FALSE);
+	},
+	
+	not : function(x){
+	    check(x, isBoolean, "boolean");
+	    return (!(x.valueOf())) ? plt.types.Logic.TRUE : plt.types.Logic.FALSE;
+	},
+	
+	symbol_dash__greaterthan_string : function(x){
+	    check(x, isSymbol, "symbol");
+	    return plt.types.String.makeInstance(x.val);
+	},
+	
+	symbol_equal__question_ : function(x, y){
+	    check(x, isSymbol, "symbol");
+	    check(y, isSymbol, "symbol");
+	    return (x.val == y.val);
+	},
+	
+	symbol_question_ : function(x){
+	    return isSymbol(x);
+	},
+	
+	
+	append : function(first, rest){
+	    checkList(first, "append must consume lists");
+            var ret = first;
+	    var i;
+	    for (i = 0; i < rest.length; i++) {
+		checkList(rest[i], "append must consume lists");
+		ret = ret.append(rest[i]);
+	    }
+	    return ret;
+	},
+	
+	reverse : function(lst){
+	    checkList(lst, "reverse must consume a list");
+	    var ret = plt.types.Empty.EMPTY;
+	    while (!lst.isEmpty()){
+		ret = plt.types.Cons.makeInstance(lst.first(), ret);
+		lst = lst.rest();
+	    }
+	    
+	    return ret;
+	}, 
+	
+	assq : function(x, lst){
+	    checkList(lst, "assq must consume a list");
+	    while (!lst.isEmpty() && !plt.Kernel.eq_question_(x, lst.first().first()))
+		lst = lst.rest();
+	    if (lst.isEmpty())
+		return plt.types.Logic.FALSE;
+	    else return lst.first();
+	},
+	
+	caaar : function(lst){
+	    checkList(lst, "caaar must consume a list");
+	    return lst.first().first().first();
+	},
+	
+	caadr : function(lst){
+	    checkList(lst, "caadr must consume a list");
+	    return lst.first().first().rest();
+	},
+	
+	caar : function(lst){
+	    checkList(lst, "caar must consume a list");
+	    return lst.first().first();
+	},
+	
+	cadar : function(lst){
+	    checkList(lst, "cadar must consume a list");
+	    return lst.first().rest().first();
+	},
+	
+	cadddr : function(lst){
+	    checkList(lst, "cadddr must consume a list");
+	    return lst.rest().rest().rest().first();
+	},
+	
+	caddr : function(lst){
+	    checkList(lst, "caddr must consume a list");
+	    return lst.rest().rest().first();
+	},
+	
+	cadr : function(lst){
+	    checkList(lst, "cadr must consume a list");
+	    return lst.rest().first();
+	},
+	
+	car : function(lst){
+	    checkList(lst, "car must consume a list");
+	    return lst.first();
+	},
+	
+	cdaar : function(lst){
+	    checkList(lst, "cdaar must consume a list");
+	    return lst.first().first().rest();
+	},
+	
+	cdadr : function(lst){
+	    checkList(lst, "cdadr must consume a list");
+	    return lst.rest().first().rest();
+	},
+	
+	cdar : function(lst){
+	    checkList(lst, "cdar must consume a list");
+	    return lst.first().rest();
+	},
+	
+	cddar : function(lst){
+	    checkList(lst, "cddar must consume a list");
+	    return lst.first().rest().rest();
+	},
+	
+	cdddr : function(lst){
+	    checkList(lst, "cdddr must consume a list");
+	    return lst.rest().rest().rest();
+	},
+	
+	cddr : function(lst){
+	    checkList(lst, "cddr must consume a list");
+	    return lst.rest().rest();
+	},
+	
+	cdr : function(lst){
+	    checkList(lst, "cdr must consume a list");
+	    return lst.rest();
+	},
+
+	null_question_ : function(x){
+	    return isEmpty(x);
+	},
+	
+	empty_question_: function(x) {
+	    return isEmpty(x);
+	},
+	
+	pair_question_ : function(x){
+	    return isPair(x);
+	},
+	
+	cons_question_: function(x){
+	    return isPair(x);
+	},
+
+	
+	sixth : function(lst){
+	    checkList(lst, "sixth must consume a list");
+	    return lst.rest().rest().rest().rest().rest().first();
+	},
+	
+	seventh: function(lst){
+	    checkList(lst, "seventh must consume a list");
+	    return lst.rest().rest().rest().rest().rest().rest().first();
+	},
+	
+	eighth : function(lst){
+	    checkList(lst, "eighth must consume a list");
+	    return lst.rest().rest().rest().rest().rest().rest().rest().first();
+	},
+	
+	length : function(lst){
+	    checkList(lst, "length must consume a list");
+	    var ret = plt.types.Rational.ZERO;
+	    for (; !lst.isEmpty(); lst = lst.rest()) {
+		ret = plt.Kernel.add1(ret);
+	    }
+	    return ret;
+	},
+	
+	list : function(items){
+	    var ret = plt.types.Empty.EMPTY;
+	    for (var i = items.length - 1; i >=0; i--) {
+		ret = plt.types.Cons.makeInstance(items[i], ret);
+	    }
+	    return ret;
+	},
+	
+	list_star_ : function(items, otherItems){
+	    var lastListItem = otherItems.pop();
+	    if (lastListItem == undefined || ! lastListItem instanceof plt.types.Cons) {
+		throw new MobyTypeError("list*: " + lastListItem + " not a list");
+	    }
+	    otherItems.unshift(items);
+	    return plt.Kernel.append(plt.Kernel.list(otherItems), [lastListItem]);
+	},
+	
+	list_dash_ref : function(lst, x){
+	    checkList(lst, "list-ref must consume a list");
+	    check(x, isNatural, "natural");
+	    var i = plt.types.Rational.ZERO;
+	    for (; plt.Kernel._lessthan_(i, x,[]); i = plt.Kernel.add1(i)) {
+		if (lst.isEmpty()) {
+		    throw new MobyRuntimeError("list-ref: index too small");
+		}
+		else {
+		    lst = lst.rest();
+		}
+	    }
+	    return lst.first();
+	},
+	
+	member : function(item, lst){
+	    checkList(lst, "member: must consume a list");
+	    while (!lst.isEmpty()){
+		if (plt.Kernel.equal_question_(item, lst.first()).valueOf())
+		    return plt.types.Logic.TRUE;
+		lst = lst.rest();
+	    }
+	    
+	    return plt.types.Logic.FALSE;
+	},
+	
+	memq : function(item, lst){
+	    checkList(lst, "memq: must consume a list");
+	    while (!lst.isEmpty()){
+		if (plt.Kernel.eq_question_(item, lst.first()).valueOf())
+		    return lst;
+		lst = lst.rest();
+	    }
+	    
+	    return plt.types.Logic.FALSE;
+	},
+	
+
+	memv : function(item, lst){
+	    checkList(lst, "memv: must consume a list");
+	    while (!lst.isEmpty()){
+		if (plt.Kernel.eqv_question_(item, lst.first()).valueOf())
+		    return lst;
+		lst = lst.rest();
+	    }
+	    
+	    return plt.types.Logic.FALSE;
+	},
+
+
+	memf : function(testF, lst) {
+	    checkList(lst, "memf: must consume a list");
+	    // TODO: add contract on higher order argument testF.    
+	    while (!lst.isEmpty()){
+		if (testF([lst.first()])) {
+		    return lst;
+		}
+		lst = lst.rest();
+	    }
+	    return plt.types.Logic.FALSE;
+	},
+
+
+	compose: function(functions) {
+	    // TODO: add contract on higher order argument testF.
+	    return function(args) {
+		var resultArray = args;
+		for (var i = functions.length - 1; i >= 0; i--) {
+		    resultArray = [functions[i](resultArray)];
+		}
+		return resultArray[0];
+	    }
+	},
+	
+
+	string_dash__greaterthan_number : function(str){
+	    check(str, isString, "string");
+	    var aNum = str * 1;
+	    if (isNaN(aNum))
+		return plt.types.Logic.FALSE;
+	    if (Math.floor(aNum) == aNum) {
+		return plt.types.Rational.makeInstance(aNum);
+	    }
+	    return plt.types.FloatPoint.makeInstance(aNum);
+	},
+	
+
+	string_dash__greaterthan_symbol : function(str){
+	    check(str, isString, "string");
+	    return plt.types.Symbol.makeInstance(str);
+	},
+
+
+	string_dash__greaterthan_int: function(str) {
+	    check(str, isString, "string");
+	    return plt.types.Rational.makeInstance(str.toString().charCodeAt(0), 1);
+	},
+
+	
+	string_dash_append : function(arr){
+	    arrayEach(arr, function(x) { check(x, isString, "string") });
+            return plt.types.String.makeInstance(arr.join(""));
+	},
+
+
+	replicate: function(n, s) {
+	    check(n, isNatural, "natural");
+	    check(s, isString, "string");
+	    var buffer = [];
+	    for (var i = 0; i < n.toInteger(); i++) {
+		buffer.push(s);
+	    }
+	    return plt.types.String.makeInstance(buffer.join(""));
+	},
+
+	
+	string_equal__question_ : makeStringChainingComparator(
+	    function(x, y){return x == y;}),
+	
+
+	string_lessthan__equal__question_: makeStringChainingComparator(
+	    function(x, y){return x <= y;}),
+
+
+	string_lessthan__question_: makeStringChainingComparator(
+	    function(x, y){return x < y;}),
+	
+
+	string_greaterthan__equal__question_: makeStringChainingComparator(
+	    function(x, y){return x >= y;}),
+	
+
+	string_greaterthan__question_: makeStringChainingComparator(
+	    function(x, y){return x > y;}),
+	
+
+	string_dash_ci_equal__question_ : makeStringChainingComparator(
+	    function(x, y){return x.toUpperCase() == y.toUpperCase();}),
+	
+
+	string_dash_ci_lessthan__equal__question_ : makeStringChainingComparator(
+	    function(x, y){return x.toUpperCase() <= y.toUpperCase();}),
+	
+
+	string_dash_ci_lessthan__question_ : makeStringChainingComparator(
+	    function(x, y){return x.toUpperCase() < y.toUpperCase();}),
+	
+
+	string_dash_ci_greaterthan__question_ : makeStringChainingComparator(
+	    function(x, y){return x.toUpperCase() > y.toUpperCase();}),
+	
+
+	string_dash_ci_greaterthan__equal__question_ : makeStringChainingComparator(
+	    function(x, y){return x.toUpperCase() >= y.toUpperCase();}),
+	
+
+	string_dash_copy : function(str){
+	    check(str, isString, "string");
+	    return str.substring(0, str.length);
+	},
+	
+	string_dash_length : function(str){
+	    check(str, isString, "string");
+	    return plt.types.Rational.makeInstance(str.length, 1);
+	},
+	
+	string_dash_ref : function(str, i){
+	    check(str, isString, "string");
+	    check(i, isNatural, "natural");
+	    if (i.toInteger() >= str.length) {
+		throw new MobyRuntimeError("string-ref: index >= length");
+	    }
+	    return plt.types.String.makeInstance(str.charAt(i.toInteger()));
+	},
+
+	string_dash_ith : function (str, i) {
+	    check(str, isString, "string");
+	    check(i, isNatural, "natural");
+	    if (i.toInteger() >= str.length) {
+		throw new MobyRuntimeError("string-ith: index >= string length");
+	    }
+	    return plt.types.String.makeInstance(str.substring(i.toInteger(), i.toInteger()+1));
+	},
+
+	int_dash__greaterthan_string: function (i) {
+	    check(i, isInteger, "integer");
+	    return plt.types.String.makeInstance(String.fromCharCode(i.toInteger()));
+	},
+
+	
+	string_question_ : function(str){
+	    return isString(str);
+	},
+	
+
+	substring : function(str, begin, end){
+	    check(str, isString, "string");
+	    check(begin, isNatural, "natural");
+	    check(end, isNatural, "natural");
+	    if (begin.toInteger() > end.toInteger()) {
+		throw new MobyRuntimeError("substring: begin > end");
+	    }
+	    if (end.toInteger() > str.length) {
+		throw new MobyRuntimeError("substring: end > length");
+	    }
+	    return String.makeInstance(str.substring(begin.toInteger(), end.toInteger()));
+	},
+
+	char_question_: function(x) {
+	    return isChar(x);
+	},
+	
+	char_dash__greaterthan_integer : function(ch){
+	    check(ch, isChar, "char");
+	    var str = new String(ch.val);
+	    return plt.types.Rational.makeInstance(str.charCodeAt(0), 1);
+	},
+	
+	integer_dash__greaterthan_char : function(n){
+	    check(n, isInteger, "integer");
+	    var str = String.fromCharCode(n.toInteger());
+	    return plt.types.Char.makeInstance(str);
+	},
+	
+	
+	char_equal__question_ : makeCharChainingComparator(
+	    function(x, y) { return x.val == y.val; }),
+	
+	char_lessthan__question_ : makeCharChainingComparator(
+	    function(x, y){ return x.val < y.val; }),
+	
+	
+	char_lessthan__equal__question_ : makeCharChainingComparator(
+	    function(x, y){ return x.val <= y.val; }),
+
+	
+	char_greaterthan__question_ : makeCharChainingComparator(
+	    function(x, y){ return x.val > y.val; }),
+	
+	char_greaterthan__equal__question_ : makeCharChainingComparator(
+	    function(x, y){ return x.val >= y.val; }),
+	
+	char_dash_ci_equal__question_ : makeCharChainingComparator(
+	    function(x, y){ return x.val.toUpperCase() == y.val.toUpperCase(); }),
+
+	char_dash_ci_lessthan__question_ : makeCharChainingComparator(
+	    function(x, y){ return x.val.toUpperCase() < y.val.toUpperCase(); }),
+
+
+	char_dash_ci_lessthan__equal__question_ : makeCharChainingComparator(
+	    function(x, y){ return x.val.toUpperCase() <= y.val.toUpperCase(); }),
+	
+	char_dash_ci_greaterthan__question_ : makeCharChainingComparator(
+	    function(x, y){ return x.val.toUpperCase() > y.val.toUpperCase(); }),
+
+	
+	char_dash_ci_greaterthan__equal__question_ : makeCharChainingComparator(
+	    function(x, y){ return x.val.toUpperCase() >= y.val.toUpperCase(); }),
+	
+	
+	char_dash_numeric_question_ : function(ch){
+	    check(ch, isChar, "char");
+	    var str = ch.val;
+	    return (str >= "0" && str <= "9");
+	},
+
+	char_dash_alphabetic_question_ : function(ch){
+	    check(ch, isChar, "char");
+	    var str = ch.val;
+	    return isAlphabeticString(str);
+	},
+
+	char_dash_whitespace_question_ : function(ch){
+	    check(ch, isChar, "char");
+	    var str = ch.val;
+	    return isWhitespaceString(str);
+	},
+
+	char_dash_upper_dash_case_question_ : function(ch){
+	    check(ch, isChar, "char");
+	    return isAlphabeticString(ch.val) && ch.val.toUpperCase() == ch.val;
+	},
+	
+	char_dash_lower_dash_case_question_ : function(ch){
+	    check(ch, isChar, "char");
+	    return isAlphabeticString(ch.val) && ch.val.toLowerCase() == ch.val;
+	},
+
+
+	char_dash_upcase : function(ch){
+	    check(ch, isChar, "char");
+	    return plt.types.Char.makeInstance(ch.val.toUpperCase());
+	},
+
+	
+	char_dash_downcase : function(ch){
+	    check(ch, isChar, "char");
+	    return plt.types.Char.makeInstance(ch.val.toLowerCase());
+	},
+	
+
+	
+	// list->string: (listof char) -> string
+	list_dash__greaterthan_string : function(lst){
+	    checkListof(lst, isChar, "listof char");
+	    var ret = "";
+	    while (!lst.isEmpty()){
+		ret += lst.first().val;
+		lst = lst.rest();
+	    }
+	    return plt.types.String.makeInstance(ret);
+	},
+
+	implode: function(lst) {
+	    checkListof(lst, isString, "listof string");
+	    var ret = [];
+	    while (!lst.isEmpty()){
+		ret.push(lst.first().toString());
+		lst = lst.rest();
+	    }
+	    return plt.types.String.makeInstance(ret.join(""));
+	},
+	
+
+
+
+	string_dash_numeric_question_: function(s) {
+	    check(s, isString, "string");
+	    for (var i = 0 ; i < s.length; i++) {
+		if (s[i] < '0' || s[i] > '9') {
+		    return plt.types.Logic.FALSE;
+		}
+	    }
+	    return plt.types.Logic.TRUE;
+	},
+
+
+	string_dash_alphabetic_question_: function(s) {
+	    check(s, isString, "string");
+	    return isAlphabeticString(s) ? plt.types.Logic.TRUE : plt.types.Logic.FALSE;
+	},
+
+
+	string_dash_whitespace_question_: function(s) {
+	    check(s, isString, "string");
+	    return isWhitespaceString(s) ? plt.types.Logic.TRUE : plt.types.Logic.FALSE;
+	},
+
+
+	string_dash_upper_dash_case_question_: function(s) {
+	    check(s, isString, "string");
+	    return isAlphabeticString(s) && s.toUpperCase() == s;
+	},
+
+
+	string_dash_lower_dash_case_question_: function(s) {
+	    check(s, isString, "string");
+	    return isAlphabeticString(s) && s.toLowerCase() == s;
+	},
+
+
+	string : function(chars) {
+	    arrayEach(chars, function() { check(this, isChar, "char"); });
+	    var buffer = [];
+	    for(var i = 0; i < chars.length; i++) {
+		buffer.push(chars[i].val);
+	    }
+	    return String.makeInstance(buffer.join(""));
+	},
+
+
+	make_dash_string : function(n, ch){
+	    check(n, isNatural, "natural");
+	    check(ch, isChar, "char");
+	    var ret = "";
+	    var c = ch.val;
+	    var i = plt.types.Rational.ZERO;
+	    for (;  plt.Kernel._lessthan_(i, n, []); i = plt.Kernel.add1(i)) {
+		ret += c;
+	    }
+	    return plt.types.String.makeInstance(ret);
+	},
+	
+	string_dash__greaterthan_list : function(str){
+	    check(str, isString, "string");
+	    var s = str;
+	    var ret = plt.types.Empty.EMPTY;
+	    for (var i = s.length - 1; i >= 0; i--) {
+		ret = plt.types.Cons.makeInstance
+		(plt.types.Char.makeInstance(s.charAt(i)),
+		 ret);
+	    }
+	    return ret;
+	},
+
+
+	explode: function (str) {
+	    check(str, isString, "string");
+	    var s = str;
+	    var ret = plt.types.Empty.EMPTY;
+	    for (var i = s.length - 1; i >= 0; i--) {
+		ret = plt.types.Cons.makeInstance
+		(plt.types.String.makeInstance(s.charAt(i)),
+		 ret);
+	    }
+	    return ret;	    
+	}
+
+
+
+	
+    };
+    
+
+
+
+
+    plt.Kernel.Struct.prototype.toWrittenString = function() { return "<struct>"};
+
+
+
+    // DEBUGGING: get out all the functions defined in the kernel.
+    plt.Kernel._dumpKernelSymbols = function() {
+	var result = plt.types.Empty.EMPTY;
+	for (var sym in plt.Kernel) {
+	    result = plt.types.Cons.makeInstance(plt.types.Symbol.makeInstance(sym),
+						 result);
+	}
+	return result;
+    };
+
+
+    function HashTable(inputHash) {
+	this.hash = inputHash;
+    }
+
+
+    // kernelMakeImmutableHashEq: list -> hash
+    plt.Kernel._kernelMakeImmutableHashEq = function(pairs) {
+	var myhash = {};
+	while (! pairs.isEmpty()) {
+	    var nextPair = pairs.first();
+	    var aKey = nextPair.first(); 
+	    var aVal = nextPair.rest(); 
+	    myhash[aKey] = aVal;
+	    pairs = pairs.rest();
+	}
+	return new HashTable(myhash);
+    };
+
+    // plt.Kernel._kernelHashSet: hash object value -> hash
+    plt.Kernel._kernelHashSet = function(obj, key, val) {
+	var newHash = {};
+	var hash = obj.hash;
+	for (var k in hash) {
+	    newHash[k] = hash[k];
+	}
+	newHash[key] = val;
+	return new HashTable(newHash);
+    };
+
+    plt.Kernel._kernelHashRef = function(obj, key, defaultVal) {
+	if (key in obj.hash) {
+	    return obj.hash[key];
+	} else {
+	    if (isFunction(defaultVal)) {
+		return defaultVal([]);
+	    }
+	    return defaultVal;
+	}
+    };
+    
+    plt.Kernel._kernelHashRemove = function(obj, key) {
+	var newHash = {};
+	var hash = obj.hash;
+    	for (var k in hash) {
+	    if (k != key)
+    	    	newHash[k] = hash[k];
+	}
+	return new HashTable(newHash);
+    };
+
+    plt.Kernel._kernelHashMap = function(ht, f) {
+	var result = plt.types.Empty.EMPTY;
+	var key;
+	for (key in ht.hash) {
+	    var val = ht.hash[key];
+	    result = plt.Kernel.cons(f([key, val]),
+				     result);
+	}
+	return result;
+    };
+
+
+    plt.Kernel._resolveModulePath = function(path) {
+	return path;
+    };
+
+    plt.Kernel._normalizePath = function(path) {
+        return path;
+    };
+
+    plt.Kernel._pathToString = function(path) {
+        return path.toString();
+    };
+
+
+    plt.Kernel.map = function(f, arglists) {
+	arrayEach(arglists, function(x) { 
+	    checkList(x, "map: mapped arguments must be lists");});
+	// TODO: add contract on higher order argument f.
+	var results = plt.types.Empty.EMPTY;
+	while (!arglists[0].isEmpty()) {
+	    var args = [];
+	    for (var i = 0; i < arglists.length; i++) {
+		args.push(arglists[i].first());
+		arglists[i] = arglists[i].rest();
+	    }
+	    results = plt.Kernel.cons(f(args), results);
+	}
+	return plt.Kernel.reverse(results);
+    };
+
+
+
+    plt.Kernel.andmap = function(f, arglists) {
+	arrayEach(arglists, function(x) { 
+	    checkList(x, "andmap: mapped arguments must be lists");});
+
+	// TODO: add contract on higher order argument f.
+	while (!arglists[0].isEmpty()) {
+	    var args = [];
+	    for (var i = 0; i < arglists.length; i++) {
+		args.push(arglists[i].first());
+		arglists[i] = arglists[i].rest();
+	    }
+	    if (! f(args)) {
+		return plt.types.Logic.FALSE;
+	    }
+	}
+
+	return plt.types.Logic.TRUE;
+    };
+
+
+
+    plt.Kernel.ormap = function(f, arglists) {
+	arrayEach(arglists, function(x) { 
+	    checkList(x, "ormap: mapped arguments must be lists");});
+	// TODO: add contract on higher order argument f.
+	while (!arglists[0].isEmpty()) {
+	    var args = [];
+	    for (var i = 0; i < arglists.length; i++) {
+		args.push(arglists[i].first());
+		arglists[i] = arglists[i].rest();
+	    }
+	    if (f(args)) {
+		return plt.types.Logic.TRUE;
+	    }
+	}
+	return plt.types.Logic.FALSE;
+    };
+
+
+
+
+
+    plt.Kernel.filter = function(f, elts) {
+	check(elts, isList, "list");
+	// TODO: add contract on higher order argument f.
+	var results = plt.types.Empty.EMPTY;
+	while (! elts.isEmpty()) {
+	    if (f([elts.first()])) {
+		results = plt.types.Cons.makeInstance(elts.first(), results);
+	    }
+	    elts = elts.rest();
+	}
+	return plt.Kernel.reverse(results);
+    };
+
+
+    plt.Kernel.foldl = function(f, acc, arglists) {
+	arrayEach(arglists, function(x) { check(x, isList, "list")});
+	// TODO: add contract on higher order argument f.
+	var result = acc;
+	while (!arglists[0].isEmpty()) {
+	    var args = [];
+	    for (var i = 0; i < arglists.length; i++) {
+		args.push(arglists[i].first());
+		arglists[i] = arglists[i].rest();
+	    }
+	    args.push(result);
+	    result = f(args);
+	}
+	return result;
+    };
+
+
+    plt.Kernel.foldr = function(f, acc, arglists) {
+	arrayEach(arglists, function(x) { check(x, isList, "list")});
+	// TODO: add contract on higher order argument f.
+	var result = acc;
+	for (var i = 0; i < arglists.length; i++) {
+	    arglists[i] = plt.Kernel.reverse(arglists[i]);
+	}
+	while (!arglists[0].isEmpty()) {
+	    var args = [];
+	    for (var i = 0; i < arglists.length; i++) {
+		args.push(arglists[i].first());
+		arglists[i] = arglists[i].rest();
+	    }
+	    args.push(result);
+	    result = f(args);
+	}
+	return result;
+    };
+
+
+
+    plt.Kernel.argmin = function(f, elts) {
+	check(elts, isPair, "nonempty list");
+	// TODO: add contract on higher order argument f.
+	var bestSoFar = elts.first();
+	var bestMetric = f([elts.first()]).toFloat();
+	elts = elts.rest();
+
+	while (! elts.isEmpty()) {
+	    var nextMetric = f([elts.first()]).toFloat();
+	    if (nextMetric < bestMetric) {
+		bestSoFar = elts.first();
+		bestMetric = nextMetric;
+	    }
+	    elts = elts.rest();
+	}
+	return bestSoFar;
+    };
+
+
+    plt.Kernel.argmax = function(f, elts) {
+	check(elts, isPair, "nonempty list");
+	// TODO: add contract on higher order argument f.
+	var bestSoFar = elts.first();
+	var bestMetric = f([elts.first()]).toFloat();
+	elts = elts.rest();
+
+	while (! elts.isEmpty()) {
+	    var nextMetric = f([elts.first()]).toFloat();
+	    if (nextMetric > bestMetric) {
+		bestSoFar = elts.first();
+		bestMetric = nextMetric;
+	    }
+	    elts = elts.rest();
+	}
+	return bestSoFar;
+    };
+
+
+
+
+
+
+    plt.Kernel.sort = function(l, cmpF) {
+	check(l, isList, "list");
+	// TODO: add contract on higher order argument cmpF.
+	var arr = [];
+	while(!l.isEmpty()) {
+	    arr.push(l.first());
+	    l = l.rest();
+	}
+	arr.sort(function(x, y) { return cmpF([x, y]) ? -1 : 1; });
+	return plt.Kernel.list(arr);
+    };
+
+    plt.Kernel.quicksort = plt.Kernel.sort;
+
+
+
+    plt.Kernel.build_dash_list = function(n, f) {
+	check(n, isNatural, "natural");
+	// TODO: add contract on higher order argument f.
+	var result = plt.types.Empty.EMPTY;
+	for(var i = 0; i < n.toInteger(); i++) {
+	    result = plt.Kernel.cons(f([plt.types.Rational.makeInstance(i, 1)]),
+				     result);
+	}
+	return plt.Kernel.reverse(result);
+    };
+
+
+    plt.Kernel.build_dash_string = function(n, f) {
+	check(n, isNatural, "natural");
+	// TODO: add contract on higher order argument f.
+	var chars = [];
+	for(var i = 0; i < n.toInteger(); i++) {
+	    var ch = f([plt.types.Rational.makeInstance(i, 1)]);
+	    check(ch, isChar, "char");
+	    chars.push(ch.val);
+	}
+	return plt.types.String.makeInstance(chars.join(""));
+    };
+
+
+
+
+    plt.Kernel.format = function(formatStr, args) {
+	check(formatStr, isString, "string");
+	var pattern = new RegExp("~[sSaAn%~]", "g");
+	var buffer = args;
+	function f(s) {
+	    if (s == "~~") {
+		return "~";
+	    } else if (s == '~n' || s == '~%') {
+		return "\n";
+	    } else if (s == '~s' || s == "~S") {
+		if (buffer.length == 0) {
+		    throw new MobyRuntimeException(
+			"format: fewer arguments passed than expected");
+		}
+		return buffer.shift().toWrittenString();
+	    } else if (s == '~a' || s == "~A") {
+		if (buffer.length == 0) {
+		    throw new MobyRuntimeException(
+			"format: fewer arguments passed than expected");
+		}
+		return buffer.shift().toDisplayedString();
+	    } else {
+		throw new MobyRuntimeError("Unimplemented format " + s);
+	    }
+	}
+	var result = plt.types.String.makeInstance(formatStr.replace(pattern, f));
+	if (buffer.length > 0) {
+	    throw new MobyRuntimeException("format: More arguments passed than expected");
+	}
+	return result;
+    }
+
+
+    // args: arrayof plt.types.Char
+    plt.Kernel.string = function(args) {
+	var vals = [];
+	for(var i = 0; i < args.length; i++) {
+	    vals.push(args[i].getValue());
+	}
+	return plt.types.String.makeInstance(vals.join(""));
+    };
+
+    
+
+
+    plt.Kernel.procedure_question_ = function(f) {
+	return isFunction(f);
+    };
+    
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+    
+    // Posns
+    
+    function posn(x,y) { this.x = x;
+			 this.y = y; }
+
+    posn.prototype = heir(plt.Kernel.Struct.prototype);
+
+    posn.prototype.isEqual = function(other) {
+        if (other != null & other != undefined && other instanceof posn) {
+            return (((plt.Kernel.equal_question_((posn_dash_y(this)),(posn_dash_y(other)))))&&((((plt.Kernel.equal_question_((posn_dash_x(this)),(posn_dash_x(other)))))&&(plt.types.Logic.TRUE))));
+        } else {
+            return plt.types.Logic.FALSE;
+        }
+    } 
+
+    posn.prototype.toWrittenString = function() {
+	return "(make-posn " + this.x.toWrittenString() + " " + this.y.toWrittenString() + ")";
+    }
+
+    posn.prototype.toDisplayedString = function () {
+	return "(make-posn " + this.x.toDisplayedString() + " " + this.y.toDisplayedString();
+    }
+
+    function make_dash_posn(id0,id1) { 
+	return new posn(id0,id1); 
+    }
+
+    function posn_dash_x(obj) { 
+	check(obj, posn_question_, "posn");
+	return obj.x; 
+    }
+
+    function posn_dash_y(obj) { 
+	check(obj, posn_question_, "posn");
+	return obj.y; 
+    }
+
+    function posn_question_(obj) { 
+        return obj != null && obj != undefined && obj instanceof posn ; 
+    }
+    
+    plt.Kernel.make_dash_posn = make_dash_posn;
+    plt.Kernel.posn_question_ = posn_question_;
+    plt.Kernel.posn_dash_x = posn_dash_x;
+    plt.Kernel.posn_dash_y = posn_dash_y;
+    
+    
+
+    plt.Kernel.error = function(name, msg) {
+	check(name, isSymbol, "name");
+	check(msg, isString, "string");
+	throw new MobyRuntimeError(plt.Kernel.format("~a: ~a", [name, msg]).toString());
+    };
+
+
+
+
+    // Base class for all images.
+    function BaseImage(pinholeX, pinholeY) {
+	this.pinholeX = pinholeX;
+	this.pinholeY = pinholeY;
+    }
+    plt.Kernel.BaseImage = BaseImage;
+
+
+    BaseImage.prototype.updatePinhole = function(x, y) {
+	var aCopy = {};
+	for (attr in this) {
+	    aCopy[attr] = this[attr];
+	}
+	aCopy.pinholeX = x;
+	aCopy.pinholeY = y;
+	return aCopy;
+    }
+
+
+    plt.Kernel.image_question_ = function(thing) {
+	return isImage(thing);
+    };
+
+
+    plt.Kernel.image_equal__question_ = function(thing, other) {
+	check(thing, isImage, "image");
+	check(other, isImage, "image");
+	return thing == other ? plt.types.Logic.TRUE : plt.types.Logic.FALSE;
+    };
+
+
+
+
+
+    // Expose the predicates.
+    plt.Kernel.isSymbol = isSymbol;
+    plt.Kernel.isChar = isChar;
+    plt.Kernel.isString = isString;
+    plt.Kernel.isBoolean = isBoolean;
+    plt.Kernel.isPair = isPair;
+    plt.Kernel.isEmpty = isEmpty;
+    plt.Kernel.isReal = isReal;
+    plt.Kernel.isRational = isRational;
+    plt.Kernel.isComplex = isComplex;
+    plt.Kernel.isInteger = isInteger;
+    plt.Kernel.isNatural = isNatural;
+    plt.Kernel.isNumber = isNumber;
+    plt.Kernel.isAlphabeticString = isAlphabeticString;
+    plt.Kernel.isWhitespaceString = isWhitespaceString;
+    plt.Kernel.isImage = isImage;
+    plt.Kernel.isList = isList;
+    plt.Kernel.isFunction = isFunction;
+    
+
+    plt.Kernel.arrayEach = arrayEach;
+
+    // Expose the runtime type checkers.
+    plt.Kernel.check = check;
+    plt.Kernel.checkList = checkList;
+    plt.Kernel.checkListof = checkListof;
+
+
+    // Expose the error classes.
+    plt.Kernel.MobyError = MobyError;
+    plt.Kernel.MobyTypeError = MobyTypeError;
+    plt.Kernel.MobyRuntimeError = MobyRuntimeError;
+    
 })();
 var readSchemeExpressions;
 
 
 function tokenize(s) {
 
-  function replaceEscapes(s) {
-    return s.replace(/\\./g, function(match, submatch, index) {
-      // FIXME: add more escape sequences.
-      if (match == '\\n') {
-	return "\n";
-      }
-      else {
-	return match.substring(1);
-      }
-      });
+    function replaceEscapes(s) {
+	return s.replace(/\\./g, function(match, submatch, index) {
+	    // FIXME: add more escape sequences.
+	    if (match == '\\n') {
+		return "\n";
+	    }
+	    else {
+		return match.substring(1);
+	    }
+	});
     }
 
 
 
-  var tokens = [];
+    var tokens = [];
 
-  var PATTERNS = [['whitespace' , /^(\s+)/],
-		  ['comment' , /(^;[^\n]*)/],
-		  ['(' , /^(\(|\[)/],
-		  [')' , /^(\)|\])/],
-	          ['\'' , /^(\')/],
-		  ['`' , /^(`)/],
-		  [',' , /^(,)/],
-		  ['char', /^\#\\(newline)/],
-                  ['char', /^\#\\(.)/],
-		  ['number' , /^([+\-]?(?:\d+\.\d+|\d+\.|\.\d+|\d+))/],
-		  ['string' , /^"((?:([^\\"]|(\\.)))*)"/],      // comment (emacs getting confused with quote): " 
-		  ['symbol' ,/^([a-zA-Z\:\+\=\~\_\?\!\@\#\$\%\^\&\*\-\/\.\>\<][\w\:\+\=\~\_\?\!\@\#\$\%\^\&\*\-\/\.\>\<]*)/]
-		 ];
+    var PATTERNS = [['whitespace' , /^(\s+)/],
+		    ['comment' , /(^;[^\n]*)/],
+		    ['(' , /^(\(|\[)/],
+		    [')' , /^(\)|\])/],
+	            ['\'' , /^(\')/],
+		    ['`' , /^(`)/],
+		    [',' , /^(,)/],
+		    ['char', /^\#\\(newline)/],
+                    ['char', /^\#\\(.)/],
+		    ['number' , /^([+\-]?(?:\d+\.\d+|\d+\.|\.\d+|\d+))/],
+		    ['string' , /^"((?:([^\\"]|(\\.)))*)"/],      // comment (emacs getting confused with quote): " 
+['symbol' ,/^([a-zA-Z\:\+\=\~\_\?\!\@\#\$\%\^\&\*\-\/\.\>\<][\w\:\+\=\~\_\?\!\@\#\$\%\^\&\*\-\/\.\>\<]*)/]
+];
 
-  while (true) {
+while (true) {
     var shouldContinue = false;
     for (var i = 0; i < PATTERNS.length; i++) {
-      var patternName = PATTERNS[i][0];
-      var pattern = PATTERNS[i][1]
-      var result = s.match(pattern);
-      if (result != null) {
-	if (patternName == 'string') {
-	  result[1] = replaceEscapes(result[1]);
-        }
-	if (patternName != 'whitespace' && patternName != 'comment') {
-	  tokens.push([patternName, result[1]]);
+	var patternName = PATTERNS[i][0];
+	var pattern = PATTERNS[i][1]
+	var result = s.match(pattern);
+	if (result != null) {
+	    if (patternName == 'string') {
+		result[1] = replaceEscapes(result[1]);
+            }
+	    if (patternName != 'whitespace' && patternName != 'comment') {
+		tokens.push([patternName, result[1]]);
+	    }
+	    s = s.substring(result[0].length);
+	    shouldContinue = true;
 	}
-	s = s.substring(result[0].length);
-	shouldContinue = true;
-      }
     }
     if (! shouldContinue) {
-      break;
+	break;
     }
-  }
-  return [tokens, s];
+}
+return [tokens, s];
 }
 
 
@@ -1999,107 +2953,117 @@ function tokenize(s) {
 (function(){
 
 
-  readSchemeExpressions = function(s) {
-    var tokensAndError = tokenize(s);
-    var tokens = tokensAndError[0];
-    if (tokensAndError[1].length > 0) {
-	throw new Error("Error while tokenizing: the rest of the stream is: " + tokensAndError[1]);
-    }
+    readSchemeExpressions = function(s) {
+	var tokensAndError = tokenize(s);
+	var tokens = tokensAndError[0];
+	if (tokensAndError[1].length > 0) {
+	    throw new Error("Error while tokenizing: the rest of the stream is: " + tokensAndError[1]);
+	}
 
-    var quoteSymbol = plt.types.Symbol.makeInstance("quote");
-    var quasiquoteSymbol = plt.types.Symbol.makeInstance("quasiquote");
-    var unquoteSymbol = plt.types.Symbol.makeInstance("unquote");
-    var empty = plt.types.Empty.EMPTY;
+	var quoteSymbol = plt.types.Symbol.makeInstance("quote");
+	var quasiquoteSymbol = plt.types.Symbol.makeInstance("quasiquote");
+	var unquoteSymbol = plt.types.Symbol.makeInstance("unquote");
+	var empty = plt.types.Empty.EMPTY;
 
-    function isType(type) {
-      return (tokens.length > 0 && tokens[0][0] == type);
-    }
-    
-    function eat(expectedType) {
-      if (tokens.length == 0)
-	throw new Error("token stream exhausted while trying to eat " +
-			expectedType);
-      var t = tokens.shift();
-      if (t[0] == expectedType) {
-	return t;
-      } else {
-	throw new Error("Unexpected token " + t);
-      }
-    }
+	function isType(type) {
+	    return (tokens.length > 0 && tokens[0][0] == type);
+	}
+	
+	function eat(expectedType) {
+	    if (tokens.length == 0)
+		throw new Error("token stream exhausted while trying to eat " +
+				expectedType);
+	    var t = tokens.shift();
+	    if (t[0] == expectedType) {
+		return t;
+	    } else {
+		throw new Error("Unexpected token " + t);
+	    }
+	}
+
+	// NOTE: we define things in this funny way because of a bug in 
+	// Firefox 3.5.1 that says the error "can't access optimized closure"
+	var readExpr;
+	var readExprs;
+
+	readExpr = function() {
+	    var t;
+	    if (isType('(')) {
+		eat('(');
+		var result = readExprs();
+		eat(')');
+		return result;
+	    } else if (isType("'")) {
+		eat("'");
+		var quoted = readExpr();
+		return plt.Kernel.cons(quoteSymbol,
+				       plt.Kernel.cons(quoted, empty));
+	    } else if (isType('`')) {
+		eat("`");
+		return plt.Kernel.cons(quasiquoteSymbol,
+				       plt.Kernel.cons(quoted, empty));
+	    } else if (isType(',')) {
+		eat(",");
+		return plt.Kernel.cons(unquoteSymbol,
+				       plt.Kernel.cons(quoted, empty));
+	    } else if (isType('number')) {
+		t = eat('number');
+		if (t[1].match(/\./)) {
+		    return plt.types.FloatPoint.makeInstance(parseFloat(t[1]));
+		} else {
+		    return plt.types.Rational.makeInstance(parseInt(t[1]), 1);
+		}
+	    } else if (isType('string')) {
+		t = eat('string');
+		return plt.types.String.makeInstance(t[1]);
+	    } else if (isType('char')) {
+		t = eat('char');
+		if (t[1] == 'newline') {
+		    return plt.types.Char.makeInstance('\n');
+		}
+		else {
+		    return plt.types.Char.makeInstance(t[1]);
+		}
+	    } else if (isType('symbol')) {
+		t = eat('symbol');
+		return plt.types.Symbol.makeInstance(t[1]);
+	    } else {
+		throw new Error("Parse broke with token stream " + tokens);
+	    }
+	};
 
 
+	readExprs = function() {
+	    var result = plt.types.Empty.EMPTY;
+	    while (true) {
+		if (tokens.length == 0 || isType(')')) {
+		    break;
+		} else {
+		    var nextElt = readExpr();
+		    result = plt.types.Cons.makeInstance(nextElt, result);
+		}
+	    }
+	    return plt.Kernel.reverse(result);
+	};
+	
 
-    function readExpr() {
-      var t;
-      if (isType('(')) {
-	eat('(');
+
 	var result = readExprs();
-	eat(')');
+	if (tokens.length > 0) {
+	    throw new Error("More elements in the program's token stream than expected: the next unconsumed token is: "  + tokens[0][1])
+	}
 	return result;
-      } else if (isType("'")) {
-	eat("'");
-	var quoted = readExpr();
-	return plt.Kernel.cons(quoteSymbol,
-				   plt.Kernel.cons(quoted, empty));
-      } else if (isType('`')) {
-	eat("`");
-	return plt.Kernel.cons(quasiquoteSymbol,
-				   plt.kernel.cons(quoted, empty));
-      } else if (isType(',')) {
-	eat(",");
-	return plt.Kernel.cons(unquoteSymbol,
-				   plt.kernel.cons(quoted, empty));
-      } else if (isType('number')) {
-	t = eat('number');
-	if (t[1].match(/\./)) {
-	  return plt.types.FloatPoint.makeInstance(parseFloat(t[1]));
-	} else {
-	  return plt.types.Rational.makeInstance(parseInt(t[1]), 1);
-	}
-      } else if (isType('string')) {
-	t = eat('string');
-	return plt.types.String.makeInstance(t[1]);
-      } else if (isType('char')) {
-        t = eat('char');
-	  if (t[1] == 'newline') {
-	      return plt.types.Char.makeInstance('\n');
-	  }
-          else {
-	      return plt.types.Char.makeInstance(t[1]);
-	  }
-      } else if (isType('symbol')) {
-	t = eat('symbol');
-	return plt.types.Symbol.makeInstance(t[1]);
-      } else {
-	throw new Error("Parse broke with token stream " + tokens);
-      }
-    }
-
-
-    function readExprs() {
-      var result = plt.types.Empty.EMPTY;
-      while (true) {
-	if (tokens.length == 0 || isType(')')) {
-	  break;
-	} else {
-	  var nextElt = readExpr();
-	  result = plt.types.Cons.makeInstance(nextElt, result);
-	}
-      }
-      return plt.Kernel.reverse(result);
     }
     
-
-
-    return readExprs();
-  }
-  
 }());
 
 function permission_colon_location() {  }
                     permission_colon_location.prototype = new plt.Kernel.Struct();
+permission_colon_location.prototype.toWrittenString = function() { 
+                               return '(' + ['make-permission:location'].join(' ') + ')'; };permission_colon_location.prototype.toDisplayedString = permission_colon_location.prototype.toWrittenString;
+
 permission_colon_location.prototype.isEqual = function(other) {
-              if (other instanceof permission_colon_location) {
+              if (other != null && other != undefined && other instanceof permission_colon_location) {
                 return plt.types.Logic.TRUE;
               } else {
                 return false;
@@ -2108,11 +3072,14 @@ permission_colon_location.prototype.isEqual = function(other) {
 function make_dash_permission_colon_location() { return new permission_colon_location(); }
 
 function permission_colon_location_question_(obj) { 
-              return obj instanceof permission_colon_location; }
+              return obj != null && obj != undefined && obj instanceof permission_colon_location; }
 function permission_colon_send_dash_sms() {  }
                     permission_colon_send_dash_sms.prototype = new plt.Kernel.Struct();
+permission_colon_send_dash_sms.prototype.toWrittenString = function() { 
+                               return '(' + ['make-permission:send-sms'].join(' ') + ')'; };permission_colon_send_dash_sms.prototype.toDisplayedString = permission_colon_send_dash_sms.prototype.toWrittenString;
+
 permission_colon_send_dash_sms.prototype.isEqual = function(other) {
-              if (other instanceof permission_colon_send_dash_sms) {
+              if (other != null && other != undefined && other instanceof permission_colon_send_dash_sms) {
                 return plt.types.Logic.TRUE;
               } else {
                 return false;
@@ -2121,11 +3088,14 @@ permission_colon_send_dash_sms.prototype.isEqual = function(other) {
 function make_dash_permission_colon_send_dash_sms() { return new permission_colon_send_dash_sms(); }
 
 function permission_colon_send_dash_sms_question_(obj) { 
-              return obj instanceof permission_colon_send_dash_sms; }
+              return obj != null && obj != undefined && obj instanceof permission_colon_send_dash_sms; }
 function permission_colon_receive_dash_sms() {  }
                     permission_colon_receive_dash_sms.prototype = new plt.Kernel.Struct();
+permission_colon_receive_dash_sms.prototype.toWrittenString = function() { 
+                               return '(' + ['make-permission:receive-sms'].join(' ') + ')'; };permission_colon_receive_dash_sms.prototype.toDisplayedString = permission_colon_receive_dash_sms.prototype.toWrittenString;
+
 permission_colon_receive_dash_sms.prototype.isEqual = function(other) {
-              if (other instanceof permission_colon_receive_dash_sms) {
+              if (other != null && other != undefined && other instanceof permission_colon_receive_dash_sms) {
                 return plt.types.Logic.TRUE;
               } else {
                 return false;
@@ -2134,11 +3104,14 @@ permission_colon_receive_dash_sms.prototype.isEqual = function(other) {
 function make_dash_permission_colon_receive_dash_sms() { return new permission_colon_receive_dash_sms(); }
 
 function permission_colon_receive_dash_sms_question_(obj) { 
-              return obj instanceof permission_colon_receive_dash_sms; }
+              return obj != null && obj != undefined && obj instanceof permission_colon_receive_dash_sms; }
 function permission_colon_tilt() {  }
                     permission_colon_tilt.prototype = new plt.Kernel.Struct();
+permission_colon_tilt.prototype.toWrittenString = function() { 
+                               return '(' + ['make-permission:tilt'].join(' ') + ')'; };permission_colon_tilt.prototype.toDisplayedString = permission_colon_tilt.prototype.toWrittenString;
+
 permission_colon_tilt.prototype.isEqual = function(other) {
-              if (other instanceof permission_colon_tilt) {
+              if (other != null && other != undefined && other instanceof permission_colon_tilt) {
                 return plt.types.Logic.TRUE;
               } else {
                 return false;
@@ -2147,11 +3120,30 @@ permission_colon_tilt.prototype.isEqual = function(other) {
 function make_dash_permission_colon_tilt() { return new permission_colon_tilt(); }
 
 function permission_colon_tilt_question_(obj) { 
-              return obj instanceof permission_colon_tilt; }
+              return obj != null && obj != undefined && obj instanceof permission_colon_tilt; }
+function permission_colon_shake() {  }
+                    permission_colon_shake.prototype = new plt.Kernel.Struct();
+permission_colon_shake.prototype.toWrittenString = function() { 
+                               return '(' + ['make-permission:shake'].join(' ') + ')'; };permission_colon_shake.prototype.toDisplayedString = permission_colon_shake.prototype.toWrittenString;
+
+permission_colon_shake.prototype.isEqual = function(other) {
+              if (other != null && other != undefined && other instanceof permission_colon_shake) {
+                return plt.types.Logic.TRUE;
+              } else {
+                return false;
+              }
+           } 
+function make_dash_permission_colon_shake() { return new permission_colon_shake(); }
+
+function permission_colon_shake_question_(obj) { 
+              return obj != null && obj != undefined && obj instanceof permission_colon_shake; }
 function permission_colon_internet() {  }
                     permission_colon_internet.prototype = new plt.Kernel.Struct();
+permission_colon_internet.prototype.toWrittenString = function() { 
+                               return '(' + ['make-permission:internet'].join(' ') + ')'; };permission_colon_internet.prototype.toDisplayedString = permission_colon_internet.prototype.toWrittenString;
+
 permission_colon_internet.prototype.isEqual = function(other) {
-              if (other instanceof permission_colon_internet) {
+              if (other != null && other != undefined && other instanceof permission_colon_internet) {
                 return plt.types.Logic.TRUE;
               } else {
                 return false;
@@ -2160,23 +3152,81 @@ permission_colon_internet.prototype.isEqual = function(other) {
 function make_dash_permission_colon_internet() { return new permission_colon_internet(); }
 
 function permission_colon_internet_question_(obj) { 
-              return obj instanceof permission_colon_internet; }
-function permission_question_(datum) { return ((permission_colon_location_question_(datum))||(permission_colon_send_dash_sms_question_(datum))||(permission_colon_receive_dash_sms_question_(datum))||(permission_colon_tilt_question_(datum))||(permission_colon_internet_question_(datum))); }
+              return obj != null && obj != undefined && obj instanceof permission_colon_internet; }
+function permission_colon_telephony() {  }
+                    permission_colon_telephony.prototype = new plt.Kernel.Struct();
+permission_colon_telephony.prototype.toWrittenString = function() { 
+                               return '(' + ['make-permission:telephony'].join(' ') + ')'; };permission_colon_telephony.prototype.toDisplayedString = permission_colon_telephony.prototype.toWrittenString;
+
+permission_colon_telephony.prototype.isEqual = function(other) {
+              if (other != null && other != undefined && other instanceof permission_colon_telephony) {
+                return plt.types.Logic.TRUE;
+              } else {
+                return false;
+              }
+           } 
+function make_dash_permission_colon_telephony() { return new permission_colon_telephony(); }
+
+function permission_colon_telephony_question_(obj) { 
+              return obj != null && obj != undefined && obj instanceof permission_colon_telephony; }
+function permission_colon_wake_dash_lock() {  }
+                    permission_colon_wake_dash_lock.prototype = new plt.Kernel.Struct();
+permission_colon_wake_dash_lock.prototype.toWrittenString = function() { 
+                               return '(' + ['make-permission:wake-lock'].join(' ') + ')'; };permission_colon_wake_dash_lock.prototype.toDisplayedString = permission_colon_wake_dash_lock.prototype.toWrittenString;
+
+permission_colon_wake_dash_lock.prototype.isEqual = function(other) {
+              if (other != null && other != undefined && other instanceof permission_colon_wake_dash_lock) {
+                return plt.types.Logic.TRUE;
+              } else {
+                return false;
+              }
+           } 
+function make_dash_permission_colon_wake_dash_lock() { return new permission_colon_wake_dash_lock(); }
+
+function permission_colon_wake_dash_lock_question_(obj) { 
+              return obj != null && obj != undefined && obj instanceof permission_colon_wake_dash_lock; }
+function permission_question_(datum) { return ((permission_colon_location_question_(datum))||(permission_colon_send_dash_sms_question_(datum))||(permission_colon_receive_dash_sms_question_(datum))||(permission_colon_tilt_question_(datum))||(permission_colon_shake_question_(datum))||(permission_colon_internet_question_(datum))||(permission_colon_telephony_question_(datum))||(permission_colon_wake_dash_lock_question_(datum))); }
 var PERMISSION_colon_LOCATION; 
 var PERMISSION_colon_SEND_dash_SMS; 
 var PERMISSION_colon_TILT; 
+var PERMISSION_colon_SHAKE; 
 var PERMISSION_colon_INTERNET; 
+var PERMISSION_colon_TELEPHONY; 
+var PERMISSION_colon_WAKE_dash_LOCK; 
+function permission_dash_reference(a_dash_permission) { return ((permission_colon_location_question_(a_dash_permission)) ?
+ (plt.types.Symbol.makeInstance("PERMISSION:LOCATION")) :
+ ((permission_colon_send_dash_sms_question_(a_dash_permission)) ?
+ (plt.types.Symbol.makeInstance("PERMISSION:SEND-SMS")) :
+ ((permission_colon_receive_dash_sms_question_(a_dash_permission)) ?
+ (plt.types.Symbol.makeInstance("PERMISSION:RECEIVE-SMS")) :
+ ((permission_colon_tilt_question_(a_dash_permission)) ?
+ (plt.types.Symbol.makeInstance("PERMISSION:TILT")) :
+ ((permission_colon_shake_question_(a_dash_permission)) ?
+ (plt.types.Symbol.makeInstance("PERMISSION:SHAKE")) :
+ ((permission_colon_internet_question_(a_dash_permission)) ?
+ (plt.types.Symbol.makeInstance("PERMISSION:INTERNET")) :
+ ((permission_colon_telephony_question_(a_dash_permission)) ?
+ (plt.types.Symbol.makeInstance("PERMISSION:TELEPHONY")) :
+ ((permission_colon_wake_dash_lock_question_(a_dash_permission)) ?
+ (plt.types.Symbol.makeInstance("PERMISSION:WAKE-LOCK")) :
+ (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))))))))); }
 function permission_dash__greaterthan_android_dash_permissions(a_dash_permission) { return ((permission_colon_location_question_(a_dash_permission)) ?
- plt.Kernel.list([(plt.types.String.makeInstance("android.permission.ACCESS_LOCATION")),(plt.types.String.makeInstance("android.permission.ACCESS_GPS")),(plt.types.String.makeInstance("android.permission.ACCESS_FINE_LOCATION"))]) :
+ plt.Kernel.list([(plt.types.String.makeInstance("android.permission.ACCESS_LOCATION")),(plt.types.String.makeInstance("android.permission.ACCESS_GPS")),(plt.types.String.makeInstance("android.permission.ACCESS_COARSE_LOCATION")),(plt.types.String.makeInstance("android.permission.ACCESS_FINE_LOCATION"))]) :
  ((permission_colon_send_dash_sms_question_(a_dash_permission)) ?
  plt.Kernel.list([(plt.types.String.makeInstance("android.permission.SEND_SMS"))]) :
  ((permission_colon_receive_dash_sms_question_(a_dash_permission)) ?
  plt.Kernel.list([(plt.types.String.makeInstance("android.permission.RECEIVE_SMS"))]) :
  ((permission_colon_tilt_question_(a_dash_permission)) ?
  plt.Kernel.list([]) :
+ ((permission_colon_shake_question_(a_dash_permission)) ?
+ plt.Kernel.list([]) :
  ((permission_colon_internet_question_(a_dash_permission)) ?
  plt.Kernel.list([(plt.types.String.makeInstance("android.permission.INTERNET"))]) :
- (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond"))))))))); }
+ ((permission_colon_telephony_question_(a_dash_permission)) ?
+ plt.Kernel.list([(plt.types.String.makeInstance("android.permission.ACCESS_COARSE_UPDATES"))]) :
+ ((permission_colon_wake_dash_lock_question_(a_dash_permission)) ?
+ plt.Kernel.list([(plt.types.String.makeInstance("android.permission.WAKE_LOCK"))]) :
+ (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))))))))); }
 function permission_dash__greaterthan_on_dash_start_dash_code(a_dash_permission) { return ((permission_colon_location_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("plt.platform.Platform.getInstance().getLocationService().startService();\n      plt.platform.Platform.getInstance().getLocationService().addLocationChangeListener(listener);")) :
  ((permission_colon_send_dash_sms_question_(a_dash_permission)) ?
@@ -2185,9 +3235,15 @@ function permission_dash__greaterthan_on_dash_start_dash_code(a_dash_permission)
  (plt.types.String.makeInstance("")) :
  ((permission_colon_tilt_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("plt.platform.Platform.getInstance().getTiltService().startService();\n      plt.platform.Platform.getInstance().getTiltService().addOrientationChangeListener(listener);\n      plt.platform.Platform.getInstance().getTiltService().addAccelerationChangeListener(listener);\n      plt.platform.Platform.getInstance().getTiltService().addShakeListener(listener);")) :
+ ((permission_colon_shake_question_(a_dash_permission)) ?
+ (plt.types.String.makeInstance("")) :
  ((permission_colon_internet_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("")) :
- (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond"))))))))); }
+ ((permission_colon_telephony_question_(a_dash_permission)) ?
+ (plt.types.String.makeInstance("")) :
+ ((permission_colon_wake_dash_lock_question_(a_dash_permission)) ?
+ (plt.types.String.makeInstance("")) :
+ (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))))))))); }
 function permission_dash__greaterthan_on_dash_pause_dash_code(a_dash_permission) { return ((permission_colon_location_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("plt.platform.Platform.getInstance().getLocationService().shutdownService();")) :
  ((permission_colon_send_dash_sms_question_(a_dash_permission)) ?
@@ -2196,9 +3252,15 @@ function permission_dash__greaterthan_on_dash_pause_dash_code(a_dash_permission)
  (plt.types.String.makeInstance("")) :
  ((permission_colon_tilt_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("plt.platform.Platform.getInstance().getTiltService().shutdownService();")) :
+ ((permission_colon_shake_question_(a_dash_permission)) ?
+ (plt.types.String.makeInstance("")) :
  ((permission_colon_internet_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("")) :
- (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond"))))))))); }
+ ((permission_colon_telephony_question_(a_dash_permission)) ?
+ (plt.types.String.makeInstance("")) :
+ ((permission_colon_wake_dash_lock_question_(a_dash_permission)) ?
+ (plt.types.String.makeInstance("")) :
+ (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))))))))); }
 function permission_dash__greaterthan_on_dash_destroy_dash_code(a_dash_permission) { return ((permission_colon_location_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("plt.platform.Platform.getInstance().getLocationService().shutdownService();")) :
  ((permission_colon_send_dash_sms_question_(a_dash_permission)) ?
@@ -2207,13 +3269,22 @@ function permission_dash__greaterthan_on_dash_destroy_dash_code(a_dash_permissio
  (plt.types.String.makeInstance("")) :
  ((permission_colon_tilt_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("plt.platform.Platform.getInstance().getTiltService().shutdownService();")) :
+ ((permission_colon_shake_question_(a_dash_permission)) ?
+ (plt.types.String.makeInstance("")) :
  ((permission_colon_internet_question_(a_dash_permission)) ?
  (plt.types.String.makeInstance("")) :
- (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond"))))))))); }
+ ((permission_colon_telephony_question_(a_dash_permission)) ?
+ (plt.types.String.makeInstance("")) :
+ ((permission_colon_wake_dash_lock_question_(a_dash_permission)) ?
+ (plt.types.String.makeInstance("")) :
+ (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))))))))); }
 function env(bindings) { this.bindings = bindings; }
                     env.prototype = new plt.Kernel.Struct();
+env.prototype.toWrittenString = function() { 
+                               return '(' + ['make-env',this.bindings.toWrittenString()].join(' ') + ')'; };env.prototype.toDisplayedString = env.prototype.toWrittenString;
+
 env.prototype.isEqual = function(other) {
-              if (other instanceof env) {
+              if (other != null && other != undefined && other instanceof env) {
                 return ((plt.Kernel.equal_question_((env_dash_bindings(this)),(env_dash_bindings(other))))&&plt.types.Logic.TRUE);
               } else {
                 return false;
@@ -2222,15 +3293,18 @@ env.prototype.isEqual = function(other) {
 function make_dash_env(id0) { return new env(id0); }
 function env_dash_bindings(obj) { return obj.bindings; }
 function env_question_(obj) { 
-              return obj instanceof env; }
+              return obj != null && obj != undefined && obj instanceof env; }
 var empty_dash_env; 
 function binding_question_(datum) { return ((binding_colon_constant_question_(datum))||(binding_colon_function_question_(datum))); }
 function binding_colon_constant(name,java_dash_string,permissions) { this.name = name;
 this.java_dash_string = java_dash_string;
 this.permissions = permissions; }
                     binding_colon_constant.prototype = new plt.Kernel.Struct();
+binding_colon_constant.prototype.toWrittenString = function() { 
+                               return '(' + ['make-binding:constant',this.name.toWrittenString(),this.java_dash_string.toWrittenString(),this.permissions.toWrittenString()].join(' ') + ')'; };binding_colon_constant.prototype.toDisplayedString = binding_colon_constant.prototype.toWrittenString;
+
 binding_colon_constant.prototype.isEqual = function(other) {
-              if (other instanceof binding_colon_constant) {
+              if (other != null && other != undefined && other instanceof binding_colon_constant) {
                 return ((plt.Kernel.equal_question_((binding_colon_constant_dash_permissions(this)),(binding_colon_constant_dash_permissions(other))))&&((plt.Kernel.equal_question_((binding_colon_constant_dash_java_dash_string(this)),(binding_colon_constant_dash_java_dash_string(other))))&&((plt.Kernel.equal_question_((binding_colon_constant_dash_name(this)),(binding_colon_constant_dash_name(other))))&&plt.types.Logic.TRUE)));
               } else {
                 return false;
@@ -2241,32 +3315,35 @@ function binding_colon_constant_dash_name(obj) { return obj.name; }
 function binding_colon_constant_dash_java_dash_string(obj) { return obj.java_dash_string; }
 function binding_colon_constant_dash_permissions(obj) { return obj.permissions; }
 function binding_colon_constant_question_(obj) { 
-              return obj instanceof binding_colon_constant; }
-function binding_colon_function(name,module_dash_path,min_dash_arity,var_dash_arity_question_,java_dash_string,permissions,cps_question_) { this.name = name;
-this.module_dash_path = module_dash_path;
+              return obj != null && obj != undefined && obj instanceof binding_colon_constant; }
+function binding_colon_function(name,module_dash_source,min_dash_arity,var_dash_arity_question_,java_dash_string,permissions,cps_question_) { this.name = name;
+this.module_dash_source = module_dash_source;
 this.min_dash_arity = min_dash_arity;
 this.var_dash_arity_question_ = var_dash_arity_question_;
 this.java_dash_string = java_dash_string;
 this.permissions = permissions;
 this.cps_question_ = cps_question_; }
                     binding_colon_function.prototype = new plt.Kernel.Struct();
+binding_colon_function.prototype.toWrittenString = function() { 
+                               return '(' + ['make-binding:function',this.name.toWrittenString(),this.module_dash_source.toWrittenString(),this.min_dash_arity.toWrittenString(),this.var_dash_arity_question_.toWrittenString(),this.java_dash_string.toWrittenString(),this.permissions.toWrittenString(),this.cps_question_.toWrittenString()].join(' ') + ')'; };binding_colon_function.prototype.toDisplayedString = binding_colon_function.prototype.toWrittenString;
+
 binding_colon_function.prototype.isEqual = function(other) {
-              if (other instanceof binding_colon_function) {
-                return ((plt.Kernel.equal_question_((binding_colon_function_dash_cps_question_(this)),(binding_colon_function_dash_cps_question_(other))))&&((plt.Kernel.equal_question_((binding_colon_function_dash_permissions(this)),(binding_colon_function_dash_permissions(other))))&&((plt.Kernel.equal_question_((binding_colon_function_dash_java_dash_string(this)),(binding_colon_function_dash_java_dash_string(other))))&&((plt.Kernel.equal_question_((binding_colon_function_dash_var_dash_arity_question_(this)),(binding_colon_function_dash_var_dash_arity_question_(other))))&&((plt.Kernel.equal_question_((binding_colon_function_dash_min_dash_arity(this)),(binding_colon_function_dash_min_dash_arity(other))))&&((plt.Kernel.equal_question_((binding_colon_function_dash_module_dash_path(this)),(binding_colon_function_dash_module_dash_path(other))))&&((plt.Kernel.equal_question_((binding_colon_function_dash_name(this)),(binding_colon_function_dash_name(other))))&&plt.types.Logic.TRUE)))))));
+              if (other != null && other != undefined && other instanceof binding_colon_function) {
+                return ((plt.Kernel.equal_question_((binding_colon_function_dash_cps_question_(this)),(binding_colon_function_dash_cps_question_(other))))&&((plt.Kernel.equal_question_((binding_colon_function_dash_permissions(this)),(binding_colon_function_dash_permissions(other))))&&((plt.Kernel.equal_question_((binding_colon_function_dash_java_dash_string(this)),(binding_colon_function_dash_java_dash_string(other))))&&((plt.Kernel.equal_question_((binding_colon_function_dash_var_dash_arity_question_(this)),(binding_colon_function_dash_var_dash_arity_question_(other))))&&((plt.Kernel.equal_question_((binding_colon_function_dash_min_dash_arity(this)),(binding_colon_function_dash_min_dash_arity(other))))&&((plt.Kernel.equal_question_((binding_colon_function_dash_module_dash_source(this)),(binding_colon_function_dash_module_dash_source(other))))&&((plt.Kernel.equal_question_((binding_colon_function_dash_name(this)),(binding_colon_function_dash_name(other))))&&plt.types.Logic.TRUE)))))));
               } else {
                 return false;
               }
            } 
 function make_dash_binding_colon_function(id0,id1,id2,id3,id4,id5,id6) { return new binding_colon_function(id0,id1,id2,id3,id4,id5,id6); }
 function binding_colon_function_dash_name(obj) { return obj.name; }
-function binding_colon_function_dash_module_dash_path(obj) { return obj.module_dash_path; }
+function binding_colon_function_dash_module_dash_source(obj) { return obj.module_dash_source; }
 function binding_colon_function_dash_min_dash_arity(obj) { return obj.min_dash_arity; }
 function binding_colon_function_dash_var_dash_arity_question_(obj) { return obj.var_dash_arity_question_; }
 function binding_colon_function_dash_java_dash_string(obj) { return obj.java_dash_string; }
 function binding_colon_function_dash_permissions(obj) { return obj.permissions; }
 function binding_colon_function_dash_cps_question_(obj) { return obj.cps_question_; }
 function binding_colon_function_question_(obj) { 
-              return obj instanceof binding_colon_function; }
+              return obj != null && obj != undefined && obj instanceof binding_colon_function; }
 function binding_dash_id(a_dash_binding) { return ((binding_colon_constant_question_(a_dash_binding)) ?
  (binding_colon_constant_dash_name(a_dash_binding)) :
  ((binding_colon_function_question_(a_dash_binding)) ?
@@ -2274,15 +3351,30 @@ function binding_dash_id(a_dash_binding) { return ((binding_colon_constant_quest
  (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))); }
 function env_dash_extend(an_dash_env, new_dash_binding) { return (make_dash_env((plt.Kernel._kernelHashSet((env_dash_bindings(an_dash_env)),(binding_dash_id(new_dash_binding)),new_dash_binding)))); }
 function env_dash_lookup(an_dash_env, name) { return (plt.Kernel._kernelHashRef((env_dash_bindings(an_dash_env)),name,plt.types.Logic.FALSE)); }
+function env_dash_remove(an_dash_env, name) { return (make_dash_env((plt.Kernel._kernelHashRemove((env_dash_bindings(an_dash_env)),name)))); }
 function env_dash_contains_question_(an_dash_env, name) { return (binding_question_((plt.Kernel._kernelHashRef((env_dash_bindings(an_dash_env)),name,plt.types.Logic.FALSE)))); }
-function env_dash_keys(an_dash_env) { return (plt.Kernel._kernelHashMap((env_dash_bindings(an_dash_env)),(function(args1) { var k = args1[0];
+function env_dash_keys(an_dash_env) { return (plt.Kernel._kernelHashMap((env_dash_bindings(an_dash_env)),((function() {
+                        var result = (function(args1) { var k = args1[0];
 var v = args1[1];
-                             return k; }))); }
+                             return k; });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()))); }
 function env_dash_extend_dash_constant(an_dash_env, id, java_dash_string) { return (env_dash_extend(an_dash_env,(make_dash_binding_colon_constant(id,java_dash_string,plt.types.Empty.EMPTY)))); }
-function env_dash_extend_dash_function(an_dash_env, id, module_dash_path, min_dash_arity, var_dash_arity_question_, java_dash_string) { return (env_dash_extend(an_dash_env,(make_dash_binding_colon_function(id,module_dash_path,min_dash_arity,var_dash_arity_question_,java_dash_string,plt.types.Empty.EMPTY,plt.types.Logic.FALSE)))); }
+function env_dash_extend_dash_function(an_dash_env, id, module_dash_source, min_dash_arity, var_dash_arity_question_, java_dash_string) { return (env_dash_extend(an_dash_env,(make_dash_binding_colon_function(id,module_dash_source,min_dash_arity,var_dash_arity_question_,java_dash_string,plt.types.Empty.EMPTY,plt.types.Logic.FALSE)))); }
 function list_question_(datum) { return ((plt.Kernel.empty_question_(datum))||((plt.Kernel.pair_question_(datum))&&(list_question_((plt.Kernel.rest(datum)))))); }
-function program_question_(datum) { return ((list_question_(datum))&&(plt.Kernel.andmap((function(args2) { var x = args2[0];
-                             return ((defn_question_(x))||(expression_question_(x))||(test_dash_case_question_(x))||(library_dash_require_question_(x))); }),datum))); }
+function program_question_(datum) { return ((list_question_(datum))&&(plt.Kernel.andmap(((function() {
+                        var result = (function(args2) { var x = args2[0];
+                             return ((defn_question_(x))||(expression_question_(x))||(test_dash_case_question_(x))||(library_dash_require_question_(x))); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),datum))); }
 function expression_question_(an_dash_expr) { return ((plt.Kernel.not((defn_question_(an_dash_expr))))&&(plt.Kernel.not((test_dash_case_question_(an_dash_expr))))&&(plt.Kernel.not((library_dash_require_question_(an_dash_expr))))); }
 function defn_question_(an_dash_sexp) { return ((list_dash_begins_dash_with_question_(an_dash_sexp,(plt.types.Symbol.makeInstance("define")))) ?
  plt.types.Logic.TRUE :
@@ -2366,9 +3458,11 @@ var translated_dash_chunks;
 var translated_dash_id; 
 (function (toplevel_dash_expression_dash_show4) { 
 chars = (plt.Kernel.string_dash__greaterthan_list((plt.Kernel.symbol_dash__greaterthan_string(an_dash_id))));
-translated_dash_chunks = plt.Kernel.map((function(args) {
+translated_dash_chunks = plt.Kernel.map((function() { var result = (function(args) {
                     return trans(args[0]);
-                 }), [chars]);
+                 }); result.toWrittenString = function() {return '<function:trans>'; }
+                     result.toDisplayedString = function() {return '<function:trans>';}
+                     return result; })(), [chars]);
 translated_dash_id = (plt.Kernel.string_dash__greaterthan_symbol((string_dash_join(translated_dash_chunks,(plt.types.String.makeInstance("")))))); })(plt.Kernel.identity)
 return translated_dash_id;
               })()) :
@@ -2474,25 +3568,27 @@ return ((f_dash_define_dash_struct).apply(null, [[id, fields]]));
  ((list_dash_begins_dash_with_question_(a_dash_definition,(plt.types.Symbol.makeInstance("define-struct")))) ?
  (plt.Kernel.error((plt.types.Symbol.makeInstance("define-struct")),(plt.types.String.makeInstance("define-struct expects an identifier and a list of fields.  i.e. (define-struct pizza (dough sauce toppings))")))) :
  (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))))))); }
-function path_equal__question_(path_dash_1, path_dash_2) { return plt.Kernel.string_equal__question_((plt.Kernel._pathToString((plt.Kernel._normalizePath(path_dash_1)))),(plt.Kernel._pathToString((plt.Kernel._normalizePath(path_dash_2)))), []); }
 var toplevel_dash_env; 
-function module_dash_binding(name,path,bindings) { this.name = name;
-this.path = path;
+function module_dash_binding(name,source,bindings) { this.name = name;
+this.source = source;
 this.bindings = bindings; }
                     module_dash_binding.prototype = new plt.Kernel.Struct();
+module_dash_binding.prototype.toWrittenString = function() { 
+                               return '(' + ['make-module-binding',this.name.toWrittenString(),this.source.toWrittenString(),this.bindings.toWrittenString()].join(' ') + ')'; };module_dash_binding.prototype.toDisplayedString = module_dash_binding.prototype.toWrittenString;
+
 module_dash_binding.prototype.isEqual = function(other) {
-              if (other instanceof module_dash_binding) {
-                return ((plt.Kernel.equal_question_((module_dash_binding_dash_bindings(this)),(module_dash_binding_dash_bindings(other))))&&((plt.Kernel.equal_question_((module_dash_binding_dash_path(this)),(module_dash_binding_dash_path(other))))&&((plt.Kernel.equal_question_((module_dash_binding_dash_name(this)),(module_dash_binding_dash_name(other))))&&plt.types.Logic.TRUE)));
+              if (other != null && other != undefined && other instanceof module_dash_binding) {
+                return ((plt.Kernel.equal_question_((module_dash_binding_dash_bindings(this)),(module_dash_binding_dash_bindings(other))))&&((plt.Kernel.equal_question_((module_dash_binding_dash_source(this)),(module_dash_binding_dash_source(other))))&&((plt.Kernel.equal_question_((module_dash_binding_dash_name(this)),(module_dash_binding_dash_name(other))))&&plt.types.Logic.TRUE)));
               } else {
                 return false;
               }
            } 
 function make_dash_module_dash_binding(id0,id1,id2) { return new module_dash_binding(id0,id1,id2); }
 function module_dash_binding_dash_name(obj) { return obj.name; }
-function module_dash_binding_dash_path(obj) { return obj.path; }
+function module_dash_binding_dash_source(obj) { return obj.source; }
 function module_dash_binding_dash_bindings(obj) { return obj.bindings; }
 function module_dash_binding_question_(obj) { 
-              return obj instanceof module_dash_binding; }
+              return obj != null && obj != undefined && obj instanceof module_dash_binding; }
 var world_dash_effects_dash_module; 
 var world_dash_handlers_dash_module; 
 function make_dash_world_dash_module(module_dash_path) { return ((function() { 
@@ -2500,14 +3596,14 @@ function make_dash_world_dash_module(module_dash_path) { return ((function() {
 function bf(name, module_dash_path, arity, vararity_question_, java_dash_string) { return (make_dash_binding_colon_function(name,module_dash_path,arity,vararity_question_,java_dash_string,plt.types.Empty.EMPTY,plt.types.Logic.FALSE)); }
 (function (toplevel_dash_expression_dash_show17) { 
  })(plt.Kernel.identity)
-return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("world")),module_dash_path,plt.Kernel.append((module_dash_binding_dash_bindings(world_dash_handlers_dash_module)), [(module_dash_binding_dash_bindings(world_dash_effects_dash_module)),plt.Kernel.list([(bf((plt.types.Symbol.makeInstance("big-bang")),module_dash_path,(plt.types.Rational.makeInstance(3, 1)),plt.types.Logic.TRUE,(plt.types.String.makeInstance("plt.world.Kernel.bigBang")))),(bf((plt.types.Symbol.makeInstance("empty-scene")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.emptyScene")))),(bf((plt.types.Symbol.makeInstance("place-image")),module_dash_path,(plt.types.Rational.makeInstance(4, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.placeImage")))),(bf((plt.types.Symbol.makeInstance("circle")),module_dash_path,(plt.types.Rational.makeInstance(3, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.circle")))),(bf((plt.types.Symbol.makeInstance("nw:rectangle")),module_dash_path,(plt.types.Rational.makeInstance(4, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.nwRectangle")))),(bf((plt.types.Symbol.makeInstance("rectangle")),module_dash_path,(plt.types.Rational.makeInstance(4, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.rectangle")))),(bf((plt.types.Symbol.makeInstance("key=?")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.isKeyEqual")))),(bf((plt.types.Symbol.makeInstance("text")),module_dash_path,(plt.types.Rational.makeInstance(3, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.text")))),(bf((plt.types.Symbol.makeInstance("-kernel-create-image")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel._kernelCreateImage")))),(bf((plt.types.Symbol.makeInstance("image-width")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.imageWidth")))),(bf((plt.types.Symbol.makeInstance("image-height")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.imageHeight")))),(bf((plt.types.Symbol.makeInstance("image?")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.isImage")))),(bf((plt.types.Symbol.makeInstance("image=?")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.isImageEqual")))),(bf((plt.types.Symbol.makeInstance("image-rotate")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.imageRotate"))))])])));
+return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("world")),module_dash_path,plt.Kernel.append((module_dash_binding_dash_bindings(world_dash_handlers_dash_module)), [(module_dash_binding_dash_bindings(world_dash_effects_dash_module)),plt.Kernel.list([(bf((plt.types.Symbol.makeInstance("big-bang")),module_dash_path,(plt.types.Rational.makeInstance(3, 1)),plt.types.Logic.TRUE,(plt.types.String.makeInstance("plt.world.Kernel.bigBang")))),(bf((plt.types.Symbol.makeInstance("empty-scene")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.emptyScene")))),(bf((plt.types.Symbol.makeInstance("place-image")),module_dash_path,(plt.types.Rational.makeInstance(4, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.placeImage")))),(bf((plt.types.Symbol.makeInstance("circle")),module_dash_path,(plt.types.Rational.makeInstance(3, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.circle")))),(bf((plt.types.Symbol.makeInstance("nw:rectangle")),module_dash_path,(plt.types.Rational.makeInstance(4, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.nwRectangle")))),(bf((plt.types.Symbol.makeInstance("rectangle")),module_dash_path,(plt.types.Rational.makeInstance(4, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.rectangle")))),(bf((plt.types.Symbol.makeInstance("key=?")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.isKeyEqual")))),(bf((plt.types.Symbol.makeInstance("text")),module_dash_path,(plt.types.Rational.makeInstance(3, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.text")))),(bf((plt.types.Symbol.makeInstance("-kernel-create-image")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel._kernelCreateImage")))),(bf((plt.types.Symbol.makeInstance("image-width")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.imageWidth")))),(bf((plt.types.Symbol.makeInstance("image-height")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.imageHeight")))),(bf((plt.types.Symbol.makeInstance("image-rotate")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.imageRotate"))))])])));
               })()); }
 var world_dash_module; 
 var world_dash_stub_dash_module; 
 var bootstrap_dash_module; 
 var location_dash_module; 
 var tilt_dash_module; 
-var sms_dash_module; 
+var telephony_dash_module; 
 var net_dash_module; 
 var parser_dash_module; 
 var jsworld_dash_module; 
@@ -2529,8 +3625,11 @@ this.modules = modules;
 this.used_dash_bindings_dash_hash = used_dash_bindings_dash_hash;
 this.gensym_dash_counter = gensym_dash_counter; }
                     pinfo.prototype = new plt.Kernel.Struct();
+pinfo.prototype.toWrittenString = function() { 
+                               return '(' + ['make-pinfo',this.env.toWrittenString(),this.modules.toWrittenString(),this.used_dash_bindings_dash_hash.toWrittenString(),this.gensym_dash_counter.toWrittenString()].join(' ') + ')'; };pinfo.prototype.toDisplayedString = pinfo.prototype.toWrittenString;
+
 pinfo.prototype.isEqual = function(other) {
-              if (other instanceof pinfo) {
+              if (other != null && other != undefined && other instanceof pinfo) {
                 return ((plt.Kernel.equal_question_((pinfo_dash_gensym_dash_counter(this)),(pinfo_dash_gensym_dash_counter(other))))&&((plt.Kernel.equal_question_((pinfo_dash_used_dash_bindings_dash_hash(this)),(pinfo_dash_used_dash_bindings_dash_hash(other))))&&((plt.Kernel.equal_question_((pinfo_dash_modules(this)),(pinfo_dash_modules(other))))&&((plt.Kernel.equal_question_((pinfo_dash_env(this)),(pinfo_dash_env(other))))&&plt.types.Logic.TRUE))));
               } else {
                 return false;
@@ -2542,21 +3641,30 @@ function pinfo_dash_modules(obj) { return obj.modules; }
 function pinfo_dash_used_dash_bindings_dash_hash(obj) { return obj.used_dash_bindings_dash_hash; }
 function pinfo_dash_gensym_dash_counter(obj) { return obj.gensym_dash_counter; }
 function pinfo_question_(obj) { 
-              return obj instanceof pinfo; }
+              return obj != null && obj != undefined && obj instanceof pinfo; }
 var empty_dash_pinfo; 
 function get_dash_base_dash_pinfo(language) { return ((plt.Kernel.symbol_equal__question_(language,(plt.types.Symbol.makeInstance("moby")))) ?
  (make_dash_pinfo((extend_dash_env_slash_module_dash_binding(toplevel_dash_env,moby_dash_module_dash_binding)),plt.types.Empty.EMPTY,(plt.Kernel._kernelMakeImmutableHashEq(plt.types.Empty.EMPTY)),(plt.types.Rational.makeInstance(0, 1)))) :
  ((plt.Kernel.symbol_equal__question_(language,(plt.types.Symbol.makeInstance("base")))) ?
  (make_dash_pinfo(toplevel_dash_env,plt.types.Empty.EMPTY,(plt.Kernel._kernelMakeImmutableHashEq(plt.types.Empty.EMPTY)),(plt.types.Rational.makeInstance(0, 1)))) :
  (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))); }
-function pinfo_dash_used_dash_bindings(a_dash_pinfo) { return (plt.Kernel._kernelHashMap((pinfo_dash_used_dash_bindings_dash_hash(a_dash_pinfo)),(function(args28) { var k = args28[0];
+function pinfo_dash_used_dash_bindings(a_dash_pinfo) { return (plt.Kernel._kernelHashMap((pinfo_dash_used_dash_bindings_dash_hash(a_dash_pinfo)),((function() {
+                        var result = (function(args28) { var k = args28[0];
 var v = args28[1];
-                             return v; }))); }
+                             return v; });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()))); }
 function pinfo_dash_update_dash_env(a_dash_pinfo, an_dash_env) { return (make_dash_pinfo(an_dash_env,(pinfo_dash_modules(a_dash_pinfo)),(pinfo_dash_used_dash_bindings_dash_hash(a_dash_pinfo)),(pinfo_dash_gensym_dash_counter(a_dash_pinfo)))); }
 function pinfo_dash_accumulate_dash_binding(a_dash_binding, a_dash_pinfo) { return (make_dash_pinfo((env_dash_extend((pinfo_dash_env(a_dash_pinfo)),a_dash_binding)),(pinfo_dash_modules(a_dash_pinfo)),(pinfo_dash_used_dash_bindings_dash_hash(a_dash_pinfo)),(pinfo_dash_gensym_dash_counter(a_dash_pinfo)))); }
-function pinfo_dash_accumulate_dash_bindings(bindings, a_dash_pinfo) { return plt.Kernel.foldl((function(args) {
+function pinfo_dash_accumulate_dash_bindings(bindings, a_dash_pinfo) { return plt.Kernel.foldl((function() { var result = (function(args) {
                     return pinfo_dash_accumulate_dash_binding(args[0], args[1]);
-                 }),a_dash_pinfo, [bindings]); }
+                 }); result.toWrittenString = function() {return '<function:pinfo-accumulate-binding>'; }
+                     result.toDisplayedString = function() {return '<function:pinfo-accumulate-binding>';}
+                     return result; })(),a_dash_pinfo, [bindings]); }
 function pinfo_dash_accumulate_dash_module(a_dash_module, a_dash_pinfo) { return (make_dash_pinfo((pinfo_dash_env(a_dash_pinfo)),(plt.Kernel.cons(a_dash_module,(pinfo_dash_modules(a_dash_pinfo)))),(pinfo_dash_used_dash_bindings_dash_hash(a_dash_pinfo)),(pinfo_dash_gensym_dash_counter(a_dash_pinfo)))); }
 function pinfo_dash_accumulate_dash_binding_dash_use(a_dash_binding, a_dash_pinfo) { return (make_dash_pinfo((pinfo_dash_env(a_dash_pinfo)),(pinfo_dash_modules(a_dash_pinfo)),(plt.Kernel._kernelHashSet((pinfo_dash_used_dash_bindings_dash_hash(a_dash_pinfo)),(binding_dash_id(a_dash_binding)),a_dash_binding)),(pinfo_dash_gensym_dash_counter(a_dash_pinfo)))); }
 function pinfo_dash_gensym(a_dash_pinfo, a_dash_label) { return plt.Kernel.list([(make_dash_pinfo((pinfo_dash_env(a_dash_pinfo)),(pinfo_dash_modules(a_dash_pinfo)),(pinfo_dash_used_dash_bindings_dash_hash(a_dash_pinfo)),(plt.Kernel.add1((pinfo_dash_gensym_dash_counter(a_dash_pinfo)))))),(plt.Kernel.string_dash__greaterthan_symbol(plt.Kernel.string_dash_append([(plt.Kernel.symbol_dash__greaterthan_string(a_dash_label)),(plt.Kernel.number_dash__greaterthan_string((pinfo_dash_gensym_dash_counter(a_dash_pinfo))))])))]); }
@@ -2579,13 +3687,20 @@ function member_question_(x, lst) { return ((plt.Kernel.empty_question_(lst)) ?
 (function (toplevel_dash_expression_dash_show29) { 
 
  })(plt.Kernel.identity)
-return (unique(plt.Kernel.foldl((function(args30) { var a_dash_binding = args30[0];
+return (unique(plt.Kernel.foldl(((function() {
+                        var result = (function(args30) { var a_dash_binding = args30[0];
 var permissions = args30[1];
                              return ((binding_colon_function_question_(a_dash_binding)) ?
  plt.Kernel.append((binding_colon_function_dash_permissions(a_dash_binding)), [permissions]) :
- (plt.types.Logic.TRUE ?
- permissions :
- (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))); }),plt.types.Empty.EMPTY, [(pinfo_dash_used_dash_bindings(a_dash_pinfo))])));
+ ((binding_colon_constant_question_(a_dash_binding)) ?
+ plt.Kernel.append((binding_colon_constant_dash_permissions(a_dash_binding)), [permissions]) :
+ (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),plt.types.Empty.EMPTY, [(pinfo_dash_used_dash_bindings(a_dash_pinfo))])));
               })()); }
 function program_dash_analyze(a_dash_program) { return (program_dash_analyze_slash_pinfo(a_dash_program,(get_dash_base_dash_pinfo((plt.types.Symbol.makeInstance("base")))))); }
 function program_dash_analyze_slash_pinfo(a_dash_program, pinfo) { return ((function() { 
@@ -2634,14 +3749,35 @@ return (program_dash_analyze_dash_uses((plt.Kernel.rest(a_dash_program)),updated
               })()) :
  (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))); }
 function bf(name, module_dash_path, arity, vararity_question_, java_dash_string) { return (make_dash_binding_colon_function(name,module_dash_path,arity,vararity_question_,java_dash_string,plt.types.Empty.EMPTY,plt.types.Logic.FALSE)); }
-function definition_dash_analyze_dash_collect_dash_definitions(a_dash_definition, pinfo) { return (case_dash_analyze_dash_definition(a_dash_definition,(function(args34) { var id = args34[0];
+function definition_dash_analyze_dash_collect_dash_definitions(a_dash_definition, pinfo) { return (case_dash_analyze_dash_definition(a_dash_definition,((function() {
+                        var result = (function(args34) { var id = args34[0];
 var args = args34[1];
 var body = args34[2];
-                             return (pinfo_dash_accumulate_dash_binding((bf(id,plt.types.Logic.FALSE,(plt.Kernel.length(args)),plt.types.Logic.FALSE,(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))))),pinfo)); }),(function(args35) { var id = args35[0];
+                             return (pinfo_dash_accumulate_dash_binding((bf(id,plt.types.Logic.FALSE,(plt.Kernel.length(args)),plt.types.Logic.FALSE,(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))))),pinfo)); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),((function() {
+                        var result = (function(args35) { var id = args35[0];
 var expr = args35[1];
-                             return (pinfo_dash_accumulate_dash_binding((make_dash_binding_colon_constant(id,(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),plt.types.Empty.EMPTY)),pinfo)); }),(function(args36) { var id = args36[0];
+                             return (pinfo_dash_accumulate_dash_binding((make_dash_binding_colon_constant(id,(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),plt.types.Empty.EMPTY)),pinfo)); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),((function() {
+                        var result = (function(args36) { var id = args36[0];
 var fields = args36[1];
-                             return (pinfo_dash_update_dash_env(pinfo,(extend_dash_env_slash_struct_dash_defns((pinfo_dash_env(pinfo)),id,fields)))); }))); }
+                             return (pinfo_dash_update_dash_env(pinfo,(extend_dash_env_slash_struct_dash_defns((pinfo_dash_env(pinfo)),id,fields)))); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()))); }
 function extend_dash_env_slash_struct_dash_defns(an_dash_env, id, fields) { return ((function() { 
 
 var constructor_dash_id; 
@@ -2655,22 +3791,64 @@ constructor_dash_id = (plt.Kernel.string_dash__greaterthan_symbol(plt.Kernel.str
 constructor_dash_binding = (bf(constructor_dash_id,plt.types.Logic.FALSE,(plt.Kernel.length(fields)),plt.types.Logic.FALSE,(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(constructor_dash_id))))));
 predicate_dash_id = (plt.Kernel.string_dash__greaterthan_symbol(plt.Kernel.string_dash_append([(plt.Kernel.symbol_dash__greaterthan_string(id)),(plt.types.String.makeInstance("?"))])));
 predicate_dash_binding = (bf(predicate_dash_id,plt.types.Logic.FALSE,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(predicate_dash_id))))));
-selector_dash_ids = plt.Kernel.map((function(args38) { var f = args38[0];
-                             return (plt.Kernel.string_dash__greaterthan_symbol(plt.Kernel.string_dash_append([(plt.Kernel.symbol_dash__greaterthan_string(id)),(plt.types.String.makeInstance("-")),(plt.Kernel.symbol_dash__greaterthan_string(f))]))); }), [fields]);
-selector_dash_bindings = plt.Kernel.map((function(args39) { var sel_dash_id = args39[0];
-                             return (bf(sel_dash_id,plt.types.Logic.FALSE,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(sel_dash_id)))))); }), [selector_dash_ids]); })(plt.Kernel.identity)
-return plt.Kernel.foldl((function(args40) { var a_dash_binding = args40[0];
+selector_dash_ids = plt.Kernel.map(((function() {
+                        var result = (function(args38) { var f = args38[0];
+                             return (plt.Kernel.string_dash__greaterthan_symbol(plt.Kernel.string_dash_append([(plt.Kernel.symbol_dash__greaterthan_string(id)),(plt.types.String.makeInstance("-")),(plt.Kernel.symbol_dash__greaterthan_string(f))]))); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()), [fields]);
+selector_dash_bindings = plt.Kernel.map(((function() {
+                        var result = (function(args39) { var sel_dash_id = args39[0];
+                             return (bf(sel_dash_id,plt.types.Logic.FALSE,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(sel_dash_id)))))); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()), [selector_dash_ids]); })(plt.Kernel.identity)
+return plt.Kernel.foldl(((function() {
+                        var result = (function(args40) { var a_dash_binding = args40[0];
 var an_dash_env = args40[1];
-                             return (env_dash_extend(an_dash_env,a_dash_binding)); }),an_dash_env, [plt.Kernel.list_star_(constructor_dash_binding, [predicate_dash_binding,selector_dash_bindings])]);
+                             return (env_dash_extend(an_dash_env,a_dash_binding)); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),an_dash_env, [plt.Kernel.list_star_(constructor_dash_binding, [predicate_dash_binding,selector_dash_bindings])]);
               })()); }
-function definition_dash_analyze_dash_uses(a_dash_definition, pinfo) { return (case_dash_analyze_dash_definition(a_dash_definition,(function(args41) { var id = args41[0];
+function definition_dash_analyze_dash_uses(a_dash_definition, pinfo) { return (case_dash_analyze_dash_definition(a_dash_definition,((function() {
+                        var result = (function(args41) { var id = args41[0];
 var args = args41[1];
 var body = args41[2];
-                             return (function_dash_definition_dash_analyze_dash_uses(id,args,body,pinfo)); }),(function(args42) { var id = args42[0];
+                             return (function_dash_definition_dash_analyze_dash_uses(id,args,body,pinfo)); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),((function() {
+                        var result = (function(args42) { var id = args42[0];
 var expr = args42[1];
-                             return (expression_dash_analyze_dash_uses(expr,pinfo,(pinfo_dash_env(pinfo)))); }),(function(args43) { var id = args43[0];
+                             return (expression_dash_analyze_dash_uses(expr,pinfo,(pinfo_dash_env(pinfo)))); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),((function() {
+                        var result = (function(args43) { var id = args43[0];
 var fields = args43[1];
-                             return pinfo; }))); }
+                             return pinfo; });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()))); }
 function function_dash_definition_dash_analyze_dash_uses(fun, args, body, pinfo) { return ((function() { 
 
 var env_dash_1; 
@@ -2686,9 +3864,16 @@ var env_dash_1;
 var env_dash_2; 
 (function (toplevel_dash_expression_dash_show45) { 
 env_dash_1 = (pinfo_dash_env(pinfo));
-env_dash_2 = plt.Kernel.foldl((function(args46) { var arg_dash_id = args46[0];
+env_dash_2 = plt.Kernel.foldl(((function() {
+                        var result = (function(args46) { var arg_dash_id = args46[0];
 var env = args46[1];
-                             return (env_dash_extend(env,(make_dash_binding_colon_constant(arg_dash_id,(plt.Kernel.symbol_dash__greaterthan_string(arg_dash_id)),plt.types.Empty.EMPTY)))); }),env_dash_1, [args]); })(plt.Kernel.identity)
+                             return (env_dash_extend(env,(make_dash_binding_colon_constant(arg_dash_id,(plt.Kernel.symbol_dash__greaterthan_string(arg_dash_id)),plt.types.Empty.EMPTY)))); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),env_dash_1, [args]); })(plt.Kernel.identity)
 return (expression_dash_analyze_dash_uses(body,pinfo,env_dash_2));
               })()); }
 function expression_dash_analyze_dash_uses(an_dash_expression, pinfo, env) { return ((list_dash_begins_dash_with_question_(an_dash_expression,(plt.types.Symbol.makeInstance("local")))) ?
@@ -2703,9 +3888,16 @@ function expression_dash_analyze_dash_uses(an_dash_expression, pinfo, env) { ret
 var exprs; 
 (function (toplevel_dash_expression_dash_show47) { 
 exprs = (plt.Kernel.rest(an_dash_expression)); })(plt.Kernel.identity)
-return plt.Kernel.foldl((function(args48) { var e = args48[0];
+return plt.Kernel.foldl(((function() {
+                        var result = (function(args48) { var e = args48[0];
 var p = args48[1];
-                             return (expression_dash_analyze_dash_uses(e,p,env)); }),pinfo, [exprs]);
+                             return (expression_dash_analyze_dash_uses(e,p,env)); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),pinfo, [exprs]);
               })()) :
  ((list_dash_begins_dash_with_question_(an_dash_expression,(plt.types.Symbol.makeInstance("or")))) ?
  ((function() { 
@@ -2713,9 +3905,16 @@ var p = args48[1];
 var exprs; 
 (function (toplevel_dash_expression_dash_show49) { 
 exprs = (plt.Kernel.rest(an_dash_expression)); })(plt.Kernel.identity)
-return plt.Kernel.foldl((function(args50) { var e = args50[0];
+return plt.Kernel.foldl(((function() {
+                        var result = (function(args50) { var e = args50[0];
 var p = args50[1];
-                             return (expression_dash_analyze_dash_uses(e,p,env)); }),pinfo, [exprs]);
+                             return (expression_dash_analyze_dash_uses(e,p,env)); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),pinfo, [exprs]);
               })()) :
  ((list_dash_begins_dash_with_question_(an_dash_expression,(plt.types.Symbol.makeInstance("lambda")))) ?
  ((function() { 
@@ -2754,9 +3953,16 @@ var nested_dash_pinfo;
 (function (toplevel_dash_expression_dash_show52) { 
 defns = (plt.Kernel.second(an_dash_expression));
 body = (plt.Kernel.third(an_dash_expression));
-nested_dash_pinfo = plt.Kernel.foldl((function(args53) { var a_dash_defn = args53[0];
+nested_dash_pinfo = plt.Kernel.foldl(((function() {
+                        var result = (function(args53) { var a_dash_defn = args53[0];
 var a_dash_pinfo = args53[1];
-                             return (definition_dash_analyze_dash_uses(a_dash_defn,a_dash_pinfo)); }),pinfo, [defns]); })(plt.Kernel.identity)
+                             return (definition_dash_analyze_dash_uses(a_dash_defn,a_dash_pinfo)); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),pinfo, [defns]); })(plt.Kernel.identity)
 return (pinfo_dash_update_dash_env((expression_dash_analyze_dash_uses(body,nested_dash_pinfo,(pinfo_dash_env(nested_dash_pinfo)))),(pinfo_dash_env(pinfo))));
               })()); }
 function if_dash_expression_dash_analyze_dash_uses(an_dash_expression, pinfo, env) { return ((function() { 
@@ -2768,24 +3974,38 @@ var alternative;
 test = (plt.Kernel.second(an_dash_expression));
 consequent = (plt.Kernel.third(an_dash_expression));
 alternative = (plt.Kernel.fourth(an_dash_expression)); })(plt.Kernel.identity)
-return plt.Kernel.foldl((function(args55) { var e = args55[0];
+return plt.Kernel.foldl(((function() {
+                        var result = (function(args55) { var e = args55[0];
 var p = args55[1];
-                             return (expression_dash_analyze_dash_uses(e,p,env)); }),pinfo, [plt.Kernel.list([test,consequent,alternative])]);
+                             return (expression_dash_analyze_dash_uses(e,p,env)); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),pinfo, [plt.Kernel.list([test,consequent,alternative])]);
               })()); }
 function application_dash_expression_dash_analyze_dash_uses(an_dash_expression, pinfo, env) { return ((function() { 
 
 var updated_dash_pinfo; 
 (function (toplevel_dash_expression_dash_show56) { 
-updated_dash_pinfo = plt.Kernel.foldl((function(args57) { var e = args57[0];
+updated_dash_pinfo = plt.Kernel.foldl(((function() {
+                        var result = (function(args57) { var e = args57[0];
 var p = args57[1];
-                             return (expression_dash_analyze_dash_uses(e,p,env)); }),pinfo, [an_dash_expression]); })(plt.Kernel.identity)
+                             return (expression_dash_analyze_dash_uses(e,p,env)); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),pinfo, [an_dash_expression]); })(plt.Kernel.identity)
 return updated_dash_pinfo;
               })()); }
 function require_dash_analyze(require_dash_path, pinfo) { return ((function() { 
 
 function loop(modules) { return ((plt.Kernel.empty_question_(modules)) ?
  (plt.Kernel.error((plt.types.Symbol.makeInstance("require-analyze")),plt.Kernel.format((plt.types.String.makeInstance("Moby doesn't know about module ~s yet")), [require_dash_path]))) :
- ((path_equal__question_((plt.Kernel._resolveModulePath(require_dash_path,plt.types.Logic.FALSE)),(module_dash_binding_dash_path((plt.Kernel.first(modules)))))) ?
+ (plt.Kernel.string_equal__question_(require_dash_path,(module_dash_binding_dash_source((plt.Kernel.first(modules)))), []) ?
  (pinfo_dash_accumulate_dash_module((plt.Kernel.first(modules)),(pinfo_dash_accumulate_dash_bindings((module_dash_binding_dash_bindings((plt.Kernel.first(modules)))),pinfo)))) :
  (plt.types.Logic.TRUE ?
  (loop((plt.Kernel.rest(modules)))) :
@@ -2798,8 +4018,11 @@ function compiled_dash_program(defns,toplevel_dash_exprs,pinfo) { this.defns = d
 this.toplevel_dash_exprs = toplevel_dash_exprs;
 this.pinfo = pinfo; }
                     compiled_dash_program.prototype = new plt.Kernel.Struct();
+compiled_dash_program.prototype.toWrittenString = function() { 
+                               return '(' + ['make-compiled-program',this.defns.toWrittenString(),this.toplevel_dash_exprs.toWrittenString(),this.pinfo.toWrittenString()].join(' ') + ')'; };compiled_dash_program.prototype.toDisplayedString = compiled_dash_program.prototype.toWrittenString;
+
 compiled_dash_program.prototype.isEqual = function(other) {
-              if (other instanceof compiled_dash_program) {
+              if (other != null && other != undefined && other instanceof compiled_dash_program) {
                 return ((plt.Kernel.equal_question_((compiled_dash_program_dash_pinfo(this)),(compiled_dash_program_dash_pinfo(other))))&&((plt.Kernel.equal_question_((compiled_dash_program_dash_toplevel_dash_exprs(this)),(compiled_dash_program_dash_toplevel_dash_exprs(other))))&&((plt.Kernel.equal_question_((compiled_dash_program_dash_defns(this)),(compiled_dash_program_dash_defns(other))))&&plt.types.Logic.TRUE)));
               } else {
                 return false;
@@ -2810,7 +4033,7 @@ function compiled_dash_program_dash_defns(obj) { return obj.defns; }
 function compiled_dash_program_dash_toplevel_dash_exprs(obj) { return obj.toplevel_dash_exprs; }
 function compiled_dash_program_dash_pinfo(obj) { return obj.pinfo; }
 function compiled_dash_program_question_(obj) { 
-              return obj instanceof compiled_dash_program; }
+              return obj != null && obj != undefined && obj instanceof compiled_dash_program; }
 function compiled_dash_program_dash_main(a_dash_compiled_dash_program) { return plt.Kernel.string_dash_append([(compiled_dash_program_dash_defns(a_dash_compiled_dash_program)),(plt.types.String.makeInstance("\n")),(plt.types.String.makeInstance("(function() { \n")),(plt.types.String.makeInstance("(")),(compiled_dash_program_dash_toplevel_dash_exprs(a_dash_compiled_dash_program)),(plt.types.String.makeInstance(")")),(plt.types.String.makeInstance("(plt.Kernel.identity)")),(plt.types.String.makeInstance("\n})();"))]); }
 function program_dash__greaterthan_compiled_dash_program(program) { return (program_dash__greaterthan_compiled_dash_program_slash_pinfo(program,(get_dash_base_dash_pinfo((plt.types.Symbol.makeInstance("base")))))); }
 function program_dash__greaterthan_compiled_dash_program_slash_pinfo(program, input_dash_pinfo) { return ((function() { 
@@ -2852,14 +4075,35 @@ toplevel_dash_env = (pinfo_dash_env(a_dash_pinfo));
  })(plt.Kernel.identity)
 return (loop(program,(plt.types.String.makeInstance("")),(plt.types.String.makeInstance("")),a_dash_pinfo));
               })()); }
-function definition_dash__greaterthan_javascript_dash_strings(defn, env, a_dash_pinfo) { return (case_dash_analyze_dash_definition(defn,(function(args62) { var fun = args62[0];
+function definition_dash__greaterthan_javascript_dash_strings(defn, env, a_dash_pinfo) { return (case_dash_analyze_dash_definition(defn,((function() {
+                        var result = (function(args62) { var fun = args62[0];
 var args = args62[1];
 var body = args62[2];
-                             return (function_dash_definition_dash__greaterthan_java_dash_string(fun,args,body,env,a_dash_pinfo)); }),(function(args63) { var id = args63[0];
+                             return (function_dash_definition_dash__greaterthan_java_dash_string(fun,args,body,env,a_dash_pinfo)); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),((function() {
+                        var result = (function(args63) { var id = args63[0];
 var body = args63[1];
-                             return (variable_dash_definition_dash__greaterthan_javascript_dash_strings(id,body,env,a_dash_pinfo)); }),(function(args64) { var id = args64[0];
+                             return (variable_dash_definition_dash__greaterthan_javascript_dash_strings(id,body,env,a_dash_pinfo)); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),((function() {
+                        var result = (function(args64) { var id = args64[0];
 var fields = args64[1];
-                             return (struct_dash_definition_dash__greaterthan_javascript_dash_string(id,fields,env,a_dash_pinfo)); }))); }
+                             return (struct_dash_definition_dash__greaterthan_javascript_dash_string(id,fields,env,a_dash_pinfo)); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()))); }
 function function_dash_definition_dash__greaterthan_java_dash_string(fun, args, body, env, a_dash_pinfo) { return ((function() { 
 
 var munged_dash_fun_dash_id; 
@@ -2871,18 +4115,34 @@ var body_dash_string;
 var updated_dash_pinfo; 
 (function (toplevel_dash_expression_dash_show65) { 
 munged_dash_fun_dash_id = (identifier_dash__greaterthan_munged_dash_java_dash_identifier(fun));
-munged_dash_arg_dash_ids = plt.Kernel.map((function(args) {
+munged_dash_arg_dash_ids = plt.Kernel.map((function() { var result = (function(args) {
                     return identifier_dash__greaterthan_munged_dash_java_dash_identifier(args[0]);
-                 }), [args]);
+                 }); result.toWrittenString = function() {return '<function:identifier->munged-java-identifier>'; }
+                     result.toDisplayedString = function() {return '<function:identifier->munged-java-identifier>';}
+                     return result; })(), [args]);
 new_dash_env = (env_dash_extend_dash_function(env,fun,plt.types.Logic.FALSE,(plt.Kernel.length(args)),plt.types.Logic.FALSE,(plt.Kernel.symbol_dash__greaterthan_string(munged_dash_fun_dash_id))));
-env_dash_with_dash_arg_dash_bindings = plt.Kernel.foldl((function(args66) { var arg_dash_id = args66[0];
+env_dash_with_dash_arg_dash_bindings = plt.Kernel.foldl(((function() {
+                        var result = (function(args66) { var arg_dash_id = args66[0];
 var env = args66[1];
-                             return (env_dash_extend(env,(make_dash_binding_colon_constant(arg_dash_id,(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(arg_dash_id)))),plt.types.Empty.EMPTY)))); }),new_dash_env, [args]);
+                             return (env_dash_extend(env,(make_dash_binding_colon_constant(arg_dash_id,(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(arg_dash_id)))),plt.types.Empty.EMPTY)))); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),new_dash_env, [args]);
 body_dash_string_plus_pinfo = (expression_dash__greaterthan_javascript_dash_string(body,env_dash_with_dash_arg_dash_bindings,a_dash_pinfo));
 body_dash_string = (plt.Kernel.first(body_dash_string_plus_pinfo));
 updated_dash_pinfo = (plt.Kernel.second(body_dash_string_plus_pinfo)); })(plt.Kernel.identity)
-return plt.Kernel.list([plt.Kernel.string_dash_append([(plt.types.String.makeInstance("function ")),(plt.Kernel.symbol_dash__greaterthan_string(munged_dash_fun_dash_id)),(plt.types.String.makeInstance("(")),(string_dash_join(plt.Kernel.map((function(args67) { var arg_dash_id = args67[0];
-                             return (plt.Kernel.symbol_dash__greaterthan_string(arg_dash_id)); }), [munged_dash_arg_dash_ids]),(plt.types.String.makeInstance(", ")))),(plt.types.String.makeInstance(") { return ")),body_dash_string,(plt.types.String.makeInstance("; }"))]),(plt.types.String.makeInstance("")),updated_dash_pinfo]);
+return plt.Kernel.list([plt.Kernel.string_dash_append([(plt.types.String.makeInstance("function ")),(plt.Kernel.symbol_dash__greaterthan_string(munged_dash_fun_dash_id)),(plt.types.String.makeInstance("(")),(string_dash_join(plt.Kernel.map(((function() {
+                        var result = (function(args67) { var arg_dash_id = args67[0];
+                             return (plt.Kernel.symbol_dash__greaterthan_string(arg_dash_id)); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()), [munged_dash_arg_dash_ids]),(plt.types.String.makeInstance(", ")))),(plt.types.String.makeInstance(") { return ")),body_dash_string,(plt.types.String.makeInstance("; }"))]),(plt.types.String.makeInstance("")),updated_dash_pinfo]);
               })()); }
 function variable_dash_definition_dash__greaterthan_javascript_dash_strings(id, body, env, a_dash_pinfo) { return ((function() { 
 
@@ -2908,7 +4168,8 @@ var updated_dash_pinfo;
 
 new_dash_env_dash_1 = (env_dash_extend(env,(make_dash_binding_colon_constant((plt.types.Symbol.makeInstance("this")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier((plt.types.Symbol.makeInstance("this")))))),plt.types.Empty.EMPTY))));
 new_dash_env_dash_2 = (env_dash_extend(new_dash_env_dash_1,(make_dash_binding_colon_constant((plt.types.Symbol.makeInstance("other")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier((plt.types.Symbol.makeInstance("other")))))),plt.types.Empty.EMPTY))));
-equality_dash_expression = plt.Kernel.foldl((function(args70) { var a_dash_field = args70[0];
+equality_dash_expression = plt.Kernel.foldl(((function() {
+                        var result = (function(args70) { var a_dash_field = args70[0];
 var acc = args70[1];
                              return ((function() { 
 
@@ -2916,35 +4177,84 @@ var acc_dash_id;
 (function (toplevel_dash_expression_dash_show71) { 
 acc_dash_id = (field_dash__greaterthan_accessor_dash_name(id,a_dash_field)); })(plt.Kernel.identity)
 return plt.Kernel.list([(plt.types.Symbol.makeInstance("and")),plt.Kernel.list([(plt.types.Symbol.makeInstance("equal?")),plt.Kernel.list([acc_dash_id,(plt.types.Symbol.makeInstance("this"))]),plt.Kernel.list([acc_dash_id,(plt.types.Symbol.makeInstance("other"))])]),acc]);
-              })()); }),(plt.types.Symbol.makeInstance("true")), [fields]);
+              })()); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),(plt.types.Symbol.makeInstance("true")), [fields]);
 equality_dash_expression_dash_string_plus_pinfo = (expression_dash__greaterthan_javascript_dash_string(equality_dash_expression,new_dash_env_dash_2,a_dash_pinfo));
 equality_dash_expression_dash_string = (plt.Kernel.first(equality_dash_expression_dash_string_plus_pinfo));
 updated_dash_pinfo = (plt.Kernel.second(equality_dash_expression_dash_string_plus_pinfo)); })(plt.Kernel.identity)
-return plt.Kernel.list([plt.Kernel.string_dash_append([plt.Kernel.string_dash_append([(plt.types.String.makeInstance("function ")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),(plt.types.String.makeInstance("(")),(string_dash_join(plt.Kernel.map((function(args72) { var i = args72[0];
-                             return (plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(i)))); }), [fields]),(plt.types.String.makeInstance(",")))),(plt.types.String.makeInstance(") { ")),(string_dash_join(plt.Kernel.map((function(args73) { var i = args73[0];
-                             return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("this.")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(i)))),(plt.types.String.makeInstance(" = ")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(i)))),(plt.types.String.makeInstance(";"))]); }), [fields]),(plt.types.String.makeInstance("\n")))),(plt.types.String.makeInstance(" }\n                    ")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),(plt.types.String.makeInstance(".prototype = new plt.Kernel.Struct();"))]),(plt.types.String.makeInstance("\n")),plt.Kernel.string_dash_append([(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),(plt.types.String.makeInstance(".prototype.isEqual = function(other) {\n              if (other instanceof ")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),(plt.types.String.makeInstance(") {\n                return ")),equality_dash_expression_dash_string,(plt.types.String.makeInstance(";\n              } else {\n                return false;\n              }\n           } "))]),(plt.types.String.makeInstance("\n")),plt.Kernel.string_dash_append([(plt.types.String.makeInstance("function ")),((function() { 
+return plt.Kernel.list([plt.Kernel.string_dash_append([plt.Kernel.string_dash_append([(plt.types.String.makeInstance("function ")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),(plt.types.String.makeInstance("(")),(string_dash_join(plt.Kernel.map(((function() {
+                        var result = (function(args72) { var i = args72[0];
+                             return (plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(i)))); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()), [fields]),(plt.types.String.makeInstance(",")))),(plt.types.String.makeInstance(") { ")),(string_dash_join(plt.Kernel.map(((function() {
+                        var result = (function(args73) { var i = args73[0];
+                             return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("this.")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(i)))),(plt.types.String.makeInstance(" = ")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(i)))),(plt.types.String.makeInstance(";"))]); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()), [fields]),(plt.types.String.makeInstance("\n")))),(plt.types.String.makeInstance(" }\n                    ")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),(plt.types.String.makeInstance(".prototype = new plt.Kernel.Struct();\n")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),(plt.types.String.makeInstance(".prototype.toWrittenString = function() { \n                               return '(' + [")),(string_dash_join((plt.Kernel.cons(plt.Kernel.string_dash_append([(plt.types.String.makeInstance("'")),(plt.types.String.makeInstance("make-")),(plt.Kernel.symbol_dash__greaterthan_string(id)),(plt.types.String.makeInstance("'"))]),plt.Kernel.map(((function() {
+                        var result = (function(args74) { var i = args74[0];
+                             return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("this.")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(i)))),(plt.types.String.makeInstance(".toWrittenString()"))]); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()), [fields]))),(plt.types.String.makeInstance(",")))),(plt.types.String.makeInstance("].join(' ') + ')'; };")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),(plt.types.String.makeInstance(".prototype.toDisplayedString = ")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),(plt.types.String.makeInstance(".prototype.toWrittenString;\n"))]),(plt.types.String.makeInstance("\n")),plt.Kernel.string_dash_append([(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),(plt.types.String.makeInstance(".prototype.isEqual = function(other) {\n              if (other != null && other != undefined && other instanceof ")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),(plt.types.String.makeInstance(") {\n                return ")),equality_dash_expression_dash_string,(plt.types.String.makeInstance(";\n              } else {\n                return false;\n              }\n           } "))]),(plt.types.String.makeInstance("\n")),plt.Kernel.string_dash_append([(plt.types.String.makeInstance("function ")),((function() { 
 
 var make_dash_id; 
-(function (toplevel_dash_expression_dash_show74) { 
+(function (toplevel_dash_expression_dash_show75) { 
 make_dash_id = (plt.Kernel.string_dash__greaterthan_symbol(plt.Kernel.string_dash_append([(plt.types.String.makeInstance("make-")),(plt.Kernel.symbol_dash__greaterthan_string(id))]))); })(plt.Kernel.identity)
 return (plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(make_dash_id))));
-              })()),(plt.types.String.makeInstance("(")),(string_dash_join((plt.Kernel.build_dash_list((plt.Kernel.length(fields)),(function(args75) { var i = args75[0];
-                             return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("id")),(plt.Kernel.number_dash__greaterthan_string(i))]); }))),(plt.types.String.makeInstance(",")))),(plt.types.String.makeInstance(") { return new ")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),(plt.types.String.makeInstance("(")),(string_dash_join((plt.Kernel.build_dash_list((plt.Kernel.length(fields)),(function(args76) { var i = args76[0];
-                             return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("id")),(plt.Kernel.number_dash__greaterthan_string(i))]); }))),(plt.types.String.makeInstance(",")))),(plt.types.String.makeInstance("); }"))]),(plt.types.String.makeInstance("\n")),(string_dash_join(plt.Kernel.map((function(args77) { var a_dash_field = args77[0];
+              })()),(plt.types.String.makeInstance("(")),(string_dash_join((plt.Kernel.build_dash_list((plt.Kernel.length(fields)),((function() {
+                        var result = (function(args76) { var i = args76[0];
+                             return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("id")),(plt.Kernel.number_dash__greaterthan_string(i))]); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()))),(plt.types.String.makeInstance(",")))),(plt.types.String.makeInstance(") { return new ")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),(plt.types.String.makeInstance("(")),(string_dash_join((plt.Kernel.build_dash_list((plt.Kernel.length(fields)),((function() {
+                        var result = (function(args77) { var i = args77[0];
+                             return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("id")),(plt.Kernel.number_dash__greaterthan_string(i))]); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()))),(plt.types.String.makeInstance(",")))),(plt.types.String.makeInstance("); }"))]),(plt.types.String.makeInstance("\n")),(string_dash_join(plt.Kernel.map(((function() {
+                        var result = (function(args78) { var a_dash_field = args78[0];
                              return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("function ")),((function() { 
 
 var acc_dash_id; 
-(function (toplevel_dash_expression_dash_show78) { 
+(function (toplevel_dash_expression_dash_show79) { 
 acc_dash_id = (plt.Kernel.string_dash__greaterthan_symbol(plt.Kernel.string_dash_append([(plt.Kernel.symbol_dash__greaterthan_string(id)),(plt.types.String.makeInstance("-")),(plt.Kernel.symbol_dash__greaterthan_string(a_dash_field))]))); })(plt.Kernel.identity)
 return (plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(acc_dash_id))));
-              })()),(plt.types.String.makeInstance("(obj) { return obj.")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(a_dash_field)))),(plt.types.String.makeInstance("; }"))]); }), [fields]),(plt.types.String.makeInstance("\n")))),(plt.types.String.makeInstance("\n")),plt.Kernel.string_dash_append([(plt.types.String.makeInstance("function ")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier((plt.Kernel.string_dash__greaterthan_symbol(plt.Kernel.string_dash_append([(plt.Kernel.symbol_dash__greaterthan_string(id)),(plt.types.String.makeInstance("?"))]))))))),(plt.types.String.makeInstance("(obj) { \n              return obj instanceof ")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),(plt.types.String.makeInstance("; }"))])]),(plt.types.String.makeInstance("")),updated_dash_pinfo]);
+              })()),(plt.types.String.makeInstance("(obj) { return obj.")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(a_dash_field)))),(plt.types.String.makeInstance("; }"))]); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()), [fields]),(plt.types.String.makeInstance("\n")))),(plt.types.String.makeInstance("\n")),plt.Kernel.string_dash_append([(plt.types.String.makeInstance("function ")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier((plt.Kernel.string_dash__greaterthan_symbol(plt.Kernel.string_dash_append([(plt.Kernel.symbol_dash__greaterthan_string(id)),(plt.types.String.makeInstance("?"))]))))))),(plt.types.String.makeInstance("(obj) { \n              return obj != null && obj != undefined && obj instanceof ")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(id)))),(plt.types.String.makeInstance("; }"))])]),(plt.types.String.makeInstance("")),updated_dash_pinfo]);
               })()); }
 function expression_dash__greaterthan_javascript_dash_string(expr, env, a_dash_pinfo) { return ((list_dash_begins_dash_with_question_(expr,(plt.types.Symbol.makeInstance("local")))) ?
  ((function() { 
 
 var defns; 
 var body; 
-(function (toplevel_dash_expression_dash_show79) { 
+(function (toplevel_dash_expression_dash_show80) { 
 defns = (plt.Kernel.second(expr));
 body = (plt.Kernel.third(expr)); })(plt.Kernel.identity)
 return (local_dash_expression_dash__greaterthan_javascript_dash_string(defns,body,env,a_dash_pinfo));
@@ -2957,7 +4267,7 @@ return (local_dash_expression_dash__greaterthan_javascript_dash_string(defns,bod
 var test; 
 var consequent; 
 var alternative; 
-(function (toplevel_dash_expression_dash_show80) { 
+(function (toplevel_dash_expression_dash_show81) { 
 test = (plt.Kernel.second(expr));
 consequent = (plt.Kernel.third(expr));
 alternative = (plt.Kernel.fourth(expr)); })(plt.Kernel.identity)
@@ -2967,7 +4277,7 @@ return (if_dash_expression_dash__greaterthan_javascript_dash_string(test,consequ
  ((function() { 
 
 var exprs; 
-(function (toplevel_dash_expression_dash_show81) { 
+(function (toplevel_dash_expression_dash_show82) { 
 exprs = (plt.Kernel.rest(expr)); })(plt.Kernel.identity)
 return (boolean_dash_chain_dash__greaterthan_javascript_dash_string((plt.types.String.makeInstance("&&")),exprs,env,a_dash_pinfo));
               })()) :
@@ -2975,7 +4285,7 @@ return (boolean_dash_chain_dash__greaterthan_javascript_dash_string((plt.types.S
  ((function() { 
 
 var exprs; 
-(function (toplevel_dash_expression_dash_show82) { 
+(function (toplevel_dash_expression_dash_show83) { 
 exprs = (plt.Kernel.rest(expr)); })(plt.Kernel.identity)
 return (boolean_dash_chain_dash__greaterthan_javascript_dash_string((plt.types.String.makeInstance("||")),exprs,env,a_dash_pinfo));
               })()) :
@@ -2984,7 +4294,7 @@ return (boolean_dash_chain_dash__greaterthan_javascript_dash_string((plt.types.S
 
 var args; 
 var body; 
-(function (toplevel_dash_expression_dash_show83) { 
+(function (toplevel_dash_expression_dash_show84) { 
 args = (plt.Kernel.second(expr));
 body = (plt.Kernel.third(expr)); })(plt.Kernel.identity)
 return (lambda_dash_expression_dash__greaterthan_javascript_dash_string(args,body,env,a_dash_pinfo));
@@ -3008,7 +4318,7 @@ return (lambda_dash_expression_dash__greaterthan_javascript_dash_string(args,bod
 
 var operator; 
 var operands; 
-(function (toplevel_dash_expression_dash_show84) { 
+(function (toplevel_dash_expression_dash_show85) { 
 operator = (plt.Kernel.first(expr));
 operands = (plt.Kernel.rest(expr)); })(plt.Kernel.identity)
 return (application_dash_expression_dash__greaterthan_javascript_dash_string(operator,operands,env,a_dash_pinfo));
@@ -3017,16 +4327,23 @@ return (application_dash_expression_dash__greaterthan_javascript_dash_string(ope
 function expressions_dash__greaterthan_javascript_dash_strings(expressions, env, a_dash_pinfo) { return ((function() { 
 
 var strings_slash_rev_plus_pinfo; 
-(function (toplevel_dash_expression_dash_show85) { 
-strings_slash_rev_plus_pinfo = plt.Kernel.foldl((function(args86) { var e = args86[0];
-var ss_plus_p = args86[1];
+(function (toplevel_dash_expression_dash_show86) { 
+strings_slash_rev_plus_pinfo = plt.Kernel.foldl(((function() {
+                        var result = (function(args87) { var e = args87[0];
+var ss_plus_p = args87[1];
                              return ((function() { 
 
 var new_dash_string_plus_p; 
-(function (toplevel_dash_expression_dash_show87) { 
+(function (toplevel_dash_expression_dash_show88) { 
 new_dash_string_plus_p = (expression_dash__greaterthan_javascript_dash_string(e,env,(plt.Kernel.second(ss_plus_p)))); })(plt.Kernel.identity)
 return plt.Kernel.list([(plt.Kernel.cons((plt.Kernel.first(new_dash_string_plus_p)),(plt.Kernel.first(ss_plus_p)))),(plt.Kernel.second(new_dash_string_plus_p))]);
-              })()); }),plt.Kernel.list([plt.types.Empty.EMPTY,a_dash_pinfo]), [expressions]); })(plt.Kernel.identity)
+              })()); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),plt.Kernel.list([plt.types.Empty.EMPTY,a_dash_pinfo]), [expressions]); })(plt.Kernel.identity)
 return plt.Kernel.list([(plt.Kernel.reverse((plt.Kernel.first(strings_slash_rev_plus_pinfo)))),(plt.Kernel.second(strings_slash_rev_plus_pinfo))]);
               })()); }
 function if_dash_expression_dash__greaterthan_javascript_dash_string(test, consequent, alternative, env, a_dash_pinfo) { return ((function() { 
@@ -3035,7 +4352,7 @@ var es_plus_p;
 var s1; 
 var s2; 
 var s3; 
-(function (toplevel_dash_expression_dash_show88) { 
+(function (toplevel_dash_expression_dash_show89) { 
 es_plus_p = (expressions_dash__greaterthan_javascript_dash_strings(plt.Kernel.list([test,consequent,alternative]),env,a_dash_pinfo));
 s1 = (plt.Kernel.first((plt.Kernel.first(es_plus_p))));
 s2 = (plt.Kernel.second((plt.Kernel.first(es_plus_p))));
@@ -3045,9 +4362,11 @@ return plt.Kernel.list([plt.Kernel.string_dash_append([(plt.types.String.makeIns
 function quote_dash_expression_dash__greaterthan_javascript_dash_string(expr) { return ((plt.Kernel.empty_question_(expr)) ?
  (plt.types.String.makeInstance("plt.types.Empty.EMPTY")) :
  ((plt.Kernel.pair_question_(expr)) ?
- plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.Kernel.list([")),(string_dash_join(plt.Kernel.map((function(args) {
+ plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.Kernel.list([")),(string_dash_join(plt.Kernel.map((function() { var result = (function(args) {
                     return quote_dash_expression_dash__greaterthan_javascript_dash_string(args[0]);
-                 }), [expr]),(plt.types.String.makeInstance(",")))),(plt.types.String.makeInstance("]))"))]) :
+                 }); result.toWrittenString = function() {return '<function:quote-expression->javascript-string>'; }
+                     result.toDisplayedString = function() {return '<function:quote-expression->javascript-string>';}
+                     return result; })(), [expr]),(plt.types.String.makeInstance(",")))),(plt.types.String.makeInstance("]))"))]) :
  ((plt.Kernel.symbol_question_(expr)) ?
  plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.Symbol.makeInstance(\"")),(plt.Kernel.symbol_dash__greaterthan_string(expr)),(plt.types.String.makeInstance("\"))"))]) :
  ((plt.Kernel.number_question_(expr)) ?
@@ -3062,7 +4381,7 @@ function quote_dash_expression_dash__greaterthan_javascript_dash_string(expr) { 
 function boolean_dash_chain_dash__greaterthan_javascript_dash_string(joiner, exprs, env, a_dash_pinfo) { return ((function() { 
 
 var strings_plus_pinfo; 
-(function (toplevel_dash_expression_dash_show89) { 
+(function (toplevel_dash_expression_dash_show90) { 
 strings_plus_pinfo = (expressions_dash__greaterthan_javascript_dash_strings(exprs,env,a_dash_pinfo)); })(plt.Kernel.identity)
 return plt.Kernel.list([plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(")),(string_dash_join((plt.Kernel.first(strings_plus_pinfo)),joiner)),(plt.types.String.makeInstance(")"))]),(plt.Kernel.second(strings_plus_pinfo))]);
               })()); }
@@ -3072,7 +4391,7 @@ var inner_dash_compiled_dash_program;
 var inner_dash_body_dash_string_plus_pinfo; 
 var inner_dash_body_dash_string; 
 var updated_dash_pinfo; 
-(function (toplevel_dash_expression_dash_show90) { 
+(function (toplevel_dash_expression_dash_show91) { 
 inner_dash_compiled_dash_program = (program_dash__greaterthan_compiled_dash_program_slash_pinfo(defns,(pinfo_dash_update_dash_env(a_dash_pinfo,env))));
 inner_dash_body_dash_string_plus_pinfo = (expression_dash__greaterthan_javascript_dash_string(body,(pinfo_dash_env((compiled_dash_program_dash_pinfo(inner_dash_compiled_dash_program)))),(compiled_dash_program_dash_pinfo(inner_dash_compiled_dash_program))));
 inner_dash_body_dash_string = (plt.Kernel.first(inner_dash_body_dash_string_plus_pinfo));
@@ -3088,7 +4407,7 @@ var operator_dash_binding;
 var operand_dash_strings_plus_pinfo; 
 var operand_dash_strings; 
 var updated_dash_pinfo; 
-(function (toplevel_dash_expression_dash_show91) { 
+(function (toplevel_dash_expression_dash_show92) { 
 operator_dash_binding = (env_dash_lookup(env,operator));
 operand_dash_strings_plus_pinfo = (expressions_dash__greaterthan_javascript_dash_strings(operands,env,a_dash_pinfo));
 operand_dash_strings = (plt.Kernel.first(operand_dash_strings_plus_pinfo));
@@ -3097,7 +4416,7 @@ return ((binding_colon_constant_question_(operator_dash_binding)) ?
  plt.Kernel.list([plt.Kernel.string_dash_append([(plt.types.String.makeInstance("((")),(binding_colon_constant_dash_java_dash_string(operator_dash_binding)),(plt.types.String.makeInstance(").apply(null, [[")),(string_dash_join(operand_dash_strings,(plt.types.String.makeInstance(", ")))),(plt.types.String.makeInstance("]]))"))]),updated_dash_pinfo]) :
  ((binding_colon_function_question_(operator_dash_binding)) ?
  (plt.Kernel._lessthan_((plt.Kernel.length(operands)),(binding_colon_function_dash_min_dash_arity(operator_dash_binding)), []) ?
- (plt.Kernel.error((plt.types.Symbol.makeInstance("application-expression->java-string")),plt.Kernel.format((plt.types.String.makeInstance("Minimal arity of ~s not met.  Operands were ~s")), [operator,operands]))) :
+ (plt.Kernel.error((plt.types.Symbol.makeInstance("application-expression->javascript-string")),plt.Kernel.format((plt.types.String.makeInstance("Too few arguments passed to ~s.  Operands were ~s")), [operator,operands]))) :
  ((binding_colon_function_dash_var_dash_arity_question_(operator_dash_binding)) ?
  (plt.Kernel._greaterthan_((binding_colon_function_dash_min_dash_arity(operator_dash_binding)),(plt.types.Rational.makeInstance(0, 1)), []) ?
  plt.Kernel.list([plt.Kernel.string_dash_append([(binding_colon_function_dash_java_dash_string(operator_dash_binding)),(plt.types.String.makeInstance("(")),(string_dash_join((take(operand_dash_strings,(binding_colon_function_dash_min_dash_arity(operator_dash_binding)))),(plt.types.String.makeInstance(",")))),(plt.types.String.makeInstance(", [")),(string_dash_join((list_dash_tail(operand_dash_strings,(binding_colon_function_dash_min_dash_arity(operator_dash_binding)))),(plt.types.String.makeInstance(",")))),(plt.types.String.makeInstance("])"))]),updated_dash_pinfo]) :
@@ -3105,7 +4424,11 @@ return ((binding_colon_constant_question_(operator_dash_binding)) ?
  plt.Kernel.list([plt.Kernel.string_dash_append([(binding_colon_function_dash_java_dash_string(operator_dash_binding)),(plt.types.String.makeInstance("([")),(string_dash_join(operand_dash_strings,(plt.types.String.makeInstance(",")))),(plt.types.String.makeInstance("])"))]),updated_dash_pinfo]) :
  (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))) :
  (plt.types.Logic.TRUE ?
+ (plt.Kernel._greaterthan_((plt.Kernel.length(operands)),(binding_colon_function_dash_min_dash_arity(operator_dash_binding)), []) ?
+ (plt.Kernel.error((plt.types.Symbol.makeInstance("application-expression->javascript-string")),plt.Kernel.format((plt.types.String.makeInstance("Too many arguments passed to ~s.  Operands were ~s")), [operator,operands]))) :
+ (plt.types.Logic.TRUE ?
  plt.Kernel.list([plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(")),(binding_colon_function_dash_java_dash_string(operator_dash_binding)),(plt.types.String.makeInstance("(")),(string_dash_join(operand_dash_strings,(plt.types.String.makeInstance(",")))),(plt.types.String.makeInstance("))"))]),updated_dash_pinfo]) :
+ (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))) :
  (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond"))))))) :
  (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond"))))));
               })()) :
@@ -3116,7 +4439,7 @@ var expression_dash_strings_plus_pinfo;
 var operator_dash_string; 
 var operand_dash_strings; 
 var updated_dash_pinfo; 
-(function (toplevel_dash_expression_dash_show92) { 
+(function (toplevel_dash_expression_dash_show93) { 
 expression_dash_strings_plus_pinfo = (expressions_dash__greaterthan_javascript_dash_strings((plt.Kernel.cons(operator,operands)),env,a_dash_pinfo));
 operator_dash_string = (plt.Kernel.first((plt.Kernel.first(expression_dash_strings_plus_pinfo))));
 operand_dash_strings = (plt.Kernel.rest((plt.Kernel.first(expression_dash_strings_plus_pinfo))));
@@ -3130,16 +4453,23 @@ function identifier_dash_expression_dash__greaterthan_javascript_dash_string(an_
  ((function() { 
 
 var binding; 
-(function (toplevel_dash_expression_dash_show93) { 
+(function (toplevel_dash_expression_dash_show94) { 
 binding = (env_dash_lookup(an_dash_env,an_dash_id)); })(plt.Kernel.identity)
 return ((binding_colon_constant_question_(binding)) ?
  (binding_colon_constant_dash_java_dash_string(binding)) :
  ((binding_colon_function_question_(binding)) ?
  ((binding_colon_function_dash_var_dash_arity_question_(binding)) ?
- plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(function(args) {\n                    return ")),(binding_colon_function_dash_java_dash_string(binding)),(plt.types.String.makeInstance(".apply(null, args);\n                  })"))]) :
+ plt.Kernel.string_dash_append([(plt.types.String.makeInstance("((function() { var result = (function(args) {\n                    return ")),(binding_colon_function_dash_java_dash_string(binding)),(plt.types.String.makeInstance(".apply(null, args);\n                  }); result.toWrittenString = function() {return '<function:")),(plt.Kernel.symbol_dash__greaterthan_string((binding_dash_id(binding)))),(plt.types.String.makeInstance(">'; }\n                      result.toDisplayedString = function() {return '<function:")),(plt.Kernel.symbol_dash__greaterthan_string((binding_dash_id(binding)))),(plt.types.String.makeInstance(">';}\n                      return result; })())"))]) :
  (plt.types.Logic.TRUE ?
- plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(function(args) {\n                    return ")),(binding_colon_function_dash_java_dash_string(binding)),(plt.types.String.makeInstance("(")),(string_dash_join(plt.Kernel.map((function(args94) { var i = args94[0];
-                             return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("args[")),(plt.Kernel.number_dash__greaterthan_string(i)),(plt.types.String.makeInstance("]"))]); }), [(range((binding_colon_function_dash_min_dash_arity(binding))))]),(plt.types.String.makeInstance(", ")))),(plt.types.String.makeInstance(");\n                 })"))]) :
+ plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(function() { var result = (function(args) {\n                    return ")),(binding_colon_function_dash_java_dash_string(binding)),(plt.types.String.makeInstance("(")),(string_dash_join(plt.Kernel.map(((function() {
+                        var result = (function(args95) { var i = args95[0];
+                             return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("args[")),(plt.Kernel.number_dash__greaterthan_string(i)),(plt.types.String.makeInstance("]"))]); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()), [(range((binding_colon_function_dash_min_dash_arity(binding))))]),(plt.types.String.makeInstance(", ")))),(plt.types.String.makeInstance(");\n                 }); result.toWrittenString = function() {return '<function:")),(plt.Kernel.symbol_dash__greaterthan_string((binding_dash_id(binding)))),(plt.types.String.makeInstance(">'; }\n                     result.toDisplayedString = function() {return '<function:")),(plt.Kernel.symbol_dash__greaterthan_string((binding_dash_id(binding)))),(plt.types.String.makeInstance(">';}\n                     return result; })()"))]) :
  (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))) :
  (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond"))))));
               })()) :
@@ -3153,7 +4483,7 @@ function loop(i, elts) { return ((plt.Kernel.empty_question_(elts)) ?
  (plt.types.Logic.TRUE ?
  (plt.Kernel.cons(((f).apply(null, [[(plt.Kernel.first(elts)), i]])),(loop((plt.Kernel.add1(i)),(plt.Kernel.rest(elts)))))) :
  (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))); }
-(function (toplevel_dash_expression_dash_show96) { 
+(function (toplevel_dash_expression_dash_show97) { 
  })(plt.Kernel.identity)
 return (loop((plt.types.Rational.makeInstance(0, 1)),elts));
               })()); }
@@ -3165,34 +4495,50 @@ var args_dash_sym;
 var body_dash_string_plus_p; 
 var body_dash_string; 
 var updated_dash_pinfo; 
-(function (toplevel_dash_expression_dash_show95) { 
+(function (toplevel_dash_expression_dash_show96) { 
 
-munged_dash_arg_dash_ids = plt.Kernel.map((function(args) {
+munged_dash_arg_dash_ids = plt.Kernel.map((function() { var result = (function(args) {
                     return identifier_dash__greaterthan_munged_dash_java_dash_identifier(args[0]);
-                 }), [args]);
-new_dash_env = plt.Kernel.foldl((function(args97) { var arg_dash_id = args97[0];
-var env = args97[1];
-                             return (env_dash_extend(env,(make_dash_binding_colon_constant(arg_dash_id,(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(arg_dash_id)))),plt.types.Empty.EMPTY)))); }),env, [args]);
+                 }); result.toWrittenString = function() {return '<function:identifier->munged-java-identifier>'; }
+                     result.toDisplayedString = function() {return '<function:identifier->munged-java-identifier>';}
+                     return result; })(), [args]);
+new_dash_env = plt.Kernel.foldl(((function() {
+                        var result = (function(args98) { var arg_dash_id = args98[0];
+var env = args98[1];
+                             return (env_dash_extend(env,(make_dash_binding_colon_constant(arg_dash_id,(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(arg_dash_id)))),plt.types.Empty.EMPTY)))); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),env, [args]);
 pinfo_plus_args_dash_sym = (pinfo_dash_gensym(a_dash_pinfo,(plt.types.Symbol.makeInstance("args"))));
 a_dash_pinfo_dash_2 = (plt.Kernel.first(pinfo_plus_args_dash_sym));
 args_dash_sym = (plt.Kernel.second(pinfo_plus_args_dash_sym));
 body_dash_string_plus_p = (expression_dash__greaterthan_javascript_dash_string(body,new_dash_env,a_dash_pinfo_dash_2));
 body_dash_string = (plt.Kernel.first(body_dash_string_plus_p));
 updated_dash_pinfo = (plt.Kernel.second(body_dash_string_plus_p)); })(plt.Kernel.identity)
-return plt.Kernel.list([plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(function(")),(plt.Kernel.symbol_dash__greaterthan_string(args_dash_sym)),(plt.types.String.makeInstance(") { ")),(string_dash_join((mapi((function(args98) { var arg_dash_id = args98[0];
-var i = args98[1];
-                             return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("var ")),(plt.Kernel.symbol_dash__greaterthan_string(arg_dash_id)),(plt.types.String.makeInstance(" = ")),(plt.Kernel.symbol_dash__greaterthan_string(args_dash_sym)),(plt.types.String.makeInstance("[")),(plt.Kernel.number_dash__greaterthan_string(i)),(plt.types.String.makeInstance("];"))]); }),munged_dash_arg_dash_ids)),(plt.types.String.makeInstance("\n")))),(plt.types.String.makeInstance("\n                             return ")),body_dash_string,(plt.types.String.makeInstance("; })"))]),updated_dash_pinfo]);
+return plt.Kernel.list([plt.Kernel.string_dash_append([(plt.types.String.makeInstance("((function() {\n                        var result = (function(")),(plt.Kernel.symbol_dash__greaterthan_string(args_dash_sym)),(plt.types.String.makeInstance(") { ")),(string_dash_join((mapi(((function() {
+                        var result = (function(args99) { var arg_dash_id = args99[0];
+var i = args99[1];
+                             return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("var ")),(plt.Kernel.symbol_dash__greaterthan_string(arg_dash_id)),(plt.types.String.makeInstance(" = ")),(plt.Kernel.symbol_dash__greaterthan_string(args_dash_sym)),(plt.types.String.makeInstance("[")),(plt.Kernel.number_dash__greaterthan_string(i)),(plt.types.String.makeInstance("];"))]); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),munged_dash_arg_dash_ids)),(plt.types.String.makeInstance("\n")))),(plt.types.String.makeInstance("\n                             return ")),body_dash_string,(plt.types.String.makeInstance("; });\n                      result.toWrittenString = function () {\n                          return '<function:lambda>';\n                      };\n                      result.toDisplayedString = result.toWrittenString;\n                      return result;\n                   })())"))]),updated_dash_pinfo]);
               })()); }
 function number_dash__greaterthan_javascript_dash_string(a_dash_num) { return ((plt.Kernel.integer_question_(a_dash_num)) ?
  plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.Rational.makeInstance(")),(plt.Kernel.number_dash__greaterthan_string((plt.Kernel.inexact_dash__greaterthan_exact(a_dash_num)))),(plt.types.String.makeInstance(", 1))"))]) :
- (((plt.Kernel.inexact_question_(a_dash_num))&&(plt.Kernel.real_question_(a_dash_num))) ?
- plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.FloatPoint.makeInstance(\"")),(plt.Kernel.number_dash__greaterthan_string(a_dash_num)),(plt.types.String.makeInstance("\"))"))]) :
  ((plt.Kernel.rational_question_(a_dash_num)) ?
  plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.Rational.makeInstance(")),(plt.Kernel.number_dash__greaterthan_string((plt.Kernel.numerator(a_dash_num)))),(plt.types.String.makeInstance(", ")),(plt.Kernel.number_dash__greaterthan_string((plt.Kernel.denominator(a_dash_num)))),(plt.types.String.makeInstance("))"))]) :
+ ((plt.Kernel.real_question_(a_dash_num)) ?
+ plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.FloatPoint.makeInstance(\"")),(plt.Kernel.number_dash__greaterthan_string(a_dash_num)),(plt.types.String.makeInstance("\"))"))]) :
  ((plt.Kernel.complex_question_(a_dash_num)) ?
  plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.Complex.makeInstance(")),(plt.Kernel.number_dash__greaterthan_string((plt.Kernel.real_dash_part(a_dash_num)))),(plt.types.String.makeInstance(", ")),(plt.Kernel.number_dash__greaterthan_string((plt.Kernel.imag_dash_part(a_dash_num)))),(plt.types.String.makeInstance("))"))]) :
  (plt.types.Logic.TRUE ?
- (plt.Kernel.error((plt.types.Symbol.makeInstance("number->java-string")),(plt.types.String.makeInstance("Don't know how to handle ~s yet")),a_dash_num)) :
+ (plt.Kernel.error((plt.types.Symbol.makeInstance("number->java-string")),plt.Kernel.format((plt.types.String.makeInstance("Don't know how to handle ~s yet")), [a_dash_num]))) :
  (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond"))))))))); }
 function char_dash__greaterthan_javascript_dash_string(a_dash_char) { return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.Char.makeInstance(String.fromCharCode(")),(plt.Kernel.number_dash__greaterthan_string((plt.Kernel.char_dash__greaterthan_integer(a_dash_char)))),(plt.types.String.makeInstance(")))"))]); }
 function string_dash__greaterthan_javascript_dash_string(a_dash_str) { return ((function() { 
@@ -3206,11 +4552,13 @@ function escape_dash_char_dash_code(a_dash_char) { return (plt.Kernel.char_equal
  (plt.types.Logic.TRUE ?
  plt.Kernel.string([a_dash_char]) :
  (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))))); }
-(function (toplevel_dash_expression_dash_show99) { 
+(function (toplevel_dash_expression_dash_show100) { 
  })(plt.Kernel.identity)
-return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.String.makeInstance(\"")),(string_dash_join(plt.Kernel.map((function(args) {
+return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.String.makeInstance(\"")),(string_dash_join(plt.Kernel.map((function() { var result = (function(args) {
                     return escape_dash_char_dash_code(args[0]);
-                 }), [(plt.Kernel.string_dash__greaterthan_list(a_dash_str))]),(plt.types.String.makeInstance("")))),(plt.types.String.makeInstance("\"))"))]);
+                 }); result.toWrittenString = function() {return '<function:escape-char-code>'; }
+                     result.toDisplayedString = function() {return '<function:escape-char-code>';}
+                     return result; })(), [(plt.Kernel.string_dash__greaterthan_list(a_dash_str))]),(plt.types.String.makeInstance("")))),(plt.types.String.makeInstance("\"))"))]);
               })()); }
 (function() { 
 ((function (toplevel_dash_expression_dash_show0) { 
@@ -3220,10 +4568,17 @@ return plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types
 
 
 
+
+
+
 PERMISSION_colon_LOCATION = (make_dash_permission_colon_location());
 PERMISSION_colon_SEND_dash_SMS = (make_dash_permission_colon_send_dash_sms());
 PERMISSION_colon_TILT = (make_dash_permission_colon_tilt());
+PERMISSION_colon_SHAKE = (make_dash_permission_colon_shake());
 PERMISSION_colon_INTERNET = (make_dash_permission_colon_internet());
+PERMISSION_colon_TELEPHONY = (make_dash_permission_colon_telephony());
+PERMISSION_colon_WAKE_dash_LOCK = (make_dash_permission_colon_wake_dash_lock());
+
 
 
 
@@ -3259,17 +4614,25 @@ empty_dash_env = (make_dash_env((plt.Kernel._kernelMakeImmutableHashEq(plt.types
 toplevel_dash_env = ((function() { 
 
 var top_dash_env_dash_1; 
-function r(env, a_dash_name, arity, vararity_question_) { return (env_dash_extend_dash_function(env,a_dash_name,(plt.Kernel._resolveModulePath((plt.types.Symbol.makeInstance("lang/htdp-beginner")),plt.types.Logic.FALSE)),arity,vararity_question_,plt.Kernel.string_dash_append([(plt.types.String.makeInstance("plt.Kernel.")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(a_dash_name))))]))); }
-function r_star_(env, a_dash_name, arity, java_dash_string) { return (env_dash_extend_dash_function(env,a_dash_name,(plt.Kernel._resolveModulePath((plt.types.Symbol.makeInstance("lang/htdp-beginner")),plt.types.Logic.FALSE)),arity,plt.types.Logic.FALSE,java_dash_string)); }
+function r(env, a_dash_name, arity, vararity_question_) { return (env_dash_extend_dash_function(env,a_dash_name,(plt.types.String.makeInstance("moby/toplevel")),arity,vararity_question_,plt.Kernel.string_dash_append([(plt.types.String.makeInstance("plt.Kernel.")),(plt.Kernel.symbol_dash__greaterthan_string((identifier_dash__greaterthan_munged_dash_java_dash_identifier(a_dash_name))))]))); }
+function r_star_(env, a_dash_name, arity, java_dash_string) { return (env_dash_extend_dash_function(env,a_dash_name,(plt.types.String.makeInstance("moby/toplevel")),arity,plt.types.Logic.FALSE,java_dash_string)); }
 var top_dash_env_dash_2; 
 var top_dash_env_dash_3; 
 (function (toplevel_dash_expression_dash_show11) { 
-top_dash_env_dash_1 = plt.Kernel.foldl((function(args12) { var id_plus_name = args12[0];
+top_dash_env_dash_1 = plt.Kernel.foldl(((function() {
+                        var result = (function(args12) { var id_plus_name = args12[0];
 var env = args12[1];
-                             return (env_dash_extend_dash_constant(env,(plt.Kernel.first(id_plus_name)),(plt.Kernel.second(id_plus_name)))); }),empty_dash_env, [(plt.Kernel.list([(plt.Kernel.list([(plt.types.Symbol.makeInstance("null")),(plt.types.String.makeInstance("plt.types.Empty.EMPTY"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("empty")),(plt.types.String.makeInstance("plt.types.Empty.EMPTY"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("true")),(plt.types.String.makeInstance("plt.types.Logic.TRUE"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("false")),(plt.types.String.makeInstance("plt.types.Logic.FALSE"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eof")),(plt.types.String.makeInstance("plt.types.EofObject.EOF"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("pi")),(plt.types.String.makeInstance("plt.Kernel.pi"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("e")),(plt.types.String.makeInstance("plt.Kernel.e"))]))]))]);
+                             return (env_dash_extend_dash_constant(env,(plt.Kernel.first(id_plus_name)),(plt.Kernel.second(id_plus_name)))); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),empty_dash_env, [(plt.Kernel.list([(plt.Kernel.list([(plt.types.Symbol.makeInstance("null")),(plt.types.String.makeInstance("plt.types.Empty.EMPTY"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("empty")),(plt.types.String.makeInstance("plt.types.Empty.EMPTY"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("true")),(plt.types.String.makeInstance("plt.types.Logic.TRUE"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("false")),(plt.types.String.makeInstance("plt.types.Logic.FALSE"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eof")),(plt.types.String.makeInstance("plt.types.EofObject.EOF"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("pi")),(plt.types.String.makeInstance("plt.Kernel.pi"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("e")),(plt.types.String.makeInstance("plt.Kernel.e"))]))]))]);
 
 
-top_dash_env_dash_2 = plt.Kernel.foldl((function(args13) { var name_plus_arity = args13[0];
+top_dash_env_dash_2 = plt.Kernel.foldl(((function() {
+                        var result = (function(args13) { var name_plus_arity = args13[0];
 var env = args13[1];
                              return (plt.Kernel._equal_((plt.Kernel.length(name_plus_arity)),(plt.types.Rational.makeInstance(2, 1)), []) ?
  (r(env,(plt.Kernel.first(name_plus_arity)),(plt.Kernel.second(name_plus_arity)),plt.types.Logic.FALSE)) :
@@ -3277,10 +4640,23 @@ var env = args13[1];
  (r(env,(plt.Kernel.first(name_plus_arity)),(plt.Kernel.second(name_plus_arity)),((plt.Kernel.symbol_equal__question_((plt.Kernel.third(name_plus_arity)),(plt.types.Symbol.makeInstance("true")))) ?
  plt.types.Logic.TRUE :
  plt.types.Logic.FALSE))) :
- (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))); }),top_dash_env_dash_1, [(plt.Kernel.list([(plt.Kernel.list([(plt.types.Symbol.makeInstance("+")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("-")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("*")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("/")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance(">=")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance(">")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("<=")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("<")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("=")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("=~")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("number->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("even?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("odd?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("positive?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("negative?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("number?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("rational?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("quotient")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("remainder")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("numerator")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("denominator")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("integer?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("real?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("abs")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("acos")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("asin")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("atan")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("random")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("max")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("min")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sqr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sqrt")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("modulo")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("add1")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sub1")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("zero?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("exp")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("expt")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sgn")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("log")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("gcd")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("lcm")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("round")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("floor")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("ceiling")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sin")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cos")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("tan")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sinh")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cosh")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("angle")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("conjugate")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("magnitude")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("exact->inexact")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("inexact->exact")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("inexact?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("complex?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("real-part")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("imag-part")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("not")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("false?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("boolean?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("boolean=?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char<?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char<=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char>?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char>=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci<=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci<?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci>=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci>?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-downcase")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-lower-case?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-numeric?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-upcase")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-upper-case?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-whitespace?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-alphabetic?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char->integer")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("integer->char")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("symbol=?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("symbol->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("symbol?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string>?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string>=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string<?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string<=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci<=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci<?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci>=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci>?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("substring")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-length")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ref")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-copy")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string->number")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string->list")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string->symbol")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-append")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("list->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-string")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("empty?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("first")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("second")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("third")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("fourth")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("fifth")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sixth")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("seventh")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eighth")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("rest")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cons")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("pair?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cons?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("null?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("length")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("list")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("list*")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("list-ref")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("append")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("member")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("memq")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("memv")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("reverse")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("caaar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("caadr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("caar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cadar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cadddr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("caddr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cadr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("car")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdaar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdadr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cddar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdddr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cddr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-posn")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("posn-x")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("posn-y")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("posn?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eof-object?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("equal?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eq?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eqv?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("equal~?")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("error")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("struct?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("identity")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("current-seconds")),(plt.types.Rational.makeInstance(0, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("andmap")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("foldl")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("build-list")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("map")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("format")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))]))]))]);
-top_dash_env_dash_3 = plt.Kernel.foldl((function(args14) { var id_plus_arity_plus_name = args14[0];
+ (plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),top_dash_env_dash_1, [(plt.Kernel.list([(plt.Kernel.list([(plt.types.Symbol.makeInstance("<")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("<=")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("=")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance(">")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance(">=")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("=~")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("number->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("even?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("odd?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("positive?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("negative?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("number?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("rational?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("quotient")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("remainder")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("numerator")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("denominator")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("integer?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("real?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("abs")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("acos")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("add1")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("angle")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("asin")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("atan")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("ceiling")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("complex?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("conjugate")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cos")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cosh")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("denominator")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("even?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("exact->inexact")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("exact?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("exp")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("expt")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("floor")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("gcd")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("imag-part")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("inexact->exact")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("inexact?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("integer->char")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("integer-sqrt")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("integer?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("lcm")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("log")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("magnitude")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-polar")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-rectangular")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("max")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("min")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("modulo")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("negative?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("number->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("number?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("numerator")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("odd?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("positive?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("random")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("rational?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("real-part")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("real?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("round")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sgn")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sin")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sinh")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sqr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sqrt")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sub1")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("tan")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("zero?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("+")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("-")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("*")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("/")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("not")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("false?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("boolean?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("boolean=?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("symbol->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("symbol=?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("symbol?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("append")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("assq")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("caaar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("caadr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("caar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cadar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cadddr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("caddr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cadr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("car")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cddar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdddr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cddr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdaar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdadr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cons?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cons")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("empty?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("length")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("list")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("list*")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("list-ref")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("member")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("memq")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("memv")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("null?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("pair?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("rest")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("reverse")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("first")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("second")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("third")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("fourth")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("fifth")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sixth")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("seventh")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eighth")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-posn")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("posn-x")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("posn-y")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("posn?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char->integer")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-alphabetic?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci<=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci<?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci>=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci>?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-downcase")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-lower-case?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-numeric?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-upcase")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-upper-case?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-whitespace?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char<=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char<?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char>=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char>?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("format")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("list->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-string")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("replicate")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string->list")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string->number")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string->symbol")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-alphabetic?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-append")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci<=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci<?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci>=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci>?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-copy")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-length")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-lower-case?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-numeric?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ref")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-upper-case?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-whitespace?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string<=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string<?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string>=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string>?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("substring")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ith")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("int->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string->int")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("explode")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("implode")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eof-object?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("=~")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eq?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("equal?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("equal~?")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eqv?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("error")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("identity")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("struct?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("current-seconds")),(plt.types.Rational.makeInstance(0, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("andmap")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("argmax")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("argmin")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("build-list")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("build-string")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("compose")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("filter")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("foldl")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("foldr")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("map")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("memf")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("ormap")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("procedure?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("quicksort")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sort")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("image?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("image=?")),(plt.types.Rational.makeInstance(2, 1))]))]))]);
+top_dash_env_dash_3 = plt.Kernel.foldl(((function() {
+                        var result = (function(args14) { var id_plus_arity_plus_name = args14[0];
 var env = args14[1];
-                             return (r_star_(env,(plt.Kernel.first(id_plus_arity_plus_name)),(plt.Kernel.second(id_plus_arity_plus_name)),(plt.Kernel.third(id_plus_arity_plus_name)))); }),top_dash_env_dash_2, [(plt.Kernel.list([(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash-set")),(plt.types.Rational.makeInstance(3, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelHashSet"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash-ref")),(plt.types.Rational.makeInstance(3, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelHashRef"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-immutable-hasheq")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelMakeImmutableHashEq"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash-map")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelHashMap"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash?")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.Kernel._isHash"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("path->string")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.Kernel._pathToString"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("normalize-path")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.Kernel._normalizePath"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("resolve-module-path")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.String.makeInstance("plt.Kernel._resolveModulePath"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("build-path")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.String.makeInstance("plt.Kernel._buildPath"))]))]))]); })(plt.Kernel.identity)
+                             return (r_star_(env,(plt.Kernel.first(id_plus_arity_plus_name)),(plt.Kernel.second(id_plus_arity_plus_name)),(plt.Kernel.third(id_plus_arity_plus_name)))); });
+                      result.toWrittenString = function () {
+                          return '<function:lambda>';
+                      };
+                      result.toDisplayedString = result.toWrittenString;
+                      return result;
+                   })()),top_dash_env_dash_2, [(plt.Kernel.list([(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash-set")),(plt.types.Rational.makeInstance(3, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelHashSet"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash-ref")),(plt.types.Rational.makeInstance(3, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelHashRef"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash-remove")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelHashRemove"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-immutable-hasheq")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelMakeImmutableHashEq"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash-map")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelHashMap"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash?")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.Kernel._isHash"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("path->string")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.Kernel._pathToString"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("normalize-path")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.Kernel._normalizePath"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("resolve-module-path")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.String.makeInstance("plt.Kernel._resolveModulePath"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("build-path")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.String.makeInstance("plt.Kernel._buildPath"))]))]))]); })(plt.Kernel.identity)
 return top_dash_env_dash_3;
               })());
 
@@ -3290,8 +4666,8 @@ function bf(name, module_dash_path, arity, vararity_question_, java_dash_string)
 var module_dash_path; 
 (function (toplevel_dash_expression_dash_show15) { 
 
-module_dash_path = (plt.Kernel._resolveModulePath((plt.Kernel.list([(plt.types.Symbol.makeInstance("lib")),(plt.types.String.makeInstance("world-effects.ss")),(plt.types.String.makeInstance("moby")),(plt.types.String.makeInstance("stub")),(plt.types.String.makeInstance("private"))])),plt.types.Logic.FALSE)); })(plt.Kernel.identity)
-return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("world-effects")),module_dash_path,plt.Kernel.list([(bf((plt.types.Symbol.makeInstance("make-effect:none")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_none")))),(bf((plt.types.Symbol.makeInstance("make-effect:beep")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_beep")))),(bf((plt.types.Symbol.makeInstance("make-effect:play-sound-url")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_play_dash_sound_dash_url")))),(bf((plt.types.Symbol.makeInstance("make-effect:stop-sound-url")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_stop_dash_sound_dash_url")))),(bf((plt.types.Symbol.makeInstance("make-effect:pause-sound-url")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_pause_dash_sound_dash_url")))),(bf((plt.types.Symbol.makeInstance("make-effect:set-sound-volume")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_set_dash_sound_dash_volume")))),(bf((plt.types.Symbol.makeInstance("make-effect:raise-sound-volume")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_raise_dash_sound_dash_volume")))),(bf((plt.types.Symbol.makeInstance("make-effect:lower-sound-volume")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_lower_dash_sound_dash_volume")))),(bf((plt.types.Symbol.makeInstance("make-effect:play-dtmf-tone")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_play_dash_dtmf_dash_tone")))),(bf((plt.types.Symbol.makeInstance("make-effect:set-wake-lock")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_set_dash_wake_dash_lock")))),(bf((plt.types.Symbol.makeInstance("make-effect:release-wake-lock")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_release_dash_wake_dash_lock")))),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("make-effect:send-sms")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_sms")),plt.Kernel.list([PERMISSION_colon_SEND_dash_SMS]),plt.types.Logic.FALSE))])));
+module_dash_path = (plt.types.String.makeInstance("moby/world-effects")); })(plt.Kernel.identity)
+return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("world-effects")),module_dash_path,plt.Kernel.list([(bf((plt.types.Symbol.makeInstance("make-effect:none")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_none")))),(bf((plt.types.Symbol.makeInstance("make-effect:beep")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_beep")))),(bf((plt.types.Symbol.makeInstance("make-effect:play-sound-url")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_play_dash_sound_dash_url")))),(bf((plt.types.Symbol.makeInstance("make-effect:stop-sound-url")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_stop_dash_sound_dash_url")))),(bf((plt.types.Symbol.makeInstance("make-effect:pause-sound-url")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_pause_dash_sound_dash_url")))),(bf((plt.types.Symbol.makeInstance("make-effect:set-sound-volume")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_set_dash_sound_dash_volume")))),(bf((plt.types.Symbol.makeInstance("make-effect:raise-sound-volume")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_raise_dash_sound_dash_volume")))),(bf((plt.types.Symbol.makeInstance("make-effect:lower-sound-volume")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_lower_dash_sound_dash_volume")))),(bf((plt.types.Symbol.makeInstance("make-effect:play-dtmf-tone")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_play_dash_dtmf_dash_tone")))),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("make-effect:set-wake-lock")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_set_dash_wake_dash_lock")),plt.Kernel.list([PERMISSION_colon_WAKE_dash_LOCK]),plt.types.Logic.FALSE)),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("make-effect:release-wake-lock")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_release_dash_wake_dash_lock")),plt.Kernel.list([PERMISSION_colon_WAKE_dash_LOCK]),plt.types.Logic.FALSE)),(bf((plt.types.Symbol.makeInstance("make-effect:js-load-script")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_js_dash_load_dash_script")))),(bf((plt.types.Symbol.makeInstance("make-effect:js-exec-string")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_js_dash_exec_dash_string")))),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("make-effect:send-sms")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Kernel.make_dash_effect_colon_sms")),plt.Kernel.list([PERMISSION_colon_SEND_dash_SMS]),plt.types.Logic.FALSE))])));
               })());
 world_dash_handlers_dash_module = ((function() { 
 
@@ -3299,22 +4675,22 @@ function bf(name, module_dash_path, arity, vararity_question_, java_dash_string)
 var module_dash_path; 
 (function (toplevel_dash_expression_dash_show16) { 
 
-module_dash_path = (plt.Kernel._resolveModulePath((plt.Kernel.list([(plt.types.Symbol.makeInstance("lib")),(plt.types.String.makeInstance("world-handlers.ss")),(plt.types.String.makeInstance("moby")),(plt.types.String.makeInstance("stub")),(plt.types.String.makeInstance("private"))])),plt.types.Logic.FALSE)); })(plt.Kernel.identity)
-return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("world-config")),module_dash_path,plt.Kernel.list([(bf((plt.types.Symbol.makeInstance("on-tick")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onTick")))),(bf((plt.types.Symbol.makeInstance("on-tick*")),module_dash_path,(plt.types.Rational.makeInstance(3, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onTick_star_")))),(bf((plt.types.Symbol.makeInstance("on-mouse")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onMouse")))),(bf((plt.types.Symbol.makeInstance("on-mouse*")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onMouse_star_")))),(bf((plt.types.Symbol.makeInstance("on-key")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onKey")))),(bf((plt.types.Symbol.makeInstance("on-key*")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onKey_star_")))),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("on-location-change")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onLocationChange")),plt.Kernel.list([PERMISSION_colon_LOCATION]),plt.types.Logic.FALSE)),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("on-location-change*")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onLocationChange_star_")),plt.Kernel.list([PERMISSION_colon_LOCATION]),plt.types.Logic.FALSE)),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("on-tilt")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onTilt")),plt.Kernel.list([PERMISSION_colon_TILT]),plt.types.Logic.FALSE)),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("on-tilt*")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onTilt_star_")),plt.Kernel.list([PERMISSION_colon_TILT]),plt.types.Logic.FALSE)),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("on-acceleration")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onAcceleration")),plt.Kernel.list([PERMISSION_colon_TILT]),plt.types.Logic.FALSE)),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("on-acceleration*")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onAcceleration_star_")),plt.Kernel.list([PERMISSION_colon_TILT]),plt.types.Logic.FALSE)),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("on-shake")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onShake")),plt.Kernel.list([PERMISSION_colon_TILT]),plt.types.Logic.FALSE)),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("on-shake*")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onShake_star_")),plt.Kernel.list([PERMISSION_colon_TILT]),plt.types.Logic.FALSE)),(bf((plt.types.Symbol.makeInstance("on-redraw")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onRedraw")))),(bf((plt.types.Symbol.makeInstance("on-draw")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onDraw")))),(bf((plt.types.Symbol.makeInstance("stop-when")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.stopWhen"))))])));
+module_dash_path = (plt.types.String.makeInstance("moby/world-handlers")); })(plt.Kernel.identity)
+return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("world-config")),module_dash_path,plt.Kernel.list([(bf((plt.types.Symbol.makeInstance("on-tick")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onTick")))),(bf((plt.types.Symbol.makeInstance("on-tick*")),module_dash_path,(plt.types.Rational.makeInstance(3, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onTick_star_")))),(bf((plt.types.Symbol.makeInstance("on-mouse")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onMouse")))),(bf((plt.types.Symbol.makeInstance("on-mouse*")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onMouse_star_")))),(bf((plt.types.Symbol.makeInstance("initial-effect")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.initialEffect")))),(bf((plt.types.Symbol.makeInstance("on-key")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onKey")))),(bf((plt.types.Symbol.makeInstance("on-key*")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onKey_star_")))),(bf((plt.types.Symbol.makeInstance("on-announce")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onAnnounce")))),(bf((plt.types.Symbol.makeInstance("on-announce*")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onAnnounce_star_")))),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("on-location-change")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onLocationChange")),plt.Kernel.list([PERMISSION_colon_LOCATION]),plt.types.Logic.FALSE)),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("on-location-change*")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onLocationChange_star_")),plt.Kernel.list([PERMISSION_colon_LOCATION]),plt.types.Logic.FALSE)),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("on-tilt")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onTilt")),plt.Kernel.list([PERMISSION_colon_TILT]),plt.types.Logic.FALSE)),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("on-tilt*")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onTilt_star_")),plt.Kernel.list([PERMISSION_colon_TILT]),plt.types.Logic.FALSE)),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("on-acceleration")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onAcceleration")),plt.Kernel.list([PERMISSION_colon_TILT]),plt.types.Logic.FALSE)),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("on-acceleration*")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onAcceleration_star_")),plt.Kernel.list([PERMISSION_colon_TILT]),plt.types.Logic.FALSE)),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("on-shake")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onShake")),plt.Kernel.list([PERMISSION_colon_TILT]),plt.types.Logic.FALSE)),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("on-shake*")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onShake_star_")),plt.Kernel.list([PERMISSION_colon_TILT]),plt.types.Logic.FALSE)),(bf((plt.types.Symbol.makeInstance("on-redraw")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onRedraw")))),(bf((plt.types.Symbol.makeInstance("on-draw")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.onDraw")))),(bf((plt.types.Symbol.makeInstance("stop-when")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.config.Kernel.stopWhen"))))])));
               })());
 
 world_dash_module = ((function() { 
 
 var module_dash_path; 
 (function (toplevel_dash_expression_dash_show18) { 
-module_dash_path = (plt.Kernel._resolveModulePath((plt.Kernel.list([(plt.types.Symbol.makeInstance("lib")),(plt.types.String.makeInstance("world.ss")),(plt.types.String.makeInstance("teachpack")),(plt.types.String.makeInstance("htdp"))])),plt.types.Logic.FALSE)); })(plt.Kernel.identity)
+module_dash_path = (plt.types.String.makeInstance("moby/world")); })(plt.Kernel.identity)
 return (make_dash_world_dash_module(module_dash_path));
               })());
 world_dash_stub_dash_module = ((function() { 
 
 var module_dash_path; 
 (function (toplevel_dash_expression_dash_show19) { 
-module_dash_path = (plt.Kernel._resolveModulePath((plt.Kernel.list([(plt.types.Symbol.makeInstance("lib")),(plt.types.String.makeInstance("world.ss")),(plt.types.String.makeInstance("moby")),(plt.types.String.makeInstance("stub"))])),plt.types.Logic.FALSE)); })(plt.Kernel.identity)
+module_dash_path = (plt.types.String.makeInstance("moby/world")); })(plt.Kernel.identity)
 return (make_dash_world_dash_module(module_dash_path));
               })());
 bootstrap_dash_module = ((function() { 
@@ -3323,7 +4699,7 @@ function bf(name, module_dash_path, arity, vararity_question_, java_dash_string)
 var module_dash_path; 
 (function (toplevel_dash_expression_dash_show20) { 
 
-module_dash_path = (plt.Kernel._resolveModulePath((plt.Kernel.list([(plt.types.Symbol.makeInstance("lib")),(plt.types.String.makeInstance("bootstrap.ss")),(plt.types.String.makeInstance("moby")),(plt.types.String.makeInstance("stub"))])),plt.types.Logic.FALSE)); })(plt.Kernel.identity)
+module_dash_path = (plt.types.String.makeInstance("moby/bootstrap-world")); })(plt.Kernel.identity)
 return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("world")),module_dash_path,plt.Kernel.append(plt.Kernel.list([(bf((plt.types.Symbol.makeInstance("start")),module_dash_path,(plt.types.Rational.makeInstance(10, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.world.Bootstrap.start"))))]), [(module_dash_binding_dash_bindings(world_dash_stub_dash_module))])));
               })());
 location_dash_module = ((function() { 
@@ -3331,7 +4707,7 @@ location_dash_module = ((function() {
 var module_dash_path; 
 function bf(name, module_dash_path, arity, vararity_question_, java_dash_string) { return (make_dash_binding_colon_function(name,module_dash_path,arity,vararity_question_,java_dash_string,plt.Kernel.list([PERMISSION_colon_LOCATION]),plt.types.Logic.FALSE)); }
 (function (toplevel_dash_expression_dash_show21) { 
-module_dash_path = (plt.Kernel._resolveModulePath((plt.Kernel.list([(plt.types.Symbol.makeInstance("lib")),(plt.types.String.makeInstance("location.ss")),(plt.types.String.makeInstance("moby")),(plt.types.String.makeInstance("stub"))])),plt.types.Logic.FALSE));
+module_dash_path = (plt.types.String.makeInstance("moby/geolocation"));
  })(plt.Kernel.identity)
 return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("location")),module_dash_path,plt.Kernel.list([(bf((plt.types.Symbol.makeInstance("get-latitude")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getLatitude")))),(bf((plt.types.Symbol.makeInstance("get-longitude")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getLongitude")))),(bf((plt.types.Symbol.makeInstance("get-attitude")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getAttitude")))),(bf((plt.types.Symbol.makeInstance("get-bearing")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getBearing")))),(bf((plt.types.Symbol.makeInstance("get-speed")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getSpeed")))),(bf((plt.types.Symbol.makeInstance("location-distance")),module_dash_path,(plt.types.Rational.makeInstance(4, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getDistanceBetween"))))])));
               })());
@@ -3340,29 +4716,29 @@ tilt_dash_module = ((function() {
 var module_dash_path; 
 function bf(name, arity, vararity_question_, java_dash_string) { return (make_dash_binding_colon_function(name,module_dash_path,arity,vararity_question_,java_dash_string,plt.Kernel.list([PERMISSION_colon_TILT]),plt.types.Logic.TRUE)); }
 (function (toplevel_dash_expression_dash_show22) { 
-module_dash_path = (plt.Kernel._resolveModulePath((plt.Kernel.list([(plt.types.Symbol.makeInstance("lib")),(plt.types.String.makeInstance("tilt.ss")),(plt.types.String.makeInstance("moby")),(plt.types.String.makeInstance("stub"))])),plt.types.Logic.FALSE));
+module_dash_path = (plt.types.String.makeInstance("moby/tilt"));
  })(plt.Kernel.identity)
 return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("tilt")),module_dash_path,plt.Kernel.list([(bf((plt.types.Symbol.makeInstance("get-x-acceleration")),(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Tilt.getXAcceleration")))),(bf((plt.types.Symbol.makeInstance("get-y-acceleration")),(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Tilt.getYAcceleration")))),(bf((plt.types.Symbol.makeInstance("get-z-acceleration")),(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getZAcceleration")))),(bf((plt.types.Symbol.makeInstance("get-azimuth")),(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Tilt.getAzimuth")))),(bf((plt.types.Symbol.makeInstance("get-pitch")),(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Tilt.getPitch")))),(bf((plt.types.Symbol.makeInstance("get-roll")),(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Tilt.getRoll"))))])));
               })());
-sms_dash_module = ((function() { 
+telephony_dash_module = ((function() { 
 
 var module_dash_path; 
 (function (toplevel_dash_expression_dash_show23) { 
-module_dash_path = (plt.Kernel._resolveModulePath((plt.Kernel.list([(plt.types.Symbol.makeInstance("lib")),(plt.types.String.makeInstance("sms.ss")),(plt.types.String.makeInstance("moby")),(plt.types.String.makeInstance("stub"))])),plt.types.Logic.FALSE)); })(plt.Kernel.identity)
-return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("sms")),module_dash_path,plt.Kernel.list([(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("send-text-message")),module_dash_path,(plt.types.Rational.makeInstance(3, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Sms.sendTextMessage")),plt.Kernel.list([PERMISSION_colon_SEND_dash_SMS]),plt.types.Logic.FALSE))])));
+module_dash_path = (plt.types.String.makeInstance("moby/telephony")); })(plt.Kernel.identity)
+return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("telephony")),module_dash_path,plt.Kernel.list([(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("get-signal-strengths")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Telephony.getSignalStrengths")),plt.Kernel.list([PERMISSION_colon_TELEPHONY]),plt.types.Logic.FALSE))])));
               })());
 net_dash_module = ((function() { 
 
 var module_dash_path; 
 (function (toplevel_dash_expression_dash_show24) { 
-module_dash_path = (plt.Kernel._resolveModulePath((plt.Kernel.list([(plt.types.Symbol.makeInstance("lib")),(plt.types.String.makeInstance("net.ss")),(plt.types.String.makeInstance("moby")),(plt.types.String.makeInstance("stub"))])),plt.types.Logic.FALSE)); })(plt.Kernel.identity)
+module_dash_path = (plt.types.String.makeInstance("moby/net")); })(plt.Kernel.identity)
 return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("net")),module_dash_path,plt.Kernel.list([(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("get-url")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Net.getUrl")),plt.Kernel.list([PERMISSION_colon_INTERNET]),plt.types.Logic.FALSE))])));
               })());
 parser_dash_module = ((function() { 
 
 var module_dash_path; 
 (function (toplevel_dash_expression_dash_show25) { 
-module_dash_path = (plt.Kernel._resolveModulePath((plt.Kernel.list([(plt.types.Symbol.makeInstance("lib")),(plt.types.String.makeInstance("parser.ss")),(plt.types.String.makeInstance("moby")),(plt.types.String.makeInstance("stub"))])),plt.types.Logic.FALSE)); })(plt.Kernel.identity)
+module_dash_path = (plt.types.String.makeInstance("moby/parser")); })(plt.Kernel.identity)
 return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("parser")),module_dash_path,plt.Kernel.list([(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("parse-xml")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Parser.parseXml")),plt.types.Empty.EMPTY,plt.types.Logic.FALSE)),(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("split-whitespace")),module_dash_path,(plt.types.Rational.makeInstance(1, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Parser.splitWhitespace")),plt.types.Empty.EMPTY,plt.types.Logic.FALSE))])));
               })());
 jsworld_dash_module = ((function() { 
@@ -3370,13 +4746,13 @@ jsworld_dash_module = ((function() {
 var module_dash_path; 
 function bf(name, arity, java_dash_string) { return (make_dash_binding_colon_function(name,module_dash_path,arity,plt.types.Logic.TRUE,java_dash_string,plt.types.Empty.EMPTY,plt.types.Logic.FALSE)); }
 (function (toplevel_dash_expression_dash_show26) { 
-module_dash_path = (plt.Kernel._resolveModulePath((plt.Kernel.list([(plt.types.Symbol.makeInstance("lib")),(plt.types.String.makeInstance("jsworld.ss")),(plt.types.String.makeInstance("moby")),(plt.types.String.makeInstance("stub"))])),plt.types.Logic.FALSE));
+module_dash_path = (plt.types.String.makeInstance("moby/jsworld"));
  })(plt.Kernel.identity)
-return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("jsworld")),module_dash_path,plt.Kernel.list([(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("js-big-bang")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.TRUE,(plt.types.String.makeInstance("plt.world.MobyJsworld.bigBang")),plt.types.Empty.EMPTY,plt.types.Logic.FALSE)),(bf((plt.types.Symbol.makeInstance("js-div")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.div")))),(bf((plt.types.Symbol.makeInstance("js-button")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.button")))),(bf((plt.types.Symbol.makeInstance("js-input")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.input")))),(bf((plt.types.Symbol.makeInstance("js-text")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.text"))))])));
+return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("jsworld")),module_dash_path,plt.Kernel.list([(make_dash_binding_colon_function((plt.types.Symbol.makeInstance("js-big-bang")),module_dash_path,(plt.types.Rational.makeInstance(2, 1)),plt.types.Logic.TRUE,(plt.types.String.makeInstance("plt.world.MobyJsworld.bigBang")),plt.types.Empty.EMPTY,plt.types.Logic.FALSE)),(bf((plt.types.Symbol.makeInstance("js-div")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.div")))),(bf((plt.types.Symbol.makeInstance("js-p")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.p")))),(bf((plt.types.Symbol.makeInstance("js-button")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.button")))),(bf((plt.types.Symbol.makeInstance("js-button*")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.buttonStar")))),(bf((plt.types.Symbol.makeInstance("js-bidirectional-input")),(plt.types.Rational.makeInstance(3, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.bidirectionalInput")))),(bf((plt.types.Symbol.makeInstance("js-img")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.img")))),(bf((plt.types.Symbol.makeInstance("js-text")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.world.MobyJsworld.text"))))])));
               })());
-moby_dash_module_dash_binding = (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("moby")),(plt.Kernel._resolveModulePath((plt.Kernel.list([(plt.types.Symbol.makeInstance("lib")),(plt.types.String.makeInstance("moby.ss")),(plt.types.String.makeInstance("moby")),(plt.types.String.makeInstance("stub"))])),plt.types.Logic.FALSE)),plt.Kernel.append((module_dash_binding_dash_bindings(world_dash_stub_dash_module)), [(module_dash_binding_dash_bindings(jsworld_dash_module))])));
+moby_dash_module_dash_binding = (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("moby")),(plt.types.String.makeInstance("moby/moby")),plt.Kernel.append((module_dash_binding_dash_bindings(world_dash_stub_dash_module)), [(module_dash_binding_dash_bindings(jsworld_dash_module)),(module_dash_binding_dash_bindings(telephony_dash_module)),(module_dash_binding_dash_bindings(location_dash_module)),(module_dash_binding_dash_bindings(net_dash_module))])));
 
-known_dash_modules = plt.Kernel.list([world_dash_module,world_dash_stub_dash_module,location_dash_module,tilt_dash_module,sms_dash_module,net_dash_module,parser_dash_module,bootstrap_dash_module,moby_dash_module_dash_binding]);
+known_dash_modules = plt.Kernel.list([world_dash_module,world_dash_stub_dash_module,location_dash_module,tilt_dash_module,net_dash_module,parser_dash_module,bootstrap_dash_module,telephony_dash_module,moby_dash_module_dash_binding]);
 
 empty_dash_pinfo = (make_dash_pinfo(empty_dash_env,plt.types.Empty.EMPTY,(plt.Kernel._kernelMakeImmutableHashEq(plt.types.Empty.EMPTY)),(plt.types.Rational.makeInstance(0, 1))));
 
@@ -3432,10 +4808,12 @@ empty_dash_pinfo = (make_dash_pinfo(empty_dash_env,plt.types.Empty.EMPTY,(plt.Ke
        }
        return anArray;
    }
-   
+   var pinfo = get_dash_base_dash_pinfo(plt.types.Symbol.makeInstance('moby'));
+
    var exprs = readSchemeExpressions(s);
+
    var compiledProgram =
-       program_dash__greaterthan_compiled_dash_program(exprs);
+       program_dash__greaterthan_compiled_dash_program_slash_pinfo(exprs, pinfo);
 
    var compiledSrc = compiled_dash_program_dash_main(compiledProgram);
    var permList = pinfo_dash_permissions(compiled_dash_program_dash_pinfo(compiledProgram));
@@ -3445,5 +4823,5 @@ empty_dash_pinfo = (make_dash_pinfo(empty_dash_env,plt.types.Empty.EMPTY,(plt.Ke
                 listToArray(permission_dash__greaterthan_android_dash_permissions(permList.first())));
       permList = permList.rest();
    }
-   return [compiledSrc, perms]
+   return [compiledSrc, perms];
 }})();
