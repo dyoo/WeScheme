@@ -148,14 +148,12 @@ function leaveBlock(type, e){
 }
 
 function illuminateBlock(e){
-  //console.log("focusing");
   var tar = $(e.target);
   tar.parents(":body:first").parent().fadeTo("fast", 1.0);
   return 0;
 }
 
 function dimBlock(e){
-  //console.log("damn the torpedoes");
   var tar = $(e.target);
   tar.parents(":body:first").parent().fadeTo("slow", 0.5);
   return 0;
@@ -209,11 +207,8 @@ function backspaceKey(e) {
     if(aSelection.atStart()) {
       	e.preventDefault();
         var prev = tar.prev();
-        
-        console.log(prev.html() + " " + tar.html() );
 
         if( prev.hasClass("wspace") ){
-            console.log("removing whitespace");
             prev.remove();
             prev = tar.prev();
 
@@ -278,6 +273,10 @@ function backspaceKey(e) {
 	    range.setStart(range.startContainer, range.startOffset - 1);
 	}
 	range.deleteContents();
+  }
+
+  if( tar.text().length == 0 ){
+    tar.html("&nbsp;");
   }
 
 }
