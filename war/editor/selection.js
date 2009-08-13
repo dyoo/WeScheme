@@ -16,7 +16,6 @@ CursorSelection.prototype.toString = function() {
 };
 
 CursorSelection.prototype.atStart = function() {
-    console.log(this.start + " " + this.end);
     return this.start == this.end && this.end == 0;
 };
 
