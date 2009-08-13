@@ -44,10 +44,12 @@ function makeLiteral(e){
               .html("&nbsp;")
               .keypress(metaHandler(literalKeyHandler))));
   
+  lit.focus(illuminateBlock);
+  lit.attr("onblur","dimBlock");
+  $("#editor").blur();
   lit.splitAndInsertAtSelection();
   lit.children(".body").children(".data").focus();
   lit.children(".body").children(".data").contentFocus();
-
 }
 
 // makeString: key-event -> void
@@ -76,12 +78,13 @@ function makeString(e){
          .addClass("gray")
          .html("&#148;"));
 
-
+  str.focus(illuminateBlock);
+  str.attr("onblur","dimBlock");
+  $("#editor").blur();
   str.splitAndInsertAtSelection();
   str.children(".body").children(".data").focus();
   str.children(".body").children(".data").contentFocus();
-
-
+  
 }
 
 
@@ -113,17 +116,20 @@ function makeSexpr(e){
          .addClass("close")
          .addClass("gray")
          .text(")"));
-  
+  sexpr.focus(illuminateBlock);
+  sexpr.blur(dimBlock);
+  $("#editor").blur();
   sexpr.splitAndInsertAtSelection();
   sexpr.children(".body").children(".data").focus();
   sexpr.children(".body").children(".data").contentFocus();
-
-
 }
+
 
 function metaHandler(handler){
   return function(e){
+
     var tar = $(e.target);
+
     if( "&nbsp;" == tar.html()){
       tar.text("");
     }
@@ -141,8 +147,26 @@ function leaveBlock(type, e){
   e.preventDefault(); 
 }
 
+function illuminateBlock(e){
+  //console.log("focusing");
+  var tar = $(e.target);
+  tar.parents(":body:first").parent().fadeTo("fast", 1.0);
+  return 0;
+}
+
+function dimBlock(e){
+  //console.log("damn the torpedoes");
+  var tar = $(e.target);
+  tar.parents(":body:first").parent().fadeTo("slow", 0.5);
+  return 0;
+}
+
+
 function globalKeyHandler(e){
-  
+  $("#editor").find(".active").removeClass("active");
+  $(e.target).addClass("active");
+
+
   switch(e.keyCode){
   case 8:                   //backspace
       backspaceKey(e);
@@ -175,17 +199,21 @@ function globalKeyHandler(e){
 
 // backspace: key-event -> void
 function backspaceKey(e) {
-
+ 
     var aSelection = getCursorSelection();
     var tar = aSelection.node;
 
+    if( tar.hasClass("body") ){ tar = tar.children(".active"); }
+
     // If we're at the start edge, merge with the previous sibling.
     if(aSelection.atStart()) {
-	e.preventDefault();
-	
-        var prev = tar.prev(":first");
-    
+      	e.preventDefault();
+        var prev = tar.prev();
+        
+        console.log(prev.html() + " " + tar.html() );
+
         if( prev.hasClass("wspace") ){
+            console.log("removing whitespace");
             prev.remove();
             prev = tar.prev();
 
@@ -196,6 +224,7 @@ function backspaceKey(e) {
               tar.focusAt(loc); 
               return;
             }
+            return;
         } 
     
         var pred = tar.leafPredecessor();
@@ -249,10 +278,6 @@ function backspaceKey(e) {
 	    range.setStart(range.startContainer, range.startOffset - 1);
 	}
 	range.deleteContents();
-  }
-
-  if( tar.text().length == 0 ){
-    tar.html("&nbsp;");
   }
 
 }
