@@ -6,6 +6,38 @@ var WeSchemeEditor;
     var AUTOSAVE_TIMEOUT = 10000;
 
 
+
+    // 
+    // These are the dependencies we're trying to maintain.
+    // 
+
+    // isDirty: true if the file has been changed
+    //          false when the file becomes saved.
+
+    // saveButton: enabled only when the definitions area is dirty
+    //             and the file hasn't been published
+    //             and you own the file
+    //             
+
+    // 
+    // cloneButton: enabled all the time
+
+    // 
+    // runButton: enabled all the time
+
+    // 
+    // publishButton: enabled only when the editor isn't dirty
+    //                and the file hasn't been published yet
+    //                and you own the file
+
+    // the definitions area: readonly if you don't own the file,
+    //                       or the file has been published
+
+
+
+
+
+
     WeSchemeEditor = function(attrs) {
 	var that = this;
 
