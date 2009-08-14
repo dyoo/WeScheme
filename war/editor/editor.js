@@ -219,10 +219,24 @@ function backspaceKey(e) {
               tar.focusAt(loc); 
               return;
             }
-            return;
         } 
     
         var pred = tar.leafPredecessor();
+         
+        console.log(pred);
+
+        if( pred.hasClass("close") ){
+
+          if( !pred.hasClass("gray") ){
+            pred.addClass("gray");
+          }
+          
+          var endNode = pred.parent().children(".body").children(".data:last");
+          endNode.focus();
+          console.log(endNode);
+          endNode.focusEnd();
+          return;
+        }
 
         if( pred.hasClass("open") ){
           // Walk up from the data node
