@@ -4581,7 +4581,7 @@ function number_dash__greaterthan_javascript_dash_string(a_dash_num) { return ((
  ((plt.Kernel.rational_question_(a_dash_num)) ?
  plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.Rational.makeInstance(")),(plt.Kernel.number_dash__greaterthan_string((plt.Kernel.numerator(a_dash_num)))),(plt.types.String.makeInstance(", ")),(plt.Kernel.number_dash__greaterthan_string((plt.Kernel.denominator(a_dash_num)))),(plt.types.String.makeInstance("))"))]) :
  ((plt.Kernel.real_question_(a_dash_num)) ?
- plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.FloatPoint.makeInstance(\"")),(plt.Kernel.number_dash__greaterthan_string(a_dash_num)),(plt.types.String.makeInstance("\"))"))]) :
+ plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.FloatPoint.makeInstance(")),(plt.Kernel.number_dash__greaterthan_string(a_dash_num)),(plt.types.String.makeInstance("))"))]) :
  ((plt.Kernel.complex_question_(a_dash_num)) ?
  plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.Complex.makeInstance(")),(plt.Kernel.number_dash__greaterthan_string((plt.Kernel.real_dash_part(a_dash_num)))),(plt.types.String.makeInstance(", ")),(plt.Kernel.number_dash__greaterthan_string((plt.Kernel.imag_dash_part(a_dash_num)))),(plt.types.String.makeInstance("))"))]) :
  (plt.types.Logic.TRUE ?
@@ -4709,7 +4709,7 @@ function bf(name, module_dash_path, arity, vararity_question_, java_dash_string)
 (function (toplevel_dash_expression_dash_show21) { 
 module_dash_path = (plt.types.String.makeInstance("moby/geolocation"));
  })(plt.Kernel.identity)
-return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("location")),module_dash_path,plt.Kernel.list([(bf((plt.types.Symbol.makeInstance("get-latitude")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getLatitude")))),(bf((plt.types.Symbol.makeInstance("get-longitude")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getLongitude")))),(bf((plt.types.Symbol.makeInstance("get-attitude")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getAttitude")))),(bf((plt.types.Symbol.makeInstance("get-bearing")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getBearing")))),(bf((plt.types.Symbol.makeInstance("get-speed")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getSpeed")))),(bf((plt.types.Symbol.makeInstance("location-distance")),module_dash_path,(plt.types.Rational.makeInstance(4, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getDistanceBetween"))))])));
+return (make_dash_module_dash_binding((plt.types.Symbol.makeInstance("location")),module_dash_path,plt.Kernel.list([(bf((plt.types.Symbol.makeInstance("get-latitude")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getLatitude")))),(bf((plt.types.Symbol.makeInstance("get-longitude")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getLongitude")))),(bf((plt.types.Symbol.makeInstance("get-altitude")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getAltitude")))),(bf((plt.types.Symbol.makeInstance("get-bearing")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getBearing")))),(bf((plt.types.Symbol.makeInstance("get-speed")),module_dash_path,(plt.types.Rational.makeInstance(0, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getSpeed")))),(bf((plt.types.Symbol.makeInstance("location-distance")),module_dash_path,(plt.types.Rational.makeInstance(4, 1)),plt.types.Logic.FALSE,(plt.types.String.makeInstance("plt.lib.Location.getDistanceBetween"))))])));
               })());
 tilt_dash_module = ((function() { 
 
@@ -4799,7 +4799,7 @@ empty_dash_pinfo = (make_dash_pinfo(empty_dash_env,plt.types.Empty.EMPTY,(plt.Ke
 
 
  }))(plt.Kernel.identity)
-})();return function(s) {
+})();
    function listToArray(aList) {
        var anArray = [];
        while (!aList.isEmpty()) {     
@@ -4808,20 +4808,20 @@ empty_dash_pinfo = (make_dash_pinfo(empty_dash_env,plt.types.Empty.EMPTY,(plt.Ke
        }
        return anArray;
    }
-   var pinfo = get_dash_base_dash_pinfo(plt.types.Symbol.makeInstance('moby'));
+   var aPinfo = get_dash_base_dash_pinfo(plt.types.Symbol.makeInstance('moby'));
 
-   var exprs = readSchemeExpressions(s);
+   return function(s) {
+       var exprs = readSchemeExpressions(s);
+       var compiledProgram =
+           program_dash__greaterthan_compiled_dash_program_slash_pinfo(exprs, aPinfo);
 
-   var compiledProgram =
-       program_dash__greaterthan_compiled_dash_program_slash_pinfo(exprs, pinfo);
-
-   var compiledSrc = compiled_dash_program_dash_main(compiledProgram);
-   var permList = pinfo_dash_permissions(compiled_dash_program_dash_pinfo(compiledProgram));
-   var perms = [];
-   while (!permList.isEmpty()) {     
-      perms = perms.concat(
-                listToArray(permission_dash__greaterthan_android_dash_permissions(permList.first())));
-      permList = permList.rest();
-   }
-   return [compiledSrc, perms];
-}})();
+       var compiledSrc = compiled_dash_program_dash_main(compiledProgram);
+       var permList = pinfo_dash_permissions(compiled_dash_program_dash_pinfo(compiledProgram));
+       var perms = [];
+       while (!permList.isEmpty()) {     
+           perms = perms.concat(
+                    listToArray(permission_dash__greaterthan_android_dash_permissions(permList.first())));
+           permList = permList.rest();
+       }
+       return [compiledSrc, perms];
+   }})();
