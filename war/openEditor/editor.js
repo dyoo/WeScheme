@@ -271,6 +271,9 @@ var WeSchemeEditor;
 	if (isPublished) {
 	    this.publishButton.attr("value", "Published");
 	    this.publishButton.attr("disabled", "true");
+
+	    this.defn.setReadOnly(true);
+	    this.filenameEntry.attr("readonly", "true");
 	} else {
 	    this.publishButton.attr("value", "Publish");
 	    this.publishButton.removeAttr("disabled");
@@ -279,7 +282,7 @@ var WeSchemeEditor;
 
     WeSchemeEditor.prototype._setIsOwner = function(v) {
 	this.isOwner = v;
-	if (this.isOwner) {
+	if (this.isOwner && !this.isPublished) {
 	    this.defn.setReadOnly(false);
 	    this.filenameEntry.removeAttr("readonly");
 	} else {
@@ -287,6 +290,7 @@ var WeSchemeEditor;
 	    this.filenameEntry.attr("readonly", "true");
 	}
     }
+
 
 
     WeSchemeEditor.prototype.toString = function() { return "WeSchemeEditor()"; };
