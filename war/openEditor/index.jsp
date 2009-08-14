@@ -69,7 +69,7 @@
   jQuery("#clone").click(function() { myEditor.clone(); });
   jQuery("#run").click(function()  { myEditor.run(); });
   jQuery("#publish").click(function()  { myEditor.publish(); });
-  jQuery("#back").click(function()  { window.location = "/"; });
+  jQuery("#console").click(function()  { window.location = "/"; });
 
 
 <% if (request.getParameter("pid") != null) { %>
@@ -94,7 +94,7 @@
 <span><input id="clone" type="button" value="Clone"></input></span>
 <span><input id="run" type="button" value="Run"></input></span>
 <span><input id="publish" type="button" value="Publish"></input></span>
-<span><input id="back" type="button" value="Back to main"></input></span>
+<span><input id="console" type="button" value="Go to Console"></input></span>
 <span><a href="/openEditor/moby-user-api.txt">API docs</a></span>
 </span>
 
