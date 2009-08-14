@@ -129,7 +129,7 @@ function metaHandler(handler){
   return function(e){
 
     var tar = $(e.target);
-
+    console.log("Target: " + tar);
     if( "&nbsp;" == tar.html()){
       tar.text("");
     }

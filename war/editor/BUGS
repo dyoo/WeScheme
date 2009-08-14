@@ -1,6 +1,7 @@
 Bug: Click on the lower right corner of the black background once.
 Then type "(".  An unbalanced paren shows up.
 
+Status: This is some weird error with targets. I don't have a good fix in mind.
 
 ----------------------------------------------------------------------
 
@@ -11,10 +12,13 @@ Bug: Click to get focus on the editing div.  Then type the sentence:
 Then press backspace five times.  The focus seems to get stuck on the edge of
 the 'test' data node.
 
+Status: Cannot reproduce. Fixed?
+
 ----------------------------------------------------------------------
 
 Bug: the indentation for 'else' is not doing the right thing.
 
+Status: Function application indentation style is "to fix"
 
 ----------------------------------------------------------------------
 
@@ -23,3 +27,5 @@ Bug: click to get focus on the input div.  Then type the sequence
    "1" Enter Enter
 
 The second Enter doesn't do anything.
+
+Status: Should it?
