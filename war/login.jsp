@@ -8,6 +8,8 @@
 <html>
   <body>
 
+<h1 class="title">WeScheme Login</h1>
+
 <%
 		// Are we logged in?
 		SessionManager sm = new SessionManager();

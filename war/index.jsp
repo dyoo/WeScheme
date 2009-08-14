@@ -26,7 +26,7 @@
 </head>
 <body>
 
-
+<h1 class="title">WeScheme Console</h1>
 
 
 <%
