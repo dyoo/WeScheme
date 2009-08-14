@@ -241,17 +241,30 @@ var WeSchemeEditor;
     WeSchemeEditor.prototype.publish = function() {
 	if (this.pid) {
 	    var that = this;
-	    var data = { pid: this.pid };
-	    var type = "xml";
-	    var callback = function(data) {
+	    function callback(data, textStatus) {
 		var dom = jQuery(data);
-		that._setIsPublished(dom.find("published").text() == "true" ? true : false);
+		that._setIsPublished(dom.find("published").text() == "true" 
+				     ? true : false);
 		WeSchemeIntentBus.notify("after-publish", that);
 	    };
+
+	    function error(xmlhttp, textstatus, errorThrown) {
+		WeSchemeIntentBus.notify("exception", 
+					 [that, "publish", textstatus, errorThrown]);
+	    };
+
 	    WeSchemeIntentBus.notify("before-publish", this);
-	    jQuery.post("/publishProject", data, callback, type);
+	    var xmlhttp = jQuery.ajax({cache : false,
+				       data : { pid: this.pid },
+				       dataType: "xml",
+				       type: "POST",
+				       url: "/publishProject",
+				       success: callback,
+				       error: error
+				      });
 	}
     };
+
 
 
     WeSchemeEditor.prototype.run = function() {

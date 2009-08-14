@@ -16,10 +16,29 @@ var WeSchemeTextContainer;
 	this.changeListeners = [];
 
 	this.container.change(function() {
-	    for(var i = 0; i < that.changeListeners.length; i++) {
-		that.changeListeners[i].apply(that, []);
-	    }
+	    that._notifyListeners();
 	});
+	
+	// Polling: checks for content change.
+	// FIXME: figure out how to do this without polling.
+	(function() {
+	    var oldContent = that.container.attr("value");
+	    setInterval(function() {
+		var newContent = that.container.attr("value");
+		if (newContent != oldContent) {
+		    oldContent = newContent;
+		    setTimeout(function() {that._notifyListeners()}, 0);
+		}
+	    },
+			500);
+	})();
+	
+    };
+
+    WeSchemeTextContainer.prototype._notifyListeners = function() {
+	for(var i = 0; i < this.changeListeners.length; i++) {
+	    this.changeListeners[i].apply(this, []);
+	}
     };
 
     WeSchemeTextContainer.prototype.getCode = function() {
