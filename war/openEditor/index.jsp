@@ -89,6 +89,8 @@
 </head>
 <body>
 
+<h1 class="title">WeScheme Editor</h1>
+
 <span>
 <span><input id="save" type="button" value="Save"></input></span>
 <span><input id="clone" type="button" value="Clone"></input></span>
