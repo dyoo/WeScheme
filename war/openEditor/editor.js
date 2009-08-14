@@ -210,7 +210,8 @@ var WeSchemeEditor;
 	    that.publicIdDiv.append(jQuery("<input/>")
 				    .attr("type", "text")
 				    .attr("size", publicUrl.length)
-				    .attr("value", publicUrl));
+				    .attr("value", publicUrl)
+				    .attr("readonly", true));
 	    that.filenameEntry.attr("value", dom.find("title").text());
 	    that.defn.setCode(dom.find("source").text());
 	    that._setIsPublished(dom.find("published").text() == "true" ?
