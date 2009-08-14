@@ -27,6 +27,15 @@ WeSchemeStatusBar = (function() {
 		       category == 'after-run' && 
 		       data instanceof WeSchemeEditor) {
 		that.notify("Executed definitions");	    
+	    } else if (action == 'notify' &&
+		       category == 'exception') {
+		var component = data[0];
+		if (component instanceof WeSchemeEditor) {
+		    var operation = data[1];
+		    var statustext = data[2];
+		    var exceptionObj = data[3];
+		    that.notify("Exception occured in operation " + operation);
+		}
 	    }
 	};
 
@@ -37,9 +46,6 @@ WeSchemeStatusBar = (function() {
 
     WeSchemeStatusBar.prototype.notify = function(msg) {
 	this.statusbar.text(msg);
-// 	var that = this;
-// 	this.statusbar.append(jQuery("<div/>").text(msg));
-
     };
 
 
