@@ -17,10 +17,10 @@ var WeSchemeEditor;
     // saveButton: enabled only when the definitions area is dirty
     //             and the file hasn't been published
     //             and you own the file
-    //             
+    //             and you are logged in (non-"null" name)
 
     // 
-    // cloneButton: enabled all the time
+    // cloneButton: enabled when you are logged in (non-"null" name)
 
     // 
     // runButton: enabled all the time
