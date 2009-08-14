@@ -449,7 +449,7 @@ function doRestore() {
 $(document).ready(function() {
 
     // Set the default keyhandler of the editor.
-    $("#editor").keypress(sexprKeyHandler);
+    $("body").keypress(sexprKeyHandler);
 
     // Hooking up the save and restore buttons.
     $("#save").click(function(e) {
