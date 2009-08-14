@@ -1,0 +1,25 @@
+Bug: Click on the lower right corner of the black background once.
+Then type "(".  An unbalanced paren shows up.
+
+
+----------------------------------------------------------------------
+
+Bug: Click to get focus on the editing div.  Then type the sentence:
+
+    this is a test
+
+Then press backspace five times.  The focus seems to get stuck on the edge of
+the 'test' data node.
+
+----------------------------------------------------------------------
+
+Bug: the indentation for 'else' is not doing the right thing.
+
+
+----------------------------------------------------------------------
+
+Bug: click to get focus on the input div.  Then type the sequence
+
+   "1" Enter Enter
+
+The second Enter doesn't do anything.
