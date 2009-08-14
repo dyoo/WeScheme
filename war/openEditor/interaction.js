@@ -19,11 +19,14 @@ WeSchemeInteractions = (function () {
 
     
 
-
+    var _freshToplevel = false;
     // freshPinfo: -> pinfo
     // Returns a new Pinfo object with a good toplevel environment.
     function freshPinfo() {
-	return get_dash_base_dash_pinfo(plt.types.Symbol.makeInstance("moby"));
+	if (!_freshToplevel) { 
+	    _freshToplevel = get_dash_base_dash_pinfo(plt.types.Symbol.makeInstance("moby"));
+	}
+	return _freshToplevel;
     }
 
 
