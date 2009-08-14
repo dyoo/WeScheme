@@ -210,7 +210,8 @@ var WeSchemeEditor;
 	    that.publicIdDiv.append(jQuery("<input/>")
 				    .attr("type", "text")
 				    .attr("size", publicUrl.length)
-				    .attr("value", publicUrl));
+				    .attr("value", publicUrl)
+				    .attr("readonly", true));
 	    that.filenameEntry.attr("value", dom.find("title").text());
 	    that.defn.setCode(dom.find("source").text());
 	    that._setIsPublished(dom.find("published").text() == "true" ?
@@ -270,6 +271,9 @@ var WeSchemeEditor;
 	if (isPublished) {
 	    this.publishButton.attr("value", "Published");
 	    this.publishButton.attr("disabled", "true");
+
+	    this.defn.setReadOnly(true);
+	    this.filenameEntry.attr("readonly", "true");
 	} else {
 	    this.publishButton.attr("value", "Publish");
 	    this.publishButton.removeAttr("disabled");
@@ -278,7 +282,7 @@ var WeSchemeEditor;
 
     WeSchemeEditor.prototype._setIsOwner = function(v) {
 	this.isOwner = v;
-	if (this.isOwner) {
+	if (this.isOwner && !this.isPublished) {
 	    this.defn.setReadOnly(false);
 	    this.filenameEntry.removeAttr("readonly");
 	} else {
@@ -286,6 +290,7 @@ var WeSchemeEditor;
 	    this.filenameEntry.attr("readonly", "true");
 	}
     }
+
 
 
     WeSchemeEditor.prototype.toString = function() { return "WeSchemeEditor()"; };
