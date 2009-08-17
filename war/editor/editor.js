@@ -7,7 +7,13 @@ function makeBreak(e){
              .addClass("wspace")
              .attr("contenteditable","false");
   brk.splitAndInsertAtSelection();
-  brk.next().focusStart();
+  var nxt = brk.next();
+  if( !nxt.text().length ){
+    nxt.html("&nbsp;");
+  }
+  sizeParens(nxt.parents(".sexpr:first"));
+  nxt.focusStart();
+
 }
 
 // makeSpace: key-event -> void
@@ -32,6 +38,7 @@ function makeLiteral(e){
        $("<div />")
          .addClass("tick")
          .attr("contenteditable","false")
+         .click(clickOpen)
          .text('\''))
       .append(
         $("<div />")
@@ -62,6 +69,8 @@ function makeString(e){
      .append(
        $("<div />")
          .addClass("open")
+         .addClass("openQuote")
+         .click(clickOpen)
          .html("&#147;"))
      .append(
        $("<div />")
@@ -75,7 +84,9 @@ function makeString(e){
      .append(
        $("<div />")
          .addClass("close")
+         .addClass("closeQuote")
          .addClass("gray")
+         .click(clickClose)
          .html("&#148;"));
 
   str.focus(illuminateBlock);
@@ -100,6 +111,8 @@ function makeSexpr(e){
      .append(
        $("<div />")
          .addClass("open")
+         .addClass("openParen")
+         .click(clickOpen)
          .text("("))
      .append(
        $("<div />")
@@ -114,12 +127,15 @@ function makeSexpr(e){
      .append(
        $("<div />")
          .addClass("close")
+         .addClass("closeParen")
+         .click(clickClose)
          .addClass("gray")
          .text(")"));
   sexpr.focus(illuminateBlock);
   sexpr.blur(dimBlock);
   $("#editor").blur();
   sexpr.splitAndInsertAtSelection();
+  sizeParens(sexpr);
   sexpr.children(".body").children(".data").focus();
   sexpr.children(".body").children(".data").contentFocus();
 }
@@ -129,7 +145,6 @@ function metaHandler(handler){
   return function(e){
 
     var tar = $(e.target);
-    console.log("Target: " + tar);
     if( "&nbsp;" == tar.html()){
       tar.text("");
     }
@@ -223,7 +238,6 @@ function backspaceKey(e) {
     
         var pred = tar.leafPredecessor();
          
-        console.log(pred);
 
         if( pred.hasClass("close") ){
 
@@ -233,7 +247,6 @@ function backspaceKey(e) {
           
           var endNode = pred.parent().children(".body").children(".data:last");
           endNode.focus();
-          console.log(endNode);
           endNode.focusEnd();
           return;
         }
@@ -295,6 +308,32 @@ function backspaceKey(e) {
 
 }
 
+function clickOpen(e){
+  e.stopPropagation();
+	var predecessor = $(e.target).predecessorWith(
+	    function(p){ 
+		  return p.attr("contenteditable") == "true" && p.children().size() == 0;
+	    });
+	if (predecessor.size() > 0) {
+	    predecessor.get(0).focus();
+      predecessor.focusEnd();
+	}
+
+}
+
+function clickClose(e){
+  e.stopPropagation();
+	var successor =	$(e.target).successorWith(
+	    function(p){ 
+		return p.attr("contenteditable") == "true" && p.children().size() == 0;
+	    });
+
+	if (successor.size() > 0) {
+	    successor.focusStart();
+	}
+ }
+
+
 // FIXME: We may need to do something clever here, at least according to
 // http://stackoverflow.com/questions/202285/trigger-a-keypress-with-jqueryand-specify-which-key-was-pressed
 function leftKey(e) {
@@ -345,7 +384,7 @@ function sexprKeyHandler(e){
 
   e.stopPropagation();
   var tar = $(e.target).parents(".body:first");
-  
+    
   switch(e.charCode){
   case 34:                 // quote
       makeString(e);
@@ -356,21 +395,56 @@ function sexprKeyHandler(e){
       e.preventDefault();
       break;
   case 40:                 // paren
+  case 91:
       makeSexpr(e);
       e.preventDefault();
       break;
   case 41:
+  case 93:
       leaveBlock("close",e);
       break;
     default:
       globalKeyHandler(e);
   }
+  
+  setTimeout(function(){
+               tar.indent(); 
+               sizeParens($(e.target).parents(".sexpr:first"));
+            },1);
 
-  setTimeout(function(){tar.indent();},1);
   return true;
 }
 
+function sizeParens(sexpr){
+  var bdy = sexpr.children(".body");
+  var currSz;
 
+  if( bdy ){
+    var height = scalePx(bdy.css("height"),1.25);
+    var open  = sexpr.children(".open");
+    var close = sexpr.children(".close");
+    currSz = open.css("font-size");
+    open.css("font-size", height);
+    close.css("font-size", height);
+  }
+
+  var enclosingSexpr = sexpr.parents(".sexpr:first");
+  
+  if( enclosingSexpr.length ){
+    sizeParens(enclosingSexpr);
+  }
+  return;
+}
+
+
+function scalePx(str, scalar){
+
+  var num = (new String(str)).split('px')[0] - 0;
+  num *= scalar;
+  num = Math.floor(num);
+  return num + "px";
+  
+}
 // literalKeyHandler: key-event -> void
 function literalKeyHandler(e){
   
@@ -412,6 +486,7 @@ function stringKeyHandler(e){
 }
 
 
+
 // isParen: key-event -> boolean
 function isParen(e){ return (e.charCode == 40); }
 
@@ -437,8 +512,6 @@ function doSave() {
     savedContents = serialize($("#editor"));
 }
 
-
-
 // doRestore: -> void
 // Restore the contents of the buffer.
 function doRestore() {
@@ -450,7 +523,7 @@ $(document).ready(function() {
 
     // Set the default keyhandler of the editor.
     $("body").keypress(sexprKeyHandler);
-
+    
     // Hooking up the save and restore buttons.
     $("#save").click(function(e) {
 	doSave();
@@ -461,6 +534,8 @@ $(document).ready(function() {
 	e.preventDefault();
     });
 
+    $("#head").focus();
+    $("#head").contentFocus();
     // Do an initial save.
     doSave();
 });
