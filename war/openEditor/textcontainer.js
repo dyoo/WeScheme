@@ -41,6 +41,13 @@ var WeSchemeTextContainer;
 	}
     };
 
+
+    // Returns a behavior of the source code
+    WeSchemeTextContainer.prototype.getSourceB = function() {
+	return extractValueB(this.container.get(0));
+    };
+
+
     WeSchemeTextContainer.prototype.getCode = function() {
 	var result = this.container.attr("value");
 	return result;
