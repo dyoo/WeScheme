@@ -33,6 +33,8 @@ var WeSchemeEditor;
     // the definitions area: readonly if you don't own the file,
     //                       or the file has been published
 
+    
+    //////////////////////////////////////////////////////////////////////
 
 
 
@@ -42,6 +44,7 @@ var WeSchemeEditor;
 	var that = this;
 
 	this.userName = attrs.userName; // string
+
 
 	// defn is assumed to be Containers.
 	// The only container we've got so far are TextContainers.
@@ -85,7 +88,101 @@ var WeSchemeEditor;
 
 	startAutosaving(this);
 	startIsDirtyMonitor(this);
+
+
+
+
+
+	//////////////////////////////////////////////////////////////////////
+
+	// Flapjax stuff.
+	
+	//////////////////////////////////////////////////////////////////////
+	// EVENTS
+	//////////////////////////////////////////////////////////////////////
+
+	// savedE is a boolean eventStream which receives true
+	// when a save has happened.
+	this.savedE = receiverE();	
+
+	// loadedE is a boolean eventStream that receives true whenever
+	// a load has happened.
+	this.loadedE = receiverE();
+
+
+	// publishedE is a boolean eventStream which receives true
+	// when a publication has happened
+	this.publishedE = receiverE();
+
+
+
+	//////////////////////////////////////////////////////////////////////
+	//////////////////////////////////////////////////////////////////////
+
+	// BEHAVIORS
+
+	// loggedInB is a boolean behavior that's true when the user has
+	// logged in.
+	this.isLoggedInB = constantB(this._getIsLoggedIn());
+
+
+	// isPublishedB is a boolean eventStream that's true if we receive an
+	// publication event, or if we just a published program. 
+	this.isPublishedB = startsWith(
+	    mergeE(this.publishedE,
+		   this.loadedE.mapE(function(v) { return that.isPublished })),
+	    false);
+
+
+	// isOwnerB is a boolean behavior that's true if we own the file,
+	// and false otherwise.  It changes on load.
+	this.isOwnerB = startsWith(
+	    this.loadedE.mapE(function(v) { return that.isOwner; }, false));
+
+
+	// isDirtyB is initially false, and changes when
+	// saves or changes to the source occur.
+	this.isDirtyB = startsWith(
+	    mergeE(	
+		// false if we loaded a file
+		constantE(this.loadedE, false),
+		// false when the file becomes saved.
+		constantE(this.savedE, false),
+		// true if the file has been changed.
+		constantE(changes(this.defn.getSourceB()), true)),
+	    
+	    false
+	);
+
+
+
+	// saveButton: enabled only when the definitions area is dirty
+	//             and the file hasn't been published
+	//             and you own the file
+	//             and you are logged in (non-"null" name)
+	var saveButtonEnabledB = andB(this.isDirtyB,
+				      notB(this.isPublishedB),
+				      this.isOwnerB,
+				      this.isLoggedInB
+				     );
+	saveButtonEnabledB.changes().mapE(function(v) { 
+	    console.log("dirty:" + valueNow(that.isDirtyB));
+	    console.log("published: " + valueNow(that.isPublishedB));
+	    console.log("owner: " + valueNow(that.isOwnerB));
+	    console.log("logged in" + valueNow(that.isLoggedInB));
+	    console.log("save button enabled: " + v); 
+	});
     };
+
+
+
+
+    // WeSchemeEditor._getIsLoggedIn: -> boolean
+    // Returns true if the user has been logged in.
+    WeSchemeEditor.prototype._getIsLoggedIn = function() {
+	return (this.userName && this.userName != 'null');
+    }
+
 
 
 
@@ -169,6 +266,7 @@ var WeSchemeEditor;
 	    that.pidDiv.text(data);
 	    that.filenameEntry.value = data;
 
+	    that.savedE.sendEvent(true);
 	    WeSchemeIntentBus.notify("after-save", that);
 	}
 
@@ -256,7 +354,7 @@ var WeSchemeEditor;
 	    } else {
 		that._setIsOwner(false);
 	    }
-
+	    that.loadedE.sendEvent("true");
 	    WeSchemeIntentBus.notify("after-load", that);
 	};
 	WeSchemeIntentBus.notify("before-load", this);
@@ -279,6 +377,7 @@ var WeSchemeEditor;
 		var dom = jQuery(data);
 		that._setIsPublished(dom.find("published").text() == "true" 
 				     ? true : false);
+		that.publishedE.sendEvent(true);
 		WeSchemeIntentBus.notify("after-publish", that);
 	    };
 
