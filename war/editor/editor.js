@@ -111,9 +111,11 @@ function makeSexpr(e){
      .append(
        $("<div />")
          .addClass("open")
-         .addClass("openParen")
          .click(clickOpen)
-         .text("("))
+         .append(
+           $("<img />")
+             .addClass("openParen")
+             .attr("src", "canada.svg.png")))
      .append(
        $("<div />")
          .addClass("body")
@@ -130,7 +132,7 @@ function makeSexpr(e){
          .addClass("closeParen")
          .click(clickClose)
          .addClass("gray")
-         .text(")"));
+         .text("]"));
   sexpr.focus(illuminateBlock);
   sexpr.blur(dimBlock);
   $("#editor").blur();
