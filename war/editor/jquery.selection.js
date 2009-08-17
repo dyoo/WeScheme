@@ -95,7 +95,7 @@
 	var originalText = dataNode.text();
 	var prefixNode = dataNode.clone(true).empty().text(originalText.substring(0, range.startOffset)).attr("contenteditable", "true");
 	var suffixNode = dataNode.clone(true).empty().text(originalText.substring(range.startOffset)).attr("contenteditable", "true");
- 
+
   dataNode.empty();
   dataNode.append(prefixNode);
   dataNode.append(this);

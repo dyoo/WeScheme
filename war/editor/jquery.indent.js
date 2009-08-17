@@ -19,13 +19,15 @@
   function defineIndenter(n,c){
     
     var offset = c.prevAll(".space").length;
-    var distance = 3;
+    var distance = 2;
 
     if(!c.hasClass("define-like")){
         return;
     }
     var kids = $(n).children();
     var indentNext = false;
+    distance *= 0.64;
+
     kids.each(function(){
       var elm = jQuery(this);
 
@@ -70,6 +72,7 @@
     
     var indentNext = false;
 
+    distance *= 0.64;
     kids.each(function(){
       var elm = jQuery(this);
       
@@ -114,7 +117,9 @@
       }
 
     });
-    
+
+
+    distance = distance * 0.64;
     var indentNext = false;
 
     kids.each(function(){
@@ -157,6 +162,7 @@
         }
 
         
+    distance *= 0.64;
 
         if(indentNext){
           elm.attr("style","padding-left:" + distance + "em");
