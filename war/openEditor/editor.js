@@ -21,6 +21,7 @@ var WeSchemeEditor;
 
     // 
     // cloneButton: enabled when you are logged in (non-"null" name)
+    //              and the file isn't dirty
 
     // 
     // runButton: enabled all the time
@@ -84,8 +85,6 @@ var WeSchemeEditor;
 	this.defn.addChangeListener(function() {
 	    WeSchemeIntentBus.notify("definitions-changed", that);
 	});
-
-
 
 
 
@@ -177,7 +176,6 @@ var WeSchemeEditor;
 	    false);
 
 
-
 	// saveButton: enabled only when the definitions area is dirty
 	//             and the file hasn't been published
 	//             and (you own the file, or the file is new)
@@ -188,16 +186,13 @@ var WeSchemeEditor;
 					   this.isNewFileB),
 				       this.isLoggedInB);
 
+    
+	// The areas are editable under the following condition:
+	var isEditableB = andB(orB(this.isOwnerB, 
+				   this.isNewFileB),
+			       notB(this.isPublishedB));
+	
 
-	// 
-	// publishButton: enabled only when the editor isn't dirty
-	//                and the file hasn't been published yet
-	//                and you own the file
-	this.publishButtonEnabledB = andB(notB(this.isDirtyB),
-					  notB(this.isPublishedB),
-					  this.isOwnerB);
-    
-    
 	//////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////
 	// HOOKS
@@ -211,13 +206,30 @@ var WeSchemeEditor;
 	insertEnabledB(this.saveButtonEnabledB, this.saveButton);
 
 	// The clone button's enabled state
-	insertEnabledB(this.isLoggedInB, this.cloneButton);
+	insertEnabledB(andB(this.isLoggedInB, notB(this.isDirtyB)),
+		       this.cloneButton);
     
 	// The publish button's enabled state
-	insertEnabledB(this.publishButtonEnabledB, this.publishButton);
+	// 
+	// publishButton: enabled only when the editor isn't dirty
+	//                and the file hasn't been published yet
+	//                and you own the file
+	insertEnabledB(andB(notB(this.isDirtyB),
+			    notB(this.isPublishedB),
+			    this.isOwnerB), 
+		       this.publishButton);
 
 
-
+	// Editable editors and text areas.
+	isEditableB.changes().mapE(function(v) {
+	    if (v) {
+ 		that.defn.setReadOnly(false);
+ 		that.filenameEntry.removeAttr("readonly");
+ 	    } else {
+ 		that.defn.setReadOnly(true);
+ 		that.filenameEntry.attr("readonly", "true");
+	    }
+	});
     };
 
 
