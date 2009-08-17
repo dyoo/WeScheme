@@ -49,7 +49,6 @@ var WeSchemeEditor;
 	// defn is assumed to be Containers.
 	// The only container we've got so far are TextContainers.
 	this.defn = attrs.defn;  // TextAreaContainer
-	this.isDirty = false;
 	this.isOwner = true;
 
 	this.interactions = new WeSchemeInteractions(attrs.interactions);
@@ -86,8 +85,8 @@ var WeSchemeEditor;
 	});
 
 
-	startAutosaving(this);
-	startIsDirtyMonitor(this);
+//	startAutosaving(this);
+//	startIsDirtyMonitor(this);
 
 
 
@@ -110,11 +109,26 @@ var WeSchemeEditor;
 	this.loadedE = receiverE();
 
 
+	// contentChangedE event fires true if the source or filename
+	// changes.
+	this.contentChangedE = mergeE(
+	    constantE(changes(this.defn.getSourceB()), true),
+	    constantE(changes(extractValueB(this.filenameEntry.get(0))), true));
+	
+
 	// publishedE is a boolean eventStream which receives true
 	// when a publication has happened
 	this.publishedE = receiverE();
 
 
+
+	// We'll fire off an autosave if the content has changed and
+	// saving is enabled.
+	this.autosaveRequestedE = 
+	    filterE(calmE(this.contentChangedE, constantB(AUTOSAVE_TIMEOUT)),
+		    function(v) {return v && valueNow(that.saveButtonEnabledB)});
+
+	
 
 	//////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////
@@ -143,16 +157,12 @@ var WeSchemeEditor;
 	// isDirtyB is initially false, and changes when
 	// saves or changes to the source occur.
 	this.isDirtyB = startsWith(
-	    mergeE(	
-		// false if we loaded a file
+	    mergeE(// false if we loaded a file
 		constantE(this.loadedE, false),
 		// false when the file becomes saved.
 		constantE(this.savedE, false),
-		// true if the file has been changed.
-		constantE(changes(this.defn.getSourceB()), true)),
-	    
-	    false
-	);
+		constantE(this.contentChangedE, true)),
+	    false);
 
 
 
@@ -160,20 +170,35 @@ var WeSchemeEditor;
 	//             and the file hasn't been published
 	//             and you own the file
 	//             and you are logged in (non-"null" name)
-	var saveButtonEnabledB = andB(this.isDirtyB,
-				      notB(this.isPublishedB),
-				      this.isOwnerB,
-				      this.isLoggedInB
-				     );
-	saveButtonEnabledB.changes().mapE(function(v) { 
-	    console.log("dirty:" + valueNow(that.isDirtyB));
-	    console.log("published: " + valueNow(that.isPublishedB));
-	    console.log("owner: " + valueNow(that.isOwnerB));
-	    console.log("logged in" + valueNow(that.isLoggedInB));
-	    console.log("save button enabled: " + v); 
+	this.saveButtonEnabledB = andB(this.isDirtyB,
+				       notB(this.isPublishedB),
+				       this.isOwnerB,
+				       this.isLoggedInB);
+
+
+	//////////////////////////////////////////////////////////////////////
+
+	this.autosaveRequestedE.mapE(function(v) { 
+	    that._autosave();
 	});
+
+	
+	insertEnabledB(this.saveButtonEnabledB, this.saveButton);
     };
 
+
+
+    // Inserting the value of a boolean behavior into the enabled
+    // attribute of a node.
+    function insertEnabledB(aBooleanBehavior, jQueryNode) {
+	aBooleanBehavior.changes().mapE(function(v) {
+	    if (v) {
+		jQueryNode.removeAttr("disabled")
+	    } else {
+		jQueryNode.attr("disabled", "true");
+	    }
+	});
+    }
 
 
 
@@ -194,7 +219,6 @@ var WeSchemeEditor;
 	    if ((category == 'filename-changed' || 
 		 category == 'definitions-changed') && 
 		data == editor) {
-		editor.isDirty = true;
 
 		if (editor.isPublished) {
 		    editor.saveButton.attr("value", "Save");
@@ -206,7 +230,6 @@ var WeSchemeEditor;
 
 	    } else if (((category == 'after-save' || category == 'after-load') 
 			&& data == editor)) {
-		editor.isDirty = false;
 
 		editor.saveButton.attr("value", "Saved");
 		editor.saveButton.attr("disabled", "true");		
@@ -217,41 +240,11 @@ var WeSchemeEditor;
 
 
 
-    // Every few seconds, will check if the program hasn't been saved yet.
-    function startAutosaving(editor) {
-	var currentTimer = false;
-
-	function restartTimerListener(action, category, data) {
-	    if (action == "notify" && 
-		category == "before-save" && 
-		data instanceof WeSchemeEditor) {
-		if (currentTimer) {
-		    clearTimeout(currentTimer);
-		}
-		currentTimer = beginTimer();
-	    }
-	}
-
-	function timerFiredOff() {
-	    if (editor.isDirty) {
-		WeSchemeIntentBus.notify("autosave", editor);
-		if (editor.pid && ! editor.isPublished) {
-		    editor.save();
-		}
-	    }
-	    clearTimeout(currentTimer);
-	    currentTimer = beginTimer();
-	}
-
-	function beginTimer() {
-	    return setTimeout(timerFiredOff, AUTOSAVE_TIMEOUT);
-	}
-
-	WeSchemeIntentBus.addNotifyListener(restartTimerListener);
-	currentTimer = beginTimer();
-    }
-
-
+    // WeSchemeEditor._autosave: -> void
+    WeSchemeEditor.prototype._autosave = function() {
+	WeSchemeIntentBus.notify("autosave", this);
+	this.save();
+    };
 
 
 
