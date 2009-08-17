@@ -19,6 +19,8 @@ function loadProgramList() {
 				.addClass("ProgramTitle"));
 		var modifiedDiv = (jQuery("<div/>").text("Last modified: " + modifiedDate.toTimeString())
 				   .addClass("ProgramModified"));
+		var publishedDiv = (jQuery("<div/>").text(digest.find("published").text())
+				    .addClass("ProgramPublishedPublished"));
 		var form = (jQuery("<form/>")
 			    .attr("method", "post")
 			    .attr("action",   "/openEditor?pid=" + 
@@ -31,6 +33,7 @@ function loadProgramList() {
 					.append(titleDiv)
 					.append(idDiv)
 					.append(modifiedDiv)
+					.append(publishedDiv)
 					.append(form))
 				.addClass("ProgramEntry"));
 		programListDiv.append(newEntry);

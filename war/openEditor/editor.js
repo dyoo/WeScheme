@@ -68,6 +68,8 @@ var WeSchemeEditor;
 			      }));;
 	this.filenameDiv.append(this.filenameEntry);
 
+
+	this.publishedDiv = attrs.publishedDiv;
 	this.isPublished = false;
 
 	// publishButton: (jqueryof button)
@@ -312,6 +314,8 @@ var WeSchemeEditor;
 
     WeSchemeEditor.prototype._setIsPublished = function(isPublished) {
 	this.isPublished = isPublished;
+	
+	this.publishedDiv.text(isPublished.toString());
 
 	if (isPublished) {
 	    this.publishButton.attr("value", "Published");

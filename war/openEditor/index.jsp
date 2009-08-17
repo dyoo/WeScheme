@@ -60,6 +60,8 @@
     publicIdPane: jQuery("#publicIdPane"),
     publicIdDiv: jQuery("#publicId"),
 
+    publishedDiv: jQuery("#published"),
+
     saveButton : jQuery("#save"),
     cloneButton : jQuery("#clone"),
 
@@ -112,6 +114,13 @@
   <div id="publicIdLabel">Public URL:</div>
   <div id="publicId"></div>
 </div>
+
+
+<div id="publishedPane">
+  <div id="publishedLabel">Publication status:</div>
+  <div id="published"></div>
+</div>
+
 
 
 
