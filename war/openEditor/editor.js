@@ -55,6 +55,7 @@ var WeSchemeEditor;
 	this.interactions.reset();
 
 	this.saveButton = attrs.saveButton;
+	this.cloneButton = attrs.cloneButton;
 
 	this.pidDiv = attrs.pidDiv;           // JQuery
 	this.filenameDiv = attrs.filenameDiv; // JQuery
@@ -135,9 +136,25 @@ var WeSchemeEditor;
 
 	// BEHAVIORS
 
+
+
 	// loggedInB is a boolean behavior that's true when the user has
 	// logged in.
 	this.isLoggedInB = constantB(this._getIsLoggedIn());
+
+
+	// A number or false behavior.
+	this.pidB = startsWith(
+	    changes(this.isLoggedInB).mapE(function(v) {
+		return that.pid; }),
+	    false);
+
+
+	// Returns true if the file is new.
+	this.isNewFileB = startsWith(
+ 	    changes(this.pidB).mapE(function(v) {
+ 		return that.pid != false; }),
+ 	    true);
 
 
 	// isPublishedB is a boolean eventStream that's true if we receive an
@@ -161,29 +178,38 @@ var WeSchemeEditor;
 		constantE(this.loadedE, false),
 		// false when the file becomes saved.
 		constantE(this.savedE, false),
+		// true if the content has changed.
 		constantE(this.contentChangedE, true)),
 	    false);
 
 
 
+
+
 	// saveButton: enabled only when the definitions area is dirty
 	//             and the file hasn't been published
-	//             and you own the file
+	//             and (you own the file, or the file is new)
 	//             and you are logged in (non-"null" name)
 	this.saveButtonEnabledB = andB(this.isDirtyB,
 				       notB(this.isPublishedB),
-				       this.isOwnerB,
+				       orB(this.isOwnerB,
+					   this.isNewFileB),
 				       this.isLoggedInB);
 
 
 	//////////////////////////////////////////////////////////////////////
 
+
+	// Autosave
 	this.autosaveRequestedE.mapE(function(v) { 
 	    that._autosave();
 	});
 
-	
+	// The enabled button's state:
 	insertEnabledB(this.saveButtonEnabledB, this.saveButton);
+
+	// The clone button's enabled state
+	insertEnabledB(this.isLoggedInB, this.cloneButton);
     };
 
 
@@ -191,13 +217,16 @@ var WeSchemeEditor;
     // Inserting the value of a boolean behavior into the enabled
     // attribute of a node.
     function insertEnabledB(aBooleanBehavior, jQueryNode) {
-	aBooleanBehavior.changes().mapE(function(v) {
+	function f(v) {
 	    if (v) {
 		jQueryNode.removeAttr("disabled")
 	    } else {
 		jQueryNode.attr("disabled", "true");
 	    }
-	});
+
+	}
+	f(valueNow(aBooleanBehavior));
+	aBooleanBehavior.changes().mapE(f);
     }
 
 
