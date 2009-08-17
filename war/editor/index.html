@@ -6,6 +6,7 @@
   <script src="jquery.createdomnodes.js"></script>
   <script src="jquery.cleanup.js"></script>
   <script src="jquery.indent.js"></script>
+  <script src="jquery.nonempty.js"></script>
   <script src="jquery.splitWith.js"></script>
   <script src="jquery.unwrap.js"></script>
   <script src="jquery.selection.js"></script>
@@ -13,20 +14,29 @@
   <script src="selection.js"></script>
   <script src="editor.js"></script>
 
-  <link rel="stylesheet" href="style.css" type="text/css">
+  <script>
+    function switchStyle(){
+      var stylesheet = (document.getElementById('style').checked)? "text.css" : "circles.css";
+      document.getElementById('editor_style').href = stylesheet;
+    }
+  </script>
+
+  <link rel="stylesheet" href="text.css" type="text/css" id="editor_style">
 
   </head>
 
   <body>
+  <input type="button" value="save" id="save"></input>
+  <input type="button" value="restore" id="restore"></input>
+  <input id="style" checked="checked" onchange="switchStyle()" type="checkbox">Use Text Editor
+
   <div class="editor" id="editor">
     <div class="body" contenteditable="false">
-    <div class="data" contenteditable="true" >&nbsp;</div>  
+    <div class="data" id="head" contenteditable="true" >&nbsp;</div>  
     </div>
   </div>
 
 
-  <input type="button" value="save" id="save"></input>
-  <input type="button" value="restore" id="restore"></input>
 
   </body>
 
