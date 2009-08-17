@@ -30,8 +30,8 @@ var WeSchemeEditor;
     //                and the file hasn't been published yet
     //                and you own the file
 
-    // the definitions area: readonly if you don't own the file,
-    //                       or the file has been published
+    // the definitions and filename areas: readonly if you don't own the file,
+    //                                              or the file has been published
 
     
     //////////////////////////////////////////////////////////////////////
@@ -86,9 +86,6 @@ var WeSchemeEditor;
 	});
 
 
-//	startAutosaving(this);
-//	startIsDirtyMonitor(this);
-
 
 
 
@@ -121,6 +118,7 @@ var WeSchemeEditor;
 	// when a publication has happened
 	this.publishedE = receiverE();
 
+	this.isOwnerE = receiverE();
 
 
 	// We'll fire off an autosave if the content has changed and
@@ -141,36 +139,32 @@ var WeSchemeEditor;
 	// loggedInB is a boolean behavior that's true when the user has
 	// logged in.
 	this.isLoggedInB = constantB(this._getIsLoggedIn());
-
-
+	
+	
 	// A number or false behavior.
 	this.pidB = startsWith(
 	    changes(this.isLoggedInB).mapE(function(v) {
 		return that.pid; }),
 	    false);
-
-
+	
+	
 	// Returns true if the file is new.
 	this.isNewFileB = startsWith(
  	    changes(this.pidB).mapE(function(v) {
  		return that.pid != false; }),
  	    true);
-
-
+	
+	
 	// isPublishedB is a boolean eventStream that's true if we receive an
-	// publication event, or if we just a published program. 
-	this.isPublishedB = startsWith(
-	    mergeE(this.publishedE,
-		   this.loadedE.mapE(function(v) { return that.isPublished })),
-	    false);
-
-
+	// publication event.
+	this.isPublishedB = startsWith(this.publishedE, false);
+	
+	
 	// isOwnerB is a boolean behavior that's true if we own the file,
 	// and false otherwise.  It changes on load.
-	this.isOwnerB = startsWith(
-	    this.loadedE.mapE(function(v) { return that.isOwner; }, false));
-
-
+	this.isOwnerB = startsWith(this.isOwnerE, false);
+    
+	
 	// isDirtyB is initially false, and changes when
 	// saves or changes to the source occur.
 	this.isDirtyB = startsWith(
@@ -181,8 +175,6 @@ var WeSchemeEditor;
 		// true if the content has changed.
 		constantE(this.contentChangedE, true)),
 	    false);
-
-
 
 
 
@@ -197,8 +189,18 @@ var WeSchemeEditor;
 				       this.isLoggedInB);
 
 
+	// 
+	// publishButton: enabled only when the editor isn't dirty
+	//                and the file hasn't been published yet
+	//                and you own the file
+	this.publishButtonEnabledB = andB(notB(this.isDirtyB),
+					  notB(this.isPublishedB),
+					  this.isOwnerB);
+    
+    
 	//////////////////////////////////////////////////////////////////////
-
+	//////////////////////////////////////////////////////////////////////
+	// HOOKS
 
 	// Autosave
 	this.autosaveRequestedE.mapE(function(v) { 
@@ -210,6 +212,12 @@ var WeSchemeEditor;
 
 	// The clone button's enabled state
 	insertEnabledB(this.isLoggedInB, this.cloneButton);
+    
+	// The publish button's enabled state
+	insertEnabledB(this.publishButtonEnabledB, this.publishButton);
+
+
+
     };
 
 
@@ -237,35 +245,6 @@ var WeSchemeEditor;
 	return (this.userName && this.userName != 'null');
     }
 
-
-
-
-
-    // Maintains a monitor that watches whenever things get changed, and
-    // maintains the dirty attribute.
-    function startIsDirtyMonitor(editor) {
-	WeSchemeIntentBus.addNotifyListener(function(action, category, data) {
-	    if ((category == 'filename-changed' || 
-		 category == 'definitions-changed') && 
-		data == editor) {
-
-		if (editor.isPublished) {
-		    editor.saveButton.attr("value", "Save");
-		    editor.saveButton.attr("disabled", "true");		
-		} else {
-		    editor.saveButton.attr("value", "Save");
-		    editor.saveButton.removeAttr("disabled");
-		}
-
-	    } else if (((category == 'after-save' || category == 'after-load') 
-			&& data == editor)) {
-
-		editor.saveButton.attr("value", "Saved");
-		editor.saveButton.attr("disabled", "true");		
-	    }
-	});
-    }
-    
 
 
 
@@ -384,6 +363,8 @@ var WeSchemeEditor;
     };
 
 
+
+
     function getAbsoluteUrl(relativeUrl) {
 	var anchor = document.createElement("a");
 	anchor.href = relativeUrl;
@@ -399,7 +380,6 @@ var WeSchemeEditor;
 		var dom = jQuery(data);
 		that._setIsPublished(dom.find("published").text() == "true" 
 				     ? true : false);
-		that.publishedE.sendEvent(true);
 		WeSchemeIntentBus.notify("after-publish", that);
 	    };
 
@@ -434,33 +414,15 @@ var WeSchemeEditor;
 
 
     WeSchemeEditor.prototype._setIsPublished = function(isPublished) {
+	this.publishedE.sendEvent(isPublished);
 	this.isPublished = isPublished;
-	
 	this.publishedDiv.text(isPublished.toString());
-
-	if (isPublished) {
-	    this.publishButton.attr("value", "Published");
-	    this.publishButton.attr("disabled", "true");
-
-	    this.defn.setReadOnly(true);
-	    this.filenameEntry.attr("readonly", "true");
-	} else {
-	    this.publishButton.attr("value", "Publish");
-	    this.publishButton.removeAttr("disabled");
-	}
     }
+
 
     WeSchemeEditor.prototype._setIsOwner = function(v) {
-	this.isOwner = v;
-	if (this.isOwner && !this.isPublished) {
-	    this.defn.setReadOnly(false);
-	    this.filenameEntry.removeAttr("readonly");
-	} else {
-	    this.defn.setReadOnly(true);
-	    this.filenameEntry.attr("readonly", "true");
-	}
+	this.isOwnerE.sendEvent(v);
     }
-
 
 
     WeSchemeEditor.prototype.toString = function() { return "WeSchemeEditor()"; };
