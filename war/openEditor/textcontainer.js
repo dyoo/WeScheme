@@ -12,27 +12,12 @@ var WeSchemeTextContainer;
     // container: textarea
     WeSchemeTextContainer = function(container) {
 	var that = this;
-	this.container = jQuery(container);
+	this.container = new FlapjaxValueHandler(container);
 	this.changeListeners = [];
 
-	this.container.change(function() {
+	this.container.behavior.changes().mapE(function(v) {
 	    that._notifyListeners();
 	});
-	
-	// Polling: checks for content change.
-	// FIXME: figure out how to do this without polling.
-	(function() {
-	    var oldContent = that.container.attr("value");
-	    setInterval(function() {
-		var newContent = that.container.attr("value");
-		if (newContent != oldContent) {
-		    oldContent = newContent;
-		    setTimeout(function() {that._notifyListeners()}, 0);
-		}
-	    },
-			500);
-	})();
-	
     };
 
     WeSchemeTextContainer.prototype._notifyListeners = function() {
@@ -44,7 +29,7 @@ var WeSchemeTextContainer;
 
     // Returns a behavior of the source code
     WeSchemeTextContainer.prototype.getSourceB = function() {
-	return extractValueB(this.container.get(0));
+	return this.container.behavior;
     };
 
 

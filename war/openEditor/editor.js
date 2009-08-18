@@ -40,45 +40,6 @@ var WeSchemeEditor;
 
 
 
-    // A workaround a bug in flapjax: we return an object that has a
-    // value behavior, but we also have an explicit way to trigger the
-    // value's change.
-    function ValueHandler(node) {
-	this.node = node;
-	this._manualChanger = receiverE();
-	this.behavior = startsWith(
-	    filterRepeatsE(
-		mergeE(extractValueB(node).changes(),
-		       this._manualChanger)),
-	    node.value);
-	insertValueE(this._manualChanger, this.node);
-    }
-    ValueHandler.prototype.getValue = function() {
-	return this.node.value;
-    };
-    ValueHandler.prototype.setValue = function(x) {
-	this.attr("value", x);
-    };
-
-    ValueHandler.prototype.attr = function() {
-	if (arguments.length == 2) {
-	    this.node.setAttribute(arguments[0], arguments[1]);
-	    if (arguments[0] == "value") {
-		this._manualChanger.sendEvent(arguments[1]);
-	    }
-	} else if (arguments.length == 1) {
-	    return this.node.getAttribute(arguments[0]);
-	} else {
-	    throw new Error("attr");
-	}
-    };
-
-    ValueHandler.prototype.removeAttr = function(x) {
-	this.node.removeAttribute(x);
-    };
-
-
-
 
     WeSchemeEditor = function(attrs) {
 	var that = this;
@@ -103,7 +64,8 @@ var WeSchemeEditor;
 	this.publicIdPane = attrs.publicIdPane;
 	this.publicIdDiv = attrs.publicIdDiv; // JQuery
 
-	this.filenameEntry = new ValueHandler(document.createElement("input"));
+	this.filenameEntry = new FlapjaxValueHandler(
+	    document.createElement("input"));
 	this.filenameEntry.node.type = "text";
 	this.filenameEntry.setValue("Unknown");
 	this.filenameEntry.behavior.changes().mapE(function(v) {
@@ -144,10 +106,6 @@ var WeSchemeEditor;
 	// a load has happened.
 	this.loadedE = receiverE();
 
-	this.loadedE.mapE(function(v) { 
-	    console.log("file loaded");
-	});
-
 
 
 
@@ -157,21 +115,6 @@ var WeSchemeEditor;
 	    constantE(changes(this.defn.getSourceB()), true),
 	    constantE(changes(this.filenameEntry.behavior), true));
 	
-	this.contentChangedE.mapE(function(v) {
-	    console.log("content changed: " + v);
-	});
-
-	changes(this.defn.getSourceB()).mapE(function(v) {
-	    console.log("source changed: " + v);
-	});
-
-
-	console.log("filename: " + valueNow(this.filenameEntry.behavior));
-	changes(this.filenameEntry.behavior).mapE(function(v) {
-	    console.log("filename changed: " + v);
-	});
-
-
 
 
 	// publishedE is a boolean eventStream which receives true
@@ -235,11 +178,6 @@ var WeSchemeEditor;
 		// true if the content has changed.
 		constantE(this.contentChangedE, true)),
 	    false);
-
-
-	this.isDirtyB.changes().mapE(function(v) {
-	    console.log("dirty bit changed: " + v);
-	});
 
 
 
@@ -338,13 +276,11 @@ var WeSchemeEditor;
 
     WeSchemeEditor.prototype.save = function() {
 	var that = this;
-
 	function saveProjectCallback(data) {
 	    // The data contains the pid of the saved program.
 	    that.pid = parseInt(data);
 	    WeSchemeIntentBus.notify("before-save", that);
 	    that.pidDiv.text(data);
-	    that.filenameEntry.attr('value', data);
 
 	    that.savedE.sendEvent(true);
 	    WeSchemeIntentBus.notify("after-save", that);
@@ -424,9 +360,7 @@ var WeSchemeEditor;
 				    .attr("size", publicUrl.length)
 				    .attr("value", publicUrl)
 				    .attr("readonly", true));
-	    console.log("Setting filename title");
 	    that.filenameEntry.attr("value", dom.find("title").text());
-	    console.log("filename title is " + valueNow(that.filenameEntry.behavior));
 
 
 	    that.defn.setCode(dom.find("source").text());
