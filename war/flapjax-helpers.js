@@ -7,7 +7,9 @@ function FlapjaxValueHandler(node) {
     this.behavior = startsWith(
 	filterRepeatsE(
 	    mergeE(extractValueB(node).changes(),
-		   this._manualChanger)),
+		   this._manualChanger,
+		   // HACK: every 100 miliseconds, check the value manually.
+		   timerE(100).mapE(function(v) { return node.value; } ))),
 	node.value);
     insertValueE(this._manualChanger, this.node);
 }
