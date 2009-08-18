@@ -63,7 +63,6 @@ FlapjaxValueHandler.prototype.removeClass = function(x) {
 		attrs.splice(i, 1);
 	    }
 	}
-    } else {
 	this.attr("class", attrs.join(" "));
     }
 }
