@@ -67,7 +67,7 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype._prepareToRun = function() {
 	var that = this;
 	plt.world.MobyJsworld.makeToplevelNode = function() {
-	    var area = jQuery("<div>hello</div>");
+	    var area = jQuery("<div></div>");
 	    that.prompt.before(area);
 	    return area.get(0);
 	};
