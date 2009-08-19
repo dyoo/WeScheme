@@ -174,7 +174,7 @@ var plt = plt || {};
 	var texts = [];
 	var p = this;
 	while (! p.isEmpty()) {
-	    texts.push(p.first().toWrittenString());
+	    texts.push(plt.Kernel.toWrittenString(p.first()));
 	    p = p.rest();
 	}
 	return "(" + texts.join(" ") + ")";
@@ -228,6 +228,9 @@ var plt = plt || {};
     
     plt.types.Rational = function(n, d) {
 	if (d == undefined) { d = 1; }
+	if (d == 0) {
+	    throw new plt.Kernel.MobyRuntimeError("cannot have zero denominator.");
+	}
 	var divisor = gcd(Math.abs(n), Math.abs(d));
 	this.n = n / divisor;
 	this.d = d / divisor;
@@ -290,6 +293,9 @@ var plt = plt || {};
     };
     
     plt.types.Rational.prototype.divide = function(other) {
+	if (this.d * other.n == 0) {
+	    throw new plt.Kernel.MobyRuntimeError("division by zero");
+	}
 	return plt.types.Rational.makeInstance(this.n * other.d,
 					       this.d * other.n);
     };
@@ -514,6 +520,9 @@ var plt = plt || {};
     };
     
     plt.types.FloatPoint.prototype.divide = function(other) {
+	if (other.n == 0) {
+	    throw new plt.Kernel.MobyRuntimeError("division by zero");
+	}
         return plt.types.FloatPoint.makeInstance(this.n / other.n);
     };
     
@@ -661,7 +670,7 @@ var plt = plt || {};
     };
     
     plt.types.Complex.prototype.toWrittenString = function() {
-        return this.r.toWrittenString() + "+" + this.i.toWrittenString()+"i";
+        return plt.Kernel.toWrittenString(this.r) + "+" + plt.Kernel.toWrittenString(this.i)+"i";
     };
 
     plt.types.Complex.prototype.toDisplayedString = plt.types.Complex.prototype.toWrittenString;
