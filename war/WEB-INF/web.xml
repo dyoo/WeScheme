@@ -5,7 +5,7 @@
 
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
   <servlet>
-    <servlet-name>keyServer</servlet-name>
+    <servlet-name>/cron/keyServer</servlet-name>
     <servlet-class>org.wescheme.keys.KeyServer</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
@@ -15,9 +15,19 @@
     <load-on-startup>2</load-on-startup>
   </servlet>
   <servlet-mapping>
-    <servlet-name>keyServer</servlet-name>
-    <url-pattern>/keyServer</url-pattern>
+    <servlet-name>/cron/keyServer</servlet-name>
+    <url-pattern>/cron/keyServer</url-pattern>
   </servlet-mapping>
+  
+  <security-constraint>
+        <web-resource-collection>
+            <url-pattern>/cron/*</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>admin</role-name>
+        </auth-constraint>
+   </security-constraint>
+  
   
   <servlet>
     <servlet-name>addDropbox</servlet-name>

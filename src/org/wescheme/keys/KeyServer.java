@@ -12,10 +12,10 @@ import org.wescheme.util.Crypt.KeyNotFoundException;
 public class KeyServer extends HttpServlet {
 	private static final long serialVersionUID = 8007643632397668226L;
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse resp)	throws IOException 
+	public void service(HttpServletRequest req, HttpServletResponse resp)	throws IOException 
 	{	
 		rotate();
-		resp.sendRedirect("index.jsp");
+		resp.sendError(200);
 		
 	}
 	

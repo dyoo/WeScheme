@@ -18,7 +18,7 @@ public class HeartbeatServlet extends HttpServlet {
 	 */
 	private static final long serialVersionUID = 1165047992267892812L;
 
-	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	public void service(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		
 			PersistenceManager pm = PMF.get().getPersistenceManager();
 			try {

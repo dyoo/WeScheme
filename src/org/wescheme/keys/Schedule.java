@@ -13,7 +13,7 @@ public class Schedule implements Comparable<Schedule> {
 	String from_;
 	String to_;
 	int size_;
-	int cronTicks_;
+	int cronTicks_ = 1;
 	int tickcount_;
 
 	public void execute(Cache cache, PersistenceManager pm) {
