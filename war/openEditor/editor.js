@@ -148,14 +148,14 @@ var WeSchemeEditor;
 	this.pidB = startsWith(
 	    this.loadedE.mapE(function(v) {
 		return that.pid; }),
-	    false);
+	    that.pid);
 	
 	
 	// Returns true if the file is new.
 	this.isNewFileB = startsWith(
  	    changes(this.pidB).mapE(function(v) {
- 		return that.pid != false; }),
- 	    true);
+ 		return that.pid == false; }),
+ 	    that.pid == false);
 	
 	
 	// isPublishedB is a boolean eventStream that's true if we receive an
