@@ -55,7 +55,16 @@
     <servlet-name>createUser</servlet-name>
     <url-pattern>/createUser</url-pattern>
   </servlet-mapping>
-  
+ 
+ <servlet>
+    <servlet-name>heartbeat</servlet-name>
+    <servlet-class>org.wescheme.servlet.HeartbeatServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>heartbeat</servlet-name>
+    <url-pattern>/heartbeat</url-pattern>
+  </servlet-mapping>
+ 
   
   <servlet>
     <servlet-name>logout</servlet-name>

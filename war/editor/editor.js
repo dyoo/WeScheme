@@ -111,11 +111,9 @@ function makeSexpr(e){
      .append(
        $("<div />")
          .addClass("open")
+         .css("vertical-align","top")
          .click(clickOpen)
-         .append(
-           $("<img />")
-             .addClass("openParen")
-             .attr("src", "canada.svg.png")))
+         .append(openBracket()))
      .append(
        $("<div />")
          .addClass("body")
@@ -129,10 +127,9 @@ function makeSexpr(e){
      .append(
        $("<div />")
          .addClass("close")
-         .addClass("closeParen")
+         .css("vertical-align","top")
          .click(clickClose)
-         .addClass("gray")
-         .text("]"));
+         .append(closeBracket()));
   sexpr.focus(illuminateBlock);
   sexpr.blur(dimBlock);
   $("#editor").blur();
@@ -142,6 +139,50 @@ function makeSexpr(e){
   sexpr.children(".body").children(".data").contentFocus();
 }
 
+function openBracket() {
+   var b = $("<div />")
+    .addClass("openParen")
+    .append(
+      $("<img />")
+        .attr("src", "img/top.png")
+        .css("width","10px"))
+    .append($("<br />"))
+    .append(
+      $("<img />")
+        .attr("src", "img/mid.png")
+        .css("width","10px")
+        .css("height","100%")
+        .attr("alt","("))
+    .append($("<br />"))
+    .append(
+      $("<img />")
+        .attr("src", "img/bot.png")
+        .css("width","10px"));
+    return b;
+}
+
+function closeBracket() {
+  var b = $("<div />")
+    .addClass("closeParen")
+    .append(
+      $("<img />")
+        .attr("src", "img/top_r.png")
+        .css("width","10px"))
+    .append($("<br />"))
+    .append(
+      $("<img />")
+        .attr("src", "img/mid_r.png")
+        .css("width","10px")
+        .css("height","100%")
+        .attr("alt",")"))
+    .append($("<br />"))
+    .append(
+      $("<img />")
+        .attr("src", "img/bot_r.png")
+        .css("width","10px"));
+
+    return b;
+}
 
 function metaHandler(handler){
   return function(e){
@@ -211,12 +252,28 @@ function globalKeyHandler(e){
   }
 }
 
+//
+function parsedNode(n){
+  
+  return (n.hasClass("arglist")       ||
+          n.hasClass("function-node") ||
+          n.hasClass("string-node")   ||
+          n.hasClass("begin-like")    ||
+          n.hasClass("lambda-like")   ||
+          n.hasClass("open")          ||
+          n.hasClass("close")         ||
+          n.hasClass("tick")          ||
+          n.hasClass("data"));
+
+}
+
 
 // backspace: key-event -> void
 function backspaceKey(e) {
  
     var aSelection = getCursorSelection();
     var tar = aSelection.node;
+
 
     if( tar.hasClass("body") ){ tar = tar.children(".active"); }
 
@@ -238,8 +295,9 @@ function backspaceKey(e) {
             }
         } 
     
-        var pred = tar.leafPredecessor();
+        var pred = tar.predecessorWith(parsedNode);
          
+        console.log(pred);
 
         if( pred.hasClass("close") ){
 
@@ -422,12 +480,12 @@ function sizeParens(sexpr){
   var currSz;
 
   if( bdy ){
-    var height = scalePx(bdy.css("height"),1.25);
+    var height = bdy.css("height"); //scalePx(bdy.css("height"),1.25);
     var open  = sexpr.children(".open");
     var close = sexpr.children(".close");
     currSz = open.css("font-size");
-    open.css("font-size", height);
-    close.css("font-size", height);
+    open.css("height", height);
+    close.css("height", height);
   }
 
   var enclosingSexpr = sexpr.parents(".sexpr:first");

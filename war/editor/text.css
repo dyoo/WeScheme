@@ -13,8 +13,8 @@
     width: 100%;
     height: 100%;
     padding: 1em;
-    background-color: Black;
-    color: White;
+    background-color: LightSteelBlue;
+    color: Black;
     font-size: 1em;
     font-family: monospace;
     display: block;
@@ -25,6 +25,7 @@
   }
 
   .sexpr {
+    vertical-align: middle;
     display: inline-table;
     padding: 0em;
     margin: 0em;
@@ -32,16 +33,16 @@
 
   .gray {
     color: Gainsboro;
+    opacity: 60%;
   }
 
   .open {
-    position: relative;
     display: table-cell;
  }
 
   .openParen {
-    height: 1em;
-    width:  0.64em; 
+    width: 0.64em;
+    max-width: 0.64em;
   }
 
   .data {
@@ -57,7 +58,6 @@
   }
 
   .close {
-    position: relative;
     display: table-cell;
     font-size: 18px;
   }
@@ -71,4 +71,12 @@
   .body {
     display: inline-block;
   }
-  
+ 
+  img.closeParen {
+    height: 100%;
+  }
+
+  img.openParen {
+    height: 100%;
+  }
+
