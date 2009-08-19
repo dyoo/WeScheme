@@ -146,7 +146,7 @@ var WeSchemeEditor;
 	
 	// A number or false behavior.
 	this.pidB = startsWith(
-	    changes(this.isLoggedInB).mapE(function(v) {
+	    this.loadedE.mapE(function(v) {
 		return that.pid; }),
 	    false);
 	
@@ -438,6 +438,7 @@ var WeSchemeEditor;
 
 
     WeSchemeEditor.prototype._setIsOwner = function(v) {
+	this.isOwner = v;
 	this.isOwnerE.sendEvent(v);
     }
 
