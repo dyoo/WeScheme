@@ -6,14 +6,13 @@
 	   
  		$(this).children().removeClass("begin-like define-like lambda-like string-node function-node begin-indent define-indent lambda-indent");
    
-    var head = $(this).children(".data").filter(function(index){return (jQuery.trim($(this).text()).length > 0)}).eq(0);
+    var head = $(this).children("").nonempty().eq(0);
 
-     if( head.hasClass("data")){
- 		   var type = getType(head);    
-       head.addClass(type);
-       indenter(this, head);
-      }
-    }	
+ 		var type = getType(head);    
+    head.addClass(type);
+    indenter(this, head);
+    
+  }	
  	
 
   function defineIndenter(n,c){
