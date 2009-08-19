@@ -37,14 +37,14 @@
   .open {
     position: relative;
     display: table-cell;
-    font-size: 18px;
-  }
+ }
 
   .openParen {
+    height: 1em;
+    width:  0.64em; 
   }
 
   .data {
-    vertical-align: top;
     display: inline-block;
     padding: 0em;
     margin:  0em;
@@ -63,6 +63,9 @@
   }
 
   .closeParen {
+    height: 1em;
+    max-width:  10px;
+    width: 10px;
   }
 
   .body {
