@@ -105,6 +105,19 @@ plt.world.MobyJsworld = {};
 
 
 
+    // The default printWorldHook will write the written content of the node.
+    // We probably want to invoke the pretty printer here instead!
+    Jsworld.printWorldHook = function(world, node) {
+	if(node.lastChild == null) {
+	    node.appendChild(document.createTextNode(world.toWrittenString()));
+	} else {
+	    node.replaceChild(document.createTextNode(world.toWrittenString()),
+			      node.lastChild);
+	}
+    };
+
+
+
     // bigBang: world (listof (list string string)) (listof handler) -> world
     Jsworld.bigBang = function(initWorld, attribs, handlers) {
 	plt.Kernel.checkList(attribs, "js-big-bang: 2nd argument must be a list of global attributes, i.e. empty");
@@ -136,6 +149,9 @@ plt.world.MobyJsworld = {};
 	    return result;
 	  }
 	  wrappedHandlers.push(_js.on_draw(wrappedRedraw, wrappedRedrawCss));
+	} else {
+	    wrappedHandlers.push(_js.on_world_change(
+		function(w) { Jsworld.printWorldHook(w, toplevelNode); }));
 	}
 
 
@@ -190,13 +206,23 @@ plt.world.MobyJsworld = {};
     // p: assoc -> node
     Jsworld.p = function(args) {
 	var attribs = getAttribs(args);
-	return _js.p(attribs);
+	var node = _js.p(attribs);
+	node.toWrittenString = function() { 
+	    return plt.Kernel.format("(js-p)", []);
+	};
+	node.toDisplayedString = node.toWrittenString;
+	return node;
     };
 
     // div: assoc -> node
     Jsworld.div = function(args) {
 	var attribs = getAttribs(args);
-	return _js.div(attribs);
+	var node = _js.div(attribs);
+	node.toWrittenString = function() { 
+	    return plt.Kernel.format("(js-div)", []);
+	};
+	node.toDisplayedString = node.toWrittenString;
+	return node;
     };
 
     // button: (world -> world) assoc -> node
@@ -204,9 +230,12 @@ plt.world.MobyJsworld = {};
 	var noneF = function(world) {
 	    return plt.world.Kernel.make_dash_effect_colon_none();
 	};
-	return Jsworld.buttonStar(f, 
-				  noneF,
-				  args);
+	var node = Jsworld.buttonStar(f, 
+				      noneF,
+				      args);
+	node.toWrittenString = function() { return "(js-button ...)"; }
+	node.toDisplayedString = node.toWrittenString;
+	return node;
     };
 
     Jsworld.buttonStar = function(worldUpdateF, effectF, args) {
@@ -215,38 +244,45 @@ plt.world.MobyJsworld = {};
 	    plt.world.Kernel.applyEffect(effectF([world]));
 	    return worldUpdateF([world]);
 	}
-	// fixme: we need to wrap the function
-	return _js.button(wrappedF, attribs);
+	var node = _js.button(wrappedF, attribs);
+	node.toWrittenString = function() { return "(js-button ...)"; }
+	node.toDisplayedString = node.toWrittenString;
+	return node;
     };
     
-//     // input: string assoc -> node
-//     Jsworld.input = function(type, args) {
-// 	var attribs = getAttribs(args);
-// 	return _js.input(type, attribs);
-//     };
+
 
     // BidirectionalInput
     Jsworld.bidirectionalInput = function(type, valF, updateF, args) {
 	var attribs = getAttribs(args);
-	return _js.bidirectional_input(type,
+	var node = _js.bidirectional_input(type,
 				       function(w) { return valF([w]) },
 				       function(w, v) { 
 					   return updateF([w, v])
 				       },
 				       attribs);
+	node.toWrittenString = function() { return "(js-bidirectional-input ...)"; }
+	node.toDisplayedString = node.toWrittenString;
+	return node;
     };
 
     // Images.
     Jsworld.img = function(src, args) {
 	var attribs = getAttribs(args);
-	return _js.img(src, attribs);
+	var node = _js.img(src, attribs);
+	node.toWrittenString = function() { return "(js-img ...)"; }
+	node.toDisplayedString = node.toWrittenString;
+	return node;
     };
 
 
     // text: string assoc -> node
     Jsworld.text = function(s, args) {
 	var attribs = getAttribs(args);
-	return _js.text(s, attribs);
+	var node = _js.text(s, attribs);
+	node.toWrittenString = function() { return "(js-img ...)"; }
+	node.toDisplayedString = node.toWrittenString;
+	return node;
     };
 
 

@@ -283,7 +283,9 @@ var plt = plt || {};
 	e : plt.types.FloatPoint.makeInstance(Math.E),
 
 
-	Struct: function () {
+	Struct: function (constructorName, fields) {
+	    this._constructorName = constructorName; 
+	    this._fields = fields;
 	},
 
 	
@@ -1451,6 +1453,37 @@ var plt = plt || {};
     };
 
 
+    plt.Kernel.apply = function(f, secondArg, restArgs) {
+	var argList;
+	var argArray = [];
+
+	if (restArgs.length == 0) {
+	    argList = secondArg;
+	    checkList(argList, "apply: second argument must be a list");
+	    while (! argList.isEmpty()) {
+		var elt = argList.first()
+		argArray.push(elt);
+		argList = argList.rest();
+	    }	
+	} else {
+	    argList = restArgs.pop();
+	    checkList(argList, "apply: second argument must be a list");
+	    while (! argList.isEmpty()) {
+		var elt = argList.first()
+		argArray.push(elt);
+		argList = argList.rest();
+	    }	
+	    while(restArgs.length > 0) {
+		argArray.unshift(restArgs.pop());
+	    }
+	    argArray.unshift(secondArg);
+
+	}
+	check(f, isFunction, "apply: first argument must be a function");
+	return f(argArray);
+    };
+
+
     plt.Kernel.map = function(f, arglists) {
 	arrayEach(arglists, function(x) { 
 	    checkList(x, "map: mapped arguments must be lists");});
@@ -1659,13 +1692,13 @@ var plt = plt || {};
 		return "\n";
 	    } else if (s == '~s' || s == "~S") {
 		if (buffer.length == 0) {
-		    throw new MobyRuntimeException(
+		    throw new MobyRuntimeError(
 			"format: fewer arguments passed than expected");
 		}
 		return buffer.shift().toWrittenString();
 	    } else if (s == '~a' || s == "~A") {
 		if (buffer.length == 0) {
-		    throw new MobyRuntimeException(
+		    throw new MobyRuntimeError(
 			"format: fewer arguments passed than expected");
 		}
 		return buffer.shift().toDisplayedString();
@@ -1675,7 +1708,7 @@ var plt = plt || {};
 	}
 	var result = plt.types.String.makeInstance(formatStr.replace(pattern, f));
 	if (buffer.length > 0) {
-	    throw new MobyRuntimeException("format: More arguments passed than expected");
+	    throw new MobyRuntimeError("format: More arguments passed than expected");
 	}
 	return result;
     }
@@ -1713,8 +1746,11 @@ var plt = plt || {};
     
     // Posns
     
-    function posn(x,y) { this.x = x;
-			 this.y = y; }
+    function posn(x,y) { 
+	plt.Kernel.Struct.call(this, "make-posn", [x, y]);
+	this.x = x;
+	this.y = y; 
+    }
 
     posn.prototype = heir(plt.Kernel.Struct.prototype);
 
@@ -1731,7 +1767,7 @@ var plt = plt || {};
     }
 
     posn.prototype.toDisplayedString = function () {
-	return "(make-posn " + this.x.toDisplayedString() + " " + this.y.toDisplayedString();
+	return "(make-posn " + this.x.toDisplayedString() + " " + this.y.toDisplayedString() + ")";
     }
 
     function make_dash_posn(id0,id1) { 
@@ -1784,7 +1820,23 @@ var plt = plt || {};
 	aCopy.pinholeX = x;
 	aCopy.pinholeY = y;
 	return aCopy;
-    }
+    };
+
+
+    BaseImage.prototype.render = function(ctx, x, y) {
+	throw new MobyRuntimeError("Unimplemented method render");
+    };
+
+
+    BaseImage.prototype.toDomNode = function() {
+	var canvas = document.createElement("canvas");
+ 	canvas.width = plt.world.Kernel.imageWidth(this).toInteger();
+ 	canvas.height = plt.world.Kernel.imageHeight(this).toInteger();
+	var ctx = canvas.getContext("2d");
+	this.render(ctx, 0, 0);
+	return canvas;
+    };
+
 
 
     plt.Kernel.image_question_ = function(thing) {
@@ -1797,6 +1849,46 @@ var plt = plt || {};
 	check(other, isImage, "image");
 	return thing == other ? plt.types.Logic.TRUE : plt.types.Logic.FALSE;
     };
+
+
+
+    // toDomNode: scheme-value -> dom-node
+    plt.Kernel.toDomNode = function(x) {
+	if (x == undefined || x == null) {
+	    throw new MobyRuntimeError("value must not be null or undefined");
+	}
+	if (typeof(x) != 'object' && typeof(x) != 'function') {
+	    var node = document.createTextNode(x.toString());
+	    return node;
+	}
+	if ('toDomNode' in x) {
+	    return x.toDomNode();
+	}
+	if ('toWrittenString' in x) {
+	    var node = document.createTextNode(x.toWrittenString());
+	    return node;
+	}
+	if ('toDisplayedString' in x) {
+	    var node = document.createTextNode(x.toDisplayedString());
+	    return node;
+	} else {
+	    var node = document.createTextNode(x.toString());
+	    return node;
+	}
+    };
+
+
+    plt.Kernel.Struct.prototype.toDomNode = function() {
+	var node = document.createElement("div");
+	node.appendChild(document.createTextNode("("));
+	node.appendChild(document.createTextNode(this._constructorName));
+	for(var i = 0; i < this._fields.length; i++) {
+	    node.appendChild(document.createTextNode(" "));
+	    node.appendChild(plt.Kernel.toDomNode(this._fields[i]));
+	}
+	node.appendChild(document.createTextNode(")"));
+	return node;
+    }
 
 
 

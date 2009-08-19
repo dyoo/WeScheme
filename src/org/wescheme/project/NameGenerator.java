@@ -64,6 +64,6 @@ public class NameGenerator {
 			buffer.append("-");
 			buffer.append(names.get(gen.nextInt(names.size())));
 		}
-		return buffer.toString();
+		return buffer.toString().toLowerCase();
 	}
 }

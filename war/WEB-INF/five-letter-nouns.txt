@@ -76,13 +76,11 @@ anvil
 apart
 apple
 apply
-April
 apron
 aptly
 ardor
 arena
 argue
-Aries
 arise
 armed
 armor
@@ -161,7 +159,6 @@ berth
 beset
 bigot
 biker
-bimbo
 binge
 bingo
 biped
@@ -588,7 +585,6 @@ epoch
 equal
 equip
 erase
-erect
 erode
 error
 erupt
@@ -930,7 +926,6 @@ inlet
 inner
 input
 inter
-Inuit
 irate
 irony
 issue
@@ -1014,7 +1009,6 @@ levee
 level
 lever
 libel
-Libra
 light
 liken
 lilac
@@ -1299,7 +1293,6 @@ plume
 plump
 plunk
 plush
-Pluto
 poach
 point
 poise
@@ -1971,7 +1964,6 @@ vault
 vegan
 venom
 venue
-Venus
 verge
 verse
 verve
@@ -1984,7 +1976,6 @@ vinyl
 viola
 viper
 viral
-Virgo
 virus
 visit
 visor
@@ -2019,7 +2010,6 @@ weave
 wedge
 weigh
 weird
-Welsh
 welsh
 whack
 whale
@@ -2033,7 +2023,6 @@ while
 whine
 whirl
 whisk
-White
 white
 whole
 whoop

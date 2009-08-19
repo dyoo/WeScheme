@@ -56,7 +56,7 @@ Welcome anonymous!   <a href="login.jsp">Login</a>
 
 
 
-<div><a href="/openEditor">Open Editor</a></div>
+<div><a href="/openEditor">Open New Program</a></div>
 
 
 
