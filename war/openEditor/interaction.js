@@ -31,10 +31,19 @@ WeSchemeInteractions = (function () {
 
 
 
+    WeSchemeInteractions.prototype.notifyBus = function(action, data) {
+	if (typeof WeSchemeIntentBus != 'undefined') {
+	    WeSchemeIntentBus.notify("after-reset", this);
+	}
+    }
+
+
+
+
     // reset: -> void
     // Clears out the interactions.
     WeSchemeInteractions.prototype.reset = function() {
-	WeSchemeIntentBus.notify("before-reset", this);
+	this.notifyBus("before-reset", this);
 	var that = this;
 	this.interactionsDiv.empty();
 	this.prompt = jQuery("<div style='width:100%'><span>&gt; <input type='text' style='width: 75%'></span></div>");
@@ -47,19 +56,24 @@ WeSchemeInteractions = (function () {
 	this.namespace = new Namespace();
 	this.pinfo = freshPinfo();
 
-	WeSchemeIntentBus.notify("after-reset", this);
+	this.notifyBus("after-reset", this);
     }
 
 
-    // addToInteractions: string -> void
+    // addToInteractions: string | dom-node -> void
     // Adds a note to the interactions.
     WeSchemeInteractions.prototype.addToInteractions = function (interactionVal) {
-	WeSchemeIntentBus.notify("before-add-to-interactions", this);
-	var newArea = jQuery("<div style='width: 100%'></div>");
-	newArea.text(interactionVal);
-	this.prompt.before(newArea);
+	this.notifyBus("before-add-to-interactions", this);
+	if (interactionVal instanceof Element ||
+	    interactionVal instanceof Text) {
+	    this.prompt.before(interactionVal);
+	} else {
+	    var newArea = jQuery("<div style='width: 100%'></div>");
+	    newArea.text(interactionVal);
+	    this.prompt.before(newArea);
+	}
 	this.interactionsDiv.attr("scrollTop", this.interactionsDiv.attr("scrollHeight"));
-	WeSchemeIntentBus.notify("after-add-to-interactions", this);
+	this.notifyBus("after-add-to-interactions", this);
     };
 
 
@@ -67,7 +81,7 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype._prepareToRun = function() {
 	var that = this;
 	plt.world.MobyJsworld.makeToplevelNode = function() {
-	    var area = jQuery("<div>hello</div>");
+	    var area = jQuery("<div></div>");
 	    that.prompt.before(area);
 	    return area.get(0);
 	};
@@ -75,7 +89,7 @@ WeSchemeInteractions = (function () {
 
     // Evaluate the source code and accumulate its effects.
     WeSchemeInteractions.prototype.runCode = function(aSource) {
-	WeSchemeIntentBus.notify("before-run", this);
+	this.notifyBus("before-run", this);
 	var that = this;
 	this._prepareToRun();
 	try {
@@ -94,18 +108,55 @@ WeSchemeInteractions = (function () {
             
 	    runToplevel(function(val) {
 		if (val != undefined) {
-		    that.addToInteractions(val.toWrittenString() + "\n");
+		    that.addToInteractions(plt.Kernel.toDomNode(val));
+		    that.addToInteractions("\n");
 		}
 	    });
 
 	    // Update the pinfo.
 	    this.pinfo = newPinfo;
-	    WeSchemeIntentBus.notify("after-run", this);
+	    this.notifyBus("after-run", this);
 	} catch (err) {
 	    this.addToInteractions(err.toString() + "\n");
 	    throw err;
 	}
     };
+
+
+//     WeSchemeInteractions.prototype.runCompiledCode = function(compiledCode, perms) {
+// 	this.notifyBus("before-run", this);
+// 	var that = this;
+// 	this._prepareToRun();
+// 	try {
+// 	    var program = readSchemeExpressions(aSource);
+// 	    var compiledProgram = 
+// 		program_dash__greaterthan_compiled_dash_program_slash_pinfo(program, this.pinfo);
+
+// 	    var newPinfo = 
+// 		compiled_dash_program_dash_pinfo(compiledProgram);
+
+// 	    that._updatePermissionList(pinfo_dash_permissions(newPinfo));
+
+// 	    var defns = compiled_dash_program_dash_defns(compiledProgram);
+// 	    var interFunc = compiled_dash_program_dash_toplevel_dash_exprs(compiledProgram);
+// 	    var runToplevel = this.namespace.eval(defns, interFunc);
+            
+// 	    runToplevel(function(val) {
+// 		if (val != undefined) {
+// 		    that.addToInteractions(plt.Kernel.toDomNode(val) + "\n");
+// 		}
+// 	    });
+
+// 	    // Update the pinfo.
+// 	    this.pinfo = newPinfo;
+// 	    this.notifyBus("after-run", this);
+// 	} catch (err) {
+// 	    this.addToInteractions(err.toString() + "\n");
+// 	    throw err;
+// 	}
+//     };
+
+
 
 
     WeSchemeInteractions.prototype._updatePermissionList = function(permissionList) {

@@ -3,6 +3,7 @@
 
 <link rel="stylesheet" type="text/css" href="/openEditor/style.css" />
 <script src="/flapjax-2.0.1.compressed.js"></script>
+<script src="/flapjax-helpers.js"></script>
 <script src="/editor/jquery.js"></script>
 <script src="/editor/jquery.createdomnodes.js"></script>
 <script src="/safeSubmit.js"></script>
@@ -18,19 +19,9 @@
 
 <!-- Evaluation and world runtime stuff -->
 <!-- FIXME: bundle into single js for convenience. -->
-<script src="/openEditor/runtime/types.js"></script>
-<script src="/openEditor/runtime/kernel.js"></script>
-<script src="/openEditor/runtime/compiler.js"></script>
-<script src="/openEditor/runtime/read.js"></script>
-<script src="/openEditor/runtime/namespace.js"></script>
-<script src="/openEditor/runtime/world-config.js"></script>
-<script src="/openEditor/runtime/platform.js"></script>
-<script src="/openEditor/runtime/lib.js"></script>
-<script src="/openEditor/runtime/world.js"></script>
-<script src="/openEditor/runtime/jsworld/jsworld.js"></script>
-<script src="/openEditor/runtime/jsworld.js"></script>
-<script src="/openEditor/runtime/permission.js"></script>
-<script src="/openEditor/runtime/world-stimuli.js"></script>
+
+<jsp:include page="/moby-runtime-includes.jsp" />
+
 
 
 <%
@@ -42,6 +33,8 @@
 
 
 <script>
+  var myEditor;
+
   jQuery(document).ready(function() {
 
   // Fixme: trigger file load if the pid has been provided.
@@ -49,7 +42,7 @@
   var statusBar = new WeSchemeStatusBar(jQuery("#statusbar"));
 
 
-  var myEditor = new WeSchemeEditor(
+  myEditor = new WeSchemeEditor(
   { userName: "<%= userSession != null? userSession.getName() : null %>",
     defn: new WeSchemeTextContainer(jQuery("#defn").get(0)),
     interactions: jQuery("#inter").get(0),
@@ -59,6 +52,8 @@
 
     publicIdPane: jQuery("#publicIdPane"),
     publicIdDiv: jQuery("#publicId"),
+
+    publishedDiv: jQuery("#published"),
 
     saveButton : jQuery("#save"),
     cloneButton : jQuery("#clone"),
@@ -92,8 +87,16 @@
 <h1 class="title">WeScheme Editor</h1>
 
 <span>
+
+<% if (userSession != null) { %>
 <span><input id="save" type="button" value="Save"></input></span>
 <span><input id="clone" type="button" value="Clone"></input></span>
+<% } %>
+
+<% if (userSession == null) { %>
+<span>To save or share your program, please log in.</span>
+<% } %>
+
 <span><input id="run" type="button" value="Run"></input></span>
 <span><input id="publish" type="button" value="Publish"></input></span>
 <span><input id="console" type="button" value="Go to Console"></input></span>
@@ -108,10 +111,20 @@
 <div id="pidArea"></div>
 </span>
 
+<% if (request.getParameter("pid") != null ||
+       request.getParameter("publicId") != null) { %>
 <div id="publicIdPane">
   <div id="publicIdLabel">Public URL:</div>
   <div id="publicId"></div>
 </div>
+<% } %>
+
+<% if (userSession != null) { %>
+<div id="publishedPane">
+  <div id="publishedLabel">Publication status:</div>
+  <div id="published"></div>
+</div>
+<% } %>
 
 
 

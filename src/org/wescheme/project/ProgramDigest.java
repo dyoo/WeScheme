@@ -20,6 +20,7 @@ public class ProgramDigest {
 		root.addContent(XML.makeElement("owner", program.getOwner()));
 		root.addContent(XML.makeElement("author", program.getAuthor()));
 		root.addContent(XML.makeElement("modified", program.getTime()));
+		root.addContent(XML.makeElement("published", program.isPublished()));
 		
 		return root;
 	}
