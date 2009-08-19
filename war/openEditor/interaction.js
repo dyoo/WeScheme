@@ -60,13 +60,18 @@ WeSchemeInteractions = (function () {
     }
 
 
-    // addToInteractions: string -> void
+    // addToInteractions: string | dom-node -> void
     // Adds a note to the interactions.
     WeSchemeInteractions.prototype.addToInteractions = function (interactionVal) {
 	this.notifyBus("before-add-to-interactions", this);
-	var newArea = jQuery("<div style='width: 100%'></div>");
-	newArea.text(interactionVal);
-	this.prompt.before(newArea);
+	if (interactionVal instanceof Element ||
+	    interactionVal instanceof Text) {
+	    this.prompt.before(interactionVal);
+	} else {
+	    var newArea = jQuery("<div style='width: 100%'></div>");
+	    newArea.text(interactionVal);
+	    this.prompt.before(newArea);
+	}
 	this.interactionsDiv.attr("scrollTop", this.interactionsDiv.attr("scrollHeight"));
 	this.notifyBus("after-add-to-interactions", this);
     };
@@ -103,7 +108,7 @@ WeSchemeInteractions = (function () {
             
 	    runToplevel(function(val) {
 		if (val != undefined) {
-		    that.addToInteractions(val.toWrittenString() + "\n");
+		    that.addToInteractions(plt.Kernel.toDomNode(val));
 		}
 	    });
 
@@ -117,38 +122,38 @@ WeSchemeInteractions = (function () {
     };
 
 
-    WeSchemeInteractions.prototype.runCompiledCode = function(compiledCode, perms) {
-	this.notifyBus("before-run", this);
-	var that = this;
-	this._prepareToRun();
-	try {
-	    var program = readSchemeExpressions(aSource);
-	    var compiledProgram = 
-		program_dash__greaterthan_compiled_dash_program_slash_pinfo(program, this.pinfo);
+//     WeSchemeInteractions.prototype.runCompiledCode = function(compiledCode, perms) {
+// 	this.notifyBus("before-run", this);
+// 	var that = this;
+// 	this._prepareToRun();
+// 	try {
+// 	    var program = readSchemeExpressions(aSource);
+// 	    var compiledProgram = 
+// 		program_dash__greaterthan_compiled_dash_program_slash_pinfo(program, this.pinfo);
 
-	    var newPinfo = 
-		compiled_dash_program_dash_pinfo(compiledProgram);
+// 	    var newPinfo = 
+// 		compiled_dash_program_dash_pinfo(compiledProgram);
 
-	    that._updatePermissionList(pinfo_dash_permissions(newPinfo));
+// 	    that._updatePermissionList(pinfo_dash_permissions(newPinfo));
 
-	    var defns = compiled_dash_program_dash_defns(compiledProgram);
-	    var interFunc = compiled_dash_program_dash_toplevel_dash_exprs(compiledProgram);
-	    var runToplevel = this.namespace.eval(defns, interFunc);
+// 	    var defns = compiled_dash_program_dash_defns(compiledProgram);
+// 	    var interFunc = compiled_dash_program_dash_toplevel_dash_exprs(compiledProgram);
+// 	    var runToplevel = this.namespace.eval(defns, interFunc);
             
-	    runToplevel(function(val) {
-		if (val != undefined) {
-		    that.addToInteractions(val.toWrittenString() + "\n");
-		}
-	    });
+// 	    runToplevel(function(val) {
+// 		if (val != undefined) {
+// 		    that.addToInteractions(plt.Kernel.toDomNode(val) + "\n");
+// 		}
+// 	    });
 
-	    // Update the pinfo.
-	    this.pinfo = newPinfo;
-	    this.notifyBus("after-run", this);
-	} catch (err) {
-	    this.addToInteractions(err.toString() + "\n");
-	    throw err;
-	}
-    };
+// 	    // Update the pinfo.
+// 	    this.pinfo = newPinfo;
+// 	    this.notifyBus("after-run", this);
+// 	} catch (err) {
+// 	    this.addToInteractions(err.toString() + "\n");
+// 	    throw err;
+// 	}
+//     };
 
 
 
