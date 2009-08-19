@@ -25,15 +25,15 @@
   }
 
   .sexpr {
-    vertical-align: middle;
     display: inline-table;
-    padding: 0em;
-    margin: 0em;
+    margin-left:  0.32em;
+    margin-right: 0.32em;
+    margin-bottom: 0.32em;
   }
 
   .gray {
     color: Gainsboro;
-    opacity: 60%;
+    -moz-opacity:0.6;
   }
 
   .open {
@@ -43,18 +43,6 @@
   .openParen {
     width: 0.64em;
     max-width: 0.64em;
-  }
-
-  .data {
-    display: inline-block;
-    padding: 0em;
-    margin:  0em;
-  }
-
-  .space {
-   display: inline;
-   padding: 0em;
-   margin: 0em;
   }
 
   .close {
@@ -68,8 +56,22 @@
     width: 10px;
   }
 
+
+  .data {
+    display: inline-block;
+    padding: 0em;
+    margin:  0em;
+  }
+
+  .space {
+   display: inline;
+   padding: 0em;
+   margin: 0em;
+  }
+
   .body {
     display: inline-block;
+    min-height: 1em;
   }
  
   img.closeParen {

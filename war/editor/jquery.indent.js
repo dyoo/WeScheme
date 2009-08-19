@@ -112,13 +112,12 @@
       if( null == distance && 
           !elm.hasClass("wspace") &&
           elm.text().length != 0 ){
-        distance = c.text().length - 1 ;
+        distance = c.text().length * 0.625 + 0.6 ;
       }
 
     });
 
 
-    distance = distance * 0.64;
     var indentNext = false;
 
     kids.each(function(){

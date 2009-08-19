@@ -128,6 +128,7 @@ function makeSexpr(e){
        $("<div />")
          .addClass("close")
          .css("vertical-align","top")
+         .addClass("gray")
          .click(clickClose)
          .append(closeBracket()));
   sexpr.focus(illuminateBlock);
