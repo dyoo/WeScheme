@@ -71,7 +71,7 @@ public class LoadProjectServlet extends HttpServlet {
 		query.setFilter("publicId_ == param");
 		query.declareParameters("String param");
 		try {
-			List<Program> programs = (List<Program>) query.execute(publicId);
+			List<Program> programs = (List<Program>) query.execute(publicId.toLowerCase());
 			if (programs.size() == 1) {
 				return programs.get(0);
 			} else {

@@ -159,7 +159,6 @@ berth
 beset
 bigot
 biker
-bimbo
 binge
 bingo
 biped
@@ -586,7 +585,6 @@ epoch
 equal
 equip
 erase
-erect
 erode
 error
 erupt
