@@ -61,7 +61,6 @@ var WeSchemeEditor;
 	this.pidDiv = attrs.pidDiv;           // JQuery
 	this.filenameDiv = attrs.filenameDiv; // JQuery
 
-	this.publicIdPane = attrs.publicIdPane;
 	this.publicIdDiv = attrs.publicIdDiv; // JQuery
 
 	this.filenameEntry = new FlapjaxValueHandler(
@@ -208,11 +207,15 @@ var WeSchemeEditor;
 	});
 
 	// The enabled button's state:
-	insertEnabledB(this.saveButtonEnabledB, this.saveButton);
+	if (this.saveButton) {
+	    insertEnabledB(this.saveButtonEnabledB, this.saveButton);
+	}
 
 	// The clone button's enabled state
-	insertEnabledB(andB(this.isLoggedInB, notB(this.isDirtyB)),
-		       this.cloneButton);
+	if (this.cloneButton) {
+	    insertEnabledB(andB(this.isLoggedInB, notB(this.isDirtyB)),
+			   this.cloneButton);
+	}
     
 	// The publish button's enabled state
 	// 
@@ -351,15 +354,17 @@ var WeSchemeEditor;
 
 	    that.pidDiv.text(dom.find("id").text());
 	    that.pid = parseInt(dom.find("id").text());
-	    that.publicIdDiv.empty();
 	    var publicUrl = getAbsoluteUrl(
 		"/openEditor?publicId=" +
 		    encodeURIComponent(dom.find("publicId").text()));
-	    that.publicIdDiv.append(jQuery("<input/>")
-				    .attr("type", "text")
-				    .attr("size", publicUrl.length)
-				    .attr("value", publicUrl)
-				    .attr("readonly", true));
+	    if (that.publicIdDiv) {
+		that.publicIdDiv.empty();
+		that.publicIdDiv.append(jQuery("<input/>")
+					.attr("type", "text")
+					.attr("size", publicUrl.length)
+					.attr("value", publicUrl)
+					.attr("readonly", true));
+	    }
 	    that.filenameEntry.attr("value", dom.find("title").text());
 
 

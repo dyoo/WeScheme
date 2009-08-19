@@ -87,8 +87,16 @@
 <h1 class="title">WeScheme Editor</h1>
 
 <span>
+
+<% if (userSession != null) { %>
 <span><input id="save" type="button" value="Save"></input></span>
 <span><input id="clone" type="button" value="Clone"></input></span>
+<% } %>
+
+<% if (userSession == null) { %>
+<span>To save or share your program, please log in.</span>
+<% } %>
+
 <span><input id="run" type="button" value="Run"></input></span>
 <span><input id="publish" type="button" value="Publish"></input></span>
 <span><input id="console" type="button" value="Go to Console"></input></span>
@@ -103,17 +111,20 @@
 <div id="pidArea"></div>
 </span>
 
+<% if (request.getParameter("pid") != null ||
+       request.getParameter("publicId") != null) { %>
 <div id="publicIdPane">
   <div id="publicIdLabel">Public URL:</div>
   <div id="publicId"></div>
 </div>
+<% } %>
 
-
+<% if (userSession != null) { %>
 <div id="publishedPane">
   <div id="publishedLabel">Publication status:</div>
   <div id="published"></div>
 </div>
-
+<% } %>
 
 
 
