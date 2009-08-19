@@ -109,6 +109,7 @@ WeSchemeInteractions = (function () {
 	    runToplevel(function(val) {
 		if (val != undefined) {
 		    that.addToInteractions(plt.Kernel.toDomNode(val));
+		    that.addToInteractions("\n");
 		}
 	    });
 
