@@ -59,7 +59,7 @@ public class WeSchemeUser{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Transaction tx = pm.currentTransaction();
 
-		//TODO confirm that the e-mail address doesn't appear more than once?
+		
 		try {
 			tx.begin();
 			try{
@@ -94,7 +94,7 @@ public class WeSchemeUser{
     	_name = username;
     	_salt = Crypt.makeLong();
     	_digest = makePasswordHash(password, _salt);
-    	_active = true; //TODO in production, this should be false.
+    	_active = false;
     	_email 	= email;
     }
 	
