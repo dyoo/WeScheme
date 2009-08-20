@@ -2,25 +2,42 @@ package org.wescheme.keys;
 
 import javax.cache.Cache;
 import javax.jdo.PersistenceManager;
+import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.Persistent;
+import javax.jdo.annotations.PrimaryKey;
 
 import org.wescheme.util.Crypt;
 import org.wescheme.util.Crypt.KeyNotFoundException;
 import org.wescheme.keys.KeyManager;
 
-//TODO The schedule MUST be a directed acyclic graph. Implement this using a DAG package?
-public class Schedule implements Comparable<Schedule> {
+import com.google.appengine.api.datastore.Key;
 
+@PersistenceCapable()
+public class Schedule implements Comparable<Schedule> {
+	
+	@SuppressWarnings("unused")
+	@PrimaryKey
+    @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+    private Key key;
+	@Persistent
 	String from_;
+	@Persistent
 	String to_;
+	@Persistent
 	int size_;
+	@Persistent
 	int cronTicks_ = 1;
+	@Persistent
 	int tickcount_;
 
 	public void execute(Cache cache, PersistenceManager pm) {
 		Crypt.Key key;
 		
+		System.out.println("Key: " + from_ + " Ticks: " + tickcount_ + " of " + cronTicks_ );
+		
 		if( tickcount_ % cronTicks_ != 0 ) { tickcount_ += 1; return;} else {
-			tickcount_ = 0;
+			tickcount_ = 1;
 		}
 		
 		System.out.println("Rotating <" + from_ + "> to <" + to_ + ">" );
