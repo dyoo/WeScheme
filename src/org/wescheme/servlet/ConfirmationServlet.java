@@ -80,6 +80,9 @@ public class ConfirmationServlet extends HttpServlet  {
 			msg.setSubject("Activating your WeScheme account.");
 			msg.setText(msgBody);
 			Transport.send(msg); 
+			
+			System.out.println("Sending mail to " + addy);
+			
 			} catch (AddressException e) {
 				e.printStackTrace();
 			} catch (MessagingException e) {
