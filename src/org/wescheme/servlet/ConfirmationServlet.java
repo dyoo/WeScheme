@@ -69,6 +69,7 @@ public class ConfirmationServlet extends HttpServlet  {
 			"code=" + t.toString() +
 			"&name=" + username +
 			"&email=" + addy +
+			"If you didn't register for WeScheme, don't worry! This confirmation will expire in 24 hours." +
 			"\nThanks,\nThe WeScheme Team";
 		
 		try {
