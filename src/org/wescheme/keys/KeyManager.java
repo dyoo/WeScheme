@@ -33,6 +33,8 @@ public class KeyManager {
 			keySchedule.add(new Schedule(null, "dailyKey", 8, 24));
 			keySchedule.add(new Schedule("dailyKey", "staleDailyKey", 8, 24));
 					
+			pm.makePersistentAll(keySchedule);
+			
 			for( Schedule s : keySchedule ){
 				s.execute(cache, pm);
 			}
