@@ -84,17 +84,21 @@ Fetch programs:
 </form>
 </p>
 <p>
+
+--%>
+
 Create User:
 <form method="POST" action="/createUser">
 
-<textarea cols="20" rows="1" name="user"></textarea>
-<textarea cols="20" rows="1" name="email"></textarea>
-<textarea cols="20" rows="1" name="password"></textarea>
+Name: <input type="text" cols="20" name="user"></input>
+E-mail: <input type="text" cols="20" name="email"></input>
+Password: <input type="password" cols="20" name="password"></input>
 <input type="submit" name="Create User">
 
 </form>
 </p>
 
+<%--
 <p>
 Key Server:
 <form method="POST" action="/keyServer">
