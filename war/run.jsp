@@ -90,7 +90,6 @@ function init() {
 	    find("permission").
 	    each(function() { 
 		permissions.push(plt.Kernel.string_dash__greaterthan_symbol(jQuery(this).text())); });
-	console.log(permissions);
 	interactions.runCompiledCode(program, permissions);
     };
     jQuery.get("/loadProject", data, callback, type);
