@@ -102,11 +102,7 @@
       if( elm.hasClass("space") ){ hasSpace = true;  }
 
       if( null == distance && elm.hasClass("userBreak") ){
-        if( hasSpace ){
           distance = 0;
-        } else {
-          distance = c.text().length + 1; 
-        }
       }
 
       if( null == distance && 

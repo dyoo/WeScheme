@@ -47,7 +47,6 @@
 
   .close {
     display: table-cell;
-    font-size: 18px;
   }
 
   .closeParen {
@@ -72,6 +71,7 @@
   .body {
     display: inline-block;
     min-height: 1em;
+    padding: 0.25em;
   }
  
   img.closeParen {

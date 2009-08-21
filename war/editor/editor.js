@@ -68,8 +68,8 @@ function makeString(e){
      .keypress(metaHandler(stringKeyHandler))
      .append(
        $("<div />")
-         .addClass("open")
          .addClass("openQuote")
+         .addClass("open")
          .click(clickOpen)
          .html("&#147;"))
      .append(
@@ -83,8 +83,8 @@ function makeString(e){
              .html("&nbsp;")))
      .append(
        $("<div />")
-         .addClass("close")
          .addClass("closeQuote")
+         .addClass("close")
          .addClass("gray")
          .click(clickClose)
          .html("&#148;"));
@@ -117,6 +117,7 @@ function makeSexpr(e){
      .append(
        $("<div />")
          .addClass("body")
+         .click(clickBody)
          .attr("contenteditable","false")
          .append(
            $("<div />")
@@ -394,6 +395,20 @@ function clickClose(e){
 	}
  }
 
+function clickBody(e){
+
+  e.stopPropagation();
+  if( 1 == $(e.target).children().length &&
+      !$(e.target).children(".data").text().length){
+      
+      $(e.target).children(".data").html("&nbsp;");
+      $(e.target).children(".data").focus();
+      $(e.target).children(".data").contentFocus();
+
+      }
+
+}
+
 
 // FIXME: We may need to do something clever here, at least according to
 // http://stackoverflow.com/questions/202285/trigger-a-keypress-with-jqueryand-specify-which-key-was-pressed
@@ -478,10 +493,11 @@ function sexprKeyHandler(e){
 
 function sizeParens(sexpr){
   var bdy = sexpr.children(".body");
-  var currSz;
+  var currSz = -1;
+  var height = 0;
 
   if( bdy ){
-    var height = bdy.css("height"); //scalePx(bdy.css("height"),1.25);
+    height = bdy.css("height"); //scalePx(bdy.css("height"),1.25);
     var open  = sexpr.children(".open");
     var close = sexpr.children(".close");
     currSz = open.css("font-size");
@@ -491,7 +507,8 @@ function sizeParens(sexpr){
 
   var enclosingSexpr = sexpr.parents(".sexpr:first");
   
-  if( enclosingSexpr.length ){
+  if( enclosingSexpr.length 
+      && height != currSz ){
     sizeParens(enclosingSexpr);
   }
   return;
