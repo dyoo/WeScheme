@@ -117,6 +117,9 @@ WeSchemeInteractions = (function () {
 	    this.pinfo = newPinfo;
 	    this.notifyBus("after-run", this);
 	} catch (err) {
+	    if (plt.Kernel.lastLoc) {
+		this.addToInteractions("Hit an error around: " + plt.Kernel.lastLoc + "\n");
+	    }
 	    this.addToInteractions(err.toString() + "\n");
 	    throw err;
 	}
