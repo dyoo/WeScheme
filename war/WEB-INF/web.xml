@@ -127,11 +127,11 @@
 
   <servlet>
     <servlet-name>run</servlet-name>
-    <jsp-file>run.jsp</jsp-file>
+    <jsp-file>/run.jsp</jsp-file>
   </servlet>
   <servlet-mapping>
     <servlet-name>run</servlet-name>
-    <url-pattern>/run/*</url-pattern>
+    <url-pattern>/run</url-pattern>
   </servlet-mapping>
 
 
