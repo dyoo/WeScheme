@@ -2,7 +2,6 @@
 <!-- FIXME: bundle into single js for convenience. -->
 <script src="/runtime/types.js"></script>
 <script src="/runtime/kernel.js"></script>
-<script src="/runtime/compiler.js"></script>
 <script src="/runtime/read.js"></script>
 <script src="/runtime/namespace.js"></script>
 <script src="/runtime/world-config.js"></script>
