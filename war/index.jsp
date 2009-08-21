@@ -58,7 +58,16 @@ Welcome anonymous!   <a href="login.jsp">Login</a>
 
 <div><a href="/openEditor">Open New Program</a></div>
 
+Create User:
+<form method="POST" action="/createUser">
 
+Name: <input type="text" cols="20" name="user"></input>
+E-mail: <input type="text" cols="20" name="email"></input>
+Password: <input type="password" cols="20" name="password"></input>
+<input type="submit" name="Create User">
+
+</form>
+</p>
 
 <!-- Everything below this point is for debugging purposes -->
 
@@ -87,16 +96,7 @@ Fetch programs:
 
 --%>
 
-Create User:
-<form method="POST" action="/createUser">
 
-Name: <input type="text" cols="20" name="user"></input>
-E-mail: <input type="text" cols="20" name="email"></input>
-Password: <input type="password" cols="20" name="password"></input>
-<input type="submit" name="Create User">
-
-</form>
-</p>
 
 <%--
 <p>

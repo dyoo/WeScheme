@@ -67,6 +67,7 @@ public class WeSchemeUser{
 				pm.getObjectById(WeSchemeUser.class, k);
 				throw new UnauthorizedUserException();
 			} catch (JDOObjectNotFoundException e) {
+				//TODO Get confirmation e-mail working.
 				String key = ConfirmationServlet.sendConfirmationEmail(username, email);
 				WeSchemeUser u = new WeSchemeUser(username, password, email, key);
 				pm.makePersistent(u);
@@ -94,7 +95,7 @@ public class WeSchemeUser{
     	_name = username;
     	_salt = Crypt.makeLong();
     	_digest = makePasswordHash(password, _salt);
-    	_active = false;
+    	_active = true;
     	_email 	= email;
     }
 	
