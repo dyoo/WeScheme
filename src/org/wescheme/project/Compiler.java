@@ -2,6 +2,8 @@ package org.wescheme.project;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.http.HttpServlet;
 
@@ -50,13 +52,23 @@ public class Compiler extends HttpServlet
 	public void init() {}
 	
 	public static ObjectCode compile(SourceCode src){
-		Context.enter();
-		String srcText = src.toString();
-		Object functionArgs[] = { srcText };
-		System.out.println(srcText);
-		String result = Context.toString(compiler.call(cx, scope, scope, functionArgs));
-		Context.exit();
-		return new ObjectCode(result);
+	    Context cx = Context.enter();
+		try {
+		    String srcText = src.toString();
+		    Object functionArgs[] = { srcText };
+		    Object[] results = cx.getElements(((ScriptableObject)compiler.call(cx, scope, scope, functionArgs)));
+	
+		    String compiledText = results[0].toString();
+		    Object[] jspermissions = cx.getElements((ScriptableObject)results[1]);
+
+		    Set<String> permissions = new HashSet<String>();
+		    for (int i = 0; i < jspermissions.length; i++) {
+		    	permissions.add(jspermissions[i].toString());
+		    }
+		    return new ObjectCode(compiledText, permissions);
+		} finally {
+		    Context.exit();
+		}
 	}
 	
 	
