@@ -17,10 +17,10 @@
 <script src="/openEditor/interaction.js"></script>
 
 
-<!-- Evaluation and world runtime stuff -->
-<!-- FIXME: bundle into single js for convenience. -->
-
+<!-- Includes the moby runtime lbiraries -->
 <jsp:include page="/moby-runtime-includes.jsp" />
+<!-- And we need the compiler. -->
+<script src="/runtime/compiler.js"></script>
 
 
 
