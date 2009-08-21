@@ -19,7 +19,7 @@ public class Compiler extends HttpServlet
 		try{
 		cx = Context.enter();
 		scope = cx.initStandardObjects();
-		FileReader fileReader = new FileReader("compiler.js");
+		FileReader fileReader = new FileReader("runtime/standalone-compiler.js");
 		BufferedReader inputReader = new BufferedReader(fileReader);
 		String compilerSrc = "";
 		String line;
