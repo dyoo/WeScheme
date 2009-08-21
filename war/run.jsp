@@ -48,12 +48,9 @@ Runner.prototype.runCompiledCode = function(compiledCode, permStringArray) {
 	    var perm = symbol_dash__greaterthan_permission(permStringArray[i]);
 	    plt.permission.runStartupCode(perm);
 	}
-	var runToplevel = this.namespace.eval(compiledCode, '42');
- 	runToplevel(function(val) {
- 	    if (val != undefined) {
- 		that.addToInteractions(plt.Kernel.toDomNode(val) + "\n");
- 	    }
- 	});
+	// FIXME: we may want a repl.  We may also want to
+	// see the intermediate values come from toplevel.
+	this.namespace.eval(compiledCode);
     } catch (err) {
 	this.addToInteractions(err.toString() + "\n");
 	throw err;
