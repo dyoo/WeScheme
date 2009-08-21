@@ -202,9 +202,12 @@ function metaHandler(handler){
 function leaveBlock(type, e){
   var tar = $(e.target);
   var range = window.getSelection().getRangeAt(0);
-  tar.parents(".body").parents(":first").children(":last").removeClass("gray");
-  tar.parents(".body").parents(":first").next(":first").focusStart();
-  e.preventDefault(); 
+  if( tar.parents(".sexpr").length ){
+    tar.parents(".body").parents(":first").children(":last").removeClass("gray");
+    tar.parents(".body").parents(":first").next(":first").focusStart();
+  }
+
+    e.preventDefault(); 
 }
 
 function illuminateBlock(e){
