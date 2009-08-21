@@ -43,46 +43,21 @@ Runner.prototype._prepareToRun = function() {
 Runner.prototype.runCompiledCode = function(compiledCode, permStringArray) {
     var that = this;
     this._prepareToRun();
-//    try {
+    try {
 	for (var i = 0; i < permStringArray.length; i++) {
 	    var perm = symbol_dash__greaterthan_permission(permStringArray[i]);
 	    plt.permission.runStartupCode(perm);
 	}
-//	var runToplevel = this.namespace.eval(compiledCode, '42');
-// 	runToplevel(function(val) {
-// 	    if (val != undefined) {
-// 		that.addToInteractions(plt.Kernel.toDomNode(val) + "\n");
-// 	    }
-// 	});
-
-
-
-
-
-(function() { 
-    ((function (toplevel_dash_expression_dash_show0) { 
-	toplevel_dash_expression_dash_show0(
-	    (plt.Kernel.setLastLoc("offset=0 line=1 span=32 id=\"\"") &&
-	     plt.world.MobyJsworld.bigBang((plt.types.Rational.makeInstance(0, 1)),
-					   (plt.Kernel.setLastLoc("offset=15 line=1 span=16 id=\"\"")   &&
-					    plt.world.config.Kernel.onTick((plt.types.Rational.makeInstance(1, 1)),
-									   (function() { var result = (function(args) {
-									       return plt.Kernel.add1(args[0]);
-									   });
-											 result.toWrittenString = function() {return '<function:add1>'; }
-											 result.toDisplayedString = function() {return '<function:add1>';}
-											 return result; })())), []))); }))(plt.Kernel.identity)
-})();
-    
-    
-
-
-
-
-//    } catch (err) {
-//	this.addToInteractions(err.toString() + "\n");
-//	throw err;
-//    }
+	var runToplevel = this.namespace.eval(compiledCode, '42');
+ 	runToplevel(function(val) {
+ 	    if (val != undefined) {
+ 		that.addToInteractions(plt.Kernel.toDomNode(val) + "\n");
+ 	    }
+ 	});
+    } catch (err) {
+	this.addToInteractions(err.toString() + "\n");
+	throw err;
+    }
 }
 
 
