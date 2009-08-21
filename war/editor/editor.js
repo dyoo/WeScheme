@@ -298,7 +298,7 @@ function backspaceKey(e) {
     
         var pred = tar.predecessorWith(parsedNode);
          
-        console.log(pred);
+        // console.log(pred);
 
         if( pred.hasClass("close") ){
 

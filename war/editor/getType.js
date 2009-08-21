@@ -5,7 +5,7 @@ var lambdaLike = ["call-with-input-file", "call-with-input-file*", "call-with-ou
 function getType(jqo){
   
   var prev = jqo.parents(".sexpr").prevAll().nonempty().eq(0);
-  console.log(jqo.parents(".sexpr").prevAll().nonempty().eq(0).html());
+  // console.log(jqo.parents(".sexpr").prevAll().nonempty().eq(0).html());
   if( prev && prev.hasClass("lambda-like") ){
     return "arglist";
   }

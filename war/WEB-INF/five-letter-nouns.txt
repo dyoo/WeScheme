@@ -1202,7 +1202,6 @@ olive
 onion
 onset
 opera
-opium
 optic
 orbit
 order
@@ -1213,7 +1212,6 @@ otter
 ounce
 outdo
 outer
-ovary
 overt
 owner
 oxide
@@ -1330,11 +1328,9 @@ proud
 prove
 prowl
 proxy
-prude
 prune
 psalm
 psych
-pubic
 pudgy
 puffy
 pulse
@@ -1927,7 +1923,6 @@ twist
 udder
 ulcer
 uncle
-uncut
 under
 undid
 undue
@@ -1940,10 +1935,8 @@ untie
 until
 unzip
 upend
-upper
 upset
 urban
-urine
 usage
 usher
 usual
