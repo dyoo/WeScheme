@@ -1,12 +1,11 @@
 <%-- Runs a program
      Url scheme:
 
-     http://www.wescheme.org/run/public-url
+     http://www.wescheme.org/run?publicId=...
 --%>
 
 <%
-String url = request.getRequestURL().toString();
-String publicId = url.substring(url.lastIndexOf("/") + 1);
+    String publicId = request.getParameter("publicId");
 %>
 
 
@@ -66,7 +65,7 @@ Runner.prototype.addToInteractions = function (interactionVal) {
 	var newArea = jQuery("<div style='width: 100%'></div>");
 	newArea.text(interactionVal);
 	this.interactionsDiv.append(newArea);
-	}
+    }
     this.interactionsDiv.attr("scrollTop", this.interactionsDiv.attr("scrollHeight"));
 };
 
