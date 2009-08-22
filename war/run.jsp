@@ -42,19 +42,26 @@ Runner.prototype._prepareToRun = function() {
 Runner.prototype.runCompiledCode = function(compiledCode, permStringArray) {
     var that = this;
     this._prepareToRun();
-    try {
-	for (var i = 0; i < permStringArray.length; i++) {
-	    var perm = symbol_dash__greaterthan_permission(permStringArray[i]);
-	    plt.permission.runStartupCode(perm);
-	}
-	// FIXME: we may want a repl.  We may also want to
-	// see the intermediate values come from toplevel.
-	this.namespace.eval(compiledCode);
-    } catch (err) {
-	this.addToInteractions(err.toString() + "\n");
-	throw err;
+
+    var permArray = [];
+    for (var i = 0; i < permStringArray.length; i++) {
+	permArray.push(symbol_dash__greaterthan_permission(permStringArray[i]))
     }
-}
+    
+    plt.permission.startupAllPermissions(
+	permArray,
+        function() { 
+            try {
+	        // FIXME: we may want a repl.  We may also want to
+                // see the intermediate values come from toplevel.
+                that.namespace.eval(compiledCode);
+            } catch (err) {
+                that.addToInteractions(err.toString() + "\n");
+ 	        throw err;
+            }
+	    
+        });
+};
 
 
 Runner.prototype.addToInteractions = function (interactionVal) {
