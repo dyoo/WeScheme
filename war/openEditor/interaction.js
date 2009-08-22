@@ -46,7 +46,7 @@ WeSchemeInteractions = (function () {
 	this.notifyBus("before-reset", this);
 	var that = this;
 	this.interactionsDiv.empty();
-	this.prompt = jQuery("<div style='width:100%'><span>&gt; <input type='text' style='width: 75%'></span></div>");
+	this.prompt = jQuery("<div style='width:100%'><span>&gt; <input type='text' style='width: 75%' id='inputBox'></span></div>");
 	this.interactionsDiv.append(this.prompt);
 
 	this.prompt.contents().keydown(function(e) { that._maybeRunPrompt(e) });
