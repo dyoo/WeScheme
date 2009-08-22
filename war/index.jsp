@@ -37,22 +37,7 @@
         		} else { 
 %>
 
- <input id="newProgram" value="Log In" type="button" onclick="javascript:window.location='<%= us.createLoginURL("/openEditor") %>'" />
-<h2><%= request.getRequestURI() %></h2>
-<div id="login">
-<a href="">Sign in with Google</a>
-	<p>
-	</p><form method="post" target="/" onsubmit="return window.confirm(&quot;You are submitting information to an external page.\nAre you sure?&quot;);">
-	Username: <input disabled name="user" type="text"> <br>
-	Password: <input disabled name="password" type="password"> <br>
-	<input disabled name="login" value="Log In" type="submit">
-
-	<input disabled name="cancel" value="Cancel" type="submit">
-	</form>
-	<p></p>
-</div>
-
-
+ <input id="newProgram" value="Log In" type="button" onclick="javascript:window.location='<%= us.createLoginURL(request.getRequestURI()) %>'" />
 <%  }}} %>	
 	
 	
