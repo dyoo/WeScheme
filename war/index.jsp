@@ -1,115 +1,70 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="com.google.appengine.api.users.User" %>
+<%@ page import="com.google.appengine.api.users.UserService" %>
+<%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
 <%@ page import="org.wescheme.user.SessionManager" %>
 <%@ page import="org.wescheme.user.Session" %>
+
 <html>
-<head>
+<head><title>WeScheme</title></head>
 
-<link rel="stylesheet" type="text/css" href="style.css" />
+<link rel="stylesheet" type="text/css" href="css/splash.css" id="style" />
 
-
-<script src="editor/jquery.js"></script>
-<script src="editor/jquery.createdomnodes.js"></script>
-<script src="safeSubmit.js"></script>
-<script src="index.js"></script>
-
-<script>
-<% SessionManager sm = new SessionManager(); 
-   Session s = sm.authenticate(request, response);
-   if( s != null ) {
-%>
-     var userName = "<%= s.getName()%>";
-<% } else { %>
-     var userName = undefined;
-<% } %>
-</script>
-
-
-</head>
 <body>
-
-<h1 class="title">WeScheme Console</h1>
-
+<h1>WeScheme</h1>
+	<a href="openEditor"><input type="button" id="newProgram" value="Start Coding" /></a>
+	<img src="css/images/BigLogo.png">
+	
 
 <%
-if( s != null ) {
+		// Are we logged in?
+		SessionManager sm = new SessionManager();
+		Session s = sm.authenticate(request, response);
+		
+		if( s == null ) {
+
+			// We aren't logged in, so let's try to authenticate against google.
+			UserService us = UserServiceFactory.getUserService();
+			s = sm.authGoogle(us);
+			if( s != null ){				// we've authenticated against google
+				sm.issueSession(s, response);	// issue the session
+			} else {
+
+				// Let's try to authenticate against WeScheme!
+				s = sm.authWeScheme(request, response);
+        		if( s != null ){
+        			sm.issueSession(s, response);
+        		} else { 
 %>
+<a href="login"><input type="button" id="newProgram" value="Log In" /></a>
 
-Welcome <%= s.getName() %>
-
-<form method="POST" action="/logout">
-<input type="submit" name="logout" value="logout">
-</form>
-
-<h2>Your programs</h2>
-<ul id="programList"></ul>
-
-
-
-
-
-
-<% } else { %>
-Welcome anonymous!   <a href="login.jsp">Login</a>
-<% } %>
-
-
-
-
-
-
-<div><a href="/openEditor">Open New Program</a></div>
-
-Create User:
-<form method="POST" action="/createUser">
-
-Name: <input type="text" cols="20" name="user"></input>
-E-mail: <input type="text" cols="20" name="email"></input>
-Password: <input type="password" cols="20" name="password"></input>
-<input type="submit" name="Create User">
-
+<div id="login">
+<a href="<%= us.createLoginURL(request.getRequestURI()) %>">Sign in with Google</a>
+<p>
+Sign in with WeScheme 
+<form method="POST" action="/">
+Username: <input type="text" disabled="disabled" name="user"></input> <br />
+Password: <input type="password" disabled="disabled" name="password"></input> <br />
+<input type="submit" disabled="disabled" name="login" value="Log In">
+<input type="submit" disabled="disabled" name="register" value="Register">
 </form>
 </p>
 
-<!-- Everything below this point is for debugging purposes -->
+</div>
 
-<hr/>
-
-
-<%--
-
-<h2>Debug stuff</h2>
-
-<form method="POST" action="/publish">
-
-<textarea cols="120" rows="20" name="code"></textarea>
-<input type="checkbox" name="publish" value="publish">
-<input type="submit" name="Publish">
-
-</form>
-<p>
-Fetch programs:
-<form method="POST" action="/programManager">
-<input type="submit" value="fetch programs">
-
-</form>
-</p>
-<p>
-
---%>
+<%  }}} %>	
+	
+	
+<h2>Sometimes YouTube. Perhaps iPhone. Together, WeScheme</h2>
 
 
 
-<%--
-<p>
-Key Server:
-<form method="POST" action="/keyServer">
-<input type="submit" name="Create User">
-</form>
-</p>
+</div>
 
-
-
---%>
-
-
+<div id="footer">
+<a href="#" class="foot-link">About</a>
+<a href="#" class="foot-link">Contact</a>
+<a href="#" class="foot-link">Copyright</a>
+</div>
 </body>
 </html>

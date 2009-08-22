@@ -1,7 +1,7 @@
 <html>
 <head>
 
-<link rel="stylesheet" type="text/css" href="/openEditor/style.css" />
+<link rel="stylesheet" type="text/css" href="../css/lite.css" />
 <script src="/flapjax-2.0.1.compressed.js"></script>
 <script src="/flapjax-helpers.js"></script>
 <script src="/editor/jquery.js"></script>
