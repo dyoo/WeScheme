@@ -100,22 +100,36 @@ WeSchemeInteractions = (function () {
 	    var newPinfo = 
 		compiled_dash_program_dash_pinfo(compiledProgram);
 
-	    that._updatePermissionList(pinfo_dash_permissions(newPinfo));
+	    var permArray = that._getPermissionArray(pinfo_dash_permissions(newPinfo));
+	    plt.permission.startupAllPermissions(
+		permArray,
+		function() {
+		    try {
 
-	    var defns = compiled_dash_program_dash_defns(compiledProgram);
-	    var interFunc = compiled_dash_program_dash_toplevel_dash_exprs(compiledProgram);
-	    var runToplevel = this.namespace.eval(defns, interFunc);
-            
-	    runToplevel(function(val) {
-		if (val != undefined) {
-		    that.addToInteractions(plt.Kernel.toDomNode(val));
-		    that.addToInteractions("\n");
-		}
-	    });
+			var defns = compiled_dash_program_dash_defns(compiledProgram);
+			var interFunc = compiled_dash_program_dash_toplevel_dash_exprs(compiledProgram);
+			var runToplevel = that.namespace.eval(defns, interFunc);
+			
+			runToplevel(function(val) {
+			    if (val != undefined) {
+				that.addToInteractions(plt.Kernel.toDomNode(val));
+				that.addToInteractions("\n");
+			    }
+			});
 
-	    // Update the pinfo.
-	    this.pinfo = newPinfo;
-	    this.notifyBus("after-run", this);
+			// Update the pinfo.
+			that.pinfo = newPinfo;
+			that.notifyBus("after-run", that);
+
+		    } catch (err) {
+			if (plt.Kernel.lastLoc) {
+			    this.addToInteractions("Hit an error around: " + plt.Kernel.lastLoc + "\n");
+			}
+			this.addToInteractions(err.toString() + "\n");
+			throw err;
+		    }
+		});
+
 	} catch (err) {
 	    if (plt.Kernel.lastLoc) {
 		this.addToInteractions("Hit an error around: " + plt.Kernel.lastLoc + "\n");
@@ -131,35 +145,41 @@ WeSchemeInteractions = (function () {
 	this.notifyBus("before-run", this);
 	var that = this;
 	this._prepareToRun();
-	try {
-	    for (var i = 0; i < permStringArray.length; i++) {
-		var perm = symbol_dash__greaterthan_permission(permStringArray[i]);
-		plt.permission.runStartupCode(perm);
-	    }
-	    var runToplevel = this.namespace.eval(compiledCode, '""');
-	    runToplevel(function(val) {
-		if (val != undefined) {
-		    that.addToInteractions(plt.Kernel.toDomNode(val) + "\n");
+	var permArray = [];
+	for (var i = 0; i < permStringArray.length; i++) {
+	    permArray.push(symbol_dash__greaterthan_permission(permStringArray[i]))
+	}
+	plt.permission.startupAllPermissions(
+	    permArray,
+	    function() {
+		try {
+		    var runToplevel = that.namespace.eval(compiledCode, '""');
+		    runToplevel(function(val) {
+			if (val != undefined) {
+			    that.addToInteractions(plt.Kernel.toDomNode(val) + "\n");
+			}
+		    });
+		    that.notifyBus("after-run", that);
+		} catch (err) {
+		    that.addToInteractions(err.toString() + "\n");
+		    throw err;
 		}
 	    });
-	    this.notifyBus("after-run", this);
-	} catch (err) {
-	    this.addToInteractions(err.toString() + "\n");
-	    throw err;
-	}
     };
 
 
 
 
-    WeSchemeInteractions.prototype._updatePermissionList = function(permissionList) {
+    WeSchemeInteractions.prototype._getPermissionArray = function(permissionList) {
 	// FIXME: we should notify the user what permissionList are being asked,
 	// and what to permit.
+	var perms = [];
 	while (! permissionList.isEmpty()) {
 	    var nextPermission = permissionList.first();
-	    plt.permission.runStartupCode(nextPermission);
+	    perms.push(nextPermission);
 	    permissionList = permissionList.rest();
 	}
+	return perms;
     };
 
 
