@@ -1,0 +1,61 @@
+body{
+}
+
+
+#statusbar {
+    width: 100%
+    overflow: auto;
+    background-color: lightgrey;
+}
+
+#filenameLabel {
+    float: left;
+    margin-right: 10px;
+}
+
+#filenameArea {
+    background-color: lightgrey;
+    float: left;
+}
+
+
+#pidArea {
+    background-color: lightgrey;
+}
+
+
+
+#publicIdPane {
+    background-color: lightgreen;
+    clear: both;
+}
+#publicIdLabel {
+    float: left;
+}
+
+
+#run {
+    margin-left: 100px;
+    margin-right: 100px;
+}
+
+
+/* Back to main */
+#back {
+    margin-left: 100px;
+}
+
+
+
+/* Definitions */
+#defn {
+    width: 100%;
+    height: 45%;
+}
+
+/* Interactions */
+#inter {
+    overflow: auto;
+    width:100%;
+    height:45%;
+}

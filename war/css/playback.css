@@ -1,0 +1,81 @@
+/* Some global settings */
+html{	min-width:		625px; background: #f5deb3;}
+html, body, h1, h2, #header, #toolbar *, #inter{
+	padding:		0px;
+	margin:			0px;
+}
+
+
+/* 65px: LOGO AND TITLE */
+#header{
+	width:			100%;
+	height:			65px;
+	background:		url(images/icon.png) ;
+	background-repeat:no-repeat;
+}
+h1{ font-size:	38px;	margin-left:	65px;}
+h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
+
+/* 110px: TOOLBAR, BUTTONS, ETC */
+#toolbar{
+	width:			100%;
+	height:			19px;	/* leave room for the border */
+	border-bottom:	solid 1px black;
+	background:		black;
+	clear:			both;
+}
+
+#toolbar ul{
+	clear:			both;
+	list-style-type:none;
+}
+
+#toolbar li{
+	float:			left;
+	text-align:		center;
+	width:			175px;
+	background-repeat: no-repeat;
+	background-position: 0 50%;
+	clear:			right;
+}
+
+#toolbar li a, #toolbar li a:visited{
+	display:		block;
+	color:			white;
+	width:			100%;
+	text-decoration:none;
+}
+#toolbar li a:hover{
+	background:		#546DAF;
+	color:			white;
+	cursor:			pointer;
+}
+
+/* tooltips */
+a:hover {background:white;} /*BG color is a must for IE6*/
+a span {display:none; width: 130px; text-align: left;}
+a:hover span{display: inline; position: absolute; background:#546DAF; color: white; }
+
+/* Images and text alignment for buttons */
+#toolbar li.run {list-style-image: url(images/play.png);}
+#toolbar li.peek{float: left;}
+#toolbar li.peek a:hover{clear: none;}
+
+/* flexible: INTERACTIONS */
+#interactions{
+	position:		absolute;
+	border-top:		solid 1px black;
+	top:			85px;
+	bottom:			0px;
+	clear:			both;
+	padding:		10px 0px;
+	width:			100%;
+	background:		white url(images/fadeIcon.png) no-repeat right bottom;
+}
+
+#inter {
+	height:			100%;
+	overflow:		auto;
+	margin:			0px 10px;
+	width: auto;
+}
