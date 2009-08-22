@@ -72,7 +72,6 @@
   jQuery("#publish").click(function()  { myEditor.publish(); });
   jQuery("#console").click(function()  { window.location = "/"; });
   jQuery("#logout").click(function() {
-                   alert("logging out");
    		   window.location = "/logout"; });
 
 <% if (request.getParameter("pid") != null) { %>
