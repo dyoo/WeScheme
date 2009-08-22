@@ -187,7 +187,12 @@ public class SessionManager {
 			session.setMaxAge(0);
 			token.setMaxAge(0);
 			resp.addCookie(session);
-			resp.addCookie(token);			
+			resp.addCookie(token);
+			
+			System.out.println("bang.");
+		} else {
+			
+			System.out.println("fizzle.");
 		}
 		
 	}
