@@ -6,13 +6,13 @@
 <%@ page import="org.wescheme.user.Session" %>
 
 <html>
-<head><title>WeScheme</title></head>
-
+<head><title>WeScheme</title>
 <link rel="stylesheet" type="text/css" href="css/splash.css" id="style" />
 
+</head>
 <body>
 <h1>WeScheme</h1>
-	<a href="openEditor"><input type="button" id="newProgram" value="Start Coding" /></a>
+<input id="newProgram" value="Start Coding" type="button" onclick="javascript:window.location='/openEditor'" />
 	<img src="css/images/BigLogo.png">
 	
 
@@ -36,21 +36,22 @@
         			sm.issueSession(s, response);
         		} else { 
 %>
-<a href="login"><input type="button" id="newProgram" value="Log In" /></a>
 
+ <input id="newProgram" value="Log In" type="button" onclick="javascript:window.location='<%= us.createLoginURL("/openEditor") %>'" />
+<h2><%= request.getRequestURI() %></h2>
 <div id="login">
-<a href="<%= us.createLoginURL(request.getRequestURI()) %>">Sign in with Google</a>
-<p>
-Sign in with WeScheme 
-<form method="POST" action="/">
-Username: <input type="text" disabled="disabled" name="user"></input> <br />
-Password: <input type="password" disabled="disabled" name="password"></input> <br />
-<input type="submit" disabled="disabled" name="login" value="Log In">
-<input type="submit" disabled="disabled" name="register" value="Register">
-</form>
-</p>
+<a href="">Sign in with Google</a>
+	<p>
+	</p><form method="post" target="/" onsubmit="return window.confirm(&quot;You are submitting information to an external page.\nAre you sure?&quot;);">
+	Username: <input disabled name="user" type="text"> <br>
+	Password: <input disabled name="password" type="password"> <br>
+	<input disabled name="login" value="Log In" type="submit">
 
+	<input disabled name="cancel" value="Cancel" type="submit">
+	</form>
+	<p></p>
 </div>
+
 
 <%  }}} %>	
 	
@@ -62,9 +63,9 @@ Password: <input type="password" disabled="disabled" name="password"></input> <b
 </div>
 
 <div id="footer">
-<a href="#" class="foot-link">About</a>
-<a href="#" class="foot-link">Contact</a>
-<a href="#" class="foot-link">Copyright</a>
+<a href="#">About</a>
+
+<a href="#">Contact</a>
+<a href="#">Copyright</a>
 </div>
-</body>
-</html>
+</div></body></html>
