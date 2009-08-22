@@ -5,12 +5,16 @@ html, body, h1, h2, #header, #fileInfo, #toolbar *, #defn, #footer, #inter, inpu
 	margin:			0px;
 }
 
+.form {
+   display: inline-block;
+}
+
 
 /* 65px: LOGO AND TITLE */
 #header{
 	width:			100%;
 	height:			65px;
-	background:		url(images/icon.png) ;
+	background:		url(/css/images/icon.png) ;
 	background-repeat:no-repeat;
 }
 h1{ font-size:	38px;	margin-left:	65px;}
@@ -72,6 +76,7 @@ a span {display:none; width: 130px; text-align: left;}
 a:hover span{display: inline; position: absolute; background:#546DAF; color: white; }
 
 /* Images and text alignment for buttons */
+#toolbar li.logout{float: right; clear: none;}
 #toolbar li.account{float: right; clear: none;}
 #toolbar li.docs{float: right; clear: none;}
 #toolbar li.docs a:hover{float: right; clear: none;background: #B3411C}
@@ -89,11 +94,11 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
     height:			300px;
 	overflow:		auto;
 	width:			100%;
-	background:		white url(images/fadeIcon.png) no-repeat right center;
+	background:		white url(/css/images/fadeIcon.png) no-repeat right center;
 	font-size:		12px; 
 	font-family:	Monaco, sans-serif; 
 }
-#defn:hover{background:	white url(images/fadeWords.png) no-repeat right center;}
+#defn:hover{background:	white url(/css/images/fadeWords.png) no-repeat right center;}
 /* flexible: INTERACTIONS */
 #interactions{
 	position:		absolute;
@@ -104,7 +109,7 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 	width:			100%;
 	background:		white;
 }
-#interactions:hover{background:	white url(images/interactions.png) no-repeat right bottom;}
+#interactions:hover{background:	white url(/css/images/interactions.png) no-repeat right bottom;}
 
 #inter {
 	height:			100%;
@@ -123,7 +128,7 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 
 /* 22px: FOOTER */
 #footer {
-    position:		fixed;
+    position:		absolute;
 	bottom:			0px;
 	height:			20px;
 	padding:		1px 0px;
