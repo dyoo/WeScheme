@@ -181,7 +181,7 @@ public class SessionManager {
 
 	public void logout(HttpServletRequest req, HttpServletResponse resp) {
 	
-		if( isIntentional(req, resp) ){
+		//if( isIntentional(req, resp) ){
 			Cookie session = new Cookie("session", "");
 			Cookie token = new Cookie("token", "");
 			session.setMaxAge(0);
@@ -189,11 +189,11 @@ public class SessionManager {
 			resp.addCookie(session);
 			resp.addCookie(token);
 			
-			System.out.println("bang.");
+		/*	System.out.println("bang.");
 		} else {
 			
 			System.out.println("fizzle.");
-		}
+		}*/
 		
 	}
 }
