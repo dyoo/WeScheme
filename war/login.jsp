@@ -6,6 +6,7 @@
 <%@ page import="org.wescheme.user.Session" %>
 
 <html>
+<head><title>WeScheme</title></head>
   <body>
 
 <h1 class="title">WeScheme Login</h1>
