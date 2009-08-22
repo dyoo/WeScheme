@@ -3,7 +3,7 @@
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
 <html>
 <head>
-
+<title>WeScheme</title>
 <link rel="stylesheet" type="text/css" href="/css/default.css"
       id="style" />
 <script src="/flapjax-2.0.1.compressed.js"></script>
