@@ -72,7 +72,8 @@ public class Program extends XML {
 		time_ = System.currentTimeMillis();
 		this.backlink_ = p.getId();
 		if( obj_ != null && p.obj_.isTrusted() ){
-			obj_ = new ObjectCode(p.obj_.toString());
+			obj_ = new ObjectCode(p.obj_.getObj(),
+						p.obj_.getPermissions());
 		} else {
 			obj_ = null;
 		}

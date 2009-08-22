@@ -125,6 +125,17 @@
     <url-pattern>/openEditor</url-pattern>
   </servlet-mapping>
 
+  <servlet>
+    <servlet-name>run</servlet-name>
+    <jsp-file>/run.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>run</servlet-name>
+    <url-pattern>/run</url-pattern>
+  </servlet-mapping>
+
+
+
 
   <servlet>
     <servlet-name>listProjects</servlet-name>
@@ -182,6 +193,8 @@
     <servlet-name>cloneProject</servlet-name>
     <url-pattern>/cloneProject</url-pattern>
   </servlet-mapping>
+
+
 
 
   <servlet>
