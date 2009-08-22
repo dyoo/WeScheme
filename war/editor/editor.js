@@ -146,19 +146,19 @@ function openBracket() {
     .addClass("openParen")
     .append(
       $("<img />")
-        .attr("src", "img/top.png")
+        .attr("src", "../css/images/top.png")
         .css("width","10px"))
     .append($("<br />"))
     .append(
       $("<img />")
-        .attr("src", "img/mid.png")
+        .attr("src", "../css/images/mid.png")
         .css("width","10px")
         .css("height","100%")
         .attr("alt","("))
     .append($("<br />"))
     .append(
       $("<img />")
-        .attr("src", "img/bot.png")
+        .attr("src", "../css/images/bot.png")
         .css("width","10px"));
     return b;
 }
@@ -168,19 +168,19 @@ function closeBracket() {
     .addClass("closeParen")
     .append(
       $("<img />")
-        .attr("src", "img/top_r.png")
+        .attr("src", "../css/images/top_r.png")
         .css("width","10px"))
     .append($("<br />"))
     .append(
       $("<img />")
-        .attr("src", "img/mid_r.png")
+        .attr("src", "../css/images/mid_r.png")
         .css("width","10px")
         .css("height","100%")
         .attr("alt",")"))
     .append($("<br />"))
     .append(
       $("<img />")
-        .attr("src", "img/bot_r.png")
+        .attr("src", "../css/images/bot_r.png")
         .css("width","10px"));
 
     return b;
@@ -202,7 +202,7 @@ function metaHandler(handler){
 function leaveBlock(type, e){
   var tar = $(e.target);
   var range = window.getSelection().getRangeAt(0);
-  if( tar.parents(".sexpr").length ){
+  if( tar.parents(".sexpr").length || tar.parents(".string").length ){
     tar.parents(".body").parents(":first").children(":last").removeClass("gray");
     tar.parents(".body").parents(":first").next(":first").focusStart();
   }

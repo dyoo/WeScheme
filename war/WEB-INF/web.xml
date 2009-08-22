@@ -91,7 +91,7 @@
   </servlet>
   <servlet-mapping>
     <servlet-name>index</servlet-name>servlet-name>
-    <url-pattetrn>/index.html</url-pattetrn>
+    <url-pattern>/index.jsp</url-pattern>
   </servlet-mapping>
 
   <servlet>
