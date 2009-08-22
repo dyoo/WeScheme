@@ -1,7 +1,7 @@
 <html>
 <head>
 
-<link rel="stylesheet" type="text/css" href="../css/lite.css" />
+<link rel="stylesheet" type="text/css" href="/openEditor/default.css" />
 <script src="/flapjax-2.0.1.compressed.js"></script>
 <script src="/flapjax-helpers.js"></script>
 <script src="/editor/jquery.js"></script>
@@ -80,44 +80,51 @@
   });
 
   });
+  
+  function switchStyle(style){
+	  document.getElementById('style').href = 'css/'+style;
+	}
+  
+  
 </script>
 </head>
 <body>
 
-<h1 class="title">WeScheme Editor</h1>
+<div id="header">
+	<h1>WeScheme</h1>
+	<h2>Sometimes YouTube.  Perhaps iPhone.  Together, WeScheme!</h2>
+</div>
 
-<span>
 
+<div id="toolbar">
+<ul>
+<li class="run">	<a id="run" href="#">Run<span>&nbsp;your program.</span></a></li>
 <% if (userSession != null) { %>
-<span><input id="save" type="button" value="Save"></input></span>
-<span><input id="clone" type="button" value="Clone"></input></span>
+<li class="save">	<a id="save" href="#">Save<span>&nbsp;for later.</span></a></li>
+<li class="share">	<a id="publish" href="#">Share<span>&nbsp;with friends.</span></a></li>
 <% } %>
+<li class="docs">	<a id="docs" target="_blank" href="/openEditor/moby-user-api.txt">API</a></li>
+<li class="account"><a id="account" href="#">Manage<span>&nbsp;your account.</span></a></li>
+</ul>
+</div>
 
-<% if (userSession == null) { %>
-<span>To save or share your program, please log in.</span>
-<% } %>
+<div id="definitions">
+<textarea id="defn">
+&#59;  Write your code here
+</textarea>
+</div>
 
-<span><input id="run" type="button" value="Run"></input></span>
-<span><input id="publish" type="button" value="Publish"></input></span>
-<span><input id="console" type="button" value="Go to Console"></input></span>
-<span><a href="/openEditor/moby-user-api.txt">API docs</a></span>
-</span>
-
-
-
-<span>
-<div id="filenameLabel">Project name:</div>
-<div id="filenameArea"></div>
-<div id="pidArea"></div>
-</span>
-
+<div id="fileInfo">
+  <label id="filenamelabel" for="filename">Project name:</label>
+  <input id= "filename" type="text" style="width: 20%">
+  
 <% if (request.getParameter("pid") != null ||
        request.getParameter("publicId") != null) { %>
-<div id="publicIdPane">
   <div id="publicIdLabel">Public URL:</div>
   <div id="publicId"></div>
-</div>
+
 <% } %>
+</div>
 
 <% if (userSession != null) { %>
 <div id="publishedPane">
@@ -127,25 +134,31 @@
 <% } %>
 
 
+<div id="interactions" onclick="document.getElementById('inputBox').focus()">
+	<div id="inter">
 
-
-<div>
-<textarea id="defn">
-</textarea>
+		<div style="width: 100%;"><span>&gt; <input style="width: 75%;" type="text"></span></div>
+	</div>
 </div>
-
-
-<div>
-<div id="inter"></div>
-</div>
-
-
 
 <!-- FIXME: make this appear or disappear depending on usage. -->
-<div id="jsworld-div"></div>
+<div id="footer">
+	<!-- FIXME: make this appear or disappear depending on usage. -->
+	<div id="jsworld-div"></div>
+	<div id="statusbar" style="float: left; margin-left: 10px;" >Program 118 saved</div>
+	<div style="text-align: right; margin-right: 10px;">
 
+		Editor Style:&nbsp;
+		<select onchange="switchStyle(this.value)">
+			<option value="default.css" selected="true">Default</option>
+			<option value="hacker.css">Hacker</option>
+			<option value="compact.css">Compact</option>
+			<option value="personal.css">Personal</option>
 
-<div id="statusbar"></div>
+		</select>
+		</div>
+</div>
+
 
 </body>
 

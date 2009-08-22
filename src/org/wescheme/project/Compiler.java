@@ -44,6 +44,7 @@ public class Compiler extends HttpServlet
 		System.out.println(result);
 		Context.exit();
 		} catch (Exception e){
+			e.printStackTrace();
 			System.out.println("Compiler initialization failed.");
 		}
 	}
@@ -65,7 +66,7 @@ public class Compiler extends HttpServlet
 		    for (int i = 0; i < jspermissions.length; i++) {
 		    	permissions.add(jspermissions[i].toString());
 		    }
-		    return new ObjectCode(compiledText, permissions);
+		    return new ObjectCode(compiledText, permissions, false);
 		} finally {
 		    Context.exit();
 		}
