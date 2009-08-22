@@ -119,16 +119,24 @@ plt.world.MobyJsworld = {};
 
 
     // bigBang: world (listof (list string string)) (listof handler) -> world
-    Jsworld.bigBang = function(initWorld, attribs, handlers) {
-	plt.Kernel.checkList(attribs, "js-big-bang", 2);
+    Jsworld.bigBang = function(initWorld, handlers) {
+	var attribs = plt.types.Empty.EMPTY;
 	plt.Kernel.arrayEach(handlers,
 			     function(x, i) {
-				 plt.Kernel.check(x, isHandler, "js-big-bang", "handler", i+3) });
+				 plt.Kernel.check(x, function(x) { 
+				     return isHandler(x) || isList(x) },
+						  "js-big-bang", 
+						  "handler or attribute list",
+						  i+2) });
 	var toplevelNode = Jsworld.makeToplevelNode();
 
 	var config = new plt.world.config.WorldConfig();
 	for(var i = 0; i < handlers.length; i++) {
-	    config = handlers[i](config);
+	    if (isList(handlers[i])) {
+		attribs = handlers[i];
+	    } else if (isHandler(handlers[i])) {
+		config = handlers[i](config);
+	    }
 	}
 	config = config.updateAll({'changeWorld': Jsworld.updateWorld});
 	plt.world.config.CONFIG = config;
@@ -137,36 +145,39 @@ plt.world.MobyJsworld = {};
 	
 
 	if (config.lookup('onDraw')) {
-	    function wrappedRedraw(w) {
+	    var wrappedRedraw = function(w) {
 		var result = [toplevelNode, 
 			      deepListToArray(config.lookup('onDraw')([w]))];
 		return result;
 	    }
 
-	    function wrappedRedrawCss(w) {
+	    var wrappedRedrawCss = function(w) {
 		var result = deepListToArray(config.lookup('onDrawCss')([w]));
 		return result;
 	    }
 	    wrappedHandlers.push(_js.on_draw(wrappedRedraw, wrappedRedrawCss));
 	} else if (config.lookup('onRedraw')) {
-	    function wrappedRedraw(w) {
+	    // WARNING: under Safari, it's not safe to define inner functions with the same
+	    // name as other ones.  That's why we're doing 'var wrappedRedraw = function(w) { ... }'
+	    // rather than the more direct 'function wrappedRedraw(w) { ...}'.
+	    var wrappedRedraw = function(w) {
 		var result = [toplevelNode, 
 			      [plt.Kernel.toDomNode(config.lookup('onRedraw')([w]))]];
 		return result;
 	    }
-
-	    function wrappedRedrawCss(w) {
+	    
+	    var wrappedRedrawCss = function(w) {
 		return [];
 	    }
 	    wrappedHandlers.push(_js.on_draw(wrappedRedraw, wrappedRedrawCss));
 	} else {
-	    wrappedHandlers.push(_js.on_world_change(
-		function(w) { Jsworld.printWorldHook(w, toplevelNode); }));
+	    wrappedHandlers.push(_js.on_world_change
+				 (function(w) { Jsworld.printWorldHook(w, toplevelNode); }));
 	}
 
 
 	if (config.lookup('tickDelay')) {
-	    function wrappedTick(w) {
+	    var wrappedTick = function(w) {
 		setTimeout(function() {plt.world.stimuli.onTick()}, 0);
 		return w;
 	    }
