@@ -182,8 +182,12 @@ public class SessionManager {
 	public void logout(HttpServletRequest req, HttpServletResponse resp) {
 	
 		if( isIntentional(req, resp) ){
-			resp.addCookie(new Cookie("session", ""));
-			resp.addCookie(new Cookie("token", ""));			
+			Cookie session = new Cookie("session", "");
+			Cookie token = new Cookie("token", "");
+			session.setMaxAge(0);
+			token.setMaxAge(0);
+			resp.addCookie(session);
+			resp.addCookie(token);			
 		}
 		
 	}
