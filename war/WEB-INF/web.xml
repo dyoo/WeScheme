@@ -86,15 +86,6 @@
   </servlet-mapping>
   
   <servlet>
-    <servlet-name>index</servlet-name>
-    <jsp-file>index.jsp</jsp-file>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>index</servlet-name>servlet-name>
-    <url-pattern>/index.jsp</url-pattern>
-  </servlet-mapping>
-
-  <servlet>
     <servlet-name>myDropboxes</servlet-name>
     <jsp-file>myDropboxes.jsp</jsp-file>
   </servlet>
