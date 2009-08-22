@@ -1,0 +1,134 @@
+/* Some global settings */
+body{	width:		320px; height: 479px; background: #f5deb3; border: solid 1px black;}
+html, body, h1, h2, #header, #fileInfo, #toolbar *, #defn, #footer, #inter, input{
+	padding:		0px;
+	margin:			0px;
+}
+
+
+/* 0px: LOGO AND TITLE */
+#header{
+	display:	none;
+}
+
+/* 20px: FILENAME & URL */
+#fileInfo{
+	top:			335px;
+	width:			320px;
+	height:			19px;	/* leave room for the border */
+	clear:			both;
+	padding:		0px;
+	white-space:	nowrap;
+	border-top:		solid 1px black;
+}
+
+#fileInfo *{
+	float:			left
+	width:			100px;
+	margin-left:	5px;
+	font-size:		10px;
+	border:			none;
+}
+
+/* 15px: TOOLBAR, BUTTONS, ETC */
+#toolbar{
+	width:			100%;
+	height:			14px;	/* leave room for the border */
+	border-bottom:	solid 1px black;
+	background:		black;
+	clear:			both;
+}
+
+#toolbar ul{
+	clear:			both;
+	list-style-type:none;
+}
+
+#toolbar li{
+	float:			left;
+	text-align:		center;
+	width:			50px;
+	background-repeat: no-repeat;
+	background-position: 0 50%;
+	clear:			right;
+	font-size:		10px;
+}
+
+#toolbar li a, #toolbar li a:visited{
+	display:		block;
+	color:			white;
+	width:			100%;
+	text-decoration:none;
+}
+#toolbar li a:hover{
+	background:		#546DAF;
+	color:			white;
+	cursor:			pointer;
+}
+
+/* tooltips */
+a:hover {background:white;} /*BG color is a must for IE6*/
+a span {display:none; width: 130px; text-align: left;}
+
+/* Images and text alignment for buttons */
+#toolbar li.account{float: right; clear: none;}
+#toolbar li.docs{float: right; clear: none;}
+#toolbar li.docs a:hover{float: right; clear: none;background: #B3411C}
+
+/* 250px: DEFINITIONS */
+#definitions{
+	width:			320px;
+	clear:			both;
+	height:			250px;
+	text-align:		center;
+	background:		lightgray;
+}
+#defn {
+	clear:			both;
+    height:			250px;
+	overflow:		auto;
+	width:			320px;
+	border:			none;
+	font-family:	Monaco, sans-serif;
+	font-size:		10px;
+}
+
+/* 150px: INTERACTIONS */
+#interactions{
+	position:		absolute;
+	border-top:		solid 1px black;
+	top:			285px; 
+	bottom:			22px;
+	clear:			both;
+	width:			320px;
+	height:			149px;	/* leave space for the border */
+	background:		white;
+}
+
+#inter {
+	height:			100%;
+	padding:		10px;
+	overflow:		auto;
+	font-family:	Monaco, sans-serif;
+	font-size:		10px;
+}
+#inter input{
+	font-size:		10px; 
+	font-family:	Monaco, sans-serif; 
+	border:			none;
+	outline: 0 !important; /* disable focus ring in Safari */
+}
+
+/* 20px: FOOTER */
+#footer {
+    position:		absolute;
+	top:			435px;
+	height:			19px;
+	padding:		0px 0px;
+	border-top:		solid 1px black;
+    width:			320px;
+	color:			black;
+	font-size:		11px;
+	background:		#f5deb3; /* prevent interactions from peeking through footer in short windows */
+}
+
