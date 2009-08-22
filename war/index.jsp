@@ -20,25 +20,12 @@
 		// Are we logged in?
 		SessionManager sm = new SessionManager();
 		Session s = sm.authenticate(request, response);
-		
+		UserService us = UserServiceFactory.getUserService();
 		if( s == null ) {
-
-			// We aren't logged in, so let's try to authenticate against google.
-			UserService us = UserServiceFactory.getUserService();
-			s = sm.authGoogle(us);
-			if( s != null ){				// we've authenticated against google
-				sm.issueSession(s, response);	// issue the session
-			} else {
-
-				// Let's try to authenticate against WeScheme!
-				s = sm.authWeScheme(request, response);
-        		if( s != null ){
-        			sm.issueSession(s, response);
-        		} else { 
 %>
 
- <input id="newProgram" value="Log In" type="button" onclick="javascript:window.location='<%= us.createLoginURL(request.getRequestURI()) %>'" />
-<%  }}} %>	
+ <input id="newProgram" value="Log In" type="button" onclick="javascript:window.location='<%= us.createLoginURL("/login.jsp") %>'" />
+<%  } %>	
 	
 	
 <h2>Sometimes YouTube. Perhaps iPhone. Together, WeScheme</h2>
