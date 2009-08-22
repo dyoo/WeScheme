@@ -7,10 +7,13 @@
 
 <html>
 <head><title>WeScheme</title>
+
+<script src="/editor/jquery.js"></script>
+<script src="/heartbeat.js"></script>
 <link rel="stylesheet" type="text/css" href="css/splash.css" id="style" />
 
 </head>
-<body>
+<body onload='setInterval("beat()",1800000);'>
 <h1>WeScheme</h1>
 <input id="newProgram" value="Start Coding" type="button" onclick="javascript:window.location='/openEditor'" />
 	<img src="css/images/BigLogo.png">
@@ -25,7 +28,12 @@
 %>
 
  <input id="newProgram" value="Log In" type="button" onclick="javascript:window.location='<%= us.createLoginURL("/login.jsp") %>'" />
-<%  } %>	
+ 
+<%  } else { %>
+
+<input id="newProgram" value="Log Out" type="button" onclick="javascript:window.location='/logout'" %>
+
+<% } %>	
 	
 	
 <h2>Sometimes YouTube. Perhaps iPhone. Together, WeScheme</h2>

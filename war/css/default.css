@@ -138,4 +138,5 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 	min-width:		625px;
 	background:		#f5deb3; /* prevent interactions from peeking through footer in short windows */
 }
+div#publicId, div#publicIdLabel{display: none;}
 
