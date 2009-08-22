@@ -16,7 +16,7 @@
 		Session s = sm.authenticate(request, response);
 		
 		if( s != null ) {
-			response.sendRedirect("index.jsp");
+			response.sendRedirect("/openEditor");
 		} else {
 
 			// We aren't logged in, so let's try to authenticate against google.
@@ -24,28 +24,17 @@
 			s = sm.authGoogle(us);
 			if( s != null ){				// we've authenticated against google
 				sm.issueSession(s, response);	// issue the session
-        response.sendRedirect("index.jsp");
-//				response.sendRedirect(request.getRequestURI());	// discard google credentials
 			} else {
-
 				// Let's try to authenticate against WeScheme!
 				s = sm.authWeScheme(request, response);
         		if( s != null ){
         			sm.issueSession(s, response);
-        			response.sendRedirect("index.jsp");
-        		} else { 
+        		}
+        	}
+        }
+        
+        response.sendRedirect("/openEditor"); 
 %>
 
-<a href="<%= us.createLoginURL(request.getRequestURI()) %>">Sign in with Gmail credentials</a>
-<p>
-Sign in with WeScheme credentials 
-<form method="POST" action="http://localhost:8080/login.jsp">
-<textarea cols="20" rows="1" name="user"></textarea>
-<textarea cols="20" rows="1" name="password"></textarea>
-<input type="submit" name="login" value="login">
-</form>
-</p>
-
-<%  }}} %>
   </body>
 </html>
