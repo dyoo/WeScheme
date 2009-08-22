@@ -4,7 +4,8 @@
 <html>
 <head>
 
-<link rel="stylesheet" type="text/css" href="/openEditor/default.css" />
+<link rel="stylesheet" type="text/css" href="/css/default.css"
+      id="style" />
 <script src="/flapjax-2.0.1.compressed.js"></script>
 <script src="/flapjax-helpers.js"></script>
 <script src="/editor/jquery.js"></script>
@@ -87,7 +88,7 @@
   });
   
   function switchStyle(style){
-	  document.getElementById('style').href = 'css/'+style;
+	  document.getElementById('style').href = '/css/'+style;
 	}
   
   
