@@ -1,6 +1,6 @@
 body{
 	width:		100%;
-	min-width:	625px;
+	min-width:	650px;
 	height:		100%;
 	padding:	0px;
 	margin:		0px;
@@ -20,10 +20,20 @@ h2{font-size: 20px;}
 img{background: none;
 	vertical-align: middle;
 }
-
-input{
-	margin:	5px;
-	vertical-align: middle;
+#splash{
+	position:	absolute;
+	width:		100%;
+	min-width:	650px;
+	text-align:	center;
+	top:		150px;
+}
+#login{
+	display:	none;
+	width:		280px;
+	height:		275px;
+	background-image: url(images/halfscr-blue.gif);
+	border:		solid 5px black;
+	-moz-border-radius: 160px; 
 }
 
 #footer{
@@ -38,38 +48,28 @@ input{
 	padding:	0px;
 }
 
-.foot-link{
+a{
+	display:	inline-block; 
 	width:		25%;
 	margin:		0px;
 	padding:	0px;
 	color:		white;
-}
-
-.foot-link:hover{
-	background: #546DAF;
-	text-decoration: none;
-}
-
-a{
-	display:	inline-block; 
 	clear:		none;
 	text-decoration: none;
 }
 
-#login{
-	position: absolute;
-    z-index: 2;
-    text-align: center;
-    top: 50%;
-    border: 2px solid;
-    background: White;
-    padding: 1em;
+a:hover{
+	background: #546DAF;
+	text-decoration: none;
 }
 
 input{
+	margin:		5px 0px;
+	vertical-align: middle;
 	border:		solid 1px black;
 	background: lightsteelblue;
 	font-size:	1em;
+	width:		120px;
 }
 input:hover{
 	background: gray;

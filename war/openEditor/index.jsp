@@ -1,3 +1,6 @@
+<%@ page import="com.google.appengine.api.users.User" %>
+<%@ page import="com.google.appengine.api.users.UserService" %>
+<%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
 <html>
 <head>
 
@@ -27,13 +30,15 @@
 <%
    org.wescheme.user.Session userSession = 
    (new org.wescheme.user.SessionManager()).authenticate(request, response); 
+   
+   UserService us = UserServiceFactory.getUserService();
 %>
 
 
 
 
 <script>
-  var myEditor;
+   var myEditor;
 
   jQuery(document).ready(function() {
 
@@ -102,6 +107,7 @@
 <% if (userSession != null) { %>
 <li class="save">	<a id="save" href="#">Save<span>&nbsp;for later.</span></a></li>
 <li class="share">	<a id="publish" href="#">Share<span>&nbsp;with friends.</span></a></li>
+<li class="logout">	<a id="logout" href="#">Logout</span></a></li>
 <% } %>
 <li class="docs">	<a id="docs" target="_blank" href="/openEditor/moby-user-api.txt">API</a></li>
 <li class="account"><a id="account" href="#">Manage<span>&nbsp;your account.</span></a></li>

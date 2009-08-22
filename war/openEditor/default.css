@@ -5,6 +5,10 @@ html, body, h1, h2, #header, #fileInfo, #toolbar *, #defn, #footer, #inter, inpu
 	margin:			0px;
 }
 
+.form {
+   display: inline-block;
+}
+
 
 /* 65px: LOGO AND TITLE */
 #header{
@@ -72,6 +76,7 @@ a span {display:none; width: 130px; text-align: left;}
 a:hover span{display: inline; position: absolute; background:#546DAF; color: white; }
 
 /* Images and text alignment for buttons */
+#toolbar li.logout{float: right; clear: none;}
 #toolbar li.account{float: right; clear: none;}
 #toolbar li.docs{float: right; clear: none;}
 #toolbar li.docs a:hover{float: right; clear: none;background: #B3411C}
