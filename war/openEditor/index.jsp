@@ -19,7 +19,7 @@
 <script src="/openEditor/statusbar.js"></script>
 <script src="/openEditor/textcontainer.js"></script>
 <script src="/openEditor/interaction.js"></script>
-
+<script src="/heartbeat.js"></script>
 
 <!-- Includes the moby runtime lbiraries -->
 <jsp:include page="/moby-runtime-includes.jsp" />
@@ -71,9 +71,7 @@
   jQuery("#run").click(function()  { myEditor.run(); });
   jQuery("#publish").click(function()  { myEditor.publish(); });
   jQuery("#console").click(function()  { window.location = "/"; });
-  jQuery("#logout").click(function() {
-                   alert("logging out");
-   		   window.location = "/logout"; });
+  jQuery("#logout").click(function() { window.location = "/logout"; });
 
 <% if (request.getParameter("pid") != null) { %>
   myEditor.load({pid : <%= request.getParameter("pid") %> });
@@ -96,7 +94,7 @@
   
 </script>
 </head>
-<body>
+<body onload='setInterval("beat()",1800000);'>
 
 <div id="header">
 	<h1>WeScheme</h1>
@@ -167,6 +165,10 @@
 		</select>
 		</div>
 </div>
+
+<form id="logout" style="display:hidden" action="/logout" method="POST">
+
+</form>
 
 
 </body>
