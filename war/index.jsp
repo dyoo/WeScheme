@@ -40,7 +40,6 @@
 
 
 
-</div>
 
 <div id="footer">
 <a href="#">About</a>
@@ -48,4 +47,5 @@
 <a href="#">Contact</a>
 <a href="#">Copyright</a>
 </div>
-</div></body></html>
+
+</body></html>
