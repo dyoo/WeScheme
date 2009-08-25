@@ -164,8 +164,7 @@ bespin.syntax.simple.Resolver = new function() {
               // cheat and have this show that the engine is loading so don't do it twice
               engines[type] = "LOADING";
 
-              var dr = dojo.require;
-              dr.call(dojo, "bespin.syntax.simple." + type.toLowerCase());
+              dojo.require("bespin.syntax.simple." + type.toLowerCase());
 
               if (bespin.syntax.simple[type]) {
                   engines[type] = new bespin.syntax.simple[type]();
@@ -177,7 +176,8 @@ bespin.syntax.simple.Resolver = new function() {
                    */
               }
           }
-          return engines[type] || NoopSyntaxEngine;
+	  var result = engines[type] || NoopSyntaxEngine;
+          return result;
       }
   };
 }();
@@ -186,6 +186,7 @@ bespin.syntax.simple.Resolver = new function() {
  * Register
  */
 bespin.syntax.simple.Resolver.register("JavaScript", ['js', 'javascript', 'ecmascript', 'jsm', 'java']);
+bespin.syntax.simple.Resolver.register("Scheme",     ['scheme']);
 bespin.syntax.simple.Resolver.register("Arduino",    ['pde']);
 bespin.syntax.simple.Resolver.register("C",          ['c', 'h']);
 bespin.syntax.simple.Resolver.register("CSharp",     ['cs']);

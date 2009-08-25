@@ -46,7 +46,7 @@
         // You can use dojo.addOnLoad(...); but for that you will need to load up dojo.js first
         function doInit() {
             _editorComponent = new bespin.editor.Component('editor', {
-                language: "js",
+                language: "scheme",
                 loadfromdiv: true,
                 set: {
                     strictlines: 'on',
@@ -72,11 +72,14 @@
 </head>
 <body onload="doInit()">
     <h3>Sample Editor as a Component</h3>
-    <div id="editor" style="margin: 0; padding: 0; border: 0; height: 300px; border: 10px solid #ddd; -moz-border-radius: 10px; -webkit-border-radius: 10px;">var foo = "whee";
+    <div id="editor" style="margin: 0; padding: 0; border: 0; height: 300px; border: 10px solid #ddd; -moz-border-radius: 10px; -webkit-border-radius: 10px;">(define (f x)
+  (* x x))
 
-function flubber() {
-    return "tweeble";
-}</div>
+"hello world"
+
+; This should be a line comment
+
+</div>
 
     <div style="padding: 20px">
     <b style="display: block; border-bottom: 1px solid #ddd;">Play with the editor</b><br>
