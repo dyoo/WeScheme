@@ -33,7 +33,6 @@ dojo.declare("bespin.editor.Component", null, {
 
         this.editor = bespin.register('editor', opts.editor || new bespin.editor.API(container, opts));
         this.editSession = bespin.register('editSession', opts.editSession || new bespin.client.session.EditSession(this.editor));
-	console.log("everywhere");
         this.server = bespin.register('server', opts.server || new bespin.client.Server());
         this.files = bespin.register('files', opts.files || new bespin.client.FileSystem());
 
