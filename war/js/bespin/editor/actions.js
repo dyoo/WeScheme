@@ -295,6 +295,7 @@ dojo.declare("bespin.editor.Actions", null, {
 
     unindent: function(args) {
         var selection = this.editor.getSelection();
+	if (! selection) { return; } 
         var startRow = selection.startPos.row;
         var endRow = selection.endPos.row;
         var endRowLength = this.cursorManager.getStringLength(this.model.getRowArray(endRow).join(""));
