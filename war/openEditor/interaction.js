@@ -85,6 +85,7 @@ WeSchemeInteractions = (function () {
 	    that.prompt.before(area);
 	    return area.get(0);
 	};
+	plt.Kernel.lastLoc = undefined;
     }
 
     // Evaluate the source code and accumulate its effects.
@@ -101,44 +102,53 @@ WeSchemeInteractions = (function () {
 		compiled_dash_program_dash_pinfo(compiledProgram);
 
 	    var permArray = that._getPermissionArray(pinfo_dash_permissions(newPinfo));
-	    plt.permission.startupAllPermissions(
-		permArray,
-		function() {
-		    try {
-
-			var defns = compiled_dash_program_dash_defns(compiledProgram);
-			var interFunc = compiled_dash_program_dash_toplevel_dash_exprs(compiledProgram);
-			var runToplevel = that.namespace.eval(defns, interFunc);
-			
-			runToplevel(function(val) {
-			    if (val != undefined) {
-				that.addToInteractions(plt.Kernel.toDomNode(val));
-				that.addToInteractions("\n");
-			    }
-			});
-
-			// Update the pinfo.
-			that.pinfo = newPinfo;
-			that.notifyBus("after-run", that);
-
-		    } catch (err) {
-			if (plt.Kernel.lastLoc) {
-			    this.addToInteractions("Hit an error around: " + plt.Kernel.lastLoc + "\n");
-			}
-			this.addToInteractions(err.toString() + "\n");
-			throw err;
-		    }
-		});
-
 	} catch (err) {
+	    this.handleError(err);
+	    return;
+	}
+
+
+	plt.permission.startupAllPermissions(
+	    permArray,
+	    function() {
+		try {
+
+		    var defns = compiled_dash_program_dash_defns(compiledProgram);
+		    var interFunc = compiled_dash_program_dash_toplevel_dash_exprs(compiledProgram);
+		    var runToplevel = that.namespace.eval(defns, interFunc);
+		    
+		    runToplevel(function(val) {
+			if (val != undefined) {
+			    that.addToInteractions(plt.Kernel.toDomNode(val));
+			    that.addToInteractions("\n");
+			}
+		    });
+
+		    // Update the pinfo.
+		    that.pinfo = newPinfo;
+		    that.notifyBus("after-run", that);
+
+		} catch (err) {
+		    that.handleError(err);
+		}
+	    });
+    };
+    
+    WeSchemeInteractions.prototype.handleError = function(err) {
+	if (err instanceof plt.Kernel.MobySyntaxError) {
+		this.addToInteractions(
+		    "Hit an error around: " + 
+			Loc_dash__greaterthan_string(err.stx.loc).toDisplayedString()
+			+ "\n");
+	} else {
 	    if (plt.Kernel.lastLoc) {
-		this.addToInteractions("Hit an error around: " + plt.Kernel.lastLoc + "\n");
+		this.addToInteractions(
+		    "Hit an error around: " + plt.Kernel.lastLoc + "\n");
 	    }
 	    this.addToInteractions(err.toString() + "\n");
 	    throw err;
 	}
     };
-
 
 
     WeSchemeInteractions.prototype.runCompiledCode = function(compiledCode, permStringArray) {
@@ -149,22 +159,27 @@ WeSchemeInteractions = (function () {
 	for (var i = 0; i < permStringArray.length; i++) {
 	    permArray.push(symbol_dash__greaterthan_permission(permStringArray[i]))
 	}
-	plt.permission.startupAllPermissions(
-	    permArray,
-	    function() {
-		try {
-		    var runToplevel = that.namespace.eval(compiledCode, '""');
-		    runToplevel(function(val) {
-			if (val != undefined) {
-			    that.addToInteractions(plt.Kernel.toDomNode(val) + "\n");
-			}
-		    });
-		    that.notifyBus("after-run", that);
-		} catch (err) {
-		    that.addToInteractions(err.toString() + "\n");
-		    throw err;
-		}
-	    });
+	var afterPermissionsGranted = function() {
+	    try {
+		var runToplevel = that.namespace.eval(compiledCode, '""');
+// 		runToplevel(function(val) {
+// 		    if (val != undefined) {
+// 			that.addToInteractions(
+// 			    plt.Kernel.toDomNode(val) + "\n");
+// 		    }
+// 		});
+		that.notifyBus("after-run", that);
+	    } catch (err) {
+		handleError(err);
+	    }
+	};
+
+	try {
+	    plt.permission.startupAllPermissions(
+		permArray, afterPermissionsGranted);
+	} catch (err) {
+	    handleError(err);
+	}
     };
 
 
