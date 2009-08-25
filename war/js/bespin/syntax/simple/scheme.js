@@ -75,23 +75,6 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
         for (var i = 0; i < line.length; i++) {
             var c = line.charAt(i);
 
-            // check if we're in a comment and whether this character ends the comment
-            if (currentStyle == K.C_STYLE_COMMENT) {
-                if (c == "/" && /\*$/.test(buffer)) { // has the c-style comment just ended?
-                    currentRegion.stop = i + 1;
-                    this.addRegion(regions, currentStyle, currentRegion);
-                    currentRegion = {};
-                    currentStyle = undefined;
-                    multiline = false;
-                    buffer = "";
-                } else {
-                    if (buffer == "") currentRegion = { start: i };
-                    buffer += c;
-                }
-
-                continue;
-            }
-
             if (this.isWhiteSpaceOrPunctuation(c)) {
                 // check if we're in a string
                 if (currentStyle == K.STRING) {
@@ -156,7 +139,13 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 
         // check for a trailing character inside of a string or a comment
         if (buffer != "") {
-            if (!currentStyle) currentStyle = K.OTHER;
+            if (!currentStyle) { 
+		if (this.startsWithKeyword(buffer)) {
+		    currentStyle = K.KEYWORD;
+		} else {
+		    currentStyle = K.OTHER; 
+		}
+	    }
             currentRegion.stop = line.length;
             this.addRegion(regions, currentStyle, currentRegion);
         }
