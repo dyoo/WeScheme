@@ -64,7 +64,7 @@ dojo.mixin(bespin, {
      */
     publish: function(topic, args) {
         if (window.globalStorage && window.globalStorage[location.hostname].debug) {
-            console.log("Publish", topic, args);
+//            console.log("Publish", topic, args);
         }
 
         bespin._eventLog[topic] = true;
