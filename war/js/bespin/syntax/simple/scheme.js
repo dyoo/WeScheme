@@ -47,9 +47,14 @@ bespin.syntax.SchemeConstants = {
 dojo.declare("bespin.syntax.simple.Scheme", null, {
     keywords: ' define lambda cond if local and or ',
 
-    punctuation: '{ } ( ) \' " \''.split(" "),
+    punctuation: '{ } ( ) \' " ; \''.split(" "),
 
     toString: function() { "Scheme syntax highlighting object" },
+
+    startsWithKeyword: function (buffer) {
+	return this.keywords.indexOf(" " + buffer + " ") > -1;
+    },
+
 
     highlight: function(line, meta) {
         if (!meta) meta = {};
@@ -103,7 +108,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
                     currentRegion.stop = i;
 
                     if (currentStyle != K.STRING) {   // if this is a string, we're all set to add it; if not, figure out if its a keyword
-                        if (this.keywords.indexOf(" " + buffer + " ") > -1) {
+                        if (this.startsWithKeyword(buffer)) {
                             // the buffer contains a keyword
                             currentStyle = K.KEYWORD;
                         } else {
@@ -118,21 +123,10 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
                 }
 
                 if (this.isPunctuation(c)) {
-                    if (c == "*" && i > 0 && (line.charAt(i - 1) == "/")) {
-                        // remove the previous region in the punctuation bucket, which is a forward slash
-                        regions[K.PUNCTUATION].pop();
-
-                        // we are in a c-style comment
-                        multiline = true;
-                        currentStyle = K.C_STYLE_COMMENT;
-                        currentRegion = { start: i - 1 };
-                        buffer = "/*";
-                        continue;
-                    }
-
                     // check for a line comment; this ends the parsing for the rest of the line
-                    if (c == '/' && i > 0 && (line.charAt(i - 1) == '/')) {
-                        currentRegion = { start: i - 1, stop: line.length };
+                    if (c == ';' && i >= 0) {
+
+                        currentRegion = { start: i, stop: line.length };
                         currentStyle = K.LINE_COMMENT;
                         this.addRegion(regions, currentStyle, currentRegion);
                         buffer = "";
@@ -187,6 +181,6 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
     },
 
     isWhiteSpace: function(ch) {
-        return ch == " ";
+        return ch == " " || ch == '\n';
     }
 });
