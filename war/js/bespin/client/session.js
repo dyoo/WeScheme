@@ -36,7 +36,6 @@ dojo.provide("bespin.client.session");
  */
 dojo.declare("bespin.client.session.EditSession", null, {
     constructor: function(editor) {
-	console.log("in EditSession constructor");
         this.editor = editor;
         this.currentState = this.mobwriteState.stopped;
         this.bailingOutOfCollaboration = false;
@@ -95,7 +94,6 @@ dojo.declare("bespin.client.session.EditSession", null, {
                 }
             });
         });
-	console.log("out of EditSession constructor");
     },
 
     /**
@@ -282,6 +280,7 @@ dojo.declare("bespin.client.session.EditSession", null, {
      */
     reportCollaborators: function(userEntries) {
         var collabList = dojo.byId("collab_list");
+	if (! collabList) { return }
         var self = this;
 
         // TODO: Replace ip-addr with status message. Add cursor information
@@ -499,7 +498,6 @@ dojo.declare("bespin.client.session.ShareNode", null, {
      * Set the readonly flag on the editor
      */
     setReadOnly: function(readonly) {
-        console.log("setReadOnly", readonly);
         this.editor.setReadOnly(readonly);
     },
 
