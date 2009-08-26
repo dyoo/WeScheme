@@ -1,6 +1,7 @@
 package org.wescheme.servlet;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServletRequest;
@@ -18,7 +19,8 @@ public class CloneProjectServlet extends javax.servlet.http.HttpServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = 5310251019625080018L;
-
+	private static final Logger log = Logger.getLogger(CloneProjectServlet.class.getName());
+	
 	// Precondition: you should be able to clone a project if
 	// you own the project, or
 	// you don't own the project but you can see it because it's been published.
@@ -36,9 +38,14 @@ public class CloneProjectServlet extends javax.servlet.http.HttpServlet {
 			
 			userSession = sm.authenticate(req, resp);
 			
+			if( null == userSession ){
+				resp.sendError(401);
+			}
+			
 			Program prog = pm.getObjectById(Program.class, Long.parseLong(req.getParameter("pid")));
 			if( !prog.getOwner().equals(userSession.getName()) && !prog.isPublished()){
-				resp.sendError(401);
+				log.info(req.getParameter("user") + " cannot clone " + prog.getPublicId());
+				resp.sendError(401);				
 				return;
 			}
 			Program cloned = prog.clone(userSession.getName());

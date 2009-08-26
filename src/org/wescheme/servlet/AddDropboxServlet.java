@@ -1,6 +1,7 @@
 package org.wescheme.servlet;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServlet;
@@ -14,12 +15,14 @@ import org.wescheme.util.PMF;
 
 public class AddDropboxServlet extends HttpServlet {
 	private static final long serialVersionUID = -3189019553237054108L;
+	private static final Logger log = Logger.getLogger(AddDropboxServlet.class.getName());
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp){
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		SessionManager sm = new SessionManager();
 		try {
 			if( !sm.isIntentional(req, resp)) {
+				log.warning("Intentionality check failed. Potential CSRF.");
 				resp.sendError(500);
 			} else try {
 				
@@ -34,10 +37,12 @@ public class AddDropboxServlet extends HttpServlet {
 					resp.getWriter().println(db.getId());
 			} catch (Exception e ) {
 				// TODO `Authenticate` must throw fewer exceptions. Perhaps 'AuthenticationFailedException' 
+				log.info("Failed to authenticate in AddDropboxSerlvet.");
 				e.printStackTrace();
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			log.severe("IO problem in AddDropboxServlet. (This is bad)");
 			e.printStackTrace();
 		}
 		
