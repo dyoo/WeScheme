@@ -1,6 +1,7 @@
 package org.wescheme.servlet;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServlet;
@@ -15,7 +16,7 @@ import org.wescheme.util.PMF;
 
 
 public class SaveProjectServlet extends HttpServlet{
-
+	private static final Logger log = Logger.getLogger(SaveProjectServlet.class.getName());
 	private static final long serialVersionUID = 4038563388689831368L;
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)	throws IOException 
@@ -39,6 +40,7 @@ public class SaveProjectServlet extends HttpServlet{
 					saveExistingProgram(pm, userSession, resp, pid, title, code);
 					}
 			} else {
+				log.warning("User does not own project " + req.getParameter("pid"));
 				resp.sendError(401);
 				return;
 			}

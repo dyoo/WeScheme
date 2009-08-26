@@ -1,5 +1,7 @@
 package org.wescheme.servlet;
 
+import java.util.logging.Logger;
+
 import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +18,8 @@ import org.wescheme.util.PMF;
 public class AddProjectServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1927887337443757869L;
-
+	private static final Logger log = Logger.getLogger(AddProjectServlet.class.getName());
+	
 	@SuppressWarnings("unused")
 	public void doPost(HttpServletRequest req, HttpServletResponse resp){
 		PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -28,6 +31,7 @@ public class AddProjectServlet extends HttpServlet {
 			SessionManager sm = new SessionManager();
 			
 			if( !sm.isIntentional(req, resp) ){
+				log.warning("Intentionality check failed. Potential CSRF.");
 				resp.sendError(500);
 				return;
 			}
@@ -64,7 +68,7 @@ public class AddProjectServlet extends HttpServlet {
 			resp.sendError(200);
 					
 		} catch (Exception e){
-			System.err.println("Error while adding project");
+			log.warning("Caught " + e + " in AddProjectServlet. Unable to add project.");
 			e.printStackTrace();
 			//TODO make error handling robust.
 		}

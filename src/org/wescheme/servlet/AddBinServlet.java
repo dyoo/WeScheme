@@ -1,6 +1,7 @@
 package org.wescheme.servlet;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Transaction;
@@ -16,7 +17,7 @@ import org.wescheme.util.PMF;
 
 public class AddBinServlet extends HttpServlet {
 	private static final long serialVersionUID = -182869406403756507L;
-	
+	private static final Logger log = Logger.getLogger(AddBinServlet.class.getName());
 	public void doPost(HttpServletRequest req, HttpServletResponse resp){
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Transaction tx = pm.currentTransaction();
@@ -31,6 +32,7 @@ public class AddBinServlet extends HttpServlet {
 			userSession = sm.authenticate(req, resp);
 			
 			if( !sm.isIntentional(req, resp) ){
+				log.warning("Intentionality check failed. Potential CSRF.");
 				throw new UnauthorizedUserException();
 			}
 			
@@ -47,6 +49,7 @@ public class AddBinServlet extends HttpServlet {
 			}
 		} catch (UnauthorizedUserException e) {
 			try {
+				log.info("User authentication failure in AddBinServlet");
 				resp.sendError(500);
 			} catch (IOException e1) {
 				e1.printStackTrace();

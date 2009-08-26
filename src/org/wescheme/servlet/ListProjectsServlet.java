@@ -3,6 +3,7 @@ package org.wescheme.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
@@ -22,6 +23,7 @@ import org.wescheme.util.PMF;
 public class ListProjectsServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = 6291188410939739681L;
+	private static final Logger log = Logger.getLogger(ListProjectsServlet.class.getName());
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -60,11 +62,15 @@ public class ListProjectsServlet extends HttpServlet {
 			}
 		
 		} catch (IOException e) {
+			log.severe("IO expection in ListProjectsServlet!");
+			e.printStackTrace();
 			resp.sendError(500);
-			e.printStackTrace();
+			
 		} catch (UnauthorizedUserException e) {
-			resp.sendError(401);
+			log.warning("This user does not own project " + req.getParameter("pid"));
 			e.printStackTrace();
+			resp.sendError(401);
+			
 		} finally {
 			pm.close();
 		}
