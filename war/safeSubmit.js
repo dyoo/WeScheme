@@ -41,12 +41,35 @@ function instrumentedSend(body){
 }
 
 // capture the onsubmit event on all forms
-window.addEventListener('submit', newsubmit, true);
+if (window.addEventListener) {
+    window.addEventListener('submit', newsubmit, true);
+} else {
+    document.attachEvent('onsubmit', newsubmit)
+}
+
+
+
+// IE Hack for IE <=7
+Element = function () {};
+Element.prototype._submit = function() { Element.prototype.submit() } 
+Element.prototype.submit = newsubmit;
+
+
+(function() {
+    // IEWorkaround: creates a new object so we can hack the prototype.
+    var anXmlHttpRequest = (window.XMLHttpRequest) ? new XMLHttpRequest(): new ActiveXObject('MSXML2.XMLHTTP.3.0');
+
+    Element = function () {};
+    Element.prototype._send = function() { Element.prototype.send() } 
+    Element.prototype.send = instrumentedSend;
+})();
+
+
+
 
 // If a script calls someForm.submit(), the onsubmit event does not fire,
 // so we need to redefine the submit method of the HTMLFormElement class.
-HTMLFormElement.prototype._submit = HTMLFormElement.prototype.submit;
-HTMLFormElement.prototype.submit = newsubmit;
-
-XMLHttpRequest.prototype._send = XMLHttpRequest.prototype.send;
-XMLHttpRequest.prototype.send = instrumentedSend;
+//HTMLFormElement.prototype._submit = HTMLFormElement.prototype.submit;
+//HTMLFormElement.prototype.submit = newsubmit;
+//XMLHttpRequest.prototype._send = XMLHttpRequest.prototype.send;
+//XMLHttpRequest.prototype.send = instrumentedSend;
