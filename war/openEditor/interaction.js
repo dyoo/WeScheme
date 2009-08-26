@@ -60,12 +60,17 @@ WeSchemeInteractions = (function () {
     }
 
 
+    // Returns if x is a dom node.
+    function isDomNode(x) {
+	return (x.nodeName != undefined);
+    }
+
+
     // addToInteractions: string | dom-node -> void
     // Adds a note to the interactions.
     WeSchemeInteractions.prototype.addToInteractions = function (interactionVal) {
 	this.notifyBus("before-add-to-interactions", this);
-	if (interactionVal instanceof Element ||
-	    interactionVal instanceof Text) {
+	if (isDomNode(interactionVal)) {
 	    this.prompt.before(interactionVal);
 	} else {
 	    var newArea = jQuery("<div style='width: 100%'></div>");
