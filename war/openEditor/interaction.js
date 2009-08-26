@@ -62,7 +62,7 @@ WeSchemeInteractions = (function () {
 
     // Returns if x is a dom node.
     function isDomNode(x) {
-	return (x.nodeName != undefined);
+	return (x.nodeType != undefined);
     }
 
 
