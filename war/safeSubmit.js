@@ -41,7 +41,11 @@ function instrumentedSend(body){
 }
 
 // capture the onsubmit event on all forms
-window.addEventListener('submit', newsubmit, true);
+if (window.addEventListener) {
+    window.addEventListener('submit', newsubmit, true);
+} else {
+    document.attachEvent('onsubmit', newsubmit)
+}
 
 // If a script calls someForm.submit(), the onsubmit event does not fire,
 // so we need to redefine the submit method of the HTMLFormElement class.
