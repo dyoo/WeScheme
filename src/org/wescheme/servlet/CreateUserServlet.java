@@ -1,6 +1,7 @@
 package org.wescheme.servlet;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.cache.CacheException;
 import javax.servlet.http.HttpServlet;
@@ -14,6 +15,7 @@ import org.wescheme.user.WeSchemeUser;
 import org.wescheme.util.Crypt.KeyNotFoundException;
 
 public class CreateUserServlet extends HttpServlet  {
+	private static final Logger log = Logger.getLogger(CreateUserServlet.class.getName());
 	private static final long serialVersionUID = 9165706971511057523L;
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException
@@ -29,14 +31,15 @@ public class CreateUserServlet extends HttpServlet  {
 			resp.sendError(200);
 			return;
 		} catch (UnauthorizedUserException e) {
+			log.info("User " + req.getParameter("user") + " already exists, cannot create.");
 			resp.sendError(401);
 			return;
 		} catch (CacheException e) {
-			e.printStackTrace();
+			log.severe("Cache failure in CreateUserServlet");
 			resp.sendError(500);
 			return;
 		} catch (KeyNotFoundException e) {
-			e.printStackTrace();
+			log.severe("Creating user failed: Key not found!");
 			resp.sendError(500);
 			return;
 		}

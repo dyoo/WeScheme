@@ -13,10 +13,9 @@ public class LogoutServlet extends HttpServlet {
 	
 	public void service(HttpServletRequest req, HttpServletResponse resp)	throws IOException 
 	{	
-		System.out.println("Trying to logout.");
 		SessionManager sm = new SessionManager();
 		sm.logout(req, resp);
-		resp.sendRedirect("/openEditor"); //don't hardcode this.		
+		resp.sendRedirect(req.getParameter("dest"));	
 	}
 	
 	
