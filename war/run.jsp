@@ -7,11 +7,21 @@
 <%
     String publicId = request.getParameter("publicId");
 %>
-
-
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
 <title>WeScheme</title>
+
+<!--[if lt IE 8]>
+<script src="http://ie7-js.googlecode.com/svn/version/2.0(beta3)/IE8.js" type="text/javascript"></script>
+<script src="http://ie7-js.googlecode.com/svn/version/2.0(beta3)/ie7-squish.js" type="text/javascript"></script>
+<![endif]-->
+
+
+<!--[if IE]-->
+<script src="/js/excanvas.js" type="text/javascript"></script>
+<![endif]>
+
 <script src="/editor/jquery.js"></script>
 <script src="/editor/jquery.createdomnodes.js"></script>
 <jsp:include page="/moby-runtime-includes.jsp" />
