@@ -31,17 +31,21 @@
 
     <!-- begin script tags -->
 	<script>
-		var djConfig = { parseOnLoad: false, isDebug: false, debugAtAllCosts: false };
+	  var djConfig = { 
+	  parseOnLoad: false, 
+	  isDebug: false, 
+	  debugAtAllCosts: false,
+	  };
 	</script>
 
 
-	<script src="/js/dojo/dojo.js"></script>
-	<script src="/js/th.compressed.js"></script>
-	<script src="/js/bespin/editor/embed.js"></script>
+	<script src="js/dojo/dojo.js"></script>
+	<script src="js/th.compressed.js"></script>
 
 	<script>
-        var _editorComponent;
-
+	  dojo.require("bespin.editor.component");
+          var _editorComponent;
+	  
         // Loads and configures the objects that the editor needs
         // You can use dojo.addOnLoad(...); but for that you will need to load up dojo.js first
         function doInit() {
