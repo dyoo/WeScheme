@@ -39,23 +39,23 @@ dojo.declare("bespin.editor.Component", null, {
 
 
         // Fancy a command line anyone?
-        if (opts.commandline) {
-            dojo.require("bespin.cmd.commandline");
+//         if (opts.commandline) {
+//             dojo.require("bespin.cmd.commandline");
 
-            var commandlineElement;
+//             var commandlineElement;
 
-            if (typeof opts.commandline == "boolean") { // literally, true
-                commandlineElement = dojo.create("div", {
-                   id: "commandlinewrapper",
-                   hidden: true
-                }, dojo.body());
-                commandlineElement.innerHTML = '<table style="display: none;" cellpadding="0"><tr><td id="prompt"><img id="promptimg" src="https://bespin.mozilla.com/images/icn_command.png" alt=">" ></td><td id="commandline"><input id="command" spellcheck="false"></td></tr></table>';
-            } else {
-                commandlineElement = dojo.byId(opts.commandline);
-            }
+//             if (typeof opts.commandline == "boolean") { // literally, true
+//                 commandlineElement = dojo.create("div", {
+//                    id: "commandlinewrapper",
+//                    hidden: true
+//                 }, dojo.body());
+//                 commandlineElement.innerHTML = '<table style="display: none;" cellpadding="0"><tr><td id="prompt"><img id="promptimg" src="https://bespin.mozilla.com/images/icn_command.png" alt=">" ></td><td id="commandline"><input id="command" spellcheck="false"></td></tr></table>';
+//             } else {
+//                 commandlineElement = dojo.byId(opts.commandline);
+//             }
 
-            this.commandLine = bespin.register('commandLine', new bespin.cmd.commandline.Interface(commandlineElement, bespin.command.Store));
-        }
+//             this.commandLine = bespin.register('commandLine', new bespin.cmd.commandline.Interface(commandlineElement, bespin.command.Store));
+//         }
 
         // Use in memory settings here instead of saving to the server which is default. Potentially use Cookie settings
         bespin.register('settings', opts.settings || new bespin.client.settings.Core(bespin.client.settings.InMemory));

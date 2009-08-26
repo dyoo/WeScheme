@@ -48,7 +48,7 @@ var uriDecodeSource = function(uri) {
 var noWorker = typeof Worker == "undefined" ? true : false;
 if (!noWorker) {
     try {
-        new Worker("/js/bespin/util/testWorker.js");
+        new Worker("bespin.util.testWorker.js");
     }
     catch(e) {
         e = e + "";
