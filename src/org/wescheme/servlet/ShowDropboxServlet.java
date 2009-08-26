@@ -2,6 +2,7 @@ package org.wescheme.servlet;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
@@ -22,7 +23,7 @@ public class ShowDropboxServlet extends HttpServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = -2158283583083003253L;
-
+	private static final Logger log = Logger.getLogger(ShowDropboxServlet.class.getName());
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try {
@@ -31,6 +32,7 @@ public class ShowDropboxServlet extends HttpServlet {
 		userSession = sm.authenticate(req, resp);
 				
 		if( userSession == null ){
+			log.info("Unauthenticated user attempting to view a dropbox.");
 			resp.sendError(401);
 			return;
 		}

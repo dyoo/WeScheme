@@ -16,6 +16,7 @@ import org.wescheme.util.PMF;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+import java.util.logging.Logger;
 
 public class LoadProjectServlet extends HttpServlet {
 
@@ -23,7 +24,8 @@ public class LoadProjectServlet extends HttpServlet {
 	 * Returns program XML if either pid or publicId is provided.
 	 */
 	private static final long serialVersionUID = 1165047992267892812L;
-
+	private static final Logger log = Logger.getLogger(LoadProjectServlet.class.getName());
+	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		
 			PersistenceManager pm = PMF.get().getPersistenceManager();
@@ -39,6 +41,7 @@ public class LoadProjectServlet extends HttpServlet {
 							resp.setContentType("text/xml");
 							resp.getWriter().print(outputter.outputString(prog.toXML()));
 						} else {
+							log.warning(userSession.getName() + " does not own " + req.getParameter("pid"));
 							throw new RuntimeException("Not owner");
 						}
 					} else {
