@@ -1841,7 +1841,7 @@ var plt = plt || {};
     plt.Kernel.syntax_dash_error = function(name, msg, stx) {
 	check(name, isSymbol, "syntax-error", "symbol", 1);
 	check(msg, isString, "syntax-error", "string", 2);
-	throw new MobyRuntimeError(
+	throw new MobySyntaxError(
 	    plt.Kernel.format("~a: ~a", [name, msg]).toString(),
 	    stx);
     };
@@ -1874,11 +1874,25 @@ var plt = plt || {};
 
 
     BaseImage.prototype.toDomNode = function() {
+	var that = this;
 	var canvas = document.createElement("canvas");
  	canvas.width = plt.world.Kernel.imageWidth(this).toInteger();
  	canvas.height = plt.world.Kernel.imageHeight(this).toInteger();
-	var ctx = canvas.getContext("2d");
-	this.render(ctx, 0, 0);
+ 	canvas.style.width = canvas.width + "px";
+ 	canvas.style.height = canvas.height + "px";
+	
+	// KLUDGE: IE compatibility uses /js/excanvas.js, and dynamic
+	// elements must be marked this way.
+	if (typeof window.G_vmlCanvasManager != 'undefined') {
+	    canvas = window.G_vmlCanvasManager.initElement(canvas);
+	}
+	// KLUDGE: we render in a timeout because there's a bug in IE excanvas
+	// that requires the canvas element to be in the dom before drawing
+	// occurs.
+	setTimeout(function() {
+ 	    var ctx = canvas.getContext("2d");
+	    that.render(ctx, 0, 0) }, 
+		   0);
 	return canvas;
     };
     BaseImage.prototype.toWrittenString = function() { return "<image>"; }
@@ -2063,6 +2077,7 @@ var plt = plt || {};
     // Expose the error classes.
     plt.Kernel.MobyError = MobyError;
     plt.Kernel.MobyTypeError = MobyTypeError;
+    plt.Kernel.MobySyntaxError = MobySyntaxError;
     plt.Kernel.MobyRuntimeError = MobyRuntimeError;
     
 })();
