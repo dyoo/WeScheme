@@ -11,9 +11,9 @@
 <script src="http://ie7-js.googlecode.com/svn/version/2.0(beta3)/ie7-squish.js" type="text/javascript"></script>
 <![endif]-->
 
-<!--[if IE]-->
+<!--[if IE]>
 <script src="/js/excanvas.js" type="text/javascript"></script>
-<![endif]>
+<![endif]-->
 
 
 <link rel="stylesheet" type="text/css" href="/css/default.css"
