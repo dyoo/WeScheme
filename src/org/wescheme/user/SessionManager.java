@@ -29,7 +29,7 @@ public class SessionManager {
 	public boolean isIntentional(HttpServletRequest req, HttpServletResponse resp) {
 		String tokenPOST 	= req.getParameter("token");
 		Cookie[] cookies 	= req.getCookies();
-		String token		= Cookies.getCookie(cookies, "token");
+		String token		= Cookies.getUndecodedCookie(cookies, "token");
 		
 		if( tokenPOST == null || token == null || tokenPOST == "" || token == "" ){ 
 			System.out.println("Not intentional; tokenPOST = " + tokenPOST + ", tokenCookie=" + token);
@@ -47,13 +47,13 @@ public class SessionManager {
 			Cache cache;
 			PersistenceManager pm = PMF.get().getPersistenceManager();
 		try { 
-			String stringToken	 = Cookies.getCookie(req.getCookies(), "token");
-			String stringSession = Cookies.getCookie(req.getCookies(), "session");
-			Token userToken 	 = (Token) Base64.decodeToObject(stringToken);
-			Session userSession  = (Session) Base64.decodeToObject(stringSession);
+			Token userToken	 = (Token) Cookies.getDecodedCookie(req.getCookies(), "token");
+			Session userSession = (Session) Cookies.getDecodedCookie(req.getCookies(), "session");
 			System.out.println("authenticate: token=" + userToken);
-			System.out.println("authenticate: sesion=" + userSession);
-			
+			System.out.println("authenticate: session=" + userSession);
+			if (userToken == null || userSession == null) {
+				return null;
+			}
 			CacheFactory cf;
 				try {		
 					cf = CacheManager.getInstance().getCacheFactory();
@@ -75,6 +75,7 @@ public class SessionManager {
 			}
 		} catch (Exception e){
 			//TODO perhaps we want finer control over errors.
+			e.printStackTrace();
 			return null;
 		}
 			return null;

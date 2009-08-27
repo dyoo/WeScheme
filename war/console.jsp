@@ -3,6 +3,7 @@
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
 <%@ page import="com.google.appengine.api.users.UserService" %>
 <% 
+   System.out.println("In console.jsp");
    // The Console page requires a login: if you come in without the right
    // credentials, let's bump them to the login page.
    SessionManager sm = new SessionManager(); 
@@ -10,6 +11,7 @@
    if( s == null ) {
        UserService us = UserServiceFactory.getUserService();
        // Not logged in: we should send them off to the login page.
+       System.out.println("Not authenticated.  Redirecting");
        response.sendRedirect(us.createLoginURL("/login.jsp"));
    } else {
 %>
