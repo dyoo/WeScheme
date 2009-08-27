@@ -22,7 +22,7 @@ function loadProgramList() {
 				  digest.find("id").text())
 			    .append(jQuery("<input/>")
 				    .addClass("ProgramTitle")
-				    .attr("value", "Open")
+				    .attr("value", digest.find("title").text())
 				    .attr("type", "submit")));
 		var idDiv = (jQuery("<div/>").text(digest.find("id").text())
 			     .addClass("ProgramId"));
@@ -31,7 +31,7 @@ function loadProgramList() {
 		var publishedDiv = (jQuery("<div/>").text(digest.find("published").text())
 				    .addClass("ProgramPublished"));
 		(programEntry
-		 .append(titleDiv)
+		 .append(form)
 		 .append(idDiv)
 		 .append(modifiedDiv)
 		 .append(publishedDiv));
