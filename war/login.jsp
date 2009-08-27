@@ -33,8 +33,11 @@
         		}
         	}
         }
-        
-        response.sendRedirect("/openEditor"); 
+	if (request.getParameter("dest") != null) {
+   	    response.sendRedirect(request.getParameter("dest"));
+        } else {
+            response.sendRedirect("/openEditor"); 
+        }
 %>
 
   </body>
