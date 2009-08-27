@@ -51,8 +51,6 @@ WeSchemeInteractions = (function () {
 
 	this.prompt.contents().keydown(function(e) { that._maybeRunPrompt(e) });
 
-	this.addToInteractions("WeScheme Interactions");
-	this.addToInteractions("---");
 	this.namespace = new Namespace();
 	this.pinfo = freshPinfo();
 
