@@ -139,14 +139,14 @@
 
 <div id="toolbar">
 <ul>
-<li class="run">	<a id="run" href="#">Run<span>&nbsp;your program.</span></a></li>
+<li class="run">	<a id="run">Run<span>&nbsp;your program.</span></a></li>
 <% if (userSession != null) { %>
-<li class="save">	<a id="save" href="#">Save<span>&nbsp;for later.</span></a></li>
-<li class="share">	<a id="publish" href="#">Share<span>&nbsp;with friends.</span></a></li>
-<li class="logout">	<a id="logout" href="#">Logout</span></a></li>
+<li class="save">	<a id="save">Save<span>&nbsp;for later.</span></a></li>
+<li class="share">	<a id="publish">Share<span>&nbsp;with friends.</span></a></li>
+<li class="logout">	<a id="logout">Logout</span></a></li>
 <% } %>
 <li class="docs">	<a id="docs" target="_blank" href="/openEditor/moby-user-api.txt">API</a></li>
-<li class="console"><a id="console" href="#">Manage<span>&nbsp;your account.</span></a></li>
+<li class="console"><a id="console">Manage<span>&nbsp;your account.</span></a></li>
 </ul>
 </div>
 
