@@ -71,11 +71,8 @@
 	      form.appendChild(elt);
 	  }
       }
-      console.log("about to submit");
       document.body.appendChild(form);
       form.submit();
-      //      document.body.removeChild(form);
-      console.log("submitted");
   } 
 
 
@@ -135,8 +132,8 @@
 <body onload='setInterval("beat()",1800000);'>
 
 <div id="header">
-	<h1>WeScheme</h1>
-	<h2>Sometimes YouTube.  Perhaps iPhone.  Together, WeScheme!</h2>
+      <h1>WeScheme</h1>
+      <h2>Sometimes YouTube.  Perhaps iPhone.  Together, WeScheme!</h2>
 </div>
 
 
