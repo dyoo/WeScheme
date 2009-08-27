@@ -58,6 +58,12 @@ a{
 	text-decoration: none;
 }
 
+.programName {
+	font-size: 30px;
+	font-family: Serif;
+	font-style: italic;
+}
+
 a:hover{
 	background: #546DAF;
 	text-decoration: none;

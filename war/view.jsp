@@ -32,8 +32,12 @@ function updateProgramTitle() {
 
 	var callback = function(data) {
 	    var dom = jQuery(data);
-            jQuery("#programTitle").text(dom.find("title").text());
-
+	    var programTitle = jQuery("#programTitle");
+	    programTitle.empty();
+	    programTitle.append(jQuery("<span/>").text("Program name: "));
+	    programTitle.append(jQuery("<span/>")
+				.addClass("programName")
+				.text(dom.find("title").text()));
 	};
 	jQuery.get("/loadProject", 
                    {publicId: decodeURIComponent("<%= encodedId %>")},
