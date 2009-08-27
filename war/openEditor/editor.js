@@ -126,8 +126,9 @@ var WeSchemeEditor;
 	// We'll fire off an autosave if the content has changed and
 	// saving is enabled.
 	this.autosaveRequestedE = 
-	    filterE(calmE(this.contentChangedE, constantB(AUTOSAVE_TIMEOUT)),
-		    function(v) {return v && valueNow(that.saveButtonEnabledB)});
+	    oneE(false);
+//	    filterE(calmE(this.contentChangedE, constantB(AUTOSAVE_TIMEOUT)),
+//		    function(v) {return v && valueNow(that.saveButtonEnabledB)});
 
 	
 
@@ -203,7 +204,9 @@ var WeSchemeEditor;
 
 	// Autosave
 	this.autosaveRequestedE.mapE(function(v) { 
-	    that._autosave();
+	    if (v) {
+		that._autosave();
+	    }
 	});
 
 	// The enabled button's state:
