@@ -105,7 +105,7 @@
   jQuery("#clone").click(function() { myEditor.clone(); });
   jQuery("#run").click(function()  { myEditor.run(); });
   jQuery("#publish").click(function()  { myEditor.publish(); });
-  jQuery("#console").click(function()  { submitPost("/console"); });
+  jQuery("#account").click(function()  { submitPost("/console"); });
   jQuery("#logout").click(function() { submitPost("/logout"); });
 
 <% if (request.getParameter("pid") != null) { %>
@@ -146,7 +146,7 @@
 <li class="logout">	<a id="logout">Logout</span></a></li>
 <% } %>
 <li class="docs">	<a id="docs" target="_blank" href="/openEditor/moby-user-api.txt">API</a></li>
-<li class="console"><a id="console">Manage<span>&nbsp;your account.</span></a></li>
+<li class="account"><a id="account">Manage<span>&nbsp;your account.</span></a></li>
 </ul>
 </div>
 

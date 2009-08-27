@@ -50,15 +50,9 @@
 </div>
 
 
-<ul id="programList">
-	<li class="EntryHeader">
-	  <span class="ProgramTitle">Program Title</span>
-	  <span class="ProgramId">Program ID</span>
-	  <span class="ProgramModified">Last Modified</span>
-	  <span class="ProgramPublishedPublished">Published?</span>
-	</li>
+<div id="programList">
 	<%-- The rest will be filled in through Javascript --%>
-</ul>
+</div>
 
 
 
