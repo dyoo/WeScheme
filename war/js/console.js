@@ -13,30 +13,30 @@ function loadProgramList() {
 		var modifiedDate = new Date();
 		modifiedDate.setTime(parseInt(digest.find("modified").text()));
 
-		var idDiv = (jQuery("<div/>").text(digest.find("id").text())
-			     .addClass("ProgramId"));
-		var titleDiv = (jQuery("<div/>").text(digest.find("title").text())
-				.addClass("ProgramTitle"));
-		var modifiedDiv = (jQuery("<div/>").text("Last modified: " + modifiedDate.toTimeString())
-				   .addClass("ProgramModified"));
-		var publishedDiv = (jQuery("<div/>").text(digest.find("published").text())
-				    .addClass("ProgramPublishedPublished"));
+		// The program entry
+		var programEntry = (jQuery("<li/>").addClass("ProgramEntry"));
+
 		var form = (jQuery("<form/>")
 			    .attr("method", "post")
 			    .attr("action",   "/openEditor?pid=" + 
 				  digest.find("id").text())
 			    .append(jQuery("<input/>")
+				    .addClass("ProgramTitle")
 				    .attr("value", "Open")
 				    .attr("type", "submit")));
-		var newEntry = (jQuery("<li/>")
-				.append(jQuery("<div/>")
-					.append(titleDiv)
-					.append(idDiv)
-					.append(modifiedDiv)
-					.append(publishedDiv)
-					.append(form))
-				.addClass("ProgramEntry"));
-		programListDiv.append(newEntry);
+		var idDiv = (jQuery("<div/>").text(digest.find("id").text())
+			     .addClass("ProgramId"));
+		var modifiedDiv = (jQuery("<div/>").text("Last modified: " + modifiedDate.toTimeString())
+				   .addClass("ProgramModified"));
+		var publishedDiv = (jQuery("<div/>").text(digest.find("published").text())
+				    .addClass("ProgramPublished"));
+		(programEntry
+		 .append(titleDiv)
+		 .append(idDiv)
+		 .append(modifiedDiv)
+		 .append(publishedDiv));
+		 
+		programListDiv.append(programEntry);
 
 	    });
 

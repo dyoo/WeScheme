@@ -108,13 +108,23 @@
   <servlet>
     <servlet-name>openEditor</servlet-name>
     <jsp-file>/openEditor/index.jsp</jsp-file>
-  </servlet>
-  
-  
+  </servlet>  
   <servlet-mapping>
     <servlet-name>openEditor</servlet-name>
     <url-pattern>/openEditor</url-pattern>
   </servlet-mapping>
+
+
+  <servlet>
+    <servlet-name>console</servlet-name>
+    <jsp-file>/console.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>console</servlet-name>
+    <url-pattern>/console</url-pattern>
+  </servlet-mapping>
+
+
 
   <servlet>
     <servlet-name>run</servlet-name>
@@ -124,6 +134,7 @@
     <servlet-name>run</servlet-name>
     <url-pattern>/run</url-pattern>
   </servlet-mapping>
+
 
 
 
