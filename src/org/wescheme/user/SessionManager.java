@@ -51,7 +51,9 @@ public class SessionManager {
 			String stringSession = Cookies.getCookie(req.getCookies(), "session");
 			Token userToken 	 = (Token) Base64.decodeToObject(stringToken);
 			Session userSession  = (Session) Base64.decodeToObject(stringSession);
-
+			System.out.println("authenticate: token=" + userToken);
+			System.out.println("authenticate: sesion=" + userSession);
+			
 			CacheFactory cf;
 				try {		
 					cf = CacheManager.getInstance().getCacheFactory();
@@ -180,15 +182,9 @@ public class SessionManager {
 	}
 
 	public void logout(HttpServletRequest req, HttpServletResponse resp) {
-	
-		if( true ) { //isIntentional(req, resp) ){
-			Cookie session = new Cookie("session", "");
-			Cookie token = new Cookie("token", "");
-			session.setMaxAge(0);
-			token.setMaxAge(0);
-			resp.addCookie(session);
-			resp.addCookie(token);
-		}
-		
+	    if( true ) { //isIntentional(req, resp) ){
+	    	Cookies.removeCookie("session", req, resp);
+	    	Cookies.removeCookie("token", req, resp);
+	    }
 	}
 }

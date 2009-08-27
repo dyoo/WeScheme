@@ -15,7 +15,11 @@ public class LogoutServlet extends HttpServlet {
 	{	
 		SessionManager sm = new SessionManager();
 		sm.logout(req, resp);
-		resp.sendRedirect(req.getParameter("dest"));	
+		if (req.getParameter("dest") != null)
+		    resp.sendRedirect(req.getParameter("dest"));
+		else {
+		    resp.sendRedirect("/");
+		}
 	}
 	
 	
