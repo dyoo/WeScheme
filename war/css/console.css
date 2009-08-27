@@ -91,4 +91,4 @@ li.ProgramEntry:hover *{font-style: italic;}
 .ProgramModified{width: 250px;}
 .ProgramPublished{width: 100px;}
 
-input.programTitle{text-decoration: underline; cursor: pointer; font-size: 16px;font-family: Serif; text-align: left;}
+input.ProgramTitle{text-decoration: underline; cursor: pointer; font-size: 16px;font-family: Serif; text-align: left;}

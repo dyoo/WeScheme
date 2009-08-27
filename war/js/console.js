@@ -29,7 +29,7 @@ function loadProgramList() {
 			.attr("action",   "/openEditor?pid=" + 
 			      digest.find("id").text())
 			.append(jQuery("<input/>")
-				.addClass("programTitle")
+				.addClass("ProgramTitle")
 				.attr("value", digest.find("title").text())
 				.attr("type", "submit")));
 	    var idSpan = (jQuery("<span/>").text(digest.find("id").text())
