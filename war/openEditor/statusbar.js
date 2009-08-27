@@ -46,6 +46,9 @@ WeSchemeStatusBar = (function() {
 
     WeSchemeStatusBar.prototype.notify = function(msg) {
 	this.statusbar.text(msg);
+	// FIXME: make transparent after a while.
+	// FIXME: use flapjax to guarantee that a message shows up for some period of time.
+	// FIXME: allow the user to see all the statusbar messages sent to us.
     };
 
 

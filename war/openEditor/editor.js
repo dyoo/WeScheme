@@ -120,12 +120,13 @@ var WeSchemeEditor;
 
 
 	// We'll fire off an autosave if the content has changed and
-	// saving is enabled.
+	// saving is enabled, and it's not a new file.
 	this.autosaveRequestedE = 
-	    oneE(false);
-//	    filterE(calmE(this.contentChangedE, constantB(AUTOSAVE_TIMEOUT)),
-//		    function(v) {return v && valueNow(that.saveButtonEnabledB)});
-
+	    filterE(calmE(this.contentChangedE, constantB(AUTOSAVE_TIMEOUT)),
+		    function(v) {return (v &&
+					 valueNow(that.saveButtonEnabledB) &&
+					 !(valueNow(that.isNewFileB)))});
+	
 	
 
 	//////////////////////////////////////////////////////////////////////
@@ -205,7 +206,7 @@ var WeSchemeEditor;
 	    }
 	});
 
-	// The enabled button's state:
+	// The enabled button's state, if one were provided.
 	if (this.saveButton) {
 	    insertEnabledB(this.saveButtonEnabledB, this.saveButton);
 	}
