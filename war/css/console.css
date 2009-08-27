@@ -1,17 +1,94 @@
-.ProgramEntry {
-    clear: left;
+/* Some global settings */
+html{	min-width:		625px; background: #f5deb3; }
+html, body, h1, h2, #header, #fileInfo, #toolbar *, #defn, #footer, #inter, input, form{
+	padding:		0px;
+	margin:			0px;
 }
-.ProgramTitle {
-    float: left;
-    margin-right: 10px;
-    font-style: italic;
-    font-size: large;
+
+.form {
+   display: inline-block;
 }
-.ProgramId {
-    float: left;
-    margin-right: 10px;
+
+
+/* 65px: LOGO AND TITLE */
+#header{
+	width:			100%;
+	height:			65px;
+	background:		url(images/icon-trans.png) ;
+	background-repeat:no-repeat;
 }
-.ProgramModified {
-    float: left;
-    margin-right: 10px;
+h1{ font-size:	38px;	margin-left:	65px;}
+h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
+
+/* 20px: TOOLBAR, BUTTONS, ETC */
+#toolbar{
+	width:			100%;
+	height:			20px;	/* leave room for the border */
+	background:		black;
+	clear:			both;
 }
+
+#toolbar ul{
+	clear:			both;
+	list-style-type:none;
+}
+
+#toolbar li{
+	float:			left;
+	text-align:		center;
+	width:			125px;
+	background-repeat: no-repeat;
+	background-position: 0 50%;
+	clear:			right;
+}
+
+#toolbar li a, #toolbar li a:visited, #toolbar li input{
+	display:		block;
+	color:			white;
+	width:			100%;
+	text-decoration:none;
+	font-family:	serif;
+	font-size:		16px;
+	background:		none;
+	border:			0px;
+	height:			20px;
+}
+#toolbar li a:hover, #toolbar li input:hover{
+	background:		#546DAF;
+	color:			white;
+	cursor:			pointer;
+}
+
+/* tooltips */
+a:hover {background:white;} /*BG color is a must for IE6*/
+a span {display:none; width: 130px; text-align: left;}
+a:hover span{display: inline; position: absolute; background:#546DAF; color: white; }
+
+/* flex: PROGRAM LIST */
+#programList{
+	margin-top:		20px;
+	width:			100%;
+	min-width:		625px;
+}
+
+#programList ul li{
+	display:		block;
+	min-width:		625px;
+	list-style:		none;
+}
+
+#programList ul li *{
+	display:		inline-block;
+	border:			0px;
+	background:		none;
+}
+
+.EntryHeader{font-weight: bold; font-size: 16px;}
+
+li.ProgramEntry:hover *{font-style: italic;}
+.ProgramTitle{width: 200px;}
+.ProgramId{width: 100px;}
+.ProgramModified{width: 250px;}
+.ProgramPublished{width: 100px;}
+
+input.programTitle{text-decoration: underline; cursor: pointer; font-size: 16px;font-family: Serif; text-align: left;}
