@@ -36,8 +36,19 @@ function loadProgramList() {
 			 .addClass("ProgramId"));
 	    var modifiedSpan = (jQuery("<span/>").text("Last modified: " + modifiedDate.toTimeString())
 			       .addClass("ProgramModified"));
-	    var publishedSpan = (jQuery("<span/>").text(digest.find("published").text())
-				.addClass("ProgramPublished"));
+	    var publishedSpan = 
+		digest.find("published").text() == 'true' ?
+		(jQuery("<span/>")
+		 .append(jQuery("<a/>")
+			 .attr("href",
+			       makeShareUrl(
+				   digest.find("publicId").text()))
+			 .text(makeShareUrl(
+			     digest.find("publicId").text())))
+		 .addClass("ProgramPublished"))
+		:
+		(jQuery("<span/>").text("Unshared")
+		 .addClass("ProgramPublished"));
 	    (programEntry
 	     .append(form)
 	     .append(idSpan)
@@ -50,6 +61,18 @@ function loadProgramList() {
 
     };
     jQuery.get("/listProjects", {}, callback, "xml");
+}
+
+
+
+// makeShareUrl: string -> string
+// Produces the sharing url
+function makeShareUrl(publicId) {
+    if (publicId != "") {
+	var a = document.createElement("a");
+	a.href = "/view?publicId=" + encodeURIComponent(publicId);
+	return a.href; 
+    }
 }
 
 

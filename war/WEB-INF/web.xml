@@ -127,6 +127,16 @@
 
 
   <servlet>
+    <servlet-name>view</servlet-name>
+    <jsp-file>/view.jsp</jsp-file>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>view</servlet-name>
+    <url-pattern>/view</url-pattern>
+  </servlet-mapping>
+
+
+  <servlet>
     <servlet-name>run</servlet-name>
     <jsp-file>/run.jsp</jsp-file>
   </servlet>

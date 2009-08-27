@@ -1,5 +1,6 @@
 <%@ page import="org.wescheme.user.SessionManager" %>
 <%@ page import="org.wescheme.user.Session" %>
+<%@ page import="java.net.URLEncoder" %>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
 <%@ page import="com.google.appengine.api.users.UserService" %>
 <% 
@@ -12,7 +13,7 @@
        UserService us = UserServiceFactory.getUserService();
        // Not logged in: we should send them off to the login page.
        System.out.println("Not authenticated.  Redirecting");
-       response.sendRedirect(us.createLoginURL("/login.jsp"));
+       response.sendRedirect(us.createLoginURL("/login.jsp?dest=") + URLEncoder.encode("/console", "utf-8"));
    } else {
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
