@@ -36,7 +36,7 @@
 <% } %>	
 	
 	
-<h2>Sometimes YouTube. Perhaps iPhone. Together, WeScheme</h2>
+<h2>Sometimes YouTube. Perhaps iPhone. Together, WeScheme!</h2>
 
 
 
