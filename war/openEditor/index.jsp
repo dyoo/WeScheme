@@ -89,7 +89,7 @@
     interactions: jQuery("#inter").get(0),
     jsworldDiv: jQuery("#jsworld-div").get(0),
     pidDiv: jQuery("#pidArea"),
-    filenameDiv: jQuery("#filenameArea"),
+    filenameInput: jQuery("#filename"),
 
     publicIdPane: jQuery("#publicIdPane"),
     publicIdDiv: jQuery("#publicId"),
@@ -159,14 +159,8 @@
 <div id="fileInfo">
   <label id="filenamelabel" for="filename">Project name:</label>
   <input id= "filename" type="text" style="width: 20%">
-  
-<% if (request.getParameter("pid") != null ||
-       request.getParameter("publicId") != null) { %>
-  <div id="publicIdLabel">Public URL:</div>
-  <div id="publicId"></div>
-
-<% } %>
 </div>
+
 
 <% if (userSession != null) { %>
 <div id="publishedPane">
@@ -187,7 +181,7 @@
 <div id="footer">
 	<!-- FIXME: make this appear or disappear depending on usage. -->
 	<div id="jsworld-div"></div>
-	<div id="statusbar" style="float: left; margin-left: 10px;" >Program 118 saved</div>
+	<div id="statusbar" style="float: left; margin-left: 10px;" ></div>
 	<div style="text-align: right; margin-right: 10px;">
 
 		Editor Style:&nbsp;
