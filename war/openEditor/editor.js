@@ -58,19 +58,15 @@ var WeSchemeEditor;
 	this.saveButton = attrs.saveButton;
 	this.cloneButton = attrs.cloneButton;
 
-	this.pidDiv = attrs.pidDiv;           // JQuery
-	this.filenameDiv = attrs.filenameDiv; // JQuery
-
-	this.publicIdDiv = attrs.publicIdDiv; // JQuery
 
 	this.filenameEntry = new FlapjaxValueHandler(
-	    document.createElement("input"));
+	    attrs.filenameInput.get(0));
+
 	this.filenameEntry.node.type = "text";
 	this.filenameEntry.setValue("Unknown");
 	this.filenameEntry.behavior.changes().mapE(function(v) {
 	    WeSchemeIntentBus.notify("filename-changed", that);
 	});
-	this.filenameDiv.append(jQuery(this.filenameEntry.node));
 
 
 	this.publishedDiv = attrs.publishedDiv;
@@ -286,7 +282,6 @@ var WeSchemeEditor;
 	    // The data contains the pid of the saved program.
 	    that.pid = parseInt(data);
 	    WeSchemeIntentBus.notify("before-save", that);
-	    that.pidDiv.text(data);
 
 	    that.savedE.sendEvent(true);
 	    WeSchemeIntentBus.notify("after-save", that);
@@ -355,22 +350,11 @@ var WeSchemeEditor;
 	var callback = function(data) {
 	    var dom = jQuery(data);
 
-	    that.pidDiv.text(dom.find("id").text());
 	    that.pid = parseInt(dom.find("id").text());
 	    var publicUrl = getAbsoluteUrl(
 		"/openEditor?publicId=" +
 		    encodeURIComponent(dom.find("publicId").text()));
-	    if (that.publicIdDiv) {
-		that.publicIdDiv.empty();
-		that.publicIdDiv.append(jQuery("<input/>")
-					.attr("type", "text")
-					.attr("size", publicUrl.length)
-					.attr("value", publicUrl)
-					.attr("readonly", true));
-	    }
 	    that.filenameEntry.attr("value", dom.find("title").text());
-
-
 	    that.defn.setCode(dom.find("source").text());
 	    that._setIsPublished(dom.find("published").text() == "true" ?
 				 true : false);
