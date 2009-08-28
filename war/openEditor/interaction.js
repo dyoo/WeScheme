@@ -143,13 +143,19 @@ WeSchemeInteractions = (function () {
 		    "Hit an error around: " + 
 			Loc_dash__greaterthan_string(err.stx.loc).toDisplayedString()
 			+ "\n");
-	} else {
+	    this.addToInteractions(err.msg + "\n");
+	} else if (err instanceof plt.Kernel.MobyError){
 	    if (plt.Kernel.lastLoc) {
 		this.addToInteractions(
 		    "Hit an error around: " + plt.Kernel.lastLoc + "\n");
 	    }
+	    this.addToInteractions(err.msg + "\n");
+	} else {
+	    if (plt.Kernel.lastLoc) {
+		this.addToInteractions(
+		"Hit an error around: " + plt.Kernel.lastLoc + "\n");
+	    }
 	    this.addToInteractions(err.toString() + "\n");
-	    throw err;
 	}
     };
 
