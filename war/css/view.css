@@ -69,7 +69,7 @@ a:hover{
 	text-decoration: none;
 }
 
-input{
+.linkbutton{
 	margin:		5px 0px;
 	vertical-align: middle;
 	border:		solid 1px black;
@@ -77,6 +77,6 @@ input{
 	font-size:	1em;
 	width:		120px;
 }
-input:hover{
+.linkbutton:hover{
 	background: gray;
 }

@@ -17,15 +17,9 @@
 <script src="/js/submitpost.js"></script>
 
 <script>
-function runIt() {
-    window.location = "/run?publicId=<%= encodedId%>";
-}
 
-function viewSource() {
-    window.location = "/openEditor?publicId=<%= encodedId%>";
-}
 
-function updateProgramTitle() {
+function update() {
 
         // TODO: notify the user if the program uses some
         // permissions
@@ -38,6 +32,13 @@ function updateProgramTitle() {
 	    programTitle.append(jQuery("<span/>")
 				.addClass("programName")
 				.text(dom.find("title").text()));
+
+	    jQuery("#runIt").attr("href",
+				  "/run?publicId=<%= encodedId%>");
+	    jQuery("#viewSource").attr("href",
+				       "/openEditor?publicId=<%= encodedId%>");
+
+
 	};
 	jQuery.get("/loadProject", 
                    {publicId: decodeURIComponent("<%= encodedId %>")},
@@ -52,13 +53,12 @@ function updateProgramTitle() {
 </head>
 
 
-<body onload='setInterval("beat()",1800000); updateProgramTitle()'>
+<body onload='setInterval("beat()",1800000); update()'>
 <h1>WeScheme</h1>
 <h2 id="programTitle">&nbsp;</h2>
-<input id="runIt" value="Run it!" type="button" onclick="runIt()" />
-	
 
-<input id="viewSource" value="View source" type="button" onclick="viewSource()" %>
+<a id="runIt" class="linkbutton">Run it!</a>
+<a id="viewSource" class="linkbutton">View source</a>
 
 	
 	
