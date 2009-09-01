@@ -53,45 +53,38 @@ public class Program extends XML {
 	
 	
 	public Program(String src, Session owner){
-		title_ = "Unknown";
-		srcs_ = new ArrayList<SourceCode>();
-		srcs_.add(new SourceCode(src));
-		obj_ = null;
-		owner_ 	= owner.getName();
-		author_ = owner_;
-		updateTime();
+		this.title_ = "Unknown";
+		this.srcs_ = new ArrayList<SourceCode>();
+		this.srcs_.add(new SourceCode(src));
+		this.obj_ = new ObjectCode();
+		this.owner_ 	= owner.getName();
+		this.author_ = owner_;
+		this.capabilities_ = new ArrayList<Capability>();
+		this.backlink_ = null;
+		this.updateTime();
 	}
 	
 	private Program(Program p, String owner){
-		title_ = p.getTitle();
-		srcs_ = new ArrayList<SourceCode>();
-		srcs_.add(new SourceCode(p.getSource().toString()));
-		owner_ = owner;
-		author_ = p.author_;
-		capabilities_ = p.capabilities_;
-		time_ = System.currentTimeMillis();
+		this.title_ = p.getTitle();
+		this.srcs_ = new ArrayList<SourceCode>();
+		this.srcs_.add(new SourceCode(p.getSource().toString()));
+		this.obj_ = new ObjectCode();
+		this.owner_ = owner;
+		this.author_ = p.author_;
+		this.capabilities_ = p.capabilities_;
 		this.backlink_ = p.getId();
-		if( obj_ != null && p.obj_.isTrusted() ){
-			obj_ = new ObjectCode(p.obj_.getObj(),
-						p.obj_.getPermissions());
-		} else {
-			obj_ = null;
-		}
+		this.updateTime();
 	}
 
 	
 	public Program clone(String owner){
 		Program p = new Program(this, owner);
-		p.title_ = p.title_ + " (clone)";
+		p.title_ = p.title_ + " (originally from " + owner + ")";
 		return p;
 	}
 	
 	
-	public void publish(){
-		if( null == obj_ || !obj_.isTrusted() ){
-			build();
-		}
-		
+	public void publish(){		
 		published_ = true;
 		updateTime();
 	}
@@ -101,9 +94,11 @@ public class Program extends XML {
 		updateTime();
 	}
 	
-	public void build(){
-		obj_ = Compiler.compile(srcs_.get(0));
-		updateTime();
+	public void build() {
+		ObjectCode newCode = Compiler.compile(srcs_.get(0));
+		this.obj_.setObj(newCode.getObj());
+		this.obj_.setPermissions(newCode.getPermissions());
+		this.updateTime();
 	}
 	
 	public void updateTitle(String newTitle) {

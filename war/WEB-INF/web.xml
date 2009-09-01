@@ -166,8 +166,6 @@
     <servlet-name>saveProject</servlet-name>
     <servlet-class>org.wescheme.servlet.SaveProjectServlet</servlet-class>
   </servlet>
-  
-  
   <servlet-mapping>
     <servlet-name>saveProject</servlet-name>
     <url-pattern>/saveProject</url-pattern>
@@ -178,13 +176,23 @@
   <servlet>
     <servlet-name>loadProject</servlet-name>
     <servlet-class>org.wescheme.servlet.LoadProjectServlet</servlet-class>
-  </servlet>
-  
-  
+  </servlet>  
   <servlet-mapping>
     <servlet-name>loadProject</servlet-name>
     <url-pattern>/loadProject</url-pattern>
   </servlet-mapping>
+
+
+
+  <servlet>
+    <servlet-name>build</servlet-name>
+    <servlet-class>org.wescheme.servlet.Build</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>build</servlet-name>
+    <url-pattern>/build</url-pattern>
+  </servlet-mapping>
+
 
 
   <servlet>
@@ -197,6 +205,7 @@
   </servlet-mapping>
 
 
+ 
   <servlet>
     <servlet-name>cloneProject</servlet-name>
     <servlet-class>org.wescheme.servlet.CloneProjectServlet</servlet-class>
