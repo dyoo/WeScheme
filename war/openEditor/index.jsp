@@ -1,10 +1,10 @@
-<%@ page import="com.google.appengine.api.users.User" %>
-<%@ page import="com.google.appengine.api.users.UserService" %>
-<%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
 <title>WeScheme</title>
+
+<!-- Google Ajax API -->
+
 
 <!--[if lt IE 8]>
 <script src="http://ie7-js.googlecode.com/svn/version/2.0(beta3)/IE8.js" type="text/javascript"></script>
@@ -16,12 +16,21 @@
 <![endif]-->
 
 
+
+
 <link rel="stylesheet" type="text/css" href="/css/default.css"
       id="style" />
-<script src="/flapjax-2.0.1.compressed.js"></script>
-<script src="/flapjax-helpers.js"></script>
-<script src="/editor/jquery.js"></script>
-<script src="/editor/jquery.createdomnodes.js"></script>
+
+<script src="http://www.google.com/jsapi"></script>
+<script>
+  google.load("jquery", "1.3.2");
+  google.load("jqueryui", "1.7.2");
+</script>
+
+
+<script src="/js/flapjax-2.0.1.compressed.js"></script>
+<script src="/js/flapjax-helpers.js"></script>
+<script src="/js/jquery/jquery.createdomnodes.js"></script>
 <script src="/safeSubmit.js"></script>
 <script src="/editor/debug.js"></script>
 
@@ -45,7 +54,6 @@
    org.wescheme.user.Session userSession = 
    (new org.wescheme.user.SessionManager()).authenticate(request, response); 
    
-   UserService us = UserServiceFactory.getUserService();
 %>
 
 
@@ -104,6 +112,7 @@
 </script>
 </head>
 <body onload='setInterval("beat()",1800000);'>
+<div id="editor">
 <div id="header">
       <h1>WeScheme</h1>
       <h2>Sometimes YouTube.  Perhaps iPhone.  Together, WeScheme!</h2>
@@ -162,7 +171,7 @@
 </div>
 
 
-
+</div>
 </body>
 
 </html>
