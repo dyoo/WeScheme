@@ -355,28 +355,39 @@ var WeSchemeEditor;
 
     WeSchemeEditor.prototype.share = function() {
 	if (this.pid) {
-	    var that = this;
-	    var afterPublish = function(data, textStatus) {
-		var dom = jQuery(data);
-		WeSchemeIntentBus.notify("after-publish", that);
-	    };
+// 	    var that = this;
+// 	    var afterPublish = function(data, textStatus) {
+// 		var dom = jQuery(data);
+// 		WeSchemeIntentBus.notify("after-publish", that);
+// 	    };
 
-	    var error = function(xmlhttp, textstatus, errorThrown) {
-		WeSchemeIntentBus.notify("exception", 
-					 [that, "publish", textstatus, errorThrown]);
-	    };
+// 	    var error = function(xmlhttp, textstatus, errorThrown) {
+// 		WeSchemeIntentBus.notify("exception", 
+// 					 [that, "publish", textstatus, errorThrown]);
+// 	    };
 
-	    WeSchemeIntentBus.notify("before-publish", this);
-	    jQuery.ajax({cache : false,
-			 data : { pid: this.pid },
-			 dataType: "xml",
-			 type: "POST",
-			 url: "/publishProject",
-			 success: afterPublish,
-			 error: error
-			});
+// 	    WeSchemeIntentBus.notify("before-publish", this);
+// 	    jQuery.ajax({cache : false,
+// 			 data : { pid: this.pid },
+// 			 dataType: "xml",
+// 			 type: "POST",
+// 			 url: "/publishProject",
+// 			 success: afterPublish,
+// 			 error: error
+// 			});
+	    var dialogWindow = (
+		jQuery("#dialog")
+		    .empty()
+		    .append(jQuery("<p/>").text(
+			"Do you wish to share with source?")));
+	    dialogWindow.dialog({title: 'Sharing',
+				 bgiframe : true,
+				 modal : true,
+				 overlay : {opacity: 0.5,
+					    background: 'black'}
+				});
 	} else {
-	    
+
 	}
     };
 
