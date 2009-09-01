@@ -358,8 +358,6 @@ var WeSchemeEditor;
 	    var that = this;
 	    var afterPublish = function(data, textStatus) {
 		var dom = jQuery(data);
-		that._setIsPublished(dom.find("published").text() == "true" 
-				     ? true : false);
 		WeSchemeIntentBus.notify("after-publish", that);
 	    };
 
@@ -377,6 +375,8 @@ var WeSchemeEditor;
 			 success: afterPublish,
 			 error: error
 			});
+	} else {
+	    
 	}
     };
 
