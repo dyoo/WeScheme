@@ -26,13 +26,9 @@ var WeSchemeEditor;
     // 
     // runButton: enabled all the time
 
-    // 
-    // publishButton: enabled only when the editor isn't dirty
-    //                and the file hasn't been published yet
-    //                and you own the file
 
     // the definitions and filename areas: readonly if you don't own the file,
-    //                                              or the file has been published
+
 
     
     //////////////////////////////////////////////////////////////////////
@@ -68,12 +64,6 @@ var WeSchemeEditor;
 	    WeSchemeIntentBus.notify("filename-changed", that);
 	});
 
-
-	this.publishedDiv = attrs.publishedDiv;
-	this.isPublished = false;
-
-	// publishButton: (jqueryof button)
-	this.publishButton = attrs.publishButton;
 
 	// pid: (or false number)
 	this.pid = false;
@@ -112,9 +102,6 @@ var WeSchemeEditor;
 	
 
 
-	// publishedE is a boolean eventStream which receives true
-	// when a publication has happened
-	this.publishedE = receiverE();
 
 	this.isOwnerE = receiverE();
 
@@ -155,10 +142,6 @@ var WeSchemeEditor;
  	    that.pid == false);
 	
 	
-	// isPublishedB is a boolean eventStream that's true if we receive an
-	// publication event.
-	this.isPublishedB = startsWith(this.publishedE, false);
-	
 	
 	// isOwnerB is a boolean behavior that's true if we own the file,
 	// and false otherwise.  It changes on load.
@@ -183,7 +166,6 @@ var WeSchemeEditor;
 	//             and (you own the file, or the file is new)
 	//             and you are logged in (non-"null" name)
 	this.saveButtonEnabledB = andB(this.isDirtyB,
-				       notB(this.isPublishedB),
 				       orB(this.isOwnerB,
 					   this.isNewFileB),
 				       this.isLoggedInB);
@@ -191,8 +173,8 @@ var WeSchemeEditor;
     
 	// The areas are editable under the following condition:
 	var isEditableB = andB(orB(this.isOwnerB, 
-				   this.isNewFileB),
-			       notB(this.isPublishedB));
+				   this.isNewFileB));
+
 	
 
 	//////////////////////////////////////////////////////////////////////
@@ -217,16 +199,6 @@ var WeSchemeEditor;
 			   this.cloneButton);
 	}
     
-	// The publish button's enabled state
-	// 
-	// publishButton: enabled only when the editor isn't dirty
-	//                and the file hasn't been published yet
-	//                and you own the file
-	insertEnabledB(andB(notB(this.isDirtyB),
-			    notB(this.isPublishedB),
-			    this.isOwnerB), 
-		       this.publishButton);
-
 
 	// Editable editors and text areas.
 	isEditableB.changes().mapE(function(v) {
@@ -357,8 +329,6 @@ var WeSchemeEditor;
 		    encodeURIComponent(dom.find("publicId").text()));
 	    that.filenameEntry.attr("value", dom.find("title").text());
 	    that.defn.setCode(dom.find("source").text());
-	    that._setIsPublished(dom.find("published").text() == "true" ?
-				 true : false);
 
 	    if (that.userName == dom.find("owner").text()) {
 		that._setIsOwner(true);
@@ -383,30 +353,30 @@ var WeSchemeEditor;
 	
 
 
-    WeSchemeEditor.prototype.publish = function() {
+    WeSchemeEditor.prototype.share = function() {
 	if (this.pid) {
 	    var that = this;
-	    function callback(data, textStatus) {
+	    var afterPublish = function(data, textStatus) {
 		var dom = jQuery(data);
 		that._setIsPublished(dom.find("published").text() == "true" 
 				     ? true : false);
 		WeSchemeIntentBus.notify("after-publish", that);
 	    };
 
-	    function error(xmlhttp, textstatus, errorThrown) {
+	    var error = function(xmlhttp, textstatus, errorThrown) {
 		WeSchemeIntentBus.notify("exception", 
 					 [that, "publish", textstatus, errorThrown]);
 	    };
 
 	    WeSchemeIntentBus.notify("before-publish", this);
-	    var xmlhttp = jQuery.ajax({cache : false,
-				       data : { pid: this.pid },
-				       dataType: "xml",
-				       type: "POST",
-				       url: "/publishProject",
-				       success: callback,
-				       error: error
-				      });
+	    jQuery.ajax({cache : false,
+			 data : { pid: this.pid },
+			 dataType: "xml",
+			 type: "POST",
+			 url: "/publishProject",
+			 success: afterPublish,
+			 error: error
+			});
 	}
     };
 
@@ -419,15 +389,6 @@ var WeSchemeEditor;
 	WeSchemeIntentBus.notify("after-run", this);
     };
 
-
-
-
-
-    WeSchemeEditor.prototype._setIsPublished = function(isPublished) {
-	this.publishedE.sendEvent(isPublished);
-	this.isPublished = isPublished;
-	this.publishedDiv.text(isPublished.toString());
-    }
 
 
     WeSchemeEditor.prototype._setIsOwner = function(v) {

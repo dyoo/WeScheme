@@ -32,6 +32,10 @@ public class ObjectCode {
 	@Persistent
 	private boolean trusted_;
 	
+	public ObjectCode() {
+		this("", new HashSet<String>(), false);
+	}
+	
 	public ObjectCode(String obj, Set<String> permissions){
 		this(obj, permissions, false);
 	}
@@ -45,6 +49,10 @@ public class ObjectCode {
 	public boolean isTrusted(){
 		return trusted_;
 	}
+	
+	public void setIsTrusted(boolean trusted) {
+		this.trusted_ = trusted;
+	}
 
 	public String getObj() {
 		return this.obj_.getValue();
@@ -55,6 +63,15 @@ public class ObjectCode {
 			return new HashSet<String>();
 		}
 		return this.permissions;
+	}
+ 
+
+	public void setObj(String obj) {
+		this.obj_ = new Text(obj);
+	}
+
+	public void setPermissions(Set<String> perms) {
+		this.permissions = perms;
 	}
 	
 	public String toString(){

@@ -73,17 +73,12 @@
     publicIdPane: jQuery("#publicIdPane"),
     publicIdDiv: jQuery("#publicId"),
 
-    publishedDiv: jQuery("#published"),
 
-    saveButton : jQuery("#save"),
-    cloneButton : jQuery("#clone"),
-
-    publishButton : jQuery("#publish")});
+    saveButton : jQuery("#save")});
   
   jQuery("#save").click(function() { myEditor.save(); });
-  jQuery("#clone").click(function() { myEditor.clone(); });
   jQuery("#run").click(function()  { myEditor.run(); });
-  jQuery("#publish").click(function()  { myEditor.publish(); });
+  jQuery("#share").click(function()  { myEditor.share(); });
   jQuery("#account").click(function()  { submitPost("/console"); });
   jQuery("#logout").click(function() { submitPost("/logout"); });
 
@@ -109,7 +104,6 @@
 </script>
 </head>
 <body onload='setInterval("beat()",1800000);'>
-
 <div id="header">
       <h1>WeScheme</h1>
       <h2>Sometimes YouTube.  Perhaps iPhone.  Together, WeScheme!</h2>
@@ -121,12 +115,17 @@
 <li class="run">	<a id="run">Run<span>&nbsp;your program.</span></a></li>
 <% if (userSession != null) { %>
 <li class="save">	<a id="save">Save<span>&nbsp;for later.</span></a></li>
-<li class="share">	<a id="publish">Share<span>&nbsp;with friends.</span></a></li>
+<li class="share">	<a id="share">Share<span>&nbsp;with friends.</span></a></li>
 <li class="logout">	<a id="logout">Logout</span></a></li>
 <% } %>
 <li class="docs">	<a id="docs" target="_blank" href="/openEditor/moby-user-api.txt">API</a></li>
 <li class="account"><a id="account">Manage<span>&nbsp;your account.</span></a></li>
 </ul>
+</div>
+
+<div id="fileInfo">
+  <label id="filenamelabel" for="filename">Project name:</label>
+  <input id= "filename" type="text" style="width: 20%">
 </div>
 
 <div id="definitions">
@@ -135,19 +134,6 @@
 </textarea>
 </div>
 
-<div id="fileInfo">
-  <label id="filenamelabel" for="filename">Project name:</label>
-  <input id= "filename" type="text" style="width: 20%">
-</div>
-
-
-<% if (userSession != null) { %>
-<div id="publishedPane">
-  <div id="publishedLabel">Publication status:</div>
-  <div id="published"></div>
-</div>
-<% } %>
-
 
 <div id="interactions" onclick="document.getElementById('inputBox').focus()">
 	<div id="inter">
@@ -155,6 +141,7 @@
 		<div style="width: 100%;"><span>&gt; <input style="width: 75%;" type="text"></span></div>
 	</div>
 </div>
+
 
 <!-- FIXME: make this appear or disappear depending on usage. -->
 <div id="footer">
@@ -174,9 +161,6 @@
 		</div>
 </div>
 
-<form id="logout" style="display:hidden" action="/logout" method="POST">
-
-</form>
 
 
 </body>

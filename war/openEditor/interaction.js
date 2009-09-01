@@ -180,12 +180,13 @@ WeSchemeInteractions = (function () {
 	var afterPermissionsGranted = function() {
 	    try {
 		var runToplevel = that.namespace.eval(compiledCode, '""');
-// 		runToplevel(function(val) {
-// 		    if (val != undefined) {
-// 			that.addToInteractions(
-// 			    plt.Kernel.toDomNode(val) + "\n");
-// 		    }
-// 		});
+ 		runToplevel(function(val) {
+ 		    if (val != undefined) {
+ 			that.addToInteractions(
+ 			    plt.Kernel.toDomNode(val));
+			that.addToInteractions("\n");
+ 		    }
+ 		});
 		that.notifyBus("after-run", that);
 	    } catch (err) {
 		handleError(err);
