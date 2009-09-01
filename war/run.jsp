@@ -54,7 +54,7 @@ Runner.prototype.runCompiledCode = function(compiledCode, permStringArray) {
 
     var permArray = [];
     for (var i = 0; i < permStringArray.length; i++) {
-	permArray.push(symbol_dash__greaterthan_permission(permStringArray[i]))
+	permArray.push(string_dash__greaterthan_permission(permStringArray[i]))
     }
     
     plt.permission.startupAllPermissions(
@@ -104,7 +104,7 @@ function init() {
 	    find("permissions").
 	    find("permission").
 	    each(function() { 
-		permissions.push(plt.Kernel.string_dash__greaterthan_symbol(jQuery(this).text())); });
+		permissions.push(jQuery(this).text()); });
 	interactions.runCompiledCode(program, permissions);
     };
     jQuery.get("/loadProject", data, callback, type);
