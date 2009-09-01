@@ -70,6 +70,7 @@ WeSchemeInteractions = (function () {
 	this.notifyBus("before-add-to-interactions", this);
 	if (isDomNode(interactionVal)) {
 	    this.prompt.before(interactionVal);
+	    if (interactionVal.afterAttach) { interactionVal.afterAttach(); }
 	} else {
 	    var newArea = jQuery("<div style='width: 100%'></div>");
 	    newArea.text(interactionVal);
@@ -86,7 +87,9 @@ WeSchemeInteractions = (function () {
 	plt.world.MobyJsworld.makeToplevelNode = function() {
 	    var area = jQuery("<div></div>");
 	    that.prompt.before(area);
-	    return area.get(0);
+	    var innerArea = jQuery("<div></div>");
+	    area.append(innerArea);
+	    return innerArea.get(0);
 	};
 	plt.Kernel.lastLoc = undefined;
     }
@@ -97,7 +100,7 @@ WeSchemeInteractions = (function () {
 	var that = this;
 	this._prepareToRun();
 	try {
-	    var program = readSchemeExpressions(aSource);
+	    var program = plt.reader.readSchemeExpressions(aSource);
 	    var compiledProgram = 
 		program_dash__greaterthan_compiled_dash_program_slash_pinfo(program, this.pinfo);
 
@@ -138,7 +141,13 @@ WeSchemeInteractions = (function () {
     };
     
     WeSchemeInteractions.prototype.handleError = function(err) {
-	if (err instanceof plt.Kernel.MobySyntaxError) {
+	if (err instanceof plt.Kernel.MobyParserError) {
+		this.addToInteractions(
+		    "Hit an error around: " + 
+			Loc_dash__greaterthan_string(err.loc).toDisplayedString()
+			+ "\n");
+	    this.addToInteractions(err.msg + "\n");
+	} else if (err instanceof plt.Kernel.MobySyntaxError) {
 		this.addToInteractions(
 		    "Hit an error around: " + 
 			Loc_dash__greaterthan_string(err.stx.loc).toDisplayedString()
