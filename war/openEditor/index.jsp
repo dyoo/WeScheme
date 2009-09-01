@@ -3,7 +3,7 @@
 <head>
 <title>WeScheme</title>
 
-<!-- Google Ajax API -->
+
 
 
 <!--[if lt IE 8]>
@@ -21,11 +21,16 @@
 <link rel="stylesheet" type="text/css" href="/css/default.css"
       id="style" />
 
+
+<!-- Google Ajax APIs -->
 <script src="http://www.google.com/jsapi"></script>
 <script>
   google.load("jquery", "1.3.2");
   google.load("jqueryui", "1.7.2");
 </script>
+
+<!-- JQuery UI style sheet -->
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css"/>
 
 
 <script src="/js/flapjax-2.0.1.compressed.js"></script>
@@ -117,6 +122,11 @@
       <h1>WeScheme</h1>
       <h2>Sometimes YouTube.  Perhaps iPhone.  Together, WeScheme!</h2>
 </div>
+
+<!-- The dialog div here will be used by jquery -->
+<div id="dialog">
+</div>
+
 
 
 <div id="toolbar">
