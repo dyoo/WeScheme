@@ -108,11 +108,16 @@ plt.world.MobyJsworld = {};
     // The default printWorldHook will write the written content of the node.
     // We probably want to invoke the pretty printer here instead!
     Jsworld.printWorldHook = function(world, node) {
+	var newNode;
 	if(node.lastChild == null) {
-	    node.appendChild(plt.Kernel.toDomNode(world));
+	    newNode = plt.Kernel.toDomNode(world);
+	    node.appendChild(newNode);
 	} else {
-	    node.replaceChild(plt.Kernel.toDomNode(world),
-			      node.lastChild);
+	    newNode = plt.Kernel.toDomNode(world);
+	    node.replaceChild(newNode, node.lastChild);
+	}
+	if (newNode.afterAttach) {
+	    newNode.afterAttach();
 	}
     };
 
@@ -162,7 +167,9 @@ plt.world.MobyJsworld = {};
 	    // rather than the more direct 'function wrappedRedraw(w) { ...}'.
 	    var wrappedRedraw = function(w) {
 		var result = [toplevelNode, 
-			      [plt.Kernel.toDomNode(config.lookup('onRedraw')([w]))]];
+			      _js.node_to_tree(
+				  plt.Kernel.toDomNode(
+				      config.lookup('onRedraw')([w])))]];
 		return result;
 	    }
 	    

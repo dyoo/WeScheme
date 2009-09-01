@@ -15,6 +15,16 @@ var plt = plt || {};
 
     
 
+    // Compatibility for attaching events to nodes.
+    function attachEvent(node, eventName, fn) {
+	if (node.addEventListener) {
+	    // Mozilla
+	    node.addEventListener(eventName, fn, false);
+	} else {
+	    // IE
+	    node.attachevent('on' + event, fn, false);
+	}
+    }
 
 
 
@@ -1898,11 +1908,12 @@ var plt = plt || {};
     };
 
 
-    BaseImage.prototype.toDomNode = function() {
-	var that = this;
+    // makeCanvas: number number -> canvas
+    // Constructs a canvas object of a particular width and height.
+    var makeCanvas = function(width, height) {
 	var canvas = document.createElement("canvas");
- 	canvas.width = plt.world.Kernel.imageWidth(this).toInteger();
- 	canvas.height = plt.world.Kernel.imageHeight(this).toInteger();
+ 	canvas.width = width;
+ 	canvas.height = height;
  	canvas.style.width = canvas.width + "px";
  	canvas.style.height = canvas.height + "px";
 	
@@ -1911,13 +1922,34 @@ var plt = plt || {};
 	if (typeof window.G_vmlCanvasManager != 'undefined') {
 	    canvas = window.G_vmlCanvasManager.initElement(canvas);
 	}
-	// KLUDGE: we render in a timeout because there's a bug in IE excanvas
-	// that requires the canvas element to be in the dom before drawing
-	// occurs.
-	setTimeout(function() {
- 	    var ctx = canvas.getContext("2d");
-	    that.render(ctx, 0, 0) }, 
-		   0);
+	return canvas;
+    };
+
+
+    BaseImage.prototype.toDomNode = function() {
+	var that = this;
+	var width = plt.world.Kernel.imageWidth(that).toInteger();
+	var height = plt.world.Kernel.imageHeight(that).toInteger();
+	var canvas = makeCanvas(width, height);
+	var rendered = false;
+	var doRender = function() {
+	    if (! rendered)  {
+ 		var ctx = canvas.getContext("2d");
+		that.render(ctx, 0, 0) 
+		rendered = true;
+	    }
+	};
+	// HACK/KLUDGE: we're attaching a method afterAttach that will
+	// get called as soon as we attach this canvas to the rest of
+	// the dom.
+	// 
+	// afterAttach might get called in one of two ways: either by
+	// the event DomNodeInserted (supported in Mozilla), or
+	// the undocumented afterAttach hook which we call deep within
+	// jsworld.
+	attachEvent(canvas, "DomNodeInserted", doRender);
+	canvas.afterAttach = doRender;
+
 	return canvas;
     };
     BaseImage.prototype.toWrittenString = function() { return "<image>"; }
@@ -1940,7 +1972,7 @@ var plt = plt || {};
 
     plt.Kernel.toWrittenString = function(x) {
 	if (x == undefined || x == null) {
-	    throw new MobyRuntimeError("value must not be null or undefined");
+	    return "<undefined>";
 	}
 	if (typeof(x) == 'string') {
 	    return x.toWrittenString();
@@ -1961,7 +1993,7 @@ var plt = plt || {};
 
     plt.Kernel.toDisplayedString = function(x) {
 	if (x == undefined || x == null) {
-	    throw new MobyRuntimeError("value must not be null or undefined");
+	    return "<undefined>";
 	}
 	if (typeof(x) == 'string') {
 	    return x.toDisplayedString();
@@ -1984,7 +2016,8 @@ var plt = plt || {};
     // toDomNode: scheme-value -> dom-node
     plt.Kernel.toDomNode = function(x) {
 	if (x == undefined || x == null) {
-	    throw new MobyRuntimeError("value must not be null or undefined");
+	    var node = document.createTextNode("<undefined>");
+	    return node;
 	}
 	if (typeof(x) == 'string') {
 	    var node = document.createTextNode(x.toWrittenString());
@@ -1993,6 +2026,9 @@ var plt = plt || {};
 	if (typeof(x) != 'object' && typeof(x) != 'function') {
 	    var node = document.createTextNode(x.toString());
 	    return node;
+	}
+	if (x.nodeType) {
+	    return x;
 	}
 	if ('toDomNode' in x) {
 	    return x.toDomNode();
@@ -2027,13 +2063,20 @@ var plt = plt || {};
 
     plt.Kernel.Struct.prototype.toDisplayedString = plt.Kernel.Struct.prototype.toWrittenString;
 
+
+    function appendChild(parent, child) {
+	parent.appendChild(child);
+	if (child.afterAttach) { child.afterAttach(); }
+    }
+
+
     plt.Kernel.Struct.prototype.toDomNode = function() {
 	var node = document.createElement("div");
 	node.appendChild(document.createTextNode("("));
 	node.appendChild(document.createTextNode(this._constructorName));
 	for(var i = 0; i < this._fields.length; i++) {
 	    node.appendChild(document.createTextNode(" "));
-	    node.appendChild(plt.Kernel.toDomNode(this._fields[i]));
+	    appendChild(node, plt.Kernel.toDomNode(this._fields[i]));
 	}
 	node.appendChild(document.createTextNode(")"));
 	return node;
