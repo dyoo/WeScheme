@@ -42,13 +42,18 @@ plt.reader = {};
 	var line = 1;
 	var tokens = [];
 	var PATTERNS = [['whitespace' , /^(\s+)/],
+			['#;', /^#;/],
+			['comment' , // piped comments
+			 new RegExp("^[#][|]"+
+				    "(?:(?:\\|[^\\#])|[^\\|])*"+
+				    "[|][#]")],
 			['comment' , /(^;[^\n]*)/],
 			['(' , /^(\(|\[|\{)/],
 			[')' , /^(\)|\]|\})/],
 			['\'' , /^(\')/],
 			['`' , /^(`)/],
 			[',' , /^(,)/],
-			['char', /^\#\\(newline)/],
+			['char', /^\#\\(newline|backspace)/],
 			['char', /^\#\\(.)/],
 			['number' , /^([+\-]?(?:\d+\.\d+|\d+\.|\.\d+|\d+))/],
 			['string' , new RegExp("^\"((?:([^\\\\\"]|(\\\\.)))*)\"")],      
@@ -204,7 +209,7 @@ plt.reader = {};
 			"Expected a " + rshape + " to close " + lshape,
 			tokens[0][2]);
 		}
-		var rparen = eat(rshape);
+		var rparen = eat(')');
 		return make_dash_stx_colon_list(
 		    result,
 		    new Loc(lparen[2].offset,
@@ -212,6 +217,11 @@ plt.reader = {};
 			    rparen[2].offset - lparen[2].offset + 1,
 			    ""));
 
+	    case '#;':
+		var hashcomment = eat('#;');
+		var skippingExpr = readExpr();
+		return readExpr();
+		
 	    case '\'':
 		return readQuoted("'", quoteSymbol);
 
@@ -238,8 +248,11 @@ plt.reader = {};
 		var t = eat('char');
 		if (t[1] == 'newline') {
 		    return makeAtom(plt.types.Char.makeInstance('\n'), t[2]);
-		}
-		else {
+		} else if (t[1] == 'backspace') {
+		    // FIXME: add more character constants.
+		    // See: http://docs.plt-scheme.org/reference/reader.html#%28idx._%28gentag._172._%28lib._scribblings/reference/reference..scrbl%29%29%29
+		    return makeAtom(plt.types.Char.makeInstance(String.fromCharCode(8)), t[2]);
+		} else {
 		    return makeAtom(plt.types.Char.makeInstance(t[1]), t[2]);
 		}
 
@@ -262,6 +275,9 @@ plt.reader = {};
 	    while (true) {
 		if (tokens.length == 0 || isType(')')) {
 		    break;
+		} else if (isType('#;')){
+		    eat('#;');
+		    var skippingExpr = readExpr();
 		} else {
 		    var nextElt = readExpr();
 		    result = plt.types.Cons.makeInstance(nextElt, result);
@@ -270,7 +286,6 @@ plt.reader = {};
 	    return plt.Kernel.reverse(result);
 	};
 	
-
 
 	var result = readExprs();
 	if (tokens.length > 0) {
