@@ -10,7 +10,7 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PrimaryKey;
 
 import org.jdom.Element;
-import org.wescheme.program.capability.Capability;
+//import org.wescheme.program.capability.Capability;
 import org.wescheme.user.Session;
 import org.wescheme.util.XML;
 
@@ -29,7 +29,9 @@ public class Program extends XML {
 	protected String title_;
 	@Persistent
 	protected ObjectCode obj_;
-
+	
+	protected Boolean isSourcePublic;
+	
 	// Kludge: haven't figured out how to get JDO to update an existing
 	// child element in a one-to-one relationship.
 	@Persistent
@@ -42,10 +44,11 @@ public class Program extends XML {
 	protected long time_;
 	@Persistent
 	private boolean published_ = false;
-	@Persistent
-	private List<Capability> capabilities_;
+//	@Persistent
+//	private List<Capability> capabilities_;
 	@Persistent
 	private Long backlink_;
+	
 	
 	private void updateTime(){
 		time_ = System.currentTimeMillis();
@@ -57,9 +60,10 @@ public class Program extends XML {
 		this.srcs_ = new ArrayList<SourceCode>();
 		this.srcs_.add(new SourceCode(src));
 		this.obj_ = new ObjectCode();
+		this.isSourcePublic = false;
 		this.owner_ 	= owner.getName();
 		this.author_ = owner_;
-		this.capabilities_ = new ArrayList<Capability>();
+//		this.capabilities_ = new ArrayList<Capability>();
 		this.backlink_ = null;
 		this.updateTime();
 	}
@@ -69,9 +73,10 @@ public class Program extends XML {
 		this.srcs_ = new ArrayList<SourceCode>();
 		this.srcs_.add(new SourceCode(p.getSource().toString()));
 		this.obj_ = new ObjectCode();
+		this.isSourcePublic = false;
 		this.owner_ = owner;
 		this.author_ = p.author_;
-		this.capabilities_ = p.capabilities_;
+//		this.capabilities_ = new ArrayList<Capability>();
 		this.backlink_ = p.getId();
 		this.updateTime();
 	}
@@ -83,10 +88,19 @@ public class Program extends XML {
 	}
 	
 	
-	public void publish(){		
+	public void publish(boolean isObjectCodePublic){		
 		published_ = true;
+		this.isSourcePublic = isObjectCodePublic;
 		updateTime();
 	}
+	
+	public boolean getIsSourcePublic() {	
+		if (this.isSourcePublic == null) {
+			return false;
+		}
+		return this.isSourcePublic;
+	}
+	
 	
 	public void unpublish(){
 		published_ = false;
@@ -151,17 +165,20 @@ public class Program extends XML {
 	}
 	
 	
-	
-	public Element toXML() {
-		
+	public Element toXML() { return this.toXML(true); }
+
+	public Element toXML(boolean includeSource) {
 		Element root = new Element("Program");
-		root.addContent(getSource().toXML());
+		if (includeSource) {
+			root.addContent(getSource().toXML());
+		}
 		
 		if( null != obj_){
 			root.addContent(obj_.toXML());
 		}
 		root.addContent(XML.makeElement("id", id));
 		if (publicId_ != null) { root.addContent(XML.makeElement("publicId", publicId_)); }
+		root.addContent(XML.makeElement("isSourcePublic", this.getIsSourcePublic()));
 		root.addContent(XML.makeElement("title", getTitle()));
 		root.addContent(XML.makeElement("owner", owner_));
 		root.addContent(XML.makeElement("author", author_));
@@ -187,7 +204,5 @@ public class Program extends XML {
 	
 	public void setAuthor(String author) {
 		author_ = author;
-	}
-	
-	
+	}	
 }

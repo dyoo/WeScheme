@@ -32,9 +32,13 @@ public class Publish extends HttpServlet{
 				XMLOutputter outputter = new XMLOutputter();
 				Program prog = pm.getObjectById(Program.class,
 						Long.parseLong(req.getParameter("pid")));
+				boolean isSourceCodePublic = false;
+				if (req.getParameter("isPublic") != null) {
+					isSourceCodePublic = Boolean.parseBoolean(req.getParameter("isPublic"));
+				}
 				if (prog.getOwner().equals(userSession.getName()) &&
 						!prog.isPublished()) {
-					prog.publish();
+					prog.publish(isSourceCodePublic);
 					resp.setContentType("text/xml");
 					resp.getWriter().print(outputter.outputString(prog.toXML()));
 				} else {
