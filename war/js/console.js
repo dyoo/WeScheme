@@ -27,8 +27,6 @@ function loadProgramList() {
     
 
     var addProgramEntry = function(digest) {
-	var modifiedDate = new Date();
-	modifiedDate.setTime(parseInt(digest.find("modified").text()));
 
 	// The program entry
 	var programEntry = (jQuery("<li/>").addClass("ProgramEntry"));
@@ -41,7 +39,7 @@ function loadProgramList() {
 			    .addClass("ProgramTitle")
 			    .attr("value", digest.find("title").text())
 			    .attr("type", "submit")));
-	var modifiedSpan = (jQuery("<span/>").text(modifiedDate.toTimeString())
+	var modifiedSpan = (jQuery("<span/>").text(prettyPrintDate(digest.find("modified").text()))
 			    .addClass("ProgramModified"));
 	(programEntry
 	 .append(form)
@@ -53,8 +51,6 @@ function loadProgramList() {
 
 
     var addSharedEntry = function(digest) {
-	var modifiedDate = new Date();
-	modifiedDate.setTime(parseInt(digest.find("modified").text()));
 
 	// The program entry
 	var programEntry = (jQuery("<li/>").addClass("ProgramEntry"));
@@ -67,7 +63,7 @@ function loadProgramList() {
 			    .addClass("ProgramTitle")
 			    .attr("value", digest.find("title").text())
 			    .attr("type", "submit")));
-	var modifiedSpan = (jQuery("<span/>").text(modifiedDate.toTimeString())
+	var modifiedSpan = (jQuery("<span/>").text(prettyPrintDate(digest.find("modified").text()))
 			    .addClass("ProgramModified"));
 	var publishedSpan = 
 	    digest.find("published").text() == 'true' ?
@@ -107,6 +103,23 @@ function loadProgramList() {
     jQuery.get("/listProjects", {}, callback, "xml");
 }
 
+
+
+// prettyPrintDate: string -> string
+function prettyPrintDate(modified) {
+    var modifiedDate = new Date();
+    modifiedDate.setTime(parseInt(modified));
+    var day = (["Sunday", "Monday", "Tuesday", "Wednesday",
+		"Thursday", "Friday", "Saturday"]
+	       [modifiedDate.getDay()]);
+    var month = (["January", "February", "March", "April",
+		  "May", "June", "July", "August", "September",
+		  "October", "November", "December"]
+		 [modifiedDate.getMonth()]);
+
+    return (day + ", " + month + " " + modifiedDate.getDate() + ", "
+	    + modifiedDate.toLocaleTimeString());
+}
 
 
 // makeShareUrl: string -> string
