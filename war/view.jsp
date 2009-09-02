@@ -34,7 +34,7 @@ function update() {
 				.text(dom.find("title").text()));
 	    jQuery("#runIt").attr("href",
 				  "/run?publicId=<%= encodedId%>");
-            if (dom.find("isSourceShared").text() == true) {
+            if (dom.find("isSourcePublic").text() == 'true') {
 		jQuery("#viewSource").attr("href",
 					   "/openEditor?publicId=<%= encodedId%>");
 
