@@ -52,7 +52,6 @@ var WeSchemeEditor;
 	this.interactions.reset();
 
 	this.saveButton = attrs.saveButton;
-	this.cloneButton = attrs.cloneButton;
 
 
 	this.filenameEntry = new FlapjaxValueHandler(
@@ -193,11 +192,6 @@ var WeSchemeEditor;
 	    insertEnabledB(this.saveButtonEnabledB, this.saveButton);
 	}
 
-	// The clone button's enabled state
-	if (this.cloneButton) {
-	    insertEnabledB(andB(this.isLoggedInB, notB(this.isDirtyB)),
-			   this.cloneButton);
-	}
     
 
 	// Editable editors and text areas.
@@ -251,37 +245,36 @@ var WeSchemeEditor;
 
     WeSchemeEditor.prototype.save = function() {
 	var that = this;
-	function saveProjectCallback(data) {
-	    // The data contains the pid of the saved program.
-	    that.pid = parseInt(data);
+	var afterSave = function(pid) {
+	    that.pid = pid;
 	    WeSchemeIntentBus.notify("before-save", that);
 
 	    that.savedE.sendEvent(true);
 	    WeSchemeIntentBus.notify("after-save", that);
 	}
-
-	function onFirstSave() {
-	    var data = { title: that.filenameEntry.attr("value"),
-			 code: that.defn.getCode()};
-	    var type = "text";
-	    jQuery.post("/saveProject", 
-			data, 
-			function(data) { 
-			    saveProjectCallback(data); 
-			    // We want the reload button to work from this
-			    // point forward, so let's change the history.
-			    window.location = "/openEditor?pid=" + encodeURIComponent(that.pid);
-			},
-			type);
+	var whenSaveBreaks = function() {
+	    // FIXME
 	}
 
-	function onUpdate() {
-	    var data = { pid: that.pid,
-			 title: that.filenameEntry.attr("value"),
-			 code: that.defn.getCode()};
-	    var type = "text";
-	    jQuery.post("/saveProject", data, saveProjectCallback, type);
+	var onFirstSave = function() {
+	    save(false, 
+		 that.filenameEntry.attr("value"),
+		 that.defn.getCode(),
+		 function(newPid) { afterSave(newPid);
+				    // We want the reload button to work from this
+				    // point forward, so let's change the history.
+				    window.location = (
+					"/openEditor?pid=" + encodeURIComponent(that.pid));
+				  },
+		 whenSaveBreaks);
 	}
+	var onUpdate = function() {
+	    save(that.pid,
+		 that.filenameEntry.attr("value"),
+		 that.defn.getCode(),
+		 afterSave,
+		 whenSaveBreaks);
+	};
 
 	if (this.pid == false) {
 	    onFirstSave();
@@ -291,20 +284,7 @@ var WeSchemeEditor;
     };
 
 
-    WeSchemeEditor.prototype.clone = function() {
-	if (this.pid) {
-	    var that = this;
-	    var data = { pid: this.pid,
-		         code: that.defn.getCode() };
-	    var type = "text";
-	    var callback = function(data) {
-		WeSchemeIntentBus.notify("after-clone", that);
-		window.location = "/openEditor?pid=" + encodeURIComponent(parseInt(data));
-	    };
-	    WeSchemeIntentBus.notify("before-clone", this);
-	    jQuery.post("/cloneProject", data, callback, type);
-	}
-    };
+
 
 
 
@@ -353,26 +333,6 @@ var WeSchemeEditor;
 	
 
 
-    // runTheCompiler: number (-> void) (-> void) -> void
-    // Drives the compiler.
-    function runTheCompiler(pid, onSuccess, onFailure) {
-  	jQuery.ajax({cache : false,
-  		     data : { pid: newPid,
-			      isPublic: isPublic },
-  		     dataType: "xml",
-  		     type: "POST",
-  		     url: "/build",
-  		     success: function(data) {
-			 onSuccess();
-		     },
-  		     error: function() {
-			 onFailure();
-		     }
-		    });
-    }
-
-
-
 
     WeSchemeEditor.prototype.share = function() {
 	var that = this;
@@ -380,51 +340,37 @@ var WeSchemeEditor;
 	
 	var shareWithSource = function() {
 	    dialogWindow.dialog("close");
-	    doThePublishing(true, function() {});
+	    doTheSharing(true, function() {});
 	};
 
 	var shareWithoutSource = function() {
 	    dialogWindow.dialog("close");
-	    doThePublishing(false, function() {});
+	    doTheSharing(false, function() {});
 	};
 
-
-	// Clones and sets the published flag of a program.
-	var doThePublishing = function(isPublic, onSuccess, onFailure) {
-  	    jQuery.ajax({cache : false,
-  			 data : { pid: that.pid,
-				  code: that.defn.getCode() },
-  			 dataType: "text",
-  			 type: "POST",
-  			 url: "/cloneProject",
-  			 success: function(data) {
-			     var newPid = parseInt(data);
-			     runTheCompiler(newPid,
-					    // onSuccess
-					    function() {
-  						jQuery.ajax({cache : false,
-  							     data : { pid: newPid,
-								      isPublic: isPublic },
-  							     dataType: "xml",
-  							     type: "POST",
-  							     url: "/publish",
-  							     success: function(data) {
-								 // FIXME
-							     },
-  							     error: function() {
-								 // FIXME
-							     }
-  							    })},
-					    // onFailure
-					    function() {
-						// FIXME: notify the user that we weren't able
-						// to do the compilation.
-					    });
-			 },
-  			 error: function() {}
-  			});
+	// Does the brunt work of the sharing.
+	var doTheSharing = function(isPublic, onSuccess, onFailure) {
+	    makeAClone(
+		that.pid, 
+		that.defn.getCode(),
+		function(newPid) { 
+		    runTheCompiler(
+			newPid, 
+			function() {
+			    
+			},
+			whenCompilationFails);
+		},
+		whenCloningFails);
 	};
 
+	var whenCompilationFails = function() {
+	    alert("compilation failed");
+	};
+
+	var whenCloningFails = function() {
+	    alert("cloning failed");
+	};
 
 
 
@@ -492,5 +438,106 @@ var WeSchemeEditor;
 
 
     WeSchemeEditor.prototype.toString = function() { return "WeSchemeEditor()"; };
+
+
+
+
+
+
+
+    //////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////
+
+    // AJAX HELPERS
+
+
+
+    // runTheCompiler: number (-> void) (-> void) -> void
+    // Drives the compiler.
+    function runTheCompiler(pid, onSuccess, onFailure) {
+  	jQuery.ajax({cache : false,
+  		     data : { pid: pid },
+  		     dataType: "xml",
+  		     type: "POST",
+  		     url: "/build",
+  		     success: function(data) {
+			 onSuccess();
+		     },
+  		     error: function() {
+			 onFailure();
+		     }
+		    });
+    }
+
+
+    // makeAClone: number string (number -> void) (-> void) -> void
+    // Clones a program.
+    function makeAClone(pid, code, onSuccess, onFailure) {
+  	jQuery.ajax({cache : false,
+  		     data : { pid: pid, code: code },
+  		     dataType: "text",
+  		     type: "POST",
+  		     url: "/cloneProject",
+  		     success: function(data) {
+			 var newPid = parseInt(data);
+			 onSuccess(newPid);
+		     },
+		     error: function() {
+			 onFailure();
+		     }
+		    });
+    }
+    
+
+    // publish: number boolean (-> void) (-> void) -> void
+    // Sets the published flag on a program.
+    function publish(pid, isPublic, onSuccess, onFailure) {
+	jQuery.ajax({cache : false,
+  		     data : { pid: pid,
+			      isPublic: isPublic },
+  		     dataType: "xml",
+  		     type: "POST",
+  		     url: "/publish",
+  		     success: function(data) {
+			 onSuccess();
+			 // FIXME
+		     },
+  		     error: function() {
+			 // FIXME
+			 onFailure();
+		     }
+  		    });
+    }
+
+
+
+    // save: (U undefined number) string string (number -> void) (-> void) -> void
+    // Does a save.
+    function save(pid, title, code, onSuccess, onFailure) {
+	var data;
+	if (pid) {
+	    data = { pid: pid,
+		     title: title,
+		     code: code };
+	} else {
+	    data = { title: title,
+		     code: code };
+	}
+  	jQuery.ajax({cache : false,
+  		     data : data,
+  		     dataType: "text",
+  		     type: "POST",
+  		     url: "/saveProject",
+  		     success: function(data) {
+			 var newPid = parseInt(data);
+			 onSuccess(newPid);
+		     },
+		     error: function() {
+			 onFailure();
+		     }
+		    });
+    }
+
 
 })();
