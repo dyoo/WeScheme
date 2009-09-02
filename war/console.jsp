@@ -48,8 +48,14 @@
 
 </div>
 
-
+<h1>Your programs</h1>
 <div id="programList">
+	<%-- The rest will be filled in through Javascript --%>
+</div>
+
+
+<h1>Your shared programs</h1>
+<div id="sharedList">
 	<%-- The rest will be filled in through Javascript --%>
 </div>
 

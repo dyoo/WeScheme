@@ -32,11 +32,16 @@ function update() {
 	    programTitle.append(jQuery("<span/>")
 				.addClass("programName")
 				.text(dom.find("title").text()));
-
 	    jQuery("#runIt").attr("href",
 				  "/run?publicId=<%= encodedId%>");
-	    jQuery("#viewSource").attr("href",
-				       "/openEditor?publicId=<%= encodedId%>");
+            if (dom.find("isSourceShared").text() == true) {
+		jQuery("#viewSource").attr("href",
+					   "/openEditor?publicId=<%= encodedId%>");
+
+            } else {
+		jQuery("#viewSource").hide();
+	    }
+
 
 
 	};
