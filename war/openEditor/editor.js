@@ -289,17 +289,8 @@ var WeSchemeEditor;
 
 
     WeSchemeEditor.prototype.load = function(attrs) {
-
 	var that = this;
-	var data;
-	if (attrs.pid) {
-	    data = { pid: attrs.pid };
-	} else if (attrs.publicId) {
-	    data = { publicId: attrs.publicId };
-	} else {
-	    throw new Error("pid or publicId required");
-	}
-	var type = "xml";
+
 	var callback = function(data) {
 	    var dom = jQuery(data);
 
@@ -318,8 +309,26 @@ var WeSchemeEditor;
 	    that.loadedE.sendEvent("true");
 	    WeSchemeIntentBus.notify("after-load", that);
 	};
-	WeSchemeIntentBus.notify("before-load", this);
-	jQuery.get("/loadProject", data, callback, type);
+
+	var whenLoadFails = function() { 
+	    // FIXME
+	    alert("The load failed.");
+	}
+	if (attrs.pid) {
+	    WeSchemeIntentBus.notify("before-load", this);
+	    loadAProject(attrs.pid,
+			 undefined,
+			 callback,
+			 whenLoadFails);
+	} else if (attrs.publicId) {
+	    WeSchemeIntentBus.notify("before-load", this);
+	    loadAProject(undefined,
+			 attrs.publicId,
+			 callback,
+			 whenLoadFails);
+	} else {
+	    throw new Error("pid or publicId required");
+	}
     };
 
 
@@ -451,6 +460,29 @@ var WeSchemeEditor;
 
     // AJAX HELPERS
 
+
+
+    // loadAProject: number (jquery -> void) (-> void)
+    function loadAProject(pid, publicId, onSuccess, onFailure) {
+	var pid;
+	if (pid) {
+	    data = { pid: pid };
+	} else {
+	    data = { publicId: publicId };
+	}
+  	jQuery.ajax({cache : false,
+  		     data : data,
+  		     dataType: "xml",
+  		     type: "GET",
+  		     url: "/loadProject",
+  		     success: function(dom) {
+			 onSuccess(jQuery(dom));
+		     },
+  		     error: function() {
+			 onFailure();
+		     }
+		    });
+    }
 
 
     // runTheCompiler: number (-> void) (-> void) -> void

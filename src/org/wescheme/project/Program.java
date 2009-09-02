@@ -95,7 +95,8 @@ public class Program extends XML {
 	}
 	
 	public void build() {
-		ObjectCode newCode = Compiler.compile(srcs_.get(0));
+		ObjectCode newCode = Compiler.compile(this.getSource());
+		if (this.obj_ == null) { this.obj_ = new ObjectCode(); }
 		this.obj_.setObj(newCode.getObj());
 		this.obj_.setPermissions(newCode.getPermissions());
 		this.updateTime();
