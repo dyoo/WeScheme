@@ -79,7 +79,6 @@ public class Program extends XML {
 	
 	public Program clone(String owner){
 		Program p = new Program(this, owner);
-		p.title_ = p.title_ + " (originally from " + owner + ")";
 		return p;
 	}
 	

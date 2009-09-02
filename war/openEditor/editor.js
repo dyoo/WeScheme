@@ -3,7 +3,7 @@ var WeSchemeEditor;
 (function() {
 
     // The timeout between autosaving.
-    var AUTOSAVE_TIMEOUT = 10000;
+    var AUTOSAVE_TIMEOUT = 5000;
 
 
 
@@ -51,8 +51,6 @@ var WeSchemeEditor;
 	this.interactions = new WeSchemeInteractions(attrs.interactions);
 	this.interactions.reset();
 
-	this.saveButton = attrs.saveButton;
-
 
 	this.filenameEntry = new FlapjaxValueHandler(
 	    attrs.filenameInput.get(0));
@@ -90,7 +88,9 @@ var WeSchemeEditor;
 	// a load has happened.
 	this.loadedE = receiverE();
 
-
+	// publishedE is a boolean eventStream that receives true whenever
+	// a program has been published;
+	this.isPublishedE = receiverE();
 
 
 	// contentChangedE event fires true if the source or filename
@@ -100,25 +100,7 @@ var WeSchemeEditor;
 	    constantE(changes(this.filenameEntry.behavior), true));
 	
 
-
-
 	this.isOwnerE = receiverE();
-
-
-	// We'll fire off an autosave if the content has changed and
-	// saving is enabled, and it's not a new file.
-	this.autosaveRequestedE = 
-	    filterE(calmE(this.contentChangedE, constantB(AUTOSAVE_TIMEOUT)),
-		    function(v) {return (v &&
-					 valueNow(that.saveButtonEnabledB) &&
-					 !(valueNow(that.isNewFileB)))});
-	
-	
-
-	//////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////
-
-	// BEHAVIORS
 
 
 
@@ -141,6 +123,9 @@ var WeSchemeEditor;
  	    that.pid == false);
 	
 	
+	this.isPublishedB = startsWith(this.isPublishedE,
+				       false);
+
 	
 	// isOwnerB is a boolean behavior that's true if we own the file,
 	// and false otherwise.  It changes on load.
@@ -160,14 +145,27 @@ var WeSchemeEditor;
 
 
 
-	// saveButton: enabled only when the definitions area is dirty
-	//             and the file hasn't been published
-	//             and (you own the file, or the file is new)
+	// isAutosaveEnabledB: enabled only when the definitions area is dirty
+	//             and it hasn't been published yet
+	//             and you own the file
+	//             and the file isn't new
 	//             and you are logged in (non-"null" name)
-	this.saveButtonEnabledB = andB(this.isDirtyB,
-				       orB(this.isOwnerB,
-					   this.isNewFileB),
+	this.isAutosaveEnabledB = andB(this.isDirtyB,
+				       notB(this.isPublishedB),
+				       notB(this.isNewFileB),
+				       this.isOwnerB,
 				       this.isLoggedInB);
+
+
+
+
+	// We'll fire off an autosave if the content has changed and
+	// saving is enabled, and it's not a new file.
+	this.autosaveRequestedE = 
+	    calmE(andE(this.contentChangedE,
+		       changes(this.isAutosaveEnabledB)),
+		  constantB(AUTOSAVE_TIMEOUT));
+		  
 
     
 	// The areas are editable under the following condition:
@@ -186,11 +184,6 @@ var WeSchemeEditor;
 		that._autosave();
 	    }
 	});
-
-	// The enabled button's state, if one were provided.
-	if (this.saveButton) {
-	    insertEnabledB(this.saveButtonEnabledB, this.saveButton);
-	}
 
     
 
@@ -253,6 +246,7 @@ var WeSchemeEditor;
 	    WeSchemeIntentBus.notify("after-save", that);
 	}
 	var whenSaveBreaks = function() {
+	    alert("Unable to save");
 	    // FIXME
 	}
 
@@ -279,7 +273,20 @@ var WeSchemeEditor;
 	if (this.pid == false) {
 	    onFirstSave();
 	} else {
-	    onUpdate();
+	    if (valueNow(this.isPublishedB)) {
+		makeAClone(that.pid,
+			   that.defn.getCode(),
+			   function(x) {
+			       afterSave(x);
+			       window.location = (
+				   "/openEditor?pid=" + encodeURIComponent(that.pid)
+			       );
+			   }
+			   ,
+			   whenSaveBreaks);
+	    } else {
+		onUpdate();
+	    }
 	}
     };
 
@@ -306,7 +313,9 @@ var WeSchemeEditor;
 	    } else {
 		that._setIsOwner(false);
 	    }
-	    that.loadedE.sendEvent("true");
+	    that.loadedE.sendEvent(true);
+	    that.isPublishedE.sendEvent(
+		dom.find("published").text() == "true" ? true : false);
 	    WeSchemeIntentBus.notify("after-load", that);
 	};
 
@@ -366,7 +375,11 @@ var WeSchemeEditor;
 		    runTheCompiler(
 			newPid, 
 			function() {
-			    
+			    publish(newPid,
+				    isPublic,
+				    function() {
+				    },
+				    whenPublishingFails);
 			},
 			whenCompilationFails);
 		},
@@ -374,13 +387,19 @@ var WeSchemeEditor;
 	};
 
 	var whenCompilationFails = function() {
+	    // FIXME
 	    alert("compilation failed");
 	};
 
 	var whenCloningFails = function() {
+	    // FIXME
 	    alert("cloning failed");
 	};
 
+	var whenPublishingFails = function() {
+	    // FIXME
+	    alert("Publishing failed.");
+	};
 
 
 	if (this.pid) {
@@ -530,7 +549,7 @@ var WeSchemeEditor;
 			      isPublic: isPublic },
   		     dataType: "xml",
   		     type: "POST",
-  		     url: "/publish",
+  		     url: "/publishProject",
   		     success: function(data) {
 			 onSuccess();
 			 // FIXME
