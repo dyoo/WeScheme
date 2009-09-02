@@ -354,7 +354,28 @@ var WeSchemeEditor;
 
 
     WeSchemeEditor.prototype.share = function() {
-	if (this.pid) {
+	var dialogWindow = (jQuery("#dialog").empty());
+	dialogWindow.dialog("destroy");
+	
+	var publishWithSharing = function() {
+	    dialogWindow.dialog("close");
+//  	    jQuery.ajax({cache : false,
+//  			 data : { pid: this.pid },
+//  			 dataType: "xml",
+//  			 type: "POST",
+//  			 url: "/publishProject",
+//  			 success: function() {},
+//  			 error: function() {}
+//  			});
+
+	};
+
+	var publishWithPrivacy = function() {
+	    dialogWindow.dialog("close");
+	};
+
+
+	if (this.pid && ! valueNow(this.isDirtyB)) {
 // 	    var that = this;
 // 	    var afterPublish = function(data, textStatus) {
 // 		var dom = jQuery(data);
@@ -375,19 +396,28 @@ var WeSchemeEditor;
 // 			 success: afterPublish,
 // 			 error: error
 // 			});
-	    var dialogWindow = (
-		jQuery("#dialog")
-		    .empty()
-		    .append(jQuery("<p/>").text(
-			"Do you wish to share with source?")));
-	    dialogWindow.dialog({title: 'Sharing',
+	    dialogWindow.append(jQuery("<p/>").text(
+		"Do you wish to share with source?"));
+	    dialogWindow.dialog({title: 'Sharing your program',
 				 bgiframe : true,
 				 modal : true,
 				 overlay : {opacity: 0.5,
-					    background: 'black'}
+					    background: 'black'},
+				 buttons : { "Share source" : publishWithSharing ,
+					     "Keep source private" : publishWithPrivacy }
 				});
+	    dialogWindow.dialog("open");
 	} else {
-
+	    dialogWindow.append(jQuery("<p/>").text(
+		"The program needs to be saved before it can be shared."));
+	    dialogWindow.dialog({title: 'Sharing your program',
+				 bgiframe : true,
+				 modal : true,
+				 overlay : {opacity: 0.5,
+					    background: 'black'},
+				 buttons : {}
+				});
+	    dialogWindow.dialog("open");
 	}
     };
 
