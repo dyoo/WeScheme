@@ -179,8 +179,10 @@ WeSchemeInteractions = (function () {
 	}
 	var afterPermissionsGranted = function() {
 	    try {
-		var runToplevel = that.namespace.eval(compiledCode, '""');
+		console.log(compiledCode);
+		var runToplevel = that.namespace.eval("", compiledCode);
  		runToplevel(function(val) {
+		    console.log("val");
  		    if (val != undefined) {
  			that.addToInteractions(
  			    plt.Kernel.toDomNode(val));

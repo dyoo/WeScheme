@@ -57,13 +57,24 @@ Runner.prototype.runCompiledCode = function(compiledCode, permStringArray) {
 	permArray.push(string_dash__greaterthan_permission(permStringArray[i]))
     }
     
+(function() { ((function (toplevel_dash_expression_dash_show0) { toplevel_dash_expression_dash_show0((plt.types.String.makeInstance("this should be shared."))); }))(plt.Kernel.identity) })();
+
     plt.permission.startupAllPermissions(
 	permArray,
         function() { 
             try {
-	        // FIXME: we may want a repl.  We may also want to
-                // see the intermediate values come from toplevel.
-                that.namespace.eval(compiledCode);
+	        // FIXME: we may want a repl.
+		var runToplevel = that.namespace.eval(compiledCode);
+ 		runToplevel(function(val) {
+ 		    if (val != undefined) {
+ 			that.addToInteractions(
+ 			    plt.Kernel.toDomNode(val));
+			that.addToInteractions("\n");
+ 		    }
+ 		});
+
+
+
             } catch (err) {
                 that.addToInteractions(err.toString() + "\n");
  	        throw err;

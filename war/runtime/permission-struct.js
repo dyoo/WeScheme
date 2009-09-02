@@ -195,7 +195,7 @@ function permission_dash__greaterthan_on_dash_destroy_dash_code(a_dash_permissio
  (plt.types.String.makeInstance("")) :
  (plt.Kernel.setLastLoc("offset=0 line=0 span=0 id=\"\"")   && plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond"))))))))))))); }
 (function() { 
-((function (toplevel_dash_expression_dash_show0) { 
+  ((function (toplevel_dash_expression_dash_show0) { 
 
 
 
@@ -219,5 +219,5 @@ PERMISSION_colon_WAKE_dash_LOCK = (plt.Kernel.setLastLoc("offset=0 line=0 span=0
 
 
 
- }))(plt.Kernel.identity)
+ })  )(arguments[0] || plt.Kernel.identity);
 })();

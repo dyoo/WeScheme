@@ -26,17 +26,23 @@ public class LoadProjectServlet extends HttpServlet {
 	private static final long serialVersionUID = 1165047992267892812L;
 	private static final Logger log = Logger.getLogger(LoadProjectServlet.class.getName());
 	
+	private boolean isOwner(Session userSession, Program prog) {
+		return (userSession != null && 
+				prog != null && 
+				prog.getOwner().equals(userSession.getName()));
+	}
+	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		
 			PersistenceManager pm = PMF.get().getPersistenceManager();
 			try {
+				Session userSession;
+				SessionManager sm = new SessionManager();
+				userSession = sm.authenticate(req, resp);
 				if (req.getParameter("pid") != null) {
-					Session userSession;
-					SessionManager sm = new SessionManager();
-					userSession = sm.authenticate(req, resp);
+					Program prog = getProgramByPid(pm, req.getParameter("pid"));
 					if( null != userSession ){
-						Program prog = getProgramByPid(pm, req.getParameter("pid"));
-						if (prog.getOwner().equals(userSession.getName())) {
+						if (isOwner(userSession, prog)) {
 							XMLOutputter outputter = new XMLOutputter();
 							resp.setContentType("text/xml");
 							resp.getWriter().print(outputter.outputString(prog.toXML()));
@@ -49,9 +55,13 @@ public class LoadProjectServlet extends HttpServlet {
 					}					
 				} else if (req.getParameter("publicId") != null) {
 					Program prog = getProgramByPublicId(pm, req.getParameter("publicId"));
-					XMLOutputter outputter = new XMLOutputter();
-					resp.setContentType("text/xml");
-					resp.getWriter().print(outputter.outputString(prog.toXML()));
+					if (isOwner(userSession, prog) || prog.getIsSourcePublic()) {
+						XMLOutputter outputter = new XMLOutputter();
+						resp.setContentType("text/xml");
+						resp.getWriter().print(outputter.outputString(prog.toXML()));
+					} else {
+						throw new RuntimeException("The owner has not chosen to share the source of this program.");
+					}
 				} else {
 						throw new RuntimeException("pid or publicId parameter missing");
 				}

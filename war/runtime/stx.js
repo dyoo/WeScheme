@@ -130,7 +130,7 @@ function stx_dash__greaterthan_datum(a_dash_stx) { return ((plt.Kernel.setLastLo
                      return result; })(), [(plt.Kernel.setLastLoc("offset=0 line=0 span=0 id=\"\"")   && stx_colon_list_dash_elts(a_dash_stx))])) :
  (plt.Kernel.setLastLoc("offset=0 line=0 span=0 id=\"\"")   && plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("Fell out of cond")))))); }
 (function() { 
-((function (toplevel_dash_expression_dash_show0) { 
+  ((function (toplevel_dash_expression_dash_show0) { 
 
 
 
@@ -140,5 +140,5 @@ function stx_dash__greaterthan_datum(a_dash_stx) { return ((plt.Kernel.setLastLo
 
 
 
- }))(plt.Kernel.identity)
+ })  )(arguments[0] || plt.Kernel.identity);
 })();
