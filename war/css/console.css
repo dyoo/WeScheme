@@ -83,10 +83,34 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 	background:		none;
 }
 
+
+
+/* flex: PROGRAM LIST */
+#sharedList{
+	margin-top:		20px;
+	width:			100%;
+	min-width:		625px;
+}
+
+#sharedList ul li{
+	display:		block;
+	min-width:		625px;
+	list-style:		none;
+}
+
+#sharedList ul li *{
+	display:		inline-block;
+	border:			0px;
+	background:		none;
+}
+
+
+
 .EntryHeader{font-weight: bold; font-size: 16px;}
 
-li.ProgramEntry:hover *{font-style: italic;}
-.ProgramTitle{width: 200px;}
+li.ProgramEntry:hover {display:block; 
+		       background-color: #81beff}
+.ProgramTitle{width: 400px;}
 .ProgramId{width: 100px;}
 .ProgramModified{width: 250px;}
 .ProgramPublished{width: 100px;}
