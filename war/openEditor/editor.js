@@ -353,29 +353,82 @@ var WeSchemeEditor;
 	
 
 
+    // runTheCompiler: number (-> void) (-> void) -> void
+    // Drives the compiler.
+    function runTheCompiler(pid, onSuccess, onFailure) {
+  	jQuery.ajax({cache : false,
+  		     data : { pid: newPid,
+			      isPublic: isPublic },
+  		     dataType: "xml",
+  		     type: "POST",
+  		     url: "/build",
+  		     success: function(data) {
+			 onSuccess();
+		     },
+  		     error: function() {
+			 onFailure();
+		     }
+		    });
+    }
+
+
+
+
     WeSchemeEditor.prototype.share = function() {
-	var dialogWindow = (jQuery("#dialog").empty());
-	dialogWindow.dialog("destroy");
+	var that = this;
+	var dialogWindow = (jQuery("<div/>"));
 	
-	var publishWithSharing = function() {
+	var shareWithSource = function() {
 	    dialogWindow.dialog("close");
-//  	    jQuery.ajax({cache : false,
-//  			 data : { pid: this.pid },
-//  			 dataType: "xml",
-//  			 type: "POST",
-//  			 url: "/publishProject",
-//  			 success: function() {},
-//  			 error: function() {}
-//  			});
-
+	    doThePublishing(true, function() {});
 	};
 
-	var publishWithPrivacy = function() {
+	var shareWithoutSource = function() {
 	    dialogWindow.dialog("close");
+	    doThePublishing(false, function() {});
 	};
 
 
-	if (this.pid && ! valueNow(this.isDirtyB)) {
+	// Clones and sets the published flag of a program.
+	var doThePublishing = function(isPublic, onSuccess, onFailure) {
+  	    jQuery.ajax({cache : false,
+  			 data : { pid: that.pid,
+				  code: that.defn.getCode() },
+  			 dataType: "text",
+  			 type: "POST",
+  			 url: "/cloneProject",
+  			 success: function(data) {
+			     var newPid = parseInt(data);
+			     runTheCompiler(newPid,
+					    // onSuccess
+					    function() {
+  						jQuery.ajax({cache : false,
+  							     data : { pid: newPid,
+								      isPublic: isPublic },
+  							     dataType: "xml",
+  							     type: "POST",
+  							     url: "/publish",
+  							     success: function(data) {
+								 // FIXME
+							     },
+  							     error: function() {
+								 // FIXME
+							     }
+  							    })},
+					    // onFailure
+					    function() {
+						// FIXME: notify the user that we weren't able
+						// to do the compilation.
+					    });
+			 },
+  			 error: function() {}
+  			});
+	};
+
+
+
+
+	if (this.pid) {
 // 	    var that = this;
 // 	    var afterPublish = function(data, textStatus) {
 // 		var dom = jQuery(data);
@@ -403,8 +456,8 @@ var WeSchemeEditor;
 				 modal : true,
 				 overlay : {opacity: 0.5,
 					    background: 'black'},
-				 buttons : { "Share source" : publishWithSharing ,
-					     "Keep source private" : publishWithPrivacy }
+				 buttons : { "Share source" : shareWithSource,
+					     "Keep source private" : shareWithoutSource }
 				});
 	    dialogWindow.dialog("open");
 	} else {
