@@ -212,7 +212,7 @@ dojo.declare("bespin.editor.clipboard.DOMEvents", null, {
         dojo.disconnect(this.copyHandle);
 
         if (this.copynpaster)
-            document.body.removeChild(copynpaster);
+            document.body.removeChild(this.copynpaster);
 
         this.copynpaster = undefined;
     }
