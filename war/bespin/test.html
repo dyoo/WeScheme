@@ -30,58 +30,22 @@
     <style type="text/css">*:focus { outline: 0; }</style>
 
     <!-- begin script tags -->
-	<script>
-	  var djConfig = { 
-	  parseOnLoad: false, 
-	  isDebug: false, 
-	  debugAtAllCosts: true,
-	  baseUrl: './',
-	  modulePaths: {bespin: '../js/bespin'}
-	  };
-	</script>
-
-	<script type="text/javascript"
-		src="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dojo/dojo.xd.js">
-	</script>
-	
-	<script src="/js/th.compressed.js"></script>
-
-	<script>
-	  dojo.require("bespin.editor.component");
-
-          var _editorComponent;
-	  
-        // Loads and configures the objects that the editor needs
-        // You can use dojo.addOnLoad(...); but for that you will need to load up dojo.js first
-        function doInit() {
-	  dojo.addOnLoad(function() { 
-            _editorComponent = new bespin.editor.Component('editor', {
-                language: "scheme",
-                loadfromdiv: true,
-                set: {
-                    strictlines: 'on',
-	            closepairs: 'on'
-                }
-            });
-	  });
-        };
-
-        function copyToTextarea() {
-            dojo.byId('inandout').value = _editorComponent.getContent();
-        }
-
-        function copyToEditor() {
-            _editorComponent.setContent(dojo.byId('inandout').value);
-        }
-
-        function setSyntax(value) {
-            bespin.publish("settings:language", { language: value });
-        }
-
-	</script>
-    <!-- end script tags -->
+    <script>
+      var djConfig = { 
+          parseOnLoad: false, 
+          isDebug: false, 
+          debugAtAllCosts: true,
+          baseUrl: './',
+          modulePaths: {bespin: '../js/bespin'}
+      };
+    </script>
+    <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dojo/dojo.xd.js"></script>
+    <script src="/js/th.compressed.js"></script>
+    <script src="/bespin/test.js"></script>
 </head>
-<body onload="doInit()">
+
+
+<body>
     <h3>Sample Editor as a Component</h3>
     <div id="editor" style="margin: 0; padding: 0; border: 0; height: 300px; border: 10px solid #ddd; -moz-border-radius: 10px; -webkit-border-radius: 10px;">(define (f x)
   (* x x))
@@ -92,6 +56,13 @@
 
 </div>
 
+
+<input type="button" value="Switch to Bespin mode" onclick="toBespin()">
+<input type="button" value="Switch to Text mode" onclick="toText()">
+
+
+
+<!--
     <div style="padding: 20px">
     <b style="display: block; border-bottom: 1px solid #ddd;">Play with the editor</b><br>
     Enter language and blur out: <input type="text" id="syntax" value="" onblur="setSyntax(this.value)"><br>
@@ -101,6 +72,9 @@
     <input type="button" value="Copy to Textarea" onclick="copyToTextarea()">
     <input type="button" value="Copy to Editor" onclick="copyToEditor()">
     </div>
+
+-->
+
 </body>
 </html>
 
