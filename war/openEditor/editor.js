@@ -65,7 +65,7 @@ var WeSchemeEditor;
 	// pid: (or false number)
 	this.pid = false;
 
-	this.defn.addChangeListener(function() {
+	this.defn.getSourceB().changes().mapE(function() {
 	    WeSchemeIntentBus.notify("definitions-changed", that);
 	});
 
@@ -166,12 +166,6 @@ var WeSchemeEditor;
 		       changes(this.isAutosaveEnabledB)),
 		  constantB(AUTOSAVE_TIMEOUT));
 		  
-
-    
-	// The areas are editable under the following condition:
-	var isEditableB = andB(orB(this.isOwnerB, 
-				   this.isNewFileB));
-
 	
 
 	//////////////////////////////////////////////////////////////////////
@@ -185,18 +179,6 @@ var WeSchemeEditor;
 	    }
 	});
 
-    
-
-	// Editable editors and text areas.
-	isEditableB.changes().mapE(function(v) {
-	    if (v) {
- 		that.defn.setReadOnly(false);
- 		that.filenameEntry.removeAttr("readonly");
- 	    } else {
- 		that.defn.setReadOnly(true);
- 		that.filenameEntry.attr("readonly", "true");
-	    }
-	});
     };
 
 
