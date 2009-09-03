@@ -80,18 +80,19 @@
 
 <script>
   var myEditor;
-
+  var defnSourceContainer;
 
   jQuery(document).ready(function() {
 
   // Fixme: trigger file load if the pid has been provided.
 
   var statusBar = new WeSchemeStatusBar(jQuery("#statusbar"));
+  defnSourceContainer = new WeSchemeTextContainer(jQuery("#definitions").get(0));
 
 
   myEditor = new WeSchemeEditor(
   { userName: "<%= userSession != null? userSession.getName() : null %>",
-    defn: new WeSchemeTextContainer(jQuery("#definitions").get(0)),
+    defn: defnSourceContainer,
     interactions: jQuery("#inter").get(0),
     filenameInput: jQuery("#filename")});
   
@@ -100,6 +101,7 @@
   jQuery("#share").click(function()  { myEditor.share(); });
   jQuery("#account").click(function()  { submitPost("/console"); });
   jQuery("#logout").click(function() { submitPost("/logout"); });
+      jQuery("#bespinMode").click(function() { defnSourceContainer.setMode("bespin")});
 
 <% if (request.getParameter("pid") != null) { %>
   myEditor.load({pid : <%= request.getParameter("pid") %> });
@@ -174,6 +176,9 @@
 	<!-- FIXME: make this appear or disappear depending on usage. -->
 	<div id="jsworld-div"></div>
 	<div id="statusbar" style="float: left; margin-left: 10px;" ></div>
+        <div id="editorMode" style="float: right; margin-right: 10px;">
+            <input type="button" id="bespinMode" value="Switch to Bespin">
+        </div>
 	<div style="text-align: right; margin-right: 10px;">
 
 		Editor Style:&nbsp;
