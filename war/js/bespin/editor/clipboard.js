@@ -293,7 +293,7 @@ dojo.declare("bespin.editor.clipboard.HiddenWorld", null, {
         dojo.disconnect(this.keyDown);
 
         if (this.copynpaster)
-            document.body.removeChild(copynpaster);
+            document.body.removeChild(this.copynpaster);
 
         this.copynpaster = undefined;
     }
