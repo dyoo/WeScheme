@@ -16,8 +16,7 @@ var WeSchemeTextContainer;
 	var that = this;
 	this.div = aDiv;
 	this.mode = 'textarea';
-	this.impl = new TextareaImplementation(
-	    jQuery(aDiv).find("#defn").get(0));
+	this.impl = new TextareaImplementation(this.div);
 
 
 	this.behaviorE = receiverE();
@@ -25,13 +24,30 @@ var WeSchemeTextContainer;
 					   this.impl.getSourceB()));
     };
 
+
     WeSchemeTextContainer.prototype.changeMode = function(mode) {
 	if (mode == this.mode) {
 	    return;
-	} else if (mode == 'bespin') {
-	} else if (mode == 'textarea') {
-	} else if (mode == 'domeditor') {
-	    // When Brendan's editor is ready, use this...
+	} else {
+	    var code = this.getCode();
+	    this.impl.shutdown();
+	    jQuery(this.div).empty();
+
+	    
+	    if (mode == 'bespin') {
+		this.impl = new BespinImplementation(this.div);
+	    } else if (mode == 'textarea') {
+		this.impl = new TextareaImplementation(this.div);
+		// FIXME
+	    } else if (mode == 'domeditor') {
+		// When Brendan's editor is ready, use this...
+		// FIXME
+	    } else {
+		throw new Error("Unknown mode " + mode);
+	    }
+
+	    this.impl.setCode(code);
+	    this.behaviorE.sendEvent(this.impl.getSourceB);
 	}
     }
 
@@ -54,10 +70,12 @@ var WeSchemeTextContainer;
     };
 
 
+
     //////////////////////////////////////////////////////////////////////
 
     function TextareaImplementation(rawContainer) {
-	this.container = new FlapjaxValueHandler(rawContainer);
+	this.container = new FlapjaxValueHandler(
+	    jQuery(rawContainer).find("#defn").get(0));
     }
 
     // Returns a behavior of the source code
@@ -76,11 +94,49 @@ var WeSchemeTextContainer;
 	this.container.attr("value", code);
     };
 
+    // shutdown: -> void
+    TextareaImplementation.prototype.shutdown = function() {
+    };
 
 
 
+    //////////////////////////////////////////////////////////////////////
 
+    function BespinImplementation(div) {
+	var that = this;
+	this.div = div;
+	this.component = undefined;
 
+	dojo.require("bespin.editor.component");
+	dojo.addOnLoad(function() { 
+	    that.component = 
+		new bespin.editor.Component(that.div.id, {
+		    language: "scheme",
+		    loadfromdiv: true,
+		    set: {
+			strictlines: 'on',
+			closepairs: 'on'
+		    }
+		});
+	});
+    }
+
+    // Returns a behavior of the source code
+    BespinImplementation.prototype.getSourceB = function() {
+    };
+
+    // getCode: void -> string
+    BespinImplementation.prototype.getCode = function() {
+    };
+
+    // setCode: string -> void
+    BespinImplementation.prototype.setCode = function(code) {
+
+    };
+
+    // shutdown: -> void
+    BespinImplementation.prototype.shutdown = function() {
+    };
 
 
 
