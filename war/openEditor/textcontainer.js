@@ -18,6 +18,11 @@ var WeSchemeTextContainer;
 	this.mode = 'textarea';
 	this.impl = new TextareaImplementation(
 	    jQuery(aDiv).find("#defn").get(0));
+
+
+	this.behaviorE = receiverE();
+	this.behavior = switchB(startsWith(this.behaviorE,
+					   this.impl.getSourceB()));
     };
 
     WeSchemeTextContainer.prototype.changeMode = function(mode) {
@@ -33,7 +38,7 @@ var WeSchemeTextContainer;
 
     // Returns a behavior of the source code
     WeSchemeTextContainer.prototype.getSourceB = function() {
-	return this.impl.getSourceB();
+	return this.behavior;
     };
 
 
@@ -54,7 +59,6 @@ var WeSchemeTextContainer;
     function TextareaImplementation(rawContainer) {
 	this.container = new FlapjaxValueHandler(rawContainer);
     }
-
 
     // Returns a behavior of the source code
     TextareaImplementation.prototype.getSourceB = function() {
