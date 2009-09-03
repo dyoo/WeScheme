@@ -91,7 +91,7 @@
 
   myEditor = new WeSchemeEditor(
   { userName: "<%= userSession != null? userSession.getName() : null %>",
-    defn: new WeSchemeTextContainer(jQuery("#defn").get(0)),
+    defn: new WeSchemeTextContainer(jQuery("#definitions").get(0)),
     interactions: jQuery("#inter").get(0),
     filenameInput: jQuery("#filename")});
   
@@ -109,15 +109,16 @@
 
 
   // For debugging:
-  WeSchemeIntentBus.addNotifyListener(function(action, category, data) {
-     //debugLog(action + ": " + category + " " + data.toString());
-  });
+//   WeSchemeIntentBus.addNotifyListener(function(action, category, data) {
+//       debugLog(action + ": " + category + " " + data.toString());
+//   });
 
   });
-  
+
+
   function switchStyle(style){
 	  document.getElementById('style').href = '/css/'+style;
-	}
+  }
   
   
 </script>
