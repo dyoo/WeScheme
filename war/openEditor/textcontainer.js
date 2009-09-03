@@ -10,17 +10,15 @@ var WeSchemeTextContainer;
 (function() {
 
     // container: DIV
-    // Assumption the div contains a "defn" element.
+    // Assumption of the textarea implementation:
+    // The div contains a "defn" element.
     WeSchemeTextContainer = function(aDiv) {
 	var that = this;
 	this.div = aDiv;
 	this.mode = 'textarea';
-
-
-	this.container = new FlapjaxValueHandler(
+	this.impl = new TextareaImplementation(
 	    jQuery(aDiv).find("#defn").get(0));
     };
-
 
     WeSchemeTextContainer.prototype.changeMode = function(mode) {
 	if (mode == this.mode) {
@@ -33,34 +31,47 @@ var WeSchemeTextContainer;
     }
 
 
-
     // Returns a behavior of the source code
     WeSchemeTextContainer.prototype.getSourceB = function() {
-	return this.container.behavior;
+	return this.impl.getSourceB();
     };
 
 
     // getCode: void -> string
     WeSchemeTextContainer.prototype.getCode = function() {
-	var result = this.container.attr("value");
-	return result;
+	return this.impl.getCode();
     };
+
 
     // setCode: string -> void
     WeSchemeTextContainer.prototype.setCode = function(code) {
-	this.container.attr("value", code);
+	return this.impl.setCode(code);
     };
 
 
     //////////////////////////////////////////////////////////////////////
 
     function TextareaImplementation(rawContainer) {
-	this.container = new FlapjaxValueHandler(
-	    rawContainer);
-	this.container.behavior.changes().mapE(function(v) {
-	    that._notifyListeners();
-	});
+	this.container = new FlapjaxValueHandler(rawContainer);
     }
+
+
+    // Returns a behavior of the source code
+    TextareaImplementation.prototype.getSourceB = function() {
+	return this.container.behavior;
+    };
+
+    // getCode: void -> string
+    TextareaImplementation.prototype.getCode = function() {
+	var result = this.container.attr("value");
+	return result;
+    };
+
+    // setCode: string -> void
+    TextareaImplementation.prototype.setCode = function(code) {
+	this.container.attr("value", code);
+    };
+
 
 
 
