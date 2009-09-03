@@ -4,17 +4,22 @@ var WeSchemeTextContainer;
 //
 // onchange attribute: called whenever the text changes, with this bound to the container.
 // 
-// getCode: void -> string
-// setCode: string -> void
+
+
 
 (function() {
 
-    // container: textarea
-    WeSchemeTextContainer = function(container) {
+    // container: DIV
+    // Assumption the div contains a "defn" element.
+    WeSchemeTextContainer = function(aDiv) {
 	var that = this;
-	this.container = new FlapjaxValueHandler(container);
+	this.div = aDiv;
+	this.mode = 'textarea';
 	this.changeListeners = [];
 
+
+	this.container = new FlapjaxValueHandler(
+	    jQuery(aDiv).find("#defn").get(0));
 	this.container.behavior.changes().mapE(function(v) {
 	    that._notifyListeners();
 	});
@@ -33,27 +38,33 @@ var WeSchemeTextContainer;
     };
 
 
+    // getCode: void -> string
     WeSchemeTextContainer.prototype.getCode = function() {
 	var result = this.container.attr("value");
 	return result;
     };
 
+    // setCode: string -> void
     WeSchemeTextContainer.prototype.setCode = function(code) {
 	this.container.attr("value", code);
     };
 
+    // addChangeListener: (-> void) -> void
     WeSchemeTextContainer.prototype.addChangeListener = function(l) {
 	this.changeListeners.push(l);
     };
-    
+ 
+    // addClass: string -> void
     WeSchemeTextContainer.prototype.addClass = function(aClass) {
 	this.container.addClass(aClass);
     };
 
+    // removeClass: string -> void
     WeSchemeTextContainer.prototype.removeClass = function(aClass) {
 	this.container.removeClass(aClass);
     };
 
+    // setReadOnly: boolean -> void
     WeSchemeTextContainer.prototype.setReadOnly = function(b) {
 	if (b) {
 	    this.container.attr("readonly", "true");
