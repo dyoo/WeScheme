@@ -15,17 +15,20 @@ var WeSchemeTextContainer;
     WeSchemeTextContainer = function(aDiv) {
 	var that = this;
 	this.div = aDiv;
-	this.mode = 'textarea';
-	this.impl = new TextareaImplementation(this.div);
-
-
-	this.behaviorE = receiverE();
-	this.behavior = switchB(startsWith(this.behaviorE,
-					   this.impl.getSourceB()));
+	this.impl = new TextareaImplementation(
+	    this.div, 
+	    function(){
+		that.behaviorE = receiverE();
+		that.mode = 'textarea';
+		that.behavior = switchB(
+		    startsWith(that.behaviorE,
+			       this.getSourceB()));
+	    });
     };
 
 
     WeSchemeTextContainer.prototype.setMode = function(mode) {
+	var that = this;
 	if (mode == this.mode) {
 	    return;
 	} else {
@@ -33,12 +36,22 @@ var WeSchemeTextContainer;
 	    this.impl.shutdown();
 	    jQuery(this.div).empty();
 
-	    
+	    var afterConstruction = function() {
+		that.impl.setCode(code);
+		that.behaviorE.sendEvent(this.getSourceB());
+		that.mode = mode;
+	    };
+
 	    if (mode == 'bespin') {
-		this.impl = new BespinImplementation(this.div);
+		this.impl =
+		    new BespinImplementation(
+			this.div, 
+			afterConstruction);
 	    } else if (mode == 'textarea') {
-		this.impl = new TextareaImplementation(this.div);
-		// FIXME
+		this.impl =
+		    new TextareaImplementation(
+			this.div,
+			afterConstruction);
 	    } else if (mode == 'domeditor') {
 		// When Brendan's editor is ready, use this...
 		// FIXME
@@ -46,9 +59,6 @@ var WeSchemeTextContainer;
 		throw new Error("Unknown mode " + mode);
 	    }
 
-	    this.impl.setCode(code);
-	    this.behaviorE.sendEvent(this.impl.getSourceB());
-	    this.mode = mode;
 	}
     }
 
@@ -74,9 +84,10 @@ var WeSchemeTextContainer;
 
     //////////////////////////////////////////////////////////////////////
 
-    function TextareaImplementation(rawContainer) {
+    function TextareaImplementation(rawContainer, onSuccess) {
 	this.container = new FlapjaxValueHandler(
 	    jQuery(rawContainer).find("#defn").get(0));
+	onSuccess.call(this, []);
     }
 
     // Returns a behavior of the source code
@@ -103,10 +114,12 @@ var WeSchemeTextContainer;
 
     //////////////////////////////////////////////////////////////////////
 
-    function BespinImplementation(div) {
+    function BespinImplementation(div, onSuccess) {
 	var that = this;
 	this.div = div;
 	this.component = undefined;
+	this.behaviorE = receiverE();
+	this.behavior = startsWith(this.behaviorE, "");
 
 	dojo.require("bespin.editor.component");
 	dojo.addOnLoad(function() { 
@@ -119,24 +132,32 @@ var WeSchemeTextContainer;
 			closepairs: 'on'
 		    }
 		});
+	    that.component.onchange(function() {
+		that.behaviorE.sendEvent(that.component.getContent());
+	    });
+	    onSuccess.call(that, []);
 	});
     }
 
     // Returns a behavior of the source code
     BespinImplementation.prototype.getSourceB = function() {
+	return this.behavior;
     };
 
     // getCode: void -> string
     BespinImplementation.prototype.getCode = function() {
+	return valueNow(this.behavior);
     };
 
     // setCode: string -> void
     BespinImplementation.prototype.setCode = function(code) {
-
+	this.component.setContent(code);
+	this.behaviorE.sendEvent(code);
     };
 
     // shutdown: -> void
     BespinImplementation.prototype.shutdown = function() {
+	this.component.dispose();
     };
 
 
