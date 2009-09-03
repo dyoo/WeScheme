@@ -29,6 +29,15 @@ function toBespin(aDiv) {
 //     }
 
     if (mode != 'bespin') {
+	var djConfig = { 
+            parseOnLoad: false, 
+            isDebug: false, 
+            debugAtAllCosts: true,
+            baseUrl: './',
+            modulePaths: {bespin: '../js/bespin'}
+	};
+	console.log("Trying to dynamically load dojo");
+
 	dojo.require("bespin.editor.component");
 	dojo.addOnLoad(function() { doInit(aDiv); });
     }

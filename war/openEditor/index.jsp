@@ -29,6 +29,20 @@
   google.load("jqueryui", "1.7.2");
 </script>
 
+<!-- Dojo stuff -->
+<script>
+  var djConfig = { 
+  parseOnLoad: false, 
+  isDebug: false, 
+  debugAtAllCosts: true,
+  baseUrl: './',
+  modulePaths: {bespin: '../js/bespin'}
+  };
+</script>
+<script src="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dojo/dojo.xd.js"></script>
+
+
+
 <!-- JQuery UI style sheet -->
 <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css"/>
 
@@ -79,15 +93,7 @@
   { userName: "<%= userSession != null? userSession.getName() : null %>",
     defn: new WeSchemeTextContainer(jQuery("#defn").get(0)),
     interactions: jQuery("#inter").get(0),
-    jsworldDiv: jQuery("#jsworld-div").get(0),
-    pidDiv: jQuery("#pidArea"),
-    filenameInput: jQuery("#filename"),
-
-    publicIdPane: jQuery("#publicIdPane"),
-    publicIdDiv: jQuery("#publicId"),
-
-
-    saveButton : jQuery("#save")});
+    filenameInput: jQuery("#filename")});
   
   jQuery("#save").click(function() { myEditor.save(); });
   jQuery("#run").click(function()  { myEditor.run(); });
