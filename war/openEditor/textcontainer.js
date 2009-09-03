@@ -25,7 +25,7 @@ var WeSchemeTextContainer;
     };
 
 
-    WeSchemeTextContainer.prototype.changeMode = function(mode) {
+    WeSchemeTextContainer.prototype.setMode = function(mode) {
 	if (mode == this.mode) {
 	    return;
 	} else {
@@ -47,7 +47,8 @@ var WeSchemeTextContainer;
 	    }
 
 	    this.impl.setCode(code);
-	    this.behaviorE.sendEvent(this.impl.getSourceB);
+	    this.behaviorE.sendEvent(this.impl.getSourceB());
+	    this.mode = mode;
 	}
     }
 
