@@ -4,6 +4,8 @@ html {
      height: 100%;
      min-width: 625px;
      background: #f5deb3;
+     padding:		0px;
+     margin:		0px;
 }
 
 html, body, h1, h2, #header, #fileInfo, #toolbar *, #defn, #footer, #inter, input{
@@ -15,6 +17,8 @@ html, body, h1, h2, #header, #fileInfo, #toolbar *, #defn, #footer, #inter, inpu
 body {
      width: 100%;
      height: 100%;
+     padding:		0px;
+     margin:		0px;
 }
 
 
@@ -22,6 +26,9 @@ body {
 #editor {
 	width: 100%;
 	height: 100%;
+        padding:		0px;
+        margin:			0px;
+
 }
 
 
@@ -110,8 +117,11 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 
 #borderContainer {
     width: 100%;
-    height: 75%;
+    height: 80%;
     clear: both;
+    padding:		0px;
+    margin:			0px;
+
 }
 
 
@@ -120,11 +130,12 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 /* 320px: DEFINITIONS */
 #definitions{
 	width:                  100%;
-	height:			50%;
 	clear:			both;
 	text-align:		center;
 	padding:		0px;
+	margin:			0px;
 	background:		gray;
+	border-bottom:	solid 1px black;
 }
 #defn {
 	clear:			both;
@@ -134,9 +145,12 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 	background:		white url(/css/images/fadeIcon.png) no-repeat right center;
 	font-size:		12px; 
 	font-family:	Monaco, sans-serif; 
+
 	padding:                0px;
+	margin: 		0px;
 }
 #defn:hover{background:	white url(/css/images/fadeWords.png) no-repeat right center;}
+
 /* flexible: INTERACTIONS */
 
 
@@ -145,7 +159,7 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 	border-top:		solid 1px black;
 	clear:			both;
 	width:			100%;
-	height:                 50%;
+	height:                 30%;
 	background:		white url(images/blank.gif) no-repeat;
 }
 
@@ -155,7 +169,7 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
         width:                  100%;
 	height:			100%;
 	padding:		0px;
-	margin:			0px 10px 0px 10px;
+	margin:			0px;
 	overflow:		auto;
 	font-family:	Monaco, sans-serif;
 	font-size:		12px;
