@@ -12,14 +12,9 @@
 <head>
 <title>WeScheme</title>
 
-<!--[if lt IE 8]>
-<script src="http://ie7-js.googlecode.com/svn/version/2.0(beta3)/IE8.js" type="text/javascript"></script>
-<script src="http://ie7-js.googlecode.com/svn/version/2.0(beta3)/ie7-squish.js" type="text/javascript"></script>
-<![endif]-->
+<!-- Add compatibility libraries for IE. -->
+<jsp:include page="/ie-compat.jsp"/>
 
-<!--[if IE]>
-<script src="/js/excanvas.js" type="text/javascript"></script>
-<![endif]-->
 
 <script src="/editor/jquery.js"></script>
 <script src="/editor/jquery.createdomnodes.js"></script>
