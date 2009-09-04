@@ -176,18 +176,19 @@
 	<input id="filename" type="text" style="width: 20%"/>
       </div>
 
-    
-    
-      <!-- dojoType="dijit.layout.BorderContainer" -->
-      <!-- dojoType="dijit.layout.ContentPane"-->
-      <!-- dojoType="dijit.layout.ContentPane" -->
-      <div id="borderContainer" class="tundra">
-	<div id="definitions"  splitter="true" region="center">
+      <div id="borderContainer"
+	   dojoType="dijit.layout.BorderContainer" 
+	   class="tundra">
+	<div id="definitions"
+	     dojoType="dijit.layout.ContentPane"
+	     splitter="true"
+	     region="center">
 	  <textarea id="defn">&#59;  Write your code here</textarea>
 	</div>
 	
 	
 	<div id="interactions" 
+	     dojoType="dijit.layout.ContentPane"
 	     splitter="true"
 	     region="bottom"
 	     onclick="document.getElementById('inputBox').focus()">
