@@ -81,37 +81,50 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 #toolbar li.docs{float: right; clear: none;}
 #toolbar li.docs a:hover{float: right; clear: none;background: #B3411C}
 
+
+
+
+#borderContainer {
+    height: 713px;
+    width: 100%;
+}
+
+
 /* 320px: DEFINITIONS */
 #definitions{
+	width:                  100%
+	height:			100%;
 	clear:			both;
-	height:			300px;
 	text-align:		center;
-	padding:		10px;
+	padding:		0px;
 	background:		lightgray;
 }
 #defn {
 	clear:			both;
-    height:			300px;
-	overflow:		auto;
+        height:			100%;
 	width:			100%;
+	overflow:		auto;
 	background:		white url(/css/images/fadeIcon.png) no-repeat right center;
 	font-size:		12px; 
 	font-family:	Monaco, sans-serif; 
+	padding:                0px;
 }
 #defn:hover{background:	white url(/css/images/fadeWords.png) no-repeat right center;}
 /* flexible: INTERACTIONS */
+
+
+
 #interactions{
-	position:		absolute;
 	border-top:		solid 1px black;
-	top:			435px;
-	bottom:			22px;
 	clear:			both;
 	width:			100%;
+	height                  100%;
 	background:		white url(images/blank.gif) no-repeat;
 }
 #interactions:hover{background:	white url(/css/images/interactions.png) no-repeat right bottom;}
 
 #inter {
+        width:                  100%;
 	height:			100%;
 	padding:		0px;
 	margin:			0px 10px 0px 10px;
@@ -138,5 +151,8 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 	min-width:		625px;
 	background:		#f5deb3; /* prevent interactions from peeking through footer in short windows */
 }
+
+
+
 div#publicId, div#publicIdLabel{display: none;}
 

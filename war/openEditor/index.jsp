@@ -40,7 +40,16 @@
   };
 </script>
 <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dojo/dojo.xd.js"></script>
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dijit/themes/tundra/tundra.css">
 
+<script>
+  dojo.require("dijit.layout.ContentPane");
+  dojo.require("dijit.layout.BorderContainer");
+  dojo.require("dojo.parser");
+  dojo.addOnLoad(function() {
+      dojo.parser.parse();
+  });
+</script>
 
 
 <!-- JQuery UI style sheet -->
@@ -133,7 +142,7 @@
 </div>
 
 <!-- The dialog div here will be used by jquery -->
-<div id="dialog">
+<div id="dialog" style="display:none;">
 </div>
 
 
@@ -156,19 +165,30 @@
   <input id= "filename" type="text" style="width: 20%">
 </div>
 
-<div id="definitions">
-<textarea id="defn">
-&#59;  Write your code here
-</textarea>
+
+
+
+<div id="borderContainer" class="tundra" dojoType="dijit.layout.BorderContainer">
+  <div id="definitions" dojoType="dijit.layout.ContentPane" splitter="true" region="center">
+    <textarea id="defn">&#59;  Write your code here
+    </textarea>
+  </div>
+
+  
+  <div id="interactions" 
+       dojoType="dijit.layout.ContentPane" splitter="true"
+       region="bottom"
+       onclick="document.getElementById('inputBox').focus()">
+    <div id="inter">
+      
+      <div style="width: 100%;"><span>&gt; <input style="width: 75%;" type="text"></span></div>
+      </div>
+    </div>
+  </div>
 </div>
 
 
-<div id="interactions" onclick="document.getElementById('inputBox').focus()">
-	<div id="inter">
 
-		<div style="width: 100%;"><span>&gt; <input style="width: 75%;" type="text"></span></div>
-	</div>
-</div>
 
 
 <!-- FIXME: make this appear or disappear depending on usage. -->
