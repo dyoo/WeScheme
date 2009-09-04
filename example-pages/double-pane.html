@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd"> 
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="double-pane.css"/>
+  <style type="text/css">
+    @import "http://o.aolcdn.com/dojo/1.1/dijit/themes/tundra/tundra.css";
+    @import "http://o.aolcdn.com/dojo/1.1/dojo/resources/dojo.css"
+  </style>
+  <script type="text/javascript" src="http://o.aolcdn.com/dojo/1.1/dojo/dojo.xd.js"
+          djConfig="parseOnLoad: true"></script>
+  <script type="text/javascript">
+    dojo.require("dojo.parser");
+    dojo.require("dijit.layout.ContentPane");
+    dojo.require("dijit.layout.BorderContainer");
+  </script>
+</head>
+<body id="body" class="tundra">
+
+
+  <div id="main" dojoType="dijit.layout.BorderContainer">
+
+    <div id="header" dojoType="dijit.layout.ContentPane" region="top">header</div>
+
+
+    <div id="middle" dojoType="dijit.layout.ContentPane" region="center">
+
+
+      <div id="main2" dojoType="dijit.layout.BorderContainer">
+	
+	<div id="definitions"
+	     dojoType="dijit.layout.ContentPane"
+	     region="top"
+	     splitter="true">
+	  definitions
+	</div>
+	
+	
+	<div id="interactions"
+	     dojoType="dijit.layout.ContentPane"
+	     region="center">
+	  interactions
+	</div>
+	
+      </div>
+      
+    </div>
+      
+      
+    <div id="footer" dojoType="dijit.layout.ContentPane" region="bottom">footer</div>
+
+  </div>
+
+</body>
+</html>
