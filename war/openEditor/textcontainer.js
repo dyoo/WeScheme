@@ -129,7 +129,7 @@ var WeSchemeTextContainer;
 		    loadfromdiv: true,
 		    set: {
 			strictlines: 'on',
-			closepairs: 'on'
+			closepairs: 'off'
 		    }
 		});
 	    that.component.onchange(function() {
