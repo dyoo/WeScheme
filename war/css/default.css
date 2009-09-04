@@ -1,9 +1,29 @@
 /* Some global settings */
-html{	min-width:		625px; background: #f5deb3;}
+html {
+     min-width: 625px;
+     background: #f5deb3;
+}
+
 html, body, h1, h2, #header, #fileInfo, #toolbar *, #defn, #footer, #inter, input{
 	padding:		0px;
 	margin:			0px;
 }
+
+
+body {
+     width: 100%;
+     height: 100%;
+}
+
+
+
+#editor {
+	width: 100%;
+	height: 100%;
+}
+
+
+
 
 .form {
    display: inline-block;
@@ -17,6 +37,7 @@ html, body, h1, h2, #header, #fileInfo, #toolbar *, #defn, #footer, #inter, inpu
 	background:		url(/css/images/icon-trans.png) ;
 	background-repeat:no-repeat;
 }
+
 h1{ font-size:	38px;	margin-left:	65px;}
 h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
 
@@ -85,19 +106,22 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 
 
 #borderContainer {
-    height: 713px;
     width: 100%;
+    height: auto;
+    clear: both;
 }
+
+
 
 
 /* 320px: DEFINITIONS */
 #definitions{
-	width:                  100%
-	height:			100%;
+	width:                  100%;
+	height:			50%;
 	clear:			both;
 	text-align:		center;
 	padding:		0px;
-	background:		lightgray;
+	background:		gray;
 }
 #defn {
 	clear:			both;
@@ -118,9 +142,10 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 	border-top:		solid 1px black;
 	clear:			both;
 	width:			100%;
-	height                  100%;
+	height:                 100%;
 	background:		white url(images/blank.gif) no-repeat;
 }
+
 #interactions:hover{background:	white url(/css/images/interactions.png) no-repeat right bottom;}
 
 #inter {
@@ -139,14 +164,14 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 	outline: 0 !important; /* disable focus ring in Safari */
 }
 
+
 /* 22px: FOOTER */
 #footer {
-    position:		absolute;
-	bottom:			0px;
+	clear:                  both;
+        width:			100%;
 	height:			24px;
 	padding:		1px 0px;
 	border-top:		solid 1px black;
-    width:			100%;
 	color:			black;
 	min-width:		625px;
 	background:		#f5deb3; /* prevent interactions from peeking through footer in short windows */
@@ -154,5 +179,5 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 
 
 
-div#publicId, div#publicIdLabel{display: none;}
+div#publicId, div#publicIdLabel{ display: none; }
 

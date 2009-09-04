@@ -169,6 +169,8 @@
       <% } %>
       
             
+
+
       <div id="fileInfo">
 	<label id="filenamelabel" for="filename">Project name:</label>
 	<input id="filename" type="text" style="width: 20%"/>
@@ -176,15 +178,17 @@
 
     
     
-
-      <div id="borderContainer" class="tundra" dojoType="dijit.layout.BorderContainer">
-	<div id="definitions" dojoType="dijit.layout.ContentPane" splitter="true" region="center">
+      <!-- dojoType="dijit.layout.BorderContainer" -->
+      <!-- dojoType="dijit.layout.ContentPane"-->
+      <!-- dojoType="dijit.layout.ContentPane" -->
+      <div id="borderContainer" class="tundra">
+	<div id="definitions"  splitter="true" region="center">
 	  <textarea id="defn">&#59;  Write your code here</textarea>
 	</div>
 	
 	
 	<div id="interactions" 
-	     dojoType="dijit.layout.ContentPane" splitter="true"
+	     splitter="true"
 	     region="bottom"
 	     onclick="document.getElementById('inputBox').focus()">
 	  <div id="inter">
