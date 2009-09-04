@@ -110,9 +110,9 @@
       jQuery("#bespinMode").click(function() { defnSourceContainer.setMode("bespin")});
 
       <% if (request.getParameter("pid") != null) { %>
-      myEditor.load({pid : <%= request.getParameter("pid") %> });
+      myEditor.load({pid : parseInt(decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("pid"), "utf-8") %>')) });
       <% } else if (request.getParameter("publicId") != null) { %>
-      myEditor.load({publicId : '<%= request.getParameter("publicId") %>' });
+      myEditor.load({publicId : decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("publicId"), "utf-8") %>') });
       <% } %>
 
 
@@ -120,6 +120,8 @@
       //   WeSchemeIntentBus.addNotifyListener(function(action, category, data) {
       //       debugLog(action + ": " + category + " " + data.toString());
       //   });
+
+
 
       });
 

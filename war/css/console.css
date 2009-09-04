@@ -33,14 +33,24 @@ h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
 	list-style-type:none;
 }
 
-#toolbar li{
+#toolbar li.start{
 	float:			left;
+	width: 240px;
 	text-align:		center;
-	width:			125px;
 	background-repeat: no-repeat;
 	background-position: 0 50%;
 	clear:			right;
 }
+
+#toolbar li.logout{
+	float:			right;
+	width: 125px;
+	text-align:		center;
+	background-repeat: no-repeat;
+	background-position: 0 50%;
+	clear:			right;
+}
+
 
 #toolbar li a, #toolbar li a:visited, #toolbar li input{
 	display:		block;

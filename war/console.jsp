@@ -38,12 +38,14 @@
 
 <div id="toolbar">
 	<ul>
-		<li>
+		<li class="start"><a href="/openEditor">Start a new program</a></li>
+
+		<li class="logout">
 			<form method="POST" action="/logout">
-			<input name="logout" value="Log Out" type="submit">
+			<input name="logout" value="Logout" type="submit">
 			</form>
 		</li>
-		<li><a href="/openEditor">Start<span>&nbsp;a new program</span></a></li>
+
 	</ul>
 
 </div>

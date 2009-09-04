@@ -33,12 +33,15 @@ function loadProgramList() {
 
 	var form = (jQuery("<form/>")
 		    .attr("method", "post")
-		    .attr("action",   "/openEditor?pid=" + 
-			  digest.find("id").text())
+		    .attr("action",   "/openEditor")
 		    .append(jQuery("<input/>")
 			    .addClass("ProgramTitle")
 			    .attr("value", digest.find("title").text())
-			    .attr("type", "submit")));
+			    .attr("type", "submit"))
+		    .append(jQuery("<input/>")
+			    .attr("type", "hidden")
+			    .attr("name", "pid")
+			    .attr("value", digest.find("id").text())));
 	var modifiedSpan = (jQuery("<span/>").text(prettyPrintDate(digest.find("modified").text()))
 			    .addClass("ProgramModified"));
 	(programEntry
