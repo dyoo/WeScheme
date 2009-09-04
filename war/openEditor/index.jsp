@@ -3,18 +3,8 @@
   <head>
     <title>WeScheme</title>
 
-
-
-
-    <!--[if lt IE 8]>
-	<script src="http://ie7-js.googlecode.com/svn/version/2.0(beta3)/IE8.js" type="text/javascript"></script>
-	<script src="http://ie7-js.googlecode.com/svn/version/2.0(beta3)/ie7-squish.js" type="text/javascript"></script>
-	<![endif]-->
-
-    <!--[if IE]>
-	<script src="/js/excanvas.js" type="text/javascript"></script>
-	<![endif]-->
-
+    <!-- Add compatibility libraries for IE. -->
+    <jsp:include page="/ie-compat.jsp"/>
 
 
 
@@ -29,6 +19,8 @@
       google.load("jqueryui", "1.7.2");
     </script>
 
+
+
     <!-- Dojo stuff -->
     <script>
       var djConfig = { 
@@ -39,9 +31,16 @@
       modulePaths: {bespin: '../js/bespin'}
       };
     </script>
-    <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dojo/dojo.xd.js"></script>
-    <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dijit/themes/tundra/tundra.css"/>
-    
+    <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dojo/dojo.xd.js">
+    </script>
+
+    <link rel="stylesheet" 
+	  type="text/css" 
+	  href="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dojo/resources/dojo.css"/>
+    <link rel="stylesheet" 
+	  type="text/css" 
+	  href="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dijit/themes/tundra/tundra.css"/>
+
     <script>
       dojo.require("dijit.layout.ContentPane");
       dojo.require("dijit.layout.BorderContainer");
