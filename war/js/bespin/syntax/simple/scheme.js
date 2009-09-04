@@ -45,7 +45,7 @@ bespin.syntax.SchemeConstants = {
 };
 
 dojo.declare("bespin.syntax.simple.Scheme", null, {
-    keywords: ' define lambda cond if local and or ',
+    keywords: ' define define-struct lambda cond if local and or ',
 
     punctuation: '{ } ( ) \' " ; \''.split(" "),
 
