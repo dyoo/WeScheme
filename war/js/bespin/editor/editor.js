@@ -1247,207 +1247,7 @@ dojo.declare("bespin.editor.UI", null, {
         ctx.translate(this.xoffset, 0);
         ctx.clip();
 
-        // calculate the first and last visible columns on the screen; these values will be used to try and avoid painting text
-        // that the user can't actually see
-        var firstColumn = Math.floor(Math.abs(this.xoffset / this.charWidth));
-        var lastColumn = firstColumn + (Math.ceil((cwidth - this.gutterWidth) / this.charWidth));
-
-        // create the state necessary to render each line of text
-        y = (this.lineHeight * this.firstVisibleRow);
-        var cc; // the starting column of the current region in the region render loop below
-        var ce; // the ending column in the same loop
-        var ri; // counter variable used for the same loop
-        var regionlen;  // length of the text in the region; used in the same loop
-        var tx, tw, tsel;
-        var settings = bespin.get("settings");
-        var searchStringLength = (this.searchString ? this.searchString.length : -1);
-
-        // paint each line
-        for (currentLine = this.firstVisibleRow; currentLine <= lastLineToRender; currentLine++) {
-            x = this.gutterWidth;
-
-            // if we aren't repainting the entire canvas...
-            if (!refreshCanvas) {
-                // ...don't bother painting the line unless it is "dirty" (see above for dirty checking)
-                if (!dirty[currentLine]) {
-                    y += this.lineHeight;
-                    continue;
-                }
-
-                // setup a clip for the current line only; this makes drawing just that piece of the scrollbar easy
-                ctx.save(); // this is restore()'d in another if (!refreshCanvas) block at the end of the loop
-                ctx.beginPath();
-                ctx.rect(x + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
-                ctx.closePath();
-                ctx.clip();
-
-                if ((currentLine % 2) == 1) { // only repaint the line background if the zebra stripe won't be painted into it
-                    ctx.fillStyle = theme.backgroundStyle;
-                    ctx.fillRect(x + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
-                }
-            }
-
-            // if highlight line is on, paint the highlight color
-            if ((settings && settings.isSettingOn('highlightline')) &&
-                    (currentLine == ed.cursorManager.getCursorPosition().row)) {
-                ctx.fillStyle = theme.highlightCurrentLineColor;
-                ctx.fillRect(x + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
-            // if not on highlight, see if we need to paint the zebra
-            } else if ((currentLine % 2) == 0) {
-                ctx.fillStyle = theme.zebraStripeColor;
-                ctx.fillRect(x + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
-            }
-
-            x += this.LINE_INSETS.left;
-            cy = y + (this.lineHeight - this.LINE_INSETS.bottom);
-
-            // paint the selection bar if the line has selections
-            var selections = this.selectionHelper.getRowSelectionPositions(currentLine);
-            if (selections) {
-                tx = x + (selections.startCol * this.charWidth);
-                tw = (selections.endCol == -1) ? (lastColumn - firstColumn) * this.charWidth : (selections.endCol - selections.startCol) * this.charWidth;
-                ctx.fillStyle = theme.editorSelectedTextBackground;
-                ctx.fillRect(tx, y, tw, this.lineHeight);
-            }
-
-            var lineMetadata = this.model.getRowMetadata(currentLine);
-            var lineText = lineMetadata.lineText;
-            var searchIndices = lineMetadata.searchIndices;
-
-            // the following two chunks of code do the same thing; only one should be uncommented at a time
-
-            // CHUNK 1: this code just renders the line with white text and is for testing
-//            ctx.fillStyle = "white";
-//            ctx.fillText(this.editor.model.getRowArray(currentLine).join(""), x, cy);
-
-            // CHUNK 2: this code uses the SyntaxModel API to render the line
-            // syntax highlighting
-            var lineInfo = this.syntaxModel.getSyntaxStylesPerLine(lineText, currentLine, this.editor.language);
-
-            // Define a fill that is aware of the readonly attribute and fades out if applied
-            var readOnlyAwareFill = ed.readonly ? this.fillTextWithTransparency : this.fillText;
-
-            for (ri = 0; ri < lineInfo.regions.length; ri++) {
-                var styleInfo = lineInfo.regions[ri];
-
-                for (var style in styleInfo) {
-                    if (!styleInfo.hasOwnProperty(style)) continue;
-
-                    var thisLine = "";
-
-                    var styleArray = styleInfo[style];
-                    var currentColumn = 0; // current column, inclusive
-                    for (var si = 0; si < styleArray.length; si++) {
-                        var range = styleArray[si];
-
-                        for ( ; currentColumn < range.start; currentColumn++) thisLine += " ";
-                        thisLine += lineInfo.text.substring(range.start, range.stop);
-                        currentColumn = range.stop;
-                    }
-
-                    ctx.fillStyle = this.editor.theme[style] || "white";
-                    ctx.font = this.editor.theme.editorTextFont;
-                    readOnlyAwareFill(ctx, thisLine, x, cy);
-                }
-            }
-
-
-            // highlight search string
-            if (searchIndices) {
-                // in some cases the selections are -1 => set them to a more "realistic" number
-                if (selections) {
-                    tsel = { startCol: 0, endCol: lineText.length };
-                    if (selections.startCol != -1) tsel.startCol = selections.startCol;
-                    if (selections.endCol   != -1) tsel.endCol = selections.endCol;
-                } else {
-                    tsel = false;
-                }
-
-                for (var i = 0; i < searchIndices.length; i++) {
-                    var index = ed.cursorManager.getCursorPosition({col: searchIndices[i], row: currentLine}).col;
-                    tx = x + index * this.charWidth;
-
-                    // highlight the area
-                    ctx.fillStyle = this.editor.theme.searchHighlight;
-                    ctx.fillRect(tx, y, searchStringLength * this.charWidth, this.lineHeight);
-
-                    // figure out, whether the selection is in this area. If so, colour it different
-                    if (tsel) {
-                        var indexStart = index;
-                        var indexEnd = index + searchStringLength;
-
-                        if (tsel.startCol < indexEnd && tsel.endCol > indexStart) {
-                            indexStart = Math.max(indexStart, tsel.startCol);
-                            indexEnd = Math.min(indexEnd, tsel.endCol);
-
-                            ctx.fillStyle = this.editor.theme.searchHighlightSelected;
-                            ctx.fillRect(x + indexStart * this.charWidth, y, (indexEnd - indexStart) * this.charWidth, this.lineHeight);
-                        }
-                    }
-
-                    // print the overpainted text again
-                    ctx.fillStyle = this.editor.theme.editorTextColor || "white";
-                    ctx.fillText(lineText.substring(index, index + searchStringLength), tx, cy);
-                }
-
-            }
-
-            // paint tab information, if applicable and the information should be displayed
-            if (settings && (settings.isSettingOn("tabarrow") || settings.isSettingOn("tabshowspace"))) {
-                if (lineMetadata.tabExpansions.length > 0) {
-                    for (var i = 0; i < lineMetadata.tabExpansions.length; i++) {
-                        var expansion = lineMetadata.tabExpansions[i];
-
-                        // the starting x position of the tab character; the existing value of y is fine
-                        var lx = x + (expansion.start * this.charWidth);
-
-                        // check if the user wants us to highlight tabs; useful if you need to mix tabs and spaces
-                        var showTabSpace = settings && settings.isSettingOn("tabshowspace");
-                        if (showTabSpace) {
-                            var sw = (expansion.end - expansion.start) * this.charWidth;
-                            ctx.fillStyle = this.editor.theme["tabSpace"] || "white";
-                            ctx.fillRect(lx, y, sw, this.lineHeight);
-                        }
-
-                        var showTabNib = settings && settings.isSettingOn("tabarrow");
-                        if (showTabNib) {
-                            // the center of the current character position's bounding rectangle
-                            var cy = y + (this.lineHeight / 2);
-                            var cx = lx + (this.charWidth / 2);
-
-                            // the width and height of the triangle to draw representing the tab
-                            var tw = 4;
-                            var th = 6;
-
-                            // the origin of the triangle
-                            var tx = parseInt(cx - (tw / 2));
-                            var ty = parseInt(cy - (th / 2));
-
-                            // draw the rectangle
-                            ctx.globalAlpha = 0.3; // make the tab arrow subtle
-                            ctx.beginPath();
-                            ctx.fillStyle = this.editor.theme["plain"] || "white";
-                            ctx.moveTo(tx, ty);
-                            ctx.lineTo(tx, ty + th);
-                            ctx.lineTo(tx + tw, ty + parseInt(th / 2));
-                            ctx.closePath();
-                            ctx.fill();
-                            ctx.globalAlpha = 1.0;
-                        }
-                    }
-                }
-            }
-
-
-            if (!refreshCanvas) {
-                ctx.drawImage(this.verticalScrollCanvas, verticalx + Math.abs(this.xoffset), Math.abs(this.yoffset));
-                ctx.restore();
-            }
-
-            y += this.lineHeight;
-        }
-
-
+	this.paintAllTextLines(ctx, refreshCanvas, dirty);
 	this.paintCursor(ctx);
 
 
@@ -1623,6 +1423,223 @@ dojo.declare("bespin.editor.UI", null, {
         //set whether scrollbars are visible, so mouseover and such can pass through if not.
         this.xscrollbarVisible = xscroll;
         this.yscrollbarVisible = yscroll;
+    },
+
+
+
+
+    paintAllTextLines: function(ctx, refreshCanvas, dirty) {
+	var ed = this.editor;
+        var lastLineToRender = this.firstVisibleRow + this.visibleRows;
+        if (lastLineToRender > (ed.model.getRowCount() - 1)) lastLineToRender = ed.model.getRowCount() - 1;
+        // calculate the first and last visible columns on the screen; these values will be used to try and avoid painting text
+        // that the user can't actually see
+        var cwidth = this.getWidth();
+        var cheight = this.getHeight();
+        var theme = ed.theme;
+        var verticalx = cwidth - this.NIB_WIDTH - this.NIB_INSETS.right - 2;
+
+
+	var x;
+	var y;
+
+
+        // create the state necessary to render each line of text
+        y = (this.lineHeight * this.firstVisibleRow);
+        var cc; // the starting column of the current region in the region render loop below
+        var ce; // the ending column in the same loop
+        var ri; // counter variable used for the same loop
+        var regionlen;  // length of the text in the region; used in the same loop
+        var tx, tw, tsel;
+        var settings = bespin.get("settings");
+        var searchStringLength = (this.searchString ? this.searchString.length : -1);
+
+        // paint each line
+        for (currentLine = this.firstVisibleRow; currentLine <= lastLineToRender; currentLine++) {
+            x = this.gutterWidth;
+
+            // if we aren't repainting the entire canvas...
+            if (!refreshCanvas) {
+                // ...don't bother painting the line unless it is "dirty" (see above for dirty checking)
+                if (!dirty[currentLine]) {
+                    y += this.lineHeight;
+                    continue;
+                }
+
+                // setup a clip for the current line only; this makes drawing just that piece of the scrollbar easy
+                ctx.save(); // this is restore()'d in another if (!refreshCanvas) block at the end of the loop
+                ctx.beginPath();
+                ctx.rect(x + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
+                ctx.closePath();
+                ctx.clip();
+
+                if ((currentLine % 2) == 1) { // only repaint the line background if the zebra stripe won't be painted into it
+                    ctx.fillStyle = theme.backgroundStyle;
+                    ctx.fillRect(x + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
+                }
+            }
+
+            // if highlight line is on, paint the highlight color
+            if ((settings && settings.isSettingOn('highlightline')) &&
+                    (currentLine == ed.cursorManager.getCursorPosition().row)) {
+                ctx.fillStyle = theme.highlightCurrentLineColor;
+                ctx.fillRect(x + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
+            // if not on highlight, see if we need to paint the zebra
+            } else if ((currentLine % 2) == 0) {
+                ctx.fillStyle = theme.zebraStripeColor;
+                ctx.fillRect(x + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
+            }
+
+            x += this.LINE_INSETS.left;
+            cy = y + (this.lineHeight - this.LINE_INSETS.bottom);
+
+            // paint the selection bar if the line has selections
+            var selections = this.selectionHelper.getRowSelectionPositions(currentLine);
+            if (selections) {
+		var firstColumn = Math.floor(Math.abs(this.xoffset / this.charWidth));
+		var lastColumn = firstColumn + (Math.ceil((cwidth - this.gutterWidth) / this.charWidth));
+                tx = x + (selections.startCol * this.charWidth);
+                tw = (selections.endCol == -1) ? (lastColumn - firstColumn) * this.charWidth : (selections.endCol - selections.startCol) * this.charWidth;
+                ctx.fillStyle = theme.editorSelectedTextBackground;
+                ctx.fillRect(tx, y, tw, this.lineHeight);
+            }
+
+            var lineMetadata = this.model.getRowMetadata(currentLine);
+            var lineText = lineMetadata.lineText;
+            var searchIndices = lineMetadata.searchIndices;
+
+            // the following two chunks of code do the same thing; only one should be uncommented at a time
+
+            // CHUNK 1: this code just renders the line with white text and is for testing
+//            ctx.fillStyle = "white";
+//            ctx.fillText(this.editor.model.getRowArray(currentLine).join(""), x, cy);
+
+            // CHUNK 2: this code uses the SyntaxModel API to render the line
+            // syntax highlighting
+            var lineInfo = this.syntaxModel.getSyntaxStylesPerLine(lineText, currentLine, this.editor.language);
+
+            // Define a fill that is aware of the readonly attribute and fades out if applied
+            var readOnlyAwareFill = ed.readonly ? this.fillTextWithTransparency : this.fillText;
+
+            for (ri = 0; ri < lineInfo.regions.length; ri++) {
+                var styleInfo = lineInfo.regions[ri];
+
+                for (var style in styleInfo) {
+                    if (!styleInfo.hasOwnProperty(style)) continue;
+
+                    var thisLine = "";
+
+                    var styleArray = styleInfo[style];
+                    var currentColumn = 0; // current column, inclusive
+                    for (var si = 0; si < styleArray.length; si++) {
+                        var range = styleArray[si];
+
+                        for ( ; currentColumn < range.start; currentColumn++) thisLine += " ";
+                        thisLine += lineInfo.text.substring(range.start, range.stop);
+                        currentColumn = range.stop;
+                    }
+
+                    ctx.fillStyle = this.editor.theme[style] || "white";
+                    ctx.font = this.editor.theme.editorTextFont;
+                    readOnlyAwareFill(ctx, thisLine, x, cy);
+                }
+            }
+
+
+            // highlight search string
+            if (searchIndices) {
+                // in some cases the selections are -1 => set them to a more "realistic" number
+                if (selections) {
+                    tsel = { startCol: 0, endCol: lineText.length };
+                    if (selections.startCol != -1) tsel.startCol = selections.startCol;
+                    if (selections.endCol   != -1) tsel.endCol = selections.endCol;
+                } else {
+                    tsel = false;
+                }
+
+                for (var i = 0; i < searchIndices.length; i++) {
+                    var index = ed.cursorManager.getCursorPosition({col: searchIndices[i], row: currentLine}).col;
+                    tx = x + index * this.charWidth;
+
+                    // highlight the area
+                    ctx.fillStyle = this.editor.theme.searchHighlight;
+                    ctx.fillRect(tx, y, searchStringLength * this.charWidth, this.lineHeight);
+
+                    // figure out, whether the selection is in this area. If so, colour it different
+                    if (tsel) {
+                        var indexStart = index;
+                        var indexEnd = index + searchStringLength;
+
+                        if (tsel.startCol < indexEnd && tsel.endCol > indexStart) {
+                            indexStart = Math.max(indexStart, tsel.startCol);
+                            indexEnd = Math.min(indexEnd, tsel.endCol);
+
+                            ctx.fillStyle = this.editor.theme.searchHighlightSelected;
+                            ctx.fillRect(x + indexStart * this.charWidth, y, (indexEnd - indexStart) * this.charWidth, this.lineHeight);
+                        }
+                    }
+
+                    // print the overpainted text again
+                    ctx.fillStyle = this.editor.theme.editorTextColor || "white";
+                    ctx.fillText(lineText.substring(index, index + searchStringLength), tx, cy);
+                }
+
+            }
+
+            // paint tab information, if applicable and the information should be displayed
+            if (settings && (settings.isSettingOn("tabarrow") || settings.isSettingOn("tabshowspace"))) {
+                if (lineMetadata.tabExpansions.length > 0) {
+                    for (var i = 0; i < lineMetadata.tabExpansions.length; i++) {
+                        var expansion = lineMetadata.tabExpansions[i];
+
+                        // the starting x position of the tab character; the existing value of y is fine
+                        var lx = x + (expansion.start * this.charWidth);
+
+                        // check if the user wants us to highlight tabs; useful if you need to mix tabs and spaces
+                        var showTabSpace = settings && settings.isSettingOn("tabshowspace");
+                        if (showTabSpace) {
+                            var sw = (expansion.end - expansion.start) * this.charWidth;
+                            ctx.fillStyle = this.editor.theme["tabSpace"] || "white";
+                            ctx.fillRect(lx, y, sw, this.lineHeight);
+                        }
+
+                        var showTabNib = settings && settings.isSettingOn("tabarrow");
+                        if (showTabNib) {
+                            // the center of the current character position's bounding rectangle
+                            var cy = y + (this.lineHeight / 2);
+                            var cx = lx + (this.charWidth / 2);
+
+                            // the width and height of the triangle to draw representing the tab
+                            var tw = 4;
+                            var th = 6;
+
+                            // the origin of the triangle
+                            var tx = parseInt(cx - (tw / 2));
+                            var ty = parseInt(cy - (th / 2));
+
+                            // draw the rectangle
+                            ctx.globalAlpha = 0.3; // make the tab arrow subtle
+                            ctx.beginPath();
+                            ctx.fillStyle = this.editor.theme["plain"] || "white";
+                            ctx.moveTo(tx, ty);
+                            ctx.lineTo(tx, ty + th);
+                            ctx.lineTo(tx + tw, ty + parseInt(th / 2));
+                            ctx.closePath();
+                            ctx.fill();
+                            ctx.globalAlpha = 1.0;
+                        }
+                    }
+                }
+            }
+
+
+            if (!refreshCanvas) {
+                ctx.drawImage(this.verticalScrollCanvas, verticalx + Math.abs(this.xoffset), Math.abs(this.yoffset));
+                ctx.restore();
+            }
+
+            y += this.lineHeight;
+        }
     },
 
 
