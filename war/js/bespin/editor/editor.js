@@ -1469,13 +1469,13 @@ dojo.declare("bespin.editor.UI", null, {
                 // setup a clip for the current line only; this makes drawing just that piece of the scrollbar easy
                 ctx.save(); // this is restore()'d in another if (!refreshCanvas) block at the end of the loop
                 ctx.beginPath();
-                ctx.rect(x + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
+                ctx.rect(this.gutterWidth + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
                 ctx.closePath();
                 ctx.clip();
 
                 if ((currentLine % 2) == 1) { // only repaint the line background if the zebra stripe won't be painted into it
                     ctx.fillStyle = theme.backgroundStyle;
-                    ctx.fillRect(x + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
+                    ctx.fillRect(this.gutterWidth + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
                 }
             }
 
@@ -1483,11 +1483,11 @@ dojo.declare("bespin.editor.UI", null, {
             if ((settings && settings.isSettingOn('highlightline')) &&
                     (currentLine == ed.cursorManager.getCursorPosition().row)) {
                 ctx.fillStyle = theme.highlightCurrentLineColor;
-                ctx.fillRect(x + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
+                ctx.fillRect(this.gutterWidth + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
             // if not on highlight, see if we need to paint the zebra
             } else if ((currentLine % 2) == 0) {
                 ctx.fillStyle = theme.zebraStripeColor;
-                ctx.fillRect(x + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
+                ctx.fillRect(this.gutterWidth + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
             }
 
             x += this.LINE_INSETS.left;
@@ -1499,7 +1499,8 @@ dojo.declare("bespin.editor.UI", null, {
 		var firstColumn = Math.floor(Math.abs(this.xoffset / this.charWidth));
 		var lastColumn = firstColumn + (Math.ceil((cwidth - this.gutterWidth) / this.charWidth));
                 tx = x + (selections.startCol * this.charWidth);
-                tw = (selections.endCol == -1) ? (lastColumn - firstColumn) * this.charWidth : (selections.endCol - selections.startCol) * this.charWidth;
+                tw = (selections.endCol == -1) ? (lastColumn - firstColumn) * this.charWidth : 
+		    (selections.endCol - selections.startCol) * this.charWidth;
                 ctx.fillStyle = theme.editorSelectedTextBackground;
                 ctx.fillRect(tx, y, tw, this.lineHeight);
             }
