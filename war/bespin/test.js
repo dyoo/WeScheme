@@ -7,8 +7,8 @@ function doInit(aDiv) {
         language: "scheme",
         loadfromdiv: true,
         set: {
-	    strictlines: 'on',
-	    closepairs: 'on'
+	    strictlines: 'on'
+//	    closepairs: 'on'
         }
     });
     mode = 'bespin';
@@ -16,18 +16,6 @@ function doInit(aDiv) {
 
 
 function toBespin(aDiv) {  
-//     function copyToTextarea() {
-// 	dojo.byId('inandout').value = _editorComponent.getContent();
-//     }
-    
-//     function copyToEditor() {
-// 	_editorComponent.setContent(dojo.byId('inandout').value);
-//     }
-
-//     function setSyntax(value) {
-// 	bespin.publish("settings:language", { language: value });
-//     }
-
     if (mode != 'bespin') {
 	dojo.require("bespin.editor.component");
 	dojo.addOnLoad(function() { doInit(aDiv); });

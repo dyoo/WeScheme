@@ -1351,6 +1351,7 @@ dojo.declare("bespin.editor.UI", null, {
                 }
             }
 
+
             // highlight search string
             if (searchIndices) {
                 // in some cases the selections are -1 => set them to a more "realistic" number
@@ -1447,30 +1448,8 @@ dojo.declare("bespin.editor.UI", null, {
         }
 
 
-        // paint the cursor
-        if (this.editor.focus) {
-            if (this.showCursor) {
-                if (ed.theme.cursorType == "underline") {
-                    x = this.gutterWidth + this.LINE_INSETS.left + ed.cursorManager.getCursorPosition().col * this.charWidth;
-                    y = (ed.getCursorPos().row * this.lineHeight) + (this.lineHeight - 5);
-                    ctx.fillStyle = ed.theme.cursorStyle;
-                    ctx.fillRect(x, y, this.charWidth, 3);
-                } else {
-                    x = this.gutterWidth + this.LINE_INSETS.left + ed.cursorManager.getCursorPosition().col * this.charWidth;
-                    y = (ed.cursorManager.getCursorPosition().row * this.lineHeight);
-                    ctx.fillStyle = ed.theme.cursorStyle;
-                    ctx.fillRect(x, y, 1, this.lineHeight);
-                }
-            }
-        } else {
-            x = this.gutterWidth + this.LINE_INSETS.left + ed.cursorManager.getCursorPosition().col * this.charWidth;
-            y = (ed.cursorManager.getCursorPosition().row * this.lineHeight);
+	this.paintCursor(ctx);
 
-            ctx.fillStyle = ed.theme.unfocusedCursorFillStyle;
-            ctx.strokeStyle = ed.theme.unfocusedCursorStrokeStyle;
-            ctx.fillRect(x, y, this.charWidth, this.lineHeight);
-            ctx.strokeRect(x, y, this.charWidth, this.lineHeight);
-        }
 
         // scroll bars - x axis
         ctx.restore();
@@ -1645,6 +1624,36 @@ dojo.declare("bespin.editor.UI", null, {
         this.xscrollbarVisible = xscroll;
         this.yscrollbarVisible = yscroll;
     },
+
+
+    paintCursor: function(ctx) {
+	var ed = this.editor;
+        // paint the cursor
+        if (this.editor.focus) {
+            if (this.showCursor) {
+                if (ed.theme.cursorType == "underline") {
+                    x = this.gutterWidth + this.LINE_INSETS.left + ed.cursorManager.getCursorPosition().col * this.charWidth;
+                    y = (ed.getCursorPos().row * this.lineHeight) + (this.lineHeight - 5);
+                    ctx.fillStyle = ed.theme.cursorStyle;
+                    ctx.fillRect(x, y, this.charWidth, 3);
+                } else {
+                    x = this.gutterWidth + this.LINE_INSETS.left + ed.cursorManager.getCursorPosition().col * this.charWidth;
+                    y = (ed.cursorManager.getCursorPosition().row * this.lineHeight);
+                    ctx.fillStyle = ed.theme.cursorStyle;
+                    ctx.fillRect(x, y, 1, this.lineHeight);
+                }
+            }
+        } else {
+            x = this.gutterWidth + this.LINE_INSETS.left + ed.cursorManager.getCursorPosition().col * this.charWidth;
+            y = (ed.cursorManager.getCursorPosition().row * this.lineHeight);
+
+            ctx.fillStyle = ed.theme.unfocusedCursorFillStyle;
+            ctx.strokeStyle = ed.theme.unfocusedCursorStrokeStyle;
+            ctx.fillRect(x, y, this.charWidth, this.lineHeight);
+            ctx.strokeRect(x, y, this.charWidth, this.lineHeight);
+        }
+    },
+
 
     paintScrollbar: function(ctx, scrollbar) {
         var bar = scrollbar.getHandleBounds();
