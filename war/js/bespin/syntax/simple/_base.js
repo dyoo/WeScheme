@@ -188,34 +188,34 @@ bespin.syntax.simple.Resolver = new function() {
 /**
  * Register
  */
-bespin.syntax.simple.Resolver.register("JavaScript", 
-				       ['js', 'javascript', 'ecmascript', 'jsm', 'java'],
-				       function() { dojo.require("bespin.syntax.simple.javascript") });
+// bespin.syntax.simple.Resolver.register("JavaScript", 
+// 				       ['js', 'javascript', 'ecmascript', 'jsm', 'java'],
+// 				       function() { dojo.require("bespin.syntax.simple.javascript") });
 bespin.syntax.simple.Resolver.register("Scheme", 
 				       ['scheme'],
 				      function() { 
 					  dojo.require("bespin.syntax.simple.scheme") });
-bespin.syntax.simple.Resolver.register("Arduino",    
-				       ['pde'],
-				      function() { dojo.require("bespin.syntax.simple.arduino") });
-bespin.syntax.simple.Resolver.register("C",      
-				       ['c', 'h'],
-				       function() { dojo.require("bespin.syntax.simple.c") });
-bespin.syntax.simple.Resolver.register("CSharp", 
-				       ['cs'],
-				       function() { dojo.require("bespin.syntax.simple.csharp") });
-bespin.syntax.simple.Resolver.register("CSS",  
-				       ['css'],
-				       function() { dojo.require("bespin.syntax.simple.css") });
-bespin.syntax.simple.Resolver.register("HTML",  
-				       ['html', 'htm', 'xml', 'xhtml', 'shtml'],
-				       function() { dojo.require("bespin.syntax.simple.html") });
-bespin.syntax.simple.Resolver.register("PHP",    
-				       ['php', 'php3', 'php4', 'php5'],
-				       function() { dojo.require("bespin.syntax.simple.php") });
-bespin.syntax.simple.Resolver.register("Python",
-				       ['py', 'python'],
-				       function() { dojo.require("bespin.syntax.simple.python") });
-bespin.syntax.simple.Resolver.register("Ruby",
-				       ['rb', 'ruby'],
-				       function() { dojo.require("bespin.syntax.simple.ruby") });
+// bespin.syntax.simple.Resolver.register("Arduino",    
+// 				       ['pde'],
+// 				      function() { dojo.require("bespin.syntax.simple.arduino") });
+// bespin.syntax.simple.Resolver.register("C",      
+// 				       ['c', 'h'],
+// 				       function() { dojo.require("bespin.syntax.simple.c") });
+// bespin.syntax.simple.Resolver.register("CSharp", 
+// 				       ['cs'],
+// 				       function() { dojo.require("bespin.syntax.simple.csharp") });
+// bespin.syntax.simple.Resolver.register("CSS",  
+// 				       ['css'],
+// 				       function() { dojo.require("bespin.syntax.simple.css") });
+// bespin.syntax.simple.Resolver.register("HTML",  
+// 				       ['html', 'htm', 'xml', 'xhtml', 'shtml'],
+// 				       function() { dojo.require("bespin.syntax.simple.html") });
+// bespin.syntax.simple.Resolver.register("PHP",    
+// 				       ['php', 'php3', 'php4', 'php5'],
+// 				       function() { dojo.require("bespin.syntax.simple.php") });
+// bespin.syntax.simple.Resolver.register("Python",
+// 				       ['py', 'python'],
+// 				       function() { dojo.require("bespin.syntax.simple.python") });
+// bespin.syntax.simple.Resolver.register("Ruby",
+// 				       ['rb', 'ruby'],
+// 				       function() { dojo.require("bespin.syntax.simple.ruby") });
