@@ -1082,7 +1082,6 @@ dojo.declare("bespin.editor.UI", null, {
         var Rect = bespin.editor.Rect;
 
         // SETUP STATE
-
         var refreshCanvas = fullRefresh;        // if the user explicitly requests a full refresh, give it to 'em
 
         if (!refreshCanvas) refreshCanvas = (this.selectMouseDownPos);
@@ -1494,15 +1493,19 @@ dojo.declare("bespin.editor.UI", null, {
 
         // paint each line
         for (currentLine = this.firstVisibleRow; currentLine <= lastLineToRender; currentLine++) {
-            x = this.gutterWidth;
+            x = this.gutterWidth + this.LINE_INSETS.left;
+
 
             // if we aren't repainting the entire canvas...
             if (!refreshCanvas) {
+
                 // ...don't bother painting the line unless it is "dirty" (see above for dirty checking)
-                if (!dirty[currentLine]) {
-                    y += this.lineHeight;
-                    continue;
-                }
+// Currently ignore dirty checking.
+//                 if (!dirty[currentLine]) {
+//                     y += this.lineHeight;
+//                     continue;
+//                 }
+
 
                 // setup a clip for the current line only; this makes drawing just that piece of the scrollbar easy
                 ctx.save(); // this is restore()'d in another if (!refreshCanvas) block at the end of the loop
@@ -1528,12 +1531,13 @@ dojo.declare("bespin.editor.UI", null, {
                 ctx.fillRect(this.gutterWidth + (Math.abs(this.xoffset)), y, cwidth, this.lineHeight);
             }
 
-            x += this.LINE_INSETS.left;
-            cy = y + (this.lineHeight - this.LINE_INSETS.bottom);
-
 
 	    this.paintTheSelection(ctx, currentLine, x, y);
 	    this.paintTheParenMatching(ctx, currentLine, x, y);
+
+
+            cy = y + (this.lineHeight - this.LINE_INSETS.bottom);
+
 
             var lineMetadata = this.model.getRowMetadata(currentLine);
             var lineText = lineMetadata.lineText;
