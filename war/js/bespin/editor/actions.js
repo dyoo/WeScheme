@@ -252,6 +252,7 @@ dojo.declare("bespin.editor.Actions", null, {
     },
 
     indent: function(args) {
+	console.log('indent');
         var settings = bespin.get('settings');
         var selection = this.editor.getSelection();
         var startRow = selection.startPos.row;
