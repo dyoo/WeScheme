@@ -7,7 +7,9 @@ function doInit(aDiv) {
         language: "scheme",
         loadfromdiv: true,
         set: {
-	    strictlines: 'on'
+	    strictlines: 'on',
+	    tabmode: 'off',
+	    tabsize: 1
 //	    closepairs: 'on'
         }
     });

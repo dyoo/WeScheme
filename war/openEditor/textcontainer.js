@@ -129,7 +129,9 @@ var WeSchemeTextContainer;
 		    loadfromdiv: true,
 		    set: {
 			strictlines: 'on',
-			closepairs: 'off'
+			closepairs: 'off',
+			tabmode: 'off',
+			tabsize: 1
 		    }
 		});
 	    that.component.onchange(function() {
