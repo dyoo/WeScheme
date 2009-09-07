@@ -158,15 +158,13 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	    return [];
 	}
 	
-	var tokens = this.tokenize(model.getDocument());
 	var results = [];
+	var tokens = this.tokenize(model.getDocument());
+	var startOffset = model.getOffset(modelPos);
+	var i;
 
-
-	var posToString = function(p) { return "row: " + p.row + ", col: " + p.col; };
 
 	if (beforeOpenParen) {
-	    var startOffset = model.getOffset(modelPos);
-	    var i = 0;
 	    var stack = undefined;
 	    for (i = 0; i < tokens.length; i++) {
 		if (tokens[i].offset == startOffset) {
@@ -191,12 +189,32 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	    }	    
 	}
 
-// 	if (afterCloseParen) {
-// 	    for (i = tokens.length-1; i >= 0; i--) {
-// 	    }
-// 	}
 
 
+	if (afterCloseParen) {
+	    var stack = undefined;
+	    for (i = tokens.length-1; i >= 0; i--) {
+		if (tokens[i].offset == startOffset - 1) {
+		    stack = [tokens[i]];
+		} else if (stack && tokens[i].type == ')') {
+		    stack.push(tokens[i]);
+		} else if (stack && tokens[i].type == '(') {
+		    if (this.isCloseParen(stack[stack.length-1].text) == tokens[i].text) {
+			stack.pop();
+		    } else {
+			// mismatching parens: something screwed up,
+			// so abort.
+			break;
+		    }
+		}
+		// If we see the closer, report it
+		if (stack && stack.length == 0) {
+		    results.push({ startPos: model.getModelPos(tokens[i].offset),
+				   endPos: modelPos });
+		    break;
+		}
+	    }	    
+	}
 
 	return results;
     },
