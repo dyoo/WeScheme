@@ -45,7 +45,6 @@ bespin.syntax.SchemeConstants = {
 };
 
 dojo.declare("bespin.syntax.simple.Scheme", null, {
-    doc: [],
 
     keywords: ' define define-struct lambda cond if local and or ',
 
@@ -61,7 +60,6 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 
     // getMatchingParenPos: model modelPos -> (or modelPos undefined)
     // Maybe return the model position of the matching paren.
-    // Precondition: informAboutWholeDocument was called first.
     findMatchingParenPos: function(model, modelPos) {
 	return undefined;
     },
