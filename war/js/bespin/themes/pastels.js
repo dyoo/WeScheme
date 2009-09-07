@@ -41,6 +41,7 @@ bespin.themes.pastels = {
     editorTextFont: "10pt Monaco, Lucida Console, monospace",
     editorSelectedTextColor: "rgb(240, 240, 240)",
     editorSelectedTextBackground: "#473649",
+    editorParenMatchedBackground: "#6D52A5",
     cursorStyle: "#6868f9",
     cursorType: "ibeam",      // one of "underline" or "ibeam"
     unfocusedCursorStrokeStyle: "#FF0033",

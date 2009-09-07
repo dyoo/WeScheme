@@ -41,6 +41,7 @@ bespin.themes.black = {
     editorTextColor: "rgb(230, 230, 230)",
     editorSelectedTextColor: "rgb(240, 240, 240)",
     editorSelectedTextBackground: "#243b75",
+    editorParenMatchedBackground: "#6D52A5",
     cursorStyle: "#879aff",
     cursorType: "ibeam",       // one of "underline" or "ibeam"
     unfocusedCursorStrokeStyle: "#FF0033",
