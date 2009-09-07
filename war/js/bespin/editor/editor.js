@@ -189,8 +189,11 @@ dojo.declare("bespin.editor.ParenHighlightingHelper", null, {
     // returns undefined if the row has no selection
     getRowHighlightingPositions: function(rowIndex) {
 	var cursorModelPos = this.editor.getCursorPos();
-	var matchingParenPos =  this.syntaxModel.findMatchingParenPos(this.editor.model,
-								      cursorModelPos);
+	var matchingParenPos =  
+	    this.editor.ui.syntaxModel.findMatchingParenPos(this.editor.model, cursorModelPos, this.editor.language);
+	if (! matchingParenPos) { 
+	    return undefined;
+	}
 	// FIXME
 	return undefined;
     }
@@ -1520,8 +1523,8 @@ dojo.declare("bespin.editor.UI", null, {
             cy = y + (this.lineHeight - this.LINE_INSETS.bottom);
 
 
-	    this.paintTheSelection(ctx, x, y);
-
+	    this.paintTheSelection(ctx, currentLine, x, y);
+	    this.paintTheParenMatching(ctx, currentLine, x, y);
 
             var lineMetadata = this.model.getRowMetadata(currentLine);
             var lineText = lineMetadata.lineText;
@@ -1663,7 +1666,7 @@ dojo.declare("bespin.editor.UI", null, {
 
 
 
-    paintTheSelection: function(ctx, x, y) {
+    paintTheSelection: function(ctx, currentLine, x, y) {
         // paint the selection bar if the line has selections
         var selections = this.selectionHelper.getRowSelectionPositions(currentLine);
         var cwidth = this.getWidth();
@@ -1677,6 +1680,25 @@ dojo.declare("bespin.editor.UI", null, {
             ctx.fillRect(tx, y, tw, this.lineHeight);
         }
     },
+
+
+    // FIXME: abstract with the paintTheSelection method.
+
+    paintTheParenMatching: function(ctx, currentLine, x, y) {
+        // paint the selection bar if the line has selections
+        var selections = this.parenHighlightingHelper.getRowHighlightingPositions(currentLine);
+        var cwidth = this.getWidth();
+        if (selections) {
+	    var firstColumn = Math.floor(Math.abs(this.xoffset / this.charWidth));
+	    var lastColumn = firstColumn + (Math.ceil((cwidth - this.gutterWidth) / this.charWidth));
+            var tx = x + (selections.startCol * this.charWidth);
+            var tw = (selections.endCol == -1) ? (lastColumn - firstColumn) * this.charWidth : 
+		(selections.endCol - selections.startCol) * this.charWidth;
+            ctx.fillStyle = this.editor.theme.editorParenMatchedBackground;
+            ctx.fillRect(tx, y, tw, this.lineHeight);
+        }
+    },
+
 
 
     paintCursor: function(ctx) {

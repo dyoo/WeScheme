@@ -62,7 +62,7 @@ dojo.declare("bespin.syntax.simple.Model", bespin.syntax.Model, {
     findMatchingParenPos: function(model, modelPos, language) {
 	this._setupEngine(language);
 
-	if (typeof this.engine(['findMatchingParenPos'] == 'function')) {
+	if (typeof this.engine.findMatchingParenPos == 'function') {
 	    return this.engine.findMatchingParenPos(model, modelPos);
 	}
     },

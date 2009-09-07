@@ -58,9 +58,10 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 
 
 
-    // getMatchingParenPos: model modelPos -> (or modelPos undefined)
+    // findMatchingParenPos: model modelPos -> (or modelPos undefined)
     // Maybe return the model position of the matching paren.
     findMatchingParenPos: function(model, modelPos) {
+	console.log(modelPos);
 	return undefined;
     },
 
