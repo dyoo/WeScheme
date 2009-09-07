@@ -56,9 +56,10 @@ dojo.declare("bespin.syntax.simple.Model", bespin.syntax.Model, {
     },
 
 
-    // findMatchingParenPos: [string, ...] string -> void
+    // findMatchingParenPos: [string, ...] string -> (arrayof selection)
     // Tells the syntax model what the whole document looks like, before
     // getting the syntax styles.
+    // Example: findMatchingPos(...) -> {startPos: {row: 0, col:1}, endPos{ row:0, col:10 }}
     findMatchingParenPos: function(model, modelPos, language) {
 	this._setupEngine(language);
 

@@ -169,7 +169,6 @@ dojo.declare("bespin.editor.SelectionHelper", null, {
         var selection = this.editor.getSelection();
         if (!selection) return undefined;
         if ((selection.endPos.row < rowIndex) || (selection.startPos.row > rowIndex)) return undefined;
-
         startCol = (selection.startPos.row < rowIndex) ? 0 : selection.startPos.col;
         endCol = (selection.endPos.row > rowIndex) ? -1 : selection.endPos.col;
 
@@ -194,8 +193,16 @@ dojo.declare("bespin.editor.ParenHighlightingHelper", null, {
 	if (! matchingParenPos) { 
 	    return undefined;
 	}
-	// FIXME
-	return undefined;
+
+	var results = [];
+	for (var i = 0; i < matchingParenPos.length; i++) {
+	    var selection = matchingParenPos[i];
+            if ((selection.endPos.row < rowIndex) || (selection.startPos.row > rowIndex)) return undefined;
+            var startCol = (selection.startPos.row < rowIndex) ? 0 : selection.startPos.col;
+            var endCol = (selection.endPos.row > rowIndex) ? -1 : selection.endPos.col;	    
+            results.push({ startCol: startCol, endCol: endCol });
+	}
+	return results;
     }
 });
 
@@ -1689,13 +1696,15 @@ dojo.declare("bespin.editor.UI", null, {
         var selections = this.parenHighlightingHelper.getRowHighlightingPositions(currentLine);
         var cwidth = this.getWidth();
         if (selections) {
-	    var firstColumn = Math.floor(Math.abs(this.xoffset / this.charWidth));
-	    var lastColumn = firstColumn + (Math.ceil((cwidth - this.gutterWidth) / this.charWidth));
-            var tx = x + (selections.startCol * this.charWidth);
-            var tw = (selections.endCol == -1) ? (lastColumn - firstColumn) * this.charWidth : 
-		(selections.endCol - selections.startCol) * this.charWidth;
-            ctx.fillStyle = this.editor.theme.editorParenMatchedBackground;
-            ctx.fillRect(tx, y, tw, this.lineHeight);
+	    for (var i = 0; i < selections.length; i++) {
+		var firstColumn = Math.floor(Math.abs(this.xoffset / this.charWidth));
+		var lastColumn = firstColumn + (Math.ceil((cwidth - this.gutterWidth) / this.charWidth));
+		var tx = x + (selections[i].startCol * this.charWidth);
+		var tw = (selections[i].endCol == -1) ? (lastColumn - firstColumn) * this.charWidth : 
+		    (selections[i].endCol - selections[i].startCol) * this.charWidth;
+		ctx.fillStyle = this.editor.theme.editorParenMatchedBackground;
+		ctx.fillRect(tx, y, tw, this.lineHeight);
+	    }
         }
     },
 
