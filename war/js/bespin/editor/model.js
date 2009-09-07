@@ -146,6 +146,23 @@ dojo.declare("bespin.editor.DocumentModel", null, {
         this.rows[rowIndex] = row;
     },
 
+
+    // Given a byte offset into the document, return a modelPos.
+    getModelPos: function(byteOffset) {
+	var newlineLength = 1;
+	if (byteOffset < 0) { return {row: 0, col: 0}; }
+	for (var row = 0; i < this.rows.length; i++) {
+	    if (byteOffset > this.rows[row].length) { 
+		byteOffset = (byteOffset - this.rows[row].length) - newlineLength;
+	    } else {
+		return { row: row, col: byteOffset };
+	    }
+	}
+	return {row: this.rows.length -1, 
+		col: this.rows[this.rows.length - 1].length};
+    },
+
+
     // gets the row array for the specified row, creating it and any intermediate rows as necessary
     getRowArray: function(rowIndex) {
         while (this.rows.length <= rowIndex) this.rows.push([]);
