@@ -335,6 +335,8 @@ dojo.declare("bespin.editor.DocumentModel", null, {
         return this.rows.length;
     },
 
+
+    // getChunk: { startModelPos: modelPos, endModelPos: modelPos } -> string
     // returns a "chunk": a string representing a part of the document with \n characters representing end of line
     getChunk: function(selection) {
         var startModelPos = selection.startModelPos;
