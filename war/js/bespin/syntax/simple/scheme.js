@@ -55,6 +55,10 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	return this.keywords.indexOf(" " + buffer + " ") > -1;
     },
 
+    informAboutWholeDocument: function(doc) {
+	console.log("scheme.js: I see the document.");
+    },
+
 
     highlight: function(line, meta) {
         if (!meta) meta = {};

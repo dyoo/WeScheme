@@ -47,6 +47,19 @@ dojo.declare("bespin.syntax.simple.Model", bespin.syntax.Model, {
         return this.lineMetaInfo[lineNumber];
     },
 
+    // Tell the syntax model what the whole document looks like, before
+    // getting the syntax styles.
+    informAboutWholeDocument: function(doc) {
+        if (!this.language || (this.language != language)) {
+            this.engine = bespin.syntax.simple.Resolver.resolve(language);
+            this.language = language;
+        }
+
+	if (typeof this.engine(['informAboutWholeDocument'] == 'function')) {
+	    this.engine.informAboutWholeDocument(doc);
+	}
+    },
+
     getSyntaxStylesPerLine: function(lineText, lineNumber, language) {
         if (!this.language || (this.language != language)) {
             this.engine = bespin.syntax.simple.Resolver.resolve(language);
