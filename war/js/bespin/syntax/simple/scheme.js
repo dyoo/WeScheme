@@ -71,27 +71,77 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
     },
 
 
-    // isParen: string -> boolean
+    // isOpenParen: string -> (or string false)
     isOpenParen : function(ch) {
 	switch(ch) {
-	case '(':
-	case '[':
-	case '{': return true;
+	case '(': return ')';
+	case '[': return ']';
+	case '{': return '}';
 	default: return false;
 	}
     },
 
 
-    // isParen: string -> boolean
+    // isCloseParen: string -> (or string false)
     isCloseParen : function(ch) {
 	switch(ch) {
-	case ')':
-	case ']':
-	case '}': return true;
+	case ')': return '(';
+	case ']': return '[';
+	case '}': return '{';
 	default: return false;
 	}
     },
 
+    TOKEN_TYPE: 0,
+    TOKEN_TEXT: 1,
+    TOKEN_OFFSET: 2,
+    TOKEN_SPAN: 3,
+
+    // tokenize: string -> (arrayof [number, number])
+    tokenize : function(s) {
+	var offset = 0;
+	var tokens = [];
+	var PATTERNS = [['whitespace' , /^(\s+)/],
+			['#;', /^[#][;]/],
+			['comment' , // piped comments
+			 new RegExp("^[#][|]"+
+				    "(?:(?:\\|[^\\#])|[^\\|])*"+
+				    "[|][#]")],
+			['comment' , /(^;[^\n]*)/],
+			['(' , /^(\(|\[|\{)/],
+			[')' , /^(\)|\]|\})/],
+			['\'' , /^(\')/],
+			['`' , /^(`)/],
+			[',' , /^(,)/],
+			['char', /^\#\\(newline|backspace)/],
+			['char', /^\#\\(.)/],
+			['number' , /^([+\-]?(?:\d+\.\d+|\d+\.|\.\d+|\d+))/],
+			['string' , new RegExp("^\"((?:([^\\\\\"]|(\\\\.)))*)\"")],      
+			['symbol' ,/^([a-zA-Z\:\+\=\~\_\?\!\@\#\$\%\^\&\*\-\/\.\>\<][\w\:\+\=\~\_\?\!\@\#\$\%\^\&\*\-\/\.\>\<]*)/],
+			// If the lexer just can't match anything, just keep marching.
+			['any' ,/^(.)/]
+		       ];
+	while (s != '') {
+	    for (var i = 0; i < PATTERNS.length; i++) {
+		var patternName = PATTERNS[i][0];
+		var pattern = PATTERNS[i][1]
+		var result = s.match(pattern);
+		if (result != null) {
+		    if (patternName != 'whitespace' && patternName != 'comment') {
+			tokens.push([patternName, 
+				     result[0],
+				     offset,
+				     result[0].length])
+		    }
+		    offset = offset + result[0].length;
+		    s = s.substring(result[0].length);
+		    shouldContinue = true;
+		    break;
+		}
+	    }
+	}
+	return tokens;
+    },
 
 
     // findMatchingParenPos: model modelPos -> [selection, ...]
@@ -112,6 +162,29 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	if (! beforeOpenParen && !afterCloseParen) {
 	    return [];
 	}
+	
+	var tokens = this.tokenize(model.getDocument());
+
+
+	if (beforeOpenParen) {
+	    var startOffset = model.getOffset(modelPos);
+	    var i = 0;
+	    var stack;
+	    for (i = 0; i < tokens.length; i++) {
+		if (tokens[this.TOKEN_OFFSET] == startOffset) {
+		    stack = [tokens[i]];
+		} else if (stack && tokens[this.TOKEN_TYPE] == '(') {
+		    stack.push(tokens[i]);
+		} else if (stack && tokens[this.TOKEN_TYPE] == ')') {
+		    // fill me in
+		}
+	    }	    
+	}
+
+// 	if (afterCloseParen) {
+// 	    for (i = tokens.length-1; i >= 0; i--) {
+// 	    }
+// 	}
 
 
 	var results = [];
