@@ -93,8 +93,17 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
     },
 
 
+    _lastSeenTokenized : undefined,
+    _lastTokenization: undefined,
+
     // tokenize: string -> (arrayof [number, number])
     tokenize : function(s) {
+	if (this._lastSeenTokenized == s) { 
+	    return this._lastTokenization.slice(); 
+	}
+	this._lastSeenTokenized = s;
+
+
 	var offset = 0;
 	var tokens = [];
 	var PATTERNS = [['whitespace' , /^(\s+)/],
@@ -135,7 +144,10 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 		}
 	    }
 	}
-	return tokens;
+
+
+	this._lastTokenization = tokens;
+	return tokens.slice();
     },
 
 

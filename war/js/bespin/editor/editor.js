@@ -187,6 +187,8 @@ dojo.declare("bespin.editor.ParenHighlightingHelper", null, {
     // If the col is -1 on the endPos, the selection goes for the entire line
     // returns undefined if the row has no selection
     getRowHighlightingPositions: function(rowIndex) {
+	if (this.editor.getSelection()) { return []; }
+
 	var cursorModelPos = this.editor.getCursorPos();
 	var matchingParenPos =  
 	    this.editor.ui.syntaxModel.findMatchingParenPos(this.editor.model, cursorModelPos, this.editor.language);
