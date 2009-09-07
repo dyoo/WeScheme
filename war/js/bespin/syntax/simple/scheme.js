@@ -57,12 +57,65 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
     },
 
 
+    // isParen: string -> boolean
+    isParen : function(ch) {
+	switch(ch) {
+	case '(':
+	case ')':
+	case '[':
+	case ']':
+	case '{':
+	case '}': return true;
+	default: return false;
+	}
+    },
 
-    // findMatchingParenPos: model modelPos -> (or modelPos undefined)
-    // Maybe return the model position of the matching paren.
+
+    // isParen: string -> boolean
+    isOpenParen : function(ch) {
+	switch(ch) {
+	case '(':
+	case '[':
+	case '{': return true;
+	default: return false;
+	}
+    },
+
+
+    // isParen: string -> boolean
+    isCloseParen : function(ch) {
+	switch(ch) {
+	case ')':
+	case ']':
+	case '}': return true;
+	default: return false;
+	}
+    },
+
+
+
+    // findMatchingParenPos: model modelPos -> [selection, ...]
+    // Return selections corresponding to the matching parens at cursor position.
     findMatchingParenPos: function(model, modelPos) {
-	console.log(modelPos);
-	return undefined;
+	var posAdd1 = function(pos) {
+	    return {row: pos.row, col: pos.col + 1};
+	}
+	var posSub1 = function(pos) {
+	    return {row: pos.row, col: Math.max(0, pos.col - 1)};
+	}
+	var beforeOpenParen = this.isOpenParen(
+	    model.getChunk({ startModelPos: modelPos,
+			     endModelPos: posAdd1(modelPos)}));
+	var afterCloseParen = this.isCloseParen(model.getChunk({ startModelPos: posSub1(modelPos),
+								 endModelPos: modelPos }));
+	// Fast path: if we're nowhere near parens, don't even try to run the lexer.
+	if (! beforeOpenParen && !afterCloseParen) {
+	    return [];
+	}
+
+
+	var results = [];
+	return results;
     },
 
 
