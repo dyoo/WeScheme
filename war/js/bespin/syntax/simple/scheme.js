@@ -45,6 +45,8 @@ bespin.syntax.SchemeConstants = {
 };
 
 dojo.declare("bespin.syntax.simple.Scheme", null, {
+    doc: [],
+
     keywords: ' define define-struct lambda cond if local and or ',
 
     punctuation: '{ } ( ) \' " ; \''.split(" "),
@@ -55,11 +57,18 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	return this.keywords.indexOf(" " + buffer + " ") > -1;
     },
 
-    informAboutWholeDocument: function(doc) {
-	console.log("scheme.js: I see the document.");
+
+
+    // getMatchingParenPos: model modelPos -> (or modelPos undefined)
+    // Maybe return the model position of the matching paren.
+    // Precondition: informAboutWholeDocument was called first.
+    findMatchingParenPos: function(model, modelPos) {
+	return undefined;
     },
 
 
+
+    // highlight: number line-meta-info -> { meta:???, regions: {type : [data, ...]}}
     highlight: function(line, meta) {
         if (!meta) meta = {};
 
@@ -155,7 +164,6 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
         }
 
         var newMeta = { inMultilineComment: multiline };
-        if (meta.inJavaScript) newMeta.inJavaScript = meta.inJavaScript;
 
         return { regions: regions, meta: newMeta };
     },
