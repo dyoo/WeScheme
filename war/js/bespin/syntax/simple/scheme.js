@@ -92,10 +92,6 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	}
     },
 
-    TOKEN_TYPE: 0,
-    TOKEN_TEXT: 1,
-    TOKEN_OFFSET: 2,
-    TOKEN_SPAN: 3,
 
     // tokenize: string -> (arrayof [number, number])
     tokenize : function(s) {
@@ -128,14 +124,13 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 		var result = s.match(pattern);
 		if (result != null) {
 		    if (patternName != 'whitespace' && patternName != 'comment') {
-			tokens.push([patternName, 
-				     result[0],
-				     offset,
-				     result[0].length])
+			tokens.push( { type: patternName, 
+				       text: result[0],
+				       offset: offset,
+				       span: result[0].length } );
 		    }
 		    offset = offset + result[0].length;
 		    s = s.substring(result[0].length);
-		    shouldContinue = true;
 		    break;
 		}
 	    }
@@ -164,19 +159,34 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	}
 	
 	var tokens = this.tokenize(model.getDocument());
+	var results = [];
 
+
+	var posToString = function(p) { return "row: " + p.row + ", col: " + p.col; };
 
 	if (beforeOpenParen) {
 	    var startOffset = model.getOffset(modelPos);
 	    var i = 0;
-	    var stack;
+	    var stack = undefined;
 	    for (i = 0; i < tokens.length; i++) {
-		if (tokens[this.TOKEN_OFFSET] == startOffset) {
+		if (tokens[i].offset == startOffset) {
 		    stack = [tokens[i]];
-		} else if (stack && tokens[this.TOKEN_TYPE] == '(') {
+		} else if (stack && tokens[i].type == '(') {
 		    stack.push(tokens[i]);
-		} else if (stack && tokens[this.TOKEN_TYPE] == ')') {
-		    // fill me in
+		} else if (stack && tokens[i].type == ')') {
+		    if (this.isOpenParen(stack[stack.length-1].text) == tokens[i].text) {
+			stack.pop();
+		    } else {
+			// mismatching parens: something screwed up,
+			// so abort.
+			break;
+		    }
+		}
+		// If we see the closer, report it
+		if (stack && stack.length == 0) {
+		    results.push({ startPos: modelPos,
+				   endPos: model.getModelPos(tokens[i].offset) });
+		    break;
 		}
 	    }	    
 	}
@@ -187,7 +197,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 // 	}
 
 
-	var results = [];
+
 	return results;
     },
 
