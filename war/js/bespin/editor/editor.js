@@ -177,6 +177,29 @@ dojo.declare("bespin.editor.SelectionHelper", null, {
     }
 });
 
+
+// Helps with matching parens
+dojo.declare("bespin.editor.ParenHighlightingHelper", null, {
+    constructor: function(editor) {
+        this.editor = editor;
+    },
+
+    // returns an object with the startCol and endCol of the selection.
+    // If the col is -1 on the endPos, the selection goes for the entire line
+    // returns undefined if the row has no selection
+    getRowHighlightingPositions: function(rowIndex) {
+	var cursorModelPos = this.editor.getCursorPos();
+	var matchingParenPos =  this.syntaxModel.findMatchingParenPos(this.editor.model,
+								      cursorModelPos);
+	// FIXME
+	return undefined;
+    }
+});
+
+
+
+
+
 /**
  * Mess with positions mainly
  */
@@ -380,6 +403,7 @@ dojo.declare("bespin.editor.UI", null, {
         this.syntaxModel = bespin.syntax.Resolver.setEngine("simple").getModel();
 
         this.selectionHelper = new bespin.editor.SelectionHelper(editor);
+        this.parenHighlightingHelper = new bespin.editor.ParenHighlightingHelper(editor);
         this.actions = new bespin.editor.Actions(editor);
 
         this.rowLengthCache = [];
@@ -1246,6 +1270,8 @@ dojo.declare("bespin.editor.UI", null, {
         ctx.closePath();
         ctx.translate(this.xoffset, 0);
         ctx.clip();
+
+
 
 	this.paintAllTextLines(ctx, refreshCanvas, dirty);
 	this.paintCursor(ctx);
