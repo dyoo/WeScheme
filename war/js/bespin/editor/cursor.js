@@ -237,8 +237,11 @@ dojo.declare("bespin.editor.CursorManager", null, {
         var selection = this.editor.getSelection();
         var oldPos = bespin.editor.utils.copyPos(this.position);
         var oldVirualCol = this.virtualCol;
-
-        this.moveCursor({ row: oldPos.row - 1, col: Math.max(oldPos.col, this.virtualCol) });
+	if (oldPos.row > 0) {
+            this.moveCursor({ row: oldPos.row - 1, col: Math.max(oldPos.col, this.virtualCol) });
+	} else {
+            this.moveCursor({ row: 0, col: 0 });
+	}
 
         if ((settings && settings.isSettingOn('strictlines')) && this.position.col > this.editor.ui.getRowScreenLength(this.position.row)) {
             this.moveToLineEnd();   // this sets this.virtulaCol = 0!
@@ -254,8 +257,13 @@ dojo.declare("bespin.editor.CursorManager", null, {
 
         var oldPos = bespin.editor.utils.copyPos(this.position);
         var oldVirualCol = this.virtualCol;
-
-        this.moveCursor({ row: Math.max(0, oldPos.row + 1), col: Math.max(oldPos.col, this.virtualCol) });
+	
+	if (oldPos.row < this.editor.model.getRowCount() - 1) {
+            this.moveCursor({ row: Math.max(0, oldPos.row + 1), col: Math.max(oldPos.col, this.virtualCol) });
+	} else {
+	    this.moveCursor({ row: this.editor.model.getRowCount() - 1,
+			      col: this.editor.ui.getRowScreenLength(oldPos.row) });
+	}
 
         if ((settings && settings.isSettingOn('strictlines')) && this.position.col > this.editor.ui.getRowScreenLength(this.position.row)) {
             this.moveToLineEnd();   // this sets this.virtulaCol = 0!
