@@ -1519,17 +1519,9 @@ dojo.declare("bespin.editor.UI", null, {
             x += this.LINE_INSETS.left;
             cy = y + (this.lineHeight - this.LINE_INSETS.bottom);
 
-            // paint the selection bar if the line has selections
-            var selections = this.selectionHelper.getRowSelectionPositions(currentLine);
-            if (selections) {
-		var firstColumn = Math.floor(Math.abs(this.xoffset / this.charWidth));
-		var lastColumn = firstColumn + (Math.ceil((cwidth - this.gutterWidth) / this.charWidth));
-                tx = x + (selections.startCol * this.charWidth);
-                tw = (selections.endCol == -1) ? (lastColumn - firstColumn) * this.charWidth : 
-		    (selections.endCol - selections.startCol) * this.charWidth;
-                ctx.fillStyle = theme.editorSelectedTextBackground;
-                ctx.fillRect(tx, y, tw, this.lineHeight);
-            }
+
+	    this.paintTheSelection(ctx, x, y);
+
 
             var lineMetadata = this.model.getRowMetadata(currentLine);
             var lineText = lineMetadata.lineText;
@@ -1666,6 +1658,23 @@ dojo.declare("bespin.editor.UI", null, {
             }
 
             y += this.lineHeight;
+        }
+    },
+
+
+
+    paintTheSelection: function(ctx, x, y) {
+        // paint the selection bar if the line has selections
+        var selections = this.selectionHelper.getRowSelectionPositions(currentLine);
+        var cwidth = this.getWidth();
+        if (selections) {
+	    var firstColumn = Math.floor(Math.abs(this.xoffset / this.charWidth));
+	    var lastColumn = firstColumn + (Math.ceil((cwidth - this.gutterWidth) / this.charWidth));
+            var tx = x + (selections.startCol * this.charWidth);
+            var tw = (selections.endCol == -1) ? (lastColumn - firstColumn) * this.charWidth : 
+		(selections.endCol - selections.startCol) * this.charWidth;
+            ctx.fillStyle = this.editor.theme.editorSelectedTextBackground;
+            ctx.fillRect(tx, y, tw, this.lineHeight);
         }
     },
 
