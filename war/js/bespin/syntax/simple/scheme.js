@@ -185,7 +185,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 		// If we see the closer, report it
 		if (stack && stack.length == 0) {
 		    results.push({ startPos: modelPos,
-				   endPos: model.getModelPos(tokens[i].offset) });
+				   endPos: posAdd1(model.getModelPos(tokens[i].offset)) });
 		    break;
 		}
 	    }	    
