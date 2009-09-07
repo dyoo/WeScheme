@@ -147,19 +147,32 @@ dojo.declare("bespin.editor.DocumentModel", null, {
     },
 
 
+    // getModelPos: number -> modelPos
     // Given a byte offset into the document, return a modelPos.
     getModelPos: function(byteOffset) {
-	var newlineLength = 1;
+	var NEWLINE_LENGTH = 1;
 	if (byteOffset < 0) { return {row: 0, col: 0}; }
-	for (var row = 0; i < this.rows.length; i++) {
+	for (var row = 0; row < this.rows.length; row++) {
 	    if (byteOffset > this.rows[row].length) { 
-		byteOffset = (byteOffset - this.rows[row].length) - newlineLength;
+		byteOffset = (byteOffset - this.rows[row].length) - NEWLINE_LENGTH;
 	    } else {
 		return { row: row, col: byteOffset };
 	    }
 	}
-	return {row: this.rows.length -1, 
+	return {row: this.rows.length - 1, 
 		col: this.rows[this.rows.length - 1].length};
+    },
+
+
+    // getOffset: modelPos -> number
+    // Given a model position, return the byte offset.
+    getOffset: function(modelPos) {
+	var NEWLINE_LENGTH = 1;
+	var byteOffset = 0;
+	for (var row = 0; row < modelPos.row; row++) {
+	    byteOffset = byteOffset + this.rows[row].length + NEWLINE_LENGTH;
+	}
+	return byteOffset + modelPos.col;
     },
 
 
