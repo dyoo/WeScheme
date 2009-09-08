@@ -109,7 +109,8 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 
 	var offset = 0;
 	var tokens = [];
-	var PATTERNS = [['whitespace' , /^(\s+)/],
+	var PATTERNS = [['whitespace' , /^([\f\r\t\v\u00A0\u2028\u2029]+)/],
+			['newline', /^[\n]/],
 			['#;', /^[#][;]/],
 			['comment' , // piped comments
 			 new RegExp("^[#][|]"+
@@ -167,13 +168,13 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	// structure, until we hit the beginning of the enclosing
 	// s-expression.
 	for (var i = tokens.length - 1; i >= 0; i--) {
-	    if (tokens[i].offset < baseOffset) {
+	    if (stack == undefined && tokens[i].offset < baseOffset) {
 		stack = [];
 		// If the beginning of the line is actually right in
 		// the middle of a token, (i.e. multi-line comment),
 		// then don't indent!
-		if (tokens[i].offset + tokens[i].span >= baseOffset) {
-		    return undefined;		    
+		if (tokens[i].offset + tokens[i].span > baseOffset) {
+		    return undefined;
 		}
 	    }
 	    if (stack != undefined && tokens[i].type == '(') {
@@ -187,7 +188,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 		} else {
 		    stack.pop();
 		}
-	    } else if (tokens[i].type == ')') {
+	    } else if (stack != undefined && tokens[i].type == ')') {
 		stack.push(tokens[i]);
 	    }
 	}
@@ -206,7 +207,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	if (this.isBeginLike(tokens[i+1].text)) {
 	    return model.getModelPos(tokens[i+1].offset).col;
 	} else if (this.isDefineLike(tokens[i+1].text)) {
-	    return model.getModelPos(lastToken.offset).col;
+	    return model.getModelPos(tokens[i+1].offset).col;
 	} else if (this.isLambdaLike(tokens[i+1].text)) {
 	    return model.getModelPos(tokens[i+1].offset).col;
 	} else {
