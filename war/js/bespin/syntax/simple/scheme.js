@@ -205,10 +205,12 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	// Otherwise, i is the index into the beginning of the
 	// enclosing s-expression.
 	if (this.isBeginLike(tokens[i+1].text)) {
+	    // fixme
 	    return model.getModelPos(tokens[i+1].offset).col;
 	} else if (this.isDefineLike(tokens[i+1].text)) {
-	    return model.getModelPos(tokens[i+1].offset).col;
+	    return model.getModelPos(tokens[i+1].offset).col + 1;
 	} else if (this.isLambdaLike(tokens[i+1].text)) {
+	    // fixme
 	    return model.getModelPos(tokens[i+1].offset).col;
 	} else {
 	    return model.getModelPos(tokens[i+1].offset).col;
