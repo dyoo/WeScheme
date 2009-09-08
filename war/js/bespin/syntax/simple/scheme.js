@@ -135,12 +135,10 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 		var pattern = PATTERNS[i][1]
 		var result = s.match(pattern);
 		if (result != null) {
-		    if (patternName != 'whitespace' && patternName != 'comment') {
-			tokens.push( { type: patternName, 
-				       text: result[0],
-				       offset: offset,
-				       span: result[0].length } );
-		    }
+		    tokens.push( { type: patternName, 
+				   text: result[0],
+				   offset: offset,
+				   span: result[0].length } );
 		    offset = offset + result[0].length;
 		    s = s.substring(result[0].length);
 		    break;
@@ -155,10 +153,11 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 
 
 
-    // computeIndentationLevel: model number -> number 
+    // computeIndentationLevel: model number -> (or number undefined).
     // Figures out at what column this row should be indented.
+    // If it turns out that we shouldn't indent, we return undefined.
     computeIndentationLevel: function(model, row) {
-	var baseOffset = model.getOffset({row: row, col:0}) - 1;
+	var baseOffset = model.getOffset({row: row, col:0});
 
 	var tokens = this.tokenize(model.getDocument());
 	var stack = undefined;
@@ -168,8 +167,14 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	// structure, until we hit the beginning of the enclosing
 	// s-expression.
 	for (var i = tokens.length - 1; i >= 0; i--) {
-	    if (tokens[i].offset <= baseOffset) {
+	    if (tokens[i].offset < baseOffset) {
 		stack = [];
+		// If the beginning of the line is actually right in
+		// the middle of a token, (i.e. multi-line comment),
+		// then don't indent!
+		if (tokens[i].offset + tokens[i].span >= baseOffset) {
+		    return undefined;		    
+		}
 	    }
 	    if (stack != undefined && tokens[i].type == '(') {
 		if (stack.length == 0) {
