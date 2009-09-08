@@ -213,28 +213,30 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	// Otherwise, i is the index into the beginning of the
 	// enclosing s-expression.
 	if (this.isBeginLike(this.findHeadForm(tokens, i))) {
-	    return this.indentAsApplication(model, tokens, i, 1, 1);
+	    return this.indentAsApplication(tokens, i, 1, 1);
 	} else if (this.isDefineLike(this.findHeadForm(tokens, i))) {
-	    // fixme
-	    return model.getModelPos(tokens[i+1].offset).col + 1;
+
+	    return tokens[this.findHeadIndex(tokens, i)].col + 1;
+
 	} else if (this.isLambdaLike(this.findHeadForm(tokens, i))) {
-	    // fixme
-	    return model.getModelPos(tokens[i+1].offset).col;
+	    // fixme: the initial operand needs to be treated specially.
+	    return tokens[this.findHeadIndex(tokens, i)].col + 1;
 	} else {
-	    return this.indentAsApplication(model, tokens, i, 1, 0);
+	    return this.indentAsApplication(tokens, i, 1, 0);
 	}
     },
 
 
-    indentAsApplication: function(model, tokens, i, onMissingOperator, onMissingOperand) {
+
+    indentAsApplication: function(tokens, i, onMissingOperator, onMissingOperand) {
 	// Default case.
-	var index1 = this.findForward(tokens, i+1);
-	if (index1 != undefined && tokens[index1].row == tokens[i].row) {
-	    var index2 = this.findForward(tokens, index1);
-	    if (index2 != undefined  && tokens[index2].row == tokens[i].row) {
-		return tokens[this.findBackward(tokens, index2)].col;
+	var endOfOperator = this.findForward(tokens, i+1);
+	if (endOfOperator != undefined && tokens[endOfOperator].row == tokens[i].row) {
+	    var endOfOperand = this.findForward(tokens, endOfOperator);
+	    if (endOfOperand != undefined  && tokens[endOfOperand].row == tokens[i].row) {
+		return tokens[this.findBackward(tokens, endOfOperand)].col;
 	    } else {
-		return tokens[this.findBackward(tokens, index1)].col + onMissingOperand;
+		return tokens[this.findBackward(tokens, endOfOperator)].col + onMissingOperand;
 	    }
 	} else {
 	    return tokens[i].col + onMissingOperator;
@@ -244,15 +246,28 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 
     // findHeadForm: (arrayof token) number -> (or string undefined)
     findHeadForm: function(tokens, i) {
+	var idx = this.findHeadIndex(tokens, i);
+	if (idx != undefined) {
+	    return tokens[idx].text;
+	}
+	return undefined;
+    },
+
+
+
+    // findHeadIndex: (arrayof token) number -> (or number undefined)
+    findHeadIndex: function(tokens, i) {
 	var index1 = this.findForward(tokens, i+1);
 	if (index1 != undefined) {
 	    var index2 = this.findBackward(tokens, index1);
 	    if (index2 != undefined) {
-		return tokens[index2].text;
+		return index2;
 	    }
 	}
 	return undefined;
     },
+
+
 
     // Returns the index of the token past the next s-expression.
     // The scan starts at i.
@@ -310,10 +325,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 
 
 
-
-
-
-
+    // isBeginLike: string -> boolean
     isBeginLike: function(s) {
 	var keywords = ("begin case-lambda compound-unit compound-unit/sig " +
 			"cond delay inherit match-lambda match-lambda* " +
@@ -326,6 +338,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	return false;
     },
 
+    // isDefineLike: string -> boolean
     isDefineLike: function(s) {
 	var keywords = ["local"];
 	if (s.match("^define")) { return true; }
@@ -337,9 +350,9 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	return false;
     },
 
-
+    // isLambdaLike: string -> boolean
     isLambdaLike: function(s) {
-	var keywords = ["lambda"]; // fill me in
+	var keywords = ["lambda"]; // FIXME: fill me in
 	for (i = 0; i < keywords.length; i++) {
 	    if (keywords[i] == s) { 
 		return true; 
