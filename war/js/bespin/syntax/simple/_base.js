@@ -68,7 +68,17 @@ dojo.declare("bespin.syntax.simple.Model", bespin.syntax.Model, {
 	}
     },
 
-    
+
+    // computeIndentationLevel: model number string -> number 
+    // Figures out at what column this row should be indented.
+    computeIndentationLevel: function(model, row, language) {
+	this._setupEngine(language);
+
+	if (typeof this.engine.computeIndentationLevel == 'function') {
+	    return this.engine.computeIndentationLevel(model, row);
+	}
+    },
+
 
     getSyntaxStylesPerLine: function(lineText, lineNumber, language) {
 	this._setupEngine(language);
