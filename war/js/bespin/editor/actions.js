@@ -255,37 +255,61 @@ dojo.declare("bespin.editor.Actions", null, {
 
     syntaxIndent: function(args) {
 	this.beginEdit("syntaxIndent");
-	var cursorModelPos = this.editor.getCursorPos();
-	var indentationLevel =  
-	    this.editor.ui.syntaxModel.computeIndentationLevel(this.editor.model, 
-							       cursorModelPos.row, 
-							       this.editor.language);
-	if (indentationLevel != undefined) {
-	    var whitespaceCount = this.cursorManager.getLeadingWhitespace(cursorModelPos.row);
-	    if (whitespaceCount == indentationLevel) {
-		// No effect
-	    } else if (whitespaceCount < indentationLevel) {
-		this.model.insertCharacters(
-		    { row: cursorModelPos.row, col: 0 },
-		    (new Array(indentationLevel - whitespaceCount + 1).join(" ")));
-		this.cursorManager.moveCursor(
-		    { col: cursorModelPos.col +
-		      (indentationLevel - whitespaceCount)});
-	    } else {
-                this.model.deleteCharacters(
-		    { row: cursorModelPos.row, col: 0 },
-		    whitespaceCount - indentationLevel);
-		this.cursorManager.moveCursor(
-		    { col: Math.max(
-			0, 
-			cursorModelPos.col - (whitespaceCount - indentationLevel))});;
+	var selection = this.editor.getSelection();
+	if (selection) {
+	    for (var row = selection.startModelPos.row; 
+		 row < selection.endModelPos.row;
+		 row++) {
+		this.syntaxIndentRow(row, false);
 	    }
 	} else {
-	    // No effect
+	    var cursorModelPos = this.editor.getCursorPos();
+	    this.syntaxIndentRow(cursorModelPos.row, false);
 	}
 	this.repaint();
 	this.endEdit();
     },
+
+
+
+    syntaxIndentRow: function(row, isRepaint) {
+	this.beginEdit("syntaxIndentRow");
+	var cursorModelPos = this.editor.getCursorPos();
+	var indentationLevel =  
+	    this.editor.ui.syntaxModel.computeIndentationLevel(this.editor.model, 
+							       row,
+							       this.editor.language);
+	if (indentationLevel != undefined) {
+	    var whitespaceCount = this.cursorManager.getLeadingWhitespace(row);
+	    if (whitespaceCount == indentationLevel) {
+		// No effect
+	    } else if (whitespaceCount < indentationLevel) {
+		this.model.insertCharacters(
+		    { row: row, col: 0 },
+		    (new Array(indentationLevel - whitespaceCount + 1).join(" ")));
+		if (row == cursorModelPos.row) {
+		    this.cursorManager.moveCursor(
+			{ col: cursorModelPos.col +
+			  (indentationLevel - whitespaceCount)});
+		}
+	    } else {
+                this.model.deleteCharacters(
+		    { row: row, col: 0 },
+		    whitespaceCount - indentationLevel);
+		if (row == cursorModelPos.row) {
+		    this.cursorManager.moveCursor(
+			{ col: Math.max(
+			    0, 
+			    cursorModelPos.col - (whitespaceCount - indentationLevel))});
+		}
+	    }
+	} else {
+	    // No effect
+	}
+	if (isRepaint) { this.repaint(); }
+	this.endEdit();
+    },
+
 
 
     indent: function(args) {
