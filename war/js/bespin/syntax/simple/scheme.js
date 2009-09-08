@@ -212,12 +212,12 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 
 	// Otherwise, i is the index into the beginning of the
 	// enclosing s-expression.
-	if (this.isBeginLike(tokens[i+1].text)) {
+	if (this.isBeginLike(this.findHeadForm(tokens, i))) {
 	    return this.indentAsApplication(model, tokens, i, 1, 1);
-	} else if (this.isDefineLike(tokens[i+1].text)) {
+	} else if (this.isDefineLike(this.findHeadForm(tokens, i))) {
 	    // fixme
 	    return model.getModelPos(tokens[i+1].offset).col + 1;
-	} else if (this.isLambdaLike(tokens[i+1].text)) {
+	} else if (this.isLambdaLike(this.findHeadForm(tokens, i))) {
 	    // fixme
 	    return model.getModelPos(tokens[i+1].offset).col;
 	} else {
@@ -241,6 +241,18 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	}
     },
 
+
+    // findHeadForm: (arrayof token) number -> (or string undefined)
+    findHeadForm: function(tokens, i) {
+	var index1 = this.findForward(tokens, i+1);
+	if (index1 != undefined) {
+	    var index2 = this.findBackward(tokens, index1);
+	    if (index2 != undefined) {
+		return tokens[index2].text;
+	    }
+	}
+	return undefined;
+    },
 
     // Returns the index of the token past the next s-expression.
     // The scan starts at i.
