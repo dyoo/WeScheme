@@ -106,7 +106,8 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	}
 	this._lastSeenTokenized = s;
 
-
+	var row = 0;
+	var col = 0;
 	var offset = 0;
 	var tokens = [];
 	var PATTERNS = [['whitespace' , /^([ \f\r\t\v\u00A0\u2028\u2029]+)/],
@@ -139,9 +140,15 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 		    tokens.push( { type: patternName, 
 				   text: result[0],
 				   offset: offset,
+				   row: row,
+				   col: col,
 				   span: result[0].length } );
-//		    console.log("'" + result[0] + "': " + patternName);
 		    offset = offset + result[0].length;
+		    col = col + result[0].length;
+		    if (patternName == 'newline') {
+			row = row + 1;
+			col = 0;
+		    }
 		    s = s.substring(result[0].length);
 		    break;
 		}
@@ -206,40 +213,93 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	// Otherwise, i is the index into the beginning of the
 	// enclosing s-expression.
 	if (this.isBeginLike(tokens[i+1].text)) {
-	    var nextNonwhiteToken =
-		this.findFirstNonwhitespaceToken(model,
-						 tokens,
-						 i+2,
-						 model.getModelPos(tokens[i].offset).row);
-	    if (nextNonwhiteToken) {
-		return model.getModelPos(nextNonwhiteToken.offset).col;
-	    } else {
-		return model.getModelPos(tokens[i+1].offset).col + 1;
-	    }
+	    return this.indentAsApplication(model, tokens, i, 1, 1);
 	} else if (this.isDefineLike(tokens[i+1].text)) {
+	    // fixme
 	    return model.getModelPos(tokens[i+1].offset).col + 1;
 	} else if (this.isLambdaLike(tokens[i+1].text)) {
 	    // fixme
 	    return model.getModelPos(tokens[i+1].offset).col;
 	} else {
-	    return model.getModelPos(tokens[i+1].offset).col;
+	    return this.indentAsApplication(model, tokens, i, 1, 0);
 	}
     },
 
 
-    findFirstNonwhitespaceToken: function(model, tokens, i, row) {
-	while (i < tokens.length && 
-	       model.getModelPos(tokens[i].offset).row == row) {
-	    if (tokens[i].type == 'whitespace' || 
-		tokens[i].type == 'newline') {
-		i++;
+    indentAsApplication: function(model, tokens, i, onMissingOperator, onMissingOperand) {
+	// Default case.
+	var index1 = this.findForward(tokens, i+1);
+	if (index1 != undefined && tokens[index1].row == tokens[i].row) {
+	    var index2 = this.findForward(tokens, index1);
+	    if (index2 != undefined  && tokens[index2].row == tokens[i].row) {
+		return tokens[this.findBackward(tokens, index2)].col;
 	    } else {
-//		console.log("found '" + tokens[i].text + "' with type " + tokens[i].type);
-		return tokens[i];
+		return tokens[this.findBackward(tokens, index1)].col + onMissingOperand;
+	    }
+	} else {
+	    return tokens[i].col + onMissingOperator;
+	}
+    },
+
+
+    // Returns the index of the token past the next s-expression.
+    // The scan starts at i.
+    findForward: function(tokens, i) {
+	var stack = [];
+	for ( ; i < tokens.length; i++) {
+	    if (tokens[i].type == '(') {
+		stack.push(tokens[i]);
+	    } else if (tokens[i].type == ')') {
+		if (stack.length > 0 && 
+		    this.isOpenParen(stack[stack.length-1].text) == tokens[i].text) {
+		    stack.pop();
+		} else {
+		    // mismatching parens: something screwed up,
+		    // so abort.
+		    return undefined;
+		}
+	    }
+	    if (stack.length == 0 &&
+		tokens[i].type != 'whitespace' && 
+		tokens[i].type != 'newline') {
+		return i+1;
+	    }
+
+	}
+	return undefined;
+    },
+
+
+    // Returns the index of the of the previous s-expression.
+    // The scan starts at i.
+    findBackward: function(tokens, i) {
+	var stack = [];
+	for ( ; i >= 0 ; i--) {
+	    if (tokens[i].type == ')') {
+		stack.push(tokens[i]);
+	    } else if (tokens[i].type == '(') {
+		if (stack.length > 0 && 
+		    this.isCloseParen(stack[stack.length-1].text) == tokens[i].text) {
+		    stack.pop();
+		} else {
+		    // mismatching parens: something screwed up,
+		    // so abort.
+		    return undefined;
+		}
+	    }
+	    if (stack.length == 0 &&
+		tokens[i].type != 'whitespace' && 
+		tokens[i].type != 'newline') {
+		return i;
 	    }
 	}
 	return undefined;
     },
+
+
+
+
+
 
 
     isBeginLike: function(s) {
