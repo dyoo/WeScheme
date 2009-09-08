@@ -255,7 +255,14 @@ dojo.declare("bespin.editor.Actions", null, {
 
     syntaxIndent: function(args) {
 	this.beginEdit("syntaxIndent");
-	console.log('syntaxIndent');
+	var cursorModelPos = this.editor.getCursorPos();
+	var indentationLevel =  
+	    this.editor.ui.syntaxModel.computeIndentationLevel(this.editor.model, 
+							       cursorModelPos.row, 
+							       this.editor.language);
+	if (indentationLevel != undefined) {
+	    console.log("should indent by " + indentationLevel);
+	}
 	this.repaint();
 	this.endEdit();
     },
