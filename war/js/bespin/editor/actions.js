@@ -261,7 +261,27 @@ dojo.declare("bespin.editor.Actions", null, {
 							       cursorModelPos.row, 
 							       this.editor.language);
 	if (indentationLevel != undefined) {
-	    console.log("should indent by " + indentationLevel);
+	    var whitespaceCount = this.cursorManager.getLeadingWhitespace(cursorModelPos.row);
+	    if (whitespaceCount == indentationLevel) {
+		// No effect
+	    } else if (whitespaceCount < indentationLevel) {
+		this.model.insertCharacters(
+		    { row: cursorModelPos.row, col: 0 },
+		    (new Array(indentationLevel - whitespaceCount + 1).join(" ")));
+		this.cursorManager.moveCursor(
+		    { col: cursorModelPos.col +
+		      (indentationLevel - whitespaceCount)});
+	    } else {
+                this.model.deleteCharacters(
+		    { row: cursorModelPos.row, col: 0 },
+		    whitespaceCount - indentationLevel);
+		this.cursorManager.moveCursor(
+		    { col: Math.max(
+			0, 
+			cursorModelPos.col - (whitespaceCount - indentationLevel))});;
+	    }
+	} else {
+	    // No effect
 	}
 	this.repaint();
 	this.endEdit();
