@@ -583,6 +583,7 @@ dojo.declare("bespin.editor.Actions", null, {
         
         args.chunk = "\n" + autoindent.join("");
         this.insertChunk(args);
+	this.syntaxIndent(args);
     },
 
     newlineBelow: function(args) {
