@@ -109,7 +109,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 
 	var offset = 0;
 	var tokens = [];
-	var PATTERNS = [['whitespace' , /^([\f\r\t\v\u00A0\u2028\u2029]+)/],
+	var PATTERNS = [['whitespace' , /^([ \f\r\t\v\u00A0\u2028\u2029]+)/],
 			['newline', /^[\n]/],
 			['#;', /^[#][;]/],
 			['comment' , // piped comments
@@ -140,6 +140,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 				   text: result[0],
 				   offset: offset,
 				   span: result[0].length } );
+//		    console.log("'" + result[0] + "': " + patternName);
 		    offset = offset + result[0].length;
 		    s = s.substring(result[0].length);
 		    break;
@@ -205,8 +206,16 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	// Otherwise, i is the index into the beginning of the
 	// enclosing s-expression.
 	if (this.isBeginLike(tokens[i+1].text)) {
-	    // fixme
-	    return model.getModelPos(tokens[i+1].offset).col;
+	    var nextNonwhiteToken =
+		this.findFirstNonwhitespaceToken(model,
+						 tokens,
+						 i+2,
+						 model.getModelPos(tokens[i].offset).row);
+	    if (nextNonwhiteToken) {
+		return model.getModelPos(nextNonwhiteToken.offset).col;
+	    } else {
+		return model.getModelPos(tokens[i+1].offset).col + 1;
+	    }
 	} else if (this.isDefineLike(tokens[i+1].text)) {
 	    return model.getModelPos(tokens[i+1].offset).col + 1;
 	} else if (this.isLambdaLike(tokens[i+1].text)) {
@@ -218,8 +227,25 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
     },
 
 
+    findFirstNonwhitespaceToken: function(model, tokens, i, row) {
+	while (i < tokens.length && 
+	       model.getModelPos(tokens[i].offset).row == row) {
+	    if (tokens[i].type == 'whitespace' || 
+		tokens[i].type == 'newline') {
+		i++;
+	    } else {
+//		console.log("found '" + tokens[i].text + "' with type " + tokens[i].type);
+		return tokens[i];
+	    }
+	}
+	return undefined;
+    },
+
+
     isBeginLike: function(s) {
-	var keywords = "begin case-lambda compound-unit compound-unit/sig cond delay inherit match-lambda match-lambda* override private public sequence unit".split(" ");
+	var keywords = ("begin case-lambda compound-unit compound-unit/sig " +
+			"cond delay inherit match-lambda match-lambda* " +
+			"override private public sequence unit").split(" ");
 	for (i = 0; i < keywords.length; i++) {
 	    if (keywords[i] == s) { 
 		return true; 
