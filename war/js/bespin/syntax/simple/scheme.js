@@ -41,7 +41,10 @@ bespin.syntax.SchemeConstants = {
     STRING: "string",
     KEYWORD: "keyword",
     PUNCTUATION: "punctuation",
-    OTHER: "plain"
+    OTHER: "plain",
+
+
+
 };
 
 dojo.declare("bespin.syntax.simple.Scheme", null, {
@@ -149,6 +152,96 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	this._lastTokenization = tokens;
 	return tokens.slice();
     },
+
+
+
+    // computeIndentationLevel: model number -> number 
+    // Figures out at what column this row should be indented.
+    computeIndentationLevel: function(model, row) {
+	var baseOffset = model.getOffset({row: row, col:0}) - 1;
+
+	var tokens = this.tokenize(model.getDocument());
+	var stack = undefined;
+
+	// Scan backwards across the tokens till we hit the offset.
+	// If we've hit the offset, start recording tokens and paren
+	// structure, until we hit the beginning of the enclosing
+	// s-expression.
+	for (var i = tokens.length - 1; i >= 0; i--) {
+	    if (tokens[i].offset <= baseOffset) {
+		stack = [];
+	    }
+	    if (stack != undefined && tokens[i].type == '(') {
+		if (stack.length == 0) {
+		    break;
+		} else if (this.isCloseParen(stack[stack.length-1].text)
+			   != tokens[i].text) {
+		    // Wrong type of the paren should trigger
+		    // an indentation back to col 0.
+		    return 0;
+		} else {
+		    stack.pop();
+		}
+	    } else if (tokens[i].type == ')') {
+		stack.push(tokens[i]);
+	    }
+	}
+
+	// Boundary case: we didn't find an enclosing s-expression.
+	if (i < 0) {
+	    return 0;
+	}
+	// Boundary case: there's no token in front of the open-paren.
+	if (i == tokens.length - 1) {
+	    return (model.getModelPos(tokens[i].offset).col + 1);
+	} 
+
+	// Otherwise, i is the index into the beginning of the
+	// enclosing s-expression.
+	if (this.isBeginLike(tokens[i+1].text)) {
+	    return model.getModelPos(tokens[i+1].offset).col;
+	} else if (this.isDefineLike(tokens[i+1].text)) {
+	    return model.getModelPos(lastToken.offset).col;
+	} else if (this.isLambdaLike(tokens[i+1].text)) {
+	    return model.getModelPos(tokens[i+1].offset).col;
+	} else {
+	    return model.getModelPos(tokens[i+1].offset).col;
+	}
+    },
+
+
+    isBeginLike: function(s) {
+	var keywords = "begin case-lambda compound-unit compound-unit/sig cond delay inherit match-lambda match-lambda* override private public sequence unit".split(" ");
+	for (i = 0; i < keywords.length; i++) {
+	    if (keywords[i] == s) { 
+		return true; 
+	    }
+	}
+	return false;
+    },
+
+    isDefineLike: function(s) {
+	var keywords = ["local"];
+	if (s.match("^define")) { return true; }
+	for (i = 0; i < keywords.length; i++) {
+	    if (keywords[i] == s) { 
+		return true; 
+	    }
+	}
+	return false;
+    },
+
+
+    isLambdaLike: function(s) {
+	var keywords = ["lambda"]; // fill me in
+	for (i = 0; i < keywords.length; i++) {
+	    if (keywords[i] == s) { 
+		return true; 
+	    }
+	}
+	return false;
+    },
+
 
 
     // findMatchingParenPos: model modelPos -> [selection, ...]
