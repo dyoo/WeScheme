@@ -80,12 +80,12 @@ dojo.declare("bespin.syntax.simple.Model", bespin.syntax.Model, {
     },
 
     
-    // chooseClosingBracketCharacter: model language -> string
+    // chooseClosingBracketCharacter: model modelPos, language -> string
     // Figures out context-sensitive close bracket, if one exists.
-    chooseClosingBracketCharacter: function(model, language) {
+    chooseClosingBracketCharacter: function(model, pos, language) {
 	this._setupEngine(language);
 	if (typeof this.engine.chooseClosingBracketCharacter == 'function') {
-	    return this.engine.chooseClosingBracketCharacter(model, row);
+	    return this.engine.chooseClosingBracketCharacter(model, pos);
 	} else {
 	    return "]";
 	}
