@@ -247,8 +247,16 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 
 	if (baseOffset < 0) { return 0; }
 
+	// We look for the newline token on the previous row.
 	var i = this.findTokenIndex(tokens, baseOffset);
-	if (i == undefined) { return undefined; }
+
+	// Edge cases: If we couldn't find the token, then abort.
+	// Also, if the newline is actually enclosed by the token
+	// itself, we're in a multi-line token and we must not indent.
+	if (i == undefined || tokens[i].type != 'newline') {
+	    return undefined; 
+	}
+
 	// Scan backwards across the token.  Start recording tokens
 	// and paren structure, until we hit the beginning of the
 	// enclosing s-expression.
