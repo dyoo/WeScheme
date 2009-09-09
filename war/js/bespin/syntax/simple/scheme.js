@@ -174,6 +174,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	return this._lastTokenization.slice();
     },
 
+
     _tokenize: function(s) {
 	var PATTERNS = bespin.syntax.SchemeConstants.PATTERNS;
 	var row = 0;
@@ -186,19 +187,23 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 		var pattern = PATTERNS[i][1]
 		var result = s.match(pattern);
 		if (result != null) {
+		    var text = result[0];
 		    tokens.push( { type: patternName, 
-				   text: result[0],
+				   text: text,
 				   offset: offset,
 				   row: row,
 				   col: col,
-				   span: result[0].length } );
-		    offset = offset + result[0].length;
-		    col = col + result[0].length;
-		    if (patternName == 'newline') {
-			row = row + 1;
-			col = 0;
-		    }
-		    s = s.substring(result[0].length);
+				   span: text.length } );
+		    offset = offset + text.length;
+		    for (var j = 0; j < text.length; j++) {
+			if (result[0][j] == '\n') {
+			    row++;
+			    col = 0;
+			} else {
+			    col++;
+			}
+ 		    }
+		    s = s.substring(text.length);
 		    break;
 		}
 	    }
