@@ -211,20 +211,24 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 
 	// Otherwise, i is the index into the beginning of the
 	// enclosing s-expression.
-	if (this.isBeginLike(this.findHeadForm(tokens, i))) {
+	var headForm = this.findHeadForm(tokens, i);
+	if (! headForm) {
+	    return this.indentAsApplication(tokens, i, 1, 0);
+	} else if (this.isBeginLike(headForm)) {
 	    return this.indentAsApplication(tokens, i, 1, 1);
-	} else if (this.isDefineLike(this.findHeadForm(tokens, i))) {
-
-	    return tokens[this.findHeadIndex(tokens, i)].col + 1;
-
-	} else if (this.isLambdaLike(this.findHeadForm(tokens, i))) {
-	    // fixme: the initial operand needs to be treated specially.
-	    return tokens[this.findHeadIndex(tokens, i)].col + 1;
+	} else if (this.isDefineLike(headForm)) {
+	    return this.indentAsDefinition(tokens, i);
+	} else if (this.isLambdaLike(headForm)) {
+	    return this.indentAsLambda(tokens, i, row);
 	} else {
 	    return this.indentAsApplication(tokens, i, 1, 0);
 	}
     },
 
+    indentAsDefinition: function(tokens, i) {
+	var result = tokens[this.findHeadIndex(tokens, i)].col + 1;
+	return result;
+    },
 
 
     indentAsApplication: function(tokens, i, onMissingOperator, onMissingOperand) {
@@ -243,8 +247,26 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
     },
 
 
+    indentAsLambda: function(tokens, i, row) {
+	var atLambdaKeyword = this.findHeadIndex(tokens, i);
+	var afterLambdaKeyword = this.findForward(tokens, atLambdaKeyword);
+	var atArgumentExpr = this.skipWhitespaceForward(tokens, afterLambdaKeyword);
+	if (atArgumentExpr) {
+	    if (tokens[atArgumentExpr].row >= row) {
+		return tokens[atLambdaKeyword].col + 3;
+	    } else {
+		return tokens[atLambdaKeyword].col + 1;
+	    }
+	} else {
+	    return tokens[atLambdaKeyword].col + 1;
+	}
+    },
+
+
+
     // findHeadForm: (arrayof token) number -> (or string undefined)
     findHeadForm: function(tokens, i) {
+	if (i == undefined) { return undefined; }
 	var idx = this.findHeadIndex(tokens, i);
 	if (idx != undefined) {
 	    return tokens[idx].text;
@@ -256,6 +278,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 
     // findHeadIndex: (arrayof token) number -> (or number undefined)
     findHeadIndex: function(tokens, i) {
+	if (i == undefined) { return undefined; }
 	var index1 = this.findForward(tokens, i+1);
 	if (index1 != undefined) {
 	    var index2 = this.findBackward(tokens, index1);
@@ -266,13 +289,41 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	return undefined;
     },
 
+    // skipWhitespaceForward: (arrayof token) number -> (or number undefined)
+    // Returns the index into tokens of the next non-whitespace token,
+    // starting at i.
+    skipWhitespaceForward: function(tokens, i) {
+	if (i == undefined) { return undefined; }
+	for (; i < tokens.length; i++) {
+	    if (tokens[i].type != 'whitespace' &&
+		tokens[i].type != 'newline') {
+		return i;
+	    }
+	}
+	return undefined;
+    },
+
+    // skipWhitespaceBackward: (arrayof token) number -> (or number undefined)
+    // Returns the index into tokens of the next non-whitespace token,
+    // starting at i.
+    skipWhitespaceBackward: function(tokens, i) {
+	if (i == undefined) { return undefined; }
+	for (; i >= 0; i--) {
+	    if (tokens[i].type != 'whitespace' &&
+		tokens[i].type != 'newline') {
+		return i;
+	    }
+	}
+	return undefined;
+    },
 
 
     // Returns the index of the token past the next s-expression.
     // The scan starts at i.
     findForward: function(tokens, i) {
+	if (i == undefined) { return undefined; }
 	var stack = [];
-	for ( ; i < tokens.length; i++) {
+	for (i = this.skipWhitespaceForward(tokens, i) ; i < tokens.length; i++) {
 	    if (tokens[i].type == '(') {
 		stack.push(tokens[i]);
 	    } else if (tokens[i].type == ')') {
@@ -285,22 +336,21 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 		    return undefined;
 		}
 	    }
-	    if (stack.length == 0 &&
-		tokens[i].type != 'whitespace' && 
-		tokens[i].type != 'newline') {
+	    if (stack.length == 0) {
 		return i+1;
-	    }
+	    } 
 
 	}
 	return undefined;
     },
 
 
-    // Returns the index of the of the previous s-expression.
+    // Returns the index of the previous s-expression.
     // The scan starts at i.
     findBackward: function(tokens, i) {
+	if (i == undefined) { return undefined; }
 	var stack = [];
-	for ( ; i >= 0 ; i--) {
+	for (i = this.skipWhitespaceBackward(tokens, i) ; i >= 0 ; i--) {
 	    if (tokens[i].type == ')') {
 		stack.push(tokens[i]);
 	    } else if (tokens[i].type == '(') {
@@ -313,11 +363,9 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 		    return undefined;
 		}
 	    }
-	    if (stack.length == 0 &&
-		tokens[i].type != 'whitespace' && 
-		tokens[i].type != 'newline') {
+	    if (stack.length == 0) {
 		return i;
-	    }
+	    } 
 	}
 	return undefined;
     },
