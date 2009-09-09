@@ -170,6 +170,11 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	    return this._lastTokenization.slice(); 
 	}
 	this._lastSeenTokenized = s;
+	this._lastTokenization = this._tokenize(s);
+	return this._lastTokenization.slice();
+    },
+
+    _tokenize: function(s) {
 	var PATTERNS = bespin.syntax.SchemeConstants.PATTERNS;
 	var row = 0;
 	var col = 0;
@@ -198,10 +203,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 		}
 	    }
 	}
-
-
-	this._lastTokenization = tokens;
-	return tokens.slice();
+	return tokens;
     },
 
 
@@ -240,21 +242,46 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	var tokens = this.tokenize(model.getDocument());
 	var baseOffset = model.getOffset(pos);
 	var i = this.findTokenIndex(tokens, baseOffset);
-	if (i != undefined) { 
-	    if (tokens[i].type == 'newline') { i--; }
+
+	if (i == undefined) { 
+	    if (tokens.length > 0 &&
+		baseOffset == tokens[tokens.length-1].offset + 
+		tokens[tokens.length-1].span) {
+		i = tokens.length-1;
+	    } else {
+		return "]";
+	    }
+	} 
+
+	if (tokens[i].type != 'newline') {
 	    var posInToken = baseOffset - tokens[i].offset;
 	    var extension = (tokens[i].text.substring(0, posInToken) + 
 			     "]" +
 			     tokens[i].text.substring(posInToken));
-	    if (this.tokenize(extension).length == 1) {
-		return "]";
-	    } else {
-		// FIXME
+	    if (this._tokenize(extension).length == 1) {
 		return "]";
 	    }
-	} else {
-	    return "]";
+	} 
+
+	var stack = [];
+	for (; i >= 0; i--) {
+	    if (stack && tokens[i].type == ')') {
+		stack.push(tokens[i]);
+	    } else if (stack && tokens[i].type == '(') {
+		if (stack.length == 0) { 
+		    return this.isOpenParen(tokens[i].text) || "]";
+		} 
+		if (this.isCloseParen(stack[stack.length-1].text) == 
+		    tokens[i].text) {
+		    stack.pop();
+		} else {
+		    // mismatching parens: something screwed up,
+		    // so abort.
+		    return "]";
+		}
+	    }
 	}
+	return "]";
     },
 
 
