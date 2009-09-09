@@ -220,6 +220,9 @@ dojo.declare("bespin.editor.ParenHighlightingHelper", null, {
 	var applyScratch = function(selections) {
 	    var i, j;
 	    for (i = 0; i < selections.length; i++) {
+		// The endpoints are always marked dirty.
+		dirty[selections[i].startPos.row] = true;
+		dirty[selections[i].endPos.row] = true;
 		for (j = selections[i].startPos.row; j <= selections[i].endPos.row; j++) {
 		    scratch[j] = !scratch[j];
 		}

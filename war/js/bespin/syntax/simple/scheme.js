@@ -492,7 +492,8 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 			     endModelPos: posAdd1(modelPos)}));
 	var afterCloseParen = this.isCloseParen(model.getChunk({ startModelPos: posSub1(modelPos),
 								 endModelPos: modelPos }));
-	// Fast path: if we're nowhere near parens, don't even try to run the lexer.
+	// Fast path: if we're nowhere near a physical parens, don't
+	// even try to run the lexer.
 	if (! beforeOpenParen && !afterCloseParen) {
 	    return [];
 	}
@@ -502,57 +503,58 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	var startOffset = model.getOffset(modelPos);
 	var i;
 
-
 	if (beforeOpenParen) {
-	    var stack = undefined;
-	    for (i = 0; i < tokens.length; i++) {
-		if (tokens[i].offset == startOffset) {
-		    stack = [tokens[i]];
-		} else if (stack && tokens[i].type == '(') {
-		    stack.push(tokens[i]);
-		} else if (stack && tokens[i].type == ')') {
-		    if (this.isOpenParen(stack[stack.length-1].text) == tokens[i].text) {
-			stack.pop();
-		    } else {
-			// mismatching parens: something screwed up,
-			// so abort.
+	    i = this.findTokenIndex(tokens, startOffset);
+	    if (i != undefined && tokens[i].offset == startOffset) {
+		var stack = [tokens[i]];
+		i++;
+		for ( ; i < tokens.length; i++) {
+		    if (stack && tokens[i].type == '(') {
+			stack.push(tokens[i]);
+		    } else if (stack && tokens[i].type == ')') {
+			if (this.isOpenParen(stack[stack.length-1].text) == tokens[i].text) {
+			    stack.pop();
+			} else {
+			    // mismatching parens: something screwed up,
+			    // so abort.
+			    break;
+			}
+		    }
+		    // If we see the closer, report it
+		    if (stack.length == 0) {
+			results.push({ startPos: modelPos,
+				       endPos: posAdd1(model.getModelPos(tokens[i].offset)) });
 			break;
 		    }
-		}
-		// If we see the closer, report it
-		if (stack && stack.length == 0) {
-		    results.push({ startPos: modelPos,
-				   endPos: posAdd1(model.getModelPos(tokens[i].offset)) });
-		    break;
 		}
 	    }	    
 	}
 
-
-
 	if (afterCloseParen) {
-	    var stack = undefined;
-	    for (i = tokens.length-1; i >= 0; i--) {
-		if (tokens[i].offset == startOffset - 1) {
-		    stack = [tokens[i]];
-		} else if (stack && tokens[i].type == ')') {
-		    stack.push(tokens[i]);
-		} else if (stack && tokens[i].type == '(') {
-		    if (this.isCloseParen(stack[stack.length-1].text) == tokens[i].text) {
-			stack.pop();
-		    } else {
-			// mismatching parens: something screwed up,
-			// so abort.
+	    i = this.findTokenIndex(tokens, startOffset - 1);
+	    if (i != undefined && tokens[i].offset == startOffset - 1) {
+		var stack = [tokens[i]];
+		i--;
+		for (; i >= 0; i--) {
+		    if (stack && tokens[i].type == ')') {
+			stack.push(tokens[i]);
+		    } else if (stack && tokens[i].type == '(') {
+			if (this.isCloseParen(stack[stack.length-1].text) == tokens[i].text) {
+			    stack.pop();
+			} else {
+			    // mismatching parens: something screwed up,
+			    // so abort.
+			    break;
+			}
+		    }
+		    // If we see the closer, report it
+		    if (stack.length == 0) {
+			results.push({ startPos: model.getModelPos(tokens[i].offset),
+				       endPos: modelPos });
 			break;
 		    }
 		}
-		// If we see the closer, report it
-		if (stack && stack.length == 0) {
-		    results.push({ startPos: model.getModelPos(tokens[i].offset),
-				   endPos: modelPos });
-		    break;
-		}
-	    }	    
+	    }
 	}
 
 	return results;
