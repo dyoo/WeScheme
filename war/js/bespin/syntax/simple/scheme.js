@@ -114,7 +114,7 @@ bespin.syntax.SchemeConstants = {
 
 dojo.declare("bespin.syntax.simple.Scheme", null, {
 
-    punctuation: '{ } ( ) \' " ; \''.split(" "),
+    punctuation: '{ } [ ] ( ) \' " ; \''.split(" "),
 
     toString: function() { "Scheme syntax highlighting object" },
 
@@ -205,30 +205,54 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
     },
 
 
+    // findTokenIndex: (arrayof token) number -> (or number undefined)
+    // Looks for the index for the leftmost token that overlaps the offset.
+    findTokenIndex: function(tokens, offset) {
+	var left = 0;
+	var right = tokens.length - 1;
+	var middle;
+	// Binary search.
+
+	if (offset < 0 || 
+	    offset >= (tokens[tokens.length-1].offset + tokens[tokens.length-1].span)) {
+	    return undefined;
+	}
+	// Loop invariant: the offset is contained within a token in
+	// the closed interval [left, right]
+	while (left < right) {
+	    // Subtle: we guarantee that the midpoint leans toward the right on
+	    // cases where we're looking at an even number of elements.
+
+	    middle = Math.ceil((left + right) / 2);
+	    var middleToken = tokens[middle];
+	    if (offset < middleToken.offset) {
+		right = middle - 1;
+	    } else {
+		// At this point, we know offset >= middleToken.offset
+		left = middle;
+	    }
+	}
+	return left;
+    },
+
+
 
     // computeIndentationLevel: model number -> (or number undefined).
     // Figures out at what column this row should be indented.
     // If it turns out that we shouldn't indent, we return undefined.
     computeIndentationLevel: function(model, row) {
-	var baseOffset = model.getOffset({row: row, col:0});
-
+	var baseOffset = model.getOffset({row: row, col:0}) - 1;
 	var tokens = this.tokenize(model.getDocument());
-	var stack = undefined;
+	var stack = [];
 
-	// Scan backwards across the tokens till we hit the offset.
-	// If we've hit the offset, start recording tokens and paren
-	// structure, until we hit the beginning of the enclosing
-	// s-expression.
-	for (var i = tokens.length - 1; i >= 0; i--) {
-	    if (stack == undefined && tokens[i].offset < baseOffset) {
-		stack = [];
-		// If the beginning of the line is actually right in
-		// the middle of a token, (i.e. multi-line comment),
-		// then don't indent!
-		if (tokens[i].offset + tokens[i].span > baseOffset) {
-		    return undefined;
-		}
-	    }
+	if (baseOffset < 0) { return 0; }
+
+	var i = this.findTokenIndex(tokens, baseOffset);
+	if (i == undefined) { return undefined; }
+	// Scan backwards across the token.  Start recording tokens
+	// and paren structure, until we hit the beginning of the
+	// enclosing s-expression.
+	while (i >= 0) {
 	    if (stack != undefined && tokens[i].type == '(') {
 		if (stack.length == 0) {
 		    break;
@@ -243,6 +267,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	    } else if (stack != undefined && tokens[i].type == ')') {
 		stack.push(tokens[i]);
 	    }
+	    i--;
 	}
 
 	// Boundary case: we didn't find an enclosing s-expression.
