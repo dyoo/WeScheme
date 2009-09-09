@@ -133,7 +133,7 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
         height:			100%;
 	width:			100%;
 	overflow:		auto;
-	background:		white url(/css/images/fadeIcon.png) no-repeat right center;
+	background:		white url(/css/images/fadeIcon.png) no-repeat right bottom;
 	font-size:		12px; 
 	font-family:	Monaco, sans-serif; 
 
@@ -141,7 +141,7 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 	margin: 		0px;
 	borders:		0px;
 }
-#defn:hover{background:	white url(/css/images/fadeWords.png) no-repeat right center;}
+#defn:hover{background:	white url(/css/images/fadeWords.png) no-repeat right bottom;}
 
 
 
