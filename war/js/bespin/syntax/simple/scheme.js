@@ -284,7 +284,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	}
 	// Boundary case: there's no token in front of the open-paren.
 	if (i == tokens.length - 1) {
-	    return (model.getModelPos(tokens[i].offset).col + 1);
+	    return (tokens[i].col + 1);
 	} 
 
 	// Otherwise, i is the index into the beginning of the
@@ -531,7 +531,8 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 		    // If we see the closer, report it
 		    if (stack.length == 0) {
 			results.push({ startPos: modelPos,
-				       endPos: posAdd1(model.getModelPos(tokens[i].offset)) });
+				       endPos: posAdd1({row: tokens[i].row,
+							col: tokens[i].col}) });
 			break;
 		    }
 		}
@@ -557,7 +558,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 		    }
 		    // If we see the closer, report it
 		    if (stack.length == 0) {
-			results.push({ startPos: model.getModelPos(tokens[i].offset),
+			results.push({ startPos: {row: tokens[i].row, col: tokens[i].col},
 				       endPos: modelPos });
 			break;
 		    }

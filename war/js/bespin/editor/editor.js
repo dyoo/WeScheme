@@ -425,8 +425,21 @@ dojo.declare("bespin.editor.DefaultEditorKeyListener", null, {
         var actions = this.editor.ui.actions;
 
         if (charToPrint) {
-            args.newchar = String.fromCharCode(e.charCode);
-            actions.insertCharacter(args);
+	    var possibleAction = this.keyMap[[e.charCode,
+					      false, 
+					      false, 
+					      false,
+					      false]];
+	    if (possibleAction) {
+		if (this.lastAction == possibleAction) {
+                    delete this.lastAction;
+		} else if (typeof possibleAction == "function") {
+		    possibleAction(args);
+		}
+	    }  else {
+		args.newchar = String.fromCharCode(e.charCode);
+		actions.insertCharacter(args);
+	    }
         } else { // Allow user to move with the arrow continuously
             var action = this.keyMap[[e.keyCode, e.metaKey, e.ctrlKey, e.altKey, e.shiftKey]];
 
@@ -996,6 +1009,8 @@ dojo.declare("bespin.editor.UI", null, {
         listener.bindKeyString("CTRL", Key.DELETE, this.actions.deleteWordRight, "Delete a word to the right");
 
         listener.bindKeyString("", Key.ENTER, this.actions.newline, "Insert newline");
+	listener.bindKeyString("", Key.CLOSE_BRACKET, this.actions.closeBracket, "Insert close bracket");
+
         listener.bindKeyString("CMD", Key.ENTER, this.actions.newlineBelow, "Insert newline at end of current line");
         listener.bindKeyString("", Key.TAB, this.actions.syntaxIndent, "Indent");
 //        listener.bindKeyString("SHIFT", Key.TAB, this.actions.unindent, "Unindent");
