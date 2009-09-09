@@ -44,6 +44,50 @@ bespin.syntax.SchemeConstants = {
     OTHER: "plain",
 
 
+    BEGIN_LIKE : ("begin case-lambda compound-unit compound-unit/sig " +
+		  "cond delay inherit match-lambda match-lambda* " +
+		  "override private public sequence unit").split(" "),
+
+    LAMBDA_LIKE : (("cases          "+
+		    "               instantiate super-instantiate"+
+		    "               syntax/loc quasisyntax/loc"+
+		    "               lambda let let* letrec recur"+
+		    "               lambda/kw"+
+		    "               letrec-values"+
+		    "               with-syntax"+
+		    "               with-continuation-mark"+
+		    "               module"+
+		    "               match match-let match-let* match-letrec"+
+		    "               let/cc let/ec letcc catch"+
+		    "               let-syntax letrec-syntax fluid-let-syntax letrec-syntaxes+values"+
+		    "               "+
+		    "               for for/list for/hash for/hasheq for/and for/or "+
+		    "               for/lists for/first for/last for/fold"+
+		    "               for* for*/list for*/hash for*/hasheq for*/and for*/or "+
+		    "               for*/lists for*/first for*/last for*/fold                 "+
+		    "               "+
+		    "               kernel-syntax-case"+
+		    "               syntax-case syntax-case* syntax-rules syntax-id-rules"+
+		    "               let-signature fluid-let"+
+		    "               let-struct let-macro let-values let*-values"+
+		    "               case when unless "+
+		    "               let-enumerate"+
+		    "               class class* class-asi class-asi* class*/names"+
+		    "               class100 class100* class100-asi class100-asi* class100*/names"+
+		    "               rec"+
+		    "               make-object mixin"+
+		    "               define-some do opt-lambda"+
+		    "               send* with-method"+
+		    "               define-record"+
+		    "               catch shared"+
+		    "               unit/sig unit/lang"+
+		    "               with-handlers"+
+		    "               interface"+
+		    "               parameterize"+
+		    "               call-with-input-file call-with-input-file* with-input-from-file"+
+		    "               with-input-from-port call-with-output-file"+
+		    "               with-output-to-file with-output-to-port").split(/\s+/)),
+    
     PATTERNS : [['whitespace' , /^([ \f\r\t\v\u00A0\u2028\u2029]+)/],
 		['newline', /^[\n]/],
 		['#;', /^[#][;]/],
@@ -374,9 +418,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 
     // isBeginLike: string -> boolean
     isBeginLike: function(s) {
-	var keywords = ("begin case-lambda compound-unit compound-unit/sig " +
-			"cond delay inherit match-lambda match-lambda* " +
-			"override private public sequence unit").split(" ");
+	var keywords = bespin.syntax.SchemeConstants.BEGIN_LIKE;
 	for (i = 0; i < keywords.length; i++) {
 	    if (keywords[i] == s) { 
 		return true; 
@@ -399,7 +441,7 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 
     // isLambdaLike: string -> boolean
     isLambdaLike: function(s) {
-	var keywords = ["lambda"]; // FIXME: fill me in
+	var keywords = bespin.syntax.SchemeConstants.LAMBDA_LIKE;
 	for (i = 0; i < keywords.length; i++) {
 	    if (keywords[i] == s) { 
 		return true; 
