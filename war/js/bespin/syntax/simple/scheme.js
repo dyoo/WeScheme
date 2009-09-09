@@ -236,6 +236,27 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
     },
 
 
+    chooseClosingBracketCharacter: function(model, pos) {
+	var tokens = this.tokenize(model.getDocument());
+	var baseOffset = model.getOffset(pos);
+	var i = this.findTokenIndex(tokens, baseOffset);
+	if (i != undefined) { 
+	    if (tokens[i].type == 'newline') { i--; }
+	    var posInToken = baseOffset - tokens[i].offset;
+	    var extension = (tokens[i].text.substring(0, posInToken) + 
+			     "]" +
+			     tokens[i].text.substring(posInToken));
+	    if (this.tokenize(extension).length == 1) {
+		return "]";
+	    } else {
+		// FIXME
+		return "]";
+	    }
+	} else {
+	    return "]";
+	}
+    },
+
 
     // computeIndentationLevel: model number -> (or number undefined).
     // Figures out at what column this row should be indented.

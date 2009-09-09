@@ -87,6 +87,9 @@ dojo.provide("bespin.util.keys");
         FORWARD_SLASH: 191,
         TILDE: 192,
         BACK_SLASH: 220,
+
+
+	// Character code
 	CLOSE_BRACKET: 93
     };
 

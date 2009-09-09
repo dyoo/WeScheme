@@ -600,6 +600,7 @@ dojo.declare("bespin.editor.Actions", null, {
 	args.newchar = 
 	    this.editor.ui.syntaxModel.chooseClosingBracketCharacter(
 		this.editor.model,
+		this.cursorManager.getModelPosition(),
 		this.editor.language);
 	this.insertCharacter(args);
     },

@@ -310,6 +310,21 @@ dojo.declare("bespin.editor.DefaultEditorKeyListener", null, {
         // Allow for multiple key maps to be defined
         this.keyMap = this.defaultKeyMap;
         this.keyMapDescriptions = {};
+
+        this.charMap = {}
+        this.charMapDescriptions = {};
+    },
+
+    bindChar: function(charCode,metaKey, ctrlKey, altKey, shiftKey, action, name) {
+	this.charMap[[charCode, metaKey, ctrlKey, altKey, shiftKey]] =
+            (typeof action == "string") ?
+                function() {
+                    var toFire = bespin.events.toFire(action);
+                    bespin.publish(toFire.name, toFire.args);
+                } : dojo.hitch(this.actions, action);
+
+        if (name) this.charMapDescriptions[[charCode, metaKey, ctrlKey, altKey, shiftKey]] = name;
+   
     },
 
     bindKey: function(keyCode, metaKey, ctrlKey, altKey, shiftKey, action, name) {
@@ -354,6 +369,26 @@ dojo.declare("bespin.editor.DefaultEditorKeyListener", null, {
         }
         return this.bindKey(keyCode, metaKey, ctrlKey, altKey, shiftKey, action, name);
     },
+
+    bindCharString: function(modifiers, charCode, action, name) {
+        var ctrlKey = (modifiers.toUpperCase().indexOf("CTRL") != -1);
+        var altKey = (modifiers.toUpperCase().indexOf("ALT") != -1);
+        var metaKey = (modifiers.toUpperCase().indexOf("META") != -1) || (modifiers.toUpperCase().indexOf("APPLE") != -1);
+        var shiftKey = (modifiers.toUpperCase().indexOf("SHIFT") != -1);
+
+        // Check for the platform specific key type
+        // The magic "CMD" means metaKey for Mac (the APPLE or COMMAND key)
+        // and ctrlKey for Windows (CONTROL)
+        if (modifiers.toUpperCase().indexOf("CMD") != -1) {
+            if (bespin.util.isMac()) {
+                metaKey = true;
+            } else {
+                ctrlKey = true;
+            }
+        }
+        return this.bindChar(charCode, metaKey, ctrlKey, altKey, shiftKey, action, name);
+    },
+
 
     bindKeyStringSelectable: function(modifiers, keyCode, action, name) {
         this.bindKeyString(modifiers, keyCode, action, name);
@@ -425,15 +460,15 @@ dojo.declare("bespin.editor.DefaultEditorKeyListener", null, {
         var actions = this.editor.ui.actions;
 
         if (charToPrint) {
-	    var possibleAction = this.keyMap[[e.charCode,
-					      false, 
-					      false, 
-					      false,
-					      false]];
-	    if (possibleAction) {
+	    var possibleAction = this.charMap[[e.charCode,
+					       e.metaKey, 
+					       e.ctrlKey,
+					       e.altKey,
+					       e.shiftKey]];
+	    if (typeof possibleAction == 'function') {
 		if (this.lastAction == possibleAction) {
                     delete this.lastAction;
-		} else if (typeof possibleAction == "function") {
+		} else {
 		    possibleAction(args);
 		}
 	    }  else {
@@ -1009,7 +1044,7 @@ dojo.declare("bespin.editor.UI", null, {
         listener.bindKeyString("CTRL", Key.DELETE, this.actions.deleteWordRight, "Delete a word to the right");
 
         listener.bindKeyString("", Key.ENTER, this.actions.newline, "Insert newline");
-	listener.bindKeyString("", Key.CLOSE_BRACKET, this.actions.closeBracket, "Insert close bracket");
+	listener.bindCharString("", Key.CLOSE_BRACKET, this.actions.closeBracket, "Insert close bracket");
 
         listener.bindKeyString("CMD", Key.ENTER, this.actions.newlineBelow, "Insert newline at end of current line");
         listener.bindKeyString("", Key.TAB, this.actions.syntaxIndent, "Indent");
