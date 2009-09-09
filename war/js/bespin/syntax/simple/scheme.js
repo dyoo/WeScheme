@@ -44,6 +44,7 @@ bespin.syntax.SchemeConstants = {
     OTHER: "plain",
 
 
+    // Keywords
     BEGIN_LIKE : ("begin case-lambda compound-unit compound-unit/sig " +
 		  "cond delay inherit match-lambda match-lambda* " +
 		  "override private public sequence unit").split(" "),
@@ -113,15 +114,15 @@ bespin.syntax.SchemeConstants = {
 
 dojo.declare("bespin.syntax.simple.Scheme", null, {
 
-    keywords: ' define define-struct lambda cond if local and or ',
-
     punctuation: '{ } ( ) \' " ; \''.split(" "),
 
     toString: function() { "Scheme syntax highlighting object" },
 
-    startsWithKeyword: function (buffer) {
-	return this.keywords.indexOf(" " + buffer + " ") > -1;
+    startsWithKeyword: function(buffer) {
+	return this.isDefineLike(buffer) || this.isLambdaLike(buffer) || this.isBeginLike(buffer);
     },
+
+
 
 
     // isParen: string -> boolean
@@ -417,38 +418,38 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 
 
     // isBeginLike: string -> boolean
-    isBeginLike: function(s) {
+    isBeginLike: (function() {
+	var cache = {};
 	var keywords = bespin.syntax.SchemeConstants.BEGIN_LIKE;
-	for (i = 0; i < keywords.length; i++) {
-	    if (keywords[i] == s) { 
+	for (var i = 0; i < keywords.length; i++) {
+	    cache[keywords[i]] = true;
+	}
+	return function(s) {
+	    if (cache[s]) { 
 		return true; 
 	    }
-	}
-	return false;
-    },
+	    return false;
+	}})(),
 
     // isDefineLike: string -> boolean
     isDefineLike: function(s) {
-	var keywords = ["local"];
-	if (s.match("^define")) { return true; }
-	for (i = 0; i < keywords.length; i++) {
-	    if (keywords[i] == s) { 
-		return true; 
-	    }
-	}
+	if (s.match("(^define)|(^local$)")) { return true; }
 	return false;
     },
 
     // isLambdaLike: string -> boolean
-    isLambdaLike: function(s) {
+    isLambdaLike: (function() {
+	var cache = {};
 	var keywords = bespin.syntax.SchemeConstants.LAMBDA_LIKE;
-	for (i = 0; i < keywords.length; i++) {
-	    if (keywords[i] == s) { 
+	for (var i = 0; i < keywords.length; i++) {
+	    cache[keywords[i]] = true;
+	}
+	return function(s) {
+	    if (cache[s]) { 
 		return true; 
 	    }
-	}
-	return false;
-    },
+	    return false;
+	}})(),
 
 
 
