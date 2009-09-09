@@ -79,6 +79,19 @@ dojo.declare("bespin.syntax.simple.Model", bespin.syntax.Model, {
 	}
     },
 
+    
+    // chooseClosingBracketCharacter: model language -> string
+    // Figures out context-sensitive close bracket, if one exists.
+    chooseClosingBracketCharacter: function(model, language) {
+	this._setupEngine(language);
+	if (typeof this.engine.chooseClosingBracketCharacter == 'function') {
+	    return this.engine.chooseClosingBracketCharacter(model, row);
+	} else {
+	    return "]";
+	}
+    },
+
+
 
     getSyntaxStylesPerLine: function(lineText, lineNumber, language) {
 	this._setupEngine(language);

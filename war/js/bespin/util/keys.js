@@ -86,7 +86,8 @@ dojo.provide("bespin.util.keys");
         // Special keys that dojo.keys doesn't have
         FORWARD_SLASH: 191,
         TILDE: 192,
-        BACK_SLASH: 220
+        BACK_SLASH: 220,
+	CLOSE_BRACKET: 93
     };
 
     dojo.mixin(bespin.util.keys.Key, dojo.keys); // use dojo.keys

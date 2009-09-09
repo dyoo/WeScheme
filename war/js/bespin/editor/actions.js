@@ -595,6 +595,16 @@ dojo.declare("bespin.editor.Actions", null, {
         }
     },
 
+
+    closeBracket: function(args) {
+	args.newchar = 
+	    this.editor.ui.syntaxModel.chooseClosingBracketCharacter(
+		this.editor.model,
+		this.editor.language);
+	this.insertCharacter(args);
+    },
+
+
     newline: function(args) {
         if (this.editor.readonly) return;
 

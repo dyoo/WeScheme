@@ -209,7 +209,7 @@ dojo.declare("bespin.editor.DocumentModel", null, {
         for (var x = 0; x < this.getRowCount(); x++) {
             file[x] = this.getRowArray(x).join('');
         }
-        return file.join("\n");
+	return file.join("\n");
     },
 
     insertDocument: function(content) {
