@@ -44,7 +44,27 @@ bespin.syntax.SchemeConstants = {
     OTHER: "plain",
 
 
-
+    PATTERNS : [['whitespace' , /^([ \f\r\t\v\u00A0\u2028\u2029]+)/],
+		['newline', /^[\n]/],
+		['#;', /^[#][;]/],
+		['comment' , // piped comments
+		 new RegExp("^[#][|]"+
+			    "(?:(?:\\|[^\\#])|[^\\|])*"+
+			    "[|][#]")],
+		['comment' , /(^;[^\n]*)/],
+		['(' , /^(\(|\[|\{)/],
+		[')' , /^(\)|\]|\})/],
+		['\'' , /^(\')/],
+		['`' , /^(`)/],
+		[',' , /^(,)/],
+		['char', /^\#\\(newline|backspace)/],
+		['char', /^\#\\(.)/],
+		['number' , /^([+\-]?(?:\d+\/\d+|\d+\.\d+|\d+\.|\.\d+|\d+))/],
+		['string' , new RegExp("^\"((?:([^\\\\\"]|(\\\\.)))*)\"")],      
+		['symbol' ,/^([a-zA-Z\:\+\=\~\_\?\!\@\#\$\%\^\&\*\-\/\.\>\<][\w\:\+\=\~\_\?\!\@\#\$\%\^\&\*\-\/\.\>\<]*)/],
+		// If the lexer just can't match anything, just keep marching.
+		['any' ,/^(.)/]
+	       ]
 };
 
 dojo.declare("bespin.syntax.simple.Scheme", null, {
@@ -105,32 +125,11 @@ dojo.declare("bespin.syntax.simple.Scheme", null, {
 	    return this._lastTokenization.slice(); 
 	}
 	this._lastSeenTokenized = s;
-
+	var PATTERNS = bespin.syntax.SchemeConstants.PATTERNS;
 	var row = 0;
 	var col = 0;
 	var offset = 0;
 	var tokens = [];
-	var PATTERNS = [['whitespace' , /^([ \f\r\t\v\u00A0\u2028\u2029]+)/],
-			['newline', /^[\n]/],
-			['#;', /^[#][;]/],
-			['comment' , // piped comments
-			 new RegExp("^[#][|]"+
-				    "(?:(?:\\|[^\\#])|[^\\|])*"+
-				    "[|][#]")],
-			['comment' , /(^;[^\n]*)/],
-			['(' , /^(\(|\[|\{)/],
-			[')' , /^(\)|\]|\})/],
-			['\'' , /^(\')/],
-			['`' , /^(`)/],
-			[',' , /^(,)/],
-			['char', /^\#\\(newline|backspace)/],
-			['char', /^\#\\(.)/],
-			['number' , /^([+\-]?(?:\d+\.\d+|\d+\.|\.\d+|\d+))/],
-			['string' , new RegExp("^\"((?:([^\\\\\"]|(\\\\.)))*)\"")],      
-			['symbol' ,/^([a-zA-Z\:\+\=\~\_\?\!\@\#\$\%\^\&\*\-\/\.\>\<][\w\:\+\=\~\_\?\!\@\#\$\%\^\&\*\-\/\.\>\<]*)/],
-			// If the lexer just can't match anything, just keep marching.
-			['any' ,/^(.)/]
-		       ];
 	while (s != '') {
 	    for (var i = 0; i < PATTERNS.length; i++) {
 		var patternName = PATTERNS[i][0];
