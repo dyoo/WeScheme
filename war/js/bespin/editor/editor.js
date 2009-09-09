@@ -187,24 +187,59 @@ dojo.declare("bespin.editor.ParenHighlightingHelper", null, {
     // If the col is -1 on the endPos, the selection goes for the entire line
     // returns undefined if the row has no selection
     getRowHighlightingPositions: function(rowIndex) {
-	if (this.editor.getSelection()) { return []; }
+	if (this.editor.getSelection()) { 
+	    return []; 
+	}
 
 	var cursorModelPos = this.editor.getCursorPos();
 	var matchingParenPos =  
 	    this.editor.ui.syntaxModel.findMatchingParenPos(this.editor.model, cursorModelPos, this.editor.language);
 	if (! matchingParenPos) { 
-	    return undefined;
+	    return [];
 	}
 
 	var results = [];
 	for (var i = 0; i < matchingParenPos.length; i++) {
 	    var selection = matchingParenPos[i];
-            if ((selection.endPos.row < rowIndex) || (selection.startPos.row > rowIndex)) return undefined;
+            if ((selection.endPos.row < rowIndex) || (selection.startPos.row > rowIndex)) {
+		return [];
+	    }
             var startCol = (selection.startPos.row < rowIndex) ? 0 : selection.startPos.col;
             var endCol = (selection.endPos.row > rowIndex) ? -1 : selection.endPos.col;	    
             results.push({ startCol: startCol, endCol: endCol });
 	}
 	return results;
+    },
+
+
+    // Looking at the last cursor position and the current position,
+    // mutate the dirty boolean array so that we properly redraw the
+    // highlight when the cursor moves.
+    markDirtyBasedOnHighlightingChange: function(dirty) {
+	var scratch = {};
+	var applyScratch = function(selections) {
+	    var i, j;
+	    for (i = 0; i < selections.length; i++) {
+		for (j = selections[i].startPos.row; j <= selections[i].endPos.row; j++) {
+		    scratch[j] = !scratch[j];
+		}
+	    }
+	};
+	if (this.editor.ui.lastCursorPos) {
+	    applyScratch(
+		this.editor.ui.syntaxModel.findMatchingParenPos(this.editor.model, 
+								this.editor.ui.lastCursorPos,
+								this.editor.language));
+	}
+	applyScratch(
+	    this.editor.ui.syntaxModel.findMatchingParenPos(this.editor.model, 
+							    this.editor.getCursorPos(),
+							    this.editor.language));
+	for (var line in scratch) {
+	    if (scratch[line]) {
+		dirty[line] = true;
+	    }
+	}
     }
 });
 
@@ -1193,7 +1228,11 @@ dojo.declare("bespin.editor.UI", null, {
 
             // we always repaint the current line
             dirty[ed.cursorManager.getCursorPosition().row] = true;
+
+	    // Also mark any lines dirty whose highlighting status has changed.
+	    this.parenHighlightingHelper.markDirtyBasedOnHighlightingChange(dirty);
         }
+
 
         // save this state for the next paint attempt (see above for usage)
         this.lastCursorPos = bespin.editor.utils.copyPos(ed.cursorManager.getCursorPosition());
@@ -1501,10 +1540,11 @@ dojo.declare("bespin.editor.UI", null, {
 
                 // ...don't bother painting the line unless it is "dirty" (see above for dirty checking)
 // Currently ignore dirty checking.
-//                 if (!dirty[currentLine]) {
-//                     y += this.lineHeight;
-//                     continue;
-//                 }
+		    
+                if (!dirty[currentLine]) {
+		    y += this.lineHeight;
+                    continue;
+                }
 
 
                 // setup a clip for the current line only; this makes drawing just that piece of the scrollbar easy
@@ -1701,17 +1741,15 @@ dojo.declare("bespin.editor.UI", null, {
         // paint the selection bar if the line has selections
         var selections = this.parenHighlightingHelper.getRowHighlightingPositions(currentLine);
         var cwidth = this.getWidth();
-        if (selections) {
-	    for (var i = 0; i < selections.length; i++) {
-		var firstColumn = Math.floor(Math.abs(this.xoffset / this.charWidth));
-		var lastColumn = firstColumn + (Math.ceil((cwidth - this.gutterWidth) / this.charWidth));
-		var tx = x + (selections[i].startCol * this.charWidth);
-		var tw = (selections[i].endCol == -1) ? (lastColumn - firstColumn) * this.charWidth : 
-		    (selections[i].endCol - selections[i].startCol) * this.charWidth;
-		ctx.fillStyle = this.editor.theme.editorParenMatchedBackground;
-		ctx.fillRect(tx, y, tw, this.lineHeight);
-	    }
-        }
+	for (var i = 0; i < selections.length; i++) {
+	    var firstColumn = Math.floor(Math.abs(this.xoffset / this.charWidth));
+	    var lastColumn = firstColumn + (Math.ceil((cwidth - this.gutterWidth) / this.charWidth));
+	    var tx = x + (selections[i].startCol * this.charWidth);
+	    var tw = (selections[i].endCol == -1) ? (lastColumn - firstColumn) * this.charWidth : 
+		(selections[i].endCol - selections[i].startCol) * this.charWidth;
+	    ctx.fillStyle = this.editor.theme.editorParenMatchedBackground;
+	    ctx.fillRect(tx, y, tw, this.lineHeight);
+	}
     },
 
 
