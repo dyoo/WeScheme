@@ -143,26 +143,26 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.handleError = function(err) {
 	if (err instanceof plt.Kernel.MobyParserError) {
 		this.addToInteractions(
-		    "Hit an error around: " + 
+		    "Error (" + 
 			Loc_dash__greaterthan_string(err.loc).toDisplayedString()
-			+ "\n");
+			+ ")\n");
 	    this.addToInteractions(err.msg + "\n");
 	} else if (err instanceof plt.Kernel.MobySyntaxError) {
 		this.addToInteractions(
-		    "Hit an error around: " + 
+		    "Error (" + 
 			Loc_dash__greaterthan_string(err.stx.loc).toDisplayedString()
-			+ "\n");
+			+ ")\n");
 	    this.addToInteractions(err.msg + "\n");
 	} else if (err instanceof plt.Kernel.MobyError){
 	    if (plt.Kernel.lastLoc) {
 		this.addToInteractions(
-		    "Hit an error around: " + plt.Kernel.lastLoc + "\n");
+		    "Error (" + plt.Kernel.lastLoc + ")\n");
 	    }
 	    this.addToInteractions(err.msg + "\n");
 	} else {
 	    if (plt.Kernel.lastLoc) {
 		this.addToInteractions(
-		"Hit an error around: " + plt.Kernel.lastLoc + "\n");
+		    "Error (" + plt.Kernel.lastLoc + ")\n");
 	    }
 	    this.addToInteractions(err.toString() + "\n");
 	}
