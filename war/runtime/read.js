@@ -38,20 +38,27 @@ plt.reader = {};
 
 
     var PATTERNS = [['whitespace' , /^(\s+)/],
-		    ['#;', /^[#][;]/],
+		    ['#;', /^([#][;])/],
 		    ['comment' , // piped comments
-		     new RegExp("^[#][|]"+
+		     new RegExp("^([#][|]"+
 				"(?:(?:\\|[^\\#])|[^\\|])*"+
-				"[|][#]")],
+				"[|][#])")],
 		    ['comment' , /(^;[^\n]*)/],
 		    ['(' , /^(\(|\[|\{)/],
 		    [')' , /^(\)|\]|\})/],
 		    ['\'' , /^(\')/],
 		    ['`' , /^(`)/],
+		    [',@' , /^(,@)/],
 		    [',' , /^(,)/],
 		    ['char', /^\#\\(newline|backspace)/],
 		    ['char', /^\#\\(.)/],
-		    ['number' , /^([+\-]?(?:\d+\/\d+|\d+\.\d+|\d+\.|\.\d+|\d+))/],
+
+		    ['complex' , /^((?:\#[ei])?[+\-]?(?:\d+\/\d+|\d+\.\d+|\d+\.|\.\d+|\d+)?[+\-](?:\d+\/\d+|\d+\.\d+|\d+\.|\.\d+|\d+)i)/],
+		    ['number' , /^((?:\#[ei])?[+-]inf.0)/],
+		    ['number' , /^((?:\#[ei])?[+-]nan.0)/],
+		    ['number' , /^((?:\#[ei])?[+\-]?(?:\d+\/\d+|\d+\.\d+|\d+\.|\.\d+|\d+))/],
+
+
 		    ['string' , new RegExp("^\"((?:([^\\\\\"]|(\\\\.)))*)\"")],      
 		    ['symbol' ,/^([a-zA-Z\:\+\=\~\_\?\!\@\#\$\%\^\&\*\-\/\.\>\<][\w\:\+\=\~\_\?\!\@\#\$\%\^\&\*\-\/\.\>\<]*)/]
 		   ];
@@ -123,6 +130,7 @@ plt.reader = {};
 	var quoteSymbol = plt.types.Symbol.makeInstance("quote");
 	var quasiquoteSymbol = plt.types.Symbol.makeInstance("quasiquote");
 	var unquoteSymbol = plt.types.Symbol.makeInstance("unquote");
+	var unquoteSplicingSymbol = plt.types.Symbol.makeInstance("unquote-splicing");
 	var empty = plt.types.Empty.EMPTY;
 
 	function isType(type) {
@@ -180,8 +188,50 @@ plt.reader = {};
 	    case '(': return ')';
 	    case '[' : return ']';
 	    case '{' : return '}';
+	    default: throw new Error();
 	    }
 	}
+
+
+
+	// parseBasicNumber: string -> plt.types.Number
+	// Reads a non-complex number.
+	var parseBasicNumber = function(text, isExact) {
+	    var rationalMatch = text.match(/([+\-]?\d+)\/(\d+)/);
+	    if (text == '+inf.0') {
+		return plt.types.FloatPoint.makeInstance(Number.POSITIVE_INFINITY);
+	    } else if (text == '-inf.0') {
+		return plt.types.FloatPoint.makeInstance(Number.NEGATIVE_INFINITY);
+	    } else if (text == "+nan.0" || text == '-nan.0') {
+		return plt.types.FloatPoint.makeInstance(Number.NaN);
+	    } else if (text.match(/\./)) {
+		if (isExact) {
+		    var decimalMatch = text.match("^(.*)[.](.*)$");
+		    return plt.types.NumberTower.add(
+			plt.types.Rational.makeInstance(
+			    parseInt(decimalMatch[1])),
+			plt.types.Rational.makeInstance(
+			    parseInt(decimalMatch[2]), 
+			    Math.pow(10, decimalMatch[2].length)));
+		} else {
+		    return plt.types.FloatPoint.makeInstance(parseFloat(text));
+		}
+	    } else if (rationalMatch) {
+		if (isExact) {
+		    return plt.types.Rational.makeInstance(parseInt(rationalMatch[1]),
+							   parseInt(rationalMatch[2]));
+		} else {
+		    return plt.types.FloatPoint.makeInstance(parseInt(rationalMatch[1])/
+							     parseInt(rationalMatch[2]));
+		}
+	    } else {
+		if (isExact) {
+		    return plt.types.Rational.makeInstance(parseInt(text), 1);
+		} else {
+		    return plt.types.FloatPoint.makeInstance(parseInt(text));
+		}
+	    }
+	};
 
 
 	// readExpr: -> stx
@@ -236,24 +286,43 @@ plt.reader = {};
 	    case ',':
 		return readQuoted(",", unquoteSymbol);
 
+	    case ',@':
+		return readQuoted(",@", unquoteSplicingSymbol);
+
+
 	    case 'number':
 		var t = eat('number');
-		var rationalMatch = t[1].match(/([+\-]?\d+)\/(\d+)/);
-		if (t[1].match(/\./)) {
-		    return makeAtom(plt.types.FloatPoint.makeInstance(parseFloat(t[1])), 
-				    t[2]);
-		} else if (rationalMatch) {
-		    // Rational
-		    return makeAtom(plt.types.Rational.makeInstance(parseInt(rationalMatch[1]),
-								    parseInt(rationalMatch[2])))
+		var exactnessMatch = t[1].match(/^(\#[ie])(.+)$/);
+		if (exactnessMatch) {
+		    if (exactnessMatch[1] == "#i") {
+			return makeAtom(parseBasicNumber(exactnessMatch[2], false),
+					t[2]);
+		    } else {
+			return makeAtom(parseBasicNumber(exactnessMatch[2], true),
+					t[2]);
+		    }
 		} else {
-		    return makeAtom(plt.types.Rational.makeInstance(parseInt(t[1]), 1), 
+		    return makeAtom(parseBasicNumber(t[1], true),
 				    t[2]);
 		}
+
+	    case 'complex':
+		var t = eat('complex');
+		var complexMatch = t[1].match(/^((?:\#[ei])?)([+\-]?(?:\d+\/\d+|\d+\.\d+|\d+\.|\.\d+|\d+)?)([+\-](?:\d+\/\d+|\d+\.\d+|\d+\.|\.\d+|\d+))i/);
+		var exactness = (complexMatch[1] == "#i" ? false : true);
+		var a = (complexMatch[2] != "" ?
+			 parseBasicNumber(complexMatch[2], exactness) :
+			 plt.types.Rational.ZERO);
+		var b = parseBasicNumber(complexMatch[3], exactness);
+		// FIXME: Complex needs to be changed so it takes in either
+		// exact or inexact basic values.
+		return makeAtom(plt.types.Complex.makeInstance(a.toFloat(), 
+							       b.toFloat()));
+
 	    case 'string':
 		var t = eat('string');
 		return makeAtom(plt.types.String.makeInstance(t[1]),
-				t.loc);
+				t[2]);
 	    case 'char':
 		var t = eat('char');
 		if (t[1] == 'newline') {
@@ -268,6 +337,10 @@ plt.reader = {};
 
 	    case 'symbol':
 		var t = eat('symbol');
+		if (t[1] == '.') {
+		    throw new plt.Kernel.MobyParserError
+		    ("Dotted pairs are not currently accepted by Moby", t[2]);
+		}
 		return makeAtom(plt.types.Symbol.makeInstance(t[1]), t[2]);
 
 	    default:
