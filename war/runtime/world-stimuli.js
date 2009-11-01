@@ -15,27 +15,34 @@ plt.world = plt.world || {};
     //
     // Processes a stimuli by compute the effect and applying it, and
     // computing a new world to replace the old.
-    function doStimuli(computeEffectF, computeWorldF) {
+    function doStimuli(computeEffectF, computeWorldF, restArgs) {
+	var effectUpdaters = [];
 	change(function(w) {
+	    var args = [w].concat(restArgs);
 	    if (computeEffectF) {
-		var effect = computeEffectF(w);
-		applyEffect(effect);
+		var effect = computeEffectF(args);
+		effectUpdaters = applyEffect(effect);
 	    }    
 	    if (computeWorldF) {
-		return computeWorldF(w);
+		return computeWorldF(args);
 	    } else {
 		return w;
 	    }
 	});
+	
+	for (var i = 0; i < effectUpdaters.length; i++) {
+	    change(effectUpdaters[i]);
+	}
     }
 
 
     // Orientation change
-    stimuli.onOrientation = function(azimuth, pitch, roll) {
+    stimuli.onTilt = function(azimuth, pitch, roll) {
 	var onTilt = lookup("onTilt");
 	var onTiltEffect = lookup("onTiltEffect");
-	doStimuli(function(w) { return onTiltEffect([w, flt(azimuth), flt(pitch), flt(roll)]); },
-		  function(w) { return onTilt([w, flt(azimuth), flt(pitch), flt(roll)]); });
+	doStimuli(onTiltEffect, 
+		  onTilt,
+		  [flt(azimuth), flt(pitch), flt(roll)]);
     };
 
 
@@ -43,8 +50,7 @@ plt.world = plt.world || {};
     stimuli.onAcceleration = function(x, y, z) {
 	var onAcceleration = lookup('onAcceleration');
 	var onAccelerationEffect = lookup('onAccelerationEffect');
-	doStimuli(function(w) { return onAccelerationEffect([w, flt(x), flt(y), flt(z)]); },
-		  function(w) { return onAcceleration([w, flt(x), flt(y), flt(z)]); });
+	doStimuli(onAccelerationEffect, onAcceleration, [flt(x), flt(y), flt(z)]);
     };
 
 
@@ -52,8 +58,7 @@ plt.world = plt.world || {};
     stimuli.onShake = function() {
 	var onShake = lookup('onShake');
 	var onShakeEffect = lookup('onShakeEffect');
-	doStimuli(function(w) { return onShakeEffect([w]); },
-		  function(w) { return onShake([w]); });
+	doStimuli(onShakeEffect, onShake, []);
     };
 
 
@@ -62,9 +67,9 @@ plt.world = plt.world || {};
     stimuli.onLocation = function(lat, lng) {
 	var onLocationChange = lookup('onLocationChange');
 	var onLocationChangeEffect = lookup('onLocationChangeEffect');
-	doStimuli(function(w) { return onLocationChangeEffect([w, flt(lat), flt(lng)]); },
-		  function(w) { return onLocationChange([w, flt(lat), flt(lng)]); });
+	doStimuli(onLocationChangeEffect, onLocationChange, [flt(lat), flt(lng)]);
     };
+
 
 
     // Keystrokes
@@ -82,36 +87,28 @@ plt.world = plt.world || {};
 		keyname = "right";
 	    } else if (code == 40) {
 		keyname = "down";
+	    } else if (code == 32) {
+		keyname = "space";
+	    } else if (code == 13) {
+		keyname = "enter";
 	    } else {
 		keyname = String.fromCharCode(code); 
 	    }
 	    return keyname;
 	}
 	var keyname = getKeyCodeName(e);
-	
 	var onKey = lookup('onKey');
 	var onKeyEffect = lookup('onKeyEffect');
-	doStimuli(function(w) { return onKeyEffect([w, keyname]); },
-		  function(w) { return onKey([w, keyname]); });
+	doStimuli(onKeyEffect, onKey, [keyname]);
     };
 
-
-   
-    // Shaking
-    stimuli.onShake = function() {
-	var onShake = lookup('onShake');
-	var onShakeEffect = lookup('onShakeEffect');
-	doStimuli(function(w) { return onShakeEffect([w]); },
-		  function(w) { return onShake([w]); });
-    };
 
 
     // Time ticks
     stimuli.onTick = function() {
 	var onTick = lookup('onTick');
 	var onTickEffect = lookup('onTickEffect');
-	doStimuli(function(w) { return onTickEffect([w]); },
-		  function(w) { return onTick([w]); });
+	doStimuli(onTickEffect, onTick, []);
     };
 
 
@@ -125,10 +122,18 @@ plt.world = plt.world || {};
 
 	var onAnnounce = lookup('onAnnounce');
 	var onAnnounceEffect = lookup('onAnnounceEffect');	
-	doStimuli(function(w) { return onTickEffect([w, eventName, valsList]); },
-		  function(w) { return onTick([w, eventName, valsList]); });
+	doStimuli(onAnnounce, onAnnounceEffect, [eventName, valsList]);
     };
 
+
+
+    // The shutdown stimuli: special case that forces a world computation to quit.
+    stimuli.onShutdown = function() {	
+	var shutdownWorld = lookup('shutdownWorld');
+	if (shutdownWorld) {
+	    shutdownWorld();
+	}
+    }
 
 
 
@@ -137,16 +142,17 @@ plt.world = plt.world || {};
     // Helpers
     var flt = plt.types.FloatPoint.makeInstance;
     
-    function change(f) {
-	plt.world.config.CONFIG.lookup('changeWorld')(f);
-    }
-
     function lookup(k) {
 	return plt.world.config.CONFIG.lookup(k);
     }
 
+    function change(f) {
+	lookup('changeWorld')(f);
+    }
+
+    // applyEffect: compound-effect: (arrayof (world -> world))
     function applyEffect(e) {
-	plt.world.Kernel.applyEffect(e);
+	return plt.world.Kernel.applyEffect(e);
     }
 
     //////////////////////////////////////////////////////////////////////

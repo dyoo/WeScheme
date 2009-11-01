@@ -16,7 +16,7 @@ var plt = plt || {};
     
 
     // Compatibility for attaching events to nodes.
-    function attachEvent(node, eventName, fn) {
+    var attachEvent = function(node, eventName, fn) {
 	if (node.addEventListener) {
 	    // Mozilla
 	    node.addEventListener(eventName, fn, false);
@@ -24,12 +24,12 @@ var plt = plt || {};
 	    // IE
 	    node.attachevent('on' + event, fn, false);
 	}
-    }
+    };
 
 
 
     // Inheritance from pg 168: Javascript, the Definitive Guide.
-    function heir(p) {
+    var heir = function(p) {
 	function f() {}
 	f.prototype = p;
 	return new f();
@@ -38,129 +38,135 @@ var plt = plt || {};
 
     //////////////////////////////////////////////////////////////////////
 
-    function MobyError(msg) {
+    var MobyError = function(msg) {
 	this.msg = msg;
     }
     MobyError.prototype.name= 'MobyError';
-    MobyError.prototype.toString = function () { return "MobyError: " + this.msg }
+    MobyError.prototype.toString = function () { return this.name + ": " + this.msg }
 
 
-    function MobyParserError(msg, loc) {
+    var MobyParserError = function(msg, loc) {
 	MobyError.call(this, msg);
 	this.loc = loc;
     }
     MobyParserError.prototype = heir(MobyError.prototype);
     MobyParserError.prototype.name= 'MobyParserError';
-    MobyParserError.prototype.toString = function () { return "MobyParserError: " + this.msg }
 
     
-    function MobySyntaxError(msg, stx) {
+    var MobySyntaxError = function(msg, stx) {
 	MobyError.call(this, msg);
 	this.stx = stx;
     }
     MobySyntaxError.prototype = heir(MobyError.prototype);
     MobySyntaxError.prototype.name= 'MobySyntaxError';
-    MobySyntaxError.prototype.toString = function () { return "MobySyntaxError: " + this.msg }
 
 
-    function MobyTypeError(msg) {
+    var MobyTypeError = function(msg) {
 	MobyError.call(this, msg);
     }
     MobyTypeError.prototype = heir(MobyError.prototype);
     MobyTypeError.prototype.name= 'MobyTypeError';
-    MobyTypeError.prototype.toString = function () { return "MobyTypeError: " + this.msg }
 
 
 
-    function MobyRuntimeError(msg) {
+    var MobyRuntimeError = function(msg) {
 	MobyError.call(this, msg);
     }
     MobyRuntimeError.prototype = heir(MobyError.prototype);
     MobyRuntimeError.prototype.name= 'MobyRuntimeError';
-    MobyRuntimeError.prototype.toString = function () { return "MobyRuntimeError: " + this.msg }
 
+
+    
+    var MobyTestingError = function(msg) {
+	MobyError.call(this, msg);
+    }
+    MobyTestingError.prototype = heir(MobyRuntimeError.prototype);
+    MobyTestingError.prototype.name= 'MobyTestingError';
+
+
+    
     //////////////////////////////////////////////////////////////////////
 
 
     // _gcd: integer integer -> integer
-    function _gcd(a, b) {
+    var _gcd = function(a, b) {
 	while (b != 0) {
 	    var t = a;
 	    a = b;
 	    b = t % b;
 	}
-	return a;
+	return Math.abs(a);
     }
 
     // _lcm: integer integer -> integer
-    function _lcm(a, b) {
-	return a * b / _gcd(a, b);
+    var _lcm = function(a, b) {
+	return Math.abs(a * b / _gcd(a, b));
     }
 
 
     // Returns true if x is a number.
-    function isNumber(x) {
+    var isNumber = function(x) {
 	return (x != null && x != undefined && (x instanceof plt.types.Rational || 
 						x instanceof plt.types.FloatPoint ||
 						x instanceof plt.types.Complex));
     }
 
-    function isSymbol(x) {
+    var isSymbol = function(x) {
 	return (x != null && x != undefined && x instanceof plt.types.Symbol);
     }
 
-    function isChar(x) {
+    var isChar = function(x) {
 	return x != null && x != undefined && x instanceof plt.types.Char;
     }
 
-    function isStx(x) {
+    var isStx = function(x) {
 	return stx_question_(x);
     }
 
-    function isString(x) {
+    var isString = function(x) {
 	return typeof(x) == 'string';
 	//return x != null && x != undefined && x instanceof plt.types.String;
     }
 
-    function isBoolean(x) {
+    var isBoolean = function(x) {
 	return (x == plt.types.Logic.TRUE || x == plt.types.Logic.FALSE);
     }
 
-    function isPair(x) {
+    var isPair = function(x) {
 	return x != null && x != undefined && x instanceof plt.types.Cons;
     }
 
-    function isEmpty(x) {
+    var isEmpty = function(x) {
 	return x != null && x != undefined && x instanceof plt.types.Empty;
     }
 
-    function isReal(x) {
+    var isReal = function(x) {
 	return (isNumber(x) && x.isReal());
 
     }
 
-    function isRational(x) {
+    var isRational = function(x) {
 	return x != null && x != undefined && x instanceof plt.types.Rational;
     }
 
 
-    function isComplex(x) {
+    var isComplex = function(x) {
 	return x != null && x != undefined && (x instanceof plt.types.Complex || 
 					       x instanceof plt.types.Rational ||
 					       x instanceof plt.types.FloatPoint);
     }
 
-    function isFunction(x) {
+    var isFunction = function(x) {
 	return typeof(x) == 'function';
     }
 
 
     // Returns true if x is an integer.
-    function isInteger(x) {
+    var isInteger = function(x) {
 	return x != null && x != undefined && isNumber(x) && plt.types.NumberTower.equal(x, x.floor());
     }
 
-    function isNatural(x) {
+    var isNatural = function(x) {
 	return x != null && x != undefined && isNumber(x) && plt.types.NumberTower.equal(x, x.floor()) && x.toInteger() >= 0;
     }
 
@@ -168,7 +174,7 @@ var plt = plt || {};
 
 
     // isAlphabeticString: string -> boolean
-    function isAlphabeticString(s) {
+    var isAlphabeticString = function(s) {
 	for(var i = 0; i < s.length; i++) {
 	    if (! ((s[i] >= "a" && s[i] <= "z") ||
 		   (s[i] >= "A" && s[i] <= "Z"))) {
@@ -188,15 +194,22 @@ var plt = plt || {};
 
 
 
-    function isImage(thing) {
+    var isImage = function(thing) {
 	return (thing != null && thing != undefined && thing instanceof BaseImage);
+    }
+
+
+
+    // Returns true if x is a vector
+    var isVector = function(x) {
+	return x != null && x != undefined && (x instanceof plt.types.Vector);
     }
 
 
 
     // arrayEach: (arrayof X) (X -> void) -> void
     // Apply some function on each element of the array.
-    function arrayEach(arr, f) {
+    var arrayEach = function(arr, f) {
 	for (var i = 0; i < arr.length; i++) {
 	    f.apply(arr[i], [arr[i], i]);
 	}
@@ -204,7 +217,7 @@ var plt = plt || {};
 
 
     // Apply a chaining test on pairs of elements of the list [first, second, rest ...].
-    function chainTest(test, first, second, rest) {
+    var chainTest = function(test, first, second, rest) {
 	if (! test(first, second).valueOf())
 	    return false;
 	if (rest.length == 0)
@@ -220,7 +233,7 @@ var plt = plt || {};
     
 
     // Apply a search on pairs of elements of the list [first, rest ...].
-    function chainFind(comparator, first, rest) {
+    var chainFind = function(comparator, first, rest) {
 	var i;
 	var best = first;
 	for(i = 0; i < rest.length; i++) {
@@ -233,13 +246,13 @@ var plt = plt || {};
     
 
     // Returns true if x is a list.
-    function isList(x) {
+    var isList = function(x) {
 	return x != null && x != undefined && ((x instanceof plt.types.Cons) || (x instanceof plt.types.Empty));
     }
 
 
 
-    function makeTypeErrorMessage(functionName, typeName, position, value) {
+    var makeTypeErrorMessage = function(functionName, typeName, position, value) {
 	// This is not right: we really need to turn the position into English
 	// first.  This is just a hack for now.
 	var suffixes = ["th", "st", "nd", "rd", "th", "th", "th", "th"];
@@ -253,7 +266,7 @@ var plt = plt || {};
 
 
     // Checks if x satisfies f.  If not, a MobyTypeError of msg is thrown.
-    function check(x, f, functionName, typeName, position) {
+    var check = function(x, f, functionName, typeName, position) {
 	if (! f(x)) {
 	    throw new MobyTypeError(
 		makeTypeErrorMessage(functionName, typeName, position, x));
@@ -261,7 +274,7 @@ var plt = plt || {};
     }
 
     // Throws exception if x is not a list.
-    function checkList(x, functionName, position) {
+    var checkList = function(x, functionName, position) {
 	if (! isList(x)) {
 	    throw new MobyTypeError(
 		makeTypeErrorMessage(functionName, "list", position, x));
@@ -269,7 +282,7 @@ var plt = plt || {};
     }
 
     // Checks if x is a list of f.  If not, throws a MobyTypeError of msg.
-    function checkListof(x, f, functionName, typeName, position) {
+    var checkListof = function(x, f, functionName, typeName, position) {
 	if (! isList(x)) {
 	    throw new MobyTypeError(
 		makeTypeErrorMessage(functionName, "listof " + typeName, position, x));
@@ -284,7 +297,7 @@ var plt = plt || {};
 
 
     // makeChainingComparator: (X -> boolean) string (X X (arrayof X) -> boolean) -> (X X (arrayof X) -> boolean) 
-    function makeChainingComparator(typeCheckF, typeName, comparisonF, comparatorName) {
+    var makeChainingComparator = function(typeCheckF, typeName, comparisonF, comparatorName) {
 	return function(first, second, rest) {
 	    check(first, typeCheckF, comparatorName, typeName, 1);
 	    check(second, typeCheckF, comparatorName, typeName, 2);
@@ -296,7 +309,7 @@ var plt = plt || {};
 
 
 
-    function makeNumericChainingComparator(test, comparatorName) {
+    var makeNumericChainingComparator = function(test, comparatorName) {
 	return makeChainingComparator(isNumber, "number",
 				      function(first, second, rest) {
 					  return chainTest(test, first, second, rest);
@@ -304,7 +317,7 @@ var plt = plt || {};
 				      comparatorName);
     }
 
-    function makeCharChainingComparator(test, comparatorName) {
+    var makeCharChainingComparator = function(test, comparatorName) {
 	return makeChainingComparator(isChar, "char",
 				      function(first, second, rest) {
 					  return chainTest(test, first, second, rest);
@@ -313,7 +326,7 @@ var plt = plt || {};
     }
 
 
-    function makeStringChainingComparator(test, comparatorName) {
+    var makeStringChainingComparator = function(test, comparatorName) {
 	return makeChainingComparator(isString, "string",
 				      function(first, second, rest) {
 					  return chainTest(test, first, second, rest);
@@ -386,10 +399,12 @@ var plt = plt || {};
 	
 
 	eqv_question_ : function(x, y){
-	    if (isNumber(x) && isNumber(y)) {
+	    if (isNumber(x) && isNumber(y) && x.level() == y.level()) {
 		return plt.types.NumberTower.equal(x, y);
+	    } else if (isChar(x) && isChar(y)) {
+		return x.getValue() == y.getValue();
 	    }
-	    return x == y;
+	    return x === y;
 	},
 	
 
@@ -558,10 +573,14 @@ var plt = plt || {};
 	    check(first, isNumber, "/", "number", 1);
 	    arrayEach(args, function(x, i) { check(x, isNumber, "/", "number", i+2) });
 	    var i, div = first;
-	    for(i = 0; i < args.length; i++) {
-		div = plt.types.NumberTower.divide(div, args[i]);
+	    if (args.length == 0) {
+		return plt.types.NumberTower.divide(plt.types.Rational.ONE, div);
+	    } else {
+		for(i = 0; i < args.length; i++) {
+		    div = plt.types.NumberTower.divide(div, args[i]);
+		}
+		return div;    
 	    }
-	    return div;    
 	},
 	
 
@@ -592,8 +611,12 @@ var plt = plt || {};
 	lcm : function(first, rest) {
 	    check(first, isInteger, "lcm", "number", 1);
 	    arrayEach(rest, function(x, i) { check(this, isInteger, "lcm", "number", i+2); });
-	    var result = first.toInteger();
+	    var result = Math.abs(first.toInteger());
+	    if (result == 0) { return plt.types.Rational.ZERO; }
 	    for (var i = 0; i < rest.length; i++) {
+		if (rest[i].toInteger() == 0) {
+		    return plt.types.Rational.ZERO;
+		}
 		result = _lcm(result, rest[i].toInteger());
 	    }
 	    return plt.types.Rational.makeInstance(result);
@@ -603,7 +626,7 @@ var plt = plt || {};
 	gcd : function(first, rest) {
 	    check(first, isInteger, "gcd", "number", 1);
 	    arrayEach(rest, function(x, i) { check(this, isInteger, "gcd", "number", i+2); });	    
-	    var result = first.toInteger();
+	    var result = Math.abs(first.toInteger());
 	    for (var i = 0; i < rest.length; i++) {
 		result = _gcd(result, rest[i].toInteger());
 	    }
@@ -660,9 +683,20 @@ var plt = plt || {};
 	    return x.angle();
 	},
 	
-	atan : function(x) {
-	    check(x, isNumber, "atan", "number", 1);
-	    return x.atan();
+	atan : function(x, args) {
+	    if (args.length == 0) {
+		check(x, isNumber, "atan", "number", 1);
+		return x.atan();
+	    } else if (args.length == 1) {
+		check(x, isReal, "atan", "number", 1);
+		check(args[0], isReal, "atan", "number", 2);
+		return plt.types.FloatPoint.makeInstance(
+		    Math.atan2(plt.types.NumberTower.toFloat(x),
+			       plt.types.NumberTower.toFloat(args[0])));
+	    } else {
+		// FIXME: this should really be an error at compile time.
+		throw new MobyRuntimeError(plt.Kernel.format("atan: expects 1 to 2 arguments, given ~a.", [plt.types.Rational.makeInstance(args.length)]));
+	    }
 	},
 	
 	expt : function(x, y){
@@ -717,12 +751,12 @@ var plt = plt || {};
 	
 	odd_question_ : function(x){
 	    check(x, isNumber, "odd?", "number", 1);
-	    return ((x.toInteger() % 2) == 1);
+	    return (Math.abs((x.toInteger() % 2)) == 1);
 	},
 	
 	even_question_ : function(x) {
 	    check(x, isNumber, "even?", "number", 1);
-	    return ((x.toInteger() % 2) == 0);
+	    return (Math.abs((x.toInteger() % 2)) == 0);
 	},
 	
 	positive_question_ : function(x){
@@ -747,14 +781,22 @@ var plt = plt || {};
 	
 
 	make_dash_polar: function(r, theta) {
+	    // special case: if theta is zero, just return
+	    // the scalar.
+	    if (plt.types.NumberTower.equal(theta, plt.types.Rational.ZERO)) {
+		return r;
+	    }
+
 	    var x = r.toFloat() * Math.cos(theta.toFloat());
 	    var y = r.toFloat() * Math.sin(theta.toFloat());
 	    return plt.types.Complex.makeInstance(x, y);
 	},
 
 	integer_question_ : function(x){
-	    check(x, isNumber, "integer?", "number", 1);
-	    return this.equal_question_(x, x.floor());
+	    // check(x, isNumber, "integer?", "number", 1);
+	    return (isNumber(x) &&
+		    plt.types.NumberTower.isFinite(x) && 
+		    this.equal_question_(x, x.floor()));
 	},
 	
 	make_dash_rectangular : function(x, y){
@@ -764,8 +806,14 @@ var plt = plt || {};
 	quotient : function(x, y){
 	    check(x, isNumber, "quotient", "number", 1);
 	    check(y, isNumber, "quotient", "number", 2);
-	    return plt.types.Rational.makeInstance(plt.types.NumberTower.divide(x,y).floor().toInteger(),
-						   1);
+	    var div = plt.types.NumberTower.divide(x,y);
+	    if (plt.Kernel.positive_question_(div)) {
+		return plt.types.Rational.makeInstance(div.floor().toInteger(),
+						       1);
+	    } else {
+		return plt.types.Rational.makeInstance(div.ceiling().toInteger(),
+						       1);
+	    }
 	},
 	
 	remainder : function(x, y) {
@@ -812,8 +860,14 @@ var plt = plt || {};
 	},
 	
 	not : function(x){
-	    check(x, isBoolean, "not", "boolean", 1);
-	    return (!(x.valueOf())) ? plt.types.Logic.TRUE : plt.types.Logic.FALSE;
+	    // Restriction on x being a boolean has been weakened.
+	    //check(x, isBoolean, "not", "boolean", 1);
+
+	    if (!x || x === plt.types.Logic.FALSE)
+		return plt.types.Logic.TRUE;
+	    return plt.types.Logic.FALSE;
+
+	    //return (!( x && x.valueOf() )) ? plt.types.Logic.TRUE : plt.types.Logic.FALSE;
 	},
 	
 	symbol_dash__greaterthan_string : function(x){
@@ -969,6 +1023,19 @@ var plt = plt || {};
 	    checkList(lst, "eighth", 1);
 	    return lst.rest().rest().rest().rest().rest().rest().rest().first();
 	},
+
+	set_dash_car_bang_ : function(lst, newVal){
+	    checkList(lst, "set-car!", 1);
+	    lst.f = newVal;
+	    return undefined;
+	},
+
+	set_dash_cdr_bang_ : function(lst, newListVal){
+	    checkList(lst, "set-cdr!", 1);
+	    checkList(newListVal, "set-cdr!", 2);
+	    lst.r = newListVal;
+	    return undefined;
+	},
 	
 	length : function(lst){
 	    checkList(lst, "length", 1);
@@ -1011,6 +1078,23 @@ var plt = plt || {};
 	    return lst.first();
 	},
 	
+	remove : function(item, lst){
+	    checkList(lst, "member", 2);
+	    var originalLst = lst;
+	    var result = plt.types.Empty.EMPTY;
+	    while (!lst.isEmpty()){
+		if (plt.Kernel.equal_question_(item, lst.first()).valueOf()) {
+		    return plt.Kernel.append(plt.Kernel.reverse(result),
+					     [lst.rest()]);
+		} else {
+		    result = plt.types.Cons.makeInstance(lst.first(),
+							 result);
+		    lst = lst.rest();
+		}
+	    }
+	    return originalLst;
+	},
+
 	member : function(item, lst){
 	    checkList(lst, "member", 2);
 	    while (!lst.isEmpty()){
@@ -1021,6 +1105,7 @@ var plt = plt || {};
 	    
 	    return plt.types.Logic.FALSE;
 	},
+
 	
 	memq : function(item, lst){
 	    checkList(lst, "memq", 2);
@@ -1077,7 +1162,7 @@ var plt = plt || {};
 	    var aNum = str * 1;
 	    if (isNaN(aNum))
 		return plt.types.Logic.FALSE;
-	    if (Math.floor(aNum) == aNum) {
+	    if (Math.floor(aNum) == aNum && isFinite(aNum)) {
 		return plt.types.Rational.makeInstance(aNum);
 	    }
 	    return plt.types.FloatPoint.makeInstance(aNum);
@@ -1431,6 +1516,12 @@ var plt = plt || {};
 	this.hash = inputHash;
     }
 
+    // open-input-stx: string -> (listof stx)
+    plt.Kernel.openInputStx = function(path) {
+	// Doesn't do anything here.
+	throw new MobyRuntimeError("open-input-stx currently unsupported");
+    },
+
 
     // kernelMakeImmutableHashEq: list -> hash
     plt.Kernel._kernelMakeImmutableHashEq = function(pairs) {
@@ -1489,17 +1580,7 @@ var plt = plt || {};
     };
 
 
-    plt.Kernel._resolveModulePath = function(path) {
-	return path;
-    };
 
-    plt.Kernel._normalizePath = function(path) {
-        return path;
-    };
-
-    plt.Kernel._pathToString = function(path) {
-        return path.toString();
-    };
 
 
     plt.Kernel.apply = function(f, secondArg, restArgs) {
@@ -1549,6 +1630,23 @@ var plt = plt || {};
 	    results = plt.Kernel.cons(f(args), results);
 	}
 	return plt.Kernel.reverse(results);
+    };
+
+
+    plt.Kernel.for_dash_each = function(f, arglists) {
+	check(f, isFunction, "for-each", "function", 1);
+	arrayEach(arglists, function(x, i) { 
+	    checkList(x, "for-each", i+2); });
+	// TODO: add contract on higher order argument f.
+	while (!arglists[0].isEmpty()) {
+	    var args = [];
+	    for (var i = 0; i < arglists.length; i++) {
+		args.push(arglists[i].first());
+		arglists[i] = arglists[i].rest();
+	    }
+	    f(args);
+	}
+	return undefined;
     };
 
 
@@ -1736,7 +1834,7 @@ var plt = plt || {};
 	var chars = [];
 	for(var i = 0; i < n.toInteger(); i++) {
 	    var ch = f([plt.types.Rational.makeInstance(i, 1)]);
-//	    check(ch, isChar, "char");
+	    //	    check(ch, isChar, "char");
 	    chars.push(ch.val);
 	}
 	return plt.types.String.makeInstance(chars.join(""));
@@ -1795,13 +1893,84 @@ var plt = plt || {};
     };
     
 
+
+
+    plt.Kernel.xml_dash__greaterthan_s_dash_exp  = function(s) {
+	check(s, isString, "xml->s-exp", "string", 1);
+	if (s.length == 0) { 
+	    return plt.types.String.makeInstance(""); 
+	}
+	var xmlDoc;
+	try {
+	    //Internet Explorer
+	    xmlDoc=new ActiveXObject("Microsoft.XMLDOM");
+	    xmlDoc.async="false";
+	    xmlDoc.loadXML(s);
+	    // FIXME: check parse errors
+	}
+	catch(e) {
+	    var parser=new DOMParser();
+	    xmlDoc=parser.parseFromString(s, "text/xml");
+	    // FIXME: check parse errors
+	}
+
+	var parseAttributes = function(attrs) {
+	    var result = plt.types.Empty.EMPTY;
+	    for (var i = 0; i < attrs.length; i++) {
+		var keyValue= plt.types.Cons.makeInstance(
+		    plt.types.Symbol.makeInstance(attrs.item(i).nodeName),
+		    plt.types.Cons.makeInstance(
+			attrs.item(i).nodeValue,
+			plt.types.Empty.EMPTY));
+		result = plt.types.Cons.makeInstance(keyValue, result);
+	    }
+	    return plt.types.Cons.makeInstance(
+		plt.types.Symbol.makeInstance("@"),
+		plt.Kernel.reverse(result));
+	};
+
+	var parse = function(node) {
+	    if (node.nodeType == Node.ELEMENT_NODE) {
+		var result = plt.types.Empty.EMPTY;
+		var child = node.firstChild;
+		while (child != null) {
+		    var nextResult = parse(child);
+		    if (isString(nextResult) && 
+			!result.isEmpty() &&
+			isString(result.first())) {
+			result = plt.types.Cons.makeInstance(result.first() + nextResult,
+							     result.rest());
+		    } else {
+			result = plt.types.Cons.makeInstance(nextResult, result);
+		    }
+		    child = child.nextSibling;
+		}
+		result = plt.Kernel.reverse(result);
+		result = plt.types.Cons.makeInstance(
+		    parseAttributes(node.attributes),
+		    result);
+		result = plt.types.Cons.makeInstance(
+		    plt.types.Symbol.makeInstance(node.nodeName),
+		    result);
+		return result;
+	    } else if (node.nodeType == Node.TEXT_NODE) {
+		return node.textContent;
+	    } else if (node.nodeType == Node.CDATA_SECTION_NODE) {
+		return node.data;
+	    } else {
+		return plt.types.Empty.EMPTY;
+	    }
+	};
+	var result = parse(xmlDoc.firstChild);
+	return result;
+    };
+
+    plt.Kernel.split_dash_whitespace = function(s) {
+	s = s.replace(/^\s+/, "");
+	s = s.replace(/\s+$/, "");
+	return plt.Kernel.list(s.split(/\s+/));
+    };
     
-
-
-
-
-
-
 
     // Boxes
     
@@ -1811,7 +1980,7 @@ var plt = plt || {};
 
     Box.prototype = heir(plt.Kernel.Struct.prototype);
     
-        
+    
     plt.Kernel.box = function(any) {
 	return new Box(any);
     };
@@ -1910,7 +2079,7 @@ var plt = plt || {};
 
     // makeCanvas: number number -> canvas
     // Constructs a canvas object of a particular width and height.
-    var makeCanvas = function(width, height) {
+    plt.Kernel._makeCanvas = function(width, height) {
 	var canvas = document.createElement("canvas");
  	canvas.width = width;
  	canvas.height = height;
@@ -1930,7 +2099,7 @@ var plt = plt || {};
 	var that = this;
 	var width = plt.world.Kernel.imageWidth(that).toInteger();
 	var height = plt.world.Kernel.imageHeight(that).toInteger();
-	var canvas = makeCanvas(width, height);
+	var canvas = plt.Kernel._makeCanvas(width, height);
 	var rendered = false;
 	var doRender = function() {
 	    if (! rendered)  {
@@ -2064,7 +2233,7 @@ var plt = plt || {};
     plt.Kernel.Struct.prototype.toDisplayedString = plt.Kernel.Struct.prototype.toWrittenString;
 
 
-    function appendChild(parent, child) {
+    var appendChild = function(parent, child) {
 	parent.appendChild(child);
 	if (child.afterAttach) { child.afterAttach(); }
     }
@@ -2110,6 +2279,125 @@ var plt = plt || {};
 
 
 
+
+    plt.Kernel.reportError = function(e) {
+	var reporter;
+	if (typeof(console) != 'undefined' && 
+	    typeof(console.log) != 'undefined') {
+	    reporter = (function(x) { console.log(x) });
+	} else {
+	    reporter = (function(x) { alert(x); });
+	}
+
+	reporter(e.msg);
+	if (plt.Kernel.lastLoc) {
+	    reporter("Error was raised around " + plt.Kernel.lastLoc);
+	}
+    };
+
+
+
+    plt.Kernel._void_ = function(args) {
+	return undefined;
+    };
+
+
+
+
+
+    plt.Kernel.build_dash_vector = function(n, f) {
+	check(n, isNatural, "build-vector", "natural", 1);
+	check(f, isFunction, "build-vector", "function", 2);
+	var elts = [];
+	for(var i = 0; i < n.toInteger(); i++) {
+	    elts[i] = f([plt.types.Rational.makeInstance(i, 1)])
+	}
+	return plt.types.Vector.makeInstance(n.toInteger(),
+					     elts);
+    };
+
+    plt.Kernel.make_dash_vector = function(n) {
+	check(n, isNatural, "make-vector", "natural", 1);
+	return plt.types.Vector.makeInstance(n.toInteger());
+    };
+
+    plt.Kernel.vector = function(args) {
+	return plt.types.Vector.makeInstance(args.length, args);
+    };
+
+    plt.Kernel.vector_dash_length = function(vec) {
+	check(vec, isVector, "vector-length", "vector", 1);
+	return plt.types.Rational.makeInstance(vec.length());
+    };
+
+    plt.Kernel.vector_dash_ref = function(vec, k) {
+	check(vec, isVector, "vector-ref", "vector", 1);
+	check(k, function(x) { return isNatural(x) && x.toInteger() < vec.length()}, "vector-ref", "natural < vector length", 2);
+	return vec.ref(k.toInteger());
+    };
+
+    plt.Kernel.vector_dash_set_bang_ = function(vec, k, v) {
+	check(vec, isVector, "vector-set!", "vector", 1);
+	check(k, function(x) { return isNatural(x) && x.toInteger() < vec.length()}, "vector-set!", "natural < vector length", 2);
+	return vec.set(k.toInteger(), v);
+    };
+
+    plt.Kernel.vector_question_ = function(x) {
+	return isVector(x) ? plt.types.Logic.TRUE : plt.types.Logic.FALSE;
+    }
+
+
+
+    plt.Kernel.check_dash_expect = function(testThunk, expectedThunk) {
+	var val = testThunk([]);
+	var expectedVal = expectedThunk([]);
+	if (! plt.Kernel.equal_question_(val, expectedVal)) {
+	    throw new MobyTestingError(
+		plt.Kernel.format("~s doesn't match the expected value ~s",
+				  [val, expectedVal]));
+	}
+    };
+
+    plt.Kernel.check_dash_within = function(testThunk, expectedThunk, boundsThunk) {
+	var val = testThunk([]);
+	var expectedVal = expectedThunk([]);
+	var boundsVal = boundsThunk([]);
+	if (! plt.Kernel._equal__tilde_(val, expectedVal, boundsVal)) {
+	    throw new MobyTestingError(
+		plt.Kernel.format("~s doesn't match the expected value ~s within ~s",
+				  [val, expectedVal, boundsVal]));
+	}
+    };
+
+    plt.Kernel.check_dash_error = function(testThunk, msgThunk) {
+	var msg = msgThunk([]);
+	var val;
+	try {
+	    val = testThunk([]);
+	} catch (e) {
+	    if (! plt.Kernel.equal_question_(e.msg, msg)) {
+		throw new MobyTestingError(
+		    plt.Kernel.format(
+			"check-error encountered the error ~s instead of the expected error ~s.",
+			[e.msg, msg]));
+	    } else {
+		return;
+	    }
+	}
+	throw new MobyTestingError(
+	    plt.Kernel.format(
+		"check-error expected the error ~s, but instead received the value ~s.",
+		[msg, val]))
+    };
+
+
+
+
+
+
+
+
+
     // As a program runs, the lastLoc will be assigned to the last location
     // we've evaluated in the program.
     plt.Kernel.lastLoc = undefined;
@@ -2118,6 +2406,16 @@ var plt = plt || {};
 	return true;
     }
     
+
+
+    plt.Kernel.printf = function(formatStr, args) {
+	var msg = plt.Kernel.format(formatStr, args);
+	plt.Kernel.printHook(msg);
+	return undefined;
+    }
+
+    plt.Kernel.printHook = function(str) {
+    };
 
 
     // Expose the predicates.
@@ -2137,6 +2435,7 @@ var plt = plt || {};
     plt.Kernel.isWhitespaceString = isWhitespaceString;
     plt.Kernel.isImage = isImage;
     plt.Kernel.isList = isList;
+    plt.Kernel.isVector = isVector;
     plt.Kernel.isFunction = isFunction;
     
 

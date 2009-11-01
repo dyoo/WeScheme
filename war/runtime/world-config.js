@@ -25,6 +25,7 @@ plt.world.config = plt.world.config || {};
     }
 
 
+
     function WorldConfig() {
 	// The following handler values are initially false until they're updated
 	// by configuration.
@@ -35,6 +36,8 @@ plt.world.config = plt.world.config || {};
 
 	this.vals = {
 	    changeWorld: false,
+
+	    shutdownWorld: false,
 
 
 	    initialEffect: false,
@@ -130,7 +133,7 @@ plt.world.config = plt.world.config || {};
     //////////////////////////////////////////////////////////////////////
 
     function getNoneEffect() {
-	return plt.world.Kernel.make_dash_effect_colon_none();
+	return make_dash_effect_colon_none();
     }
 
 

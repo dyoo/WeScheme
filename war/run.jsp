@@ -58,6 +58,12 @@ Runner.prototype.runCompiledCode = function(compiledCode, permStringArray) {
 	permArray,
         function() { 
             try {
+
+	        plt.Kernel.printHook = function(s) {
+		    that.addToInteractions(document.createTextNode(s));
+	            that.addToInteractions("\n");
+		};
+
 	        // FIXME: we may want a repl.
 		var runToplevel = that.namespace.eval(compiledCode);
  		runToplevel(function(val) {

@@ -21,10 +21,18 @@ plt.platform = {};
     	this.locationService = chooseLocationService();
 	this.telephonyService = chooseTelephonyService();
 	this.networkService = chooseNetworkService();
+	this.soundService = chooseSoundService();
+	this.powerService = choosePowerService();
+	this.smsService = chooseSmsService();
+	this.pickPlaylistService = choosePickPlaylistService();
     };
     
     JavascriptPlatform.prototype.getTiltService = function() {
 	return this.tiltService;
+    };
+
+    JavascriptPlatform.prototype.getShakeService = function() {
+	return this.shakeService;
     };
 
     JavascriptPlatform.prototype.getLocationService = function() {
@@ -39,13 +47,30 @@ plt.platform = {};
 	return this.networkService;
     };
 
+    JavascriptPlatform.prototype.getSoundService = function() {
+	return this.soundService;
+    };
+    
+    JavascriptPlatform.prototype.getPowerService = function() {
+	return this.powerService;
+    };
+
+    JavascriptPlatform.prototype.getSmsService = function() {
+	return this.smsService;
+    };
+
+    JavascriptPlatform.prototype.getPickPlaylistService = function() {
+	return this.pickPlaylistService;
+    };
+
+
 
     // Dynamically choose which location service we grab
     function chooseLocationService() {
-	if (isGoogleGearsAvailable()) {
-	    return new GoogleGearsLocationService();
-	} else if (isPhonegapAvailable()) {
+	if (isPhonegapAvailable()) {
     	    return new PhonegapLocationService();
+	} else if (isGoogleGearsAvailable()) {
+	    return new GoogleGearsLocationService();
 	} else if (isW3CLocationAvailable()) {
    	    return new W3CLocationService();
 	} else {
@@ -72,12 +97,34 @@ plt.platform = {};
     // isW3CLocationAvailable: -> boolean
     // Returns true if the W3C Location API is available.
     function isW3CLocationAvailable() {
-	return (typeof(navigator != 'undefined') &&
-		typeof(navigator.geolocation != 'undefined'));
+	return (typeof(navigator) != 'undefined' &&
+		typeof(navigator.geolocation) != 'undefined');
 		     
     }
 
     //////////////////////////////////////////////////////////////////////
+
+    
+
+    // Given two places on a globe, return the shortest distance between them in meters (uses spherical geometry)
+    function roughDistanceBetween(lat1, long1, lat2, long2) {
+	var toRad = function(deg) {
+	    return deg * Math.PI / 180; 
+	}
+	var subExpr = function(x, y) {
+	    return Math.pow(Math.sin((toRad(x) - toRad(y))/ 2),
+			    2);
+	};
+	return 6378000 * 2 * Math.asin(
+	    Math.min(1,
+		     Math.sqrt(subExpr(lat1, lat2) +
+			       (Math.cos(toRad(lat1)) *
+				Math.cos(toRad(lat2)) *
+				subExpr(long1, long2)))));
+    }
+
+
+
 
     function GoogleGearsLocationService() {
 	this.geo = google.gears.factory.create("beta.geolocation");
@@ -133,8 +180,12 @@ plt.platform = {};
     };
 
     GoogleGearsLocationService.prototype.getDistanceBetween = function (lat1, long1, lat2, long2) {
-	// FIXME: do something smarter here!
-	return plt.types.Rational.ZERO;
+
+	return plt.types.FloatPoint.makeInstance(
+	    roughDistanceBetween(lat1.toFloat(), 
+				 long1.toFloat(), 
+				 lat2.toFloat(),
+				 long2.toFloat()));
     };
 
 
@@ -178,8 +229,11 @@ plt.platform = {};
     };
 
     NoOpLocationService.prototype.getDistanceBetween = function (lat1, long1, lat2, long2) {
-	// FIXME: do something smarter here!
-	return plt.types.Rational.ZERO;
+	return plt.types.FloatPoint.makeInstance(
+	    roughDistanceBetween(lat1.toFloat(), 
+				 long1.toFloat(), 
+				 lat2.toFloat(),
+				 long2.toFloat()));
     };
 
 
@@ -272,41 +326,29 @@ plt.platform = {};
     
     W3CLocationService.prototype.startService = function() {
 	var that = this;
-	function locSuccessCallback(pos) {
-
+	var monitor = function(pos) {
 	    that.currentPosition.latitude = pos.coords.latitude;
 	    that.currentPosition.longitude = pos.coords.longitude;
-
     	    for ( var i = 0; i < that.locationListeners.length; i++ ) {
     		var listener = that.locationListeners[i];
     		listener(pos.coords.latitude, pos.coords.longitude);
     	    }
 	};
 
-	function noOp() {
-	}
-
-	function onError() {
-	}
+	var onError = function() {};
  
 	if (typeof navigator.geolocation != 'undefined' &&
-	    typeof navigator.geolocation.watchPosition != 'undefined') {
-    	    this.watchId = navigator.geolocation.watchPosition(locSuccessCallback, 
-							       noOp, 
-							       {});
+	    typeof navigator.geolocation.getCurrentPosition != 'undefined') {
+	    navigator.geolocation.watchPosition(monitor);
 	}
 
-	if (typeof navigator.geolocation != 'undefined' &&
-	    typeof navigator.geolocation.getCurrentPosition != 'undefined') {
-	    navigator.geolocation.getCurrentPosition(locSuccessCallback, 
-						     onError,
-						     {maximumAge:600000});	    
-	}
+	setTimeout(function() {navigator.geolocation.getCurrentPosition(monitor)}, 10000);
     };
 
     W3CLocationService.prototype.shutdownService = function() {
 	if (this.watchId) {
     	    navigator.geolocation.clearWatch(this.watchId);
+	    this.watchId = false;
 	}
     };
     
@@ -336,8 +378,11 @@ plt.platform = {};
     };
 
     W3CLocationService.prototype.getDistanceBetween = function (lat1, long1, lat2, long2) {
-	return plt.types.Rational.ZERO;
-	// FIXME: do something smarter here!
+	return plt.types.FloatPoint.makeInstance(
+	    roughDistanceBetween(lat1.toFloat(), 
+				 long1.toFloat(), 
+				 lat2.toFloat(),
+				 long2.toFloat()));
     };
 
 
@@ -349,7 +394,6 @@ plt.platform = {};
 
     var accelListeners = [];
     var orientListeners = [];
-    var shakeListeners = [];
     var accelId;
     var orientId;
     var shakeId;
@@ -366,11 +410,6 @@ plt.platform = {};
 	}
     };
 
-    var shakeSuccessCallback = function() {
-    	for ( var i = 0; i < shakeListeners.length; i++ ) {
-    		shakeListeners[i]();
-    	}
-    };
 
 
     var JavascriptTiltService = {
@@ -378,7 +417,6 @@ plt.platform = {};
     	    if (typeof Accelerometer != "undefined") {
     	    	accelId = navigator.accelerometer.watchAcceleration(accelSuccessCallback, function() {});
     	    	orientId = navigator.accelerometer.watchOrientation(orientSuccessCallback, function() {});
-    	    	shakeId = navigator.accelerometer.watchShake(shakeSuccessCallback, function() {});
     	    }
     	},
 
@@ -398,11 +436,6 @@ plt.platform = {};
     	addAccelerationChangeListener : function(listener) {
     	    // push a listener onto the acceleration listeners
     	    accelListeners.push(listener);
-    	},
-
-    	addShakeListener : function(listener) {
-    	    // push a listener onto the shake listeners
-    	    shakeListeners.push(listener);
     	}
     };
 
@@ -472,10 +505,11 @@ plt.platform = {};
 	    }
 	}
 	function fail() {}
-	navigator.accelerometer.watchShake(success, fail);
+	this.shakeId = navigator.accelerometer.watchShake(success, fail);
     };
 
     PhonegapShakeService.prototype.shutdownService = function() {
+	navigator.accelerometer.stopAllShakeWatches();
     };
 
     PhonegapShakeService.prototype.addListener = function(l) {
@@ -516,7 +550,8 @@ plt.platform = {};
 
     function PhonegapNetworkService() {}
     PhonegapNetworkService.prototype.getUrl = function(aUrl) {
-	// FIXME!
+	var result = Device.getUrl(aUrl);
+	return plt.types.String.makeInstance("" + result);
     };
 
 
@@ -527,11 +562,273 @@ plt.platform = {};
 	var url = "/networkProxy?url=" + encodeURIComponent(aUrl);
 	req.open("GET", url, false);
 	req.send(null);
-	return req.responseText;
+	return plt.types.String.makeInstance(req.responseText);
     };
 
     //////////////////////////////////////////////////////////////////////
 
 
+
+    function chooseSoundService() {
+	if (isPhonegapAvailable()) {
+	    return new PhonegapSoundService();
+	} else if (supportsHtml5()) {
+	    return new Html5SoundService();
+	} else {
+	    return new GenericSoundService();
+	}
+    }
+
+    function supportsHtml5() {
+	return !!(document.createElement('audio').canPlayType);
+
+    }
+
+
+    function PhonegapSoundService() {
+    };
+    PhonegapSoundService.prototype.beep = function() {
+	navigator.notification.beep(1);
+    };
+
+    PhonegapSoundService.prototype.playPlaylist = function(rawPlaylist) {
+	Device.playPlaylistRecord(rawPlaylist);
+    };
+
+    PhonegapSoundService.prototype.pausePlaylist = function(rawPlaylist) {
+	Device.pausePlaylistRecord(rawPlaylist);
+    };
+
+    PhonegapSoundService.prototype.stopPlaylist = function(rawPlaylist) {
+	Device.stopPlaylistRecord(rawPlaylist);
+    };
+
+
+
+
+    PhonegapSoundService.prototype.playSoundUrl = function(url) {
+    	navigator.audio.playMusic(url);
+    };
+    PhonegapSoundService.prototype.playDtmfTone = function(tone, duration) {
+	navigator.audio.playDTMF(tone);
+        setTimeout(function() { navigator.audio.stopDTMF() },
+                   duration);
+    };
+    PhonegapSoundService.prototype.stopSoundUrl = function(url) {
+    	navigator.audio.stopMusic(url);
+    };
+    PhonegapSoundService.prototype.pauseSoundUrl = function(url) {
+    	navigator.audio.pauseMusic(url);
+    };
+    PhonegapSoundService.prototype.setVolume = function(volume) {
+    	navigator.audio.setMusicVolume(volume);
+    }
+    PhonegapSoundService.prototype.raiseVolume = function() {
+    	navigator.audio.increaseMusicVolume();
+    };
+    PhonegapSoundService.prototype.lowerVolume = function() {
+    	navigator.audio.decreaseMusicVolume();
+    };
+
+
+
+
+    function Html5SoundService() {
+	this.cachedUrls = {};
+	this.baseVolume = 100;
+    }
+    Html5SoundService.prototype.beep = function() {
+	alert("Beep");
+    };
+
+
+    Html5SoundService.prototype.playPlaylistSound = function(playlistSound) {
+
+    };
+
+    Html5SoundService.prototype.pausePlaylistSound = function(playlistSound) {
+
+    };
+    Html5SoundService.prototype.stopPlaylistSound = function(playlistSound) {
+
+    };
+
+    Html5SoundService.prototype.playSoundUrl = function(url) {
+	if (! this.cachedUrls[url]) {
+	    this.cachedUrls[url] = new Audio(url);
+	}
+	var audio = this.cachedUrls[url];
+	if (audio.ended || audio.paused) {
+	    this.cachedUrls[url].play();
+	}
+    };
+    
+    Html5SoundService.prototype.playDtmfTone = function(tone, duration) {
+	// Can't do anything here.
+	alert("dtmf tone");
+    };
+    Html5SoundService.prototype.stopSoundUrl = function(url) {
+	if (this.cachedUrls[url]) {
+	    this.cachedUrls[url].pause();
+	    this.cachedUrls[url].currentTime = 0;
+	}
+    };
+
+    Html5SoundService.prototype.pauseSoundUrl = function(url) {
+	if (this.cachedUrls[url]) {
+	    this.cachedUrls[url].pause();
+	}
+    };
+    
+    Html5SoundService.prototype.setVolume = function(volume) {
+	for (var url in this.cachedUrls) {
+	    this.cachedUrls[url].volume = volume / 100.0;
+	}
+	this.baseVolume = volume;
+    };
+
+    Html5SoundService.prototype.raiseVolume = function() {
+	this.setVolume(Math.min(this.baseVolume + 5, 100));
+    };
+
+    Html5SoundService.prototype.lowerVolume = function() {
+	this.setVolume(Math.max(this.baseVolume - 5, 0));
+    };
+
+
+
+
+
+    function GenericSoundService() {
+    }
+    GenericSoundService.prototype.beep = function() {
+	alert("Beep");
+    };
+
+    
+    GenericSoundService.prototype.playPlaylistSound = function(playlistSound) {
+
+    };
+
+    GenericSoundService.prototype.pausePlaylistSound = function(playlistSound) {
+
+    };
+
+    GenericSoundService.prototype.stopPlaylistSound = function(playlistSound) {
+
+    };
+
+
+    GenericSoundService.prototype.playSoundUrl = function(url) {
+	// Can't do anything here.
+	alert("sound url " + url);
+    };
+
+
+    GenericSoundService.prototype.playDtmfTone = function(tone, duration) {
+	// Can't do anything here.
+	alert("dtmf tone");
+    };
+
+    GenericSoundService.prototype.stopSoundUrl = function(url) {
+    };
+    GenericSoundService.prototype.pauseSoundUrl = function(url) {
+    };
+    GenericSoundService.prototype.setVolume = function(volume) {
+    };
+    GenericSoundService.prototype.raiseVolume = function() {
+    };
+    GenericSoundService.prototype.lowerVolume = function() {
+    };
+
+
+    //////////////////////////////////////////////////////////////////////
+    function choosePowerService() {
+	if (isPhonegapAvailable()) {
+	    return new PhonegapPowerService();
+	} else {
+	    return new GenericPowerService();
+	}
+    }
+
+    function PhonegapPowerService() {
+	this.currentLockFlags = -1;
+    }
+
+    PhonegapPowerService.prototype.setWakeLock = function(flags) {
+    	if (flags != this.currentLockFlags) {
+    	    navigator.power.setWakeLock(flags);
+    	    this.currentLockFlags = flags;
+    	}
+    };
+
+    PhonegapPowerService.prototype.releaseWakeLock = function() {
+    	if (this.currentLockFlags != -1) {
+    	    navigator.power.releaseWakeLock();
+    	    this.currentLockFlags = -1;
+    	}
+    };
+
+
+    function GenericPowerService() {
+    }
+    GenericPowerService.prototype.setWakeLock = function(flags) {
+    };
+    GenericPowerService.prototype.releaseWakeLock = function() {
+    };
  
+
+    //////////////////////////////////////////////////////////////////////
+
+    function chooseSmsService() {
+	if (isPhonegapAvailable()) {
+	    return new PhonegapSmsService();
+	} else {
+	    return new GenericSmsService();
+	}
+    }
+    function PhonegapSmsService() {
+    }
+    PhonegapSmsService.prototype.send = function(address, msg) {
+	navigator.sms.send(address, msg);
+    };
+    function GenericSmsService() {
+    }
+    GenericSmsService.prototype.send = function(address, msg) {
+	alert("SMS should be sent to " + address + " with the content: " + msg);
+    };
+
+
+
+    //////////////////////////////////////////////////////////////////////
+    function choosePickPlaylistService() {
+	if (isPhonegapAvailable()) {
+	    return new PhonegapPickPlaylistService();
+	} else {
+	    return new GenericPickPlaylistService();
+	}
+    }
+    function PhonegapPickPlaylistService() {
+    }
+    PhonegapPickPlaylistService.prototype.pickPlaylist = function(callback) {
+	// playlist: plt.playlist.PlaylistRecord
+	var wrappedCallback = function(playlist) {
+	    callback(playlist);
+	}
+
+	navigator.dialogPickers.pickPlaylist(wrappedCallback);
+    }
+    
+    function GenericPickPlaylistService() {
+    }
+
+    GenericPickPlaylistService.prototype.pickPlaylist = function(callback) {
+	// FIXME
+	alert("pick playlist currently unavailable");
+    }
+
+    
+
+
+
 })();

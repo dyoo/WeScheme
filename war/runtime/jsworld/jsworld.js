@@ -33,6 +33,16 @@ plt.Jsworld = {};
 
 
 
+    // Close all world computations.
+    Jsworld.shutdown = function() {
+	while(runningBigBangs.length > 0) {
+	    var currentRecord = runningBigBangs.pop();
+	    if (currentRecord) { currentRecord.pause(); }
+	}
+	clear_running_state();
+    }
+
+
 
     function add_world_listener(listener) {
 	worldListeners.push(listener);
@@ -221,6 +231,15 @@ plt.Jsworld = {};
     Jsworld.memberq = memberq;
 
 
+    function member(a, x) {
+	for (var i = 0; i < a.length; i++)
+	    if (a[i] == x) return true;
+	return false;
+    }
+    Jsworld.member = member;
+
+
+
     function head(a){
 	return a[0];
     }
@@ -314,6 +333,16 @@ plt.Jsworld = {};
 	return ret;
     }
 
+    // nodeEq: node node -> boolean
+    // Returns true if the two nodes should be the same.
+    function nodeEq(node1, node2) {
+	return (node1 && node2 && node1 === node2);
+    }
+
+    function nodeNotEq(node1, node2) {
+	return ! nodeEq(node1, node2);
+    }
+
 
 
     // relations(tree(N)) = relations(N)
@@ -349,29 +378,31 @@ plt.Jsworld = {};
 	// TODO: rewrite this to move stuff all in one go... possible? necessary?
 	
 	// move all children to their proper parents
-	for (var i = 0; i < relations.length; i++)
+	for (var i = 0; i < relations.length; i++) {
 	    if (relations[i].relation == 'parent') {
 		var parent = relations[i].parent, child = relations[i].child;
-			
-		if (child.parentNode !== parent) {
+		if (nodeNotEq(child.parentNode, parent)) {
 		    appendChild(parent, child);
+		} else {
 		}
 	    }
+	}
 	
 	// arrange siblings in proper order
 	// truly terrible... BUBBLE SORT
 	for (;;) {
 	    var unsorted = false;
 		
-	    for (var i = 0; i < relations.length; i++)
+	    for (var i = 0; i < relations.length; i++) {
 		if (relations[i].relation == 'neighbor') {
 		    var left = relations[i].left, right = relations[i].right;
 				
-		    if (left.nextSibling !== right) {
+		    if (nodeNotEq(left.nextSibling, right)) {
 			left.parentNode.insertBefore(left, right)
-			    unsorted = true;
+			unsorted = true;
 		    }
 		}
+	    }
 		
 	    if (!unsorted) break;
 	}
@@ -419,12 +450,14 @@ plt.Jsworld = {};
 			
 		// process last
 		var found = false;
-			
+		var foundNode = undefined;
+
 		if (live_nodes != null)
 		    while (live_nodes.length > 0 && positionComparator(node, live_nodes[0]) >= 0) {
 			var other_node = live_nodes.shift();
-			if (other_node === node) {
+			if (nodeEq(other_node, node)) {
 			    found = true;
+			    foundNode = other_node;
 			    break;
 			}
 			// need to think about this
@@ -432,8 +465,9 @@ plt.Jsworld = {};
 		    }
 		else
 		    for (var i = 0; i < nodes.length; i++)
-			if (nodes[i] === node) {
+			if (nodeEq(nodes[i], node)) {
 			    found = true;
+			    foundNode = nodes[i];
 			    break;
 			}
 			
@@ -445,6 +479,8 @@ plt.Jsworld = {};
 		    next = node.nextSibling; // HACKY
 				
 		    node.parentNode.removeChild(node);
+		} else {
+		    mergeNodeValues(node, foundNode);
 		}
 			
 		// move sideways
@@ -456,12 +492,33 @@ plt.Jsworld = {};
 	refresh_node_values(nodes);
     }
 
+    function mergeNodeValues(node, foundNode) {
+//	for (attr in node) {
+//	    foundNode[attr] = node[attr];
+//	}
+    }
+
+
     function set_css_attribs(node, attribs) {
 	for (var j = 0; j < attribs.length; j++){
 	    node.style.setProperty(attribs[j].attrib, attribs[j].values.join(" "), "");
 	}
 		
     }
+
+
+    // isMatchingCssSelector: node css -> boolean
+    // Returns true if the CSS selector matches.
+    function isMatchingCssSelector(node, css) {
+	if (css.id.match(/^\./)) {
+	    // Check to see if we match the class
+	    return ('class' in node && member(node['class'].split(/\s+/),
+					      css.id.substring(1)));
+	} else {
+	    return ('id' in node && node.id == css.id);
+	}
+    }
+
 
     function update_css(nodes, css) {
 	// clear CSS
@@ -473,7 +530,7 @@ plt.Jsworld = {};
 	for (var i = 0; i < css.length; i++)
 	    if ('id' in css[i]) {
 		for (var j = 0; j < nodes.length; j++)
-		    if ('id' in nodes[j] && nodes[j].id == css[i].id){
+		    if (isMatchingCssSelector(nodes[j], css[i])) {
 			set_css_attribs(nodes[j], css[i].attribs);
 		    }
 	    }
@@ -516,11 +573,11 @@ plt.Jsworld = {};
 		    // Try to save the current selection and preserve it across
 		    // dom updates.
 
- 		    if(oldRedraw != newRedraw) {
+ 		    if(oldRedraw !== newRedraw) {
  			update_dom(toplevelNode, ns, relations(t));
  			update_css(ns, sexp2css(newRedrawCss));
  		    } else {
-			if(oldRedrawCss != newRedrawCss) {
+			if(oldRedrawCss !== newRedrawCss) {
  			    update_css(ns, sexp2css(newRedrawCss));
 			}
  		    }
@@ -639,8 +696,8 @@ plt.Jsworld = {};
 	    if (stopWhen.test(w)) {
 		stopWhen.receiver(world);		    
 		var currentRecord = runningBigBangs.pop();
-		currentRecord.pause();
-		if(runningBigBangs.length > 0) {
+		if (currentRecord) { currentRecord.pause(); }
+		if (runningBigBangs.length > 0) {
 		    var restartingBigBang = runningBigBangs.pop();
 		    restartingBigBang.restart();
 		}
@@ -686,7 +743,7 @@ plt.Jsworld = {};
     function on_draw(redraw, redraw_css) {
 	function wrappedRedraw(w) {
 	    var newDomTree = redraw(w);
-	    checkDomSexp(newDomTree);
+	    checkDomSexp(newDomTree, newDomTree);
 	    return newDomTree;
 	}
 
@@ -840,32 +897,42 @@ plt.Jsworld = {};
     }
 
 
-    // checkDomSexp: X -> boolean
+    var throwDomError = function(thing, topThing) {
+	throw new JsworldDomError(
+	    plt.Kernel.format(
+		"Expected a non-empty array, received ~s within ~s",
+		[thing, topThing]),
+	    thing);
+    };
+
+    // checkDomSexp: X X -> boolean
     // Checks to see if thing is a DOM-sexp.  If not,
     // throws an object that explains why not.
-    function checkDomSexp(thing) {
+    function checkDomSexp(thing, topThing) {
 	if (! thing instanceof Array) {
-	    throw new JsworldDomError("Expected a non-empty array",
-				      thing);
+	    throwDomError(thing, topThing);
 	}
 	if (thing.length == 0) {
-	    throw new JsworldDomError("Expected a non-empty array",
-				      thing);
+	    throwDomError(thing, topThing);
 	}
 
 	// Check that the first element is a Text or an element.
 	if (isTextNode(thing[0])) {
 	    if (thing.length > 1) {
-		throw new JsworldDomError("Text nodes can not have children",
+		throw new JsworldDomError(plt.Kernel.format("Text node ~s can not have children",
+							    [thing]),
 					  thing);
 	    }
 	} else if (isElementNode(thing[0])) {
 	    for (var i = 1; i < thing.length; i++) {
-		checkDomSexp(thing[i]);
+		checkDomSexp(thing[i], thing);
 	    }
 	} else {
-	    throw new JsworldDomError("expected a Text or an Element",
-				      thing[0]);
+	    throw new JsworldDomError(
+		plt.Kernel.format(
+		    "expected a Text or an Element, received ~s within ~s",
+		    [thing, topThing]),
+		thing[0]);
 	}
     }
 
@@ -874,7 +941,7 @@ plt.Jsworld = {};
 	this.elt = elt;
     }
     JsworldDomError.prototype.toString = function() {
-	return this.msg + ": " + this.elt;
+	return "on-draw: " + this.msg;
     }
 
 
@@ -920,27 +987,50 @@ plt.Jsworld = {};
     Jsworld.button = button;
 
 
-    function bidirectional_input(type, toVal, updateVal, attribs) {
+//     function bidirectional_input(type, toVal, updateVal, attribs) {
+// 	var n = document.createElement('input');
+// 	n.type = type;
+// 	function onKey(w, e) {
+// 	    return updateVal(w, n.value);
+// 	}
+// 	// This established the widget->world direction
+// 	add_ev_after(n, 'keypress', onKey);
+// 	// and this establishes the world->widget.
+// 	n.onWorldChange = function(w) {n.value = toVal(w)};
+// 	return addFocusTracking(copy_attribs(n, attribs));
+//     }
+//     Jsworld.bidirectional_input = bidirectional_input;
+    
+
+    function input(type, updateF, attribs) {
 	var n = document.createElement('input');
 	n.type = type;
 	function onKey(w, e) {
-	    return updateVal(w, n.value);
+	    return updateF(w, n.value);
 	}
 	// This established the widget->world direction
 	add_ev_after(n, 'keypress', onKey);
-	// and this establishes the world->widget.
-	n.onWorldChange = function(w) {n.value = toVal(w)};
-	return addFocusTracking(copy_attribs(n, attribs));
-    }
-    Jsworld.bidirectional_input = bidirectional_input;
-    
 
-    function input(type, attribs) {
-	var n = document.createElement('input');
-	n.type = type;
+	// Every second, do a manual polling of the object, just in case.
+	var delay = 1000;
+	var lastVal = n.value;
+	var intervalId = setInterval(function() {
+	    if (! n.parentNode) {
+		clearInterval(intervalId);
+		return;
+	    }
+	    if (lastVal != n.value) {
+		lastVal = n.value;
+		change_world(function (w) {
+		    return updateF(w, n.value)
+		});
+	    }
+	},
+		    delay);
 	return addFocusTracking(copy_attribs(n, attribs));
     }
     Jsworld.input = input;
+
 
 
     // worldToValF: world -> string

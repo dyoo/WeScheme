@@ -123,6 +123,11 @@ WeSchemeInteractions = (function () {
 		    var interFunc = compiled_dash_program_dash_toplevel_dash_exprs(compiledProgram);
 		    var runToplevel = that.namespace.eval(defns, interFunc);
 		    
+		    plt.Kernel.printHook = function(s) {
+			that.addToInteractions(document.createTextNode(s));
+			that.addToInteractions("\n");
+		    };
+
 		    runToplevel(function(val) {
 			if (val != undefined) {
 			    that.addToInteractions(plt.Kernel.toDomNode(val));

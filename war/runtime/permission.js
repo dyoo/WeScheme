@@ -106,9 +106,9 @@ var plt = plt || {};
 	
 	else if (isShakeP(p)) {
 	    platform.getShakeService().startService();
-	    platform.getShakeService().addShakeListener(
-		function(azimuth, pitch, roll) {
-		    stimuli.onTilt(azimuth, pitch, roll);
+	    platform.getShakeService().addListener(
+		function() {
+		    stimuli.onShake();
 		});
 	    keepGoing();
 	}

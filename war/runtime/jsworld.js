@@ -122,6 +122,44 @@ plt.world.MobyJsworld = {};
     };
 
 
+    // checkWellFormedDomTree: X X -> void
+    // Check to see if the tree is well formed.  If it isn't,
+    // we need to raise a meaningful error so the user can repair
+    // the structure.
+    //
+    // Invariants:
+    // The dom tree must be a pair.
+    // The first element must be a node.
+    // Each of the rest of the elements must be dom trees.
+    // If the first element is a text node, it must NOT have children.
+    var checkWellFormedDomTree = function(x, top, index) {
+	if (plt.Kernel.pair_question_(x)) {
+	    var firstElt = plt.Kernel.first(x)
+	    var restElts = plt.Kernel.rest(x)
+
+	    if (firstElt.nodeType == Node.TEXT_NODE &&
+		! plt.Kernel.empty_question_(restElts)) {
+		throw new MobyTypeError(
+		    plt.Kernel.format(
+			"on-draw: the text node ~s must not have children.  It has ~s", 
+			[firstElt, restElts]));
+	    }
+
+	    var i = 2;
+	    while(! plt.Kernel.empty_question_(restElts)) {
+		checkWellFormedDomTree(plt.Kernel.first(restElts),
+				       x,
+				       i);
+		restElts = plt.Kernel.rest(restElts);
+		i++;
+	    }
+	} else {
+	    throw new MobyTypeError(
+		plt.Kernel.format("on-draw: expected a dom-s-expression, but received ~s instead.  (the ~a element within ~s)",
+				  [x, index, top]));
+	}
+    };
+
 
     // bigBang: world (listof (list string string)) (listof handler) -> world
     Jsworld.bigBang = function(initWorld, handlers) {
@@ -143,7 +181,8 @@ plt.world.MobyJsworld = {};
 		config = handlers[i](config);
 	    }
 	}
-	config = config.updateAll({'changeWorld': Jsworld.updateWorld});
+	config = config.updateAll({'changeWorld': Jsworld.updateWorld,
+				   'shutdownWorld': Jsworld.shutdownWorld});
 	plt.world.config.CONFIG = config;
 	
 	var wrappedHandlers = [];
@@ -151,26 +190,58 @@ plt.world.MobyJsworld = {};
 
 	if (config.lookup('onDraw')) {
 	    var wrappedRedraw = function(w) {
+		var newDomTree = config.lookup('onDraw')([w]);
+		plt.Kernel.setLastLoc(undefined);
+		checkWellFormedDomTree(newDomTree, newDomTree, 0);
 		var result = [toplevelNode, 
-			      deepListToArray(config.lookup('onDraw')([w]))];
+			      deepListToArray(newDomTree)];
 		return result;
 	    }
 
 	    var wrappedRedrawCss = function(w) {
 		var result = deepListToArray(config.lookup('onDrawCss')([w]));
+		plt.Kernel.setLastLoc(undefined);
 		return result;
 	    }
 	    wrappedHandlers.push(_js.on_draw(wrappedRedraw, wrappedRedrawCss));
 	} else if (config.lookup('onRedraw')) {
-	    // WARNING: under Safari, it's not safe to define inner functions with the same
-	    // name as other ones.  That's why we're doing 'var wrappedRedraw = function(w) { ... }'
-	    // rather than the more direct 'function wrappedRedraw(w) { ...}'.
+	    var reusableCanvas = undefined;
+	    var reusableCanvasNode = undefined;
 	    var wrappedRedraw = function(w) {
-		var result = [toplevelNode, 
-			      _js.node_to_tree(
-				  plt.Kernel.toDomNode(
-				      config.lookup('onRedraw')([w])))];
-		return result;
+		var aScene = config.lookup('onRedraw')([w]);
+		// Performance hack: if we're using onRedraw, we know
+		// we've got a scene, so we optimize away the repeated
+		// construction of a canvas object.
+		if (aScene != null && aScene != undefined && 
+		    aScene instanceof plt.Kernel.BaseImage) {
+		    var width = 
+			plt.world.Kernel.imageWidth(aScene).toInteger();
+		    var height = 
+			plt.world.Kernel.imageHeight(aScene).toInteger();
+
+		    if (! reusableCanvas) {
+			reusableCanvas = plt.Kernel._makeCanvas(width, height);
+			reusableCanvasNode = _js.node_to_tree(reusableCanvas);
+		    }
+ 		    reusableCanvas.width = width;
+ 		    reusableCanvas.height = height;
+ 		    reusableCanvas.style.setProperty("width",
+						     reusableCanvas.width + "px", "");
+ 		    reusableCanvas.style.setProperty("height", reusableCanvas.height + "px", "");
+ 		    var ctx = reusableCanvas.getContext("2d");
+
+		    reusableCanvas.style.setProperty("display", "none", "");
+		    document.body.appendChild(reusableCanvas);
+		    aScene.render(ctx, 0, 0);
+		    document.body.removeChild(reusableCanvas);
+		    reusableCanvas.style.removeProperty("display");
+		    return [toplevelNode, reusableCanvasNode];
+		} else {
+		    return [toplevelNode, 
+			    _js.node_to_tree(
+				plt.Kernel.toDomNode(
+				    aScene))];
+		}
 	    }
 	    
 	    var wrappedRedrawCss = function(w) {
@@ -179,7 +250,9 @@ plt.world.MobyJsworld = {};
 	    wrappedHandlers.push(_js.on_draw(wrappedRedraw, wrappedRedrawCss));
 	} else {
 	    wrappedHandlers.push(_js.on_world_change
-				 (function(w) { Jsworld.printWorldHook(w, toplevelNode); }));
+				 (function(w) { 
+				     Jsworld.printWorldHook(w, toplevelNode); 
+				 }));
 	}
 
 
@@ -192,12 +265,35 @@ plt.world.MobyJsworld = {};
 	    wrappedHandlers.push(_js.on_tick(wrappedDelay, wrappedTick));
 	}
 
-
-	if (config.lookup('initialEffect')) {
-	    plt.world.Kernel.applyEffect(config.lookup('initialEffect'));
+	if (config.lookup('stopWhen')) {
+	    wrappedHandlers.push(_js.stop_when(function(w) { 
+			return config.lookup('stopWhen')([w]);
+		    }));
 	}
 	
-	// Fixme: handle stopwhen.
+
+	if (config.lookup('onKey')) {
+	    window.onkeydown = function(e) {
+		plt.world.stimuli.onKey(e);
+	    }
+	}
+
+
+
+	if (config.lookup('initialEffect')) {
+	    var updaters =
+		plt.world.Kernel.applyEffect(config.lookup('initialEffect'));
+	    for (var i = 0 ; i < updaters.length; i++) {
+		if (config.lookup('stopWhen') && 
+		    config.lookup('stopWhen')([initWorld])) {
+		    break;
+		} else {
+		    initWorld = updaters[i](initWorld);
+		}
+	    }
+	}
+	
+
 	
 	return _js.big_bang(toplevelNode,
 			    initWorld,
@@ -216,8 +312,31 @@ plt.world.MobyJsworld = {};
 	return result;
     }
 
+
+
+
+
     // updateWorld: (world -> world) -> void
-    Jsworld.updateWorld = _js.change_world;
+    Jsworld.updateWorld = function(updater) {
+	function wrappedUpdater(world) {
+	    try {
+		return updater(world);
+	    } catch (e) {
+		plt.Kernel.reportError(e);
+		return world;
+	    }
+	}
+
+	_js.change_world(wrappedUpdater);
+    }
+    
+
+
+    // shutdownWorld: -> void
+    // Shut down all world computations.
+    Jsworld.shutdownWorld = function() {
+	_js.shutdown();
+    };
 
 
     function getAttribs(args) {
@@ -260,7 +379,7 @@ plt.world.MobyJsworld = {};
     // button: (world -> world) assoc -> node
     Jsworld.button = function(f, args) {
 	var noneF = function(world) {
-	    return plt.world.Kernel.make_dash_effect_colon_none();
+	    return make_dash_effect_colon_none();
 	};
 	var node = Jsworld.buttonStar(f, 
 				      noneF,
@@ -271,11 +390,18 @@ plt.world.MobyJsworld = {};
 	return node;
     };
 
+
     Jsworld.buttonStar = function(worldUpdateF, effectF, args) {
 	var attribs = getAttribs(args);
 	function wrappedF(world, evt) {
-	    plt.world.Kernel.applyEffect(effectF([world]));
-	    return worldUpdateF([world]);
+	    try {
+		plt.world.Kernel.applyEffect(effectF([world]));
+		var result = worldUpdateF([world]);
+		return result;
+	    } catch (e) {
+		plt.Kernel.reportError(e);
+		return world;
+	    }
 	}
 	var node = _js.button(wrappedF, attribs);
 	node.toWrittenString = function() { return "(js-button ...)"; }
@@ -285,21 +411,54 @@ plt.world.MobyJsworld = {};
     };
     
 
-
-    // BidirectionalInput
-    Jsworld.bidirectionalInput = function(type, valF, updateF, args) {
+    // input.
+    Jsworld.input = function(type, updateF, args) {
+	plt.Kernel.check(type, plt.Kernel.isString, "js-input", "string", 1);
+	plt.Kernel.check(updateF, plt.Kernel.isFunction, "js-input", "(world string -> world)", 1);
 	var attribs = getAttribs(args);
-	var node = _js.bidirectional_input(type,
-				       function(w) { return valF([w]) },
-				       function(w, v) { 
-					   return updateF([w, v])
-				       },
-				       attribs);
-	node.toWrittenString = function() { return "(js-bidirectional-input ...)"; }
+	var node = _js.input(type,
+			     function(w, v) { 
+				 return updateF([w, v])
+			     },
+			     attribs);
+	node.toWrittenString = function() { return "(js-input ...)"; }
 	node.toDisplayedString = node.toWrittenString;
 	node.toDomNode = function() { return node; }
 	return node;
     };
+
+
+    Jsworld.get_dash_input_dash_value = function(node) {
+	plt.Kernel.check(node, 
+			 function(x) { return (plt.Kernel.isString(node) ||
+					       node.nodeType == 
+					       Node.ELEMENT_NODE) }, 
+			 "get-input-value",
+			 "dom-node",
+			 1);
+	if (plt.Kernel.isString(node)) {
+	    return plt.types.String.makeInstance(document.getElementById(node).value || "");
+	} else {
+	    return plt.types.String.makeInstance(node.value || "");
+	}
+
+    };
+
+
+//     // BidirectionalInput
+//     Jsworld.bidirectionalInput = function(type, valF, updateF, args) {
+// 	var attribs = getAttribs(args);
+// 	var node = _js.bidirectional_input(type,
+// 				       function(w) { return valF([w]) },
+// 				       function(w, v) { 
+// 					   return updateF([w, v])
+// 				       },
+// 				       attribs);
+// 	node.toWrittenString = function() { return "(js-bidirectional-input ...)"; }
+// 	node.toDisplayedString = node.toWrittenString;
+// 	node.toDomNode = function() { return node; }
+// 	return node;
+//     };
 
     // Images.
     Jsworld.img = function(src, args) {
@@ -312,10 +471,9 @@ plt.world.MobyJsworld = {};
     };
 
 
-    // text: string assoc -> node
-    Jsworld.text = function(s, args) {
-	var attribs = getAttribs(args);
-	var node = _js.text(s, attribs);
+    // text: string -> node
+    Jsworld.text = function(s) {
+	var node = _js.text(s, []);
 	node.toWrittenString = function() { return "(js-img ...)"; }
 	node.toDisplayedString = node.toWrittenString;
 	node.toDomNode = function() { return node; }
