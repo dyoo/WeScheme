@@ -9,9 +9,10 @@
 <script src="/runtime/world-config.js"></script>
 <script src="/runtime/platform.js"></script>
 <script src="/runtime/lib.js"></script>
-<script src="/runtime/effect-struct.js</script>
+<script src="/runtime/effect-struct.js"></script>
 <script src="/runtime/world.js"></script>
 <script src="/runtime/jsworld/jsworld.js"></script>
 <script src="/runtime/jsworld.js"></script>
+<script src="/runtime/permission-struct.js"></script>
 <script src="/runtime/permission.js"></script>
 <script src="/runtime/world-stimuli.js"></script>
