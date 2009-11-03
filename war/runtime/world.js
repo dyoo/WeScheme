@@ -164,7 +164,7 @@ plt.world.Kernel = plt.world.Kernel || {};
 
 
 	if (config.lookup('onKey')) {
-	    newWindow.onkeypress = function(e) {
+	    newWindow.onkeydown = function(e) {
 		plt.world.stimuli.onKey(e);
 	    }
 	}
@@ -471,6 +471,10 @@ plt.world.Kernel = plt.world.Kernel || {};
 	return this.img.height;
     };
 
+    // Override toDomNode: we don't need a full-fledged canvas here.
+    FileImage.prototype.toDomNode = function() {
+	return this.img.cloneNode(true);
+    };
 
 
 
