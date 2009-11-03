@@ -20,8 +20,13 @@ public class Compiler extends HttpServlet
 	static {
 		try{
 		cx = Context.enter();
+		
+		// WORKAROUND: force use of interpretive mode, because the compressed-standalone-compiler is
+		// complex enough that it doesn't compile to class files anymore.
+		cx.setOptimizationLevel(-1);
+
 		scope = cx.initStandardObjects();
-		FileReader fileReader = new FileReader("runtime/standalone-compiler.js");
+		FileReader fileReader = new FileReader("runtime/compressed-standalone-compiler.js");
 		BufferedReader inputReader = new BufferedReader(fileReader);
 		String compilerSrc = "";
 		String line;
@@ -71,8 +76,4 @@ public class Compiler extends HttpServlet
 		    Context.exit();
 		}
 	}
-	
-	
-	
 }
-
