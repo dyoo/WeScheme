@@ -122,7 +122,23 @@ plt.world.MobyJsworld = {};
     };
 
 
-    // checkWellFormedDomTree: X X -> void
+
+    // Figure out the target of an event.
+    // http://www.quirksmode.org/js/events_properties.html#target
+    var findEventTarget = function(e) {
+	var targ;
+	if (e.target) 
+	    targ = e.target;
+	else if (e.srcElement) 
+	    targ = e.srcElement;
+	if (targ.nodeType == 3) // defeat Safari bug
+	    targ = targ.parentNode;
+	return targ;
+    }
+
+
+
+    // checkWellFormedDomTree: X X (or number undefined) -> void
     // Check to see if the tree is well formed.  If it isn't,
     // we need to raise a meaningful error so the user can repair
     // the structure.
@@ -155,8 +171,13 @@ plt.world.MobyJsworld = {};
 	    }
 	} else {
 	    throw new MobyTypeError(
-		plt.Kernel.format("on-draw: expected a dom-s-expression, but received ~s instead.  (the ~a element within ~s)",
-				  [x, index, top]));
+		plt.Kernel.format(
+		    "on-draw: expected a dom-s-expression, but received ~s instead.~a",
+		    [x,
+		     (index != undefined ? 
+		      plt.Kernel.format("the ~a element within ~s", [index, top])
+		      : 
+		      "")]));
 	}
     };
 
@@ -172,6 +193,11 @@ plt.world.MobyJsworld = {};
 						  "handler or attribute list",
 						  i+2) });
 	var toplevelNode = Jsworld.makeToplevelNode();
+	
+	// Ensure that the toplevelNode can be focused by mouse or keyboard
+	toplevelNode.tabIndex = 0;
+	toplevelNode.style.borderStyle = "solid";
+	toplevelNode.style.borderWidth = 1;
 
 	var config = new plt.world.config.WorldConfig();
 	for(var i = 0; i < handlers.length; i++) {
@@ -192,7 +218,7 @@ plt.world.MobyJsworld = {};
 	    var wrappedRedraw = function(w) {
 		var newDomTree = config.lookup('onDraw')([w]);
 		plt.Kernel.setLastLoc(undefined);
-		checkWellFormedDomTree(newDomTree, newDomTree, 0);
+		checkWellFormedDomTree(newDomTree, newDomTree, undefined);
 		var result = [toplevelNode, 
 			      deepListToArray(newDomTree)];
 		return result;
@@ -273,11 +299,30 @@ plt.world.MobyJsworld = {};
 	
 
 	if (config.lookup('onKey')) {
-	    window.onkeydown = function(e) {
-		plt.world.stimuli.onKey(e);
-	    }
+	    // Add event handlers that listen in on key events that are applied
+	    // directly on the toplevelNode.  We pay attention to keydown, and
+	    // omit keypress.
+	    toplevelNode.addEventListener('keydown',
+					  function(e) {
+					      if (findEventTarget(e) === toplevelNode) {
+						  plt.world.stimuli.onKey(e);
+						  e.preventDefault();
+					      } else {
+						  return true;
+					      }
+					  },
+					  false);
+	    toplevelNode.addEventListener('keypress',
+					  function(e) {
+					      if (findEventTarget(e) === toplevelNode) {
+						  e.preventDefault();
+					      } else {
+						  return true;
+					      }
+					  },
+					  false);
+	    toplevelNode.focus();
 	}
-
 
 
 	if (config.lookup('initialEffect')) {
@@ -325,10 +370,10 @@ plt.world.MobyJsworld = {};
 		plt.Kernel.reportError(e);
 		// When something bad happens, shut down 
 		// the world computation.
-		setTimeout(function() { 
-		    plt.world.stimuli.onShutdown(); 
-		},
-			   0);
+		plt.Kernel.reportError("Shutting down jsworld computations");
+
+		plt.world.stimuli.onShutdown(); 
+
 		return world;
 	    }
 	}
@@ -401,9 +446,10 @@ plt.world.MobyJsworld = {};
 	var attribs = getAttribs(args);
 	var wrappedF = function(world, evt) {
 	    try {
-		plt.world.Kernel.applyEffect(effectF([world]));
-		var result = worldUpdateF([world]);
-		return result;
+		var effect = effectF([world]);
+		var newWorld = worldUpdateF([world]);
+		plt.world.Kernel.applyEffect(effect);
+		return newWorld;
 	    } catch (e) {
 		plt.Kernel.reportError(e);
 		return world;
