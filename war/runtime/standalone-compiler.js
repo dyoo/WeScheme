@@ -198,7 +198,7 @@ var plt = plt || {};
     };
 
 
-    function appendChild(parent, child) {
+    var appendChild = function(parent, child) {
 	parent.appendChild(child);
 	if (child.afterAttach) { child.afterAttach(); }
     }
@@ -280,7 +280,7 @@ var plt = plt || {};
     
     // Rationals
     
-    function gcd(a, b) {
+    var gcd = function(a, b) {
 	var t;
 	if (isNaN(a) || !isFinite(a)) {
 	    throw new plt.Kernel.MobyRuntimeError("not a number: " + a);
@@ -326,7 +326,8 @@ var plt = plt || {};
 	if (target.level() == 1)
 	    return plt.types.FloatPoint.makeInstance(this.n / this.d);
 	if (target.level() == 2)	
-	    return plt.types.Complex.makeInstance(this.n / this.d, 0);
+	    return plt.types.Complex.makeInstance(this, 
+						  plt.types.Rational.ZERO);
 	throw new plt.Kernel.MobyRuntimeError("invalid level of Number");
     };
     
@@ -340,6 +341,10 @@ var plt = plt || {};
 	    this.d == other.d;
     };
 
+    plt.types.Rational.prototype.isInteger = function() { 
+	return this.d == 1;
+    }
+    
     plt.types.Rational.prototype.isRational = function() {
         return true;
     };
@@ -386,13 +391,21 @@ var plt = plt || {};
     plt.types.Rational.prototype.toInteger = function() {
 	return Math.floor(this.n / this.d);  
     };
+
+    plt.types.Rational.prototype.numerator = function() {
+	return plt.types.Rational.makeInstance(this.n);
+    };
+
+    plt.types.Rational.prototype.denominator = function() {
+	return plt.types.Rational.makeInstance(this.d);
+    };
     
     plt.types.Rational.prototype.toFloat = function() {
 	return this.n / this.d;
     };
     
     plt.types.Rational.prototype.toComplex = function(){
-	return plt.types.Complex.makeInstance(this.n / this.d, 0);
+	return plt.types.Complex.makeInstance(this, plt.types.Rational.ZERO);
     };
     
     plt.types.Rational.prototype.greaterThan = function(other) {
@@ -413,7 +426,7 @@ var plt = plt || {};
 
     
     plt.types.Rational.prototype.sqrt = function() {
-	if (this.n > 0) {
+	if (this.n >= 0) {
 	    var newN = Math.sqrt(this.n);
 	    var newD = Math.sqrt(this.d);
 	    if (Math.floor(newN) == newN &&
@@ -427,9 +440,13 @@ var plt = plt || {};
 	    var newD = Math.sqrt(this.d);
 	    if (Math.floor(newN) == newN &&
 		Math.floor(newD) == newD) {
-		return plt.types.Complex.makeInstance(0, newN / newD);
+		return plt.types.Complex.makeInstance(
+		    plt.types.Rational.ZERO,
+		    plt.types.Rational.makeInstance(newN, newD));
 	    } else {
-		return plt.types.Complex.makeInstance(0, newN / newD);
+		return plt.types.Complex.makeInstance(
+		    plt.types.Rational.ZERO,
+		    plt.types.FloatPoint.makeInstance(newN / newD));
 	    }
 	}
     };
@@ -500,6 +517,11 @@ var plt = plt || {};
     plt.types.Rational.prototype.real_dash_part = function(){
 	return this;
     };
+
+
+    plt.types.Rational.prototype.timesI = function() {
+	return plt.types.Complex.makeInstance(plt.types.Rational.ZERO, this);
+    };
     
     plt.types.Rational.prototype.round = function() {
 	if (this.d == 2) {
@@ -559,6 +581,7 @@ var plt = plt || {};
     plt.types.Rational.NEGATIVE_ONE = _rationalCache[-1];
     plt.types.Rational.ZERO = _rationalCache[0];
     plt.types.Rational.ONE = _rationalCache[1];
+    plt.types.Rational.TWO = _rationalCache[2];
     
     
     
@@ -599,7 +622,7 @@ var plt = plt || {};
     };
     
     plt.types.FloatPoint.prototype.lift = function(target) {
-	return plt.types.Complex.makeInstance(this.n, 0);
+	return plt.types.Complex.makeInstance(this, plt.types.Rational.ZERO);
     };
     
     plt.types.FloatPoint.prototype.toWrittenString = function() {
@@ -624,7 +647,11 @@ var plt = plt || {};
     };
 
     plt.types.FloatPoint.prototype.isRational = function() {
-        return false;
+        return this.isFinite() && this.n == Math.floor(this.n);
+    };
+
+    plt.types.FloatPoint.prototype.isInteger = function() {
+	return this.isFinite() && this.n == Math.floor(this.n);
     };
 
     plt.types.FloatPoint.prototype.isReal = function() {
@@ -685,16 +712,29 @@ var plt = plt || {};
 
 	if (this.isFinite() && other.isFinite()) {
 	    return plt.types.FloatPoint.makeInstance(this.n * other.n);
+	} else if (isNaN(this.n) || isNaN(other.n)) {
+	    return NaN;
 	} else {
 	    return ((sign(this) * sign(other) == 1) ? inf : neginf);
 	}
     };
     
     plt.types.FloatPoint.prototype.divide = function(other) {
-	if (other.n == 0) {
-	    throw new plt.Kernel.MobyRuntimeError("division by zero");
+	if (this.isFinite() && other.isFinite()) {
+	    if (other.n == 0) {
+		throw new plt.Kernel.MobyRuntimeError("division by zero");
+	    }
+            return plt.types.FloatPoint.makeInstance(this.n / other.n);
+	} else if (isNaN(this.n) || isNaN(other.n)) {
+	    return NaN;
+	} else if (! this.isFinite() && !other.isFinite()) {
+	    return NaN;
+	} else if (this.isFinite() && !other.isFinite()) {
+	    return plt.types.FloatPoint.makeInstance(0.0);
+	} else if (! this.isFinite() && other.isFinite()) {
+	    return ((sign(this) * sign(other) == 1) ? inf : neginf);
 	}
-        return plt.types.FloatPoint.makeInstance(this.n / other.n);
+
     };
     
     
@@ -702,12 +742,33 @@ var plt = plt || {};
 	return Math.floor(this.n);  
     };
     
+    plt.types.FloatPoint.prototype.numerator = function() {
+	var stringRep = this.n.toString();
+	var match = stringRep.match(/^(.*)\.(.*)$/);
+	if (match) {
+	    return plt.types.FloatPoint.makeInstance(parseFloat(match[1] + match[2]));
+	} else {
+	    return this;
+	}
+    };
+
+    plt.types.FloatPoint.prototype.denominator = function() {
+	var stringRep = this.n.toString();
+	var match = stringRep.match(/^(.*)\.(.*)$/);
+	if (match) {
+	    return plt.types.FloatPoint.makeInstance(Math.pow(10, match[2].length));
+	} else {
+	    return plt.types.FloatPoint.makeInstance(1.0);
+	}
+    };
+
+
     plt.types.FloatPoint.prototype.toFloat = function() {
 	return this.n;
     };
     
     plt.types.FloatPoint.prototype.toComplex = function(){
-	return plt.types.Complex.makeInstance(this.n, 0);
+	return plt.types.Complex.makeInstance(this, plt.types.Rational.ZERO);
     };
     
     plt.types.FloatPoint.prototype.floor = function() {
@@ -744,10 +805,14 @@ var plt = plt || {};
 
     
     plt.types.FloatPoint.prototype.sqrt = function() {
-	if (this.n < 0)
-	    return plt.types.Complex.makeInstance(0, Math.sqrt(0 - this.n));
-	else
+	if (this.n < 0) {
+	    var result = plt.types.Complex.makeInstance(
+		plt.types.Rational.ZERO,
+		plt.types.FloatPoint.makeInstance(Math.sqrt(-this.n)));
+	    return result;
+	} else {
 	    return plt.types.FloatPoint.makeInstance(Math.sqrt(this.n));
+	}
     };
     
     plt.types.FloatPoint.prototype.abs = function() {
@@ -785,7 +850,17 @@ var plt = plt || {};
     };
     
     plt.types.FloatPoint.prototype.expt = function(a){
-	return plt.types.FloatPoint.makeInstance(Math.pow(this.n, a.n));
+	if (this.n == 1) {
+	    if (a.isFinite()) {
+		return this;
+	    } else if (isNaN(a.n)){
+		return this;
+	    } else {
+		return this;
+	    }
+	} else {
+	    return plt.types.FloatPoint.makeInstance(Math.pow(this.n, a.n));
+	}
     };
     
     plt.types.FloatPoint.prototype.exp = function(){
@@ -837,21 +912,39 @@ var plt = plt || {};
     };	
     
     plt.types.FloatPoint.prototype.timesI = function(){
-	return plt.types.Complex.makeInstance(0, this.n);
+	return plt.types.Complex.makeInstance(plt.types.Rational.ZERO, this);
     };
     
 
     plt.types.Complex = function(r, i){
-	this.r = plt.types.FloatPoint.makeInstance(r);
-	this.i = plt.types.FloatPoint.makeInstance(i);
+	this.r = r;
+	this.i = i;
     };
     
+    // Constructs a complex number from two basic number r and i.  r and i can
+    // either be plt.type.Rational or plt.type.FloatPoint.
     plt.types.Complex.makeInstance = function(r, i){
-	return new plt.types.Complex(r, i);
+	if (typeof(r) == 'number') {
+	    r = (r == Math.floor(r) ? plt.types.Rational.makeInstance(r) :
+		 plt.types.FloatPoint.makeInstance(r));
+	}
+	if (typeof(i) == 'number') {
+	    i = (i == Math.floor(i) ? plt.types.Rational.makeInstance(i) :
+		 plt.types.FloatPoint.makeInstance(i));
+	}
+
+	var result = new plt.types.Complex(r, i);
+	return result;
     };
     
     plt.types.Complex.prototype.toWrittenString = function() {
+	if (plt.types.NumberTower.greaterThanOrEqual(
+	    this.i,
+	    plt.types.Rational.ZERO)) {
         return plt.Kernel.toWrittenString(this.r) + "+" + plt.Kernel.toWrittenString(this.i)+"i";
+	} else {
+            return plt.Kernel.toWrittenString(this.r) + plt.Kernel.toWrittenString(this.i)+"i";
+	}
     };
 
     plt.types.Complex.prototype.toDisplayedString = plt.types.Complex.prototype.toWrittenString;
@@ -859,12 +952,16 @@ var plt = plt || {};
 
 
     plt.types.Complex.prototype.isFinite = function() {
-	return true;
+	return this.r.isFinite() && this.i.isFinite();
     }
 
 
     plt.types.Complex.prototype.isRational = function() {
-        return false;
+	return this.r.isRational() && plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO);
+    };
+
+    plt.types.Complex.prototype.isInteger = function() {
+	return this.r.isInteger() && plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO);
     };
 
     plt.types.Complex.prototype.toExact = function() { 
@@ -875,9 +972,7 @@ var plt = plt || {};
     };
 
     plt.types.Complex.prototype.isExact = function() { 
-        // FIXME: correct this when the numerator and denominator are
-        // represented as generic numbers, and not as floats.
-        return false;
+        return this.r.isExact() && this.i.isExact();
     };
 
 
@@ -891,39 +986,41 @@ var plt = plt || {};
     };
     
     plt.types.Complex.prototype.isEqual = function(other){
-	return other instanceof plt.types.Complex  && this.r.isEqual(other.r) && this.i.isEqual(other.i);
+	var result = ((other instanceof plt.types.Complex) && 
+		      (plt.types.NumberTower.equal(this.r, other.r)) &&
+		      (plt.types.NumberTower.equal(this.i, other.i)));
+	return result;
     };
 
     plt.types.Complex.prototype.greaterThan = function(other) {
 	if (! this.isReal() || ! other.isReal()) {
 	    throw new plt.Kernel.MobyRuntimeError(">: expects argument of type real number");
 	}
-	return this.r.greaterThan(other.r);
+	return plt.types.NumberTower.greaterThan(this.r, other.r);
     };
 
     plt.types.Complex.prototype.greaterThanOrEqual = function(other) {
 	if (! this.isReal() || ! other.isReal()) {
 	    throw new plt.Kernel.MobyRuntimeError(">: expects argument of type real number");
 	}
-	return this.r.greaterThanOrEqual(other.r);
+	return plt.types.NumberTower.greaterThanOrEqual(this.r, other.r);
     };
 
     plt.types.Complex.prototype.lessThan = function(other) {
 	if (! this.isReal() || ! other.isReal()) {
 	    throw new plt.Kernel.MobyRuntimeError(">: expects argument of type real number");
 	}
-	return this.r.lessThan(other.r);
+	return plt.types.NumberTower.lessThan(this.r, other.r);
     };
 
     plt.types.Complex.prototype.lessThanOrEqual = function(other) {
 	if (! this.isReal() || ! other.isReal()) {
 	    throw new plt.Kernel.MobyRuntimeError(">: expects argument of type real number");
 	}
-	return this.r.lessThanOrEqual(other.r);
+	return plt.types.NumberTower.lessThanOrEqual(this.r, other.r);
     };
 
 
-    
     plt.types.Complex.prototype.abs = function(){
 	if (!plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
 	    throw new plt.Kernel.MobyRuntimeError("abs: expects argument of type real number");
@@ -935,6 +1032,20 @@ var plt = plt || {};
 	    throw new plt.Kernel.MobyRuntimeError("toInteger: expects argument of type real number");
 	return this.r.toInteger();
     };
+
+    plt.types.Complex.prototype.numerator = function() {
+	if (!this.isReal())
+	    throw new plt.Kernel.MobyRuntimeError("numerator: can only be applied to real number");
+	return this.n.numerator();
+    };
+    
+
+    plt.types.Complex.prototype.denominator = function() {
+	if (!this.isReal())
+	    throw new plt.Kernel.MobyRuntimeError("floor: can only be applied to real number");
+	return this.n.denominator();
+    };
+
     
     plt.types.Complex.prototype.toFloat = function(){
 	if (!plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
@@ -943,82 +1054,142 @@ var plt = plt || {};
     };
     
     plt.types.Complex.prototype.toComplex = function(){
-	return plt.types.Complex.makeInstance(this.r.n, this.i.n);
+	return this;
     };
     
     plt.types.Complex.prototype.add = function(other){
-	return plt.types.Complex.makeInstance(this.r.n + other.r.n, this.i.n + other.i.n);
+	return plt.types.Complex.makeInstance(
+	    plt.types.NumberTower.add(this.r, other.r),
+	    plt.types.NumberTower.add(this.i, other.i));
     };
     
     plt.types.Complex.prototype.subtract = function(other){
-	return plt.types.Complex.makeInstance(this.r.n - other.r.n, this.i.n - other.i.n);
+	return plt.types.Complex.makeInstance(
+	    plt.types.NumberTower.subtract(this.r, other.r),
+	    plt.types.NumberTower.subtract(this.i, other.i));
     };
     
     plt.types.Complex.prototype.multiply = function(other){
-	var r = this.r.n * other.r.n - this.i.n * other.i.n;
-	var i = this.r.n * other.i.n + this.i.n * other.r.n;
+
+	// If the other value is real, just do primitive division
+	if (other.isReal()) {
+	    return plt.types.Complex.makeInstance(
+		plt.types.NumberTower.multiply(this.r, other.r),
+		plt.types.NumberTower.multiply(this.i, other.r));
+	}
+
+	var r = plt.types.NumberTower.subtract(
+	    plt.types.NumberTower.multiply(this.r, other.r),
+	    plt.types.NumberTower.multiply(this.i, other.i));
+	var i = plt.types.NumberTower.add(
+	    plt.types.NumberTower.multiply(this.r, other.i),
+	    plt.types.NumberTower.multiply(this.i, other.r));
+	if (plt.types.NumberTower.equal(i, plt.types.Rational.ZERO)) {
+	    return r;
+	}
 	return plt.types.Complex.makeInstance(r, i);
     };
     
     plt.types.Complex.prototype.divide = function(other){
+	// If the other value is real, just do primitive division
+	if (other.isReal()) {
+	    return plt.types.Complex.makeInstance(
+		plt.types.NumberTower.divide(this.r, other.r),
+		plt.types.NumberTower.divide(this.i, other.r));
+	}
+
+
 	var con = other.conjugate();
-	var up =  plt.types.NumberTower.multiply(this, con);
+	var up =  plt.types.NumberTower.multiply(this, con).toComplex();
+
+	// Down is guaranteed to be real by this point.
 	var down = plt.types.NumberTower.multiply(other, con);
-	return plt.types.Complex.makeInstance(up.r.n / down.r.n, up.i.n / down.r.n);
+
+	var result = plt.types.Complex.makeInstance(
+	    plt.types.NumberTower.divide(up.r, down),
+	    plt.types.NumberTower.divide(up.i, down));
+	return result;
     };
     
     plt.types.Complex.prototype.conjugate = function(){
-	return plt.types.Complex.makeInstance(this.r.n, 0 - this.i.n);
+	var result = plt.types.Complex.makeInstance(
+	    this.r, 
+	    plt.types.NumberTower.subtract(plt.types.Rational.ZERO, 
+					   this.i));
+
+	return result;
     };
     
     plt.types.Complex.prototype.magnitude = function(){
-	var sum = plt.types.FloatPoint.makeInstance(this.r.n*this.r.n + this.i.n * this.i.n);
-	return plt.types.FloatPoint.makeInstance(sum.sqrt().n);
+	var sum = plt.types.NumberTower.add(
+	    plt.types.NumberTower.multiply(this.r, this.r),
+	    plt.types.NumberTower.multiply(this.i, this.i));
+	return sum.sqrt();
     };
     
     plt.types.Complex.prototype.isReal = function(){
-	return this.i.n == 0;
+	return plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO);
     };
     
     plt.types.Complex.prototype.sqrt = function(){
 	if (this.isReal())
 	    return this.r.sqrt();
-	
 	// http://en.wikipedia.org/wiki/Square_root#Square_roots_of_negative_and_complex_numbers	
 	var r_plus_x = plt.types.NumberTower.add(this.magnitude(), this.r);
 
 	var r = r_plus_x.half().sqrt();
+
 	var i = plt.types.NumberTower.divide(this.i, plt.types.NumberTower.multiply(r_plus_x, plt.types.FloatPoint.makeInstance(2)).sqrt());
 	
-	return plt.types.Complex.makeInstance(r.toFloat(), i.toFloat());
+
+	return plt.types.Complex.makeInstance(r, i);
     };
     
     plt.types.Complex.prototype.log = function(){
-	return plt.types.Complex.makeInstance(this.magnitude().log().toFloat(), this.angle().toFloat());
+	var m = this.magnitude();
+	var theta = this.angle();
+	var result = plt.types.NumberTower.add(
+	    m.log(),
+	    theta.timesI());
+	return result;
     };
     
     plt.types.Complex.prototype.angle = function(){
-	if (this.isReal())
+	if (this.isReal()) {
 	    return this.r.angle();
-	if (0 == this.r.n){
+	}
+	if (plt.types.NumberTower.equal(plt.types.Rational.ZERO, this.r)) {
 	    var tmp = plt.Kernel.pi.half();
-	    return this.i.n > 0 ? tmp : tmp.minus();
+	    return plt.types.NumberTower.greaterThan(this.i, plt.types.Rational.ZERO) ? tmp : tmp.minus();
 	} else {
 	    var tmp = plt.types.NumberTower.divide(this.i.abs(), this.r.abs()).atan();
-	    if (this.r.n > 0)
-		return this.i.n > 0 ? tmp : tmp.minus();
-	    else
-		return this.i.n > 0 ? plt.Kernel.pi.subtract(tmp) : tmp.subtract(plt.Kernel.pi);
+	    if (plt.types.NumberTower.greaterThan(this.r, plt.types.Rational.ZERO)) {
+		return plt.types.NumberTower.greaterThan(this.i, plt.types.Rational.ZERO) ? tmp : tmp.minus();
+	    } else {
+		return plt.types.NumberTower.greaterThan(this.i, plt.types.Rational.ZERO) ? plt.Kernel.pi.subtract(tmp) : tmp.subtract(plt.Kernel.pi);
+	    }
 	}
     };
     
+    var plusI = plt.types.Complex.makeInstance(plt.types.Rational.ZERO,
+					       plt.types.Rational.ONE);
+    var minusI = plt.types.Complex.makeInstance(plt.types.Rational.ZERO,
+						plt.types.Rational.NEGATIVE_ONE);
+    
     plt.types.Complex.prototype.atan = function(){
-	if (this.isReal())
-	    return this.r.atan();
-	var iz = this.timesI();
-	var part1 = plt.types.Complex.makeInstance(1, iz.minus()).log();
-	var part2 = plt.types.Complex.makeInstance(1, iz).log();
-	return part1.subtract(part2).timesI().half();
+	if (plt.types.NumberTower.equal(this, plusI) ||
+	    plt.types.NumberTower.equal(this, minusI)) {
+	    return plt.types.FloatPoint.makeInstance(Number.NEGATIVE_INFINITY);
+	}
+	return plt.types.NumberTower.multiply(
+	    plusI,
+	    plt.types.NumberTower.multiply(
+		plt.types.FloatPoint.makeInstance(0.5),
+		(plt.types.NumberTower.divide(
+		    plt.types.NumberTower.add(plusI, this),
+		    plt.types.NumberTower.add(
+			plusI,
+			plt.types.NumberTower.subtract(plt.types.Rational.ZERO, this)))).log()));
     };
     
     plt.types.Complex.prototype.cos = function(){
@@ -1035,23 +1206,26 @@ var plt = plt || {};
 	    return this.r.sin();
 	var iz = this.timesI();
 	var iz_minus = iz.minus();
-	var z2 = plt.types.Complex.makeInstance(0, 2);
-	
+	var z2 = plt.types.Complex.makeInstance(plt.types.Rational.ZERO,
+						plt.types.Rational.TWO);
 	var exp_minus = plt.types.NumberTower.subtract(iz.exp(), iz_minus.exp());
-	
-	return plt.types.NumberTower.divide(exp_minus, z2);
+	var result = plt.types.NumberTower.divide(exp_minus, z2);
+	return result;
     };
     
     plt.types.Complex.prototype.expt= function(y){
-	var expo = y.multiply(this.log());
+	var expo = plt.types.NumberTower.multiply(y, this.log());
 	return expo.exp();
     };
     
     plt.types.Complex.prototype.exp = function(){
-	var part1 = this.r.exp();
-	var part2 = plt.types.Complex.makeInstance(this.i.cos(), this.i.sin().timesI());
-	
-	return plt.types.NumberTower.multiply(part1, part2);
+	var r = this.r.exp();
+	var cos_a = this.i.cos();
+	var sin_a = this.i.sin();
+
+	return plt.types.NumberTower.multiply(
+	    r,
+	    plt.types.NumberTower.add(cos_a, sin_a.timesI()));
     };
     
     plt.types.Complex.prototype.acos = function(){
@@ -1100,21 +1274,22 @@ var plt = plt || {};
     
     
     plt.types.Complex.prototype.timesI = function(){
-	return this.multiply(plt.types.Complex.makeInstance(0, 1));
+	return this.multiply(plt.types.Complex.makeInstance(plt.types.Rational.ZERO, plt.types.Rational.ONE));
     };
     
     plt.types.Complex.prototype.minus = function(){
-	return plt.types.Complex.makeInstance(0 - this.r.n, 0 - this.i.n);
+	return plt.types.Complex.makeInstance(plt.types.NumberTower.subtract(plt.types.Rational.ZERO, this.r),
+					      plt.types.NumberTower.subtract(plt.types.Rational.ZERO, this.i));
     };
     
     plt.types.Complex.prototype.half = function(){
-	return plt.types.Complex.makeInstance(this.r.n/2, this.i.n/2);
+	return plt.types.Complex.makeInstance(this.r.half(), 
+					      this.i.half());
     };
     
     //////////////////////////////////////////////////////////////////////
     // NumberTower.
     // 
-    // Currently only support Rational and Floating.
     plt.types.NumberTower = {};
     
     
@@ -1303,7 +1478,7 @@ var plt = plt || {};
 
     // Inheritance from pg 168: Javascript, the Definitive Guide.
     var heir = function(p) {
-	function f() {}
+	var f = function() {}
 	f.prototype = p;
 	return new f();
     }
@@ -1419,31 +1594,25 @@ var plt = plt || {};
     }
 
     var isRational = function(x) {
-	return x != null && x != undefined && x instanceof plt.types.Rational;
+	return isNumber(x) && x.isRational();
     }
 
 
     var isComplex = function(x) {
-	return x != null && x != undefined && (x instanceof plt.types.Complex || 
-					       x instanceof plt.types.Rational ||
-					       x instanceof plt.types.FloatPoint);
-    }
+	return isNumber(x);}
 
     var isFunction = function(x) {
 	return typeof(x) == 'function';
     }
 
-
     // Returns true if x is an integer.
     var isInteger = function(x) {
-	return x != null && x != undefined && isNumber(x) && plt.types.NumberTower.equal(x, x.floor());
+	return (isNumber(x) && x.isInteger());
     }
 
     var isNatural = function(x) {
-	return x != null && x != undefined && isNumber(x) && plt.types.NumberTower.equal(x, x.floor()) && x.toInteger() >= 0;
+	return isNumber(x) && x.isInteger() && x.toInteger() >= 0;
     }
-
-
 
 
     // isAlphabeticString: string -> boolean
@@ -1468,7 +1637,8 @@ var plt = plt || {};
 
 
     var isImage = function(thing) {
-	return (thing != null && thing != undefined && thing instanceof BaseImage);
+	return ((thing != null) && (thing != undefined)
+		&& (thing instanceof BaseImage));
     }
 
 
@@ -1634,8 +1804,8 @@ var plt = plt || {};
 	},
 	
 	equal_question_ : function(x, y) {
-	    if (plt.Kernel.number_question_(x).valueOf() && 
-		plt.Kernel.number_question_(y).valueOf()) {
+	    if (plt.Kernel.number_question_(x) && 
+		plt.Kernel.number_question_(y)) {
 		if ("isEqual" in x) {
 		    return plt.types.NumberTower.equal(x, y);
 		} else if ("isEqual" in y) {
@@ -1752,7 +1922,20 @@ var plt = plt || {};
 
 	integer_dash_sqrt: function(x) {
 	    check(x, isInteger, "integer-sqrt", "integer", 1);
-	    return plt.types.Rational.makeInstance(x.sqrt().toInteger());
+	    var result = x.sqrt();
+	    if (isRational(result)) {
+		return plt.types.Rational.makeInstance(result.toInteger());
+	    } else if (isReal(result)) {
+		return plt.types.Rational.makeInstance(result.toInteger());
+	    } else {
+
+		// it must be complex.
+		return plt.types.Complex.makeInstance(
+		    plt.types.Rational.makeInstance
+		    (plt.Kernel.real_dash_part(result).toInteger()),
+		    plt.types.Rational.makeInstance
+		    (plt.Kernel.imag_dash_part(result).toInteger()));
+	    }
 	},
 	
 	sqr: function(x) {
@@ -2014,12 +2197,12 @@ var plt = plt || {};
 	
 	denominator : function(x) {
 	    check(x, isRational, "denominator", "rational", 1);
-	    return plt.types.Rational.makeInstance(x.d, 1);
+	    return x.denominator();
 	},
 	
 	numerator : function(x){
 	    check(x, isRational, "numerator", "rational", 1);
-	    return plt.types.Rational.makeInstance(x.n, 1);
+	    return x.numerator();
 	},
 	
 	odd_question_ : function(x){
@@ -2059,26 +2242,23 @@ var plt = plt || {};
 	    if (plt.types.NumberTower.equal(theta, plt.types.Rational.ZERO)) {
 		return r;
 	    }
-
-	    var x = r.toFloat() * Math.cos(theta.toFloat());
-	    var y = r.toFloat() * Math.sin(theta.toFloat());
+	    var x = plt.types.NumberTower.multiply(r, theta.cos());
+	    var y = plt.types.NumberTower.multiply(r, theta.sin());
 	    return plt.types.Complex.makeInstance(x, y);
 	},
 
 	integer_question_ : function(x){
 	    // check(x, isNumber, "integer?", "number", 1);
-	    return (isNumber(x) &&
-		    plt.types.NumberTower.isFinite(x) && 
-		    this.equal_question_(x, x.floor()));
+	    return (isInteger(x));
 	},
 	
 	make_dash_rectangular : function(x, y){
-	    return plt.types.Complex.makeInstance(x.toFloat(), y.toFloat());
+	    return plt.types.Complex.makeInstance(x, y);
 	},
 	
 	quotient : function(x, y){
-	    check(x, isNumber, "quotient", "number", 1);
-	    check(y, isNumber, "quotient", "number", 2);
+	    check(x, isInteger, "quotient", "integer", 1);
+	    check(y, isInteger, "quotient", "integer", 2);
 	    var div = plt.types.NumberTower.divide(x,y);
 	    if (plt.Kernel.positive_question_(div)) {
 		return plt.types.Rational.makeInstance(div.floor().toInteger(),
@@ -2432,13 +2612,29 @@ var plt = plt || {};
 
 	string_dash__greaterthan_number : function(str){
 	    check(str, isString, "string->number", "string", 1);
-	    var aNum = str * 1;
-	    if (isNaN(aNum))
+	    try {
+		var stxList = plt.reader.readSchemeExpressions(str, "");
+		if (plt.types.NumberTower.equal(plt.Kernel.length(stxList),
+						plt.types.Rational.ONE)) {
+		    var result = stx_dash_e(stxList.first());
+		    if (isNumber(result)) {
+			return result;
+		    } else {
+			return plt.types.Logic.FALSE;
+		    }
+		} else {
+		    return plt.types.Logic.FALSE;
+		}
+	    } catch (e) {
 		return plt.types.Logic.FALSE;
-	    if (Math.floor(aNum) == aNum && isFinite(aNum)) {
-		return plt.types.Rational.makeInstance(aNum);
 	    }
-	    return plt.types.FloatPoint.makeInstance(aNum);
+// 	    var aNum = str * 1;
+// 	    if (isNaN(aNum))
+// 		return plt.types.Logic.FALSE;
+// 	    if (Math.floor(aNum) == aNum && isFinite(aNum)) {
+// 		return plt.types.Rational.makeInstance(aNum);
+// 	    }
+// 	    return plt.types.FloatPoint.makeInstance(aNum);
 	},
 	
 
@@ -2785,7 +2981,7 @@ var plt = plt || {};
     };
 
 
-    function HashTable(inputHash) {
+    var HashTable = function(inputHash) {
 	this.hash = inputHash;
     }
 
@@ -3280,27 +3476,27 @@ var plt = plt || {};
     
     // Posns
     
-    function posn(x,y) { 
+    var posn = function(x,y) { 
 	plt.Kernel.Struct.call(this, "make-posn", [x, y]);
     }
 
     posn.prototype = heir(plt.Kernel.Struct.prototype);
 
-    function make_dash_posn(id0,id1) { 
+    var make_dash_posn = function(id0,id1) { 
 	return new posn(id0,id1); 
     }
 
-    function posn_dash_x(obj) { 
+    var posn_dash_x = function(obj) { 
 	check(obj, posn_question_, "posn-x", "posn", 1);
 	return obj._fields[0]; 
     }
 
-    function posn_dash_y(obj) { 
+    var posn_dash_y = function(obj) { 
 	check(obj, posn_question_, "posn-y", "posn", 1);
 	return obj._fields[1]; 
     }
 
-    function posn_question_(obj) { 
+    var posn_question_ = function(obj) { 
         return obj != null && obj != undefined && obj instanceof posn ; 
     }
     
@@ -3327,7 +3523,7 @@ var plt = plt || {};
 
 
     // Base class for all images.
-    function BaseImage(pinholeX, pinholeY) {
+    var BaseImage = function(pinholeX, pinholeY) {
 	this.pinholeX = pinholeX;
 	this.pinholeY = pinholeY;
     }
@@ -3339,6 +3535,7 @@ var plt = plt || {};
 	for (attr in this) {
 	    aCopy[attr] = this[attr];
 	}
+	aCopy.__proto__ = this.__proto__;
 	aCopy.pinholeX = x;
 	aCopy.pinholeY = y;
 	return aCopy;
@@ -3373,24 +3570,18 @@ var plt = plt || {};
 	var width = plt.world.Kernel.imageWidth(that).toInteger();
 	var height = plt.world.Kernel.imageHeight(that).toInteger();
 	var canvas = plt.Kernel._makeCanvas(width, height);
-	var rendered = false;
-	var doRender = function() {
-	    if (! rendered)  {
- 		var ctx = canvas.getContext("2d");
-		that.render(ctx, 0, 0) 
-		rendered = true;
-	    }
-	};
-	// HACK/KLUDGE: we're attaching a method afterAttach that will
-	// get called as soon as we attach this canvas to the rest of
-	// the dom.
-	// 
-	// afterAttach might get called in one of two ways: either by
-	// the event DomNodeInserted (supported in Mozilla), or
-	// the undocumented afterAttach hook which we call deep within
-	// jsworld.
-	attachEvent(canvas, "DomNodeInserted", doRender);
-	canvas.afterAttach = doRender;
+
+	// KLUDGE: some of the rendering functions depend on a context
+	// where the canvas is attached to the DOM tree.  So we temporarily
+	// make it invisible, attach it to the tree, render, and then rip it out
+	// again.
+	var oldDisplay = canvas.style.display;
+	canvas.style.setProperty("display", "none", "");
+	document.body.appendChild(canvas);
+ 	var ctx = canvas.getContext("2d");
+	that.render(ctx, 0, 0) 
+	document.body.removeChild(canvas);
+	canvas.style.removeProperty("display");
 
 	return canvas;
     };
@@ -3863,11 +4054,11 @@ plt.reader = {};
 	var unquoteSplicingSymbol = plt.types.Symbol.makeInstance("unquote-splicing");
 	var empty = plt.types.Empty.EMPTY;
 
-	function isType(type) {
+	var isType = function(type) {
 	    return (tokens.length > 0 && tokens[0][0] == type);
 	}
 	
-	function eat(expectedType) {
+	var eat = function(expectedType) {
 	    if (tokens.length == 0) {
 		if (lastToken) { 
 		    throw new plt.Kernel.MobyParserError(
@@ -3939,7 +4130,7 @@ plt.reader = {};
 		    var decimalMatch = text.match("^(.*)[.](.*)$");
 		    return plt.types.NumberTower.add(
 			plt.types.Rational.makeInstance(
-			    parseInt(decimalMatch[1])),
+			    parseInt(decimalMatch[1] || "0")),
 			plt.types.Rational.makeInstance(
 			    parseInt(decimalMatch[2]), 
 			    Math.pow(10, decimalMatch[2].length)));
@@ -4046,8 +4237,8 @@ plt.reader = {};
 		var b = parseBasicNumber(complexMatch[3], exactness);
 		// FIXME: Complex needs to be changed so it takes in either
 		// exact or inexact basic values.
-		return makeAtom(plt.types.Complex.makeInstance(a.toFloat(), 
-							       b.toFloat()));
+	        var newAtom = makeAtom(plt.types.Complex.makeInstance(a, b));
+  	        return newAtom;
 
 	    case 'string':
 		var t = eat('string');
@@ -4775,7 +4966,7 @@ var env = args22[1];
                    })()),empty_dash_env, [(plt.Kernel.list([(plt.Kernel.list([(plt.types.Symbol.makeInstance("null")),(plt.types.String.makeInstance("plt.types.Empty.EMPTY"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("empty")),(plt.types.String.makeInstance("plt.types.Empty.EMPTY"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("true")),(plt.types.String.makeInstance("plt.types.Logic.TRUE"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("false")),(plt.types.String.makeInstance("plt.types.Logic.FALSE"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eof")),(plt.types.String.makeInstance("plt.types.EofObject.EOF"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("pi")),(plt.types.String.makeInstance("plt.Kernel.pi"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("e")),(plt.types.String.makeInstance("plt.Kernel.e"))]))]))]));
 
 
-top_dash_env_dash_2 = (plt.Kernel.setLastLoc("offset=1782 line=45 span=9897 id=\"toplevel.ss\"") && plt.Kernel.foldl(((function() {
+top_dash_env_dash_2 = (plt.Kernel.setLastLoc("offset=1782 line=45 span=9857 id=\"toplevel.ss\"") && plt.Kernel.foldl(((function() {
    plt.Kernel.setLastLoc("offset=1789 line=45 span=518 id=\"toplevel.ss\"");
    var result = (function(args23) {
 var name_plus_arity = args23[0];
@@ -4792,23 +4983,23 @@ var env = args23[1];
                       };
                       result.toDisplayedString = result.toWrittenString;
                       return result;
-                   })()),top_dash_env_dash_1, [(plt.Kernel.list([(plt.Kernel.list([(plt.types.Symbol.makeInstance("<")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("<=")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("=")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance(">")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance(">=")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("=~")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("number->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("even?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("odd?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("positive?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("negative?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("number?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("rational?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("quotient")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("remainder")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("numerator")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("denominator")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("integer?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("real?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("abs")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("acos")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("add1")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("angle")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("asin")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("atan")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("ceiling")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("complex?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("conjugate")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cos")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cosh")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("denominator")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("even?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("exact->inexact")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("exact?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("exp")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("expt")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("floor")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("gcd")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("imag-part")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("inexact->exact")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("inexact?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("integer->char")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("integer-sqrt")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("integer?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("lcm")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("log")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("magnitude")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-polar")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-rectangular")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("max")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("min")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("modulo")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("negative?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("number->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("number?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("numerator")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("odd?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("positive?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("random")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("rational?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("real-part")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("real?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("round")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sgn")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sin")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sinh")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sqr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sqrt")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sub1")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("tan")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("zero?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("+")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("-")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("*")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("/")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("not")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("false?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("boolean?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("boolean=?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("symbol->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("symbol=?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("symbol?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("append")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("assq")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("caaar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("caadr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("caar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cadar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cadddr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("caddr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cadr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("car")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cddar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdddr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cddr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdaar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdadr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cons?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cons")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("empty?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("length")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("list")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("list*")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("list-ref")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("remove")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("member")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("memq")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("memv")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("null?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("pair?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("rest")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("reverse")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("first")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("second")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("third")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("fourth")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("fifth")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sixth")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("seventh")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eighth")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("box")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("unbox")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("set-box!")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("box?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-posn")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("posn-x")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("posn-y")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("posn?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char->integer")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-alphabetic?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci<=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci<?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci>=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci>?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-downcase")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-lower-case?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-numeric?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-upcase")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-upper-case?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-whitespace?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char<=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char<?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char>=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char>?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("format")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("list->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-string")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("replicate")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string->list")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string->number")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string->symbol")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-alphabetic?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-append")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci<=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci<?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci>=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci>?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-copy")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-length")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-lower-case?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-numeric?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ref")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-upper-case?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-whitespace?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string<=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string<?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string>=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string>?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("substring")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ith")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("int->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string->int")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("explode")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("implode")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eof-object?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("=~")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eq?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("equal?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("equal~?")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eqv?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("error")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("syntax-error")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("identity")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("struct?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("current-seconds")),(plt.types.Rational.makeInstance(0, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("andmap")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("apply")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("argmax")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("argmin")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("build-list")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("build-string")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("compose")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("filter")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("foldl")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("foldr")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("map")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("for-each")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("memf")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("ormap")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("procedure?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("quicksort")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sort")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("image?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("image=?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("void")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("xml->s-exp")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("build-vector")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-vector")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("vector")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("vector-length")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("vector-ref")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("vector-set!")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("vector?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("printf")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("check-expect")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("check-within")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("check-error")),(plt.types.Rational.makeInstance(2, 1))]))]))]));
-top_dash_env_dash_3 = (plt.Kernel.setLastLoc("offset=11815 line=331 span=1501 id=\"toplevel.ss\"") && plt.Kernel.foldl(((function() {
-   plt.Kernel.setLastLoc("offset=11822 line=331 span=125 id=\"toplevel.ss\"");
+                   })()),top_dash_env_dash_1, [(plt.Kernel.list([(plt.Kernel.list([(plt.types.Symbol.makeInstance("<")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("<=")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("=")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance(">")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance(">=")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("=~")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("number->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("even?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("odd?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("positive?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("negative?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("number?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("rational?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("quotient")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("remainder")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("numerator")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("denominator")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("integer?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("real?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("abs")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("acos")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("add1")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("angle")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("asin")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("atan")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("ceiling")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("complex?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("conjugate")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cos")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cosh")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("denominator")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("even?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("exact->inexact")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("exact?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("exp")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("expt")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("floor")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("gcd")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("imag-part")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("inexact->exact")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("inexact?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("integer->char")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("integer-sqrt")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("integer?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("lcm")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("log")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("magnitude")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-polar")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-rectangular")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("max")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("min")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("modulo")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("negative?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("number?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("numerator")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("odd?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("positive?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("random")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("rational?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("real-part")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("real?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("round")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sgn")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sin")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sinh")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sqr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sqrt")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sub1")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("tan")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("zero?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("+")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("-")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("*")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("/")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("not")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("false?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("boolean?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("boolean=?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("symbol->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("symbol=?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("symbol?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("append")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("assq")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("caaar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("caadr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("caar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cadar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cadddr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("caddr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cadr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("car")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cddar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdddr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cddr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdaar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdadr")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cdar")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cons?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("cons")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("empty?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("length")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("list")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("list*")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("list-ref")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("remove")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("member")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("memq")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("memv")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("null?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("pair?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("rest")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("reverse")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("first")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("second")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("third")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("fourth")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("fifth")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sixth")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("seventh")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eighth")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("box")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("unbox")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("set-box!")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("box?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-posn")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("posn-x")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("posn-y")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("posn?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char->integer")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-alphabetic?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci<=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci<?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci>=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-ci>?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-downcase")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-lower-case?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-numeric?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-upcase")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-upper-case?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char-whitespace?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char<=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char<?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char>=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char>?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("char?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("format")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("list->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-string")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("replicate")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string->list")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string->number")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string->symbol")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-alphabetic?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-append")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci<=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci<?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci>=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ci>?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-copy")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-length")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-lower-case?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-numeric?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ref")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-upper-case?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-whitespace?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string<=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string<?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string>=?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string>?")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("substring")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string-ith")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("int->string")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("string->int")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("explode")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("implode")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eof-object?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("=~")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eq?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("equal?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("equal~?")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("eqv?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("error")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("syntax-error")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("identity")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("struct?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("current-seconds")),(plt.types.Rational.makeInstance(0, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("andmap")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("apply")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("argmax")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("argmin")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("build-list")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("build-string")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("compose")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("filter")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("foldl")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("foldr")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("map")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("for-each")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("memf")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("ormap")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("procedure?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("quicksort")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("sort")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("image?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("image=?")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("void")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("xml->s-exp")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("build-vector")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-vector")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("vector")),(plt.types.Rational.makeInstance(0, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("vector-length")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("vector-ref")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("vector-set!")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("vector?")),(plt.types.Rational.makeInstance(1, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("printf")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.Symbol.makeInstance("true"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("check-expect")),(plt.types.Rational.makeInstance(2, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("check-within")),(plt.types.Rational.makeInstance(3, 1))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("check-error")),(plt.types.Rational.makeInstance(2, 1))]))]))]));
+top_dash_env_dash_3 = (plt.Kernel.setLastLoc("offset=11775 line=330 span=1501 id=\"toplevel.ss\"") && plt.Kernel.foldl(((function() {
+   plt.Kernel.setLastLoc("offset=11782 line=330 span=125 id=\"toplevel.ss\"");
    var result = (function(args24) {
 var id_plus_arity_plus_name = args24[0];
 var env = args24[1];
-                             return (plt.Kernel.setLastLoc("offset=11871 line=332 span=75 id=\"toplevel.ss\"")   && r_star_(env,(plt.Kernel.setLastLoc("offset=11879 line=332 span=21 id=\"toplevel.ss\"")   && plt.Kernel.first(id_plus_arity_plus_name)),(plt.Kernel.setLastLoc("offset=11901 line=332 span=22 id=\"toplevel.ss\"")   && plt.Kernel.second(id_plus_arity_plus_name)),(plt.Kernel.setLastLoc("offset=11924 line=332 span=21 id=\"toplevel.ss\"")   && plt.Kernel.third(id_plus_arity_plus_name)))); });
+                             return (plt.Kernel.setLastLoc("offset=11831 line=331 span=75 id=\"toplevel.ss\"")   && r_star_(env,(plt.Kernel.setLastLoc("offset=11839 line=331 span=21 id=\"toplevel.ss\"")   && plt.Kernel.first(id_plus_arity_plus_name)),(plt.Kernel.setLastLoc("offset=11861 line=331 span=22 id=\"toplevel.ss\"")   && plt.Kernel.second(id_plus_arity_plus_name)),(plt.Kernel.setLastLoc("offset=11884 line=331 span=21 id=\"toplevel.ss\"")   && plt.Kernel.third(id_plus_arity_plus_name)))); });
                       result.toWrittenString = function () {
                           return '<function:lambda>';
                       };
                       result.toDisplayedString = result.toWrittenString;
                       return result;
-                   })()),top_dash_env_dash_2, [(plt.Kernel.setLastLoc("offset=11996 line=334 span=1319 id=\"toplevel.ss\"") && plt.Kernel.append((plt.Kernel.list([(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash-set")),(plt.types.Rational.makeInstance(3, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelHashSet"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash-ref")),(plt.types.Rational.makeInstance(3, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelHashRef"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash-remove")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelHashRemove"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-immutable-hasheq")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelMakeImmutableHashEq"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash-map")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelHashMap"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash?")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.Kernel._isHash"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("open-input-stx")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.Kernel.openInputStx"))]))])), [(plt.Kernel.setLastLoc("offset=12540 line=342 span=774 id=\"toplevel.ss\"") && plt.Kernel.map(((function() {
-   plt.Kernel.setLastLoc("offset=12545 line=342 span=280 id=\"toplevel.ss\"");
+                   })()),top_dash_env_dash_2, [(plt.Kernel.setLastLoc("offset=11956 line=333 span=1319 id=\"toplevel.ss\"") && plt.Kernel.append((plt.Kernel.list([(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash-set")),(plt.types.Rational.makeInstance(3, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelHashSet"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash-ref")),(plt.types.Rational.makeInstance(3, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelHashRef"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash-remove")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelHashRemove"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-immutable-hasheq")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelMakeImmutableHashEq"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash-map")),(plt.types.Rational.makeInstance(2, 1)),(plt.types.String.makeInstance("plt.Kernel._kernelHashMap"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("hash?")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.Kernel._isHash"))])),(plt.Kernel.list([(plt.types.Symbol.makeInstance("open-input-stx")),(plt.types.Rational.makeInstance(1, 1)),(plt.types.String.makeInstance("plt.Kernel.openInputStx"))]))])), [(plt.Kernel.setLastLoc("offset=12500 line=341 span=774 id=\"toplevel.ss\"") && plt.Kernel.map(((function() {
+   plt.Kernel.setLastLoc("offset=12505 line=341 span=280 id=\"toplevel.ss\"");
    var result = (function(args25) {
 var id_plus_arity = args25[0];
-                             return (plt.Kernel.setLastLoc("offset=12598 line=343 span=226 id=\"toplevel.ss\"") && plt.Kernel.append(id_plus_arity, [(plt.Kernel.setLastLoc("offset=12658 line=344 span=165 id=\"toplevel.ss\"") && plt.Kernel.list([(plt.Kernel.setLastLoc("offset=12708 line=345 span=114 id=\"toplevel.ss\"")   && plt.Kernel.symbol_dash__greaterthan_string((plt.Kernel.setLastLoc("offset=12768 line=346 span=53 id=\"toplevel.ss\"")   && identifier_dash__greaterthan_munged_dash_java_dash_identifier((plt.Kernel.setLastLoc("offset=12804 line=346 span=16 id=\"toplevel.ss\"")   && plt.Kernel.first(id_plus_arity))))))]))])); });
+                             return (plt.Kernel.setLastLoc("offset=12558 line=342 span=226 id=\"toplevel.ss\"") && plt.Kernel.append(id_plus_arity, [(plt.Kernel.setLastLoc("offset=12618 line=343 span=165 id=\"toplevel.ss\"") && plt.Kernel.list([(plt.Kernel.setLastLoc("offset=12668 line=344 span=114 id=\"toplevel.ss\"")   && plt.Kernel.symbol_dash__greaterthan_string((plt.Kernel.setLastLoc("offset=12728 line=345 span=53 id=\"toplevel.ss\"")   && identifier_dash__greaterthan_munged_dash_java_dash_identifier((plt.Kernel.setLastLoc("offset=12764 line=345 span=16 id=\"toplevel.ss\"")   && plt.Kernel.first(id_plus_arity))))))]))])); });
                       result.toWrittenString = function () {
                           return '<function:lambda>';
                       };
@@ -6658,30 +6849,30 @@ var number_dash__greaterthan_javascript_dash_string = function(a_dash_num, origi
  (plt.Kernel.setLastLoc("offset=37131 line=824 span=229 id=\"beginner-to-javascript.ss\"") && plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.Rational.makeInstance(")),(plt.Kernel.setLastLoc("offset=37206 line=825 span=34 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.number_dash__greaterthan_string((plt.Kernel.setLastLoc("offset=37222 line=825 span=17 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.numerator(a_dash_num)))),(plt.types.String.makeInstance(", ")),(plt.Kernel.setLastLoc("offset=37294 line=827 span=36 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.number_dash__greaterthan_string((plt.Kernel.setLastLoc("offset=37310 line=827 span=19 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.denominator(a_dash_num)))),(plt.types.String.makeInstance("))"))])) :
  ((plt.Kernel.setLastLoc("offset=37371 line=829 span=13 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.real_question_(a_dash_num)) ?
  (plt.Kernel.setLastLoc("offset=37394 line=830 span=150 id=\"beginner-to-javascript.ss\"") && plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.FloatPoint.makeInstance(")),(plt.Kernel.setLastLoc("offset=37472 line=831 span=42 id=\"beginner-to-javascript.ss\"")   && floating_dash_number_dash__greaterthan_javascript_dash_string(a_dash_num)),(plt.types.String.makeInstance("))"))])) :
- ((plt.Kernel.setLastLoc("offset=37555 line=833 span=16 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.complex_question_(a_dash_num)) ?
- (plt.Kernel.setLastLoc("offset=37581 line=834 span=266 id=\"beginner-to-javascript.ss\"") && plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.Complex.makeInstance(")),(plt.Kernel.setLastLoc("offset=37655 line=835 span=54 id=\"beginner-to-javascript.ss\"")   && floating_dash_number_dash__greaterthan_javascript_dash_string((plt.Kernel.setLastLoc("offset=37691 line=835 span=17 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.real_dash_part(a_dash_num)))),(plt.types.String.makeInstance(", ")),(plt.Kernel.setLastLoc("offset=37763 line=837 span=54 id=\"beginner-to-javascript.ss\"")   && floating_dash_number_dash__greaterthan_javascript_dash_string((plt.Kernel.setLastLoc("offset=37799 line=837 span=17 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.imag_dash_part(a_dash_num)))),(plt.types.String.makeInstance("))"))])) :
+ ((plt.Kernel.setLastLoc("offset=37556 line=834 span=16 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.complex_question_(a_dash_num)) ?
+ (plt.Kernel.setLastLoc("offset=37582 line=835 span=190 id=\"beginner-to-javascript.ss\"") && plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.Complex.makeInstance(")),(plt.Kernel.setLastLoc("offset=37635 line=836 span=58 id=\"beginner-to-javascript.ss\"")   && number_dash__greaterthan_javascript_dash_string((plt.Kernel.setLastLoc("offset=37662 line=836 span=17 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.real_dash_part(a_dash_num)),original_dash_stx)),(plt.types.String.makeInstance(", ")),(plt.Kernel.setLastLoc("offset=37705 line=838 span=58 id=\"beginner-to-javascript.ss\"")   && number_dash__greaterthan_javascript_dash_string((plt.Kernel.setLastLoc("offset=37732 line=838 span=17 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.imag_dash_part(a_dash_num)),original_dash_stx)),(plt.types.String.makeInstance("))"))])) :
  (plt.types.Logic.TRUE ?
- (plt.Kernel.setLastLoc("offset=37881 line=841 span=99 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.syntax_dash_error((plt.Kernel.setLastLoc("offset=37895 line=841 span=48 id=\"beginner-to-javascript.ss\"") && plt.Kernel.format((plt.types.String.makeInstance("Don't know how to handle ~s yet")), [a_dash_num])),original_dash_stx)) :
- (plt.Kernel.setLastLoc("offset=36913 line=819 span=1069 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("cond: fell out of cond around \"offset=36913 line=819 span=1069 id=\\\"beginner-to-javascript.ss\\\"\""))))))))); };
-var char_dash__greaterthan_javascript_dash_string = function(a_dash_char) { return (plt.Kernel.setLastLoc("offset=38073 line=848 span=147 id=\"beginner-to-javascript.ss\"") && plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.Char.makeInstance(String.fromCharCode(")),(plt.Kernel.setLastLoc("offset=38157 line=849 span=39 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.number_dash__greaterthan_string((plt.Kernel.setLastLoc("offset=38173 line=849 span=22 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.char_dash__greaterthan_integer(a_dash_char)))),(plt.types.String.makeInstance(")))"))])); };
+ (plt.Kernel.setLastLoc("offset=37806 line=842 span=99 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.syntax_dash_error((plt.Kernel.setLastLoc("offset=37820 line=842 span=48 id=\"beginner-to-javascript.ss\"") && plt.Kernel.format((plt.types.String.makeInstance("Don't know how to handle ~s yet")), [a_dash_num])),original_dash_stx)) :
+ (plt.Kernel.setLastLoc("offset=36913 line=819 span=994 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("cond: fell out of cond around \"offset=36913 line=819 span=994 id=\\\"beginner-to-javascript.ss\\\"\""))))))))); };
+var char_dash__greaterthan_javascript_dash_string = function(a_dash_char) { return (plt.Kernel.setLastLoc("offset=37998 line=849 span=147 id=\"beginner-to-javascript.ss\"") && plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.Char.makeInstance(String.fromCharCode(")),(plt.Kernel.setLastLoc("offset=38082 line=850 span=39 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.number_dash__greaterthan_string((plt.Kernel.setLastLoc("offset=38098 line=850 span=22 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.char_dash__greaterthan_integer(a_dash_char)))),(plt.types.String.makeInstance(")))"))])); };
 var string_dash__greaterthan_javascript_dash_string = function(a_dash_str) { return ((function() { 
 
-var escape_dash_char_dash_code = function(a_dash_char) { return ((plt.Kernel.setLastLoc("offset=38430 line=858 span=19 id=\"beginner-to-javascript.ss\"") && plt.Kernel.char_equal__question_(a_dash_char,(plt.types.Char.makeInstance(String.fromCharCode(34))), [])) ?
- (plt.Kernel.setLastLoc("offset=38465 line=859 span=16 id=\"beginner-to-javascript.ss\"") && plt.Kernel.string([(plt.types.Char.makeInstance(String.fromCharCode(92))),(plt.types.Char.makeInstance(String.fromCharCode(34)))])) :
- ((plt.Kernel.setLastLoc("offset=38498 line=860 span=19 id=\"beginner-to-javascript.ss\"") && plt.Kernel.char_equal__question_(a_dash_char,(plt.types.Char.makeInstance(String.fromCharCode(92))), [])) ?
- (plt.Kernel.setLastLoc("offset=38533 line=861 span=16 id=\"beginner-to-javascript.ss\"") && plt.Kernel.string([(plt.types.Char.makeInstance(String.fromCharCode(92))),(plt.types.Char.makeInstance(String.fromCharCode(92)))])) :
- ((plt.Kernel.setLastLoc("offset=38566 line=862 span=25 id=\"beginner-to-javascript.ss\"") && plt.Kernel.char_equal__question_(a_dash_char,(plt.types.Char.makeInstance(String.fromCharCode(10))), [])) ?
- (plt.Kernel.setLastLoc("offset=38607 line=863 span=16 id=\"beginner-to-javascript.ss\"") && plt.Kernel.string([(plt.types.Char.makeInstance(String.fromCharCode(92))),(plt.types.Char.makeInstance(String.fromCharCode(110)))])) :
+var escape_dash_char_dash_code = function(a_dash_char) { return ((plt.Kernel.setLastLoc("offset=38355 line=859 span=19 id=\"beginner-to-javascript.ss\"") && plt.Kernel.char_equal__question_(a_dash_char,(plt.types.Char.makeInstance(String.fromCharCode(34))), [])) ?
+ (plt.Kernel.setLastLoc("offset=38390 line=860 span=16 id=\"beginner-to-javascript.ss\"") && plt.Kernel.string([(plt.types.Char.makeInstance(String.fromCharCode(92))),(plt.types.Char.makeInstance(String.fromCharCode(34)))])) :
+ ((plt.Kernel.setLastLoc("offset=38423 line=861 span=19 id=\"beginner-to-javascript.ss\"") && plt.Kernel.char_equal__question_(a_dash_char,(plt.types.Char.makeInstance(String.fromCharCode(92))), [])) ?
+ (plt.Kernel.setLastLoc("offset=38458 line=862 span=16 id=\"beginner-to-javascript.ss\"") && plt.Kernel.string([(plt.types.Char.makeInstance(String.fromCharCode(92))),(plt.types.Char.makeInstance(String.fromCharCode(92)))])) :
+ ((plt.Kernel.setLastLoc("offset=38491 line=863 span=25 id=\"beginner-to-javascript.ss\"") && plt.Kernel.char_equal__question_(a_dash_char,(plt.types.Char.makeInstance(String.fromCharCode(10))), [])) ?
+ (plt.Kernel.setLastLoc("offset=38532 line=864 span=16 id=\"beginner-to-javascript.ss\"") && plt.Kernel.string([(plt.types.Char.makeInstance(String.fromCharCode(92))),(plt.types.Char.makeInstance(String.fromCharCode(110)))])) :
  (plt.types.Logic.TRUE ?
- (plt.Kernel.setLastLoc("offset=38660 line=865 span=15 id=\"beginner-to-javascript.ss\"") && plt.Kernel.string([a_dash_char])) :
- (plt.Kernel.setLastLoc("offset=38409 line=857 span=268 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("cond: fell out of cond around \"offset=38409 line=857 span=268 id=\\\"beginner-to-javascript.ss\\\"\"")))))))); };
+ (plt.Kernel.setLastLoc("offset=38585 line=866 span=15 id=\"beginner-to-javascript.ss\"") && plt.Kernel.string([a_dash_char])) :
+ (plt.Kernel.setLastLoc("offset=38334 line=858 span=268 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("cond: fell out of cond around \"offset=38334 line=858 span=268 id=\\\"beginner-to-javascript.ss\\\"\"")))))))); };
 (function (toplevel_dash_expression_dash_show159) { 
  })(plt.Kernel.identity)
-return (plt.Kernel.setLastLoc("offset=38684 line=866 span=189 id=\"beginner-to-javascript.ss\"") && plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.String.makeInstance(\"")),(plt.Kernel.setLastLoc("offset=38754 line=867 span=92 id=\"beginner-to-javascript.ss\"")   && string_dash_join((plt.Kernel.setLastLoc("offset=38767 line=867 span=43 id=\"beginner-to-javascript.ss\"") && plt.Kernel.map((function() { var result = (function(args) {
+return (plt.Kernel.setLastLoc("offset=38609 line=867 span=189 id=\"beginner-to-javascript.ss\"") && plt.Kernel.string_dash_append([(plt.types.String.makeInstance("(plt.types.String.makeInstance(\"")),(plt.Kernel.setLastLoc("offset=38679 line=868 span=92 id=\"beginner-to-javascript.ss\"")   && string_dash_join((plt.Kernel.setLastLoc("offset=38692 line=868 span=43 id=\"beginner-to-javascript.ss\"") && plt.Kernel.map((function() { var result = (function(args) {
                     return escape_dash_char_dash_code(args[0]);
                  }); result.toWrittenString = function() {return '<function:escape-char-code>'; }
                      result.toDisplayedString = function() {return '<function:escape-char-code>';}
-                     return result; })(), [(plt.Kernel.setLastLoc("offset=38789 line=867 span=20 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.string_dash__greaterthan_list(a_dash_str))])),(plt.types.String.makeInstance("")))),(plt.types.String.makeInstance("\"))"))]));
+                     return result; })(), [(plt.Kernel.setLastLoc("offset=38714 line=868 span=20 id=\"beginner-to-javascript.ss\"")   && plt.Kernel.string_dash__greaterthan_list(a_dash_str))])),(plt.types.String.makeInstance("")))),(plt.types.String.makeInstance("\"))"))]));
               })()); };
 (function() { 
   ((function (toplevel_dash_expression_dash_show0) { 

@@ -133,11 +133,11 @@ plt.reader = {};
 	var unquoteSplicingSymbol = plt.types.Symbol.makeInstance("unquote-splicing");
 	var empty = plt.types.Empty.EMPTY;
 
-	function isType(type) {
+	var isType = function(type) {
 	    return (tokens.length > 0 && tokens[0][0] == type);
 	}
 	
-	function eat(expectedType) {
+	var eat = function(expectedType) {
 	    if (tokens.length == 0) {
 		if (lastToken) { 
 		    throw new plt.Kernel.MobyParserError(
@@ -209,7 +209,7 @@ plt.reader = {};
 		    var decimalMatch = text.match("^(.*)[.](.*)$");
 		    return plt.types.NumberTower.add(
 			plt.types.Rational.makeInstance(
-			    parseInt(decimalMatch[1])),
+			    parseInt(decimalMatch[1] || "0")),
 			plt.types.Rational.makeInstance(
 			    parseInt(decimalMatch[2]), 
 			    Math.pow(10, decimalMatch[2].length)));
@@ -316,8 +316,8 @@ plt.reader = {};
 		var b = parseBasicNumber(complexMatch[3], exactness);
 		// FIXME: Complex needs to be changed so it takes in either
 		// exact or inexact basic values.
-		return makeAtom(plt.types.Complex.makeInstance(a.toFloat(), 
-							       b.toFloat()));
+	        var newAtom = makeAtom(plt.types.Complex.makeInstance(a, b));
+  	        return newAtom;
 
 	    case 'string':
 		var t = eat('string');
