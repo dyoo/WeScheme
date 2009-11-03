@@ -30,7 +30,7 @@ var plt = plt || {};
 
     // Inheritance from pg 168: Javascript, the Definitive Guide.
     var heir = function(p) {
-	function f() {}
+	var f = function() {}
 	f.prototype = p;
 	return new f();
     }
@@ -146,31 +146,25 @@ var plt = plt || {};
     }
 
     var isRational = function(x) {
-	return x != null && x != undefined && x instanceof plt.types.Rational;
+	return isNumber(x) && x.isRational();
     }
 
 
     var isComplex = function(x) {
-	return x != null && x != undefined && (x instanceof plt.types.Complex || 
-					       x instanceof plt.types.Rational ||
-					       x instanceof plt.types.FloatPoint);
-    }
+	return isNumber(x);}
 
     var isFunction = function(x) {
 	return typeof(x) == 'function';
     }
 
-
     // Returns true if x is an integer.
     var isInteger = function(x) {
-	return x != null && x != undefined && isNumber(x) && plt.types.NumberTower.equal(x, x.floor());
+	return (isNumber(x) && x.isInteger());
     }
 
     var isNatural = function(x) {
-	return x != null && x != undefined && isNumber(x) && plt.types.NumberTower.equal(x, x.floor()) && x.toInteger() >= 0;
+	return isNumber(x) && x.isInteger() && x.toInteger() >= 0;
     }
-
-
 
 
     // isAlphabeticString: string -> boolean
@@ -195,7 +189,8 @@ var plt = plt || {};
 
 
     var isImage = function(thing) {
-	return (thing != null && thing != undefined && thing instanceof BaseImage);
+	return ((thing != null) && (thing != undefined)
+		&& (thing instanceof BaseImage));
     }
 
 
@@ -361,8 +356,8 @@ var plt = plt || {};
 	},
 	
 	equal_question_ : function(x, y) {
-	    if (plt.Kernel.number_question_(x).valueOf() && 
-		plt.Kernel.number_question_(y).valueOf()) {
+	    if (plt.Kernel.number_question_(x) && 
+		plt.Kernel.number_question_(y)) {
 		if ("isEqual" in x) {
 		    return plt.types.NumberTower.equal(x, y);
 		} else if ("isEqual" in y) {
@@ -479,7 +474,20 @@ var plt = plt || {};
 
 	integer_dash_sqrt: function(x) {
 	    check(x, isInteger, "integer-sqrt", "integer", 1);
-	    return plt.types.Rational.makeInstance(x.sqrt().toInteger());
+	    var result = x.sqrt();
+	    if (isRational(result)) {
+		return plt.types.Rational.makeInstance(result.toInteger());
+	    } else if (isReal(result)) {
+		return plt.types.Rational.makeInstance(result.toInteger());
+	    } else {
+
+		// it must be complex.
+		return plt.types.Complex.makeInstance(
+		    plt.types.Rational.makeInstance
+		    (plt.Kernel.real_dash_part(result).toInteger()),
+		    plt.types.Rational.makeInstance
+		    (plt.Kernel.imag_dash_part(result).toInteger()));
+	    }
 	},
 	
 	sqr: function(x) {
@@ -741,12 +749,12 @@ var plt = plt || {};
 	
 	denominator : function(x) {
 	    check(x, isRational, "denominator", "rational", 1);
-	    return plt.types.Rational.makeInstance(x.d, 1);
+	    return x.denominator();
 	},
 	
 	numerator : function(x){
 	    check(x, isRational, "numerator", "rational", 1);
-	    return plt.types.Rational.makeInstance(x.n, 1);
+	    return x.numerator();
 	},
 	
 	odd_question_ : function(x){
@@ -786,26 +794,23 @@ var plt = plt || {};
 	    if (plt.types.NumberTower.equal(theta, plt.types.Rational.ZERO)) {
 		return r;
 	    }
-
-	    var x = r.toFloat() * Math.cos(theta.toFloat());
-	    var y = r.toFloat() * Math.sin(theta.toFloat());
+	    var x = plt.types.NumberTower.multiply(r, theta.cos());
+	    var y = plt.types.NumberTower.multiply(r, theta.sin());
 	    return plt.types.Complex.makeInstance(x, y);
 	},
 
 	integer_question_ : function(x){
 	    // check(x, isNumber, "integer?", "number", 1);
-	    return (isNumber(x) &&
-		    plt.types.NumberTower.isFinite(x) && 
-		    this.equal_question_(x, x.floor()));
+	    return (isInteger(x));
 	},
 	
 	make_dash_rectangular : function(x, y){
-	    return plt.types.Complex.makeInstance(x.toFloat(), y.toFloat());
+	    return plt.types.Complex.makeInstance(x, y);
 	},
 	
 	quotient : function(x, y){
-	    check(x, isNumber, "quotient", "number", 1);
-	    check(y, isNumber, "quotient", "number", 2);
+	    check(x, isInteger, "quotient", "integer", 1);
+	    check(y, isInteger, "quotient", "integer", 2);
 	    var div = plt.types.NumberTower.divide(x,y);
 	    if (plt.Kernel.positive_question_(div)) {
 		return plt.types.Rational.makeInstance(div.floor().toInteger(),
@@ -1159,13 +1164,29 @@ var plt = plt || {};
 
 	string_dash__greaterthan_number : function(str){
 	    check(str, isString, "string->number", "string", 1);
-	    var aNum = str * 1;
-	    if (isNaN(aNum))
+	    try {
+		var stxList = plt.reader.readSchemeExpressions(str, "");
+		if (plt.types.NumberTower.equal(plt.Kernel.length(stxList),
+						plt.types.Rational.ONE)) {
+		    var result = stx_dash_e(stxList.first());
+		    if (isNumber(result)) {
+			return result;
+		    } else {
+			return plt.types.Logic.FALSE;
+		    }
+		} else {
+		    return plt.types.Logic.FALSE;
+		}
+	    } catch (e) {
 		return plt.types.Logic.FALSE;
-	    if (Math.floor(aNum) == aNum && isFinite(aNum)) {
-		return plt.types.Rational.makeInstance(aNum);
 	    }
-	    return plt.types.FloatPoint.makeInstance(aNum);
+// 	    var aNum = str * 1;
+// 	    if (isNaN(aNum))
+// 		return plt.types.Logic.FALSE;
+// 	    if (Math.floor(aNum) == aNum && isFinite(aNum)) {
+// 		return plt.types.Rational.makeInstance(aNum);
+// 	    }
+// 	    return plt.types.FloatPoint.makeInstance(aNum);
 	},
 	
 
@@ -1512,7 +1533,7 @@ var plt = plt || {};
     };
 
 
-    function HashTable(inputHash) {
+    var HashTable = function(inputHash) {
 	this.hash = inputHash;
     }
 
@@ -2007,27 +2028,27 @@ var plt = plt || {};
     
     // Posns
     
-    function posn(x,y) { 
+    var posn = function(x,y) { 
 	plt.Kernel.Struct.call(this, "make-posn", [x, y]);
     }
 
     posn.prototype = heir(plt.Kernel.Struct.prototype);
 
-    function make_dash_posn(id0,id1) { 
+    var make_dash_posn = function(id0,id1) { 
 	return new posn(id0,id1); 
     }
 
-    function posn_dash_x(obj) { 
+    var posn_dash_x = function(obj) { 
 	check(obj, posn_question_, "posn-x", "posn", 1);
 	return obj._fields[0]; 
     }
 
-    function posn_dash_y(obj) { 
+    var posn_dash_y = function(obj) { 
 	check(obj, posn_question_, "posn-y", "posn", 1);
 	return obj._fields[1]; 
     }
 
-    function posn_question_(obj) { 
+    var posn_question_ = function(obj) { 
         return obj != null && obj != undefined && obj instanceof posn ; 
     }
     
@@ -2054,7 +2075,7 @@ var plt = plt || {};
 
 
     // Base class for all images.
-    function BaseImage(pinholeX, pinholeY) {
+    var BaseImage = function(pinholeX, pinholeY) {
 	this.pinholeX = pinholeX;
 	this.pinholeY = pinholeY;
     }
@@ -2066,6 +2087,7 @@ var plt = plt || {};
 	for (attr in this) {
 	    aCopy[attr] = this[attr];
 	}
+	aCopy.__proto__ = this.__proto__;
 	aCopy.pinholeX = x;
 	aCopy.pinholeY = y;
 	return aCopy;
@@ -2100,24 +2122,18 @@ var plt = plt || {};
 	var width = plt.world.Kernel.imageWidth(that).toInteger();
 	var height = plt.world.Kernel.imageHeight(that).toInteger();
 	var canvas = plt.Kernel._makeCanvas(width, height);
-	var rendered = false;
-	var doRender = function() {
-	    if (! rendered)  {
- 		var ctx = canvas.getContext("2d");
-		that.render(ctx, 0, 0) 
-		rendered = true;
-	    }
-	};
-	// HACK/KLUDGE: we're attaching a method afterAttach that will
-	// get called as soon as we attach this canvas to the rest of
-	// the dom.
-	// 
-	// afterAttach might get called in one of two ways: either by
-	// the event DomNodeInserted (supported in Mozilla), or
-	// the undocumented afterAttach hook which we call deep within
-	// jsworld.
-	attachEvent(canvas, "DomNodeInserted", doRender);
-	canvas.afterAttach = doRender;
+
+	// KLUDGE: some of the rendering functions depend on a context
+	// where the canvas is attached to the DOM tree.  So we temporarily
+	// make it invisible, attach it to the tree, render, and then rip it out
+	// again.
+	var oldDisplay = canvas.style.display;
+	canvas.style.setProperty("display", "none", "");
+	document.body.appendChild(canvas);
+ 	var ctx = canvas.getContext("2d");
+	that.render(ctx, 0, 0) 
+	document.body.removeChild(canvas);
+	canvas.style.removeProperty("display");
 
 	return canvas;
     };

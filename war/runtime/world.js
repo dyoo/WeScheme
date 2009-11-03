@@ -12,8 +12,8 @@ plt.world.Kernel = plt.world.Kernel || {};
 
 
     // Inheritance from pg 168: Javascript, the Definitive Guide.
-    function heir(p) {
-	function f() {}
+    var heir = function(p) {
+	var f = function() {}
 	f.prototype = p;
 	return new f();
     }
@@ -49,7 +49,7 @@ plt.world.Kernel = plt.world.Kernel || {};
 
     // changeWorld: world -> void
     // Changes the current world to newWorld.
-    function changeWorld(newWorld) {
+    var changeWorld = function(newWorld) {
 	world = newWorld;
 	notifyWorldListeners();
     }
@@ -71,7 +71,7 @@ plt.world.Kernel = plt.world.Kernel || {};
 
     // notifyWorldListeners: -> void
     // Tells all of the world listeners that the world has changed.
-    function notifyWorldListeners() {
+    var notifyWorldListeners = function() {
 	var i;
 	for (i = 0; i < worldListeners.length; i++) {
 	    worldListeners[i](world);
@@ -81,14 +81,14 @@ plt.world.Kernel = plt.world.Kernel || {};
     // addWorldListener: (world -> void) -> void
     // Adds a new world listener: whenever the world is changed, the aListener
     // will be called with that new world.
-    function addWorldListener(aListener) {
+    var addWorldListener = function(aListener) {
 	worldListeners.push(aListener);
     }
     
 
     // getKeyCodeName: keyEvent -> String
     // Given an event, try to get the name of the key.
-    function getKeyCodeName(e) {
+    var getKeyCodeName = function(e) {
 	var code = e.charCode || e.keyCode;
 	var keyname;
 	if (code == 37) {
@@ -108,7 +108,7 @@ plt.world.Kernel = plt.world.Kernel || {};
 
     // resetWorld: -> void
     // Resets all of the world global values.
-    function resetWorld() {
+    var resetWorld = function() {
 	if (timerInterval) {
 	    clearInterval(timerInterval);
 	    timerInterval = false;
@@ -118,7 +118,7 @@ plt.world.Kernel = plt.world.Kernel || {};
     }
 
 
-    function getBigBangWindow(width, height) {
+    var getBigBangWindow = function(width, height) {
         if (window.document.getElementById("canvas") != undefined) {
 	    return window;
 	}
@@ -139,6 +139,12 @@ plt.world.Kernel = plt.world.Kernel || {};
     // register other reactive functions (timer tick, key press, etc.) which
     // will change the world.
     plt.world.Kernel.bigBang = function(width, height, aWorld, handlers) {
+	plt.Kernel.check(width, plt.Kernel.isNumber, "big-bang", "number", 1);
+	plt.Kernel.check(height, plt.Kernel.isNumber, "big-bang", "number", 2);
+	plt.Kernel.arrayEach(args, function(x, i) { 
+	    plt.Kernel.check(x, plt.Kernel.isFunction, "big-bang", "handler", i+4) });
+	
+
 	var i;
 	var newWindow = getBigBangWindow(width, height);
 	var canvas = 
@@ -205,7 +211,7 @@ plt.world.Kernel = plt.world.Kernel || {};
 
     // scheduleTimerTick: -> void
     // Repeatedly schedules an evaluation of the onTick until the program has stopped.
-    function scheduleTimerTick(window, config) {
+    var scheduleTimerTick = function(window, config) {
 	timerInterval = window.setInterval(
 	    function() {
 		if (stopped) {
@@ -230,17 +236,27 @@ plt.world.Kernel = plt.world.Kernel || {};
 
 
     plt.world.Kernel.imageWidth = function(thing) {
+	plt.Kernel.check(thing, plt.Kernel.isImage, "image-width", "image", 1);
 	return plt.types.Rational.makeInstance(thing.getWidth(), 1);
     };
 
 
     plt.world.Kernel.imageHeight = function(thing) {
+	plt.Kernel.check(thing, plt.Kernel.isImage, "image-height", "image", 1);
 	return plt.types.Rational.makeInstance(thing.getHeight(), 1);
     };
 
 
     // placeImage: image number number scene -> scene
     plt.world.Kernel.placeImage = function(picture, x, y, aScene) {
+	plt.Kernel.check(picture, 
+			 plt.Kernel.isImage,
+			 "place-image",
+			 "image",
+			 1);
+	plt.Kernel.check(x, plt.Kernel.isNumber, "place-image", "number", 2);
+	plt.Kernel.check(y, plt.Kernel.isNumber, "place-image", "number", 3);
+	plt.Kernel.check(aScene, isScene, "place-image", "scene", 4);
 	return aScene.add(picture,
 			  plt.types.NumberTower.toInteger(x),
 			  plt.types.NumberTower.toInteger(y));
@@ -249,6 +265,8 @@ plt.world.Kernel = plt.world.Kernel || {};
     
     // emptyScene: number number -> scene
     plt.world.Kernel.emptyScene = function(width, height) {
+	plt.Kernel.check(width, plt.Kernel.isNumber, "empty-scene", "number", 1);
+	plt.Kernel.check(height, plt.Kernel.isNumber, "empty-scene", "number", 2);
 	return new SceneImage(
 	    plt.types.NumberTower.toInteger(width), 
 	    plt.types.NumberTower.toInteger(height),
@@ -256,8 +274,22 @@ plt.world.Kernel = plt.world.Kernel || {};
     };
 
 
+
+    // isColor: any -> boolean
+
+    // Produces true if the thing is considered a color object.
+    var isColor = function(thing) {
+	return typeof(colorDb.get(thing)) != 'undefined';
+    };
+
+
+
     // text: string number color -> TextImage
     plt.world.Kernel.text = function(aString, aSize, aColor) {
+	plt.Kernel.check(aString, plt.Kernel.isString, "text", "string", 1);
+	plt.Kernel.check(aSize, plt.Kernel.isNumber, "text", "number", 2);
+	plt.Kernel.check(aColor, isColor, "text", "color", 3);
+
 	if (colorDb.get(aColor)) {
 	    aColor = colorDb.get(aColor);
 	}
@@ -270,6 +302,11 @@ plt.world.Kernel = plt.world.Kernel || {};
 
     // circle: number style color -> TextImage
     plt.world.Kernel.circle = function(aRadius, aStyle, aColor) {
+	plt.Kernel.check(aRadius, plt.Kernel.isNumber, "circle", "number", 1);
+	plt.Kernel.check(aStyle, plt.Kernel.isString, "circle", "string", 2);
+	plt.Kernel.check(aColor, isColor, "circle", "color", 3);
+
+
 	if (colorDb.get(aColor)) {
 	    aColor = colorDb.get(aColor);
 	}
@@ -281,11 +318,17 @@ plt.world.Kernel = plt.world.Kernel || {};
 
 
     plt.world.Kernel.openImageUrl = function(path) {
+	plt.Kernel.check(path, plt.Kernel.isString, "open-image-url", "string", 1);
 	return FileImage.makeInstance(path.toString());
     };
 
 
     plt.world.Kernel.nwRectangle = function(w, h, s, c) {
+	plt.Kernel.check(w, plt.Kernel.isNumber, "nw:rectangle", "number", 1);
+	plt.Kernel.check(h, plt.Kernel.isNumber, "nw:rectangle", "number", 2);
+	plt.Kernel.check(s, plt.Kernel.isString, "nw:rectangle", "string", 3);
+	plt.Kernel.check(c, isColor, "nw:rectangle", "color", 4);
+
 	if (colorDb.get(c)) {
 	    c = colorDb.get(c);
 	}
@@ -298,6 +341,11 @@ plt.world.Kernel = plt.world.Kernel || {};
     };
 
     plt.world.Kernel.rectangle = function(w, h, s, c) {
+	plt.Kernel.check(w, plt.Kernel.isNumber, "rectangle", "number", 1);
+	plt.Kernel.check(h, plt.Kernel.isNumber, "rectangle", "number", 2);
+	plt.Kernel.check(s, plt.Kernel.isString, "rectangle", "string", 3);
+	plt.Kernel.check(c, isColor, "rectangle", "color", 4);
+
 	if (colorDb.get(c)) {
 	    c = colorDb.get(c);
 	}
@@ -313,8 +361,14 @@ plt.world.Kernel = plt.world.Kernel || {};
     var BaseImage = plt.Kernel.BaseImage;
 
     
+    // isScene: any -> boolean
+    // Produces true when x is a scene.
+    var isScene = function(x) {
+	return ((x != undefined) && (x != null) && (x instanceof SceneImage));
+    };
+
     // SceneImage: primitive-number primitive-number (listof image) -> Scene
-    function SceneImage(width, height, children) {
+    var SceneImage = function(width, height, children) {
 	BaseImage.call(this, 0, 0);
 	this.width = width;
 	this.height = height;
@@ -360,7 +414,7 @@ plt.world.Kernel = plt.world.Kernel || {};
 
 
    
-    function FileImage(src, rawImage) {
+    var FileImage = function(src, rawImage) {
 	BaseImage.call(this, 0, 0);
 	var self = this;
 	this.isLoaded = false;
@@ -420,13 +474,13 @@ plt.world.Kernel = plt.world.Kernel || {};
 
 
 
-    function RectangleImage(width, height, style, color) {
+    var RectangleImage = function(width, height, style, color) {
 	BaseImage.call(this, width/2, height/2);
 	this.width = width;
 	this.height = height;
 	this.style = style;
 	this.color = color;
-    }
+    };
     RectangleImage.prototype = heir(BaseImage.prototype);
 
 
@@ -451,7 +505,7 @@ plt.world.Kernel = plt.world.Kernel || {};
 
 
     
-    function TextImage(msg, size, color) {
+    var TextImage = function(msg, size, color) {
 	BaseImage.call(this, 0, 0);
 	this.msg = msg;
 	this.size = size;
@@ -488,7 +542,7 @@ plt.world.Kernel = plt.world.Kernel || {};
     };
 
 
-    function CircleImage(radius, style, color) {
+    var CircleImage = function(radius, style, color) {
 	BaseImage.call(this, radius, radius);
 	this.radius = radius;
 	this.style = style;
@@ -648,7 +702,7 @@ plt.world.Kernel = plt.world.Kernel || {};
 
 
     // Color database
-    function ColorDb() {
+    var ColorDb = function() {
 	this.colors = {};
     }
     ColorDb.prototype.put = function(name, color) {
@@ -659,7 +713,7 @@ plt.world.Kernel = plt.world.Kernel || {};
 	return this.colors[name.toString().toUpperCase()];
     };
 
-    function ColorRecord(r, g, b) {
+    var ColorRecord = function(r, g, b) {
 	this.r = r;
 	this.g = g;
 	this.b = b;
