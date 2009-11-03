@@ -44,9 +44,26 @@
       dojo.require("dijit.layout.BorderContainer");
       dojo.require("dojo.parser");
       dojo.addOnLoad(function() {
-      dojo.parser.parse();
+	  dojo.parser.parse();
+	  
+	  document.getElementById("interactions").addEventListener(
+	      'click',
+	      function(e) {
+		  document.getElementById('inputBox').focus();
+		  e.stopPropagation();
+		  e.preventDefault();
+		  return false;
+
+
+	      },
+	      false);
+
       });
     </script>
+
+
+
+
 
 
     <!-- JQuery UI style sheet -->
@@ -210,8 +227,7 @@
 	  <div id="interactions" 
 	       dojoType="dijit.layout.ContentPane"
 	       splitter="true"
-	       region="bottom"
-	       onclick="document.getElementById('inputBox').focus()">
+	       region="bottom">
 	    <div id="inter">
 	      
 	      <div style="width: 100%;"><span>&gt; <input style="width: 75%;" type="text"/></span></div>
