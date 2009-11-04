@@ -70,7 +70,6 @@ WeSchemeInteractions = (function () {
 	this.notifyBus("before-add-to-interactions", this);
 	if (isDomNode(interactionVal)) {
 	    this.prompt.before(interactionVal);
-	    if (interactionVal.afterAttach) { interactionVal.afterAttach(); }
 	} else {
 	    var newArea = jQuery("<div style='width: 100%'></div>");
 	    newArea.text(interactionVal);

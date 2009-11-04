@@ -85,9 +85,14 @@ Runner.prototype.runCompiledCode = function(compiledCode, permStringArray) {
 };
 
 
+// Returns if x is a dom node.
+function isDomNode(x) {
+    return (x.nodeType != undefined);
+}
+
+
 Runner.prototype.addToInteractions = function (interactionVal) {
-    if (interactionVal instanceof Element ||
-	interactionVal instanceof Text) {
+    if (isDomNode(interactionVal)) {
 	this.interactionsDiv.append(interactionVal);
     } else {
 	var newArea = jQuery("<div style='width: 100%'></div>");
