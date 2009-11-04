@@ -327,6 +327,10 @@ plt.Jsworld = {};
     function nodes(tree) {
 	var ret = [tree.node];
 	
+	if (tree.node.jsworldOpaque == true) {
+	    return ret;
+	}
+
 	for (var i = 0; i < tree.children.length; i++)
 	    ret = ret.concat(nodes(tree.children[i]));
 	
@@ -349,6 +353,8 @@ plt.Jsworld = {};
     function relations(tree) {
 	var ret = [];
 	
+	if (tree.node.jsworldOpaque == true) { return []; }
+
 	for (var i = 0; i < tree.children.length; i++)
 	    ret.push({ relation: 'parent', parent: tree.node, child: tree.children[i].node });
 	
@@ -364,11 +370,6 @@ plt.Jsworld = {};
 
     function appendChild(parent, child) {
 	parent.appendChild(child);
-	// HACK!  If this node is aware of afterAttach, fire off that
-	// event handler.
-	if (child.afterAttach) {
-	    child.afterAttach();
-	}
     }
 
 
@@ -406,6 +407,7 @@ plt.Jsworld = {};
 		
 	    if (!unsorted) break;
 	}
+
 	
 	// remove dead nodes
 	var live_nodes;
@@ -441,46 +443,52 @@ plt.Jsworld = {};
 	    for (;;) {
 		// process first
 		// move down
-		if (node.firstChild == null) break;
+		if (node.firstChild == null || node.jsworldOpaque == true) break;
 		node = node.firstChild;
 	    }
 		
 	    while (node != stop) {
 		var next = node.nextSibling, parent = node.parentNode;
-			
-		// process last
-		var found = false;
-		var foundNode = undefined;
-
-		if (live_nodes != null)
-		    while (live_nodes.length > 0 && positionComparator(node, live_nodes[0]) >= 0) {
-			var other_node = live_nodes.shift();
-			if (nodeEq(other_node, node)) {
-			    found = true;
-			    foundNode = other_node;
-			    break;
-			}
-			// need to think about this
-			//live_nodes.push(other_node);
-		    }
-		else
-		    for (var i = 0; i < nodes.length; i++)
-			if (nodeEq(nodes[i], node)) {
-			    found = true;
-			    foundNode = nodes[i];
-			    break;
-			}
-			
-		if (!found) {
-		    // reparent children, remove node
-		    while (node.firstChild != null)
-			appendChild(node.parentNode, node.firstChild);
-				
-		    next = node.nextSibling; // HACKY
-				
-		    node.parentNode.removeChild(node);
+		
+		if (node.jsworldOpaque == true) {
+		    // KLUDGE: don't touch anything that has the mark of Cain.  Umm...
+		    // that is, don't wipe out any nodes that are in the context of an opaque
+		    // node.
 		} else {
-		    mergeNodeValues(node, foundNode);
+		    // process last
+		    var found = false;
+		    var foundNode = undefined;
+
+		    if (live_nodes != null)
+			while (live_nodes.length > 0 && positionComparator(node, live_nodes[0]) >= 0) {
+			    var other_node = live_nodes.shift();
+			    if (nodeEq(other_node, node)) {
+				found = true;
+				foundNode = other_node;
+				break;
+			    }
+			    // need to think about this
+			    //live_nodes.push(other_node);
+			}
+		    else
+			for (var i = 0; i < nodes.length; i++)
+			    if (nodeEq(nodes[i], node)) {
+				found = true;
+				foundNode = nodes[i];
+				break;
+			    }
+			
+		    if (!found) {
+			// reparent children, remove node
+			while (node.firstChild != null) {
+			    appendChild(node.parentNode, node.firstChild);
+			}
+				
+			next = node.nextSibling; // HACKY
+			node.parentNode.removeChild(node);
+		    } else {
+			mergeNodeValues(node, foundNode);
+		    }
 		}
 			
 		// move sideways
@@ -488,6 +496,7 @@ plt.Jsworld = {};
 		else { node = next; break; }
 	    }
 	}
+
 	
 	refresh_node_values(nodes);
     }
@@ -501,7 +510,7 @@ plt.Jsworld = {};
 
     function set_css_attribs(node, attribs) {
 	for (var j = 0; j < attribs.length; j++){
-	    node.style.setProperty(attribs[j].attrib, attribs[j].values.join(" "), "");
+	    node.style[attribs[j].attrib] = attribs[j].values.join(" ");
 	}
 		
     }
@@ -555,8 +564,9 @@ plt.Jsworld = {};
 	    // Simple path
 	    var t = sexp2tree(redraw_func(world));
 	    var ns = nodes(t);
-	    update_dom(toplevelNode, ns, relations(t));
+	    // HACK: css before dom, due to excanvas hack.
 	    update_css(ns, sexp2css(redraw_css_func(world)));
+	    update_dom(toplevelNode, ns, relations(t));
 	    return;
 	} else {
 	    maintainingSelection(
@@ -574,8 +584,12 @@ plt.Jsworld = {};
 		    // dom updates.
 
  		    if(oldRedraw !== newRedraw) {
- 			update_dom(toplevelNode, ns, relations(t));
+			// Kludge: update the CSS styles first.
+			// This is a workaround an issue with excanvas: any style change
+			// clears the content of the canvas, so we do this first before
+			// attaching the dom element.
  			update_css(ns, sexp2css(newRedrawCss));
+ 			update_dom(toplevelNode, ns, relations(t));
  		    } else {
 			if(oldRedrawCss !== newRedrawCss) {
  			    update_css(ns, sexp2css(newRedrawCss));
@@ -810,7 +824,7 @@ plt.Jsworld = {};
 	    node.addEventListener(eventName, fn, false);
 	} else {
 	    // IE
-	    node.attachevent('on' + event, fn, false);
+	    node.attachEvent('on' + event, fn, false);
 	}
     }
 
@@ -1002,11 +1016,10 @@ plt.Jsworld = {};
 //     Jsworld.bidirectional_input = bidirectional_input;
 
     var stopClickPropagation = function(node) {
-	node.addEventListener("click",
-			      function(e) {
-				  e.stopPropagation();
-			      },
-			      false);
+	attachEvent(node, "click",
+		    function(e) {
+			e.stopPropagation();
+		    });
 	return node;
     }
     
