@@ -116,9 +116,6 @@ plt.world.MobyJsworld = {};
 	    newNode = plt.Kernel.toDomNode(world);
 	    node.replaceChild(newNode, node.lastChild);
 	}
-	if (newNode.afterAttach) {
-	    newNode.afterAttach();
-	}
     };
 
 
@@ -181,6 +178,10 @@ plt.world.MobyJsworld = {};
 	}
     };
 
+    var attachEvent = function(node, eventName, fn) {
+	plt.Kernel.attachEvent(node, eventName, fn);
+    }
+
 
     // bigBang: world (listof (list string string)) (listof handler) -> world
     Jsworld.bigBang = function(initWorld, handlers) {
@@ -197,24 +198,15 @@ plt.world.MobyJsworld = {};
 	// Ensure that the toplevelNode can be focused by mouse or keyboard
 	toplevelNode.tabIndex = 0;
 	// Absorb all click events so they don't bubble up.
-	toplevelNode.addEventListener('click',
-				      function(e) {
-					  e.preventDefault();
-					  e.stopPropagation();
-					  return false;
-// 					  if (findEventTarget(e) === toplevelNode) {
-// 					      e.preventDefault();
-// 					      e.stopPropagation();
-// 					      return false;
-// 					  } else {
-// 					      return true;
-// 					  }
-				      },
-				      false);
+	attachEvent(toplevelNode,
+		    'click',
+		    function(e) {
+			e.preventDefault();
+			e.stopPropagation();
+			return false;
+		    },
+		    false);
 	
-
-
-
 
 	var config = new plt.world.config.WorldConfig();
 	for(var i = 0; i < handlers.length; i++) {
@@ -229,10 +221,10 @@ plt.world.MobyJsworld = {};
 	plt.world.config.CONFIG = config;
 	
 	var wrappedHandlers = [];
-	
+	var wrappedRedrawCss;
 
 	if (config.lookup('onDraw')) {
-	    var wrappedRedraw = function(w) {
+	    wrappedRedraw = function(w) {
 		var newDomTree = config.lookup('onDraw')([w]);
 		plt.Kernel.setLastLoc(undefined);
 		checkWellFormedDomTree(newDomTree, newDomTree, undefined);
@@ -241,7 +233,7 @@ plt.world.MobyJsworld = {};
 		return result;
 	    }
 
-	    var wrappedRedrawCss = function(w) {
+	    wrappedRedrawCss = function(w) {
 		var result = deepListToArray(config.lookup('onDrawCss')([w]));
 		plt.Kernel.setLastLoc(undefined);
 		return result;
@@ -250,7 +242,8 @@ plt.world.MobyJsworld = {};
 	} else if (config.lookup('onRedraw')) {
 	    var reusableCanvas = undefined;
 	    var reusableCanvasNode = undefined;
-	    var wrappedRedraw = function(w) {
+	    
+	    wrappedRedraw = function(w) {
 		var aScene = config.lookup('onRedraw')([w]);
 		// Performance hack: if we're using onRedraw, we know
 		// we've got a scene, so we optimize away the repeated
@@ -264,20 +257,18 @@ plt.world.MobyJsworld = {};
 
 		    if (! reusableCanvas) {
 			reusableCanvas = plt.Kernel._makeCanvas(width, height);
+			// Note: the canvas object may itself manage objects,
+			// as in the case of an excanvas.  In that case, we must make
+			// sure jsworld doesn't try to disrupt its contents!
+			reusableCanvas.jsworldOpaque = true;
 			reusableCanvasNode = _js.node_to_tree(reusableCanvas);
 		    }
- 		    reusableCanvas.width = width;
- 		    reusableCanvas.height = height;
- 		    reusableCanvas.style.setProperty("width",
-						     reusableCanvas.width + "px", "");
- 		    reusableCanvas.style.setProperty("height", reusableCanvas.height + "px", "");
- 		    var ctx = reusableCanvas.getContext("2d");
 
-		    reusableCanvas.style.setProperty("display", "none", "");
-		    document.body.appendChild(reusableCanvas);
+		    reusableCanvas.width = width;
+		    reusableCanvas.height = height;			
+		    var ctx = reusableCanvas.getContext("2d");
 		    aScene.render(ctx, 0, 0);
-		    document.body.removeChild(reusableCanvas);
-		    reusableCanvas.style.removeProperty("display");
+
 		    return [toplevelNode, reusableCanvasNode];
 		} else {
 		    return [toplevelNode, 
@@ -287,8 +278,10 @@ plt.world.MobyJsworld = {};
 		}
 	    }
 	    
-	    var wrappedRedrawCss = function(w) {
-		return [];
+	    wrappedRedrawCss = function(w) {
+		return [[reusableCanvas, 
+			 ["width", reusableCanvas.width + "px"],
+			 ["height", reusableCanvas.height + "px"]]];
 	    }
 	    wrappedHandlers.push(_js.on_draw(wrappedRedraw, wrappedRedrawCss));
 	} else {
@@ -319,29 +312,21 @@ plt.world.MobyJsworld = {};
 	    // Add event handlers that listen in on key events that are applied
 	    // directly on the toplevelNode.  We pay attention to keydown, and
 	    // omit keypress.
-	    toplevelNode.addEventListener('keydown',
-					  function(e) {
-					      if (findEventTarget(e) === toplevelNode) {
-						  plt.world.stimuli.onKey(e);
-						  e.preventDefault();
-						  e.stopPropagation();
-						  return false;
-					      } else {
-						  return true;
-					      }
-					  },
-					  false);
-	    toplevelNode.addEventListener('keypress',
-					  function(e) {
-					      if (findEventTarget(e) === toplevelNode) {
-						  e.preventDefault();
-						  e.stopPropagation();
-						  return false;
-					      } else {
-						  return true;
-					      }
-					  },
-					  false);
+	    attachEvent(toplevelNode,
+			'keydown',
+			function(e) {
+			    plt.world.stimuli.onKey(e);
+			    e.preventDefault();
+			    e.stopPropagation();
+			    return false;
+			});
+	    attachEvent(toplevelNode,
+			'keypress',
+			function(e) {
+			    e.preventDefault();
+			    e.stopPropagation();
+			    return false;
+			});
 	    toplevelNode.focus();
 	}
 
