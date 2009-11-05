@@ -81,6 +81,10 @@
 
 	// If a script calls someForm.submit(), the onsubmit event does not fire,
 	// so we need to redefine the submit method of the HTMLFormElement class.
+	if (typeof(HTMLFormElement) == 'undefined') {
+	    HTMLFormElement = function() {};
+	    new HTMLFormElement();
+	}
 	HTMLFormElement.prototype._submit = HTMLFormElement.prototype.submit;
 	HTMLFormElement.prototype.submit = newsubmit;
 	XMLHttpRequest.prototype._send = XMLHttpRequest.prototype.send;

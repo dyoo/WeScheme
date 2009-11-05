@@ -46,18 +46,12 @@
       dojo.addOnLoad(function() {
 	  dojo.parser.parse();
 	  
-	  document.getElementById("interactions").addEventListener(
-	      'click',
-	      function(e) {
-		  document.getElementById('inputBox').focus();
-		  e.stopPropagation();
-		  e.preventDefault();
-		  return false;
-
-
-	      },
-	      false);
-
+	  jQuery("#interactions").click(function(e) {
+              document.getElementById('inputBox').focus();
+	      e.stopPropagation();
+	      e.preventDefault();
+	      return false;
+          });
       });
     </script>
 
