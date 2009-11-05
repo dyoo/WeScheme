@@ -481,7 +481,8 @@ var WeSchemeEditor;
 		     },
   		     error: function() {
 			 onFailure();
-		     }
+		     },
+		     xhr: function() { return new XMLHttpRequest(); }
 		    });
     }
 
@@ -499,7 +500,8 @@ var WeSchemeEditor;
 		     },
   		     error: function() {
 			 onFailure();
-		     }
+		     },
+		     xhr: function() { return new XMLHttpRequest(); }
 		    });
     }
 
@@ -518,7 +520,8 @@ var WeSchemeEditor;
 		     },
 		     error: function() {
 			 onFailure();
-		     }
+		     }, 
+		     xhr: function() { return new XMLHttpRequest(); }
 		    });
     }
     
@@ -539,7 +542,8 @@ var WeSchemeEditor;
   		     error: function() {
 			 // FIXME
 			 onFailure();
-		     }
+		     }, 
+		     xhr: function() { return new XMLHttpRequest(); }
   		    });
     }
 
@@ -568,7 +572,8 @@ var WeSchemeEditor;
 		     },
 		     error: function() {
 			 onFailure();
-		     }
+		     },
+		     xhr: function() { return new XMLHttpRequest(); }
 		    });
     }
 
