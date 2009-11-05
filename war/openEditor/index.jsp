@@ -214,7 +214,7 @@
 	       dojoType="dijit.layout.ContentPane"
 	       splitter="true"
 	       region="center">
-	    <textarea id="defn">&#59;  Write your code here</textarea>
+              <textarea id="defn" rows="100">&#59;  Write your code here</textarea>
 	  </div>
 	  
 	  
