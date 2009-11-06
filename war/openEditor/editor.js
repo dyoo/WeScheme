@@ -289,7 +289,7 @@ var WeSchemeEditor;
 		    encodeURIComponent(dom.find("publicId").text()));
 	    that.filenameEntry.attr("value", dom.find("title").text());
 	    that.defn.setCode(dom.find("source").text());
-
+			      
 	    if (that.userName == dom.find("owner").text()) {
 		that._setIsOwner(true);
 	    } else {
@@ -482,7 +482,7 @@ var WeSchemeEditor;
   		     error: function() {
 			 onFailure();
 		     },
-		     xhr: function() { return new XMLHttpRequest(); }
+		     xhr: function(settings) { return new XMLHttpRequest(settings); }
 		    });
     }
 
@@ -501,7 +501,7 @@ var WeSchemeEditor;
   		     error: function() {
 			 onFailure();
 		     },
-		     xhr: function() { return new XMLHttpRequest(); }
+		     xhr: function(settings) { return new XMLHttpRequest(settings); }
 		    });
     }
 
@@ -521,7 +521,7 @@ var WeSchemeEditor;
 		     error: function() {
 			 onFailure();
 		     }, 
-		     xhr: function() { return new XMLHttpRequest(); }
+		     xhr: function(settings) { return new XMLHttpRequest(settings); }
 		    });
     }
     
@@ -543,7 +543,7 @@ var WeSchemeEditor;
 			 // FIXME
 			 onFailure();
 		     }, 
-		     xhr: function() { return new XMLHttpRequest(); }
+		     xhr: function(settings) { return new XMLHttpRequest(settings); }
   		    });
     }
 
@@ -573,7 +573,7 @@ var WeSchemeEditor;
 		     error: function() {
 			 onFailure();
 		     },
-		     xhr: function() { return new XMLHttpRequest(); }
+		     xhr: function(settings) { return new XMLHttpRequest(settings); }
 		    });
     }
 

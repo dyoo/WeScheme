@@ -6,9 +6,6 @@
     <!-- Add compatibility libraries for IE. -->
     <jsp:include page="/ie-compat.jsp"/>
     <script src="/runtime/compat/XMLHttpRequest.js"></script>
-    <script>
-    pltXMLHttpRequest = XMLHttpRequest;
-    </script>
 
     <link rel="stylesheet" type="text/css" href="/css/default.css"
 	  id="style" />
