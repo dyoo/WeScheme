@@ -606,25 +606,25 @@ plt.world.Kernel = plt.world.Kernel || {};
 	this.msg = msg;
 	this.size = size;
 	this.color = color;
-	this.font = "Verdana";
+	this.font = "Optimer";
     }
     TextImage.prototype = heir(BaseImage.prototype);
 
     TextImage.prototype.render = function(ctx, x, y) {
-	// Fixme: not quite right yet.
-	if ('mozDrawText' in ctx) {
-	    ctx.mozTextStyle=this.size+"pt "+this.font;
+	if(ctx.fillText) {
+	    ctx.font = this.size +"px Optimer";
+	    ctx.fillStyle = this.color.toRGBAString();
+	    ctx.fillText(this.msg, x, y);
+	}
+	else if ('mozDrawText' in ctx) {
+	    ctx.mozTextStyle=this.size+"px "+this.font;
 	    // Fix me: I don't quite know how to get the
 	    // baseline right.
 	    ctx.translate(x, y + this.size);
 	    ctx.fillStyle = this.color;
 	    ctx.mozDrawText(this.msg);
-	} else {
-	    //ctx.font.color = this.color;
-	    //ctx.font.size = this.size + "px";
-	    ctx.fillText(this.msg, x, y);
-	    // FIXME.
-	}
+	} 
+	
     };
     
     TextImage.prototype.getWidth = function() {
@@ -818,6 +818,10 @@ plt.world.Kernel = plt.world.Kernel || {};
     ColorRecord.prototype.toString = function() {
 	return "rgb(" + this.r + "," + this.g + "," + this.b + ")";
     };
+
+    ColorRecord.prototype.toRGBAString = function() {
+	return "rgba(" + this.r + "," + this.g + "," + this.b + ", 1)";
+    }
 
     var colorDb = new ColorDb();
     colorDb.put("ORANGE", new ColorRecord(255, 165, 0));

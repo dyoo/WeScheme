@@ -208,6 +208,7 @@
 			if (!this._headers["Content-Type"])
 				this._object.setRequestHeader("Content-Type", "application/xml");
 		}
+
 		this._object.send(vData);
 
 		// BUGFIX: Gecko - missing readystatechange calls in synchronous requests
