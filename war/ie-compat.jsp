@@ -18,5 +18,4 @@
 
 <!-- Add bindings for the canvas-text compatibility library. -->
 <script src="/runtime/compat/canvas-text/canvas.text.js"></script>
-<script src="/runtime/compat/canvas-text/faces/optimer-normal-normal.js"></scr\
-ipt>
+<script src="/runtime/compat/canvas-text/faces/optimer-normal-normal.js"></script>
