@@ -69,15 +69,19 @@ var WeSchemeTextContainer;
     };
 
 
+    var normalizeString = function(s) {
+	return s.replace(/\r\n/g, "\n");
+    };
+
     // getCode: void -> string
     WeSchemeTextContainer.prototype.getCode = function() {
-	return this.impl.getCode();
+	return normalizeString(this.impl.getCode());
     };
 
 
     // setCode: string -> void
     WeSchemeTextContainer.prototype.setCode = function(code) {
-	return this.impl.setCode(code);
+	return this.impl.setCode(normalizeString(code));
     };
 
 
