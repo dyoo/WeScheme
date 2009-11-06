@@ -103,7 +103,7 @@
 	}
 	HTMLFormElement.prototype._submit = HTMLFormElement.prototype.submit;
 	HTMLFormElement.prototype.submit = function(event) {
-	    return newsubmit(event);
+	    return newsubmit.apply(this, arguments);
 	}
     }
 }());
