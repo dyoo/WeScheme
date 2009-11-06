@@ -31,13 +31,15 @@ function loadProgramList() {
 	// The program entry
 	var programEntry = (jQuery("<li/>").addClass("ProgramEntry"));
 
+	var title = digest.find("title").text();
+
 	var form = (jQuery("<form/>")
 		    .attr("method", "post")
 		    .attr("action",   "/openEditor")
 		    .append(jQuery("<input/>")
 			    .addClass("ProgramTitle")
-			    .attr("value", digest.find("title").text())
-			    .attr("type", "submit"))
+			    .attr("type", "submit")
+			    .attr("value", digest.find("title").text()))
 		    .append(jQuery("<input/>")
 			    .attr("type", "hidden")
 			    .attr("name", "pid")
@@ -64,8 +66,8 @@ function loadProgramList() {
 			  digest.find("id").text())
 		    .append(jQuery("<input/>")
 			    .addClass("ProgramTitle")
-			    .attr("value", digest.find("title").text())
-			    .attr("type", "submit")));
+			    .attr("type", "submit")
+			    .attr("value", digest.find("title").text())));
 	var modifiedSpan = (jQuery("<span/>").text(prettyPrintDate(digest.find("modified").text()))
 			    .addClass("ProgramModified"));
 	var publishedSpan = 
@@ -103,7 +105,14 @@ function loadProgramList() {
 	});
 
     };
-    jQuery.get("/listProjects", {}, callback, "xml");
+    jQuery.ajax({cache: false,
+		 data: {},
+		 dataType: "xml",
+		 type: "GET",
+		 url: "/listProjects",
+		 success: callback,
+		 xhr: function(settings) { return new XMLHttpRequest(settings); }
+		});
 }
 
 

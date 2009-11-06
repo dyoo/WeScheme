@@ -21,6 +21,10 @@
 <link rel="stylesheet" type="text/css" href="/css/console.css" />
 <title>WeScheme</title>
 
+<jsp:include page="/ie-compat.jsp"/>
+<script src="/runtime/compat/XMLHttpRequest.js"></script>
+
+
 <script src="editor/jquery.js"></script>
 <script src="editor/jquery.createdomnodes.js"></script>
 <script src="safeSubmit.js"></script>
