@@ -1,4 +1,4 @@
-var plt = plt || {};
+if (typeof(plt) == 'undefined') { plt = {}; }
 plt.world = plt.world || {};
 plt.world.MobyJsworld = {};
 
@@ -133,6 +133,11 @@ plt.world.MobyJsworld = {};
 	return targ;
     }
 
+    // isNode: any -> boolean
+    // Returns true if the thing has a nodeType.
+    var isNode = function(thing) {
+	return typeof(thing.nodeType) != 'undefined';
+    }
 
 
     // checkWellFormedDomTree: X X (or number undefined) -> void
@@ -149,6 +154,13 @@ plt.world.MobyJsworld = {};
 	if (plt.Kernel.pair_question_(x)) {
 	    var firstElt = plt.Kernel.first(x)
 	    var restElts = plt.Kernel.rest(x)
+
+	    if (! isNode(firstElt)) {
+		throw new MobyTypeError(
+		    plt.Kernel.format(
+		         "on-draw: expected a dom-element, but received ~s instead, the first element within ~s",
+			 [firstElt, top]));
+	    }
 
 	    if (firstElt.nodeType == Node.TEXT_NODE &&
 		! plt.Kernel.empty_question_(restElts)) {
@@ -169,12 +181,12 @@ plt.world.MobyJsworld = {};
 	} else {
 	    throw new MobyTypeError(
 		plt.Kernel.format(
-		    "on-draw: expected a dom-s-expression, but received ~s instead.~a",
+		    "on-draw: expected a dom-s-expression, but received ~s instead~a",
 		    [x,
 		     (index != undefined ? 
-		      plt.Kernel.format("the ~a element within ~s", [index, top])
+		      plt.Kernel.format(", the ~a element within ~s.", [plt.Kernel.ordinalize(index), top])
 		      : 
-		      "")]));
+		      ".")]));
 	}
     };
 
@@ -429,11 +441,11 @@ plt.world.MobyJsworld = {};
     Jsworld.p = function(args) {
 	var attribs = getAttribs(args);
 	var node = _js.p(attribs);
-	node.toWrittenString = function() { 
+	node.toWrittenString = function(cache) { 
 	    return plt.Kernel.format("(js-p)", []);
 	};
 	node.toDisplayedString = node.toWrittenString;
-	node.toDomNode = function() { return node; }
+	node.toDomNode = function(cache) { return node; }
 	return node;
     };
 
@@ -441,11 +453,11 @@ plt.world.MobyJsworld = {};
     Jsworld.div = function(args) {
 	var attribs = getAttribs(args);
 	var node = _js.div(attribs);
-	node.toWrittenString = function() { 
+	node.toWrittenString = function(cache) { 
 	    return plt.Kernel.format("(js-div)", []);
 	};
 	node.toDisplayedString = node.toWrittenString;
-	node.toDomNode = function() { return node; }
+	node.toDomNode = function(cache) { return node; }
 	return node;
     };
 
@@ -457,9 +469,9 @@ plt.world.MobyJsworld = {};
 	var node = Jsworld.buttonStar(f, 
 				      noneF,
 				      args);
-	node.toWrittenString = function() { return "(js-button ...)"; }
+	node.toWrittenString = function(cache) { return "(js-button ...)"; }
 	node.toDisplayedString = node.toWrittenString;
-	node.toDomNode = function() { return node; }
+	node.toDomNode = function(cache) { return node; }
 	return node;
     };
 
@@ -478,9 +490,9 @@ plt.world.MobyJsworld = {};
 	    }
 	}
 	var node = _js.button(wrappedF, attribs);
-	node.toWrittenString = function() { return "(js-button ...)"; }
+	node.toWrittenString = function(cache) { return "(js-button ...)"; }
 	node.toDisplayedString = node.toWrittenString;
-	node.toDomNode = function() { return node; }
+	node.toDomNode = function(cache) { return node; }
 	return node;
     };
     
@@ -495,9 +507,9 @@ plt.world.MobyJsworld = {};
 				 return updateF([w, v])
 			     },
 			     attribs);
-	node.toWrittenString = function() { return "(js-input ...)"; }
+	node.toWrittenString = function(cache) { return "(js-input ...)"; }
 	node.toDisplayedString = node.toWrittenString;
-	node.toDomNode = function() { return node; }
+	node.toDomNode = function(cache) { return node; }
 	return node;
     };
 
@@ -519,28 +531,14 @@ plt.world.MobyJsworld = {};
     };
 
 
-//     // BidirectionalInput
-//     Jsworld.bidirectionalInput = function(type, valF, updateF, args) {
-// 	var attribs = getAttribs(args);
-// 	var node = _js.bidirectional_input(type,
-// 				       function(w) { return valF([w]) },
-// 				       function(w, v) { 
-// 					   return updateF([w, v])
-// 				       },
-// 				       attribs);
-// 	node.toWrittenString = function() { return "(js-bidirectional-input ...)"; }
-// 	node.toDisplayedString = node.toWrittenString;
-// 	node.toDomNode = function() { return node; }
-// 	return node;
-//     };
 
     // Images.
     Jsworld.img = function(src, args) {
 	var attribs = getAttribs(args);
 	var node = _js.img(src, attribs);
-	node.toWrittenString = function() { return "(js-img ...)"; }
+	node.toWrittenString = function(cache) { return "(js-img ...)"; }
 	node.toDisplayedString = node.toWrittenString;
-	node.toDomNode = function() { return node; }
+	node.toDomNode = function(cache) { return node; }
 	return node;
     };
 
@@ -548,9 +546,9 @@ plt.world.MobyJsworld = {};
     // text: string -> node
     Jsworld.text = function(s) {
 	var node = _js.text(s, []);
-	node.toWrittenString = function() { return "(js-img ...)"; }
+	node.toWrittenString = function(cache) { return "(js-img ...)"; }
 	node.toDisplayedString = node.toWrittenString;
-	node.toDomNode = function() { return node; }
+	node.toDomNode = function(cache) { return node; }
 	return node;
     };
 
@@ -563,9 +561,9 @@ plt.world.MobyJsworld = {};
     Jsworld.rawNode = function(x, args) {
 	var attribs = getAttribs(args);
 	var node = _js.raw_node(plt.Kernel.toDomNode(x), attribs);
-	node.toWrittenString = function() { return "(js-img ...)"; }
+	node.toWrittenString = function(cache) { return "(js-img ...)"; }
 	node.toDisplayedString = node.toWrittenString;
-	node.toDomNode = function() { return node; }
+	node.toDomNode = function(cache) { return node; }
 	return node;
     };
 
