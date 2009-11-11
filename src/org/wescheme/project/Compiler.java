@@ -28,14 +28,14 @@ public class Compiler extends HttpServlet
 		scope = cx.initStandardObjects();
 		FileReader fileReader = new FileReader("runtime/compressed-standalone-compiler.js");
 		BufferedReader inputReader = new BufferedReader(fileReader);
-		String compilerSrc = "";
+		StringBuffer compilerSrc = new StringBuffer();
 		String line;
 		
 		while((line = inputReader.readLine()) != null){
-			compilerSrc += line + "\n";
+			compilerSrc.append(line + "\n");
 		}
 		
-		cx.evaluateString(scope, compilerSrc, "<cmd>", 1, null); // add the compiler to the scope
+		cx.evaluateString(scope, compilerSrc.toString(), "<cmd>", 1, null); // add the compiler to the scope
 		cx.seal(null);
 		
 		Object fObj = scope.get("compile", scope);
