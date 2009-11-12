@@ -2,12 +2,6 @@
 <datastore-indexes autoGenerate="true">
 
 
-    <datastore-index kind="Program" ancestor="false">
-        <property name="publicId_" direction="asc"/>
-    </datastore-index>
-
-
-
     <!-- Used 114 times in query history -->
     <datastore-index kind="ObjectCode" ancestor="true" source="auto"/>
 
