@@ -508,11 +508,17 @@ plt.Jsworld = {};
     }
 
 
+
+    // camelCase: string -> string
+    function camelCase(name) {
+	return name.replace(/\-(.)/g, function(m, l){return l.toUpperCase()});
+    }
+
+
     function set_css_attribs(node, attribs) {
 	for (var j = 0; j < attribs.length; j++){
-	    node.style[attribs[j].attrib] = attribs[j].values.join(" ");
+	    node.style[camelCase(attribs[j].attrib)] = attribs[j].values.join(" ");
 	}
-		
     }
 
 
@@ -531,9 +537,9 @@ plt.Jsworld = {};
 
     function update_css(nodes, css) {
 	// clear CSS
-	for (var i = 0; i < nodes.length; i++)
-	    if ('style' in nodes[i])
-		nodes[i].style.cssText = "";
+	for (var i = 0; i < nodes.length; i++) {
+	    clearCss(nodes[i]);
+	}
 	
 	// set CSS
 	for (var i = 0; i < css.length; i++)
@@ -544,6 +550,12 @@ plt.Jsworld = {};
 		    }
 	    }
 	    else set_css_attribs(css[i].node, css[i].attribs);
+    }
+
+
+    var clearCss = function(node) {
+	if ('style' in node)
+	    node.style.cssText = "";
     }
 
 
