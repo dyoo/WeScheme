@@ -19,6 +19,23 @@ plt.world.Kernel = plt.world.Kernel || {};
     }
 
 
+    // clone: object -> object
+    // Copies an object.  The new object should respond like the old
+    // object, including to things like instanceof
+    var clone = function(obj) {
+	var C = function() {}
+	C.prototype = obj;
+	var c = new C();
+	for (property in obj) {
+	    if (obj.hasOwnProperty(property)) {
+		c[property] = obj[property];
+	    }
+	}
+	return c;
+    };
+
+
+
 
     var announceListeners = [];
     plt.world.Kernel.addAnnounceListener = function(listener) {
@@ -247,8 +264,8 @@ plt.world.Kernel = plt.world.Kernel || {};
     };
 
 
-    // placeImage: image number number scene -> scene
-    plt.world.Kernel.placeImage = function(picture, x, y, aScene) {
+    // placeImage: image number number image -> scene
+    plt.world.Kernel.placeImage = function(picture, x, y, background) {
 	plt.Kernel.check(picture, 
 			 isImage,
 			 "place-image",
@@ -256,10 +273,23 @@ plt.world.Kernel = plt.world.Kernel || {};
 			 1);
 	plt.Kernel.check(x, plt.Kernel.isNumber, "place-image", "number", 2);
 	plt.Kernel.check(y, plt.Kernel.isNumber, "place-image", "number", 3);
-	plt.Kernel.check(aScene, isScene, "place-image", "scene", 4);
-	return aScene.add(picture,
-			  plt.types.NumberTower.toInteger(x),
-			  plt.types.NumberTower.toInteger(y));
+	plt.Kernel.check(background,
+			 function(x) { return isScene(x) || isImage(x) },
+			 "place-image", "image", 4);
+	if (isScene(background)) {
+	    return background.add(picture,
+				  plt.types.NumberTower.toInteger(x),
+				  plt.types.NumberTower.toInteger(y));
+	} else {
+	    var newScene = new SceneImage(background.getWidth(),
+					  background.getHeight(),
+					  []);
+	    newScene = newScene.add(background, 0, 0);
+	    newScene = newScene.add(picture, 
+				    plt.types.NumberTower.toInteger(x),
+				    plt.types.NumberTower.toInteger(y));
+	    return newScene;
+	}
     };
 
     
@@ -384,12 +414,9 @@ plt.world.Kernel = plt.world.Kernel || {};
     };
 
 
+
     BaseImage.prototype.updatePinhole = function(x, y) {
-	var aCopy = {};
-	for (attr in this) {
-	    aCopy[attr] = this[attr];
-	}
-	aCopy.__proto__ = this.__proto__;
+	var aCopy = clone(this);
 	aCopy.pinholeX = x;
 	aCopy.pinholeY = y;
 	return aCopy;

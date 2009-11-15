@@ -1318,11 +1318,19 @@ return _76;};};return _57;})();if (typeof(plt) == 'undefined') { plt = {}; }
     plt.types.Complex.prototype.asin = function(){
 	if (this.isReal())
 	    return this.r.asin();
-	var iz = this.timesI();
-	var root = plt.types.NumberTower.subtract(plt.types.Rational.ONE, this.multiply(this)).sqrt();
-	var ret = plt.types.NumberTower.add(iz, root).log().timesI().minus();
-	// FIXME: missing return value!
-	throw new plt.Kernel.MobyRuntimeError("");
+
+	var oneMinusThisSq = 
+	    plt.types.NumberTower.subtract(
+		plt.types.Rational.ONE, 
+		this.multiply(this));
+	var sqrtOneMinusThisSq = oneMinusThisSq.sqrt();
+	return plt.types.NumberTower.multiply(
+	    plt.types.Rational.TWO,
+	    (plt.types.NumberTower.divide(
+		this, 
+		plt.types.NumberTower.add(
+		    plt.types.Rational.ONE,
+		    sqrtOneMinusThisSq))).atan());
     };
     
     plt.types.Complex.prototype.ceiling = function(){
@@ -4276,6 +4284,10 @@ plt.reader = {};
 	return c;
     }
 
+    var numberHeader = ("(?:(?:\\d+\\/\\d+)|"+
+			(  "(?:(?:\\d+\\.\\d+|\\d+\\.|\\.\\d+)(?:[eE][+\\-]?\\d+)?)|")+
+			(  "(?:\\d+(?:[eE][+\\-]?\\d+)?))"));
+
 
     var PATTERNS = [['whitespace' , /^(\s+)/],
 		    ['#;', /^([#][;])/],
@@ -4293,10 +4305,13 @@ plt.reader = {};
 		    ['char', /^\#\\(newline|backspace)/],
 		    ['char', /^\#\\(.)/],
 
-		    ['complex' , /^((?:\#[ei])?[+\-]?(?:\d+\/\d+|\d+\.\d+|\d+\.|\.\d+|\d+)?[+\-](?:\d+\/\d+|\d+\.\d+|\d+\.|\.\d+|\d+)i)/],
+
+
+		    ['complex' , new RegExp("^((?:(?:\\#[ei])?[+\\-]?" + numberHeader +")?"
+					    + "(?:[+\\-]" + numberHeader + ")i)")],
 		    ['number' , /^((?:\#[ei])?[+-]inf.0)/],
 		    ['number' , /^((?:\#[ei])?[+-]nan.0)/],
-		    ['number' , /^((?:\#[ei])?[+\-]?(?:\d+\/\d+|\d+\.\d+|\d+\.|\.\d+|\d+))/],
+		    ['number' , new RegExp("^((?:\\#[ei])?[+\\-]?" + numberHeader + ")")],
 
 
 		    ['string' , new RegExp("^\"((?:([^\\\\\"]|(\\\\.)))*)\"")],      
@@ -4444,6 +4459,8 @@ plt.reader = {};
 		return plt.types.FloatPoint.makeInstance(Number.NEGATIVE_INFINITY);
 	    } else if (text == "+nan.0" || text == '-nan.0') {
 		return plt.types.FloatPoint.makeInstance(Number.NaN);
+	    } else if (text.match(/[eE]/)) {
+		return plt.types.FloatPoint.makeInstance(parseFloat(text));
 	    } else if (text.match(/\./)) {
 		if (isExact) {
 		    var decimalMatch = text.match("^(.*)[.](.*)$");
