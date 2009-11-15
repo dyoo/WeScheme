@@ -29,17 +29,37 @@
 	return this._submit.apply(this, arguments);
     }
 
-    var instrumentedSend = function(body){
-	if( body == null || body == ""){
-	    body = "?";
-	} else {
-	    body += "&";
-	}
-	
-        body += "token=" + encodeURIComponent(getCookie("token"));
+    var instrumentedOpen = function() {
+	var method = arguments[0].toUpperCase();
+	var url = arguments[1];
 
-	return this._send.apply(this, arguments);
+	if (method.toUpperCase() == "GET") {
+	    if (url.match(/\?/)) {
+		url = url + "&" + "token=" + encodeURIComponent(getCookie("token"));
+	    } else {
+		url = url + "?" + "token=" + encodeURIComponent(getCookie("token"));
+	    }
+	    arguments[1] = url;
+	}
+	var result = this._open.apply(this, arguments);
+	this.method = method;
+	return result;
     }
+
+    var instrumentedSend = function(body){
+	if (this.method == "GET") {
+	    return this._send.apply(this, arguments);
+	} else {
+	    if( body == null || body == ""){
+		body = "?";
+	    } else {
+		body += "&";
+	    }
+	    body += "token=" + encodeURIComponent(getCookie("token"));
+	    return this._send.call(this, body);
+	}
+    }
+
 
     // From http://msdn.microsoft.com/en-us/library/ms537509(VS.85).aspx
     var getInternetExplorerVersion = function()
@@ -74,7 +94,11 @@
     //////////////////////////////////////////////////////////////////////
 
     // With the XMLHttpRequest compatibility library, we can do the XML stuff uniformly.
+    XMLHttpRequest.prototype._open = XMLHttpRequest.prototype.open;
     XMLHttpRequest.prototype._send = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.open = function() {
+	return instrumentedOpen.apply(this, arguments);
+    };
     XMLHttpRequest.prototype.send = function() {
 	return instrumentedSend.apply(this, arguments);
     };
