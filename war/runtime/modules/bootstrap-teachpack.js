@@ -409,6 +409,7 @@ var t = args42[0];
               })()); };
 (function() { 
   ((function (toplevel_dash_expression_dash_show0) { 
- })  )(arguments[0] || plt.Kernel.identity);
+
+toplevel_dash_expression_dash_show0((plt.Kernel.setLastLoc("offset=9730 line=177 span=6 id=\"modules/bootstrap-teachpack.ss\"") && plt.Kernel._void_([]))); })  )(arguments[0] || plt.Kernel.identity);
 })();plt.bootstrap.start = start;
 }())
