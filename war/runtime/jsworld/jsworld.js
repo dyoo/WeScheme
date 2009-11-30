@@ -70,17 +70,20 @@ plt.Jsworld = {};
 	try {
 	    world = updater(world);
 	} catch(e) {
-	    return;
+	    world = originalWorld;
+	    throw e;
 	}
-	if (originalWorld != world) {
-	    for(var i = 0; i < worldListeners.length; i++) {
-		try {
-		    worldListeners[i](world, originalWorld);
-		} catch (e) {
-		    // Revert the world state
-		    world = originalWorld;
-		    throw e;
-		}
+
+	// Originally, we'd optimize away the update if the world
+	// hasn't changed, but with mutation, we no longer can
+	// make that optimization.
+	for(var i = 0; i < worldListeners.length; i++) {
+	    try {
+		worldListeners[i](world, originalWorld);
+	    } catch (e) {
+		// Revert the world state
+		world = originalWorld;
+		throw e;
 	    }
 	}
     }
@@ -450,47 +453,44 @@ plt.Jsworld = {};
 	    while (node != stop) {
 		var next = node.nextSibling, parent = node.parentNode;
 		
-		if (node.jsworldOpaque == true) {
-		    // KLUDGE: don't touch anything that has the mark of Cain.  Umm...
-		    // that is, don't wipe out any nodes that are in the context of an opaque
-		    // node.
-		} else {
-		    // process last
-		    var found = false;
-		    var foundNode = undefined;
+		// process last
+		var found = false;
+		var foundNode = undefined;
 
-		    if (live_nodes != null)
-			while (live_nodes.length > 0 && positionComparator(node, live_nodes[0]) >= 0) {
-			    var other_node = live_nodes.shift();
-			    if (nodeEq(other_node, node)) {
-				found = true;
-				foundNode = other_node;
-				break;
-			    }
-			    // need to think about this
-			    //live_nodes.push(other_node);
+		if (live_nodes != null)
+		    while (live_nodes.length > 0 && positionComparator(node, live_nodes[0]) >= 0) {
+			var other_node = live_nodes.shift();
+			if (nodeEq(other_node, node)) {
+			    found = true;
+			    foundNode = other_node;
+			    break;
 			}
-		    else
-			for (var i = 0; i < nodes.length; i++)
-			    if (nodeEq(nodes[i], node)) {
-				found = true;
-				foundNode = nodes[i];
-				break;
-			    }
+			// need to think about this
+			//live_nodes.push(other_node);
+		    }
+		else
+		    for (var i = 0; i < nodes.length; i++)
+			if (nodeEq(nodes[i], node)) {
+			    found = true;
+			    foundNode = nodes[i];
+			    break;
+			}
 			
-		    if (!found) {
+		if (!found) {
+		    if (node.isJsworldOpaque) {
+		    } else {
 			// reparent children, remove node
 			while (node.firstChild != null) {
 			    appendChild(node.parentNode, node.firstChild);
 			}
-				
-			next = node.nextSibling; // HACKY
-			node.parentNode.removeChild(node);
-		    } else {
-			mergeNodeValues(node, foundNode);
 		    }
+				
+		    next = node.nextSibling; // HACKY
+		    node.parentNode.removeChild(node);
+		} else {
+		    mergeNodeValues(node, foundNode);
 		}
-			
+
 		// move sideways
 		if (next == null) node = parent;
 		else { node = next; break; }
@@ -981,12 +981,15 @@ plt.Jsworld = {};
 
     function copy_attribs(node, attribs) {
 	if (attribs)
-	    for (a in attribs)
-		if (typeof attribs[a] == 'function')
-		    add_ev(node, a, attribs[a]);
-		else{
-		    node[a] = attribs[a];//eval("node."+a+"='"+attribs[a]+"'");
+	    for (a in attribs) {
+		if (attribs.hasOwnProperty(a)) {
+		    if (typeof attribs[a] == 'function')
+			add_ev(node, a, attribs[a]);
+		    else{
+			node[a] = attribs[a];//eval("node."+a+"='"+attribs[a]+"'");
+		    }
 		}
+	    }
 	return node;
     }
 
@@ -1054,7 +1057,26 @@ plt.Jsworld = {};
     }
     
 
-    function input(type, updateF, attribs) {
+    function input(aType, updateF, attribs) {
+	aType = aType.toLowerCase();
+	var dispatchTable = { text : text_input,
+			      password: text_input,
+			      checkbox: checkbox_input
+			      //button: button_input,
+			      //radio: radio_input 
+	};
+
+	if (dispatchTable[aType]) {
+	    return (dispatchTable[aType])(aType, updateF, attribs);
+	}
+	else {
+	    throw new plt.Kernel.MobyRuntimeError("js-input: does not currently support type " + aType);
+	}
+    }
+    Jsworld.input = input;
+
+
+    var text_input = function(type, updateF, attribs) {
 	var n = document.createElement('input');
 	n.type = type;
 	function onKey(w, e) {
@@ -1081,8 +1103,32 @@ plt.Jsworld = {};
 		    delay);
 	return stopClickPropagation(
 	    addFocusTracking(copy_attribs(n, attribs)));
-    }
-    Jsworld.input = input;
+    };
+
+
+    var checkbox_input = function(type, updateF, attribs) {
+	var n = document.createElement('input');
+	n.type = type;
+
+	var onCheck = function(w, e) {
+	    return updateF(w, (n.checked ? plt.types.Logic.TRUE : plt.types.Logic.FALSE));
+	};
+	// This established the widget->world direction
+	add_ev_after(n, 'change', onCheck);
+	
+	attachEvent(n, 'click', function(e) {
+		stopPropagation(e);
+	    });
+
+	return copy_attribs(n, attribs);
+    };
+
+
+    var button_input = function(type, updateF, attribs) {
+	var n = document.createElement('button');
+	add_ev(n, 'click', function(w) { return updateF(w, n.value)});
+	return addFocusTracking(copy_attribs(n, attribs));
+    };
 
 
 
@@ -1103,7 +1149,8 @@ plt.Jsworld = {};
     
 
     function text(s, attribs) {
-	return addFocusTracking(copy_attribs(document.createTextNode(s), attribs));
+	var result = document.createTextNode(s);
+	return result;
     }
     Jsworld.text = text;
 
@@ -1112,17 +1159,18 @@ plt.Jsworld = {};
 	for(var i = 0; i < opts.length; i++) {
 	    n.add(option({value: opts[i]}), null);
 	}
+	n.jsworldOpaque = true;
 	add_ev(n, 'change', f);
-	return addFocusTracking(copy_attribs(n, attribs));
+	var result = addFocusTracking(copy_attribs(n, attribs));
+	return result;
     }
     Jsworld.select = select;
 
     function option(attribs){
 	var node = document.createElement("option");
-	node.jsworldOpaque = true;
         node.text = attribs.value;
 	node.value = attribs.value;
- 	return copy_attribs(node, attribs)
+ 	return node;
     }
 
 
