@@ -12,13 +12,154 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     plt.types = plt.types || {};
     
 
+    //////////////////////////////////////////////////////////////////////
+    // helper functions
+
+
+    var appendChild = function(parent, child) {
+	parent.appendChild(child);
+    }
+
+
+    // Inheritance from pg 168: Javascript, the Definitive Guide.
+    var heir = function(p) {
+	var f = function() {}
+	f.prototype = p;
+	return new f();
+    }
+
+
+    var _eqHashCodeCounter = 0;
+    plt.types.makeEqHashCode = function() {
+	_eqHashCodeCounter++;
+	return _eqHashCodeCounter;
+    }
+    
+    
+    // plt.Kernel.getHashCode: any -> (or fixnum string)
+    // Produces a hashcode appropriate for eq.
+    plt.types.getEqHashCode = function(x) {
+	if (x && x._eqHashCode) {
+	    return x._eqHashCode;
+	}
+	if (typeof(x) == 'string') {
+	    return x;
+	}
+	return 0;
+    };
+
+
+
+    //////////////////////////////////////////////////////////////////////
+
+
+    // Structures.
+    var Struct = function (constructorName, fields) {
+	this._constructorName = constructorName; 
+	this._fields = fields;
+	this._eqHashCode = plt.types.makeEqHashCode();
+    };
+
+    plt.types.Struct = Struct;
+
+    Struct.prototype.toWrittenString = function(cache) { 
+	cache.put(this, true);
+	var buffer = [];
+	buffer.push("(");
+	buffer.push(this._constructorName);
+	for(var i = 0; i < this._fields.length; i++) {
+	    buffer.push(" ");
+	    buffer.push(plt.Kernel.toWrittenString(this._fields[i], cache));
+	}
+	buffer.push(")");
+	return plt.types.String.makeInstance(buffer.join(""));
+    };
+
+    Struct.prototype.toDisplayedString = Struct.prototype.toWrittenString;
+
+    Struct.prototype.toDomNode = function(cache) {
+	cache.put(this, true);
+	var node = document.createElement("div");
+	node.appendChild(document.createTextNode("("));
+	node.appendChild(document.createTextNode(this._constructorName));
+	for(var i = 0; i < this._fields.length; i++) {
+	    node.appendChild(document.createTextNode(" "));
+	    appendChild(node, plt.Kernel.toDomNode(this._fields[i], cache));
+	}
+	node.appendChild(document.createTextNode(")"));
+	return node;
+    }
+
+
+    Struct.prototype.isEqual = function(other, aUnionFind) {
+	if (typeof(other) != 'object') {
+	    return false;
+	}
+	if (! other._constructorName) {
+	    return false;
+	}
+	if (other._constructorName != this._constructorName) {
+	    return false;
+	}
+	if (! '_fields' in other) {
+	    return false;
+	}
+	if (this._fields.length != other._fields.length) {
+	    return false;
+	}
+	for (var i = 0; i < this._fields.length; i++) {
+	    if (! plt.Kernel.isEqual(this._fields[i],
+				     other._fields[i],
+				     aUnionFind)) {
+		return false;
+	    }
+	}
+	return true;
+    };
+
+
+
+
+
+
+
+
+
+    //////////////////////////////////////////////////////////////////////
+    // Boxes
+    
+    var Box = function(x) { 
+	plt.types.Struct.call(this, "box", [x]);
+	this._eqHashCode = plt.types.makeEqHashCode();
+    };
+
+    Box.prototype = heir(plt.types.Struct.prototype);
+
+    Box.prototype.unbox = function() {
+	return this._fields[0];
+    }
+
+    Box.prototype.set = function(newVal) {
+	this._fields[0] = newVal;
+    }
+    //////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
 
     // We are reusing the built-in Javascript boolean class here.
     plt.types.Logic = {
 	TRUE : true,
 	FALSE : false
     };
-    
+
+    // WARNING
+    // WARNING: we are extending the built-in Javascript boolean class here!
+    // WARNING
     Boolean.prototype.toWrittenString = function(cache) {
 	if (this.valueOf()) { return "true"; }
 	return "false";
@@ -26,7 +167,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     Boolean.prototype.toDisplayedString = Boolean.prototype.toWrittenString;
 
 
-    Boolean.prototype.isEqual = function(other){
+    Boolean.prototype.isEqual = function(other, aUnionFind){
 	return this == other;
     };
 
@@ -37,6 +178,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     // Char: string -> Char
     plt.types.Char = function(val){
 	this.val = val;
+	this._eqHashCode = plt.types.makeEqHashCode();
     };
     
     plt.types.Char.makeInstance = function(val){
@@ -55,7 +197,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	return this.val;
     };
 
-    plt.types.Char.prototype.isEqual = function(other){
+    plt.types.Char.prototype.isEqual = function(other, aUnionFind){
 	return other instanceof plt.types.Char && this.val == other.val;
     };
     
@@ -64,6 +206,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 
     plt.types.Symbol = function(val) {
 	this.val = val;
+	this._eqHashCode = plt.types.makeEqHashCode();
     };
 
     var symbolCache = {};
@@ -78,7 +221,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	return symbolCache[val];
     };
     
-    plt.types.Symbol.prototype.isEqual = function(other) {
+    plt.types.Symbol.prototype.isEqual = function(other, aUnionFind) {
 	return other instanceof plt.types.Symbol &&
 	    this.val == other.val;
     };
@@ -99,11 +242,13 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     
     
     
-    plt.types.Empty = function() {};
+    plt.types.Empty = function() {
+	this._eqHashCode = plt.types.makeEqHashCode();
+    };
     plt.types.Empty.EMPTY = new plt.types.Empty();
 
 
-    plt.types.Empty.prototype.isEqual = function(other) {
+    plt.types.Empty.prototype.isEqual = function(other, aUnionFind) {
 	return other instanceof plt.types.Empty;
     };
 
@@ -130,6 +275,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     plt.types.Cons = function(f, r) {
 	this.f = f;
 	this.r = r;
+	this._eqHashCode = plt.types.makeEqHashCode();
     };
     
     plt.types.Cons.makeInstance = function(f, r) {
@@ -137,12 +283,13 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     };
 
 
-    plt.types.Cons.prototype.isEqual = function(other) {
+    // FIXME: can we reduce the recursion on this?
+    plt.types.Cons.prototype.isEqual = function(other, aUnionFind) {
 	if (! (other instanceof plt.types.Cons)) {
 	    return plt.types.Logic.FALSE;
 	}
-	return (plt.Kernel.equal_question_(this.first(), other.first()) &&
-		plt.Kernel.equal_question_(this.rest(), other.rest()));
+	return (plt.Kernel.isEqual(this.first(), other.first(), aUnionFind) &&
+		plt.Kernel.isEqual(this.rest(), other.rest(), aUnionFind));
     };
     
     plt.types.Cons.prototype.first = function() {
@@ -195,9 +342,6 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     };
 
 
-    var appendChild = function(parent, child) {
-	parent.appendChild(child);
-    }
 
     plt.types.Cons.prototype.toDomNode = function(cache) {
 	cache.put(this, true);
@@ -230,6 +374,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 		this.elts[i] = undefined;
 	    }
 	}
+	this._eqHashCode = plt.types.makeEqHashCode();
     };
     plt.types.Vector.makeInstance = function(n, elts) {
 	return new plt.types.Vector(n, elts);
@@ -243,6 +388,22 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     plt.types.Vector.prototype.set = function(k, v) {
 	this.elts[k] = v;
     };
+
+    plt.types.Vector.prototype.isEqual = function(other, aUnionFind) {
+	if (other != null && other != undefined && other instanceof plt.types.Vector) {
+	    if (other.length() != this.length()) {
+		return false
+	    }
+	    for (var i = 0; i <  this.length(); i++) {
+		if (! plt.Kernel.isEqual(this.elts[i], other.elts[i], aUnionFind)) {
+		    return false;
+		}
+	    }
+	    return true;
+	} else {
+	    return false;
+	}
+    }
 
     plt.types.Vector.prototype.toWrittenString = function(cache) {
 	cache.put(this, true);
@@ -277,6 +438,28 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     //////////////////////////////////////////////////////////////////////
 
 
+    // _gcd: fixnum fixnum -> fixnum
+    var _gcd = function(a, b) {
+	while (b != 0) {
+	    var t = a;
+	    a = b;
+	    b = t % b;
+	}
+	return Math.abs(a);
+    }
+
+    // _lcm: fixnum fixnum -> integer
+    var _lcm = function(a, b) {
+	return Math.abs(a * b / _gcd(a, b));
+    }
+
+    // FIXME: there are two definitions of gcd floating around: which one is right?
+
+
+    //////////////////////////////////////////////////////////////////////
+
+
+
     
     // Rationals
     
@@ -304,7 +487,9 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	var divisor = gcd(Math.abs(n), Math.abs(d));
 	this.n = n / divisor;
 	this.d = d / divisor;
+	this._eqHashCode = plt.types.makeEqHashCode();
     };
+
     
     plt.types.Rational.prototype.toWrittenString = function(cache) {
 	if (this.d == 1) {
@@ -324,7 +509,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     
     plt.types.Rational.prototype.lift = function(target) {
 	if (target.level() == 1)
-	    return plt.types.FloatPoint.makeInstance(this.n / this.d);
+	    return FloatPoint.makeInstance(this.n / this.d);
 	if (target.level() == 2)	
 	    return plt.types.Complex.makeInstance(this, 
 						  plt.types.Rational.ZERO);
@@ -335,11 +520,16 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	return true;
     };
 
-    plt.types.Rational.prototype.isEqual = function(other) {
+    plt.types.Rational.prototype.isEqual = function(other, aUnionFind) {
+	return this.equals(other);
+    };
+
+    plt.types.Rational.prototype.equals = function(other) {
 	return other instanceof plt.types.Rational &&
 	    this.n == other.n &&
 	    this.d == other.d;
     };
+
 
     plt.types.Rational.prototype.isInteger = function() { 
 	return this.d == 1;
@@ -388,7 +578,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
         return true;
     };
     
-    plt.types.Rational.prototype.toInteger = function() {
+    plt.types.Rational.prototype.toFixnum = function() {
 	return Math.floor(this.n / this.d);  
     };
 
@@ -433,7 +623,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 		Math.floor(newD) == newD) {
 		return plt.types.Rational.makeInstance(newN, newD);
 	    } else {
-		return plt.types.FloatPoint.makeInstance(newN / newD);
+		return FloatPoint.makeInstance(newN / newD);
 	    }
 	} else {
 	    var newN = Math.sqrt(- this.n);
@@ -446,7 +636,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	    } else {
 		return plt.types.Complex.makeInstance(
 		    plt.types.Rational.ZERO,
-		    plt.types.FloatPoint.makeInstance(newN / newD));
+		    FloatPoint.makeInstance(newN / newD));
 	    }
 	}
     };
@@ -470,7 +660,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     plt.types.Rational.prototype.magnitude = plt.types.Rational.prototype.abs;
     
     plt.types.Rational.prototype.log = function(){
-	return plt.types.FloatPoint.makeInstance(Math.log(this.n / this.d));
+	return FloatPoint.makeInstance(Math.log(this.n / this.d));
     };
     
     plt.types.Rational.prototype.angle = function(){
@@ -479,35 +669,35 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	if (this.n > 0)
 	    return plt.types.Rational.ZERO;
 	else
-	    return plt.Kernel.pi;
+	    return FloatPoint.pi;
     };
     
     plt.types.Rational.prototype.atan = function(){
-	return plt.types.FloatPoint.makeInstance(Math.atan(this.n / this.d));
+	return FloatPoint.makeInstance(Math.atan(this.n / this.d));
     };
     
     plt.types.Rational.prototype.cos = function(){
-	return plt.types.FloatPoint.makeInstance(Math.cos(this.n / this.d));
+	return FloatPoint.makeInstance(Math.cos(this.n / this.d));
     };
     
     plt.types.Rational.prototype.sin = function(){
-	return plt.types.FloatPoint.makeInstance(Math.sin(this.n / this.d));
+	return FloatPoint.makeInstance(Math.sin(this.n / this.d));
     };
     
     plt.types.Rational.prototype.expt = function(a){
-	return plt.types.FloatPoint.makeInstance(Math.pow(this.n / this.d, a.n / a.d));
+	return FloatPoint.makeInstance(Math.pow(this.n / this.d, a.n / a.d));
     };
     
     plt.types.Rational.prototype.exp = function(){
-	return plt.types.FloatPoint.makeInstance(Math.exp(this.n / this.d));
+	return FloatPoint.makeInstance(Math.exp(this.n / this.d));
     };
     
     plt.types.Rational.prototype.acos = function(){
-	return plt.types.FloatPoint.makeInstance(Math.acos(this.n / this.d));
+	return FloatPoint.makeInstance(Math.acos(this.n / this.d));
     };
     
     plt.types.Rational.prototype.asin = function(){
-	return plt.types.FloatPoint.makeInstance(Math.asin(this.n / this.d));
+	return FloatPoint.makeInstance(Math.asin(this.n / this.d));
     };
     
     plt.types.Rational.prototype.imag_dash_part = function(){
@@ -588,44 +778,50 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     
     
     
-    plt.types.FloatPoint = function(n) {
+    var FloatPoint = function(n) {
 	this.n = n;
+	this._eqHashCode = plt.types.makeEqHashCode();
     };
+    plt.types.FloatPoint = FloatPoint;
+
+
+    FloatPoint.makeInstance = function(n) {
+	return new FloatPoint(n);
+    };
+
     
+    FloatPoint.pi = FloatPoint.makeInstance(Math.PI);
+    FloatPoint.e = FloatPoint.makeInstance(Math.E);
 
-    plt.types.FloatPoint.makeInstance = function(n) {
-	return new plt.types.FloatPoint(n);
-    };
-
-    var NaN = plt.types.FloatPoint.makeInstance(Number.NaN);
-    var inf = plt.types.FloatPoint.makeInstance(Number.POSITIVE_INFINITY);
-    var neginf = plt.types.FloatPoint.makeInstance(Number.NEGATIVE_INFINITY);
+    var NaN = FloatPoint.makeInstance(Number.NaN);
+    var inf = FloatPoint.makeInstance(Number.POSITIVE_INFINITY);
+    var neginf = FloatPoint.makeInstance(Number.NEGATIVE_INFINITY);
 
 
 
-    plt.types.FloatPoint.prototype.isFinite = function() {
+    FloatPoint.prototype.isFinite = function() {
 	return isFinite(this.n);
     };
 
 
-    plt.types.FloatPoint.prototype.toExact = function() {
+    FloatPoint.prototype.toExact = function() {
 	return plt.types.Rational.makeInstance(Math.floor(this.n), 1);
     };
 
-    plt.types.FloatPoint.prototype.isExact = function() {
+    FloatPoint.prototype.isExact = function() {
 	return false;
     };
 
 
-    plt.types.FloatPoint.prototype.level = function() {
+    FloatPoint.prototype.level = function() {
 	return 1;
     };
     
-    plt.types.FloatPoint.prototype.lift = function(target) {
+    FloatPoint.prototype.lift = function(target) {
 	return plt.types.Complex.makeInstance(this, plt.types.Rational.ZERO);
     };
     
-    plt.types.FloatPoint.prototype.toWrittenString = function(cache) {
+    FloatPoint.prototype.toWrittenString = function(cache) {
 	if (this.n == Number.POSITIVE_INFINITY) {
 	    return "+inf.0";
 	} else if (this.n == Number.NEGATIVE_INFINITY) {
@@ -637,33 +833,38 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	}
     };
     
-    plt.types.FloatPoint.prototype.toDisplayedString = plt.types.FloatPoint.prototype.toWrittenString;
+    FloatPoint.prototype.toDisplayedString = FloatPoint.prototype.toWrittenString;
 
 
-    plt.types.FloatPoint.prototype.isEqual = function(other) {
-	return ((other instanceof plt.types.FloatPoint) &&
+    FloatPoint.prototype.isEqual = function(other, aUnionFind) {
+	return this.equals(other);
+    };
+
+    FloatPoint.prototype.equals = function(other) {
+	return ((other instanceof FloatPoint) &&
 		((this.n == other.n) ||
 		 (isNaN(this.n) && isNaN(other.n))));
     };
 
-    plt.types.FloatPoint.prototype.isRational = function() {
+
+    FloatPoint.prototype.isRational = function() {
         return this.isFinite() && this.n == Math.floor(this.n);
     };
 
-    plt.types.FloatPoint.prototype.isInteger = function() {
+    FloatPoint.prototype.isInteger = function() {
 	return this.isFinite() && this.n == Math.floor(this.n);
     };
 
-    plt.types.FloatPoint.prototype.isReal = function() {
+    FloatPoint.prototype.isReal = function() {
 	return true;
     };
     
 
     // sign: plt.types.Number -> {-1, 0, 1}
     var sign = function(n) {
-	if (plt.types.NumberTower.lessThan(n, plt.types.Rational.ZERO)) {
+	if (NumberTower.lessThan(n, plt.types.Rational.ZERO)) {
 	    return -1;
-	} else if (plt.types.NumberTower.greaterThan(n, plt.types.Rational.ZERO)) {
+	} else if (NumberTower.greaterThan(n, plt.types.Rational.ZERO)) {
 	    return 1;
 	} else {
 	    return 0;
@@ -671,9 +872,9 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     };
 
 
-    plt.types.FloatPoint.prototype.add = function(other) {
+    FloatPoint.prototype.add = function(other) {
 	if (this.isFinite() && other.isFinite()) {
-	    return plt.types.FloatPoint.makeInstance(this.n + other.n);
+	    return FloatPoint.makeInstance(this.n + other.n);
 	} else {
 	    if (isNaN(this.n) || isNaN(other.n)) {
 		return NaN;
@@ -688,9 +889,9 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	}
     };
     
-    plt.types.FloatPoint.prototype.subtract = function(other) {
+    FloatPoint.prototype.subtract = function(other) {
 	if (this.isFinite() && other.isFinite()) {
-	    return plt.types.FloatPoint.makeInstance(this.n - other.n);
+	    return FloatPoint.makeInstance(this.n - other.n);
 	} else if (isNaN(this.n) || isNaN(other.n)) {
 	    return NaN;
 	} else if (! this.isFinite() && ! other.isFinite()) {
@@ -700,18 +901,18 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 		return this;
 	    }
 	} else if (this.isFinite()) {
-	    return plt.types.NumberTower.multiply(other, plt.types.Rational.NEGATIVE_ONE);
+	    return NumberTower.multiply(other, plt.types.Rational.NEGATIVE_ONE);
 	} else {  // other.isFinite()
 	    return this;
 	}
 
     };
     
-    plt.types.FloatPoint.prototype.multiply = function(other) {
+    FloatPoint.prototype.multiply = function(other) {
 	if (this.n == 0 || other.n == 0) { return plt.types.Rational.ZERO; }
 
 	if (this.isFinite() && other.isFinite()) {
-	    return plt.types.FloatPoint.makeInstance(this.n * other.n);
+	    return FloatPoint.makeInstance(this.n * other.n);
 	} else if (isNaN(this.n) || isNaN(other.n)) {
 	    return NaN;
 	} else {
@@ -719,18 +920,18 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	}
     };
     
-    plt.types.FloatPoint.prototype.divide = function(other) {
+    FloatPoint.prototype.divide = function(other) {
 	if (this.isFinite() && other.isFinite()) {
 	    if (other.n == 0) {
 		throw new plt.Kernel.MobyRuntimeError("division by zero");
 	    }
-            return plt.types.FloatPoint.makeInstance(this.n / other.n);
+            return FloatPoint.makeInstance(this.n / other.n);
 	} else if (isNaN(this.n) || isNaN(other.n)) {
 	    return NaN;
 	} else if (! this.isFinite() && !other.isFinite()) {
 	    return NaN;
 	} else if (this.isFinite() && !other.isFinite()) {
-	    return plt.types.FloatPoint.makeInstance(0.0);
+	    return FloatPoint.makeInstance(0.0);
 	} else if (! this.isFinite() && other.isFinite()) {
 	    return ((sign(this) * sign(other) == 1) ? inf : neginf);
 	}
@@ -738,47 +939,47 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     };
     
     
-    plt.types.FloatPoint.prototype.toInteger = function() {
+    FloatPoint.prototype.toFixnum = function() {
 	return Math.floor(this.n);  
     };
     
-    plt.types.FloatPoint.prototype.numerator = function() {
+    FloatPoint.prototype.numerator = function() {
 	var stringRep = this.n.toString();
 	var match = stringRep.match(/^(.*)\.(.*)$/);
 	if (match) {
-	    return plt.types.FloatPoint.makeInstance(parseFloat(match[1] + match[2]));
+	    return FloatPoint.makeInstance(parseFloat(match[1] + match[2]));
 	} else {
 	    return this;
 	}
     };
 
-    plt.types.FloatPoint.prototype.denominator = function() {
+    FloatPoint.prototype.denominator = function() {
 	var stringRep = this.n.toString();
 	var match = stringRep.match(/^(.*)\.(.*)$/);
 	if (match) {
-	    return plt.types.FloatPoint.makeInstance(Math.pow(10, match[2].length));
+	    return FloatPoint.makeInstance(Math.pow(10, match[2].length));
 	} else {
-	    return plt.types.FloatPoint.makeInstance(1.0);
+	    return FloatPoint.makeInstance(1.0);
 	}
     };
 
 
-    plt.types.FloatPoint.prototype.toFloat = function() {
+    FloatPoint.prototype.toFloat = function() {
 	return this.n;
     };
     
-    plt.types.FloatPoint.prototype.toComplex = function(){
+    FloatPoint.prototype.toComplex = function(){
 	return plt.types.Complex.makeInstance(this, plt.types.Rational.ZERO);
     };
     
-    plt.types.FloatPoint.prototype.floor = function() {
+    FloatPoint.prototype.floor = function() {
 	if (! isFinite(this.n)) {
 	    return this;
 	}
 	return plt.types.Rational.makeInstance(Math.floor(this.n), 1);
     };
     
-    plt.types.FloatPoint.prototype.ceiling = function() {
+    FloatPoint.prototype.ceiling = function() {
 	if (! isFinite(this.n)) {
 	    return this;
 	}
@@ -787,69 +988,69 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     
 
 
-    plt.types.FloatPoint.prototype.greaterThan = function(other) {
+    FloatPoint.prototype.greaterThan = function(other) {
 	return this.n > other.n;
     };
     
-    plt.types.FloatPoint.prototype.greaterThanOrEqual = function(other) {
+    FloatPoint.prototype.greaterThanOrEqual = function(other) {
 	return this.n >= other.n;
     };
     
-    plt.types.FloatPoint.prototype.lessThan = function(other) {
+    FloatPoint.prototype.lessThan = function(other) {
 	return this.n < other.n;
     };
     
-    plt.types.FloatPoint.prototype.lessThanOrEqual = function(other) {
+    FloatPoint.prototype.lessThanOrEqual = function(other) {
 	return this.n <= other.n;
     };
 
     
-    plt.types.FloatPoint.prototype.sqrt = function() {
+    FloatPoint.prototype.sqrt = function() {
 	if (this.n < 0) {
 	    var result = plt.types.Complex.makeInstance(
 		plt.types.Rational.ZERO,
-		plt.types.FloatPoint.makeInstance(Math.sqrt(-this.n)));
+		FloatPoint.makeInstance(Math.sqrt(-this.n)));
 	    return result;
 	} else {
-	    return plt.types.FloatPoint.makeInstance(Math.sqrt(this.n));
+	    return FloatPoint.makeInstance(Math.sqrt(this.n));
 	}
     };
     
-    plt.types.FloatPoint.prototype.abs = function() {
-	return plt.types.FloatPoint.makeInstance(Math.abs(this.n));
+    FloatPoint.prototype.abs = function() {
+	return FloatPoint.makeInstance(Math.abs(this.n));
     };
     
 
     
-    plt.types.FloatPoint.prototype.log = function(){
+    FloatPoint.prototype.log = function(){
 	if (this.n < 0)
 	    return this.toComplex().log();
 	else
-	    return plt.types.FloatPoint.makeInstance(Math.log(this.n));
+	    return FloatPoint.makeInstance(Math.log(this.n));
     };
     
-    plt.types.FloatPoint.prototype.angle = function(){
+    FloatPoint.prototype.angle = function(){
 	if (0 == this.n)
 	    return plt.types.Rational.ZERO;
 	if (this.n > 0)
 	    return plt.types.Rational.ZERO;
 	else
-	    return plt.Kernel.pi;
+	    return FloatPoint.pi;
     };
     
-    plt.types.FloatPoint.prototype.atan = function(){
-	return plt.types.FloatPoint.makeInstance(Math.atan(this.n));
+    FloatPoint.prototype.atan = function(){
+	return FloatPoint.makeInstance(Math.atan(this.n));
     };
     
-    plt.types.FloatPoint.prototype.cos = function(){
-	return plt.types.FloatPoint.makeInstance(Math.cos(this.n));
+    FloatPoint.prototype.cos = function(){
+	return FloatPoint.makeInstance(Math.cos(this.n));
     };
     
-    plt.types.FloatPoint.prototype.sin = function(){
-	return plt.types.FloatPoint.makeInstance(Math.sin(this.n));
+    FloatPoint.prototype.sin = function(){
+	return FloatPoint.makeInstance(Math.sin(this.n));
     };
     
-    plt.types.FloatPoint.prototype.expt = function(a){
+    FloatPoint.prototype.expt = function(a){
 	if (this.n == 1) {
 	    if (a.isFinite()) {
 		return this;
@@ -859,32 +1060,32 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 		return this;
 	    }
 	} else {
-	    return plt.types.FloatPoint.makeInstance(Math.pow(this.n, a.n));
+	    return FloatPoint.makeInstance(Math.pow(this.n, a.n));
 	}
     };
     
-    plt.types.FloatPoint.prototype.exp = function(){
-	return plt.types.FloatPoint.makeInstance(Math.exp(this.n));
+    FloatPoint.prototype.exp = function(){
+	return FloatPoint.makeInstance(Math.exp(this.n));
     };
     
-    plt.types.FloatPoint.prototype.acos = function(){
-	return plt.types.FloatPoint.makeInstance(Math.acos(this.n));
+    FloatPoint.prototype.acos = function(){
+	return FloatPoint.makeInstance(Math.acos(this.n));
     };
     
-    plt.types.FloatPoint.prototype.asin = function(){
-	return plt.types.FloatPoint.makeInstance(Math.asin(this.n));
+    FloatPoint.prototype.asin = function(){
+	return FloatPoint.makeInstance(Math.asin(this.n));
     };
     
-    plt.types.FloatPoint.prototype.imag_dash_part = function(){
+    FloatPoint.prototype.imag_dash_part = function(){
 	return plt.types.Rational.ZERO;
     };
     
-    plt.types.FloatPoint.prototype.real_dash_part = function(){
+    FloatPoint.prototype.real_dash_part = function(){
 	return this;
     };
     
     
-    plt.types.FloatPoint.prototype.round = function(){
+    FloatPoint.prototype.round = function(){
 	if (isFinite(this.n)) {
 	    if (Math.abs(Math.floor(this.n) - this.n) == 0.5) {
 		if (Math.floor(this.n) % 2 == 0)
@@ -899,19 +1100,19 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     };
     
     
-    plt.types.FloatPoint.prototype.conjugate = plt.types.FloatPoint.prototype.abs;
+    FloatPoint.prototype.conjugate = FloatPoint.prototype.abs;
     
-    plt.types.FloatPoint.prototype.magnitude = plt.types.FloatPoint.prototype.abs;
+    FloatPoint.prototype.magnitude = FloatPoint.prototype.abs;
     
-    plt.types.FloatPoint.prototype.minus = function(){
-	return plt.types.FloatPoint.makeInstance(0 - this.n);
+    FloatPoint.prototype.minus = function(){
+	return FloatPoint.makeInstance(0 - this.n);
     };
     
-    plt.types.FloatPoint.prototype.half = function(){
-	return plt.types.FloatPoint.makeInstance(this.n / 2);
+    FloatPoint.prototype.half = function(){
+	return FloatPoint.makeInstance(this.n / 2);
     };	
     
-    plt.types.FloatPoint.prototype.timesI = function(){
+    FloatPoint.prototype.timesI = function(){
 	return plt.types.Complex.makeInstance(plt.types.Rational.ZERO, this);
     };
     
@@ -919,6 +1120,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     plt.types.Complex = function(r, i){
 	this.r = r;
 	this.i = i;
+	this._eqHashCode = plt.types.makeEqHashCode();
     };
     
     // Constructs a complex number from two basic number r and i.  r and i can
@@ -926,11 +1128,11 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     plt.types.Complex.makeInstance = function(r, i){
 	if (typeof(r) == 'number') {
 	    r = (r == Math.floor(r) ? plt.types.Rational.makeInstance(r) :
-		 plt.types.FloatPoint.makeInstance(r));
+		 FloatPoint.makeInstance(r));
 	}
 	if (typeof(i) == 'number') {
 	    i = (i == Math.floor(i) ? plt.types.Rational.makeInstance(i) :
-		 plt.types.FloatPoint.makeInstance(i));
+		 FloatPoint.makeInstance(i));
 	}
 
 	var result = new plt.types.Complex(r, i);
@@ -938,7 +1140,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     };
     
     plt.types.Complex.prototype.toWrittenString = function(cache) {
-	if (plt.types.NumberTower.greaterThanOrEqual(
+	if (NumberTower.greaterThanOrEqual(
 	    this.i,
 	    plt.types.Rational.ZERO)) {
         return plt.Kernel.toWrittenString(this.r) + "+" + plt.Kernel.toWrittenString(this.i)+"i";
@@ -957,11 +1159,11 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 
 
     plt.types.Complex.prototype.isRational = function() {
-	return this.r.isRational() && plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO);
+	return this.r.isRational() && NumberTower.equal(this.i, plt.types.Rational.ZERO);
     };
 
     plt.types.Complex.prototype.isInteger = function() {
-	return this.r.isInteger() && plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO);
+	return this.r.isInteger() && NumberTower.equal(this.i, plt.types.Rational.ZERO);
     };
 
     plt.types.Complex.prototype.toExact = function() { 
@@ -985,52 +1187,57 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	throw new plt.Kernel.MobyRuntimeError("Don't know how to lift Complex number");
     };
     
-    plt.types.Complex.prototype.isEqual = function(other){
+    plt.types.Complex.prototype.isEqual = function(other, aUnionFind){
+	return this.equals(other);
+    };
+
+    plt.types.Complex.prototype.equals = function(other) {
 	var result = ((other instanceof plt.types.Complex) && 
-		      (plt.types.NumberTower.equal(this.r, other.r)) &&
-		      (plt.types.NumberTower.equal(this.i, other.i)));
+		      (NumberTower.equal(this.r, other.r)) &&
+		      (NumberTower.equal(this.i, other.i)));
 	return result;
     };
+
 
     plt.types.Complex.prototype.greaterThan = function(other) {
 	if (! this.isReal() || ! other.isReal()) {
 	    throw new plt.Kernel.MobyRuntimeError(">: expects argument of type real number");
 	}
-	return plt.types.NumberTower.greaterThan(this.r, other.r);
+	return NumberTower.greaterThan(this.r, other.r);
     };
 
     plt.types.Complex.prototype.greaterThanOrEqual = function(other) {
 	if (! this.isReal() || ! other.isReal()) {
 	    throw new plt.Kernel.MobyRuntimeError(">: expects argument of type real number");
 	}
-	return plt.types.NumberTower.greaterThanOrEqual(this.r, other.r);
+	return NumberTower.greaterThanOrEqual(this.r, other.r);
     };
 
     plt.types.Complex.prototype.lessThan = function(other) {
 	if (! this.isReal() || ! other.isReal()) {
 	    throw new plt.Kernel.MobyRuntimeError(">: expects argument of type real number");
 	}
-	return plt.types.NumberTower.lessThan(this.r, other.r);
+	return NumberTower.lessThan(this.r, other.r);
     };
 
     plt.types.Complex.prototype.lessThanOrEqual = function(other) {
 	if (! this.isReal() || ! other.isReal()) {
 	    throw new plt.Kernel.MobyRuntimeError(">: expects argument of type real number");
 	}
-	return plt.types.NumberTower.lessThanOrEqual(this.r, other.r);
+	return NumberTower.lessThanOrEqual(this.r, other.r);
     };
 
 
     plt.types.Complex.prototype.abs = function(){
-	if (!plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
+	if (!NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
 	    throw new plt.Kernel.MobyRuntimeError("abs: expects argument of type real number");
 	return this.r.abs();
     };
     
-    plt.types.Complex.prototype.toInteger = function(){
-	if (!plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
-	    throw new plt.Kernel.MobyRuntimeError("toInteger: expects argument of type real number");
-	return this.r.toInteger();
+    plt.types.Complex.prototype.toFixnum = function(){
+	if (!NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
+	    throw new plt.Kernel.MobyRuntimeError("toFixnum: expects argument of type real number");
+	return this.r.toFixnum();
     };
 
     plt.types.Complex.prototype.numerator = function() {
@@ -1048,7 +1255,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 
     
     plt.types.Complex.prototype.toFloat = function(){
-	if (!plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
+	if (!NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
 	    throw new plt.Kernel.MobyRuntimeError("toFloat: expects argument of type real number");
 	return this.r.toFloat();
     };
@@ -1059,14 +1266,14 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     
     plt.types.Complex.prototype.add = function(other){
 	return plt.types.Complex.makeInstance(
-	    plt.types.NumberTower.add(this.r, other.r),
-	    plt.types.NumberTower.add(this.i, other.i));
+	    NumberTower.add(this.r, other.r),
+	    NumberTower.add(this.i, other.i));
     };
     
     plt.types.Complex.prototype.subtract = function(other){
 	return plt.types.Complex.makeInstance(
-	    plt.types.NumberTower.subtract(this.r, other.r),
-	    plt.types.NumberTower.subtract(this.i, other.i));
+	    NumberTower.subtract(this.r, other.r),
+	    NumberTower.subtract(this.i, other.i));
     };
     
     plt.types.Complex.prototype.multiply = function(other){
@@ -1074,17 +1281,17 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	// If the other value is real, just do primitive division
 	if (other.isReal()) {
 	    return plt.types.Complex.makeInstance(
-		plt.types.NumberTower.multiply(this.r, other.r),
-		plt.types.NumberTower.multiply(this.i, other.r));
+		NumberTower.multiply(this.r, other.r),
+		NumberTower.multiply(this.i, other.r));
 	}
 
-	var r = plt.types.NumberTower.subtract(
-	    plt.types.NumberTower.multiply(this.r, other.r),
-	    plt.types.NumberTower.multiply(this.i, other.i));
-	var i = plt.types.NumberTower.add(
-	    plt.types.NumberTower.multiply(this.r, other.i),
-	    plt.types.NumberTower.multiply(this.i, other.r));
-	if (plt.types.NumberTower.equal(i, plt.types.Rational.ZERO)) {
+	var r = NumberTower.subtract(
+	    NumberTower.multiply(this.r, other.r),
+	    NumberTower.multiply(this.i, other.i));
+	var i = NumberTower.add(
+	    NumberTower.multiply(this.r, other.i),
+	    NumberTower.multiply(this.i, other.r));
+	if (NumberTower.equal(i, plt.types.Rational.ZERO)) {
 	    return r;
 	}
 	return plt.types.Complex.makeInstance(r, i);
@@ -1094,52 +1301,52 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	// If the other value is real, just do primitive division
 	if (other.isReal()) {
 	    return plt.types.Complex.makeInstance(
-		plt.types.NumberTower.divide(this.r, other.r),
-		plt.types.NumberTower.divide(this.i, other.r));
+		NumberTower.divide(this.r, other.r),
+		NumberTower.divide(this.i, other.r));
 	}
 
 
 	var con = other.conjugate();
-	var up =  plt.types.NumberTower.multiply(this, con).toComplex();
+	var up =  NumberTower.multiply(this, con).toComplex();
 
 	// Down is guaranteed to be real by this point.
-	var down = plt.types.NumberTower.multiply(other, con);
+	var down = NumberTower.multiply(other, con);
 
 	var result = plt.types.Complex.makeInstance(
-	    plt.types.NumberTower.divide(up.r, down),
-	    plt.types.NumberTower.divide(up.i, down));
+	    NumberTower.divide(up.r, down),
+	    NumberTower.divide(up.i, down));
 	return result;
     };
     
     plt.types.Complex.prototype.conjugate = function(){
 	var result = plt.types.Complex.makeInstance(
 	    this.r, 
-	    plt.types.NumberTower.subtract(plt.types.Rational.ZERO, 
+	    NumberTower.subtract(plt.types.Rational.ZERO, 
 					   this.i));
 
 	return result;
     };
     
     plt.types.Complex.prototype.magnitude = function(){
-	var sum = plt.types.NumberTower.add(
-	    plt.types.NumberTower.multiply(this.r, this.r),
-	    plt.types.NumberTower.multiply(this.i, this.i));
+	var sum = NumberTower.add(
+	    NumberTower.multiply(this.r, this.r),
+	    NumberTower.multiply(this.i, this.i));
 	return sum.sqrt();
     };
     
     plt.types.Complex.prototype.isReal = function(){
-	return plt.types.NumberTower.equal(this.i, plt.types.Rational.ZERO);
+	return NumberTower.equal(this.i, plt.types.Rational.ZERO);
     };
     
     plt.types.Complex.prototype.sqrt = function(){
 	if (this.isReal())
 	    return this.r.sqrt();
 	// http://en.wikipedia.org/wiki/Square_root#Square_roots_of_negative_and_complex_numbers	
-	var r_plus_x = plt.types.NumberTower.add(this.magnitude(), this.r);
+	var r_plus_x = NumberTower.add(this.magnitude(), this.r);
 
 	var r = r_plus_x.half().sqrt();
 
-	var i = plt.types.NumberTower.divide(this.i, plt.types.NumberTower.multiply(r_plus_x, plt.types.FloatPoint.makeInstance(2)).sqrt());
+	var i = NumberTower.divide(this.i, NumberTower.multiply(r_plus_x, FloatPoint.makeInstance(2)).sqrt());
 	
 
 	return plt.types.Complex.makeInstance(r, i);
@@ -1148,7 +1355,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     plt.types.Complex.prototype.log = function(){
 	var m = this.magnitude();
 	var theta = this.angle();
-	var result = plt.types.NumberTower.add(
+	var result = NumberTower.add(
 	    m.log(),
 	    theta.timesI());
 	return result;
@@ -1158,15 +1365,15 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	if (this.isReal()) {
 	    return this.r.angle();
 	}
-	if (plt.types.NumberTower.equal(plt.types.Rational.ZERO, this.r)) {
-	    var tmp = plt.Kernel.pi.half();
-	    return plt.types.NumberTower.greaterThan(this.i, plt.types.Rational.ZERO) ? tmp : tmp.minus();
+	if (NumberTower.equal(plt.types.Rational.ZERO, this.r)) {
+	    var tmp = FloatPoint.pi.half();
+	    return NumberTower.greaterThan(this.i, plt.types.Rational.ZERO) ? tmp : tmp.minus();
 	} else {
-	    var tmp = plt.types.NumberTower.divide(this.i.abs(), this.r.abs()).atan();
-	    if (plt.types.NumberTower.greaterThan(this.r, plt.types.Rational.ZERO)) {
-		return plt.types.NumberTower.greaterThan(this.i, plt.types.Rational.ZERO) ? tmp : tmp.minus();
+	    var tmp = NumberTower.divide(this.i.abs(), this.r.abs()).atan();
+	    if (NumberTower.greaterThan(this.r, plt.types.Rational.ZERO)) {
+		return NumberTower.greaterThan(this.i, plt.types.Rational.ZERO) ? tmp : tmp.minus();
 	    } else {
-		return plt.types.NumberTower.greaterThan(this.i, plt.types.Rational.ZERO) ? plt.Kernel.pi.subtract(tmp) : tmp.subtract(plt.Kernel.pi);
+		return NumberTower.greaterThan(this.i, plt.types.Rational.ZERO) ? FloatPoint.pi.subtract(tmp) : tmp.subtract(FloatPoint.pi);
 	    }
 	}
     };
@@ -1177,19 +1384,19 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 						plt.types.Rational.NEGATIVE_ONE);
     
     plt.types.Complex.prototype.atan = function(){
-	if (plt.types.NumberTower.equal(this, plusI) ||
-	    plt.types.NumberTower.equal(this, minusI)) {
-	    return plt.types.FloatPoint.makeInstance(Number.NEGATIVE_INFINITY);
+	if (NumberTower.equal(this, plusI) ||
+	    NumberTower.equal(this, minusI)) {
+	    return FloatPoint.makeInstance(Number.NEGATIVE_INFINITY);
 	}
-	return plt.types.NumberTower.multiply(
+	return NumberTower.multiply(
 	    plusI,
-	    plt.types.NumberTower.multiply(
-		plt.types.FloatPoint.makeInstance(0.5),
-		(plt.types.NumberTower.divide(
-		    plt.types.NumberTower.add(plusI, this),
-		    plt.types.NumberTower.add(
+	    NumberTower.multiply(
+		FloatPoint.makeInstance(0.5),
+		(NumberTower.divide(
+		    NumberTower.add(plusI, this),
+		    NumberTower.add(
 			plusI,
-			plt.types.NumberTower.subtract(plt.types.Rational.ZERO, this)))).log()));
+			NumberTower.subtract(plt.types.Rational.ZERO, this)))).log()));
     };
     
     plt.types.Complex.prototype.cos = function(){
@@ -1198,7 +1405,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	var iz = this.timesI();
 	var iz_minus = iz.minus();
 	
-	return plt.types.NumberTower.add(iz.exp(), iz_minus.exp()).half();
+	return NumberTower.add(iz.exp(), iz_minus.exp()).half();
     };
     
     plt.types.Complex.prototype.sin = function(){
@@ -1208,13 +1415,13 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	var iz_minus = iz.minus();
 	var z2 = plt.types.Complex.makeInstance(plt.types.Rational.ZERO,
 						plt.types.Rational.TWO);
-	var exp_minus = plt.types.NumberTower.subtract(iz.exp(), iz_minus.exp());
-	var result = plt.types.NumberTower.divide(exp_minus, z2);
+	var exp_minus = NumberTower.subtract(iz.exp(), iz_minus.exp());
+	var result = NumberTower.divide(exp_minus, z2);
 	return result;
     };
     
     plt.types.Complex.prototype.expt= function(y){
-	var expo = plt.types.NumberTower.multiply(y, this.log());
+	var expo = NumberTower.multiply(y, this.log());
 	return expo.exp();
     };
     
@@ -1223,19 +1430,19 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	var cos_a = this.i.cos();
 	var sin_a = this.i.sin();
 
-	return plt.types.NumberTower.multiply(
+	return NumberTower.multiply(
 	    r,
-	    plt.types.NumberTower.add(cos_a, sin_a.timesI()));
+	    NumberTower.add(cos_a, sin_a.timesI()));
     };
     
     plt.types.Complex.prototype.acos = function(){
 	if (this.isReal())
 	    return this.r.acos();
-	var pi_half = plt.Kernel.pi.half();
+	var pi_half = FloatPoint.pi.half();
 	var iz = this.timesI();
-	var root = plt.types.NumberTower.subtract(plt.types.Rational.ONE, this.multiply(this)).sqrt();
-	var l = plt.types.NumberTower.add(iz, root).log().timesI();
-	return plt.types.NumberTower.add(pi_half, l);
+	var root = NumberTower.subtract(plt.types.Rational.ONE, this.multiply(this)).sqrt();
+	var l = NumberTower.add(iz, root).log().timesI();
+	return NumberTower.add(pi_half, l);
     };
     
     plt.types.Complex.prototype.asin = function(){
@@ -1243,15 +1450,15 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	    return this.r.asin();
 
 	var oneMinusThisSq = 
-	    plt.types.NumberTower.subtract(
+	    NumberTower.subtract(
 		plt.types.Rational.ONE, 
 		this.multiply(this));
 	var sqrtOneMinusThisSq = oneMinusThisSq.sqrt();
-	return plt.types.NumberTower.multiply(
+	return NumberTower.multiply(
 	    plt.types.Rational.TWO,
-	    (plt.types.NumberTower.divide(
+	    (NumberTower.divide(
 		this, 
-		plt.types.NumberTower.add(
+		NumberTower.add(
 		    plt.types.Rational.ONE,
 		    sqrtOneMinusThisSq))).atan());
     };
@@ -1286,8 +1493,8 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     };
     
     plt.types.Complex.prototype.minus = function(){
-	return plt.types.Complex.makeInstance(plt.types.NumberTower.subtract(plt.types.Rational.ZERO, this.r),
-					      plt.types.NumberTower.subtract(plt.types.Rational.ZERO, this.i));
+	return plt.types.Complex.makeInstance(NumberTower.subtract(plt.types.Rational.ZERO, this.r),
+					      NumberTower.subtract(plt.types.Rational.ZERO, this.i));
     };
     
     plt.types.Complex.prototype.half = function(){
@@ -1298,66 +1505,67 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     //////////////////////////////////////////////////////////////////////
     // NumberTower.
     // 
-    plt.types.NumberTower = {};
+    var NumberTower = {};
+    plt.types.NumberTower = NumberTower;
+
     
-    
-    plt.types.NumberTower.toInteger = function(num) {
-	return num.toInteger();
+    NumberTower.toFixnum = function(num) {
+	return num.toFixnum();
     };
     
-    plt.types.NumberTower.toFloat = function(num) {
+    NumberTower.toFloat = function(num) {
 	return num.toFloat();
     };
     
-    plt.types.NumberTower.abs = function(n) {
+    NumberTower.abs = function(n) {
 	return n.abs();
     };
     
-    plt.types.NumberTower.isFinite = function(n) {
+    NumberTower.isFinite = function(n) {
 	return n.isFinite();
     }
 
-    plt.types.NumberTower.toExact = function(x) {
+    NumberTower.toExact = function(x) {
 	return x.toExact();
     };
 
-    plt.types.NumberTower.add = function(x, y) {
+    NumberTower.add = function(x, y) {
 	if (x.level() < y.level()) x = x.lift(y);
 	if (y.level() < x.level()) y = y.lift(x);
 	return x.add(y);
     };
     
-    plt.types.NumberTower.subtract = function(x, y) {
+    NumberTower.subtract = function(x, y) {
 	if (x.level() < y.level()) x = x.lift(y);
 	if (y.level() < x.level()) y = y.lift(x);
 	return x.subtract(y);
     };
     
-    plt.types.NumberTower.multiply = function(x, y) {
+    NumberTower.multiply = function(x, y) {
 	if (x.level() < y.level()) x = x.lift(y);
 	if (y.level() < x.level()) y = y.lift(x);
 	return x.multiply(y);
     };
     
-    plt.types.NumberTower.divide = function(x, y) {
+    NumberTower.divide = function(x, y) {
 	if (x.level() < y.level()) x = x.lift(y);
 	if (y.level() < x.level()) y = y.lift(x);
 	return x.divide(y);
     };
     
-    plt.types.NumberTower.equal = function(x, y) {
+    NumberTower.equal = function(x, y) {
 	if (x.level() < y.level()) x = x.lift(y);
 	if (y.level() < x.level()) y = y.lift(x);
 	
-	return x.isEqual(y);
+	return x.equals(y);
     };
     
-    plt.types.NumberTower.approxEqual = function(x, y, delta) {
-	return plt.types.NumberTower.lessThan(plt.types.NumberTower.abs(plt.types.NumberTower.subtract(x, y)),
+    NumberTower.approxEqual = function(x, y, delta) {
+	return NumberTower.lessThan(NumberTower.abs(NumberTower.subtract(x, y)),
                                               delta);
     };
     
-    plt.types.NumberTower.greaterThanOrEqual = function(x, y){
+    NumberTower.greaterThanOrEqual = function(x, y){
 	if (x.level() < y.level()) x = x.lift(y);
 	if (y.level() < x.level()) y = y.lift(x);
 
@@ -1366,7 +1574,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	return x.greaterThanOrEqual(y);
     };
     
-    plt.types.NumberTower.lessThanOrEqual = function(x, y){
+    NumberTower.lessThanOrEqual = function(x, y){
 	if (x.level() < y.level()) x = x.lift(y);
 	if (y.level() < x.level()) y = y.lift(x);
 	if (!(x.isReal() && y.isReal()))
@@ -1374,7 +1582,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	return x.lessThanOrEqual(y);    	
     };
     
-    plt.types.NumberTower.greaterThan = function(x, y){
+    NumberTower.greaterThan = function(x, y){
 	if (x.level() < y.level()) x = x.lift(y);
 	if (y.level() < x.level()) y = y.lift(x);
 	
@@ -1384,7 +1592,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	
     };
     
-    plt.types.NumberTower.lessThan = function(x, y){
+    NumberTower.lessThan = function(x, y){
 	if (x.level() < y.level()) x = x.lift(y);
 	if (y.level() < x.level()) y = y.lift(x);
 
@@ -1393,39 +1601,58 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	return x.lessThan(y);
     };
     
-    plt.types.NumberTower.modulo = function(m, n) {
+    NumberTower.modulo = function(m, n) {
 	var result = 
-	    plt.types.Rational.makeInstance(m.toInteger() % n.toInteger(),
+	    plt.types.Rational.makeInstance(m.toFixnum() % n.toFixnum(),
 					    1);
 
 	// The sign of the result should match the sign of n.
-	if (plt.types.NumberTower.lessThan(n, plt.types.Rational.ZERO)) {
-	    if (plt.types.NumberTower.lessThanOrEqual(result, plt.types.Rational.ZERO)) {
+	if (NumberTower.lessThan(n, plt.types.Rational.ZERO)) {
+	    if (NumberTower.lessThanOrEqual(result, plt.types.Rational.ZERO)) {
 		return result;
 	    }
-	    return plt.types.NumberTower.add(result, n);
+	    return NumberTower.add(result, n);
 
 	} else {
-	    if (plt.types.NumberTower.lessThan(result, plt.types.Rational.ZERO)) {
-		return plt.types.NumberTower.add(result, n);
+	    if (NumberTower.lessThan(result, plt.types.Rational.ZERO)) {
+		return NumberTower.add(result, n);
 	    }
 	    return result;
 	}
     };
     
-    plt.types.NumberTower.sqr = function(x) {
-	return plt.types.NumberTower.multiply(x, x);
+    NumberTower.sqr = function(x) {
+	return NumberTower.multiply(x, x);
     };
     
-    plt.types.NumberTower.expt = function(x, y){
+    NumberTower.expt = function(x, y){
 	if (x.level() < y.level()) x = x.lift(y);
 	if (y.level() < x.level()) y = y.lift(x);
 	return x.expt(y);
     };
     
 
+    // gcd: number [number ...] -> number
+    NumberTower.gcd = function(first, rest) {
+	var result = Math.abs(first.toFixnum());
+	for (var i = 0; i < rest.length; i++) {
+	    result = _gcd(result, rest[i].toFixnum());
+	}
+	return plt.types.Rational.makeInstance(result);	
+    };
 
-
+    // lcm: number [number ...] -> number
+    NumberTower.lcm = function(first, rest) {
+	var result = Math.abs(first.toFixnum());
+	if (result == 0) { return plt.types.Rational.ZERO; }
+	for (var i = 0; i < rest.length; i++) {
+	    if (rest[i].toFixnum() == 0) {
+		return plt.types.Rational.ZERO;
+	    }
+	    result = _lcm(result, rest[i].toFixnum());
+	}
+	return plt.types.Rational.makeInstance(result);
+    };
 
 
 
@@ -1436,11 +1663,14 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	return s.valueOf();
     };
     
-    plt.types.String.prototype.isEqual = function(other){
+
+    // WARNING
+    // WARNING: we are extending the built-in Javascript string class here!
+    // WARNING
+    plt.types.String.prototype.isEqual = function(other, aUnionFind){
 	return this == other;
     };
     
-
     plt.types.String.prototype.toWrittenString = function(cache) {
     	return '"' + this.replace(/["\\]/g,
     	                       function(match, submatch, index) {
