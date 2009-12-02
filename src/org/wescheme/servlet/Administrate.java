@@ -91,16 +91,21 @@ public class Administrate extends HttpServlet {
 	
 	
 	// Lists all programs across all of WeScheme.
-	private void listPrograms(HttpServletRequest req, HttpServletResponse res) {
+	private void listPrograms(HttpServletRequest req, HttpServletResponse res) throws IOException {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try {
-		    Extent extent = null;
+		    Extent<Program> extent = null;
 		    try {
+				Element elt = new Element("ProgramDigests");
 		    	extent = pm.getExtent(Program.class, false);    
-		    	// FIXME: can this be done with generics?
-		    	for (Object po: extent) {
-		    		Program p = (Program) po;
+		    	for (Program p: extent) {
+		    		elt.addContent(new ProgramDigest(p).toXML());
 		    	}
+				res.setContentType("text/xml");
+				PrintWriter w = res.getWriter();
+				XMLOutputter outputter = new XMLOutputter();
+				w.write(outputter.outputString(elt));
+				w.close();
 		    } finally {
 		    	if (extent != null) { 
 		    		extent.closeAll();
