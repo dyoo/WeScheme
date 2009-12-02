@@ -42,7 +42,7 @@ public class LoadProjectServlet extends HttpServlet {
 				if (req.getParameter("pid") != null) {
 					Program prog = getProgramByPid(pm, req.getParameter("pid"));
 					if( null != userSession ){
-						if (isOwner(userSession, prog)) {
+						if (isOwner(userSession, prog) || userSession.isAdmin()) {
 							XMLOutputter outputter = new XMLOutputter();
 							resp.setContentType("text/xml");
 							resp.getWriter().print(outputter.outputString(prog.toXML()));
