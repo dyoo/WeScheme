@@ -14,6 +14,9 @@ import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.util.PMF;
 
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+
 
 public class SaveProjectServlet extends HttpServlet{
 	private static final Logger log = Logger.getLogger(SaveProjectServlet.class.getName());
@@ -55,8 +58,11 @@ public class SaveProjectServlet extends HttpServlet{
 		Program prog = new Program(code, userSession.getName());
 		prog.updateTitle(title);
 		prog.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueName(pm));
-		pm.makePersistent(prog);
+		DatastoreService service = DatastoreServiceFactory.getDatastoreService();
+		service.allocateIds(Program.class.getName(), 1);
 
+		prog = pm.makePersistent(prog);
+		System.out.println("new id: " + prog.getId());
 		resp.setContentType("text/plain"); 
 		resp.getWriter().println(prog.getId());					
 	}

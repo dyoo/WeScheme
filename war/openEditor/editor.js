@@ -283,7 +283,7 @@ var WeSchemeEditor;
 	var callback = function(data) {
 	    var dom = jQuery(data);
 
-	    that.pid = parseInt(dom.find("id").text());
+	    that.pid = dom.find("id").text();
 	    var publicUrl = getAbsoluteUrl(
 		"/openEditor?publicId=" +
 		    encodeURIComponent(dom.find("publicId").text()));
@@ -515,7 +515,7 @@ var WeSchemeEditor;
   		     type: "POST",
   		     url: "/cloneProject",
   		     success: function(data) {
-			 var newPid = parseInt(data);
+			 var newPid = data;
 			 onSuccess(newPid);
 		     },
 		     error: function() {
@@ -567,7 +567,7 @@ var WeSchemeEditor;
   		     type: "POST",
   		     url: "/saveProject",
   		     success: function(data) {
-			 var newPid = parseInt(data);
+			 var newPid = data;
 			 onSuccess(newPid);
 		     },
 		     error: function() {

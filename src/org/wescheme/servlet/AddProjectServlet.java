@@ -61,10 +61,10 @@ public class AddProjectServlet extends HttpServlet {
 					throw new UnauthorizedUserException();
 				}
 				Program p = prog.clone(db.owner());
-				pm.makePersistent(p);
+				p = pm.makePersistent(p);
 				Key pid = p.getId();
 				Entry entry = new Entry(db.getId(), binID, pid);
-				pm.makePersistent(entry);
+				entry = pm.makePersistent(entry);
 			}
 			pm.close();
 			resp.sendError(200);
