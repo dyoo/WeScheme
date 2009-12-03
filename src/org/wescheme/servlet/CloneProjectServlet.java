@@ -13,6 +13,8 @@ import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.util.PMF;
 
+import com.google.appengine.api.datastore.KeyFactory;
+
 
 public class CloneProjectServlet extends javax.servlet.http.HttpServlet {
 	/**
@@ -59,7 +61,7 @@ public class CloneProjectServlet extends javax.servlet.http.HttpServlet {
 			
 			cloned = pm.makePersistent(cloned);
 			resp.setContentType("text/plain");
-			resp.getWriter().println(cloned.getId());
+			resp.getWriter().println(KeyFactory.keyToString(cloned.getId()));
 		} catch (IOException e) {
 			e.printStackTrace();
 			resp.sendError(500);

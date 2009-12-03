@@ -16,6 +16,7 @@ import org.wescheme.util.PMF;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.KeyFactory;
 
 
 public class SaveProjectServlet extends HttpServlet{
@@ -64,7 +65,7 @@ public class SaveProjectServlet extends HttpServlet{
 		prog = pm.makePersistent(prog);
 		System.out.println("new id: " + prog.getId());
 		resp.setContentType("text/plain"); 
-		resp.getWriter().println(prog.getId());					
+		resp.getWriter().println(KeyFactory.keyToString(prog.getId()));					
 	}
 	
 	
@@ -87,7 +88,7 @@ public class SaveProjectServlet extends HttpServlet{
 			}
 		
 			resp.setContentType("text/plain");
-			resp.getWriter().println(prog.getId());					
+			resp.getWriter().println(KeyFactory.keyToString(prog.getId()));					
 		} else {
 			// FIXME: throw an error that the client can recognize!
 			throw new RuntimeException("Cannot save program: either not owner, or program published");
