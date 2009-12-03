@@ -52,7 +52,7 @@ public class SaveProjectServlet extends HttpServlet{
 	private void saveNewProgram(PersistenceManager pm, Session userSession,
 			HttpServletResponse resp,
 			String title, String code) throws IOException {
-		Program prog = new Program(code, userSession);
+		Program prog = new Program(code, userSession.getName());
 		prog.updateTitle(title);
 		prog.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueName(pm));
 		pm.makePersistent(prog);

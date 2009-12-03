@@ -10,8 +10,6 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PrimaryKey;
 
 import org.jdom.Element;
-//import org.wescheme.program.capability.Capability;
-import org.wescheme.user.Session;
 import org.wescheme.util.XML;
 
 
@@ -44,10 +42,14 @@ public class Program extends XML {
 	protected long time_;
 	@Persistent
 	private boolean published_ = false;
-//	@Persistent
-//	private List<Capability> capabilities_;
+
 	@Persistent
 	private Long backlink_;
+
+	
+	// The list of programs this has been shared as.
+	@Persistent
+	private List<Program> clonedAs;
 	
 	
 	private void updateTime(){
@@ -55,35 +57,30 @@ public class Program extends XML {
 	}
 	
 	
-	public Program(String src, Session owner){
+	public Program(String src, String ownerName){
 		this.title_ = "Unknown";
 		this.srcs_ = new ArrayList<SourceCode>();
 		this.srcs_.add(new SourceCode(src));
 		this.obj_ = new ObjectCode();
 		this.isSourcePublic = false;
-		this.owner_ 	= owner.getName();
+		this.owner_ 	= ownerName;
 		this.author_ = owner_;
-//		this.capabilities_ = new ArrayList<Capability>();
 		this.backlink_ = null;
 		this.updateTime();
+		this.setClonedAs(new ArrayList<Program>());
 	}
 	
-	private Program(Program p, String owner){
-		this.title_ = p.getTitle();
-		this.srcs_ = new ArrayList<SourceCode>();
-		this.srcs_.add(new SourceCode(p.getSource().toString()));
-		this.obj_ = new ObjectCode();
-		this.isSourcePublic = false;
-		this.owner_ = owner;
-		this.author_ = p.author_;
-//		this.capabilities_ = new ArrayList<Capability>();
-		this.backlink_ = p.getId();
-		this.updateTime();
-	}
-
 	
-	public Program clone(String owner){
-		Program p = new Program(this, owner);
+	// Creates a copy of the program owned by the user with the given ownerName.
+	// Authorship is preserved, and we keep track of how the program was shared.
+	public Program clone(String ownerName){
+		Program p = new Program(this.getSource().toString(), ownerName);
+		p.title_ = this.getTitle();
+		p.backlink_ = this.getId();
+		p.author_ = this.author_;
+		p.updateTime();
+		
+		this.getClonedAs().add(p);
 		return p;
 	}
 	
@@ -122,7 +119,7 @@ public class Program extends XML {
 	
 	public void updateSource(String src){
 		this.setSource(new SourceCode(src));
-		this.obj_ = null;
+		this.obj_ = new ObjectCode();
 		updateTime();
 	}
 	
@@ -135,10 +132,15 @@ public class Program extends XML {
 		this.srcs_.add(src);
 	}
 	
-	
 	public ObjectCode getObject(){
 		return obj_;
 	}
+
+	// Returns true if the program has been compiled with an associated useful ObjectCode.
+	public boolean hasBeenBuilt() {
+		return (this.obj_ != null && this.obj_.getObj().length() > 0);
+	}
+	
 	
 	public String getOwner(){
 		return owner_;
@@ -204,5 +206,15 @@ public class Program extends XML {
 	
 	public void setAuthor(String author) {
 		author_ = author;
+	}
+
+
+	public void setClonedAs(List<Program> clonedAs) {
+		this.clonedAs = clonedAs;
+	}
+
+
+	public List<Program> getClonedAs() {
+		return clonedAs;
 	}	
 }
