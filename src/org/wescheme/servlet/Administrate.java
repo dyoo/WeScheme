@@ -20,8 +20,7 @@ import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.util.PMF;
 
-// Hook to do administration.  All operations must be POSTs done by someone logged in as
-// adminstrator.  Meant to be used through AJAX calls.
+// Hook to do administration.  Meant to be used through AJAX calls.
 public class Administrate extends HttpServlet {
 
 	/**
@@ -44,10 +43,25 @@ public class Administrate extends HttpServlet {
 		
 		if (req.getParameter("action").equals("refreshProgram")) {
 			refreshProgram(req, res);
-		} else if (req.getParameter("action").equals("listPrograms")) {
+		} 
+	}
+	
+	public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
+		SessionManager sm = new SessionManager();
+		// FIXME: add intentionality
+		
+		Session userSession = sm.authenticate(req, res);
+		if (!userSession.isAdmin()) {
+			log.warning("Nonadministrator " + userSession.getName() + " trying to access the Administer servlet");
+			res.sendError(401);
+			throw new RuntimeException();
+		}
+
+		if (req.getParameter("action").equals("listPrograms")) {
 			listPrograms(req, res);
 		} 
 	}
+	
 	
 	
 	// refreshProgram: force the building of the binary of the given program if it exists,
@@ -71,7 +85,7 @@ public class Administrate extends HttpServlet {
 			prog.getClonedAs().clear();
 			Query query = pm.newQuery(Program.class);
 			query.setFilter("backlink_ == programId");
-			query.declareParameters("Long programId");
+			query.declareParameters("Key programId");
 			try {
 				@SuppressWarnings({ "unchecked" })
 				List<Program> pl = (List<Program>) query.execute(prog.getId());

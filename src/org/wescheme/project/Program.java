@@ -13,6 +13,7 @@ import org.jdom.Element;
 import org.wescheme.util.XML;
 
 import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
 
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
@@ -184,7 +185,7 @@ public class Program extends XML {
 		if( null != obj_){
 			root.addContent(obj_.toXML());
 		}
-		root.addContent(XML.makeElement("id", id));
+		root.addContent(XML.makeElement("id", KeyFactory.keyToString(id)));
 		if (publicId_ != null) { root.addContent(XML.makeElement("publicId", publicId_)); }
 		root.addContent(XML.makeElement("isSourcePublic", this.getIsSourcePublic()));
 		root.addContent(XML.makeElement("title", getTitle()));
