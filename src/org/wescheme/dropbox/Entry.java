@@ -7,6 +7,8 @@ import javax.jdo.annotations.PrimaryKey;
 import org.jdom.Element;
 import org.wescheme.util.XML;
 
+import com.google.appengine.api.datastore.Key;
+
 @PersistenceCapable()
 public class Entry extends XML {
 
@@ -14,7 +16,7 @@ public class Entry extends XML {
         @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
         private Long id;
         @Persistent
-        private Long project_;
+        private Key project_;
 
 		@Persistent
         private Long dbID_;
@@ -41,7 +43,7 @@ public class Entry extends XML {
 			return binID_;
 		}
 
-		public Entry(Long db, String binID, Long pid){
+		public Entry(Long db, String binID, Key pid){
               
                 project_ = pid;
                 setDBid(db);
