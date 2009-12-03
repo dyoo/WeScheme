@@ -120,7 +120,7 @@
       jQuery("#bespinMode").click(function() { defnSourceContainer.setMode("bespin")});
 
       <% if (request.getParameter("pid") != null) { %>
-      myEditor.load({pid : parseInt(decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("pid"), "utf-8") %>')) });
+      myEditor.load({pid : decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("pid"), "utf-8") %>') });
       <% } else if (request.getParameter("publicId") != null) { %>
       myEditor.load({publicId : decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("publicId"), "utf-8") %>') });
       <% } %>

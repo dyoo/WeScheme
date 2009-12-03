@@ -71,8 +71,7 @@ public class LoadProjectServlet extends HttpServlet {
 	}
 	
 	private Program getProgramByPid(PersistenceManager pm, String pid) {
-		Long id = (Long) Long.parseLong(pid);
-		Key k = KeyFactory.createKey("Program", id);
+		Key k = KeyFactory.stringToKey(pid);
 		Program prog = pm.getObjectById(Program.class, k);
 		return prog;
 	}
