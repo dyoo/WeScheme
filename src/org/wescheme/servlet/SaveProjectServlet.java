@@ -59,7 +59,7 @@ public class SaveProjectServlet extends HttpServlet{
 		prog.updateTitle(title);
 		prog.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueName(pm));
 		DatastoreService service = DatastoreServiceFactory.getDatastoreService();
-		service.allocateIds(Program.class.getName(), 1);
+		prog.setId(service.allocateIds("Program", 1).getStart());
 
 		prog = pm.makePersistent(prog);
 		System.out.println("new id: " + prog.getId());
