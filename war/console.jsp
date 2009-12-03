@@ -34,8 +34,8 @@
 <body>
 
 
-<div class="header">
-	<h1 class="title">Your WeScheme Account</h1>
+<div class="header" style="position: fixed;">
+	<h1 class="title">Your Programs</h1>
 	<h2>Welcome <%= s.getName() %></h2>
 </div>
 
@@ -60,10 +60,10 @@
 </div>
 
 
-<h1>Your shared programs</h1>
-<div id="sharedList">
-	<%-- The rest will be filled in through Javascript --%>
-</div>
+<!-- <h1>Your shared programs</h1> -->
+<!-- <div id="sharedList"> -->
+<!-- 	<%-- The rest will be filled in through Javascript --%> -->
+<!-- </div> -->
 
 
 
