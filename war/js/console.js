@@ -133,16 +133,28 @@ function loadProgramList() {
 function prettyPrintDate(modified) {
     var modifiedDate = new Date();
     modifiedDate.setTime(parseInt(modified));
-    var day = (["Sunday", "Monday", "Tuesday", "Wednesday",
-		"Thursday", "Friday", "Saturday"]
-	       [modifiedDate.getDay()]);
-    var month = (["January", "February", "March", "April",
-		  "May", "June", "July", "August", "September",
-		  "October", "November", "December"]
-		 [modifiedDate.getMonth()]);
 
-    return (day + ", " + month + " " + modifiedDate.getDate() + ", "
-	    + modifiedDate.toLocaleTimeString());
+
+    var day = modifiedDate.getUTCDate();
+    var month = modifiedDate.getUTCMonth() + 1;
+    var year = modifiedDate.getFullYear();
+    var time = (((modifiedDate.getHours() % 12) == 0 ?
+		 12 :
+		 (modifiedDate.getHours() % 12))
+		+ ":" 
+		+ modifiedDate.getMinutes()
+		+ (modifiedDate.getHours() >= 12 ? "pm" : "am" ));
+    return day + "/" + month + "/" + year + ", " + time;
+//     var day = (["Sunday", "Monday", "Tuesday", "Wednesday",
+// 		"Thursday", "Friday", "Saturday"]
+// 	       [modifiedDate.getDay()]);
+//     var month = (["January", "February", "March", "April",
+// 		  "May", "June", "July", "August", "September",
+// 		  "October", "November", "December"]
+// 		 [modifiedDate.getMonth()]);
+
+//     return (day + ", " + month + " " + modifiedDate.getDate() + ", "
+// 	    + modifiedDate.toLocaleTimeString());
 }
 
 
