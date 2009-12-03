@@ -15,6 +15,8 @@ import org.wescheme.user.SessionManager;
 import org.wescheme.user.UnauthorizedUserException;
 import org.wescheme.util.PMF;
 
+import com.google.appengine.api.datastore.Key;
+
 public class AddProjectServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1927887337443757869L;
@@ -60,7 +62,7 @@ public class AddProjectServlet extends HttpServlet {
 				}
 				Program p = prog.clone(db.owner());
 				pm.makePersistent(p);
-				Long pid = p.getId();
+				Key pid = p.getId();
 				Entry entry = new Entry(db.getId(), binID, pid);
 				pm.makePersistent(entry);
 			}

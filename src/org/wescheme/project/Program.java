@@ -12,13 +12,15 @@ import javax.jdo.annotations.PrimaryKey;
 import org.jdom.Element;
 import org.wescheme.util.XML;
 
+import com.google.appengine.api.datastore.Key;
+
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Program extends XML {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-	protected Long id;
+	private Key id;
 	
 	@Persistent
 	protected String publicId_;
@@ -44,7 +46,7 @@ public class Program extends XML {
 	private boolean published_ = false;
 
 	@Persistent
-	private Long backlink_;
+	private Key backlink_;
 
 	
 	// The list of programs this has been shared as.
@@ -54,6 +56,10 @@ public class Program extends XML {
 	
 	private void updateTime(){
 		time_ = System.currentTimeMillis();
+	}
+	
+	public void setId(Key id) {
+		this.id = id;
 	}
 	
 	
@@ -146,11 +152,11 @@ public class Program extends XML {
 		return owner_;
 	}
 	
-	public Long getId(){
+	public Key getId(){
 		return id;
 	}
 	
-	public Long getBacklink() {
+	public Key getBacklink() {
 		return this.backlink_;
 	}
 	
