@@ -16,7 +16,9 @@ function loadProgramList() {
     programListUl.append(
 	jQuery("<li/>").addClass("EntryHeader")
 	    .append(jQuery("<span/>").addClass("ProgramTitle").text("Program Title"))
-	    .append(jQuery("<span/>").addClass("ProgramModified").text("Last Modified")));
+	    .append(jQuery("<span/>").addClass("ProgramModified").text("Last Modified"))
+	    .append(jQuery("<span/>").addClass("ProgramPublished").text("Share"))
+	    .append(jQuery("<span/>").addClass("ProgramDelete").text("Delete")));
     
     
     sharedListUl.append(
@@ -44,11 +46,21 @@ function loadProgramList() {
 			    .attr("type", "hidden")
 			    .attr("name", "pid")
 			    .attr("value", digest.find("id").text())));
-	var modifiedSpan = (jQuery("<span/>").text(prettyPrintDate(digest.find("modified").text()))
+	var modifiedSpan = (jQuery("<span/>")
+			    .text(prettyPrintDate(digest.find("modified").text()))
 			    .addClass("ProgramModified"));
+	var shareSpan = (jQuery("<span/>")
+			 .addClass("ProgramPublished")
+			 .append(jQuery("<img class='button' src='/css/images/share.png'/>")));
+	var deleteSpan = (jQuery("<span/>")
+			  .addClass("ProgramDelete")
+			  .append(jQuery("<img class='button' src='/css/images/delete.png'/>")));
+
 	(programEntry
 	 .append(form)
-	 .append(modifiedSpan));
+	 .append(modifiedSpan)
+	 .append(shareSpan)
+	 .append(deleteSpan));
 	
 	programListUl.append(programEntry);
     };
@@ -98,7 +110,7 @@ function loadProgramList() {
 	dom.find("ProgramDigest").each(function() {	
 	    var digest = jQuery(this);
 	    if (digest.find("published").text() == 'true') {
-		addSharedEntry(digest);
+		//addSharedEntry(digest);
 	    } else {
 		addProgramEntry(digest);
 	    }

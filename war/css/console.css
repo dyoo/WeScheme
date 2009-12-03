@@ -1,21 +1,23 @@
 /* Some global settings */
-html{	min-width:		625px; background: #f5deb3; }
+html, body, .EntryHeader{	min-width:		625px; }
 html, body, h1, h2, #header, #fileInfo, #toolbar *, #defn, #footer, #inter, input, form{
 	padding:		0px;
 	margin:			0px;
 }
 
+body{background: url(images/bootBG.png) no-repeat fixed #f5deb3; background-position: bottom right; width: 100%;}
 .form {
    display: inline-block;
 }
 
 
 /* 65px: LOGO AND TITLE */
-#header{
+.header{
+	position:		fixed;
+	top:			0px;
 	width:			100%;
 	height:			65px;
-	background:		url(images/icon-trans.png) ;
-	background-repeat:no-repeat;
+	background:		url(images/icon-trans.png) no-repeat #f5deb3;
 }
 h1{ font-size:	38px;	margin-left:	65px;}
 h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
@@ -26,6 +28,8 @@ h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
 	height:			20px;	/* leave room for the border */
 	background:		black;
 	clear:			both;
+	position:		fixed;
+	top:			65px;
 }
 
 #toolbar ul{
@@ -35,16 +39,15 @@ h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
 
 #toolbar li.start{
 	float:			left;
-	width: 240px;
-	text-align:		center;
-	background-repeat: no-repeat;
-	background-position: 0 50%;
+	width:			210px;
+	text-align:		left;
 	clear:			right;
 }
 
+
 #toolbar li.logout{
 	float:			right;
-	width: 125px;
+	width:			125px;
 	text-align:		center;
 	background-repeat: no-repeat;
 	background-position: 0 50%;
@@ -63,6 +66,8 @@ h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
 	border:			0px;
 	height:			20px;
 }
+#toolbar li.start a{padding-left: 65px;}
+
 #toolbar li a:hover, #toolbar li input:hover{
 	background:		#546DAF;
 	color:			white;
@@ -70,59 +75,73 @@ h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
 }
 
 /* tooltips */
-a:hover {background:white;} /*BG color is a must for IE6*/
+a:hover {background:transparent;} /*BG color is a must for IE6*/
 a span {display:none; width: 130px; text-align: left;}
 a:hover span{display: inline; position: absolute; background:#546DAF; color: white; }
 
 /* flex: PROGRAM LIST */
-#programList{
-	margin-top:		20px;
+div#programList{
+	position:		absolute;
+	top:			85px;
 	width:			100%;
 	min-width:		625px;
+}
+
+#programList ul{
+	margin:			0px;
+	padding:		0px;
 }
 
 #programList ul li{
 	display:		block;
-	min-width:		625px;
 	list-style:		none;
+	float:			left;
 }
 
-#programList ul li *{
+#programList ul li input, #programList ul li span{
 	display:		inline-block;
 	border:			0px;
 	background:		none;
 }
 
 
-
-/* flex: PROGRAM LIST */
-#sharedList{
-	margin-top:		20px;
-	width:			100%;
-	min-width:		625px;
-}
-
-#sharedList ul li{
-	display:		block;
-	min-width:		625px;
-	list-style:		none;
-}
-
-#sharedList ul li *{
-	display:		inline-block;
-	border:			0px;
-	background:		none;
-}
+.EntryHeader{font-weight: bold; font-size: 16px; border-bottom: 2px black solid; background: #f5deb3; width: 100%; padding: 10px 0px;}
+.EntryHeader *, .ProgramEntry *{display: inline;}
+li.ProgramEntry{line-height: 24px;  padding: 5px 0px; width: 100%;}
+li.ProgramEntry:hover{ background: #546DAF;}
 
 
-
-.EntryHeader{font-weight: bold; font-size: 16px;}
-
-li.ProgramEntry:hover {display:block; 
-		       background-color: #81beff}
-.ProgramTitle{width: 400px;}
+.ProgramTitle{width: 300px; margin-left: 65px;}
 .ProgramId{width: 100px;}
-.ProgramModified{width: 250px;}
-.ProgramPublished{width: 100px;}
+.ProgramModified{text-align: left; width: 150px;}
+.ProgramPublished{width: 50px; text-align: center; margin-right: 65px}
+.ProgramPublished img.button {width: 18px; height: 18px; cursor: pointer; position: relative}
+.ProgramDelete{width: 50px; text-align: center; margin-right: 65px}
+.ProgramDelete img.button {width: 18px; height: 18px; cursor: pointer;}
+input.ProgramTitle{cursor: pointer; font-size: 16px;font-family: Serif; text-align: left;}
+input.ProgramModified{cursor: pointer; font-size: 16px;font-family: Serif; text-align: left;}
 
-input.ProgramTitle{text-decoration: underline; cursor: pointer; font-size: 16px;font-family: Serif; text-align: left;}
+/* Link Sharing Box */
+div.sharebox{
+	width:		300px; 
+	background: white; 
+	border:		solid 2px black; 
+	color:		black; 
+	text-align: left; 
+	padding:	10px; 
+	font-size:	12px; 
+	position:	absolute;
+	display:	none
+}
+div.sharebox input{width: 100%; border: solid 1px black;}
+ul.linkslist{margin: 0px; width: 300px;}
+ul.linkslist li{width: 120px; float: left; margin: 2px 15px;  border-top: dotted 1px black;}
+ul.linkslist li:hover{background: #eee; border-top: solid 1px black;}
+a.digg{background: url(images/icon_digg.gif) no-repeat; padding-left: 25px;}
+a.reddit{background: url(images/icon_reddit.gif) no-repeat; padding-left: 25px;}
+a.facebook{background: url(images/icon_facebook.gif) no-repeat; padding-left: 25px;}
+a.delicious{background: url(images/icon_delicious.gif) no-repeat; padding-left: 25px;}
+a.twitter{background: url(images/icon_twitter.gif) no-repeat; padding-left: 25px;}
+a.email{background: url(images/icon_email.gif) no-repeat; padding-left: 25px;}
+
+img:hover+div, #programList ul li img+div:hover{display: inline-block; }
