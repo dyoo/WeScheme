@@ -57,7 +57,7 @@ public class CloneProjectServlet extends javax.servlet.http.HttpServlet {
 				cloned.updateSource(req.getParameter("code"));
 			}
 			
-			pm.makePersistent(cloned);
+			cloned = pm.makePersistent(cloned);
 			resp.setContentType("text/plain");
 			resp.getWriter().println(cloned.getId());
 		} catch (IOException e) {

@@ -31,7 +31,7 @@ public class AddDropboxServlet extends HttpServlet {
 					String title = req.getParameter("title");
 					
 					Dropbox db = new Dropbox(name, title);
-					pm.makePersistent(db);
+					db = pm.makePersistent(db);
 					pm.close();
 				
 					resp.getWriter().println(db.getId());
