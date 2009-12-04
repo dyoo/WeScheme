@@ -20,6 +20,8 @@ import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.util.PMF;
 
+import com.google.appengine.api.datastore.KeyFactory;
+
 // Hook to do administration.  Meant to be used through AJAX calls.
 public class Administrate extends HttpServlet {
 
@@ -74,7 +76,7 @@ public class Administrate extends HttpServlet {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try {
 			Program prog = pm.getObjectById(Program.class,
-					Long.parseLong(req.getParameter("pid")));
+					KeyFactory.stringToKey(req.getParameter("pid")));
 
 			// First, build the program if it's already been built.
 			if (prog.hasBeenBuilt()) {
@@ -82,17 +84,17 @@ public class Administrate extends HttpServlet {
 			}
 			
 			// Also, refresh its clonedAs attribute
-			prog.getClonedAs().clear();
+//			prog.getClonedAs().clear();
 			Query query = pm.newQuery(Program.class);
 			query.setFilter("backlink_ == programId");
 			query.declareParameters("Key programId");
 			try {
 				@SuppressWarnings({ "unchecked" })
 				List<Program> pl = (List<Program>) query.execute(prog.getId());
-				for( Program p : pl ){
-					prog.getClonedAs().add(p);
-				}
-				
+//				for( Program p : pl ){
+//					prog.getClonedAs().add(p);
+//				}
+//				
 			} finally {
 				query.closeAll();
 			}			

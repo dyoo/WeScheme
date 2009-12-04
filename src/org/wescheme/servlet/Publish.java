@@ -14,6 +14,8 @@ import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.util.PMF;
 
+import com.google.appengine.api.datastore.KeyFactory;
+
 public class Publish extends HttpServlet{
 	private static final Logger log = Logger.getLogger(Publish.class.getName());
 	private static final long serialVersionUID = -5765142296681571504L;
@@ -31,7 +33,7 @@ public class Publish extends HttpServlet{
 			if( null != userSession ) {
 				XMLOutputter outputter = new XMLOutputter();
 				Program prog = pm.getObjectById(Program.class,
-						Long.parseLong(req.getParameter("pid")));
+						KeyFactory.stringToKey(req.getParameter("pid")));
 				boolean isSourceCodePublic = false;
 				if (req.getParameter("isPublic") != null) {
 					isSourceCodePublic = Boolean.parseBoolean(req.getParameter("isPublic"));

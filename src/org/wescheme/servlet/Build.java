@@ -14,6 +14,8 @@ import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.util.PMF;
 
+import com.google.appengine.api.datastore.KeyFactory;
+
 public class Build extends HttpServlet {
 	/**
 	 * 
@@ -36,7 +38,7 @@ public class Build extends HttpServlet {
 			if( null != userSession ) {
 				XMLOutputter outputter = new XMLOutputter();
 				Program prog = pm.getObjectById(Program.class,
-						Long.parseLong(req.getParameter("pid")));
+						KeyFactory.stringToKey(req.getParameter("pid")));
 				if (prog.getOwner().equals(userSession.getName())) {
 					prog.build();
 					resp.setContentType("text/xml");
