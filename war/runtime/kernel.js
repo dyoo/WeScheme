@@ -15,6 +15,14 @@ if (typeof(plt) === 'undefined') { var plt = {} }
 
     var NumberTower = plt.types.NumberTower;
 
+    var MobyError = plt.types.MobyError;
+    var MobyParserError = plt.types.MobyParserError;
+    var MobySyntaxError = plt.types.MobySyntaxError;
+    var MobyTypeError = plt.types.MobyTypeError;
+    var MobyRuntimeError = plt.types.MobyRuntimeError;
+    var MobyTestingError = plt.types.MobyTestingError;
+
+
 
     // Compatibility hack: add Array.indexOf if it doesn't exist.
     if(!Array.indexOf){
@@ -92,56 +100,6 @@ if (typeof(plt) === 'undefined') { var plt = {} }
     };
 
 
-
-
-    //////////////////////////////////////////////////////////////////////
-
-    var MobyError = function(msg) {
-	this.msg = msg;
-    }
-    MobyError.prototype.name= 'MobyError';
-    MobyError.prototype.toString = function () { return this.name + ": " + this.msg }
-
-
-    var MobyParserError = function(msg, loc) {
-	MobyError.call(this, msg);
-	this.loc = loc;
-    }
-    MobyParserError.prototype = heir(MobyError.prototype);
-    MobyParserError.prototype.name= 'MobyParserError';
-
-    
-    var MobySyntaxError = function(msg, stx) {
-	MobyError.call(this, msg);
-	this.stx = stx;
-    }
-    MobySyntaxError.prototype = heir(MobyError.prototype);
-    MobySyntaxError.prototype.name= 'MobySyntaxError';
-
-
-    var MobyTypeError = function(msg) {
-	MobyError.call(this, msg);
-    }
-    MobyTypeError.prototype = heir(MobyError.prototype);
-    MobyTypeError.prototype.name= 'MobyTypeError';
-
-
-
-    var MobyRuntimeError = function(msg) {
-	MobyError.call(this, msg);
-    }
-    MobyRuntimeError.prototype = heir(MobyError.prototype);
-    MobyRuntimeError.prototype.name= 'MobyRuntimeError';
-
-
-    
-    var MobyTestingError = function(msg) {
-	MobyError.call(this, msg);
-    }
-    MobyTestingError.prototype = heir(MobyRuntimeError.prototype);
-    MobyTestingError.prototype.name= 'MobyTestingError';
-
-
     
     //////////////////////////////////////////////////////////////////////
 
@@ -149,11 +107,7 @@ if (typeof(plt) === 'undefined') { var plt = {} }
 
 
     // Returns true if x is a number.
-    var isNumber = function(x) {
-	return (x != null && x != undefined && (x instanceof plt.types.Rational || 
-						x instanceof plt.types.FloatPoint ||
-						x instanceof plt.types.Complex));
-    }
+    var isNumber = plt.types.isNumber;
 
     var isSymbol = function(x) {
 	return (x != null && x != undefined && x instanceof plt.types.Symbol);
@@ -398,7 +352,7 @@ if (typeof(plt) === 'undefined') { var plt = {} }
 	},
 	
 	equal_question_ : function(x, y) {
-	    return plt.Kernel.isEqual(x, y, new UnionFind());
+	    return plt.types.isEqual(x, y, new UnionFind());
 	},
 
 
@@ -407,7 +361,7 @@ if (typeof(plt) === 'undefined') { var plt = {} }
 	    if (isNumber(x) && isNumber(y)) {
 		return NumberTower.approxEqual(x, y, delta);
 	    } else {
-		return plt.Kernel.isEqual(x, y, new UnionFind());
+		return plt.types.isEqual(x, y, new UnionFind());
 	    }
 	},
 
@@ -682,7 +636,7 @@ if (typeof(plt) === 'undefined') { var plt = {} }
 
 	number_dash__greaterthan_string: function(x) {
 	    check(x, isNumber, "number->string", "number", 1);
-	    return plt.types.String.makeInstance(plt.Kernel.toWrittenString(x));
+	    return plt.types.String.makeInstance(plt.types.toWrittenString(x));
 	},
 	
 	conjugate: function(x){
@@ -922,13 +876,7 @@ if (typeof(plt) === 'undefined') { var plt = {} }
 	
 	reverse : function(lst){
 	    checkList(lst, "reverse", 1);
-	    var ret = plt.types.Empty.EMPTY;
-	    while (!lst.isEmpty()){
-		ret = plt.types.Cons.makeInstance(lst.first(), ret);
-		lst = lst.rest();
-	    }
-	    
-	    return ret;
+	    return plt.types.Cons.reverse(lst);
 	}, 
 	
 	assq : function(x, lst){
@@ -1111,7 +1059,7 @@ if (typeof(plt) === 'undefined') { var plt = {} }
 	    var aUnionFind = new UnionFind();
 	    var result = plt.types.Empty.EMPTY;
 	    while (!lst.isEmpty()){
-		if (plt.Kernel.isEqual(item, lst.first(), aUnionFind).valueOf()) {
+		if (plt.types.isEqual(item, lst.first(), aUnionFind).valueOf()) {
 		    return plt.Kernel.append([plt.Kernel.reverse(result),
 					     lst.rest()]);
 		} else {
@@ -1127,7 +1075,7 @@ if (typeof(plt) === 'undefined') { var plt = {} }
 	    checkList(lst, "member", 2);
 	    var aUnionFind = new UnionFind();
 	    while (!lst.isEmpty()){
-		if (plt.Kernel.isEqual(item, lst.first(), aUnionFind).valueOf())
+		if (plt.types.isEqual(item, lst.first(), aUnionFind).valueOf())
 		    return plt.types.Logic.TRUE;
 		lst = lst.rest();
 	    }
@@ -1534,30 +1482,7 @@ if (typeof(plt) === 'undefined') { var plt = {} }
     };
     
 
-    // isEqual: X Y -> boolean
-    // Returns true if the objects are equivalent; otherwise, returns false.
-    plt.Kernel.isEqual = function(x, y, aUnionFind) {
-	if (x === y) { return true; }
-
-	if (isNumber(x) && isNumber(y)) {
-	    return NumberTower.equal(x, y);
-	}
-
-	if (x == undefined || x == null) {
-	    return (y == undefined || y == null);
-	}
-
-	if (typeof(x) == 'object' && typeof(y) == 'object' && 
-	    aUnionFind.find(x) === aUnionFind.find(y)) {
-	    return true;
-	} else {
-	    if (typeof(x) == 'object' && typeof(y) == 'object') { 
-		aUnionFind.merge(x, y); 
-	    }
-	    return x.isEqual(y, aUnionFind);
-	}
-    }
-
+    plt.Kernel.isEqual = plt.types.isEqual;
 
     // DEBUGGING: get out all the functions defined in the kernel.
     plt.Kernel._dumpKernelSymbols = function() {
@@ -1624,7 +1549,7 @@ if (typeof(plt) === 'undefined') { var plt = {} }
 
     var EqualHashTable = function(inputHash) {
 	this.hash = new plt._Hashtable(function(x) { 
-                                           return plt.Kernel.toWrittenString(x); 
+                                           return plt.types.toWrittenString(x); 
                                        },
 				       function(x, y) {
 					   return plt.Kernel.equal_question_(x, y); 
@@ -2014,13 +1939,13 @@ if (typeof(plt) === 'undefined') { var plt = {} }
 		    throw new MobyRuntimeError(
 			"format: fewer arguments passed than expected");
 		}
-		return plt.Kernel.toWrittenString(buffer.shift());
+		return plt.types.toWrittenString(buffer.shift());
 	    } else if (s == '~a' || s == "~A") {
 		if (buffer.length == 0) {
 		    throw new MobyRuntimeError(
 			"format: fewer arguments passed than expected");
 		}
-		return plt.Kernel.toDisplayedString(buffer.shift());
+		return plt.types.toDisplayedString(buffer.shift());
 	    } else {
 		throw new MobyRuntimeError("Unimplemented format " + s);
 	    }
@@ -2172,7 +2097,7 @@ if (typeof(plt) === 'undefined') { var plt = {} }
     };
     
     plt.Kernel.box_question_ = function(obj) {
-	return obj != null && obj != undefined && obj instanceof Box ;
+	return obj != null && obj != undefined && obj instanceof plt.types.Box ;
     };
 
     plt.Kernel.set_dash_box_bang_ = function(obj, newVal) {
@@ -2231,104 +2156,6 @@ if (typeof(plt) === 'undefined') { var plt = {} }
     };
 
 
-
-    plt.Kernel.toWrittenString = function(x, cache) {
-	if (! cache) { 
-	    cache = makeEqHashtable();
-	}
-
-	if (x && cache.containsKey(x)) {
-	    return "...";
-	}
-
-	if (x == undefined || x == null) {
-	    return "<undefined>";
-	}
-	if (typeof(x) == 'string') {
-	    return x.toWrittenString();
-	}
-	if (typeof(x) != 'object' && typeof(x) != 'function') {
-	    return x.toString();
-	}
-	if (typeof(x.toWrittenString) !== 'undefined') {
-	    return x.toWrittenString(cache);
-	}
-	if (typeof(x.toDisplayedString) !== 'undefined') {
-	    return x.toDisplayedString(cache);
-	} else {
-	    return x.toString();
-	}
-    };
-
-
-    plt.Kernel.toDisplayedString = function(x, cache) {
-	if (! cache) {
-	    cache = makeEqHashtable();
-	}
-	if (x && cache.containsKey(x)) {
-	    return "...";
-	}
-
-	if (x == undefined || x == null) {
-	    return "<undefined>";
-	}
-	if (typeof(x) == 'string') {
-	    return x.toDisplayedString();
-	}
-	if (typeof(x) != 'object' && typeof(x) != 'function') {
-	    return x.toString();
-	}
-	if (typeof(x.toWrittenString) !== 'undefined') {
-	    return x.toWrittenString(cache);
-	}
-	if (typeof(x.toDisplayedString) !== 'undefined') {
-	    return x.toDisplayedString(cache);
-	} else {
-	    return x.toString();
-	}
-    };
-
-
-
-    // toDomNode: scheme-value -> dom-node
-    plt.Kernel.toDomNode = function(x, cache) {
-	if (! cache) {
-	    cache = makeEqHashtable();
-	}
-	if (x && cache.containsKey(x)) {
-	    return document.createTextNode("...");
-	}
-
-	if (x == undefined || x == null) {
-	    var node = document.createTextNode("<undefined>");
-	    return node;
-	}
-	if (typeof(x) == 'string') {
-	    var node = document.createTextNode(x.toWrittenString());
-	    return node;
-	}
-	if (typeof(x) != 'object' && typeof(x) != 'function') {
-	    var node = document.createTextNode(x.toString());
-	    return node;
-	}
-	if (x.nodeType) {
-	    return x;
-	}
-	if (typeof(x.toDomNode) !== 'undefined') {
-	    return x.toDomNode(cache);
-	}
-	if (typeof(x.toWrittenString) !== 'undefined') {
-	    var node = document.createTextNode(plt.Kernel.toWrittenString(x, cache));
-	    return node;
-	}
-	if (typeof(x.toDisplayedString) !== 'undefined') {
-	    var node = document.createTextNode(plt.Kernel.toDisplayedString(x, cache));
-	    return node;
-	} else {
-	    var node = document.createTextNode(x.toString());
-	    return node;
-	}
-    };
 
 
 
@@ -2537,11 +2364,12 @@ if (typeof(plt) === 'undefined') { var plt = {} }
 
 
     // Expose the error classes.
-    plt.Kernel.MobyError = MobyError;
-    plt.Kernel.MobyParserError = MobyParserError;
-    plt.Kernel.MobySyntaxError = MobySyntaxError;
-    plt.Kernel.MobyTypeError = MobyTypeError;
-    plt.Kernel.MobyRuntimeError = MobyRuntimeError;
+    plt.Kernel.MobyError = plt.types.MobyError;
+    plt.Kernel.MobyParserError = plt.types.MobyParserError;
+    plt.Kernel.MobySyntaxError = plt.types.MobySyntaxError;
+    plt.Kernel.MobyTypeError = plt.types.MobyTypeError;
+    plt.Kernel.MobyRuntimeError = plt.types.MobyRuntimeError;
+    plt.Kernel.MobyTestingError = plt.types.MobyTestingError;
 
 
 
