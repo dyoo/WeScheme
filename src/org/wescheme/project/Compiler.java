@@ -32,10 +32,11 @@ public class Compiler extends HttpServlet
 		StringBuffer compilerSrc = new StringBuffer();
 		String line;
 		
+		System.out.println("Reading compiler source");
 		while((line = inputReader.readLine()) != null){
 			compilerSrc.append(line + "\n");
 		}
-		
+		System.out.println("Installing the compiler.");
 		cx.evaluateString(scope, compilerSrc.toString(), "<cmd>", 1, null); // add the compiler to the scope
 		cx.seal(null);
 		
