@@ -526,9 +526,15 @@ var WeSchemeEditor;
     }
     
 
-    // publish: number boolean (-> void) (-> void) -> void
-    // Sets the published flag on a program.
     function publish(pid, isPublic, onSuccess, onFailure) {
+	return share(pid, isPublic, onSuccess, onFailure);
+    }
+
+
+    // share: number boolean (-> void) (-> void) -> void
+    // Shares a program.
+    // Sets the published flag on a program.
+    function share(pid, isPublic, onSuccess, onFailure) {
 	jQuery.ajax({cache : false,
   		     data : { pid: pid,
 			      isPublic: isPublic },

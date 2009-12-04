@@ -228,6 +228,16 @@
   </servlet-mapping>
 
 
+  <servlet>
+    <servlet-name>administrate</servlet-name>
+    <servlet-class>org.wescheme.servlet.Administrate</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>administrate</servlet-name>
+    <url-pattern>/administrate</url-pattern>
+  </servlet-mapping>
+
+
 
 
 

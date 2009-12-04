@@ -3,6 +3,7 @@ package org.wescheme.project;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
@@ -47,9 +48,9 @@ public class Program extends XML {
 	private Long backlink_;
 
 	
-	// The list of programs this has been shared as.
+	// The list of program ids this has been shared as.
 	@Persistent
-	private List<Program> clonedAs;
+	private List<Long> clonedAs;
 	
 	
 	private void updateTime(){
@@ -67,20 +68,21 @@ public class Program extends XML {
 		this.author_ = owner_;
 		this.backlink_ = null;
 		this.updateTime();
-		this.setClonedAs(new ArrayList<Program>());
+		this.setClonedAs(new ArrayList<Long>());
 	}
 	
 	
 	// Creates a copy of the program owned by the user with the given ownerName.
 	// Authorship is preserved, and we keep track of how the program was shared.
-	public Program clone(String ownerName){
+	public Program clone(String ownerName, PersistenceManager pm){
 		Program p = new Program(this.getSource().toString(), ownerName);
 		p.title_ = this.getTitle();
 		p.backlink_ = this.getId();
 		p.author_ = this.author_;
 		p.updateTime();
 		
-		this.getClonedAs().add(p);
+		p = pm.makePersistent(p);
+		this.getClonedAs().add(p.getId());
 		return p;
 	}
 	
@@ -209,12 +211,18 @@ public class Program extends XML {
 	}
 
 
-	public void setClonedAs(List<Program> clonedAs) {
+	public void setClonedAs(List<Long> clonedAs) {
 		this.clonedAs = clonedAs;
+		if (this.clonedAs == null) {
+			this.clonedAs = new ArrayList<Long>();
+		}
 	}
 
 
-	public List<Program> getClonedAs() {
+	public List<Long> getClonedAs() {
+		if (this.clonedAs == null) {
+			this.clonedAs = new ArrayList<Long>();
+		}
 		return clonedAs;
 	}	
 }
