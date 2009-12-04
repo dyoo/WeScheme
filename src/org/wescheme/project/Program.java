@@ -46,13 +46,13 @@ public class Program extends XML {
 	@Persistent
 	private boolean published_ = false;
 
-	@Persistent
-	private Key backlink_;
+	//@Persistent
+	//private Key backlink_;
 
 	
 	// The list of programs this has been shared as.
-	@Persistent
-	private List<Program> clonedAs;
+	//@Persistent
+	//private List<Program> clonedAs;
 	
 	
 	private void updateTime(){
@@ -72,9 +72,9 @@ public class Program extends XML {
 		this.isSourcePublic = false;
 		this.owner_ 	= ownerName;
 		this.author_ = owner_;
-		this.backlink_ = null;
+		//this.backlink_ = null;
 		this.updateTime();
-		this.setClonedAs(new ArrayList<Program>());
+//		this.setClonedAs(new ArrayList<Program>());
 	}
 	
 	
@@ -83,11 +83,11 @@ public class Program extends XML {
 	public Program clone(String ownerName){
 		Program p = new Program(this.getSource().toString(), ownerName);
 		p.title_ = this.getTitle();
-		p.backlink_ = this.getId();
+		//p.backlink_ = this.getId();
 		p.author_ = this.author_;
 		p.updateTime();
 		
-		this.getClonedAs().add(p);
+//		this.getClonedAs().add(p);
 		return p;
 	}
 	
@@ -156,10 +156,10 @@ public class Program extends XML {
 	public Key getId(){
 		return id;
 	}
-	
-	public Key getBacklink() {
-		return this.backlink_;
-	}
+//	
+//	public Key getBacklink() {
+//		return this.backlink_;
+//	}
 	
 	public Long getTime(){
 		return time_;
@@ -215,13 +215,13 @@ public class Program extends XML {
 		author_ = author;
 	}
 
-
-	public void setClonedAs(List<Program> clonedAs) {
-		this.clonedAs = clonedAs;
-	}
-
-
-	public List<Program> getClonedAs() {
-		return clonedAs;
-	}	
+//
+//	public void setClonedAs(List<Program> clonedAs) {
+//		this.clonedAs = clonedAs;
+//	}
+//
+//
+//	public List<Program> getClonedAs() {
+//		return clonedAs;
+//	}	
 }

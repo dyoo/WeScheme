@@ -16,6 +16,7 @@ import org.wescheme.util.PMF;
 
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 
 
@@ -59,11 +60,11 @@ public class SaveProjectServlet extends HttpServlet{
 		Program prog = new Program(code, userSession.getName());
 		prog.updateTitle(title);
 		prog.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueName(pm));
-		DatastoreService service = DatastoreServiceFactory.getDatastoreService();
-		prog.setId(service.allocateIds("Program", 1).getStart());
+//		DatastoreService service = DatastoreServiceFactory.getDatastoreService();
+//		prog.setId(service.allocateIds("Program", 1).getStart());
 
 		prog = pm.makePersistent(prog);
-		System.out.println("new id: " + prog.getId());
+		System.out.println("saved program, with id: " + prog.getId());
 		resp.setContentType("text/plain"); 
 		resp.getWriter().println(KeyFactory.keyToString(prog.getId()));					
 	}
@@ -77,7 +78,7 @@ public class SaveProjectServlet extends HttpServlet{
 			HttpServletResponse resp,
 			String pid, String title, String code) throws IOException {
 		// Preconditions: the program is owned by the user, and has not been published yet.
-		Long id = (Long) Long.parseLong(pid);
+		Key id = KeyFactory.stringToKey(pid);
 		Program prog = pm.getObjectById(Program.class, id);
 		if (prog.getOwner().equals(userSession.getName()) && !prog.isPublished()) {
 			prog.updateTitle(title);
