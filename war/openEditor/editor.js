@@ -357,11 +357,21 @@ var WeSchemeEditor;
 		    runTheCompiler(
 			newPid, 
 			function() {
-			    publish(newPid,
+			    share(newPid,
 				    isPublic,
-				    function() {
+				    function(sharedProgram) {
+					var newDialog = jQuery("<div/>");
+					newDialog.dialog({title: 'Sharing your program',
+							  bgiframe : true,
+							  modal : true,
+							 });
+					newDialog.append(
+					    jQuery("<p/>")
+						.text("Program has been shared: "));
+					newDialog.append(jQuery(makeShareUrl(sharedProgram.find("publicId").text())));
+					newDialog.dialog("open");
 				    },
-				    whenPublishingFails);
+				    whenSharingFails);
 			},
 			whenCompilationFails);
 		},
@@ -378,9 +388,9 @@ var WeSchemeEditor;
 	    alert("cloning failed");
 	};
 
-	var whenPublishingFails = function() {
+	var whenSharingFails = function() {
 	    // FIXME
-	    alert("Publishing failed.");
+	    alert("Sharing failed.");
 	};
 
 
@@ -526,9 +536,6 @@ var WeSchemeEditor;
     }
     
 
-    function publish(pid, isPublic, onSuccess, onFailure) {
-	return share(pid, isPublic, onSuccess, onFailure);
-    }
 
 
     // share: number boolean (-> void) (-> void) -> void
@@ -540,10 +547,9 @@ var WeSchemeEditor;
 			      isPublic: isPublic },
   		     dataType: "xml",
   		     type: "POST",
-  		     url: "/publishProject",
+  		     url: "/shareProject",
   		     success: function(data) {
-			 onSuccess();
-			 // FIXME
+			 onSuccess(jQuery(data));
 		     },
   		     error: function() {
 			 // FIXME
@@ -581,6 +587,20 @@ var WeSchemeEditor;
 		     },
 		     xhr: function(settings) { return new XMLHttpRequest(settings); }
 		    });
+    }
+
+
+
+    // FIXME: copy and paste from console.js
+    // makeShareUrl: string -> string
+    // Produces the sharing url
+    function makeShareUrl(publicId) {
+	if (publicId != "") {
+	    var a = document.createElement("a");
+	    a.href = "/view?publicId=" + encodeURIComponent(publicId);
+	    a.appendChild(document.createTextNode(a.href));
+	    return jQuery(a); 
+	}
     }
 
 

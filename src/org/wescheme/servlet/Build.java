@@ -19,7 +19,7 @@ public class Build extends HttpServlet {
 	 * 
 	 */
 	private static final long serialVersionUID = 5525174380103839556L;
-	private static final Logger log = Logger.getLogger(Publish.class.getName());
+	private static final Logger log = Logger.getLogger(Share.class.getName());
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)	throws IOException 
 	{

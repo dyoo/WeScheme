@@ -87,7 +87,7 @@ public class Program extends XML {
 	}
 	
 	
-	public void publish(boolean isObjectCodePublic){		
+	public void share(boolean isObjectCodePublic){		
 		published_ = true;
 		this.isSourcePublic = isObjectCodePublic;
 		updateTime();
