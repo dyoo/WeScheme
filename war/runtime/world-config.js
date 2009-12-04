@@ -1,7 +1,7 @@
 // depends on kernel.js
 
 
-if (typeof(plt) == 'undefined') { plt = {}; }
+if (typeof(plt) === 'undefined') { var plt = {}; }
 plt.world = plt.world || {};
 plt.world.config = plt.world.config || {};
 
@@ -16,10 +16,14 @@ plt.world.config = plt.world.config || {};
     var augment = function(o, a) {
 	var oo = {};
 	for (var e in o) {
-	    oo[e] = o[e];
+	    if (o.hasOwnProperty(e)) {
+		oo[e] = o[e];
+	    }
 	}
 	for (var e in a) {
-	    oo[e] = a[e];
+	    if (a.hasOwnProperty(e)) {
+		oo[e] = a[e];
+	    }
 	}
 	return oo;
     }
