@@ -4750,7 +4750,7 @@ plt.reader = {};
 				    (quoted.loc.offset -
 				     leadingQuote[2].offset +
 				     quoted.loc.span),
-				    ""));
+				    source));
 	};
 
 	var getParenRShape = function(lparen) {
@@ -4848,7 +4848,7 @@ plt.reader = {};
 		    new Loc(lparen[2].offset,
 			    lparen[2].line,
 			    rparen[2].offset - lparen[2].offset + 1,
-			    ""));
+			    source));
 
 	    case '#;':
 		var hashcomment = eat('#;');
