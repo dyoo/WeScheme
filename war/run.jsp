@@ -69,7 +69,7 @@ Runner.prototype.runCompiledCode = function(compiledCode, permStringArray) {
  		runToplevel(function(val) {
  		    if (val != undefined) {
  			that.addToInteractions(
- 			    plt.Kernel.toDomNode(val));
+ 			    plt.types.toDomNode(val));
 			that.addToInteractions("\n");
  		    }
  		});

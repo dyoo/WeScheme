@@ -78,10 +78,10 @@ return _6f;};this.remove=function(key){_2e(key);var _73=_58(key);var _74=_53(_5b
 return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; }
 
 
-// Depends on kernel.js.
+
 (function() {
-
-
+    
+    
     //////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////
     // Types
@@ -113,7 +113,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
     }
     
     
-    // plt.Kernel.getHashCode: any -> (or fixnum string)
+    // plt.types.getHashCode: any -> (or fixnum string)
     // Produces a hashcode appropriate for eq.
     plt.types.getEqHashCode = function(x) {
 	if (x && x._eqHashCode) {
@@ -146,7 +146,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	buffer.push(this._constructorName);
 	for(var i = 0; i < this._fields.length; i++) {
 	    buffer.push(" ");
-	    buffer.push(plt.Kernel.toWrittenString(this._fields[i], cache));
+	    buffer.push(plt.types.toWrittenString(this._fields[i], cache));
 	}
 	buffer.push(")");
 	return plt.types.String.makeInstance(buffer.join(""));
@@ -161,7 +161,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	node.appendChild(document.createTextNode(this._constructorName));
 	for(var i = 0; i < this._fields.length; i++) {
 	    node.appendChild(document.createTextNode(" "));
-	    appendChild(node, plt.Kernel.toDomNode(this._fields[i], cache));
+	    appendChild(node, plt.types.toDomNode(this._fields[i], cache));
 	}
 	node.appendChild(document.createTextNode(")"));
 	return node;
@@ -185,7 +185,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	    return false;
 	}
 	for (var i = 0; i < this._fields.length; i++) {
-	    if (! plt.Kernel.isEqual(this._fields[i],
+	    if (! plt.types.isEqual(this._fields[i],
 				     other._fields[i],
 				     aUnionFind)) {
 		return false;
@@ -330,10 +330,10 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
     };
 
     plt.types.Empty.prototype.first = function() {
-	throw new plt.Kernel.MobyRuntimeError("first can't be applied on empty.");
+	throw new MobyRuntimeError("first can't be applied on empty.");
     };
     plt.types.Empty.prototype.rest = function() {
-	throw new plt.Kernel.MobyRuntimeError("rest can't be applied on empty.");
+	throw new MobyRuntimeError("rest can't be applied on empty.");
     };
     plt.types.Empty.prototype.isEmpty = function() {
 	return true;
@@ -354,6 +354,15 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	this.r = r;
 	this._eqHashCode = plt.types.makeEqHashCode();
     };
+
+    plt.types.Cons.reverse = function(lst) {
+	var ret = plt.types.Empty.EMPTY;
+	while (!lst.isEmpty()){
+	    ret = plt.types.Cons.makeInstance(lst.first(), ret);
+	    lst = lst.rest();
+	}
+	return ret;
+    };
     
     plt.types.Cons.makeInstance = function(f, r) {
 	return new plt.types.Cons(f, r);
@@ -365,8 +374,8 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	if (! (other instanceof plt.types.Cons)) {
 	    return plt.types.Logic.FALSE;
 	}
-	return (plt.Kernel.isEqual(this.first(), other.first(), aUnionFind) &&
-		plt.Kernel.isEqual(this.rest(), other.rest(), aUnionFind));
+	return (plt.types.isEqual(this.first(), other.first(), aUnionFind) &&
+		plt.types.isEqual(this.rest(), other.rest(), aUnionFind));
     };
     
     plt.types.Cons.prototype.first = function() {
@@ -386,7 +395,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	if (b.isEmpty())
 	    return this;
 	var ret = b;
-	var lst = plt.Kernel.reverse(this);
+	var lst = plt.types.Cons.reverse(this);
 	while (!lst.isEmpty()){
 	    ret = plt.types.Cons.makeInstance(lst.first(), ret);
 	    lst = lst.rest();
@@ -400,7 +409,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	var texts = [];
 	var p = this;
 	while (! p.isEmpty()) {
-	    texts.push(plt.Kernel.toWrittenString(p.first(), cache));
+	    texts.push(plt.types.toWrittenString(p.first(), cache));
 	    p = p.rest();
 	}
 	return "(" + texts.join(" ") + ")";
@@ -412,7 +421,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	var texts = [];
 	var p = this;
 	while (! p.isEmpty()) {
-	    texts.push(plt.Kernel.toDisplayedString(p.first(), cache));
+	    texts.push(plt.types.toDisplayedString(p.first(), cache));
 	    p = p.rest();
 	}
 	return "(" + texts.join(" ") + ")";
@@ -426,7 +435,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	node.appendChild(document.createTextNode("("));
 	var p = this;
 	while (! p.isEmpty()) {
-	    appendChild(node, plt.Kernel.toDomNode(p.first(), cache));
+	    appendChild(node, plt.types.toDomNode(p.first(), cache));
 	    p = p.rest();
 	    if (! p.isEmpty()) {
 		appendChild(node, document.createTextNode(" "));
@@ -472,7 +481,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 		return false
 	    }
 	    for (var i = 0; i <  this.length(); i++) {
-		if (! plt.Kernel.isEqual(this.elts[i], other.elts[i], aUnionFind)) {
+		if (! plt.types.isEqual(this.elts[i], other.elts[i], aUnionFind)) {
 		    return false;
 		}
 	    }
@@ -486,7 +495,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	cache.put(this, true);
 	var texts = [];
 	for (var i = 0; i < this.length(); i++) {
-	    texts.push(plt.Kernel.toWrittenString(this.ref(i), cache));
+	    texts.push(plt.types.toWrittenString(this.ref(i), cache));
 	}
 	return "#(" + texts.join(" ") + ")";
     };
@@ -494,7 +503,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	cache.put(this, true);
 	var texts = [];
 	for (var i = 0; i < this.length(); i++) {
-	    texts.push(plt.Kernel.toDisplayedStringString(this.ref(i), cache));
+	    texts.push(plt.types.toDisplayedString(this.ref(i), cache));
 	}
 	return "#(" + texts.join(" ") + ")";
     };
@@ -505,7 +514,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	node.appendChild(document.createTextNode("#("));
 	for (var i = 0; i < this.length(); i++) {
 	    appendChild(node,
-			plt.Kernel.toDomNode(this.ref(i), cache));
+			plt.types.toDomNode(this.ref(i), cache));
 	}
 	node.appendChild(document.createTextNode(")"));
 	return node;
@@ -543,10 +552,10 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
     var gcd = function(a, b) {
 	var t;
 	if (isNaN(a) || !isFinite(a)) {
-	    throw new plt.Kernel.MobyRuntimeError("not a number: " + a);
+	    throw new MobyRuntimeError("not a number: " + a);
 	}
 	if (isNaN(b) || !isFinite(b)) {
-	    throw new plt.Kernel.MobyRuntimeError("not a number: " + b);
+	    throw new MobyRuntimeError("not a number: " + b);
 	}
 	while (b != 0) {
 	    t = a;
@@ -559,7 +568,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
     plt.types.Rational = function(n, d) {
 	if (d == undefined) { d = 1; }
 	if (d == 0) {
-	    throw new plt.Kernel.MobyRuntimeError("cannot have zero denominator.");
+	    throw new MobyRuntimeError("cannot have zero denominator.");
 	}
 	var divisor = gcd(Math.abs(n), Math.abs(d));
 	this.n = n / divisor;
@@ -590,7 +599,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	if (target.level() == 2)	
 	    return plt.types.Complex.makeInstance(this, 
 						  plt.types.Rational.ZERO);
-	throw new plt.Kernel.MobyRuntimeError("invalid level of Number");
+	throw new MobyRuntimeError("invalid level of Number");
     };
     
     plt.types.Rational.prototype.isFinite = function() {
@@ -640,7 +649,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
     
     plt.types.Rational.prototype.divide = function(other) {
 	if (this.d * other.n == 0) {
-	    throw new plt.Kernel.MobyRuntimeError("division by zero");
+	    throw new MobyRuntimeError("division by zero");
 	}
 	return plt.types.Rational.makeInstance(this.n * other.d,
 					       this.d * other.n);
@@ -820,7 +829,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
     var _rationalCache = {};
     plt.types.Rational.makeInstance = function(n, d) {
 	if (n == undefined)
-	    throw new plt.Kernel.MobyRuntimeError("n undefined");
+	    throw new MobyRuntimeError("n undefined");
 
 	if (d == undefined) { d = 1; }
 
@@ -1000,7 +1009,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
     FloatPoint.prototype.divide = function(other) {
 	if (this.isFinite() && other.isFinite()) {
 	    if (other.n == 0) {
-		throw new plt.Kernel.MobyRuntimeError("division by zero");
+		throw new MobyRuntimeError("division by zero");
 	    }
             return FloatPoint.makeInstance(this.n / other.n);
 	} else if (isNaN(this.n) || isNaN(other.n)) {
@@ -1220,9 +1229,9 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	if (NumberTower.greaterThanOrEqual(
 	    this.i,
 	    plt.types.Rational.ZERO)) {
-        return plt.Kernel.toWrittenString(this.r) + "+" + plt.Kernel.toWrittenString(this.i)+"i";
+        return plt.types.toWrittenString(this.r) + "+" + plt.types.toWrittenString(this.i)+"i";
 	} else {
-            return plt.Kernel.toWrittenString(this.r) + plt.Kernel.toWrittenString(this.i)+"i";
+            return plt.types.toWrittenString(this.r) + plt.types.toWrittenString(this.i)+"i";
 	}
     };
 
@@ -1245,7 +1254,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 
     plt.types.Complex.prototype.toExact = function() { 
 	if (! this.isReal()) {
-	    throw new plt.Kernel.MobyRuntimeError("inexact->exact: expects argument of type real number");
+	    throw new MobyRuntimeError("inexact->exact: expects argument of type real number");
 	}
 	return this.r.toExact();
     };
@@ -1261,7 +1270,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
     };
     
     plt.types.Complex.prototype.lift = function(target){
-	throw new plt.Kernel.MobyRuntimeError("Don't know how to lift Complex number");
+	throw new MobyRuntimeError("Don't know how to lift Complex number");
     };
     
     plt.types.Complex.prototype.isEqual = function(other, aUnionFind){
@@ -1278,28 +1287,28 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 
     plt.types.Complex.prototype.greaterThan = function(other) {
 	if (! this.isReal() || ! other.isReal()) {
-	    throw new plt.Kernel.MobyRuntimeError(">: expects argument of type real number");
+	    throw new MobyRuntimeError(">: expects argument of type real number");
 	}
 	return NumberTower.greaterThan(this.r, other.r);
     };
 
     plt.types.Complex.prototype.greaterThanOrEqual = function(other) {
 	if (! this.isReal() || ! other.isReal()) {
-	    throw new plt.Kernel.MobyRuntimeError(">: expects argument of type real number");
+	    throw new MobyRuntimeError(">: expects argument of type real number");
 	}
 	return NumberTower.greaterThanOrEqual(this.r, other.r);
     };
 
     plt.types.Complex.prototype.lessThan = function(other) {
 	if (! this.isReal() || ! other.isReal()) {
-	    throw new plt.Kernel.MobyRuntimeError(">: expects argument of type real number");
+	    throw new MobyRuntimeError(">: expects argument of type real number");
 	}
 	return NumberTower.lessThan(this.r, other.r);
     };
 
     plt.types.Complex.prototype.lessThanOrEqual = function(other) {
 	if (! this.isReal() || ! other.isReal()) {
-	    throw new plt.Kernel.MobyRuntimeError(">: expects argument of type real number");
+	    throw new MobyRuntimeError(">: expects argument of type real number");
 	}
 	return NumberTower.lessThanOrEqual(this.r, other.r);
     };
@@ -1307,33 +1316,33 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 
     plt.types.Complex.prototype.abs = function(){
 	if (!NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
-	    throw new plt.Kernel.MobyRuntimeError("abs: expects argument of type real number");
+	    throw new MobyRuntimeError("abs: expects argument of type real number");
 	return this.r.abs();
     };
     
     plt.types.Complex.prototype.toFixnum = function(){
 	if (!NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
-	    throw new plt.Kernel.MobyRuntimeError("toFixnum: expects argument of type real number");
+	    throw new MobyRuntimeError("toFixnum: expects argument of type real number");
 	return this.r.toFixnum();
     };
 
     plt.types.Complex.prototype.numerator = function() {
 	if (!this.isReal())
-	    throw new plt.Kernel.MobyRuntimeError("numerator: can only be applied to real number");
+	    throw new MobyRuntimeError("numerator: can only be applied to real number");
 	return this.n.numerator();
     };
     
 
     plt.types.Complex.prototype.denominator = function() {
 	if (!this.isReal())
-	    throw new plt.Kernel.MobyRuntimeError("floor: can only be applied to real number");
+	    throw new MobyRuntimeError("floor: can only be applied to real number");
 	return this.n.denominator();
     };
 
     
     plt.types.Complex.prototype.toFloat = function(){
 	if (!NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
-	    throw new plt.Kernel.MobyRuntimeError("toFloat: expects argument of type real number");
+	    throw new MobyRuntimeError("toFloat: expects argument of type real number");
 	return this.r.toFloat();
     };
     
@@ -1542,13 +1551,13 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
     
     plt.types.Complex.prototype.ceiling = function(){
 	if (!this.isReal())
-	    throw new plt.Kernel.MobyRuntimeError("ceiling: can only be applied to real number");
+	    throw new MobyRuntimeError("ceiling: can only be applied to real number");
 	return this.r.ceiling();
     };
     
     plt.types.Complex.prototype.floor = function(){
 	if (!this.isReal())
-	    throw new plt.Kernel.MobyRuntimeError("floor: can only be applied to real number");
+	    throw new MobyRuntimeError("floor: can only be applied to real number");
 	return this.r.floor();
     };
     
@@ -1647,7 +1656,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	if (y.level() < x.level()) y = y.lift(x);
 
 	if (!(x.isReal() && y.isReal()))
-	    throw new plt.Kernel.MobyRuntimeError("greaterThanOrEqual: couldn't be applied to complex number");
+	    throw new MobyRuntimeError("greaterThanOrEqual: couldn't be applied to complex number");
 	return x.greaterThanOrEqual(y);
     };
     
@@ -1655,7 +1664,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	if (x.level() < y.level()) x = x.lift(y);
 	if (y.level() < x.level()) y = y.lift(x);
 	if (!(x.isReal() && y.isReal()))
-	    throw new plt.Kernel.MobyRuntimeError("lessThanOrEqual: couldn't be applied to complex number");
+	    throw new MobyRuntimeError("lessThanOrEqual: couldn't be applied to complex number");
 	return x.lessThanOrEqual(y);    	
     };
     
@@ -1664,7 +1673,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	if (y.level() < x.level()) y = y.lift(x);
 	
 	if (!(x.isReal() && y.isReal()))
-	    throw new plt.Kernel.MobyRuntimeError("greaterThan: couldn't be applied to complex number");
+	    throw new MobyRuntimeError("greaterThan: couldn't be applied to complex number");
 	return x.greaterThan(y);
 	
     };
@@ -1674,7 +1683,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	if (y.level() < x.level()) y = y.lift(x);
 
 	if (!(x.isReal() && y.isReal()))
-	    throw new plt.Kernel.MobyRuntimeError("lessThan: couldn't be applied to complex number");
+	    throw new MobyRuntimeError("lessThan: couldn't be applied to complex number");
 	return x.lessThan(y);
     };
     
@@ -1740,7 +1749,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	return s.valueOf();
     };
     
-
+    
     // WARNING
     // WARNING: we are extending the built-in Javascript string class here!
     // WARNING
@@ -1748,8 +1757,9 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	return this == other;
     };
     
+    var _quoteReplacingRegexp = new RegExp("[\"\\\\]", "g");
     plt.types.String.prototype.toWrittenString = function(cache) {
-    	return '"' + this.replace(/["\\]/g,
+    	return '"' + this.replace(_quoteReplacingRegexp,
     	                       function(match, submatch, index) {
                                        return "\\" + match;
                                    }) + '"';
@@ -1760,6 +1770,223 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
     }
 
 
+
+    //////////////////////////////////////////////////////////////////////
+
+    // makeEqHashtable: -> hashtable
+    // Constructs an eq hashtable that uses Moby's getEqHashCode function.
+    var makeEqHashtable = function() {
+	return new plt._Hashtable(function(x) { return plt.types.getEqHashCode(x); },
+				  function(x, y) { return x === y; });
+    };
+
+
+
+
+
+    plt.types.toWrittenString = function(x, cache) {
+	if (! cache) { 
+	    cache = makeEqHashtable();
+	}
+
+	if (x && cache.containsKey(x)) {
+	    return "...";
+	}
+
+	if (x == undefined || x == null) {
+	    return "<undefined>";
+	}
+	if (typeof(x) == 'string') {
+	    return x.toWrittenString();
+	}
+	if (typeof(x) != 'object' && typeof(x) != 'function') {
+	    return x.toString();
+	}
+	if (typeof(x.toWrittenString) !== 'undefined') {
+	    return x.toWrittenString(cache);
+	}
+	if (typeof(x.toDisplayedString) !== 'undefined') {
+	    return x.toDisplayedString(cache);
+	} else {
+	    return x.toString();
+	}
+    };
+
+
+
+    plt.types.toDisplayedString = function(x, cache) {
+	if (! cache) {
+	    cache = makeEqHashtable();
+	}
+	if (x && cache.containsKey(x)) {
+	    return "...";
+	}
+
+	if (x == undefined || x == null) {
+	    return "<undefined>";
+	}
+	if (typeof(x) == 'string') {
+	    return x.toDisplayedString();
+	}
+	if (typeof(x) != 'object' && typeof(x) != 'function') {
+	    return x.toString();
+	}
+	if (typeof(x.toWrittenString) !== 'undefined') {
+	    return x.toWrittenString(cache);
+	}
+	if (typeof(x.toDisplayedString) !== 'undefined') {
+	    return x.toDisplayedString(cache);
+	} else {
+	    return x.toString();
+	}
+    };
+
+
+
+    // toDomNode: scheme-value -> dom-node
+    plt.types.toDomNode = function(x, cache) {
+	if (! cache) {
+	    cache = makeEqHashtable();
+	}
+	if (x && cache.containsKey(x)) {
+	    return document.createTextNode("...");
+	}
+
+	if (x == undefined || x == null) {
+	    var node = document.createTextNode("<undefined>");
+	    return node;
+	}
+	if (typeof(x) == 'string') {
+	    var node = document.createTextNode(x.toWrittenString());
+	    return node;
+	}
+	if (typeof(x) != 'object' && typeof(x) != 'function') {
+	    var node = document.createTextNode(x.toString());
+	    return node;
+	}
+	if (x.nodeType) {
+	    return x;
+	}
+	if (typeof(x.toDomNode) !== 'undefined') {
+	    return x.toDomNode(cache);
+	}
+	if (typeof(x.toWrittenString) !== 'undefined') {
+	    var node = document.createTextNode(plt.types.toWrittenString(x, cache));
+	    return node;
+	}
+	if (typeof(x.toDisplayedString) !== 'undefined') {
+	    var node = document.createTextNode(plt.types.toDisplayedString(x, cache));
+	    return node;
+	} else {
+	    var node = document.createTextNode(x.toString());
+	    return node;
+	}
+    };
+
+
+
+
+
+    var isNumber = function(x) {
+	return (x != null && x != undefined && (x instanceof plt.types.Rational || 
+						x instanceof plt.types.FloatPoint ||
+						x instanceof plt.types.Complex));
+    }
+    plt.types.isNumber = isNumber;
+
+
+
+    // isEqual: X Y -> boolean
+    // Returns true if the objects are equivalent; otherwise, returns false.
+    plt.types.isEqual = function(x, y, aUnionFind) {
+	if (x === y) { return true; }
+
+	if (isNumber(x) && isNumber(y)) {
+	    return NumberTower.equal(x, y);
+	}
+
+	if (x == undefined || x == null) {
+	    return (y == undefined || y == null);
+	}
+
+	if (typeof(x) == 'object' && typeof(y) == 'object' && 
+	    aUnionFind.find(x) === aUnionFind.find(y)) {
+	    return true;
+	} else {
+	    if (typeof(x) == 'object' && typeof(y) == 'object') { 
+		aUnionFind.merge(x, y); 
+	    }
+	    return x.isEqual(y, aUnionFind);
+	}
+    }
+
+
+
+
+
+
+
+    //////////////////////////////////////////////////////////////////////
+    var MobyError = function(msg) {
+	this.msg = msg;
+    }
+    MobyError.prototype.name= 'MobyError';
+    MobyError.prototype.toString = function () { return this.name + ": " + this.msg }
+
+
+    var MobyParserError = function(msg, loc) {
+	MobyError.call(this, msg);
+	this.loc = loc;
+    }
+    MobyParserError.prototype = heir(MobyError.prototype);
+    MobyParserError.prototype.name= 'MobyParserError';
+
+    
+    var MobySyntaxError = function(msg, stx) {
+	MobyError.call(this, msg);
+	this.stx = stx;
+    }
+    MobySyntaxError.prototype = heir(MobyError.prototype);
+    MobySyntaxError.prototype.name= 'MobySyntaxError';
+
+
+    var MobyTypeError = function(msg) {
+	MobyError.call(this, msg);
+    }
+    MobyTypeError.prototype = heir(MobyError.prototype);
+    MobyTypeError.prototype.name= 'MobyTypeError';
+
+
+
+    var MobyRuntimeError = function(msg) {
+	MobyError.call(this, msg);
+    }
+    MobyRuntimeError.prototype = heir(MobyError.prototype);
+    MobyRuntimeError.prototype.name= 'MobyRuntimeError';
+
+
+    
+    var MobyTestingError = function(msg) {
+	MobyError.call(this, msg);
+    }
+    MobyTestingError.prototype = heir(MobyRuntimeError.prototype);
+    MobyTestingError.prototype.name= 'MobyTestingError';
+
+
+
+
+    plt.types.MobyError = MobyError;
+    plt.types.MobyParserError = MobyParserError;
+    plt.types.MobySyntaxError = MobySyntaxError;
+    plt.types.MobyTypeError = MobyTypeError;
+    plt.types.MobyRuntimeError = MobyRuntimeError;
+    plt.types.MobyTestingError = MobyTestingError;
+
+
+
+
+    plt.types.Box = Box;
+    
 
 })();if (typeof(plt) === 'undefined') { var plt = {} }
 
@@ -1777,6 +2004,14 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 (function() {
 
     var NumberTower = plt.types.NumberTower;
+
+    var MobyError = plt.types.MobyError;
+    var MobyParserError = plt.types.MobyParserError;
+    var MobySyntaxError = plt.types.MobySyntaxError;
+    var MobyTypeError = plt.types.MobyTypeError;
+    var MobyRuntimeError = plt.types.MobyRuntimeError;
+    var MobyTestingError = plt.types.MobyTestingError;
+
 
 
     // Compatibility hack: add Array.indexOf if it doesn't exist.
@@ -1855,56 +2090,6 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
     };
 
 
-
-
-    //////////////////////////////////////////////////////////////////////
-
-    var MobyError = function(msg) {
-	this.msg = msg;
-    }
-    MobyError.prototype.name= 'MobyError';
-    MobyError.prototype.toString = function () { return this.name + ": " + this.msg }
-
-
-    var MobyParserError = function(msg, loc) {
-	MobyError.call(this, msg);
-	this.loc = loc;
-    }
-    MobyParserError.prototype = heir(MobyError.prototype);
-    MobyParserError.prototype.name= 'MobyParserError';
-
-    
-    var MobySyntaxError = function(msg, stx) {
-	MobyError.call(this, msg);
-	this.stx = stx;
-    }
-    MobySyntaxError.prototype = heir(MobyError.prototype);
-    MobySyntaxError.prototype.name= 'MobySyntaxError';
-
-
-    var MobyTypeError = function(msg) {
-	MobyError.call(this, msg);
-    }
-    MobyTypeError.prototype = heir(MobyError.prototype);
-    MobyTypeError.prototype.name= 'MobyTypeError';
-
-
-
-    var MobyRuntimeError = function(msg) {
-	MobyError.call(this, msg);
-    }
-    MobyRuntimeError.prototype = heir(MobyError.prototype);
-    MobyRuntimeError.prototype.name= 'MobyRuntimeError';
-
-
-    
-    var MobyTestingError = function(msg) {
-	MobyError.call(this, msg);
-    }
-    MobyTestingError.prototype = heir(MobyRuntimeError.prototype);
-    MobyTestingError.prototype.name= 'MobyTestingError';
-
-
     
     //////////////////////////////////////////////////////////////////////
 
@@ -1912,11 +2097,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 
 
     // Returns true if x is a number.
-    var isNumber = function(x) {
-	return (x != null && x != undefined && (x instanceof plt.types.Rational || 
-						x instanceof plt.types.FloatPoint ||
-						x instanceof plt.types.Complex));
-    }
+    var isNumber = plt.types.isNumber;
 
     var isSymbol = function(x) {
 	return (x != null && x != undefined && x instanceof plt.types.Symbol);
@@ -2161,7 +2342,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	},
 	
 	equal_question_ : function(x, y) {
-	    return plt.Kernel.isEqual(x, y, new UnionFind());
+	    return plt.types.isEqual(x, y, new UnionFind());
 	},
 
 
@@ -2170,7 +2351,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	    if (isNumber(x) && isNumber(y)) {
 		return NumberTower.approxEqual(x, y, delta);
 	    } else {
-		return plt.Kernel.isEqual(x, y, new UnionFind());
+		return plt.types.isEqual(x, y, new UnionFind());
 	    }
 	},
 
@@ -2445,7 +2626,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 
 	number_dash__greaterthan_string: function(x) {
 	    check(x, isNumber, "number->string", "number", 1);
-	    return plt.types.String.makeInstance(plt.Kernel.toWrittenString(x));
+	    return plt.types.String.makeInstance(plt.types.toWrittenString(x));
 	},
 	
 	conjugate: function(x){
@@ -2685,13 +2866,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	
 	reverse : function(lst){
 	    checkList(lst, "reverse", 1);
-	    var ret = plt.types.Empty.EMPTY;
-	    while (!lst.isEmpty()){
-		ret = plt.types.Cons.makeInstance(lst.first(), ret);
-		lst = lst.rest();
-	    }
-	    
-	    return ret;
+	    return plt.types.Cons.reverse(lst);
 	}, 
 	
 	assq : function(x, lst){
@@ -2874,7 +3049,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	    var aUnionFind = new UnionFind();
 	    var result = plt.types.Empty.EMPTY;
 	    while (!lst.isEmpty()){
-		if (plt.Kernel.isEqual(item, lst.first(), aUnionFind).valueOf()) {
+		if (plt.types.isEqual(item, lst.first(), aUnionFind).valueOf()) {
 		    return plt.Kernel.append([plt.Kernel.reverse(result),
 					     lst.rest()]);
 		} else {
@@ -2890,7 +3065,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 	    checkList(lst, "member", 2);
 	    var aUnionFind = new UnionFind();
 	    while (!lst.isEmpty()){
-		if (plt.Kernel.isEqual(item, lst.first(), aUnionFind).valueOf())
+		if (plt.types.isEqual(item, lst.first(), aUnionFind).valueOf())
 		    return plt.types.Logic.TRUE;
 		lst = lst.rest();
 	    }
@@ -3297,30 +3472,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
     };
     
 
-    // isEqual: X Y -> boolean
-    // Returns true if the objects are equivalent; otherwise, returns false.
-    plt.Kernel.isEqual = function(x, y, aUnionFind) {
-	if (x === y) { return true; }
-
-	if (isNumber(x) && isNumber(y)) {
-	    return NumberTower.equal(x, y);
-	}
-
-	if (x == undefined || x == null) {
-	    return (y == undefined || y == null);
-	}
-
-	if (typeof(x) == 'object' && typeof(y) == 'object' && 
-	    aUnionFind.find(x) === aUnionFind.find(y)) {
-	    return true;
-	} else {
-	    if (typeof(x) == 'object' && typeof(y) == 'object') { 
-		aUnionFind.merge(x, y); 
-	    }
-	    return x.isEqual(y, aUnionFind);
-	}
-    }
-
+    plt.Kernel.isEqual = plt.types.isEqual;
 
     // DEBUGGING: get out all the functions defined in the kernel.
     plt.Kernel._dumpKernelSymbols = function() {
@@ -3387,7 +3539,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 
     var EqualHashTable = function(inputHash) {
 	this.hash = new plt._Hashtable(function(x) { 
-                                           return plt.Kernel.toWrittenString(x); 
+                                           return plt.types.toWrittenString(x); 
                                        },
 				       function(x, y) {
 					   return plt.Kernel.equal_question_(x, y); 
@@ -3777,13 +3929,13 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 		    throw new MobyRuntimeError(
 			"format: fewer arguments passed than expected");
 		}
-		return plt.Kernel.toWrittenString(buffer.shift());
+		return plt.types.toWrittenString(buffer.shift());
 	    } else if (s == '~a' || s == "~A") {
 		if (buffer.length == 0) {
 		    throw new MobyRuntimeError(
 			"format: fewer arguments passed than expected");
 		}
-		return plt.Kernel.toDisplayedString(buffer.shift());
+		return plt.types.toDisplayedString(buffer.shift());
 	    } else {
 		throw new MobyRuntimeError("Unimplemented format " + s);
 	    }
@@ -3935,7 +4087,7 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
     };
     
     plt.Kernel.box_question_ = function(obj) {
-	return obj != null && obj != undefined && obj instanceof Box ;
+	return obj != null && obj != undefined && obj instanceof plt.types.Box ;
     };
 
     plt.Kernel.set_dash_box_bang_ = function(obj, newVal) {
@@ -3994,104 +4146,6 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
     };
 
 
-
-    plt.Kernel.toWrittenString = function(x, cache) {
-	if (! cache) { 
-	    cache = makeEqHashtable();
-	}
-
-	if (x && cache.containsKey(x)) {
-	    return "...";
-	}
-
-	if (x == undefined || x == null) {
-	    return "<undefined>";
-	}
-	if (typeof(x) == 'string') {
-	    return x.toWrittenString();
-	}
-	if (typeof(x) != 'object' && typeof(x) != 'function') {
-	    return x.toString();
-	}
-	if (typeof(x.toWrittenString) !== 'undefined') {
-	    return x.toWrittenString(cache);
-	}
-	if (typeof(x.toDisplayedString) !== 'undefined') {
-	    return x.toDisplayedString(cache);
-	} else {
-	    return x.toString();
-	}
-    };
-
-
-    plt.Kernel.toDisplayedString = function(x, cache) {
-	if (! cache) {
-	    cache = makeEqHashtable();
-	}
-	if (x && cache.containsKey(x)) {
-	    return "...";
-	}
-
-	if (x == undefined || x == null) {
-	    return "<undefined>";
-	}
-	if (typeof(x) == 'string') {
-	    return x.toDisplayedString();
-	}
-	if (typeof(x) != 'object' && typeof(x) != 'function') {
-	    return x.toString();
-	}
-	if (typeof(x.toWrittenString) !== 'undefined') {
-	    return x.toWrittenString(cache);
-	}
-	if (typeof(x.toDisplayedString) !== 'undefined') {
-	    return x.toDisplayedString(cache);
-	} else {
-	    return x.toString();
-	}
-    };
-
-
-
-    // toDomNode: scheme-value -> dom-node
-    plt.Kernel.toDomNode = function(x, cache) {
-	if (! cache) {
-	    cache = makeEqHashtable();
-	}
-	if (x && cache.containsKey(x)) {
-	    return document.createTextNode("...");
-	}
-
-	if (x == undefined || x == null) {
-	    var node = document.createTextNode("<undefined>");
-	    return node;
-	}
-	if (typeof(x) == 'string') {
-	    var node = document.createTextNode(x.toWrittenString());
-	    return node;
-	}
-	if (typeof(x) != 'object' && typeof(x) != 'function') {
-	    var node = document.createTextNode(x.toString());
-	    return node;
-	}
-	if (x.nodeType) {
-	    return x;
-	}
-	if (typeof(x.toDomNode) !== 'undefined') {
-	    return x.toDomNode(cache);
-	}
-	if (typeof(x.toWrittenString) !== 'undefined') {
-	    var node = document.createTextNode(plt.Kernel.toWrittenString(x, cache));
-	    return node;
-	}
-	if (typeof(x.toDisplayedString) !== 'undefined') {
-	    var node = document.createTextNode(plt.Kernel.toDisplayedString(x, cache));
-	    return node;
-	} else {
-	    var node = document.createTextNode(x.toString());
-	    return node;
-	}
-    };
 
 
 
@@ -4300,11 +4354,12 @@ return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; 
 
 
     // Expose the error classes.
-    plt.Kernel.MobyError = MobyError;
-    plt.Kernel.MobyParserError = MobyParserError;
-    plt.Kernel.MobySyntaxError = MobySyntaxError;
-    plt.Kernel.MobyTypeError = MobyTypeError;
-    plt.Kernel.MobyRuntimeError = MobyRuntimeError;
+    plt.Kernel.MobyError = plt.types.MobyError;
+    plt.Kernel.MobyParserError = plt.types.MobyParserError;
+    plt.Kernel.MobySyntaxError = plt.types.MobySyntaxError;
+    plt.Kernel.MobyTypeError = plt.types.MobyTypeError;
+    plt.Kernel.MobyRuntimeError = plt.types.MobyRuntimeError;
+    plt.Kernel.MobyTestingError = plt.types.MobyTestingError;
 
 
 
@@ -4478,32 +4533,32 @@ var set_dash_Loc_dash_id_bang_ = function(obj,newVal) {
 var Loc_question_ = function(obj) { 
               return obj != null && obj != undefined && obj instanceof Loc; };
 
-var Loc_dash__greaterthan_string = function(a_dash_loc) { return (plt.Kernel.setLastLoc("offset=284 line=14 span=154 id=\"stx.ss\"") && plt.Kernel.format((plt.types.String.makeInstance("offset=~a line=~a span=~a id=~s")), [(plt.Kernel.setLastLoc("offset=337 line=15 span=18 id=\"stx.ss\"")   && Loc_dash_offset(a_dash_loc)),(plt.Kernel.setLastLoc("offset=367 line=16 span=16 id=\"stx.ss\"")   && Loc_dash_line(a_dash_loc)),(plt.Kernel.setLastLoc("offset=395 line=17 span=16 id=\"stx.ss\"")   && Loc_dash_span(a_dash_loc)),(plt.Kernel.setLastLoc("offset=423 line=18 span=14 id=\"stx.ss\"")   && Loc_dash_id(a_dash_loc))])); };
-var stx_question_ = function(x) { return ((plt.Kernel.setLastLoc("offset=489 line=23 span=13 id=\"stx.ss\"")   && stx_colon_atom_question_(x))||(plt.Kernel.setLastLoc("offset=509 line=24 span=13 id=\"stx.ss\"")   && stx_colon_list_question_(x))); };
-var stx_dash_e = function(a_dash_stx) { return ((plt.Kernel.setLastLoc("offset=635 line=31 span=17 id=\"stx.ss\"")   && stx_colon_atom_question_(a_dash_stx)) ?
- (plt.Kernel.setLastLoc("offset=658 line=32 span=22 id=\"stx.ss\"")   && stx_colon_atom_dash_datum(a_dash_stx)) :
- ((plt.Kernel.setLastLoc("offset=687 line=33 span=17 id=\"stx.ss\"")   && stx_colon_list_question_(a_dash_stx)) ?
- (plt.Kernel.setLastLoc("offset=710 line=34 span=21 id=\"stx.ss\"")   && stx_colon_list_dash_elts(a_dash_stx)) :
- (plt.Kernel.setLastLoc("offset=624 line=30 span=109 id=\"stx.ss\"")   && plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("cond: fell out of cond around \"offset=624 line=30 span=109 id=\\\"stx.ss\\\"\"")))))); };
-var stx_dash_loc = function(a_dash_stx) { return ((plt.Kernel.setLastLoc("offset=797 line=40 span=17 id=\"stx.ss\"")   && stx_colon_atom_question_(a_dash_stx)) ?
- (plt.Kernel.setLastLoc("offset=820 line=41 span=20 id=\"stx.ss\"")   && stx_colon_atom_dash_loc(a_dash_stx)) :
- ((plt.Kernel.setLastLoc("offset=847 line=42 span=17 id=\"stx.ss\"")   && stx_colon_list_question_(a_dash_stx)) ?
- (plt.Kernel.setLastLoc("offset=870 line=43 span=20 id=\"stx.ss\"")   && stx_colon_list_dash_loc(a_dash_stx)) :
- (plt.Kernel.setLastLoc("offset=786 line=39 span=106 id=\"stx.ss\"")   && plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("cond: fell out of cond around \"offset=786 line=39 span=106 id=\\\"stx.ss\\\"\"")))))); };
+var Loc_dash__greaterthan_string = function(a_dash_loc) { return (plt.Kernel.setLastLoc({offset:284, line:14, span:154, id:"stx.ss"}) && plt.Kernel.format((plt.types.String.makeInstance("offset=~a line=~a span=~a id=~s")), [(plt.Kernel.setLastLoc({offset:337, line:15, span:18, id:"stx.ss"})   && Loc_dash_offset(a_dash_loc)),(plt.Kernel.setLastLoc({offset:367, line:16, span:16, id:"stx.ss"})   && Loc_dash_line(a_dash_loc)),(plt.Kernel.setLastLoc({offset:395, line:17, span:16, id:"stx.ss"})   && Loc_dash_span(a_dash_loc)),(plt.Kernel.setLastLoc({offset:423, line:18, span:14, id:"stx.ss"})   && Loc_dash_id(a_dash_loc))])); };
+var stx_question_ = function(x) { return ((plt.Kernel.setLastLoc({offset:489, line:23, span:13, id:"stx.ss"})   && stx_colon_atom_question_(x))||(plt.Kernel.setLastLoc({offset:509, line:24, span:13, id:"stx.ss"})   && stx_colon_list_question_(x))); };
+var stx_dash_e = function(a_dash_stx) { return ((plt.Kernel.setLastLoc({offset:635, line:31, span:17, id:"stx.ss"})   && stx_colon_atom_question_(a_dash_stx)) ?
+						(plt.Kernel.setLastLoc({offset:658, line:32, span:22, id:"stx.ss"})   && stx_colon_atom_dash_datum(a_dash_stx)) :
+						((plt.Kernel.setLastLoc({offset:687, line:33, span:17, id:"stx.ss"})   && stx_colon_list_question_(a_dash_stx)) ?
+						 (plt.Kernel.setLastLoc({offset:710, line:34, span:21, id:"stx.ss"})   && stx_colon_list_dash_elts(a_dash_stx)) :
+						 (plt.Kernel.setLastLoc({offset:624, line:30, span:109, id:"stx.ss"})   && plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("cond: fell out of cond around \"offset=624 line=30 span=109 id=\\\"stx.ss\\\"\"")))))); };
+var stx_dash_loc = function(a_dash_stx) { return ((plt.Kernel.setLastLoc({offset:797, line:40, span:17, id:"stx.ss"})   && stx_colon_atom_question_(a_dash_stx)) ?
+						  (plt.Kernel.setLastLoc({offset:820, line:41, span:20, id:"stx.ss"})   && stx_colon_atom_dash_loc(a_dash_stx)) :
+						  ((plt.Kernel.setLastLoc({offset:847, line:42, span:17, id:"stx.ss"})   && stx_colon_list_question_(a_dash_stx)) ?
+						   (plt.Kernel.setLastLoc({offset:870, line:43, span:20, id:"stx.ss"})   && stx_colon_list_dash_loc(a_dash_stx)) :
+						   (plt.Kernel.setLastLoc({offset:786, line:39, span:106, id:"stx.ss"})   && plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("cond: fell out of cond around \"offset=786 line=39 span=106 id=\\\"stx.ss\\\"\"")))))); };
 var stx_dash_begins_dash_with_question_ = function(a_dash_stx, a_dash_sym) {
- return ((plt.Kernel.setLastLoc("offset=991 line=49 span=17 id=\"stx.ss\"")   && stx_colon_atom_question_(a_dash_stx)) ?
+    return ((plt.Kernel.setLastLoc({offset:991, line:49, span:17, id:"stx.ss"})   && stx_colon_atom_question_(a_dash_stx)) ?
  plt.types.Logic.FALSE :
- ((plt.Kernel.setLastLoc("offset=1023 line=51 span=17 id=\"stx.ss\"")   && stx_colon_list_question_(a_dash_stx)) ?
- ((plt.Kernel.setLastLoc("offset=1051 line=52 span=36 id=\"stx.ss\"")   && plt.Kernel.not((plt.Kernel.setLastLoc("offset=1056 line=52 span=30 id=\"stx.ss\"")   && plt.Kernel.empty_question_((plt.Kernel.setLastLoc("offset=1064 line=52 span=21 id=\"stx.ss\"")   && stx_colon_list_dash_elts(a_dash_stx))))))&&(plt.Kernel.setLastLoc("offset=1098 line=53 span=47 id=\"stx.ss\"")   && plt.Kernel.symbol_question_((plt.Kernel.setLastLoc("offset=1107 line=53 span=37 id=\"stx.ss\"")   && stx_dash_e((plt.Kernel.setLastLoc("offset=1114 line=53 span=29 id=\"stx.ss\"")   && plt.Kernel.first((plt.Kernel.setLastLoc("offset=1121 line=53 span=21 id=\"stx.ss\"")   && stx_colon_list_dash_elts(a_dash_stx))))))))&&(plt.Kernel.setLastLoc("offset=1156 line=54 span=74 id=\"stx.ss\"")   && plt.Kernel.symbol_equal__question_((plt.Kernel.setLastLoc("offset=1166 line=54 span=37 id=\"stx.ss\"")   && stx_dash_e((plt.Kernel.setLastLoc("offset=1173 line=54 span=29 id=\"stx.ss\"")   && plt.Kernel.first((plt.Kernel.setLastLoc("offset=1180 line=54 span=21 id=\"stx.ss\"")   && stx_colon_list_dash_elts(a_dash_stx)))))),a_dash_sym))) :
- (plt.Kernel.setLastLoc("offset=980 line=48 span=253 id=\"stx.ss\"")   && plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("cond: fell out of cond around \"offset=980 line=48 span=253 id=\\\"stx.ss\\\"\"")))))); };
-var datum_dash__greaterthan_stx = function(a_dash_datum, a_dash_loc) { return ((plt.Kernel.setLastLoc("offset=1461 line=65 span=14 id=\"stx.ss\"")   && stx_question_(a_dash_datum)) ?
+	    ((plt.Kernel.setLastLoc({offset:1023, line:51, span:17, id:"stx.ss"})   && stx_colon_list_question_(a_dash_stx)) ?
+	     ((plt.Kernel.setLastLoc({offset:1051, line:52, span:36, id:"stx.ss"})   && plt.Kernel.not((plt.Kernel.setLastLoc({offset:1056, line:52, span:30, id:"stx.ss"})   && plt.Kernel.empty_question_((plt.Kernel.setLastLoc({offset:1064, line:52, span:21, id:"stx.ss"})   && stx_colon_list_dash_elts(a_dash_stx))))))&&(plt.Kernel.setLastLoc({offset:1098, line:53, span:47, id:"stx.ss"})   && plt.Kernel.symbol_question_((plt.Kernel.setLastLoc({offset:1107, line:53, span:37, id:"stx.ss"})   && stx_dash_e((plt.Kernel.setLastLoc({offset:1114, line:53, span:29, id:"stx.ss"})   && plt.Kernel.first((plt.Kernel.setLastLoc({offset:1121, line:53, span:21, id:"stx.ss"})   && stx_colon_list_dash_elts(a_dash_stx))))))))&&(plt.Kernel.setLastLoc({offset:1156, line:54, span:74, id:"stx.ss"})   && plt.Kernel.symbol_equal__question_((plt.Kernel.setLastLoc({offset:1166, line:54, span:37, id:"stx.ss"})   && stx_dash_e((plt.Kernel.setLastLoc({offset:1173, line:54, span:29, id:"stx.ss"})   && plt.Kernel.first((plt.Kernel.setLastLoc({offset:1180, line:54, span:21, id:"stx.ss"})   && stx_colon_list_dash_elts(a_dash_stx)))))),a_dash_sym))) :
+	     (plt.Kernel.setLastLoc({offset:980, line:48, span:253, id:"stx.ss"})   && plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("cond: fell out of cond around \"offset=980 line=48 span=253 id=\\\"stx.ss\\\"\"")))))); };
+var datum_dash__greaterthan_stx = function(a_dash_datum, a_dash_loc) { return ((plt.Kernel.setLastLoc({offset:1461, line:65, span:14, id:"stx.ss"})   && stx_question_(a_dash_datum)) ?
  a_dash_datum :
- (((plt.Kernel.setLastLoc("offset=1499 line=67 span=15 id=\"stx.ss\"")   && plt.Kernel.pair_question_(a_dash_datum))||(plt.Kernel.setLastLoc("offset=1515 line=67 span=16 id=\"stx.ss\"")   && plt.Kernel.empty_question_(a_dash_datum))) ?
- (plt.Kernel.setLastLoc("offset=1538 line=68 span=89 id=\"stx.ss\"")   && make_dash_stx_colon_list((plt.Kernel.setLastLoc("offset=1553 line=68 span=47 id=\"stx.ss\"") && plt.Kernel.map(((function() {
-   plt.Kernel.setLastLoc("offset=1558 line=68 span=33 id=\"stx.ss\"");
+									       (((plt.Kernel.setLastLoc({offset:1499, line:67, span:15, id:"stx.ss"})   && plt.Kernel.pair_question_(a_dash_datum))||(plt.Kernel.setLastLoc({offset:1515, line:67, span:16, id:"stx.ss"})   && plt.Kernel.empty_question_(a_dash_datum))) ?
+										(plt.Kernel.setLastLoc({offset:1538, line:68, span:89, id:"stx.ss"})   && make_dash_stx_colon_list((plt.Kernel.setLastLoc({offset:1553, line:68, span:47, id:"stx.ss"}) && plt.Kernel.map(((function() {
+										    plt.Kernel.setLastLoc({offset:1558, line:68, span:33, id:"stx.ss"});
    var result = (function(args4) {
 var x = args4[0];
-                             return (plt.Kernel.setLastLoc("offset=1570 line=68 span=20 id=\"stx.ss\"")   && datum_dash__greaterthan_stx(x,a_dash_loc)); });
+       return (plt.Kernel.setLastLoc({offset:1570, line:68, span:20, id:"stx.ss"})   && datum_dash__greaterthan_stx(x,a_dash_loc)); });
                       result.toWrittenString = function (cache) {
                           return '<function:lambda>';
                       };
@@ -4511,17 +4566,17 @@ var x = args4[0];
                       return result;
                    })()), [a_dash_datum])),a_dash_loc)) :
  (plt.types.Logic.TRUE ?
- (plt.Kernel.setLastLoc("offset=1644 line=71 span=29 id=\"stx.ss\"")   && make_dash_stx_colon_atom(a_dash_datum,a_dash_loc)) :
- (plt.Kernel.setLastLoc("offset=1450 line=64 span=225 id=\"stx.ss\"")   && plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("cond: fell out of cond around \"offset=1450 line=64 span=225 id=\\\"stx.ss\\\"\""))))))); };
-var stx_dash__greaterthan_datum = function(a_dash_stx) { return ((plt.Kernel.setLastLoc("offset=1787 line=84 span=17 id=\"stx.ss\"")   && stx_colon_atom_question_(a_dash_stx)) ?
- (plt.Kernel.setLastLoc("offset=1810 line=85 span=22 id=\"stx.ss\"")   && stx_colon_atom_dash_datum(a_dash_stx)) :
- ((plt.Kernel.setLastLoc("offset=1839 line=86 span=17 id=\"stx.ss\"")   && stx_colon_list_question_(a_dash_stx)) ?
- (plt.Kernel.setLastLoc("offset=1862 line=87 span=38 id=\"stx.ss\"") && plt.Kernel.map((function() { var result = (function(args) {
+  (plt.Kernel.setLastLoc({offset:1644, line:71, span:29, id:"stx.ss"})   && make_dash_stx_colon_atom(a_dash_datum,a_dash_loc)) :
+  (plt.Kernel.setLastLoc({offset:1450, line:64, span:225, id:"stx.ss"})   && plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("cond: fell out of cond around \"offset=1450 line=64 span=225 id=\\\"stx.ss\\\"\""))))))); };
+var stx_dash__greaterthan_datum = function(a_dash_stx) { return ((plt.Kernel.setLastLoc({offset:1787, line:84, span:17, id:"stx.ss"})   && stx_colon_atom_question_(a_dash_stx)) ?
+								 (plt.Kernel.setLastLoc({offset:1810, line:85, span:22, id:"stx.ss"})   && stx_colon_atom_dash_datum(a_dash_stx)) :
+								 ((plt.Kernel.setLastLoc({offset:1839, line:86, span:17, id:"stx.ss"})   && stx_colon_list_question_(a_dash_stx)) ?
+								  (plt.Kernel.setLastLoc({offset:1862, line:87, span:38, id:"stx.ss"}) && plt.Kernel.map((function() { var result = (function(args) {
                     return stx_dash__greaterthan_datum(args[0]);
                  }); result.toWrittenString = function(cache) {return '<function:stx->datum>'; }
                      result.toDisplayedString = function(cache) {return '<function:stx->datum>';}
-                     return result; })(), [(plt.Kernel.setLastLoc("offset=1878 line=87 span=21 id=\"stx.ss\"")   && stx_colon_list_dash_elts(a_dash_stx))])) :
- (plt.Kernel.setLastLoc("offset=1776 line=83 span=126 id=\"stx.ss\"")   && plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("cond: fell out of cond around \"offset=1776 line=83 span=126 id=\\\"stx.ss\\\"\"")))))); };
+																				       return result; })(), [(plt.Kernel.setLastLoc({offset:1878, line:87, span:21, id:"stx.ss"})   && stx_colon_list_dash_elts(a_dash_stx))])) :
+								  (plt.Kernel.setLastLoc({offset:1776, line:83, span:126, id:"stx.ss"})   && plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),(plt.types.String.makeInstance("cond: fell out of cond around \"offset=1776 line=83 span=126 id=\\\"stx.ss\\\"\"")))))); };
 (function() { 
   ((function (toplevel_dash_expression_dash_show0) { 
 
@@ -4534,7 +4589,7 @@ var stx_dash__greaterthan_datum = function(a_dash_stx) { return ((plt.Kernel.set
 
 
  })  )(arguments[0] || plt.Kernel.identity);
-})();// Depends on kernel.js, stx.ss
+})();// Depends on types.js, stx.js
 
 if (typeof(plt) === 'undefined') { var plt = {}; }
 
@@ -4686,7 +4741,7 @@ plt.reader = {};
 	var lastToken = undefined;
 
 	if (tokensAndError[1].length > 0) {
-	    throw new plt.Kernel.MobyParserError(
+	    throw new plt.types.MobyParserError(
 		"Error while tokenizing: the rest of the stream is: " +
 		    tokensAndError[1],
 		new Loc(s.length - tokensAndError[1].length,
@@ -4709,12 +4764,12 @@ plt.reader = {};
 	var eat = function(expectedType) {
 	    if (tokens.length == 0) {
 		if (lastToken) { 
-		    throw new plt.Kernel.MobyParserError(
+		    throw new plt.types.MobyParserError(
 			"token stream exhausted while trying to eat " +
 			    expectedType,
 			lastToken[2]);
 		} else {
-		    throw new plt.Kernel.MobyParserError(
+		    throw new plt.types.MobyParserError(
 			"token stream exhausted while trying to eat " +
 			    expectedType,
 			new Loc(0, 0, s.length, source));
@@ -4725,7 +4780,7 @@ plt.reader = {};
 	    if (t[0] == expectedType) {
 		return t;
 	    } else {
-		throw new plt.Kernel.MobyParserError(
+		throw new plt.types.MobyParserError(
 		    "Unexpected token " + t,
 		    t[2]);
 	    }
@@ -4741,9 +4796,9 @@ plt.reader = {};
 	readQuoted = function(quoteChar, quoteSymbol) {
 	    var leadingQuote = eat(quoteChar);
 	    var quoted = readExpr();
-	    return makeList(plt.Kernel.cons(
+	    return makeList(plt.types.Cons.makeInstance(
 		makeAtom(quoteSymbol, leadingQuote[2]),
-		plt.Kernel.cons(quoted, empty)),
+		plt.types.Cons.makeInstance(quoted, empty)),
 			    new Loc(leadingQuote[2].offset,
 				    leadingQuote[2].line,
 				    (quoted.loc.offset -
@@ -4815,11 +4870,11 @@ plt.reader = {};
 	readExpr = function() {
 	    if (tokens.length == 0) {
 		if (lastToken) { 
-		    throw new plt.Kernel.MobyParserError(
+		    throw new plt.types.MobyParserError(
 			"Parse broke with empty token stream",
 			lastToken[2]);
 		} else {
-		    throw new plt.Kernel.MobyParserError(
+		    throw new plt.types.MobyParserError(
 			"Parse broke with empty token stream",
 			new Loc(0, 0, s.length, source));
 		}
@@ -4833,11 +4888,11 @@ plt.reader = {};
 		var rshape = getParenRShape(lparen[1]);
 		var result = readExprs();
 		if (tokens.length == 0) {
-		    throw new plt.Kernel.MobyParserError(
+		    throw new plt.types.MobyParserError(
 			"Expected a " + rshape + " to close " + lshape,
 			lparen[2]);
 		} else if (tokens[0][1] != rshape) {
-		    throw new plt.Kernel.MobyParserError(
+		    throw new plt.types.MobyParserError(
 			"Expected a " + rshape + " to close " + lshape,
 			tokens[0][2]);
 		}
@@ -4915,13 +4970,13 @@ plt.reader = {};
 	    case 'symbol':
 		var t = eat('symbol');
 		if (t[1] == '.') {
-		    throw new plt.Kernel.MobyParserError
+		    throw new plt.types.MobyParserError
 		    ("Dotted pairs are not currently accepted by Moby", t[2]);
 		}
 		return makeAtom(plt.types.Symbol.makeInstance(t[1]), t[2]);
 
 	    default:
-		throw new plt.Kernel.MobyParserError
+		throw new plt.types.MobyParserError
 		("Parse broke with token stream " + tokens, 
 		 tokens[0][2]);
 	    }
@@ -4943,13 +4998,13 @@ plt.reader = {};
 		    result = plt.types.Cons.makeInstance(nextElt, result);
 		}
 	    }
-	    return plt.Kernel.reverse(result);
+	    return plt.types.Cons.reverse(result);
 	};
 	
 
 	var result = readExprs();
 	if (tokens.length > 0) {
-	    throw new plt.Kernel.MobyParserError
+	    throw new plt.types.MobyParserError
 	    ("More elements in the program's token stream than expected: "+
 	     "the next unconsumed token is: "  + tokens[0][1],
 	     tokens[0][2])
