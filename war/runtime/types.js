@@ -1,4 +1,4 @@
-if (typeof(plt) == 'undefined') { plt = {}; }
+if (typeof(plt) === 'undefined') { var plt = {}; }
 
 
 // Depends on kernel.js.
@@ -101,7 +101,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	if (other._constructorName != this._constructorName) {
 	    return false;
 	}
-	if (! '_fields' in other) {
+	if (typeof(other._fields) === 'undefined') {
 	    return false;
 	}
 	if (this._fields.length != other._fields.length) {
