@@ -148,25 +148,25 @@ WeSchemeInteractions = (function () {
 	if (err instanceof plt.Kernel.MobyParserError) {
 		this.addToInteractions(
 		    "Error (" + 
-			Loc_dash__greaterthan_string(err.loc).toDisplayedString()
+			plt.Kernel.locToString(err.loc)
 			+ ")\n");
 	    this.addToInteractions(err.msg + "\n");
 	} else if (err instanceof plt.Kernel.MobySyntaxError) {
 		this.addToInteractions(
 		    "Error (" + 
-			Loc_dash__greaterthan_string(err.stx.loc).toDisplayedString()
+			plt.Kernel.locToString(err.stx.loc)
 			+ ")\n");
 	    this.addToInteractions(err.msg + "\n");
 	} else if (err instanceof plt.Kernel.MobyError){
 	    if (plt.Kernel.lastLoc) {
 		this.addToInteractions(
-		    "Error (" + plt.Kernel.getLastLocString() + ")\n");
+		    "Error (" + plt.Kernel.locToString(plt.Kernel.lastLoc) + ")\n");
 	    }
 	    this.addToInteractions(err.msg + "\n");
 	} else {
 	    if (plt.Kernel.lastLoc) {
 		this.addToInteractions(
-		    "Error (" + plt.Kernel.getLastLocString() + ")\n");
+		    "Error (" + plt.Kernel.locToString(plt.Kernel.lastLoc) + ")\n");
 	    }
 	    this.addToInteractions(err.toString() + "\n");
 	}
