@@ -196,12 +196,12 @@
 
 
   <servlet>
-    <servlet-name>publishProject</servlet-name>
-    <servlet-class>org.wescheme.servlet.Publish</servlet-class>
+    <servlet-name>shareProject</servlet-name>
+    <servlet-class>org.wescheme.servlet.Share</servlet-class>
   </servlet>
   <servlet-mapping>
-    <servlet-name>publishProject</servlet-name>
-    <url-pattern>/publishProject</url-pattern>
+    <servlet-name>shareProject</servlet-name>
+    <url-pattern>/shareProject</url-pattern>
   </servlet-mapping>
 
 
