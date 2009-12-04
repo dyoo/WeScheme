@@ -64,46 +64,31 @@ if (typeof(plt) == 'undefined') { plt = {} }
     //////////////////////////////////////////////////////////////////////
     // Union/find for circular equality testing.
 
-    var UnionFindNode = function() {
-	this.parent = this;
-    }
-
-    // findTop: -> UnionFindNode
-    UnionFindNode.prototype.findTop = function() {
-	if (this === this.parent) { 
-	    return this;
-	} else {
-	    // Path compress here:
-	    var result = this.parent.findTop();
-	    this.parent = result;
-	    return result;
-	}
-
-    }
-
-
     var UnionFind = function() {
-	// 
-	this.nodeMap = makeEqHashtable();
+	// this.parenMap holds the arrows from an arbitrary pointer
+	// to its parent.
+	this.parentMap = makeEqHashtable();
     }
+
     // find: ptr -> UnionFindNode
-    // Returns the representative UnionFindNode for this pointer.
-    // Invariant: the representative node must have its parent pointer
-    // set to itself.
+    // Returns the representative for this ptr.
     UnionFind.prototype.find = function(ptr) {
-	if (! this.nodeMap.containsKey(ptr)) {
-	    this.nodeMap.put(ptr, new UnionFindNode());
-	} 
-	return this.nodeMap.get(ptr).findTop();
+	var parent = (this.parentMap.containsKey(ptr) ? 
+		      this.parentMap.get(ptr) : ptr);
+	if (parent === ptr) {
+	    return parent;
+	} else {
+	    var rep = this.find(parent);
+	    // Path compression:
+	    this.parentMap.put(ptr, rep);
+	    return rep;
+	}
     };
 
     // merge: ptr ptr -> void
     // Merge the representative nodes for ptr1 and ptr2.
     UnionFind.prototype.merge = function(ptr1, ptr2) {
-	var n1 = this.find(ptr1);
-	var n2 = this.find(ptr2);
-	// Arbitrary choice.
-	n1.parent = n2;
+	this.parentMap.put(this.find(ptr1), this.find(ptr2));
     };
 
 
@@ -2369,7 +2354,15 @@ if (typeof(plt) == 'undefined') { plt = {} }
 	    reporter(e.toString());
 	}
 	if (plt.Kernel.lastLoc) {
-	    reporter("Error was raised around " + plt.Kernel.lastLoc);
+	    if (typeof(lastLoc) === 'string') {
+		reporter("Error was raised around " + plt.Kernel.lastLoc);
+	    } else if ('offset' in lastLoc &&
+		       'line' in lastLoc &&
+		       'span' in lastLoc &&
+		       'id' in lastLoc) {
+		reporter("Error was raised around: "
+			 + plt.Kernel.getLastLocString());
+	    }
 	}
     };
 
@@ -2493,6 +2486,13 @@ if (typeof(plt) == 'undefined') { plt = {} }
 	plt.Kernel.lastLoc = loc;
 	return true;
     }
+
+    plt.Kernel.getLastLocString = function() {
+	return ("offset=" + plt.Kernel.lastLoc.offset
+		+ ", line=" + plt.Kernel.lastLoc.line 
+		+ ", span=" + plt.Kernel.lastLoc.span 
+		+ ", id=" + plt.Kernel.lastLoc.id);
+    };
     
 
 

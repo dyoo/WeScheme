@@ -160,13 +160,13 @@ WeSchemeInteractions = (function () {
 	} else if (err instanceof plt.Kernel.MobyError){
 	    if (plt.Kernel.lastLoc) {
 		this.addToInteractions(
-		    "Error (" + plt.Kernel.lastLoc + ")\n");
+		    "Error (" + plt.Kernel.getLastLocString() + ")\n");
 	    }
 	    this.addToInteractions(err.msg + "\n");
 	} else {
 	    if (plt.Kernel.lastLoc) {
 		this.addToInteractions(
-		    "Error (" + plt.Kernel.lastLoc + ")\n");
+		    "Error (" + plt.Kernel.getLastLocString() + ")\n");
 	    }
 	    this.addToInteractions(err.toString() + "\n");
 	}
