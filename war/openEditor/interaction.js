@@ -94,12 +94,12 @@ WeSchemeInteractions = (function () {
     }
 
     // Evaluate the source code and accumulate its effects.
-    WeSchemeInteractions.prototype.runCode = function(aSource) {
+    WeSchemeInteractions.prototype.runCode = function(aSource, sourceName) {
 	this.notifyBus("before-run", this);
 	var that = this;
 	this._prepareToRun();
 	try {
-	    var program = plt.reader.readSchemeExpressions(aSource);
+	    var program = plt.reader.readSchemeExpressions(aSource, sourceName);
 	    var compiledProgram = 
 		program_dash__greaterthan_compiled_dash_program_slash_pinfo(program, this.pinfo);
 
@@ -227,7 +227,7 @@ WeSchemeInteractions = (function () {
  	if (keyEvent.keyCode == 13) {
 	    var nextCode = this.prompt.find("input").attr("value");
 	    this.addToInteractions("> " + nextCode + "\n");
-	    this.runCode(nextCode);
+	    this.runCode(nextCode, "<interactions>");
 	    this.history.push(nextCode);
 	    this.prompt.find("input").attr("value", "");
 	    return false;

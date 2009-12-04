@@ -445,7 +445,7 @@ var WeSchemeEditor;
     WeSchemeEditor.prototype.run = function() {
 	WeSchemeIntentBus.notify("before-run", this);
 	this.interactions.reset();
-	this.interactions.runCode(this.defn.getCode());
+	this.interactions.runCode(this.defn.getCode(), "<definitions>");
 	WeSchemeIntentBus.notify("after-run", this);
     };
 
