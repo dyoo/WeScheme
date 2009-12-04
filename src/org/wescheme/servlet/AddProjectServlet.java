@@ -58,7 +58,7 @@ public class AddProjectServlet extends HttpServlet {
 				if( !userSession.getName().equals(prog.getOwner()) ){
 					throw new UnauthorizedUserException();
 				}
-				Program p = prog.clone(db.owner());
+				Program p = prog.clone(db.owner(), pm);
 				pm.makePersistent(p);
 				Long pid = p.getId();
 				Entry entry = new Entry(db.getId(), binID, pid);

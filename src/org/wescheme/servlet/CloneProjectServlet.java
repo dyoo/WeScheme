@@ -48,7 +48,7 @@ public class CloneProjectServlet extends javax.servlet.http.HttpServlet {
 				resp.sendError(401);				
 				return;
 			}
-			Program cloned = prog.clone(userSession.getName());
+			Program cloned = prog.clone(userSession.getName(), pm);
 			cloned.unpublish();
 			cloned.setAuthor(userSession.getName());
 			cloned.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueName(pm));
