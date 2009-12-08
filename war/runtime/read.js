@@ -1,13 +1,5 @@
-<<<<<<< HEAD:war/runtime/read.js
 // Depends on types.js, stx.js
 goog.provide('plt.reader');
-=======
-// Depends on kernel.js, stx.ss
-
-if (typeof(plt) === 'undefined') { var plt = {}; }
-
-plt.reader = {};
->>>>>>> origin/master:war/runtime/read.js
 
 
 (function(){

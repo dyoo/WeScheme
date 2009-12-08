@@ -1,8 +1,4 @@
-<<<<<<< HEAD:war/runtime/jshashtable.js
 goog.provide("plt._Hashtable");
-=======
-if (typeof(plt) === 'undefined') { var plt = {}; }
->>>>>>> origin/master:war/runtime/jshashtable.js
 
 
 /**

@@ -1,8 +1,4 @@
-<<<<<<< HEAD:war/runtime/types.js
 goog.provide('plt.types');
-=======
-if (typeof(plt) === 'undefined') { var plt = {}; }
->>>>>>> origin/master:war/runtime/types.js
 
 
 

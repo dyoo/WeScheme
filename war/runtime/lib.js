@@ -1,11 +1,4 @@
-<<<<<<< HEAD:war/runtime/lib.js
 goog.provide('plt.lib');
-=======
-// Platform-specific stuff.
-if (typeof(plt) === 'undefined') { var plt = {}; }
-
-plt.lib = {};
->>>>>>> origin/master:war/runtime/lib.js
 
 
 (function () {

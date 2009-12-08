@@ -1,14 +1,5 @@
 // Feeds stimuli inputs into the world.
-<<<<<<< HEAD:war/runtime/world-stimuli.js
 goog.provide('plt.world.stimuli');
-=======
-
-
-// Depends on kernel.js, types.js, world-config.js
-if (typeof(plt) === 'undefined') { var plt = {}; }
-plt.world = plt.world || {};
-
->>>>>>> origin/master:war/runtime/world-stimuli.js
 
 (function() {
     var stimuli = {}
