@@ -1,7 +1,4 @@
-// Platform-specific stuff.
-if (typeof(plt) == 'undefined') { plt = {}; }
-
-plt.lib = {};
+goog.provide('plt.lib');
 
 
 (function () {

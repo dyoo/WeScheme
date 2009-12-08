@@ -1,7 +1,5 @@
-// Platform-specific stuff.
-if (typeof(plt) == 'undefined') { plt = {}; }
+goog.provide('plt.platform');
 
-plt.platform = {};
 
 (function() { 
     plt.platform.Platform = {};

@@ -4,7 +4,7 @@
 if (typeof(plt) == 'undefined') { plt = {}; }
 if (typeof(plt.bootstrap) == 'undefined') { plt.bootstrap = {}; }
 (function() {
-
+(function(_that) {var _SHARED = {};
 var start = function(title, background, playerImg, targetImgs, objectImgs, update_dash_player, update_dash_target, update_dash_object, collide_question_, offscreen_question_) { return ((function() { 
 
 var being = function (posn,costume) { plt.types.Struct.call(this, "make-being", [posn,costume]);this.posn = posn;
@@ -372,5 +372,7 @@ var t = args42[0];  return (plt.Kernel.setLastLoc({offset:7601, line:140, span:5
   ((function (toplevel_dash_expression_dash_show0) { 
 
 toplevel_dash_expression_dash_show0((plt.Kernel.setLastLoc({offset:9730, line:177, span:6, id:"modules/bootstrap-teachpack.ss"}) && plt.Kernel._void_([]))); })  )(arguments[0] || plt.Kernel.identity);
-})();plt.bootstrap.start = start;
+_that["start"] = start;
+})();})(this);
+plt.bootstrap.start = start;
 }())

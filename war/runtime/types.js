@@ -1,10 +1,10 @@
-if (typeof(plt) == 'undefined') { plt = {}; }
+goog.provide('plt.types');
 
 
-// Depends on kernel.js.
+
 (function() {
-
-
+    
+    
     //////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////
     // Types
@@ -36,7 +36,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     }
     
     
-    // plt.Kernel.getHashCode: any -> (or fixnum string)
+    // plt.types.getHashCode: any -> (or fixnum string)
     // Produces a hashcode appropriate for eq.
     plt.types.getEqHashCode = function(x) {
 	if (x && x._eqHashCode) {
@@ -69,7 +69,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	buffer.push(this._constructorName);
 	for(var i = 0; i < this._fields.length; i++) {
 	    buffer.push(" ");
-	    buffer.push(plt.Kernel.toWrittenString(this._fields[i], cache));
+	    buffer.push(plt.types.toWrittenString(this._fields[i], cache));
 	}
 	buffer.push(")");
 	return plt.types.String.makeInstance(buffer.join(""));
@@ -84,7 +84,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	node.appendChild(document.createTextNode(this._constructorName));
 	for(var i = 0; i < this._fields.length; i++) {
 	    node.appendChild(document.createTextNode(" "));
-	    appendChild(node, plt.Kernel.toDomNode(this._fields[i], cache));
+	    appendChild(node, plt.types.toDomNode(this._fields[i], cache));
 	}
 	node.appendChild(document.createTextNode(")"));
 	return node;
@@ -101,14 +101,14 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	if (other._constructorName != this._constructorName) {
 	    return false;
 	}
-	if (! '_fields' in other) {
+	if (typeof(other._fields) === 'undefined') {
 	    return false;
 	}
 	if (this._fields.length != other._fields.length) {
 	    return false;
 	}
 	for (var i = 0; i < this._fields.length; i++) {
-	    if (! plt.Kernel.isEqual(this._fields[i],
+	    if (! plt.types.isEqual(this._fields[i],
 				     other._fields[i],
 				     aUnionFind)) {
 		return false;
@@ -253,10 +253,10 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     };
 
     plt.types.Empty.prototype.first = function() {
-	throw new plt.Kernel.MobyRuntimeError("first can't be applied on empty.");
+	throw new MobyRuntimeError("first can't be applied on empty.");
     };
     plt.types.Empty.prototype.rest = function() {
-	throw new plt.Kernel.MobyRuntimeError("rest can't be applied on empty.");
+	throw new MobyRuntimeError("rest can't be applied on empty.");
     };
     plt.types.Empty.prototype.isEmpty = function() {
 	return true;
@@ -277,6 +277,15 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	this.r = r;
 	this._eqHashCode = plt.types.makeEqHashCode();
     };
+
+    plt.types.Cons.reverse = function(lst) {
+	var ret = plt.types.Empty.EMPTY;
+	while (!lst.isEmpty()){
+	    ret = plt.types.Cons.makeInstance(lst.first(), ret);
+	    lst = lst.rest();
+	}
+	return ret;
+    };
     
     plt.types.Cons.makeInstance = function(f, r) {
 	return new plt.types.Cons(f, r);
@@ -288,8 +297,8 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	if (! (other instanceof plt.types.Cons)) {
 	    return plt.types.Logic.FALSE;
 	}
-	return (plt.Kernel.isEqual(this.first(), other.first(), aUnionFind) &&
-		plt.Kernel.isEqual(this.rest(), other.rest(), aUnionFind));
+	return (plt.types.isEqual(this.first(), other.first(), aUnionFind) &&
+		plt.types.isEqual(this.rest(), other.rest(), aUnionFind));
     };
     
     plt.types.Cons.prototype.first = function() {
@@ -309,7 +318,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	if (b.isEmpty())
 	    return this;
 	var ret = b;
-	var lst = plt.Kernel.reverse(this);
+	var lst = plt.types.Cons.reverse(this);
 	while (!lst.isEmpty()){
 	    ret = plt.types.Cons.makeInstance(lst.first(), ret);
 	    lst = lst.rest();
@@ -323,7 +332,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	var texts = [];
 	var p = this;
 	while (! p.isEmpty()) {
-	    texts.push(plt.Kernel.toWrittenString(p.first(), cache));
+	    texts.push(plt.types.toWrittenString(p.first(), cache));
 	    p = p.rest();
 	}
 	return "(" + texts.join(" ") + ")";
@@ -335,7 +344,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	var texts = [];
 	var p = this;
 	while (! p.isEmpty()) {
-	    texts.push(plt.Kernel.toDisplayedString(p.first(), cache));
+	    texts.push(plt.types.toDisplayedString(p.first(), cache));
 	    p = p.rest();
 	}
 	return "(" + texts.join(" ") + ")";
@@ -349,7 +358,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	node.appendChild(document.createTextNode("("));
 	var p = this;
 	while (! p.isEmpty()) {
-	    appendChild(node, plt.Kernel.toDomNode(p.first(), cache));
+	    appendChild(node, plt.types.toDomNode(p.first(), cache));
 	    p = p.rest();
 	    if (! p.isEmpty()) {
 		appendChild(node, document.createTextNode(" "));
@@ -395,7 +404,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 		return false
 	    }
 	    for (var i = 0; i <  this.length(); i++) {
-		if (! plt.Kernel.isEqual(this.elts[i], other.elts[i], aUnionFind)) {
+		if (! plt.types.isEqual(this.elts[i], other.elts[i], aUnionFind)) {
 		    return false;
 		}
 	    }
@@ -409,7 +418,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	cache.put(this, true);
 	var texts = [];
 	for (var i = 0; i < this.length(); i++) {
-	    texts.push(plt.Kernel.toWrittenString(this.ref(i), cache));
+	    texts.push(plt.types.toWrittenString(this.ref(i), cache));
 	}
 	return "#(" + texts.join(" ") + ")";
     };
@@ -417,7 +426,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	cache.put(this, true);
 	var texts = [];
 	for (var i = 0; i < this.length(); i++) {
-	    texts.push(plt.Kernel.toDisplayedStringString(this.ref(i), cache));
+	    texts.push(plt.types.toDisplayedString(this.ref(i), cache));
 	}
 	return "#(" + texts.join(" ") + ")";
     };
@@ -428,7 +437,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	node.appendChild(document.createTextNode("#("));
 	for (var i = 0; i < this.length(); i++) {
 	    appendChild(node,
-			plt.Kernel.toDomNode(this.ref(i), cache));
+			plt.types.toDomNode(this.ref(i), cache));
 	}
 	node.appendChild(document.createTextNode(")"));
 	return node;
@@ -466,10 +475,10 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     var gcd = function(a, b) {
 	var t;
 	if (isNaN(a) || !isFinite(a)) {
-	    throw new plt.Kernel.MobyRuntimeError("not a number: " + a);
+	    throw new MobyRuntimeError("not a number: " + a);
 	}
 	if (isNaN(b) || !isFinite(b)) {
-	    throw new plt.Kernel.MobyRuntimeError("not a number: " + b);
+	    throw new MobyRuntimeError("not a number: " + b);
 	}
 	while (b != 0) {
 	    t = a;
@@ -482,7 +491,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     plt.types.Rational = function(n, d) {
 	if (d == undefined) { d = 1; }
 	if (d == 0) {
-	    throw new plt.Kernel.MobyRuntimeError("cannot have zero denominator.");
+	    throw new MobyRuntimeError("cannot have zero denominator.");
 	}
 	var divisor = gcd(Math.abs(n), Math.abs(d));
 	this.n = n / divisor;
@@ -513,7 +522,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	if (target.level() == 2)	
 	    return plt.types.Complex.makeInstance(this, 
 						  plt.types.Rational.ZERO);
-	throw new plt.Kernel.MobyRuntimeError("invalid level of Number");
+	throw new MobyRuntimeError("invalid level of Number");
     };
     
     plt.types.Rational.prototype.isFinite = function() {
@@ -563,7 +572,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     
     plt.types.Rational.prototype.divide = function(other) {
 	if (this.d * other.n == 0) {
-	    throw new plt.Kernel.MobyRuntimeError("division by zero");
+	    throw new MobyRuntimeError("division by zero");
 	}
 	return plt.types.Rational.makeInstance(this.n * other.d,
 					       this.d * other.n);
@@ -743,7 +752,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     var _rationalCache = {};
     plt.types.Rational.makeInstance = function(n, d) {
 	if (n == undefined)
-	    throw new plt.Kernel.MobyRuntimeError("n undefined");
+	    throw new MobyRuntimeError("n undefined");
 
 	if (d == undefined) { d = 1; }
 
@@ -923,7 +932,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     FloatPoint.prototype.divide = function(other) {
 	if (this.isFinite() && other.isFinite()) {
 	    if (other.n == 0) {
-		throw new plt.Kernel.MobyRuntimeError("division by zero");
+		throw new MobyRuntimeError("division by zero");
 	    }
             return FloatPoint.makeInstance(this.n / other.n);
 	} else if (isNaN(this.n) || isNaN(other.n)) {
@@ -1143,9 +1152,9 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	if (NumberTower.greaterThanOrEqual(
 	    this.i,
 	    plt.types.Rational.ZERO)) {
-        return plt.Kernel.toWrittenString(this.r) + "+" + plt.Kernel.toWrittenString(this.i)+"i";
+        return plt.types.toWrittenString(this.r) + "+" + plt.types.toWrittenString(this.i)+"i";
 	} else {
-            return plt.Kernel.toWrittenString(this.r) + plt.Kernel.toWrittenString(this.i)+"i";
+            return plt.types.toWrittenString(this.r) + plt.types.toWrittenString(this.i)+"i";
 	}
     };
 
@@ -1168,7 +1177,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 
     plt.types.Complex.prototype.toExact = function() { 
 	if (! this.isReal()) {
-	    throw new plt.Kernel.MobyRuntimeError("inexact->exact: expects argument of type real number");
+	    throw new MobyRuntimeError("inexact->exact: expects argument of type real number");
 	}
 	return this.r.toExact();
     };
@@ -1184,7 +1193,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     };
     
     plt.types.Complex.prototype.lift = function(target){
-	throw new plt.Kernel.MobyRuntimeError("Don't know how to lift Complex number");
+	throw new MobyRuntimeError("Don't know how to lift Complex number");
     };
     
     plt.types.Complex.prototype.isEqual = function(other, aUnionFind){
@@ -1201,28 +1210,28 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 
     plt.types.Complex.prototype.greaterThan = function(other) {
 	if (! this.isReal() || ! other.isReal()) {
-	    throw new plt.Kernel.MobyRuntimeError(">: expects argument of type real number");
+	    throw new MobyRuntimeError(">: expects argument of type real number");
 	}
 	return NumberTower.greaterThan(this.r, other.r);
     };
 
     plt.types.Complex.prototype.greaterThanOrEqual = function(other) {
 	if (! this.isReal() || ! other.isReal()) {
-	    throw new plt.Kernel.MobyRuntimeError(">: expects argument of type real number");
+	    throw new MobyRuntimeError(">: expects argument of type real number");
 	}
 	return NumberTower.greaterThanOrEqual(this.r, other.r);
     };
 
     plt.types.Complex.prototype.lessThan = function(other) {
 	if (! this.isReal() || ! other.isReal()) {
-	    throw new plt.Kernel.MobyRuntimeError(">: expects argument of type real number");
+	    throw new MobyRuntimeError(">: expects argument of type real number");
 	}
 	return NumberTower.lessThan(this.r, other.r);
     };
 
     plt.types.Complex.prototype.lessThanOrEqual = function(other) {
 	if (! this.isReal() || ! other.isReal()) {
-	    throw new plt.Kernel.MobyRuntimeError(">: expects argument of type real number");
+	    throw new MobyRuntimeError(">: expects argument of type real number");
 	}
 	return NumberTower.lessThanOrEqual(this.r, other.r);
     };
@@ -1230,33 +1239,33 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 
     plt.types.Complex.prototype.abs = function(){
 	if (!NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
-	    throw new plt.Kernel.MobyRuntimeError("abs: expects argument of type real number");
+	    throw new MobyRuntimeError("abs: expects argument of type real number");
 	return this.r.abs();
     };
     
     plt.types.Complex.prototype.toFixnum = function(){
 	if (!NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
-	    throw new plt.Kernel.MobyRuntimeError("toFixnum: expects argument of type real number");
+	    throw new MobyRuntimeError("toFixnum: expects argument of type real number");
 	return this.r.toFixnum();
     };
 
     plt.types.Complex.prototype.numerator = function() {
 	if (!this.isReal())
-	    throw new plt.Kernel.MobyRuntimeError("numerator: can only be applied to real number");
+	    throw new MobyRuntimeError("numerator: can only be applied to real number");
 	return this.n.numerator();
     };
     
 
     plt.types.Complex.prototype.denominator = function() {
 	if (!this.isReal())
-	    throw new plt.Kernel.MobyRuntimeError("floor: can only be applied to real number");
+	    throw new MobyRuntimeError("floor: can only be applied to real number");
 	return this.n.denominator();
     };
 
     
     plt.types.Complex.prototype.toFloat = function(){
 	if (!NumberTower.equal(this.i, plt.types.Rational.ZERO).valueOf())
-	    throw new plt.Kernel.MobyRuntimeError("toFloat: expects argument of type real number");
+	    throw new MobyRuntimeError("toFloat: expects argument of type real number");
 	return this.r.toFloat();
     };
     
@@ -1465,13 +1474,13 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     
     plt.types.Complex.prototype.ceiling = function(){
 	if (!this.isReal())
-	    throw new plt.Kernel.MobyRuntimeError("ceiling: can only be applied to real number");
+	    throw new MobyRuntimeError("ceiling: can only be applied to real number");
 	return this.r.ceiling();
     };
     
     plt.types.Complex.prototype.floor = function(){
 	if (!this.isReal())
-	    throw new plt.Kernel.MobyRuntimeError("floor: can only be applied to real number");
+	    throw new MobyRuntimeError("floor: can only be applied to real number");
 	return this.r.floor();
     };
     
@@ -1570,7 +1579,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	if (y.level() < x.level()) y = y.lift(x);
 
 	if (!(x.isReal() && y.isReal()))
-	    throw new plt.Kernel.MobyRuntimeError("greaterThanOrEqual: couldn't be applied to complex number");
+	    throw new MobyRuntimeError("greaterThanOrEqual: couldn't be applied to complex number");
 	return x.greaterThanOrEqual(y);
     };
     
@@ -1578,7 +1587,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	if (x.level() < y.level()) x = x.lift(y);
 	if (y.level() < x.level()) y = y.lift(x);
 	if (!(x.isReal() && y.isReal()))
-	    throw new plt.Kernel.MobyRuntimeError("lessThanOrEqual: couldn't be applied to complex number");
+	    throw new MobyRuntimeError("lessThanOrEqual: couldn't be applied to complex number");
 	return x.lessThanOrEqual(y);    	
     };
     
@@ -1587,7 +1596,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	if (y.level() < x.level()) y = y.lift(x);
 	
 	if (!(x.isReal() && y.isReal()))
-	    throw new plt.Kernel.MobyRuntimeError("greaterThan: couldn't be applied to complex number");
+	    throw new MobyRuntimeError("greaterThan: couldn't be applied to complex number");
 	return x.greaterThan(y);
 	
     };
@@ -1597,7 +1606,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	if (y.level() < x.level()) y = y.lift(x);
 
 	if (!(x.isReal() && y.isReal()))
-	    throw new plt.Kernel.MobyRuntimeError("lessThan: couldn't be applied to complex number");
+	    throw new MobyRuntimeError("lessThan: couldn't be applied to complex number");
 	return x.lessThan(y);
     };
     
@@ -1663,7 +1672,7 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	return s.valueOf();
     };
     
-
+    
     // WARNING
     // WARNING: we are extending the built-in Javascript string class here!
     // WARNING
@@ -1671,8 +1680,9 @@ if (typeof(plt) == 'undefined') { plt = {}; }
 	return this == other;
     };
     
+    var _quoteReplacingRegexp = new RegExp("[\"\\\\]", "g");
     plt.types.String.prototype.toWrittenString = function(cache) {
-    	return '"' + this.replace(/["\\]/g,
+    	return '"' + this.replace(_quoteReplacingRegexp,
     	                       function(match, submatch, index) {
                                        return "\\" + match;
                                    }) + '"';
@@ -1683,5 +1693,222 @@ if (typeof(plt) == 'undefined') { plt = {}; }
     }
 
 
+
+    //////////////////////////////////////////////////////////////////////
+
+    // makeEqHashtable: -> hashtable
+    // Constructs an eq hashtable that uses Moby's getEqHashCode function.
+    var makeEqHashtable = function() {
+	return new plt._Hashtable(function(x) { return plt.types.getEqHashCode(x); },
+				  function(x, y) { return x === y; });
+    };
+
+
+
+
+
+    plt.types.toWrittenString = function(x, cache) {
+	if (! cache) { 
+	    cache = makeEqHashtable();
+	}
+
+	if (x && cache.containsKey(x)) {
+	    return "...";
+	}
+
+	if (x == undefined || x == null) {
+	    return "<undefined>";
+	}
+	if (typeof(x) == 'string') {
+	    return x.toWrittenString();
+	}
+	if (typeof(x) != 'object' && typeof(x) != 'function') {
+	    return x.toString();
+	}
+	if (typeof(x.toWrittenString) !== 'undefined') {
+	    return x.toWrittenString(cache);
+	}
+	if (typeof(x.toDisplayedString) !== 'undefined') {
+	    return x.toDisplayedString(cache);
+	} else {
+	    return x.toString();
+	}
+    };
+
+
+
+    plt.types.toDisplayedString = function(x, cache) {
+	if (! cache) {
+	    cache = makeEqHashtable();
+	}
+	if (x && cache.containsKey(x)) {
+	    return "...";
+	}
+
+	if (x == undefined || x == null) {
+	    return "<undefined>";
+	}
+	if (typeof(x) == 'string') {
+	    return x.toDisplayedString();
+	}
+	if (typeof(x) != 'object' && typeof(x) != 'function') {
+	    return x.toString();
+	}
+	if (typeof(x.toWrittenString) !== 'undefined') {
+	    return x.toWrittenString(cache);
+	}
+	if (typeof(x.toDisplayedString) !== 'undefined') {
+	    return x.toDisplayedString(cache);
+	} else {
+	    return x.toString();
+	}
+    };
+
+
+
+    // toDomNode: scheme-value -> dom-node
+    plt.types.toDomNode = function(x, cache) {
+	if (! cache) {
+	    cache = makeEqHashtable();
+	}
+	if (x && cache.containsKey(x)) {
+	    return document.createTextNode("...");
+	}
+
+	if (x == undefined || x == null) {
+	    var node = document.createTextNode("<undefined>");
+	    return node;
+	}
+	if (typeof(x) == 'string') {
+	    var node = document.createTextNode(x.toWrittenString());
+	    return node;
+	}
+	if (typeof(x) != 'object' && typeof(x) != 'function') {
+	    var node = document.createTextNode(x.toString());
+	    return node;
+	}
+	if (x.nodeType) {
+	    return x;
+	}
+	if (typeof(x.toDomNode) !== 'undefined') {
+	    return x.toDomNode(cache);
+	}
+	if (typeof(x.toWrittenString) !== 'undefined') {
+	    var node = document.createTextNode(plt.types.toWrittenString(x, cache));
+	    return node;
+	}
+	if (typeof(x.toDisplayedString) !== 'undefined') {
+	    var node = document.createTextNode(plt.types.toDisplayedString(x, cache));
+	    return node;
+	} else {
+	    var node = document.createTextNode(x.toString());
+	    return node;
+	}
+    };
+
+
+
+
+
+    var isNumber = function(x) {
+	return (x != null && x != undefined && (x instanceof plt.types.Rational || 
+						x instanceof plt.types.FloatPoint ||
+						x instanceof plt.types.Complex));
+    }
+    plt.types.isNumber = isNumber;
+
+
+
+    // isEqual: X Y -> boolean
+    // Returns true if the objects are equivalent; otherwise, returns false.
+    plt.types.isEqual = function(x, y, aUnionFind) {
+	if (x === y) { return true; }
+
+	if (isNumber(x) && isNumber(y)) {
+	    return NumberTower.equal(x, y);
+	}
+
+	if (x == undefined || x == null) {
+	    return (y == undefined || y == null);
+	}
+
+	if (typeof(x) == 'object' && typeof(y) == 'object' && 
+	    aUnionFind.find(x) === aUnionFind.find(y)) {
+	    return true;
+	} else {
+	    if (typeof(x) == 'object' && typeof(y) == 'object') { 
+		aUnionFind.merge(x, y); 
+	    }
+	    return x.isEqual(y, aUnionFind);
+	}
+    }
+
+
+
+
+
+
+
+    //////////////////////////////////////////////////////////////////////
+    var MobyError = function(msg) {
+	this.msg = msg;
+    }
+    MobyError.prototype.name= 'MobyError';
+    MobyError.prototype.toString = function () { return this.name + ": " + this.msg }
+
+
+    var MobyParserError = function(msg, loc) {
+	MobyError.call(this, msg);
+	this.loc = loc;
+    }
+    MobyParserError.prototype = heir(MobyError.prototype);
+    MobyParserError.prototype.name= 'MobyParserError';
+
+    
+    var MobySyntaxError = function(msg, stx) {
+	MobyError.call(this, msg);
+	this.stx = stx;
+    }
+    MobySyntaxError.prototype = heir(MobyError.prototype);
+    MobySyntaxError.prototype.name= 'MobySyntaxError';
+
+
+    var MobyTypeError = function(msg) {
+	MobyError.call(this, msg);
+    }
+    MobyTypeError.prototype = heir(MobyError.prototype);
+    MobyTypeError.prototype.name= 'MobyTypeError';
+
+
+
+    var MobyRuntimeError = function(msg) {
+	MobyError.call(this, msg);
+    }
+    MobyRuntimeError.prototype = heir(MobyError.prototype);
+    MobyRuntimeError.prototype.name= 'MobyRuntimeError';
+
+
+    
+    var MobyTestingError = function(msg) {
+	MobyError.call(this, msg);
+    }
+    MobyTestingError.prototype = heir(MobyRuntimeError.prototype);
+    MobyTestingError.prototype.name= 'MobyTestingError';
+
+
+
+
+    plt.types.MobyError = MobyError;
+    plt.types.MobyParserError = MobyParserError;
+    plt.types.MobySyntaxError = MobySyntaxError;
+    plt.types.MobyTypeError = MobyTypeError;
+    plt.types.MobyRuntimeError = MobyRuntimeError;
+    plt.types.MobyTestingError = MobyTestingError;
+
+
+
+
+    plt.types.Box = Box;
+    
 
 })();
