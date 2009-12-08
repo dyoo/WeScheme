@@ -1,4 +1,4 @@
-if (typeof(plt) == 'undefined') { plt = {}; }
+goog.provide('plt.permission');
 
 
 (function() {
