@@ -1,3 +1,7 @@
+goog.require('goog.ui.AdvancedTooltip');
+
+
+
 function loadProgramList() {
     var programListDiv = jQuery("#programList");
     var sharedListDiv = jQuery("#sharedList");
@@ -52,19 +56,39 @@ function loadProgramList() {
 	var shareSpan = (jQuery("<span/>")
 			 .addClass("ProgramPublished")
 			 .append(jQuery("<img class='button' src='/css/images/share.png'/>")));
-	var deleteSpan = (jQuery("<span/>")
-			  .addClass("ProgramDelete")
-			  .append(jQuery("<img class='button' src='/css/images/delete.png'/>")));
+	var tooltip = new goog.ui.AdvancedTooltip(shareSpan.get(0));
+	tooltip.className = 'tooltip';
+	if (hasSharingUrls(digest)) {
+	    tooltip.setHtml(
+		"<h2>Program sharing</h2>" +
+		    "This program has been shared.", true);
+
+	} else {
+	    tooltip.setHtml(
+		"<h2>Program sharing</h2>" +
+		    "This program has not been shared yet.", true);
+
+	}
+	tooltip.setHotSpotPadding(new goog.math.Box(5, 5, 5, 5));
+	tooltip.setCursorTracking(true);
+	tooltip.setMargin(new goog.math.Box(100, 0, 0, 100));
+	tooltip.setHideDelayMs(250);
 
 	(programEntry
 	 .append(form)
 	 .append(modifiedSpan)
 	 .append(shareSpan)
-	 .append(deleteSpan));
+	 //.append(deleteSpan)
+	);
 	
 	programListUl.append(programEntry);
     };
 
+
+
+    var hasSharingUrls = function(digest) {
+	return digest.find('sharedAs *').length > 0;
+    }
 
 
     var addSharedEntry = function(digest) {

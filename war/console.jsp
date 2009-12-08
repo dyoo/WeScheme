@@ -21,7 +21,10 @@
 <link rel="stylesheet" type="text/css" href="/css/console.css" />
 <title>WeScheme</title>
 
+<script src="/runtime/base.js"></script>
+
 <jsp:include page="/ie-compat.jsp"/>
+
 <script src="/runtime/compat/XMLHttpRequest.js"></script>
 
 

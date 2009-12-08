@@ -48,7 +48,7 @@ public class ListProjectsServlet extends HttpServlet {
 
 				Element elt = new Element("ProgramDigests");
 				for( Program p : pl ){
-					elt.addContent(new ProgramDigest(p).toXML());
+					elt.addContent(new ProgramDigest(p).toXML(pm));
 				}
 				resp.setContentType("text/xml");
 				PrintWriter w = resp.getWriter();
