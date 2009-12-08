@@ -1,4 +1,5 @@
 goog.require('goog.ui.AdvancedTooltip');
+goog.require('goog.dom');
 
 
 
@@ -51,28 +52,19 @@ function loadProgramList() {
 			    .attr("name", "pid")
 			    .attr("value", digest.find("id").text())));
 	var modifiedSpan = (jQuery("<span/>")
-			    .text(prettyPrintDate(digest.find("modified").text()))
+			    .text(prettyPrintDate(digest.children("modified").text()))
 			    .addClass("ProgramModified"));
-	var shareSpan = (jQuery("<span/>")
+
+	var shareSpan =(hasSharingUrls(digest) ? 
+			(jQuery("<span/>")
 			 .addClass("ProgramPublished")
-			 .append(jQuery("<img class='button' src='/css/images/share.png'/>")));
-	var tooltip = new goog.ui.AdvancedTooltip(shareSpan.get(0));
-	tooltip.className = 'tooltip';
-	if (hasSharingUrls(digest)) {
-	    tooltip.setHtml(
-		"<h2>Program sharing</h2>" +
-		    "This program has been shared.", true);
+			 .append(jQuery("<img class='button' src='/css/images/share.png'/>"))) 
+			:
+			(jQuery("<span/>")
+			 .addClass("ProgramPublished")
+			 .append(jQuery("<img class='button' src='/css/images/share-decolored.png'/>"))));
 
-	} else {
-	    tooltip.setHtml(
-		"<h2>Program sharing</h2>" +
-		    "This program has not been shared yet.", true);
-
-	}
-	tooltip.setHotSpotPadding(new goog.math.Box(5, 5, 5, 5));
-	tooltip.setCursorTracking(true);
-	tooltip.setMargin(new goog.math.Box(100, 0, 0, 100));
-	tooltip.setHideDelayMs(250);
+	attachSharingPopupTooltip(shareSpan.get(0), digest);
 
 	(programEntry
 	 .append(form)
@@ -91,41 +83,40 @@ function loadProgramList() {
     }
 
 
-    var addSharedEntry = function(digest) {
 
-	// The program entry
-	var programEntry = (jQuery("<li/>").addClass("ProgramEntry"));
+    var attachSharingPopupTooltip = function(parent, digest) {
+	var tooltip = new goog.ui.AdvancedTooltip(parent);
+	tooltip.className = 'tooltip';
+	if (hasSharingUrls(digest)) {
+	    tooltip.setHtml(
+		"<h2>Program sharing</h2>" +
+		    "This program has been shared.", true);
+	    var aList = goog.dom.createElement("ul");
+	    digest.find('sharedAs Entry').each(function(i,elt) {
+		var item = goog.dom.createElement("li");
+		aList.appendChild(item);
+		item.appendChild(makeShareUrl(jQuery(elt).children('publicId').text(),
+					      jQuery(elt).children('title').text()));
+		item.appendChild(goog.dom.createTextNode(
+		    " [" + prettyPrintDate(jQuery(elt).children('modified').text()) + "]"));
+	    });
+	    goog.dom.appendChild(tooltip.getElement(), aList);
 
-	var form = (jQuery("<form/>")
-		    .attr("method", "post")
-		    .attr("action",   "/openEditor?pid=" + 
-			  digest.find("id").text())
-		    .append(jQuery("<input/>")
-			    .addClass("ProgramTitle")
-			    .attr("type", "submit")
-			    .attr("value", digest.find("title").text())));
-	var modifiedSpan = (jQuery("<span/>").text(prettyPrintDate(digest.find("modified").text()))
-			    .addClass("ProgramModified"));
-	var publishedSpan = 
-	    digest.find("published").text() == 'true' ?
-	    (jQuery("<span/>")
-	     .append(jQuery("<a/>")
-		     .attr("href",
-			   makeShareUrl(
-			       digest.find("publicId").text()))
-		     .text(makeShareUrl(
-			 digest.find("publicId").text())))
-	     .addClass("ProgramPublished"))
-	    :
-	    (jQuery("<span/>").text("Unshared")
-	     .addClass("ProgramPublished"));
-	(programEntry
-	 .append(form)
-	 .append(modifiedSpan)
-	 .append(publishedSpan));
+	} else {
+	    tooltip.setHtml(
+		"<h2>Program sharing</h2>" +
+		    "This program has not been shared yet.", true);
+	}
+	tooltip.setHotSpotPadding(new goog.math.Box(5, 5, 5, 5));
+	tooltip.setCursorTracking(true);
+	tooltip.setMargin(new goog.math.Box(100, 0, 0, 100));
+	tooltip.setHideDelayMs(250);
 
-	sharedListUl.append(programEntry);
-    };
+    }
+
+
+
+
 
 
 
@@ -134,7 +125,7 @@ function loadProgramList() {
 	dom.find("ProgramDigest").each(function() {	
 	    var digest = jQuery(this);
 	    if (digest.find("published").text() == 'true') {
-		//addSharedEntry(digest);
+		// skip it
 	    } else {
 		addProgramEntry(digest);
 	    }
@@ -182,13 +173,16 @@ function prettyPrintDate(modified) {
 }
 
 
-// makeShareUrl: string -> string
+// makeShareUrl: string -> element
 // Produces the sharing url
-function makeShareUrl(publicId) {
+function makeShareUrl(publicId, name) {
     if (publicId != "") {
-	var a = document.createElement("a");
+	var a = goog.dom.createElement("a");
 	a.href = "/view?publicId=" + encodeURIComponent(publicId);
-	return a.href; 
+	a.appendChild(goog.dom.createTextNode(name || a.href));
+	return a;
+    } else {
+	throw new Error();
     }
 }
 
