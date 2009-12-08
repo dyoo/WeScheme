@@ -1,7 +1,15 @@
 // depends on kernel.js
 
+<<<<<<< HEAD:war/runtime/world-config.js
 goog.provide('plt.world.config');
 goog.require('plt.Kernel');
+=======
+
+if (typeof(plt) === 'undefined') { var plt = {}; }
+plt.world = plt.world || {};
+plt.world.config = plt.world.config || {};
+
+>>>>>>> origin/master:war/runtime/world-config.js
 
 
 (function() {

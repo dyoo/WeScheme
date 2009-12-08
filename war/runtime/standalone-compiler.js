@@ -3,7 +3,11 @@
 // Please don't hand-edit this file.
 // compile: string -> (list string, (listof string))
 this.compile = (function() {
+<<<<<<< HEAD:war/runtime/standalone-compiler.js
 goog.provide("plt._Hashtable");
+=======
+if (typeof(plt) === 'undefined') { var plt = {}; }
+>>>>>>> origin/master:war/runtime/standalone-compiler.js
 
 
 /**
@@ -75,7 +79,11 @@ return false;};this.containsValue=function(_69){_30(_69);for(var i=0,len=_5a.len
 return false;};this.clear=function(){_5a.length=0;_5b={};};this.isEmpty=function(){return _5a.length===0;};this.keys=function(){var _6c=[];for(var i=0,len=_5a.length;i<len;i++){_5a[i][1].keys(_6c);}
 return _6c;};this.values=function(){var _6f=[];for(var i=0,len=_5a.length;i<len;i++){_5a[i][1].values(_6f);}
 return _6f;};this.remove=function(key){_2e(key);var _73=_58(key);var _74=_53(_5b,_73);if(_74){if(_74.removeEntryForKey(key)){if(_74.size()===0){var _75=_4f(_5a,_73,_74.getEqualityFunction(key));_23(_5a,_75[0]);delete _5b[_73];}}}};this.size=function(){var _76=0;for(var i=0,len=_5a.length;i<len;i++){_76+=_5a[i][1].size();}
+<<<<<<< HEAD:war/runtime/standalone-compiler.js
 return _76;};};return _57;})();goog.provide('plt.types');
+=======
+return _76;};};return _57;})();if (typeof(plt) === 'undefined') { var plt = {}; }
+>>>>>>> origin/master:war/runtime/standalone-compiler.js
 
 
 
@@ -1771,6 +1779,7 @@ return _76;};};return _57;})();goog.provide('plt.types');
 
 
 
+<<<<<<< HEAD:war/runtime/standalone-compiler.js
     //////////////////////////////////////////////////////////////////////
 
     // makeEqHashtable: -> hashtable
@@ -1990,6 +1999,9 @@ return _76;};};return _57;})();goog.provide('plt.types');
 
 })();goog.provide('plt.Kernel');
 
+=======
+})();if (typeof(plt) === 'undefined') { var plt = {} }
+>>>>>>> origin/master:war/runtime/standalone-compiler.js
 
 
 //////////////////////////////////////////////////////////////////////
@@ -4139,6 +4151,8 @@ return _76;};};return _57;})();goog.provide('plt.types');
 	check(msg, isString, "error", "string", 2);
 	throw new MobyRuntimeError(plt.Kernel.format("~a: ~a", [name, msg]).toString());
     };
+<<<<<<< HEAD:war/runtime/standalone-compiler.js
+=======
 
     plt.Kernel.syntax_dash_error = function(msg, stx) {
 	check(msg, isString, "syntax-error", "string", 1);
@@ -4147,6 +4161,105 @@ return _76;};};return _57;})();goog.provide('plt.types');
     };
 
 
+
+    plt.Kernel.toWrittenString = function(x, cache) {
+	if (! cache) { 
+	    cache = makeEqHashtable();
+	}
+
+	if (x && cache.containsKey(x)) {
+	    return "...";
+	}
+
+	if (x == undefined || x == null) {
+	    return "<undefined>";
+	}
+	if (typeof(x) == 'string') {
+	    return x.toWrittenString();
+	}
+	if (typeof(x) != 'object' && typeof(x) != 'function') {
+	    return x.toString();
+	}
+	if (typeof(x.toWrittenString) !== 'undefined') {
+	    return x.toWrittenString(cache);
+	}
+	if (typeof(x.toDisplayedString) !== 'undefined') {
+	    return x.toDisplayedString(cache);
+	} else {
+	    return x.toString();
+	}
+    };
+
+
+    plt.Kernel.toDisplayedString = function(x, cache) {
+	if (! cache) {
+	    cache = makeEqHashtable();
+	}
+	if (x && cache.containsKey(x)) {
+	    return "...";
+	}
+
+	if (x == undefined || x == null) {
+	    return "<undefined>";
+	}
+	if (typeof(x) == 'string') {
+	    return x.toDisplayedString();
+	}
+	if (typeof(x) != 'object' && typeof(x) != 'function') {
+	    return x.toString();
+	}
+	if (typeof(x.toWrittenString) !== 'undefined') {
+	    return x.toWrittenString(cache);
+	}
+	if (typeof(x.toDisplayedString) !== 'undefined') {
+	    return x.toDisplayedString(cache);
+	} else {
+	    return x.toString();
+	}
+    };
+
+>>>>>>> origin/master:war/runtime/standalone-compiler.js
+
+    plt.Kernel.syntax_dash_error = function(msg, stx) {
+	check(msg, isString, "syntax-error", "string", 1);
+	check(stx, isStx, "syntax-error", "stx", 2);
+	throw new MobySyntaxError(msg, stx);
+    };
+
+
+<<<<<<< HEAD:war/runtime/standalone-compiler.js
+=======
+	if (x == undefined || x == null) {
+	    var node = document.createTextNode("<undefined>");
+	    return node;
+	}
+	if (typeof(x) == 'string') {
+	    var node = document.createTextNode(x.toWrittenString());
+	    return node;
+	}
+	if (typeof(x) != 'object' && typeof(x) != 'function') {
+	    var node = document.createTextNode(x.toString());
+	    return node;
+	}
+	if (x.nodeType) {
+	    return x;
+	}
+	if (typeof(x.toDomNode) !== 'undefined') {
+	    return x.toDomNode(cache);
+	}
+	if (typeof(x.toWrittenString) !== 'undefined') {
+	    var node = document.createTextNode(plt.Kernel.toWrittenString(x, cache));
+	    return node;
+	}
+	if (typeof(x.toDisplayedString) !== 'undefined') {
+	    var node = document.createTextNode(plt.Kernel.toDisplayedString(x, cache));
+	    return node;
+	} else {
+	    var node = document.createTextNode(x.toString());
+	    return node;
+	}
+    };
+>>>>>>> origin/master:war/runtime/standalone-compiler.js
 
 
 
@@ -4590,8 +4703,16 @@ var stx_dash__greaterthan_datum = function(a_dash_stx) { return ((plt.Kernel.set
 
 
  })  )(arguments[0] || plt.Kernel.identity);
+<<<<<<< HEAD:war/runtime/standalone-compiler.js
 })();// Depends on types.js, stx.js
 goog.provide('plt.reader');
+=======
+})();// Depends on kernel.js, stx.ss
+
+if (typeof(plt) === 'undefined') { var plt = {}; }
+
+plt.reader = {};
+>>>>>>> origin/master:war/runtime/standalone-compiler.js
 
 
 (function(){

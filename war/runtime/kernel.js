@@ -1,5 +1,9 @@
+<<<<<<< HEAD:war/runtime/kernel.js
 goog.provide('plt.Kernel');
 
+=======
+if (typeof(plt) === 'undefined') { var plt = {} }
+>>>>>>> origin/master:war/runtime/kernel.js
 
 
 //////////////////////////////////////////////////////////////////////
@@ -2158,6 +2162,107 @@ goog.provide('plt.Kernel');
 
 
 
+<<<<<<< HEAD:war/runtime/kernel.js
+=======
+    plt.Kernel.toWrittenString = function(x, cache) {
+	if (! cache) { 
+	    cache = makeEqHashtable();
+	}
+
+	if (x && cache.containsKey(x)) {
+	    return "...";
+	}
+
+	if (x == undefined || x == null) {
+	    return "<undefined>";
+	}
+	if (typeof(x) == 'string') {
+	    return x.toWrittenString();
+	}
+	if (typeof(x) != 'object' && typeof(x) != 'function') {
+	    return x.toString();
+	}
+	if (typeof(x.toWrittenString) !== 'undefined') {
+	    return x.toWrittenString(cache);
+	}
+	if (typeof(x.toDisplayedString) !== 'undefined') {
+	    return x.toDisplayedString(cache);
+	} else {
+	    return x.toString();
+	}
+    };
+
+
+    plt.Kernel.toDisplayedString = function(x, cache) {
+	if (! cache) {
+	    cache = makeEqHashtable();
+	}
+	if (x && cache.containsKey(x)) {
+	    return "...";
+	}
+
+	if (x == undefined || x == null) {
+	    return "<undefined>";
+	}
+	if (typeof(x) == 'string') {
+	    return x.toDisplayedString();
+	}
+	if (typeof(x) != 'object' && typeof(x) != 'function') {
+	    return x.toString();
+	}
+	if (typeof(x.toWrittenString) !== 'undefined') {
+	    return x.toWrittenString(cache);
+	}
+	if (typeof(x.toDisplayedString) !== 'undefined') {
+	    return x.toDisplayedString(cache);
+	} else {
+	    return x.toString();
+	}
+    };
+
+
+
+    // toDomNode: scheme-value -> dom-node
+    plt.Kernel.toDomNode = function(x, cache) {
+	if (! cache) {
+	    cache = makeEqHashtable();
+	}
+	if (x && cache.containsKey(x)) {
+	    return document.createTextNode("...");
+	}
+
+	if (x == undefined || x == null) {
+	    var node = document.createTextNode("<undefined>");
+	    return node;
+	}
+	if (typeof(x) == 'string') {
+	    var node = document.createTextNode(x.toWrittenString());
+	    return node;
+	}
+	if (typeof(x) != 'object' && typeof(x) != 'function') {
+	    var node = document.createTextNode(x.toString());
+	    return node;
+	}
+	if (x.nodeType) {
+	    return x;
+	}
+	if (typeof(x.toDomNode) !== 'undefined') {
+	    return x.toDomNode(cache);
+	}
+	if (typeof(x.toWrittenString) !== 'undefined') {
+	    var node = document.createTextNode(plt.Kernel.toWrittenString(x, cache));
+	    return node;
+	}
+	if (typeof(x.toDisplayedString) !== 'undefined') {
+	    var node = document.createTextNode(plt.Kernel.toDisplayedString(x, cache));
+	    return node;
+	} else {
+	    var node = document.createTextNode(x.toString());
+	    return node;
+	}
+    };
+
+>>>>>>> origin/master:war/runtime/kernel.js
 
 
 

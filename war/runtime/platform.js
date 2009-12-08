@@ -1,4 +1,9 @@
+<<<<<<< HEAD:war/runtime/platform.js
 goog.provide('plt.platform');
+=======
+// Platform-specific stuff.
+if (typeof(plt) === 'undefined') { var plt = {}; }
+>>>>>>> origin/master:war/runtime/platform.js
 
 
 (function() { 

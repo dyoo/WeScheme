@@ -1,5 +1,10 @@
+<<<<<<< HEAD:war/runtime/jsworld.js
 goog.provide('plt.world.MobyJsWorld');
 
+=======
+if (typeof(plt) === 'undefined') { var plt = {}; }
+plt.world = plt.world || {};
+>>>>>>> origin/master:war/runtime/jsworld.js
 plt.world.MobyJsworld = {};
 
 // Depends on world.js, world-config.js
