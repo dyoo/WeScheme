@@ -129,7 +129,7 @@ WeSchemeInteractions = (function () {
 
 		    runToplevel(function(val) {
 			if (val != undefined) {
-			    that.addToInteractions(plt.Kernel.toDomNode(val));
+			    that.addToInteractions(plt.types.toDomNode(val));
 			    that.addToInteractions("\n");
 			}
 		    });
@@ -145,19 +145,19 @@ WeSchemeInteractions = (function () {
     };
     
     WeSchemeInteractions.prototype.handleError = function(err) {
-	if (err instanceof plt.Kernel.MobyParserError) {
+	if (err instanceof plt.types.MobyParserError) {
 		this.addToInteractions(
 		    "Error (" + 
 			plt.Kernel.locToString(err.loc)
 			+ ")\n");
 	    this.addToInteractions(err.msg + "\n");
-	} else if (err instanceof plt.Kernel.MobySyntaxError) {
+	} else if (err instanceof plt.types.MobySyntaxError) {
 		this.addToInteractions(
 		    "Error (" + 
 			plt.Kernel.locToString(err.stx.loc)
 			+ ")\n");
 	    this.addToInteractions(err.msg + "\n");
-	} else if (err instanceof plt.Kernel.MobyError){
+	} else if (err instanceof plt.types.MobyError){
 	    if (plt.Kernel.lastLoc) {
 		this.addToInteractions(
 		    "Error (" + plt.Kernel.locToString(plt.Kernel.lastLoc) + ")\n");
@@ -187,7 +187,7 @@ WeSchemeInteractions = (function () {
  		runToplevel(function(val) {
  		    if (val != undefined) {
  			that.addToInteractions(
- 			    plt.Kernel.toDomNode(val));
+ 			    plt.types.toDomNode(val));
 			that.addToInteractions("\n");
  		    }
  		});
