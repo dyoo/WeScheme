@@ -1,4 +1,8 @@
+<<<<<<< HEAD:war/runtime/permission.js
 goog.provide('plt.permission');
+=======
+if (typeof(plt) === 'undefined') { var plt = {}; }
+>>>>>>> origin/master:war/runtime/permission.js
 
 
 (function() {

@@ -49,7 +49,6 @@ public class TicTacToeUmpire implements Umpire {
 	}
 	
 	
-	@Override
 	public Umpire consume(String move) {
 		assert (this.isLegalNextMove(move));
 		
@@ -58,13 +57,11 @@ public class TicTacToeUmpire implements Umpire {
 		return new TicTacToeUmpire(newMoves);
 	}
 
-	@Override
 	public List<String> getMoves() {
 		return new ArrayList<String>(moves);
 	}
 
 	
-	@Override
 	public boolean isGameOver() {
 		for(int i = 0; i < MAX_ROWS; i++) {
 			if (sameRow(i) != 0) return true;
@@ -79,7 +76,6 @@ public class TicTacToeUmpire implements Umpire {
 	}
 
 	
-	@Override
 	public boolean isLegalNextMove(String move) {
 		// TODO Auto-generated method stub
 		try {
@@ -146,7 +142,6 @@ public class TicTacToeUmpire implements Umpire {
 	}
 
 	
-	@Override
 	public Player whoWins() {		
 		for(int i = 0; i < MAX_ROWS; i++) {
 			if (sameRow(i) != 0) return intToPlayer(sameRow(i));
@@ -164,7 +159,6 @@ public class TicTacToeUmpire implements Umpire {
 	}
 
 
-	@Override
 	public Player whoseTurn() {
 		return this.moves.size() % 2 == 0 ? Player.PLAYER1 : Player.PLAYER2;
 	}
