@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
@@ -216,6 +217,26 @@ public class Program extends XML {
 		if (this.clonedAs == null) {
 			this.clonedAs = new ArrayList<Long>();
 		}
+	}
+	
+	
+	/**
+	 * Returns a list of the programs for which this has been backlinked.
+	 * @param pm
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Program> getBacklinkedPrograms(PersistenceManager pm) {
+		Query query = pm.newQuery(Program.class);
+		query.setFilter("backlink_ == id");
+		query.declareParameters("Long id");
+		try {
+			List<Program> pl = (List<Program>) query.execute(this.id);
+			return pl;
+		} finally {
+			query.closeAll();
+		}
+		
 	}
 
 

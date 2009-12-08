@@ -1,5 +1,7 @@
 package org.wescheme.project;
 
+import javax.jdo.PersistenceManager;
+
 import org.jdom.Element;
 import org.wescheme.util.XML;
 
@@ -10,7 +12,7 @@ public class ProgramDigest {
 		this.program = p;
 	}
 	
-	public Element toXML(){
+	public Element toXML(PersistenceManager pm){
 	Element root = new Element("ProgramDigest");
 		
 		root.addContent(XML.makeElement("id", program.getId()));		
@@ -21,6 +23,12 @@ public class ProgramDigest {
 		root.addContent(XML.makeElement("author", program.getAuthor()));
 		root.addContent(XML.makeElement("modified", program.getTime()));
 		root.addContent(XML.makeElement("published", program.isPublished()));
+
+		Element sharedAsElt = new Element("sharedAs");
+		for(Program p : this.program.getBacklinkedPrograms(pm)) {
+			sharedAsElt.addContent(XML.makeElement("publicId", p.getPublicId()));
+		}
+		root.addContent(sharedAsElt);
 		
 		return root;
 	}

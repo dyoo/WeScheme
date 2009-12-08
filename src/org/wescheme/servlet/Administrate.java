@@ -110,7 +110,7 @@ public class Administrate extends HttpServlet {
 				Element elt = new Element("ProgramDigests");
 				extent = pm.getExtent(Program.class, false);    
 				for (Program p: extent) {
-					elt.addContent(new ProgramDigest(p).toXML());
+					elt.addContent(new ProgramDigest(p).toXML(pm));
 				}
 				res.setContentType("text/xml");
 				PrintWriter w = res.getWriter();

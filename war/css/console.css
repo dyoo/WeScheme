@@ -145,3 +145,13 @@ a.twitter{background: url(images/icon_twitter.gif) no-repeat; padding-left: 25px
 a.email{background: url(images/icon_email.gif) no-repeat; padding-left: 25px;}
 
 img:hover+div, #programList ul li img+div:hover{display: inline-block; }
+
+
+.tooltip {
+    background: lightyellow;
+    color: black;
+    border: 1px solid black;
+    padding: 5px;
+    font: menu;
+    width: 400px;
+}
