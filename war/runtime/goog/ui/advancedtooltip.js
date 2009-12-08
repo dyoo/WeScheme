@@ -297,7 +297,7 @@ goog.ui.AdvancedTooltip.prototype.maybeHide = function(el) {
 goog.ui.AdvancedTooltip.prototype.handleMouseMove = function(event) {
   var startTimer = true;
   if (this.boundingBox_) {
-    var c = new goog.math.Coordinate(event.clientX, event.clientY);
+    var c = new goog.math.Coordinate(event.clientX + event.scrollX, event.clientY + event.scrollX);
     if (this.isCoordinateActive_(c)) {
       startTimer = false;
     } else if (this.tracking_) {
