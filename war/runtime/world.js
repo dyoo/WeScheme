@@ -2,12 +2,6 @@ goog.provide('plt.world.Kernel');
 
 
 // Depends on kernel.js, world-config.js, effect-struct.js
-<<<<<<< HEAD:war/runtime/world.js
-=======
-if (typeof(plt) === 'undefined') { var plt = {}; }
-plt.world = plt.world || {};
-plt.world.Kernel = plt.world.Kernel || {};
->>>>>>> origin/master:war/runtime/world.js
 (function() {
     
     var world;
