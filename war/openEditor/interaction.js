@@ -1,3 +1,10 @@
+goog.require("plt.Kernel");
+goog.require("plt.world.MobyJsworld");
+
+goog.provide("plt.wescheme.interactions");
+
+
+
 var WeSchemeInteractions;
 
 WeSchemeInteractions = (function () {
@@ -84,10 +91,22 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype._prepareToRun = function() {
 	var that = this;
 	plt.world.MobyJsworld.makeToplevelNode = function() {
-	    var area = jQuery("<div id='top' style='border-style: solid; border-width: thin;'></div>");
-	    that.prompt.before(area);
+	    var dialog = jQuery("<div/>");
+	    dialog.dialog( {title: 'js-big-bang',
+			    bgiframe : true,
+			    modal : true,
+			   });
+	    dialog.dialog("open");
+	    // var container = dialog.getContentElement();
+	    // var innerArea = goog.dom.createElement("div");
+	    // container.appendChild(innerArea);
+	    // return innerArea;
+
+
+//	    var area = jQuery("<div id='top' style='border-style: solid; border-width: thin;'></div>");
+//	    that.prompt.before(area);
 	    var innerArea = jQuery("<div></div>");
-	    area.append(innerArea);
+	    dialog.append(innerArea);
 	    return innerArea.get(0);
 	};
 	plt.Kernel.lastLoc = undefined;
@@ -126,6 +145,9 @@ WeSchemeInteractions = (function () {
 			that.addToInteractions(document.createTextNode(s));
 			that.addToInteractions("\n");
 		    };
+
+
+
 
 		    runToplevel(function(val) {
 			if (val != undefined) {
@@ -248,3 +270,5 @@ WeSchemeInteractions = (function () {
 
     return WeSchemeInteractions;
 })();
+
+plt.wescheme.interactions = WeSchemeInteractions;

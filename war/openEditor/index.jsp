@@ -57,8 +57,6 @@
 
 
 
-
-
     <!-- JQuery UI style sheet -->
     <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css"/>
 
@@ -69,6 +67,9 @@
     <script src="/safeSubmit.js"></script>
     <script src="/editor/debug.js"></script>
 
+    <!-- Includes the moby runtime libraries -->
+    <jsp:include page="/moby-runtime-includes.jsp" />
+
 
     <script src="/openEditor/intent.js"></script>
     <script src="/openEditor/editor.js"></script>
@@ -78,8 +79,6 @@
     <script src="/heartbeat.js"></script>
     <script src="/js/submitpost.js"></script>
 
-    <!-- Includes the moby runtime lbiraries -->
-    <jsp:include page="/moby-runtime-includes.jsp" />
     <!-- And we need the compiler. -->
     <script src="/runtime/compiler.js"></script>
 
@@ -140,6 +139,8 @@
       document.getElementById('style').href = '/css/'+style;
       }
     </script>
+
+
   </head>
   
   
@@ -263,5 +264,6 @@
       </div>
 
     </div>
+
   </body>
 </html>
