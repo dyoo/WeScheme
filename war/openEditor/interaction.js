@@ -1,5 +1,6 @@
 goog.require("plt.Kernel");
 goog.require("plt.world.MobyJsworld");
+goog.require("plt.world.stimuli");
 
 goog.provide("plt.wescheme.interactions");
 
@@ -92,10 +93,17 @@ WeSchemeInteractions = (function () {
 	var that = this;
 	plt.world.MobyJsworld.makeToplevelNode = function() {
 	    var dialog = jQuery("<div/>");
-	    dialog.dialog( {title: 'js-big-bang',
-			    bgiframe : true,
-			    modal : true,
-			   });
+	    var handleClose = function(event, ui) {
+		plt.world.stimuli.onShutdown();
+	    };
+
+	    dialog.dialog( {
+		bgiframe : true,
+		modal : true,
+		width: "auto",
+		height: "auto",
+	        beforeclose: handleClose
+	    });
 	    dialog.dialog("open");
 	    // var container = dialog.getContentElement();
 	    // var innerArea = goog.dom.createElement("div");
