@@ -756,12 +756,26 @@ goog.provide('plt.types');
 
 	if (d == undefined) { d = 1; }
 
-	
 	if (d < 0) {
 	    n = -n;
 	    d = -d;
 	}
 	
+	// DEFENSIVE PROGRAMMING KLUDGE:
+	// The following two finiteness checks should
+	// not happen in good code.  That is, n and d should
+	// either be finite numbers or strings.  In the bad
+	// case that we do hit infinity, let's just make sure
+	// the runtime doesn't completely break.
+	if (!isFinite(n)) {
+	    return plt.types.FloatPoint.makeInstance(n);
+	}
+	if (!isFinite(d)) {
+	    n = 0;
+	    d = 0;
+	}
+	
+
 	if (d == 1 && n in _rationalCache) {
 	    return _rationalCache[n];
 	}

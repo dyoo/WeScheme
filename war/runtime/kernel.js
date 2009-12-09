@@ -2317,11 +2317,12 @@ goog.provide('plt.Kernel');
     plt.Kernel.locToString = function(lastLoc) {
 	if (typeof(lastLoc) === 'string') {
 	    return lastLoc;
+	} else {
+	    return ("offset=" + lastLoc.offset
+		    + ", line=" + lastLoc.line 
+		    + ", span=" + lastLoc.span 
+		    + ", id=" + lastLoc.id);
 	}
-	return ("offset=" + lastLoc.offset
-		+ ", line=" + lastLoc.line 
-		+ ", span=" + lastLoc.span 
-		+ ", id=" + lastLoc.id);
     };
     
 
