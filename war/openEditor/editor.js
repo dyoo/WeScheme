@@ -292,7 +292,8 @@ var WeSchemeEditor;
     WeSchemeEditor.prototype.load = function(attrs) {
 	var that = this;
 
-	var callback = function(data) {
+	
+	var whenLoadSucceeds = function(data, aProgram) {
 	    var dom = jQuery(data);
 
 	    that.pid = parseInt(dom.find("id").text());
@@ -321,13 +322,13 @@ var WeSchemeEditor;
 	    plt.wescheme.WeSchemeIntentBus.notify("before-load", this);
 	    that.actions.loadAProject(attrs.pid,
 			 undefined,
-			 callback,
+			 whenLoadSucceeds,
 			 whenLoadFails);
 	} else if (attrs.publicId) {
 	    plt.wescheme.WeSchemeIntentBus.notify("before-load", this);
 	    that.actions.loadAProject(undefined,
 			 attrs.publicId,
-			 callback,
+			 whenLoadSucceeds,
 			 whenLoadFails);
 	} else {
 	    throw new Error("pid or publicId required");

@@ -16,7 +16,7 @@ import org.wescheme.util.XML;
 
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
-public class Program extends XML {
+public class Program {
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
@@ -164,9 +164,9 @@ public class Program extends XML {
 	}
 	
 	
-	public Element toXML() { return this.toXML(true); }
+	public Element toXML(PersistenceManager pm) { return this.toXML(true, pm); }
 
-	public Element toXML(boolean includeSource) {
+	public Element toXML(boolean includeSource, PersistenceManager pm) {
 		Element root = new Element("Program");
 		if (includeSource) {
 			root.addContent(getSource().toXML());
@@ -183,6 +183,19 @@ public class Program extends XML {
 		root.addContent(XML.makeElement("author", author_));
 		root.addContent(XML.makeElement("modified", time_));
 		root.addContent(XML.makeElement("published", published_));
+
+		Element sharedAsElt = new Element("sharedAs");
+		for(Program p : this.getBacklinkedPrograms(pm)) {
+			if (p.getPublicId() != null) {
+				Element shared = new Element("Entry");
+				shared.addContent(XML.makeElement("publicId", p.getPublicId()));
+				shared.addContent(XML.makeElement("title", p.getTitle()));
+				shared.addContent(XML.makeElement("modified", p.getTime()));
+				sharedAsElt.addContent(shared);
+			}
+		}
+		root.addContent(sharedAsElt);
+		
 		return root;
 		
 	}

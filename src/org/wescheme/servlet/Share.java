@@ -40,7 +40,7 @@ public class Share extends HttpServlet{
 						!prog.isPublished()) {
 					prog.share(isSourceCodePublic);
 					resp.setContentType("text/xml");
-					resp.getWriter().print(outputter.outputString(prog.toXML()));
+					resp.getWriter().print(outputter.outputString(prog.toXML(pm)));
 				} else {
 					log.warning(userSession.getName() + " does not own project " + req.getParameter("pid"));
 					throw new RuntimeException("Either doesn't own Project or Project already published");

@@ -45,7 +45,7 @@ public class LoadProjectServlet extends HttpServlet {
 						if (isOwner(userSession, prog) || userSession.isAdmin()) {
 							XMLOutputter outputter = new XMLOutputter();
 							resp.setContentType("text/xml");
-							resp.getWriter().print(outputter.outputString(prog.toXML()));
+							resp.getWriter().print(outputter.outputString(prog.toXML(pm)));
 						} else {
 							log.warning(userSession.getName() + " does not own " + req.getParameter("pid"));
 							throw new RuntimeException("Not owner");
@@ -58,7 +58,7 @@ public class LoadProjectServlet extends HttpServlet {
 					if (isOwner(userSession, prog) || prog.getIsSourcePublic()) {
 						XMLOutputter outputter = new XMLOutputter();
 						resp.setContentType("text/xml");
-						resp.getWriter().print(outputter.outputString(prog.toXML()));
+						resp.getWriter().print(outputter.outputString(prog.toXML(pm)));
 					} else {
 						throw new RuntimeException("The owner has not chosen to share the source of this program.");
 					}

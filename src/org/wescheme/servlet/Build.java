@@ -40,7 +40,7 @@ public class Build extends HttpServlet {
 				if (prog.getOwner().equals(userSession.getName())) {
 					prog.build();
 					resp.setContentType("text/xml");
-					resp.getWriter().print(outputter.outputString(prog.toXML()));
+					resp.getWriter().print(outputter.outputString(prog.toXML(pm)));
 				} else {
 					log.warning(userSession.getName() + " does not own project " + req.getParameter("pid"));
 					throw new RuntimeException("Doesn't own Project");
