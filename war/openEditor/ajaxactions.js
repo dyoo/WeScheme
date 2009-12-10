@@ -71,11 +71,12 @@ goog.provide("plt.wescheme.AjaxActions");
 
 
 
-    // makeAClone: number string (number -> void) (-> void) -> void
-    // Clones a program.
+    // makeAClone: number (string | null) (number -> void) (-> void) -> void
+    // Clones a program.  If code is non-null, also update the code source of the
+    // clone.
     plt.wescheme.AjaxActions.prototype.makeAClone = function(pid, code, onSuccess, onFailure) {
 	jQuery.ajax({cache : false,
-  		     data : { pid: pid, code: code },
+  		     data : (code === null ? {pid: pid}: { pid: pid, code: code }),
   		     dataType: "text",
   		     type: "POST",
   		     url: "/cloneProject",

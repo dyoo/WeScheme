@@ -1,9 +1,13 @@
 goog.require('goog.ui.AdvancedTooltip');
 goog.require('goog.dom');
 goog.require('plt.wescheme.AjaxActions');
+goog.require('plt.wescheme.SharingDialog');
 
 
 function loadProgramList() {
+    var actions = new plt.wescheme.AjaxActions();
+
+
     var programListDiv = jQuery("#programList");
     var sharedListDiv = jQuery("#sharedList");
 
@@ -39,7 +43,7 @@ function loadProgramList() {
 	var programEntry = (jQuery("<li/>").addClass("ProgramEntry"));
 
 	var title = digest.find("title").text();
-
+	var id = digest.find("id").text();
 	var form = (jQuery("<form/>")
 		    .attr("method", "post")
 		    .attr("action",   "/openEditor")
@@ -50,19 +54,20 @@ function loadProgramList() {
 		    .append(jQuery("<input/>")
 			    .attr("type", "hidden")
 			    .attr("name", "pid")
-			    .attr("value", digest.find("id").text())));
+			    .attr("value", id)));
 	var modifiedSpan = (jQuery("<span/>")
 			    .text(prettyPrintDate(digest.children("modified").text()))
 			    .addClass("ProgramModified"));
 
-	var shareSpan =(hasSharingUrls(digest) ? 
-			(jQuery("<span/>")
-			 .addClass("ProgramPublished")
-			 .append(jQuery("<img class='button' src='/css/images/share.png'/>"))) 
-			:
-			(jQuery("<span/>")
-			 .addClass("ProgramPublished")
-			 .append(jQuery("<img class='button' src='/css/images/share-decolored.png'/>"))));
+	var img = (hasSharingUrls(digest) ?
+		   jQuery("<img class='button' src='/css/images/share.png'/>") :
+		   jQuery("<img class='button' src='/css/images/share-decolored.png'/>"));
+	img.click(function() {
+	    (new plt.wescheme.SharingDialog(id, null)).show();
+	});
+	var shareSpan =(jQuery("<span/>")
+			.addClass("ProgramPublished")
+			.append(img));
 
 	attachSharingPopupTooltip(shareSpan.get(0), digest);
 
@@ -118,7 +123,7 @@ function loadProgramList() {
 
 
 
-    var actions = new plt.wescheme.AjaxActions();
+
     actions.listProjects(function(dom) {
 	dom.find("ProgramDigest").each(function() {	
 	    var digest = jQuery(this);
