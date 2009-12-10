@@ -27,10 +27,11 @@ goog.provide("plt.wescheme.helpers");
     plt.wescheme.helpers.generateSocialBookmarks = function(title, url) {
 
 	var span = document.createElement("span");
-
+	span.className = "socialBookmarks";
 	var addBookmarklet = function(name, imgSrc, url) {
 	    var a = document.createElement("a");
 	    var img = document.createElement("img");
+	    a.className = "socialBookmarklet";
 	    a.title = "Post to " + name;
 	    img.src = imgSrc;
 	    img.alt = "Post to " + name;
@@ -56,24 +57,35 @@ goog.provide("plt.wescheme.helpers");
 							 body: url}));
 	addBookmarklet("Digg",
 		       "/images/icon_digg.gif",
-		       "mailto:" + "?" + encodeKeyPairs({subject: title,
-							 body: url}));
+		       "http://digg.com/submit?" +
+		       encodeKeyPairs({url: url,
+				       title: title,
+				       bodytext: title,
+				       media: "news"}));
+
 	addBookmarklet("Reddit",
 		       "/images/icon_reddit.gif",
-		       "mailto:" + "?" + encodeKeyPairs({subject: title,
-							 body: url}));
+		       "http://www.reddit.com/submit?" +
+		       encodeKeyPairs({url: url,
+				       title: title}));
 	addBookmarklet("Twitter",
 		       "/images/icon_twitter.gif",
-		       "mailto:" + "?" + encodeKeyPairs({subject: title,
-							 body: url}));
+		       "http://twitter.com/home" + "?" + 
+		       encodeKeyPairs({status: url}));
+	
+	// http://delicious.com/help/savebuttons
 	addBookmarklet("Del.icio.us",
 		       "/images/icon_delicious.gif",
-		       "mailto:" + "?" + encodeKeyPairs({subject: title,
-							 body: url}));
+		       "http://del.icio.us/post?" +
+		       encodeKeyPairs({url: url,
+				       title: title}));
+
+	// http://www.facebook.com/facebook-widgets/share.php
 	addBookmarklet("Facebook",
 		       "/images/icon_facebook.gif",
-		       "mailto:" + "?" + encodeKeyPairs({subject: title,
-							 body: url}));
+		       "http://www.facebook.com/sharer.php" + "?" + 
+		       encodeKeyPairs({u: url,
+				       t: title}));
 	return span;
     };
 
