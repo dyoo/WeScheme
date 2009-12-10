@@ -34,6 +34,13 @@ function update() {
 				.text(dom.find("title").text()));
 	    jQuery("#runIt").attr("href",
 				  "/run?publicId=<%= encodedId%>");
+
+	    // If the thing doesn't have source, hide the run button
+	    if (dom.find("ObjectCode obj").text() === "") {
+		jQuery("#runIt").hide();
+	    }
+
+
             if (dom.find("isSourcePublic").text() == 'true') {
 		jQuery("#viewSource").attr("href",
 					   "/openEditor?publicId=<%= encodedId%>");
