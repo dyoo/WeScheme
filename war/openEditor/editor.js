@@ -294,21 +294,21 @@ var WeSchemeEditor;
 	var callback = function(data) {
 	    var dom = jQuery(data);
 
-	    that.pid = parseInt(dom.find("id").text());
+	    that.pid = parseInt(dom.children("id").text());
 	    var publicUrl = getAbsoluteUrl(
 		"/openEditor?publicId=" +
-		    encodeURIComponent(dom.find("publicId").text()));
-	    that.filenameEntry.attr("value", dom.find("title").text());
-	    that.defn.setCode(dom.find("source").text());
+		    encodeURIComponent(dom.children("publicId").text()));
+	    that.filenameEntry.attr("value", dom.children("title").text());
+	    that.defn.setCode(dom.children("source").text());
 			      
-	    if (that.userName == dom.find("owner").text()) {
+	    if (that.userName == dom.children("owner").text()) {
 		that._setIsOwner(true);
 	    } else {
 		that._setIsOwner(false);
 	    }
 	    that.loadedE.sendEvent(true);
 	    that.isPublishedE.sendEvent(
-		dom.find("published").text() == "true" ? true : false);
+		dom.children("published").text() == "true" ? true : false);
 	    WeSchemeIntentBus.notify("after-load", that);
 	};
 
