@@ -3,7 +3,9 @@ goog.require('goog.dom');
 
 goog.require('plt.wescheme.AjaxActions');
 goog.require('plt.wescheme.SharingDialog');
+goog.require("plt.wescheme.ProgramDigest");
 goog.require("plt.wescheme.helpers");
+
 
 
 
@@ -40,13 +42,13 @@ function loadProgramList() {
 	    .append(jQuery("<span/>").addClass("ProgramPublished").text("Sharing URL")));
     
 
-    var addProgramEntry = function(digest) {
+    var addProgramEntry = function(digest, aProgramDigest) {
 
 	// The program entry
 	var programEntry = (jQuery("<li/>").addClass("ProgramEntry"));
 
-	var title = digest.children("title").text();
-	var id = digest.children("id").text();
+	var title = aProgramDigest.getTitle();
+	var id = aProgramDigest.getId();
 	var form = (jQuery("<form/>")
 		    .attr("method", "post")
 		    .attr("action",   "/openEditor")
@@ -59,10 +61,11 @@ function loadProgramList() {
 			    .attr("name", "pid")
 			    .attr("value", id)));
 	var modifiedSpan = (jQuery("<span/>")
-			    .text(plt.wescheme.helpers.prettyPrintDate(digest.children("modified").text()))
+			    .text(plt.wescheme.helpers.prettyPrintDate(
+				aProgramDigest.getModified()))
 			    .addClass("ProgramModified"));
 
-	var img = (hasSharingUrls(digest) ?
+	var img = (aProgramDigest.hasSharingUrls() ?
 		   jQuery("<img class='button' src='/css/images/share.png'/>") :
 		   jQuery("<img class='button' src='/css/images/share-decolored.png'/>"));
 	img.click(function() {
@@ -75,13 +78,12 @@ function loadProgramList() {
 			.addClass("ProgramPublished")
 			.append(img));
 
-	attachSharingPopupTooltip(shareSpan.get(0), digest);
+	attachSharingPopupTooltip(shareSpan.get(0), digest, aProgramDigest);
 
 	(programEntry
 	 .append(form)
 	 .append(modifiedSpan)
 	 .append(shareSpan)
-	 //.append(deleteSpan)
 	);
 	
 	programListUl.append(programEntry);
@@ -95,29 +97,26 @@ function loadProgramList() {
 
 
 
-    var attachSharingPopupTooltip = function(parent, digest) {
+    var attachSharingPopupTooltip = function(parent, digest, aProgramDigest) {
 	var tooltip = new goog.ui.AdvancedTooltip(parent);
 	tooltip.className = 'tooltip';
-	if (hasSharingUrls(digest)) {
+	if (aProgramDigest.hasSharingUrls()) {
 	    tooltip.setHtml(
 		"<h2>Program sharing</h2>" +
 		    "This program has been shared.", true);
 	    var aList = goog.dom.createElement("ul");
-	    digest.find('sharedAs Entry').each(function(i,elt) {
-		var item = goog.dom.createElement("li");
-		aList.appendChild(item);
-		var title = jQuery(elt).children('title').text();
-		var anchor = makeShareAnchor(jQuery(elt).children('publicId').text(),
-					  jQuery(elt).children('title').text());
-		item.appendChild(anchor);
-		item.appendChild(goog.dom.createTextNode(
-		    " [" + plt.wescheme.helpers.prettyPrintDate(jQuery(elt).children('modified').text()) + "]"));
-		item.appendChild(plt.wescheme.helpers.generateSocialBookmarks(
-		    title, anchor.href))
-		if (i > 0) {
-		    item.style.visibility = "hidden";
-		}
-	    });
+	    var entries = aProgramDigest.getSharedAsEntries();
+	    // We'll just look at the first one.
+	    var elt = entries[0];
+	    var item = goog.dom.createElement("li");
+	    aList.appendChild(item);
+	    var title = elt.title;
+	    var anchor = makeShareAnchor(elt.publicId, elt.title);
+	    item.appendChild(anchor);
+	    item.appendChild(goog.dom.createTextNode(
+		" [" + plt.wescheme.helpers.prettyPrintDate(elt.modified) + "]"));
+	    item.appendChild(plt.wescheme.helpers.generateSocialBookmarks(
+		title, anchor.href));
 	    goog.dom.appendChild(tooltip.getElement(), aList);
 
 	} else {
@@ -144,7 +143,7 @@ function loadProgramList() {
 	    if (digest.children("published").text() == 'true') {
 		// skip it
 	    } else {
-		addProgramEntry(digest);
+		addProgramEntry(digest, new plt.wescheme.ProgramDigest(digest));
 	    }
 	});
     },
