@@ -1,3 +1,5 @@
+goog.provide("plt.wescheme.WeSchemeIntentBus");
+
 var WeSchemeIntentBus = (function() {
 
     // FIXME: figure out what other intentish stuff would be useful for WeScheme.
@@ -35,3 +37,5 @@ var WeSchemeIntentBus = (function() {
 
     return new WeSchemeIntentBus();
 })();
+
+plt.wescheme.WeSchemeIntentBus = WeSchemeIntentBus;

@@ -1,7 +1,10 @@
 goog.require('goog.ui.AdvancedTooltip');
 goog.require('goog.dom');
+
 goog.require('plt.wescheme.AjaxActions');
 goog.require('plt.wescheme.SharingDialog');
+goog.require("plt.wescheme.helpers");
+
 
 
 function loadProgramList() {
@@ -56,7 +59,7 @@ function loadProgramList() {
 			    .attr("name", "pid")
 			    .attr("value", id)));
 	var modifiedSpan = (jQuery("<span/>")
-			    .text(prettyPrintDate(digest.children("modified").text()))
+			    .text(plt.wescheme.helpers.prettyPrintDate(digest.children("modified").text()))
 			    .addClass("ProgramModified"));
 
 	var img = (hasSharingUrls(digest) ?
@@ -108,16 +111,19 @@ function loadProgramList() {
 					  jQuery(elt).children('title').text());
 		item.appendChild(anchor);
 		item.appendChild(goog.dom.createTextNode(
-		    " [" + prettyPrintDate(jQuery(elt).children('modified').text()) + "]"));
+		    " [" + plt.wescheme.helpers.prettyPrintDate(jQuery(elt).children('modified').text()) + "]"));
 		item.appendChild(plt.wescheme.helpers.generateSocialBookmarks(
 		    title, anchor.href))
+		if (i > 0) {
+		    item.style.visibility = "hidden";
+		}
 	    });
 	    goog.dom.appendChild(tooltip.getElement(), aList);
 
 	} else {
 	    tooltip.setHtml(
 		"<h2>Program sharing</h2>" +
-		    "This program has not been shared yet.", true);
+		    "This program has not been shared yet.  Click the share icon to share it.", true);
 	}
 	tooltip.setHotSpotPadding(new goog.math.Box(5, 5, 5, 5));
 	tooltip.setCursorTracking(true);
@@ -147,35 +153,6 @@ function loadProgramList() {
 			 });
 }
 
-
-
-// prettyPrintDate: string -> string
-function prettyPrintDate(modified) {
-    var modifiedDate = new Date();
-    modifiedDate.setTime(parseInt(modified));
-
-
-    var day = modifiedDate.getUTCDate();
-    var month = modifiedDate.getUTCMonth() + 1;
-    var year = modifiedDate.getFullYear();
-    var time = (((modifiedDate.getHours() % 12) == 0 ?
-		 12 :
-		 (modifiedDate.getHours() % 12))
-		+ ":" 
-		+ modifiedDate.getMinutes()
-		+ (modifiedDate.getHours() >= 12 ? "pm" : "am" ));
-    return day + "/" + month + "/" + year + ", " + time;
-//     var day = (["Sunday", "Monday", "Tuesday", "Wednesday",
-// 		"Thursday", "Friday", "Saturday"]
-// 	       [modifiedDate.getDay()]);
-//     var month = (["January", "February", "March", "April",
-// 		  "May", "June", "July", "August", "September",
-// 		  "October", "November", "December"]
-// 		 [modifiedDate.getMonth()]);
-
-//     return (day + ", " + month + " " + modifiedDate.getDate() + ", "
-// 	    + modifiedDate.toLocaleTimeString());
-}
 
 
 // makeShareUrl: string -> element

@@ -89,4 +89,26 @@ goog.provide("plt.wescheme.helpers");
 	return span;
     };
 
+
+    // prettyPrintDate: string -> string
+    plt.wescheme.helpers.prettyPrintDate = function(modified) {
+	var modifiedDate = new Date();
+	modifiedDate.setTime(parseInt(modified));
+
+
+	var day = modifiedDate.getUTCDate();
+	var month = modifiedDate.getUTCMonth() + 1;
+	var year = modifiedDate.getFullYear();
+	var time = (((modifiedDate.getHours() % 12) == 0 ?
+		     12 :
+		     (modifiedDate.getHours() % 12))
+		    + ":" 
+		    + modifiedDate.getMinutes()
+		    + (modifiedDate.getHours() >= 12 ? "pm" : "am" ));
+	return day + "/" + month + "/" + year + ", " + time;
+    };
+
+
+
+
 })();

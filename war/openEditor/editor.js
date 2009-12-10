@@ -1,5 +1,6 @@
 goog.require("plt.wescheme.AjaxActions");
 goog.require("plt.wescheme.SharingDialog");
+goog.require("plt.wescheme.WeSchemeIntentBus");
 
 goog.provide("plt.wescheme.WeSchemeEditor");
 
@@ -69,7 +70,7 @@ var WeSchemeEditor;
 	this.filenameEntry.node.type = "text";
 	this.filenameEntry.setValue("Unknown");
 	this.filenameEntry.behavior.changes().mapE(function(v) {
-	    WeSchemeIntentBus.notify("filename-changed", that);
+	    plt.wescheme.WeSchemeIntentBus.notify("filename-changed", that);
 	});
 
 
@@ -77,7 +78,7 @@ var WeSchemeEditor;
 	this.pid = false;
 
 	this.defn.getSourceB().changes().mapE(function() {
-	    WeSchemeIntentBus.notify("definitions-changed", that);
+	    plt.wescheme.WeSchemeIntentBus.notify("definitions-changed", that);
 	});
 
 
@@ -222,7 +223,7 @@ var WeSchemeEditor;
 
     // WeSchemeEditor._autosave: -> void
     WeSchemeEditor.prototype._autosave = function() {
-	WeSchemeIntentBus.notify("autosave", this);
+	plt.wescheme.WeSchemeIntentBus.notify("autosave", this);
 	this.save();
     };
 
@@ -233,10 +234,10 @@ var WeSchemeEditor;
 	var that = this;
 	var afterSave = function(pid) {
 	    that.pid = pid;
-	    WeSchemeIntentBus.notify("before-save", that);
+	    plt.wescheme.WeSchemeIntentBus.notify("before-save", that);
 
 	    that.savedE.sendEvent(true);
-	    WeSchemeIntentBus.notify("after-save", that);
+	    plt.wescheme.WeSchemeIntentBus.notify("after-save", that);
 	}
 	var whenSaveBreaks = function() {
 	    alert("Unable to save");
@@ -309,7 +310,7 @@ var WeSchemeEditor;
 	    that.loadedE.sendEvent(true);
 	    that.isPublishedE.sendEvent(
 		dom.find("published").text() == "true" ? true : false);
-	    WeSchemeIntentBus.notify("after-load", that);
+	    plt.wescheme.WeSchemeIntentBus.notify("after-load", that);
 	};
 
 	var whenLoadFails = function() { 
@@ -317,13 +318,13 @@ var WeSchemeEditor;
 	    alert("The load failed.");
 	}
 	if (attrs.pid) {
-	    WeSchemeIntentBus.notify("before-load", this);
+	    plt.wescheme.WeSchemeIntentBus.notify("before-load", this);
 	    that.actions.loadAProject(attrs.pid,
 			 undefined,
 			 callback,
 			 whenLoadFails);
 	} else if (attrs.publicId) {
-	    WeSchemeIntentBus.notify("before-load", this);
+	    plt.wescheme.WeSchemeIntentBus.notify("before-load", this);
 	    that.actions.loadAProject(undefined,
 			 attrs.publicId,
 			 callback,
@@ -353,10 +354,10 @@ var WeSchemeEditor;
 
 
     WeSchemeEditor.prototype.run = function() {
-	WeSchemeIntentBus.notify("before-run", this);
+	plt.wescheme.WeSchemeIntentBus.notify("before-run", this);
 	this.interactions.reset();
 	this.interactions.runCode(this.defn.getCode(), "<definitions>");
-	WeSchemeIntentBus.notify("after-run", this);
+	plt.wescheme.WeSchemeIntentBus.notify("after-run", this);
     };
 
 

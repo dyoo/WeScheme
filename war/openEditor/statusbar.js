@@ -1,3 +1,9 @@
+goog.require("plt.wescheme.WeSchemeIntentBus");
+
+
+goog.provide("plt.wescheme.WeSchemeStatusBar");
+
+
 var WeSchemeStatusBar;
 
 
@@ -39,7 +45,7 @@ WeSchemeStatusBar = (function() {
 	    }
 	};
 
-	WeSchemeIntentBus.addNotifyListener(handleNotifyIntent);
+	plt.wescheme.WeSchemeIntentBus.addNotifyListener(handleNotifyIntent);
     }
 
 
