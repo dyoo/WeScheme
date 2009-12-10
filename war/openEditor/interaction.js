@@ -99,22 +99,16 @@ WeSchemeInteractions = (function () {
 
 	    dialog.dialog( {
 		bgiframe : true,
+		position: ["left", "top"],
 		modal : true,
 		width: "auto",
 		height: "auto",
 	        beforeclose: handleClose
 	    });
-	    dialog.dialog("open");
-	    // var container = dialog.getContentElement();
-	    // var innerArea = goog.dom.createElement("div");
-	    // container.appendChild(innerArea);
-	    // return innerArea;
 
-
-//	    var area = jQuery("<div id='top' style='border-style: solid; border-width: thin;'></div>");
-//	    that.prompt.before(area);
 	    var innerArea = jQuery("<div></div>");
 	    dialog.append(innerArea);
+	    dialog.dialog("open");
 	    return innerArea.get(0);
 	};
 	plt.Kernel.lastLoc = undefined;
