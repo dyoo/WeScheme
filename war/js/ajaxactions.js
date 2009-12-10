@@ -1,4 +1,9 @@
+goog.require("plt.wescheme.Program");
+
+
 goog.provide("plt.wescheme.AjaxActions");
+
+
 
 (function() {
 
@@ -20,7 +25,8 @@ goog.provide("plt.wescheme.AjaxActions");
   		     type: "GET",
   		     url: "/loadProject",
   		     success: function(dom) {
-			 onSuccess(jQuery(dom));
+			 var jDom = jQuery(dom);
+			 onSuccess(jDom, new plt.wescheme.Program(jDom));
 		     },
   		     error: function() {
 			 onFailure();
