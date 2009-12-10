@@ -141,7 +141,7 @@ var WeSchemeEditor;
 	
 	// isOwnerB is a boolean behavior that's true if we own the file,
 	// and false otherwise.  It changes on load.
-	this.isOwnerB = startsWith(this.isOwnerE, false);
+	this.isOwnerB = startsWith(this.isOwnerE, this.isOwner);
     
 	
 	// isDirtyB is initially false, and changes when
@@ -160,11 +160,9 @@ var WeSchemeEditor;
 	// isAutosaveEnabledB: enabled only when the definitions area is dirty
 	//             and it hasn't been published yet
 	//             and you own the file
-	//             and the file isn't new
 	//             and you are logged in (non-"null" name)
 	this.isAutosaveEnabledB = andB(this.isDirtyB,
 				       notB(this.isPublishedB),
-				       notB(this.isNewFileB),
 				       this.isOwnerB,
 				       this.isLoggedInB);
 
@@ -251,8 +249,8 @@ var WeSchemeEditor;
 		 function(newPid) { afterSave(newPid);
 				    // We want the reload button to work from this
 				    // point forward, so let's change the history.
-				    window.location = (
-					"/openEditor?pid=" + encodeURIComponent(that.pid));
+//				    window.location = (
+//					"/openEditor?pid=" + encodeURIComponent(that.pid));
 				  },
 		 whenSaveBreaks);
 	}
