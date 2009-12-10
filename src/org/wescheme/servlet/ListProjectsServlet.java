@@ -40,6 +40,7 @@ public class ListProjectsServlet extends HttpServlet {
 			
 			Query query = pm.newQuery(Program.class);
 			query.setFilter("owner_ == ownerParam");
+			query.setOrdering("time_ desc");
 			query.declareParameters("String ownerParam");
 			
 			try {

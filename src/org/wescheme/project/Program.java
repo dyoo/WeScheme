@@ -209,7 +209,8 @@ public class Program extends XML {
 	
 	
 	/**
-	 * Returns a list of the programs for which this has been backlinked.
+	 * Returns a list of the programs for which this has been backlinked, 
+	 * sorted by modified date in descending order.
 	 * @param pm
 	 * @return
 	 */
@@ -217,6 +218,7 @@ public class Program extends XML {
 	public List<Program> getBacklinkedPrograms(PersistenceManager pm) {
 		Query query = pm.newQuery(Program.class);
 		query.setFilter("backlink_ == id");
+		query.setOrdering("time_ desc");
 		query.declareParameters("Long id");
 		try {
 			List<Program> pl = (List<Program>) query.execute(this.id);
