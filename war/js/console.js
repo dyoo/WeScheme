@@ -117,7 +117,6 @@ function loadProgramList() {
 	}
 	tooltip.setHotSpotPadding(new goog.math.Box(5, 5, 5, 5));
 	tooltip.setCursorTracking(true);
-	tooltip.setMargin(new goog.math.Box(100, 0, 0, 100));
 	tooltip.setHideDelayMs(250);
 
     }
