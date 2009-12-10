@@ -26,11 +26,13 @@ public class ProgramDigest {
 
 		Element sharedAsElt = new Element("sharedAs");
 		for(Program p : this.program.getBacklinkedPrograms(pm)) {
-			Element shared = new Element("Entry");
-			shared.addContent(XML.makeElement("publicId", p.getPublicId()));
-			shared.addContent(XML.makeElement("title", p.getTitle()));
-			shared.addContent(XML.makeElement("modified", p.getTime()));
-			sharedAsElt.addContent(shared);
+			if (p.getPublicId() != null) {
+				Element shared = new Element("Entry");
+				shared.addContent(XML.makeElement("publicId", p.getPublicId()));
+				shared.addContent(XML.makeElement("title", p.getTitle()));
+				shared.addContent(XML.makeElement("modified", p.getTime()));
+				sharedAsElt.addContent(shared);
+			}
 		}
 		root.addContent(sharedAsElt);
 		
