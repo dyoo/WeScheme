@@ -1,6 +1,8 @@
 goog.require("plt.Kernel");
+goog.require("plt.wescheme.WeSchemeIntentBus");
 goog.require("plt.world.MobyJsworld");
 goog.require("plt.world.stimuli");
+
 
 goog.provide("plt.wescheme.interactions");
 
@@ -40,8 +42,8 @@ WeSchemeInteractions = (function () {
 
 
     WeSchemeInteractions.prototype.notifyBus = function(action, data) {
-	if (typeof WeSchemeIntentBus != 'undefined') {
-	    WeSchemeIntentBus.notify("after-reset", this);
+	if (typeof plt.wescheme.WeSchemeIntentBus != 'undefined') {
+	    plt.wescheme.WeSchemeIntentBus.notify("after-reset", this);
 	}
     }
 

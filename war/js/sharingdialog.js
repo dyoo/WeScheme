@@ -1,5 +1,6 @@
 goog.require("plt.wescheme.AjaxActions");
 goog.require("plt.wescheme.helpers");
+//goog.require("plt.wescheme.WeSchemeIntentBus");
 
 
 goog.provide("plt.wescheme.SharingDialog");
@@ -12,6 +13,9 @@ goog.provide("plt.wescheme.SharingDialog");
 	this.code = code;
 	this.actions = new plt.wescheme.AjaxActions();
     };
+
+
+
 
 
     plt.wescheme.SharingDialog.prototype.show = function(onShareSuccess, onAbort) {
@@ -94,15 +98,15 @@ goog.provide("plt.wescheme.SharingDialog");
 	    // 	    var that = this;
 	    // 	    var afterPublish = function(data, textStatus) {
 	    // 		var dom = jQuery(data);
-	    // 		WeSchemeIntentBus.notify("after-publish", that);
+	    // 		plt.wescheme.WeSchemeIntentBus.notify("after-publish", that);
 	    // 	    };
 
 	    // 	    var error = function(xmlhttp, textstatus, errorThrown) {
-	    // 		WeSchemeIntentBus.notify("exception", 
+	    // 		plt.wescheme.WeSchemeIntentBus.notify("exception", 
 	    // 					 [that, "publish", textstatus, errorThrown]);
 	    // 	    };
 
-	    // 	    WeSchemeIntentBus.notify("before-publish", this);
+	    // 	    plt.wescheme.WeSchemeIntentBus.notify("before-publish", this);
 	    // 	    jQuery.ajax({cache : false,
 	    // 			 data : { pid: this.pid },
 	    // 			 dataType: "xml",

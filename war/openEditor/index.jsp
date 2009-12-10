@@ -127,7 +127,7 @@
 
 
       // For debugging:
-      //   WeSchemeIntentBus.addNotifyListener(function(action, category, data) {
+      //   plt.wescheme.WeSchemeIntentBus.addNotifyListener(function(action, category, data) {
       //       debugLog(action + ": " + category + " " + data.toString());
       //   });
 
