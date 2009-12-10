@@ -609,7 +609,7 @@ goog.addDependency('../compat/ie7-squish.js', [], []);
 goog.addDependency('../compat/excanvas.js', [], []);
 goog.addDependency('../compat/canvas-text/canvas.text.js', [], []);
 goog.addDependency('../compat/canvas-text/faces/optimer-normal-normal.js', [], []);
-goog.addDependency('../js/program.js', ['plt.wescheme.Program'], []);
+goog.addDependency('../js/program.js', ['plt.wescheme.Program'], ['plt.wescheme.SharedAs']);
 goog.addDependency('../js/submitpost.js', [], []);
 goog.addDependency('../js/console.js', [], ['goog.ui.AdvancedTooltip', 'goog.dom', 'plt.wescheme.AjaxActions', 'plt.wescheme.SharingDialog', 'plt.wescheme.helpers']);
 goog.addDependency('../js/helpers.js', ['plt.wescheme.helpers'], []);
@@ -619,6 +619,7 @@ goog.addDependency('../js/ajaxactions.js', ['plt.wescheme.AjaxActions'], ['plt.w
 goog.addDependency('../js/buildProfile.js', [], []);
 goog.addDependency('../js/flapjax-2.0.1.compressed.js', [], []);
 goog.addDependency('../js/embedProfile.js', [], []);
+goog.addDependency('../js/sharedas.js', ['plt.wescheme.SharedAs'], []);
 goog.addDependency('../js/sharingdialog.js', ['plt.wescheme.SharingDialog'], ['plt.wescheme.AjaxActions', 'plt.wescheme.helpers']);
 goog.addDependency('../js/prototype.js', [], []);
 goog.addDependency('../js/excanvas.js', [], []);

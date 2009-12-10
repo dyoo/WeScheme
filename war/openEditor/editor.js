@@ -294,23 +294,20 @@ var WeSchemeEditor;
 
 	
 	var whenLoadSucceeds = function(data, aProgram) {
-	    var dom = jQuery(data);
-
-	    that.pid = parseInt(dom.find("id").text());
-	    var publicUrl = getAbsoluteUrl(
-		"/openEditor?publicId=" +
-		    encodeURIComponent(dom.find("publicId").text()));
-	    that.filenameEntry.attr("value", dom.find("title").text());
-	    that.defn.setCode(dom.find("source").text());
+ 	    that.pid = aProgram.getId();
+ 	    var publicUrl = getAbsoluteUrl(
+ 		"/openEditor?publicId=" +
+ 		    encodeURIComponent(aProgram.getPublicId()));
+ 	    that.filenameEntry.attr("value", aProgram.getTitle());
+ 	    that.defn.setCode(aProgram.getSourceCode());
 			      
-	    if (that.userName == dom.find("owner").text()) {
+	    if (that.userName == aProgram.getOwner()) {
 		that._setIsOwner(true);
 	    } else {
 		that._setIsOwner(false);
 	    }
 	    that.loadedE.sendEvent(true);
-	    that.isPublishedE.sendEvent(
-		dom.find("published").text() == "true" ? true : false);
+	    that.isPublishedE.sendEvent(aProgram.isPublished());
 	    plt.wescheme.WeSchemeIntentBus.notify("after-load", that);
 	};
 
