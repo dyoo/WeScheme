@@ -34,39 +34,43 @@ goog.provide("plt.wescheme.SharingDialog");
 		that.pid, 
 		that.code,
 		function(newPid) { 
+		    // FIXME: what should happen if the compilation succeeds,
+		    // versus when it fails?
 		    that.actions.runTheCompiler(
 			newPid, 
-			function() {
-			    that.actions.share(newPid,
-					       isPublic,
-					       function(sharedProgram) {
-						   var newDialog = jQuery("<div/>");
-						   newDialog.dialog({title: 'Sharing your program',
-								     bgiframe : true,
-								     modal : true,
-								     close : function() {
-									 if (onShareSuccess) { 
-									     onShareSuccess(sharedProgram); 
-									 }
-								     }
-								    });
-						   newDialog.append(
-						       jQuery("<p/>")
-							   .text("Program has been shared: "));
-						   newDialog.append(
-						       jQuery(plt.wescheme.helpers.urlToAnchor(
-							   plt.wescheme.helpers.makeShareUrl(
-							       sharedProgram.find("publicId").text()))));
-						   newDialog.dialog("open");
-
-					       },
-					       whenSharingFails);
-			},
+			whenCompilationSucceeds,
 			whenCompilationFails);
+
+		    that.actions.share(newPid,
+				       isPublic,
+				       function(sharedProgram) {
+					   var newDialog = jQuery("<div/>");
+					   newDialog.dialog({title: 'Sharing your program',
+							     bgiframe : true,
+							     modal : true,
+							     close : function() {
+								 if (onShareSuccess) { 
+								     onShareSuccess(sharedProgram); 
+								 }
+							     }
+							    });
+					   newDialog.append(
+					       jQuery("<p/>")
+						   .text("Program has been shared: "));
+					   newDialog.append(
+					       jQuery(plt.wescheme.helpers.urlToAnchor(
+						   plt.wescheme.helpers.makeShareUrl(
+						       sharedProgram.find("publicId").text()))));
+					   newDialog.dialog("open");
+
+				       },
+				       whenSharingFails);
 		},
 		whenCloningFails);
 	};
 
+	var whenCompilationSucceeds = function() {
+	};
 	var whenCompilationFails = function() {
 	    // FIXME
 	    alert("compilation failed");
