@@ -103,10 +103,14 @@ function loadProgramList() {
 	    digest.find('sharedAs Entry').each(function(i,elt) {
 		var item = goog.dom.createElement("li");
 		aList.appendChild(item);
-		item.appendChild(makeShareUrl(jQuery(elt).children('publicId').text(),
-					      jQuery(elt).children('title').text()));
+		var title = jQuery(elt).children('title').text();
+		var anchor = makeShareAnchor(jQuery(elt).children('publicId').text(),
+					  jQuery(elt).children('title').text());
+		item.appendChild(anchor);
 		item.appendChild(goog.dom.createTextNode(
 		    " [" + prettyPrintDate(jQuery(elt).children('modified').text()) + "]"));
+		item.appendChild(plt.wescheme.helpers.generateSocialBookmarks(
+		    title, anchor.href))
 	    });
 	    goog.dom.appendChild(tooltip.getElement(), aList);
 
@@ -176,7 +180,7 @@ function prettyPrintDate(modified) {
 
 // makeShareUrl: string -> element
 // Produces the sharing url
-function makeShareUrl(publicId, name) {
+function makeShareAnchor(publicId, name) {
     if (publicId != "") {
 	var a = goog.dom.createElement("a");
 	a.href = "/view?publicId=" + encodeURIComponent(publicId);
