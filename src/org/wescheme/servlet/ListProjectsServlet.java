@@ -20,6 +20,14 @@ import org.wescheme.user.SessionManager;
 import org.wescheme.user.UnauthorizedUserException;
 import org.wescheme.util.PMF;
 
+/**
+ * Produces a list of projects of the logged-in user, in descending order of modification time.
+ * 
+ * This list is presented as a sequence of ProgramDigest XML elements.
+ * 
+ * @author dyoo
+ *
+ */
 public class ListProjectsServlet extends HttpServlet {
 	
 	private static final long serialVersionUID = 6291188410939739681L;

@@ -11,12 +11,25 @@
     </datastore-index>
 
 
-
-
     <!-- Used 1 time in query history -->
     <datastore-index kind="Capability" ancestor="true" source="auto">
         <property name="capabilities__INTEGER_IDX" direction="asc"/>
     </datastore-index>
+
+
+    <!-- Used 1 time in query history -->
+    <datastore-index kind="Program" ancestor="false" source="auto">
+        <property name="owner_" direction="asc"/>
+        <property name="time_" direction="desc"/>
+    </datastore-index>
+
+
+    <!-- Used 48 times in query history -->
+    <datastore-index kind="Program" ancestor="false" source="auto">
+        <property name="backlink_" direction="asc"/>
+        <property name="time_" direction="desc"/>
+    </datastore-index>
+
 
 
 </datastore-indexes>

@@ -12,6 +12,8 @@
 <html>
 <head><title>WeScheme</title>
 <link rel="stylesheet" type="text/css" href="css/view.css" id="style" />
+
+<script src="/runtime/base.js"></script>
 <script src="/editor/jquery.js"></script>
 <script src="/heartbeat.js"></script>
 <script src="/js/submitpost.js"></script>
