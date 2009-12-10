@@ -1,5 +1,9 @@
 goog.require("plt.wescheme.AjaxActions");
 goog.require("plt.wescheme.helpers");
+
+goog.require("goog.dom");
+goog.require('goog.ui.AdvancedTooltip');
+
 //goog.require("plt.wescheme.WeSchemeIntentBus");
 
 
@@ -13,6 +17,7 @@ goog.provide("plt.wescheme.SharingDialog");
 	this.code = code;
 	this.actions = new plt.wescheme.AjaxActions();
     };
+
 
 
 
@@ -139,5 +144,96 @@ goog.provide("plt.wescheme.SharingDialog");
 	    dialogWindow.dialog("open");
 	}
     };
+
+
+
+
+
+    //////////////////////////////////////////////////////////////////////
+
+    // makeShareButton: (Program | ProgramDigest) (-> void) (-> void) -> void
+    // Creates a share button, given a Program or a ProgramDigest.
+    // Either must have the following methods:
+    // p.getId()
+    // p.hasSharingUrls()
+    // p.getSharedAsEntries()
+    plt.wescheme.SharingDialog.makeShareButton = function(aProgramOrDigest,
+							  onSuccess,
+							  onFailure) {
+	var img = (aProgramOrDigest.hasSharingUrls() ?
+		   jQuery("<img class='button' src='/css/images/share.png'/>") :
+		   jQuery("<img class='button' src='/css/images/share-decolored.png'/>"));
+	img.click(function() {
+	    (new plt.wescheme.SharingDialog(aProgramOrDigest.getId(), null)).show(onSuccess, 
+							    onFailure);
+	});
+	var shareSpan =(jQuery("<span/>")
+			.addClass("ProgramPublished")
+			.append(img));
+
+	attachSharingPopupTooltip(shareSpan.get(0), aProgramOrDigest);
+	return shareSpan;
+    };
+
+
+    var attachSharingPopupTooltip = function(parent, aProgramOrDigest) {
+	var tooltip = new goog.ui.AdvancedTooltip(parent);
+	tooltip.className = 'tooltip';
+	if (aProgramOrDigest.hasSharingUrls()) {
+	    tooltip.setHtml(
+		"<h2>Program sharing</h2>" +
+		    "This program has been shared.", true);
+	    var aList = goog.dom.createElement("ul");
+	    var entries = aProgramOrDigest.getSharedAsEntries();
+	    // We'll just look at the first one.
+	    var elt = entries[0];
+	    var item = goog.dom.createElement("li");
+	    aList.appendChild(item);
+	    var title = elt.title;
+	    var anchor = makeShareAnchor(elt.publicId, elt.title);
+	    item.appendChild(anchor);
+	    item.appendChild(goog.dom.createTextNode(
+		" [" + plt.wescheme.helpers.prettyPrintDate(elt.modified) + "]"));
+	    item.appendChild(plt.wescheme.helpers.generateSocialBookmarks(
+		title, anchor.href));
+	    goog.dom.appendChild(tooltip.getElement(), aList);
+
+	} else {
+	    tooltip.setHtml(
+		"<h2>Program sharing</h2>" +
+		    "This program has not been shared yet.  Click the share icon to share it.", true);
+	}
+	tooltip.setHotSpotPadding(new goog.math.Box(5, 5, 5, 5));
+	tooltip.setCursorTracking(true);
+	tooltip.setHideDelayMs(250);
+
+    }
+
+
+    // makeShareUrl: string -> element
+    // Produces the sharing url
+    var makeShareAnchor = function(publicId, name) {
+	if (publicId != "") {
+	    var a = goog.dom.createElement("a");
+	    a.href = "/view?publicId=" + encodeURIComponent(publicId);
+	    a.appendChild(goog.dom.createTextNode(name || a.href));
+	    return a;
+	} else {
+	    throw new Error();
+	}
+    }
+
+
+
+
+
+    //////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
 
 })();
