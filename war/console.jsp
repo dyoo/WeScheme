@@ -28,7 +28,16 @@
 <script src="/runtime/compat/XMLHttpRequest.js"></script>
 
 
-<script src="editor/jquery.js"></script>
+<script src="http://www.google.com/jsapi"></script>
+<script>
+  google.load("jquery", "1.3.2");
+  google.load("jqueryui", "1.7.2");
+</script>
+
+<!-- JQuery UI style sheet -->
+<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css"/>
+
+
 <script src="editor/jquery.createdomnodes.js"></script>
 <script src="safeSubmit.js"></script>
 <script src="/js/console.js"></script>
