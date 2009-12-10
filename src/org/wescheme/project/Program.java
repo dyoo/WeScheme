@@ -49,10 +49,6 @@ public class Program extends XML {
 	private Long backlink_;
 
 	
-	// The list of program ids this has been shared as.
-	@Persistent
-	private List<Long> clonedAs;
-	
 	
 	private void updateTime(){
 		time_ = System.currentTimeMillis();
@@ -69,7 +65,6 @@ public class Program extends XML {
 		this.author_ = owner_;
 		this.backlink_ = null;
 		this.updateTime();
-		this.setClonedAs(new ArrayList<Long>());
 	}
 	
 	
@@ -83,7 +78,6 @@ public class Program extends XML {
 		p.updateTime();
 		
 		p = pm.makePersistent(p);
-		this.getClonedAs().add(p.getId());
 		return p;
 	}
 	
@@ -212,12 +206,6 @@ public class Program extends XML {
 	}
 
 
-	public void setClonedAs(List<Long> clonedAs) {
-		this.clonedAs = clonedAs;
-		if (this.clonedAs == null) {
-			this.clonedAs = new ArrayList<Long>();
-		}
-	}
 	
 	
 	/**
@@ -238,12 +226,4 @@ public class Program extends XML {
 		}
 		
 	}
-
-
-	public List<Long> getClonedAs() {
-		if (this.clonedAs == null) {
-			this.clonedAs = new ArrayList<Long>();
-		}
-		return clonedAs;
-	}	
 }

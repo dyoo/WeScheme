@@ -2,12 +2,10 @@ package org.wescheme.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.jdo.Extent;
 import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -78,21 +76,6 @@ public class Administrate extends HttpServlet {
 				prog.build();
 			}
 
-			// Also, refresh its clonedAs attribute
-			prog.getClonedAs().clear();
-			Query query = pm.newQuery(Program.class);
-			query.setFilter("backlink_ == programId");
-			query.declareParameters("Long programId");
-			try {
-				@SuppressWarnings({ "unchecked" })
-				List<Program> pl = (List<Program>) query.execute(prog.getId());
-				for( Program p : pl ){
-					prog.getClonedAs().add(p.getId());
-				}
-
-			} finally {
-				query.closeAll();
-			}			
 		} finally {
 			pm.close();
 		}

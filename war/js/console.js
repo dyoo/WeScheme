@@ -42,15 +42,15 @@ function loadProgramList() {
 	// The program entry
 	var programEntry = (jQuery("<li/>").addClass("ProgramEntry"));
 
-	var title = digest.find("title").text();
-	var id = digest.find("id").text();
+	var title = digest.children("title").text();
+	var id = digest.children("id").text();
 	var form = (jQuery("<form/>")
 		    .attr("method", "post")
 		    .attr("action",   "/openEditor")
 		    .append(jQuery("<input/>")
 			    .addClass("ProgramTitle")
 			    .attr("type", "submit")
-			    .attr("value", digest.find("title").text()))
+			    .attr("value", title))
 		    .append(jQuery("<input/>")
 			    .attr("type", "hidden")
 			    .attr("name", "pid")
@@ -63,7 +63,10 @@ function loadProgramList() {
 		   jQuery("<img class='button' src='/css/images/share.png'/>") :
 		   jQuery("<img class='button' src='/css/images/share-decolored.png'/>"));
 	img.click(function() {
-	    (new plt.wescheme.SharingDialog(id, null)).show();
+	    var onSuccess = function(shared) {
+		loadProgramList();
+	    };
+	    (new plt.wescheme.SharingDialog(id, null)).show(onSuccess);
 	});
 	var shareSpan =(jQuery("<span/>")
 			.addClass("ProgramPublished")
@@ -84,7 +87,7 @@ function loadProgramList() {
 
 
     var hasSharingUrls = function(digest) {
-	return digest.find('sharedAs *').length > 0;
+	return digest.find('sharedAs Entry').length > 0;
     }
 
 
@@ -129,7 +132,7 @@ function loadProgramList() {
 	    var digest = jQuery(this);
 
 
-	    if (digest.find("published").text() == 'true') {
+	    if (digest.children("published").text() == 'true') {
 		// skip it
 	    } else {
 		addProgramEntry(digest);
