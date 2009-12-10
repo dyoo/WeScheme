@@ -1,17 +1,19 @@
 goog.require("plt.wescheme.AjaxActions");
+goog.require("plt.wescheme.helpers");
 
 
-goog.provide("plt.wescheme.makeSharingDialog")
+goog.provide("plt.wescheme.SharingDialog")
 
 
 
-plt.wescheme.SharingDialog = function(pid) {
+plt.wescheme.SharingDialog = function(pid, code) {
     this.pid = pid;
+    this.code = code;
     this.actions = new plt.wescheme.AjaxActions();
 };
 
 
-SharingDialog.prototype.share = function() {
+plt.wescheme.SharingDialog.prototype.show = function() {
     var that = this;
     var dialogWindow = (jQuery("<div/>"));
     
@@ -27,9 +29,9 @@ SharingDialog.prototype.share = function() {
 
     // Does the brunt work of the sharing.
     var doTheSharing = function(isPublic, onSuccess, onFailure) {
-	makeAClone(
+	that.actions.makeAClone(
 	    that.pid, 
-	    that.defn.getCode(),
+	    that.code,
 	    function(newPid) { 
 		that.actions.runTheCompiler(
 		    newPid, 
@@ -45,7 +47,10 @@ SharingDialog.prototype.share = function() {
 				  newDialog.append(
 				      jQuery("<p/>")
 					  .text("Program has been shared: "));
-				  newDialog.append(jQuery(makeShareUrl(sharedProgram.find("publicId").text())));
+				  newDialog.append(
+				      jQuery(plt.wescheme.helpers.urlToAnchor(
+					  plt.wescheme.helpers.makeShareUrl(
+					      sharedProgram.find("publicId").text()))));
 				  newDialog.dialog("open");
 			      },
 			      whenSharingFails);

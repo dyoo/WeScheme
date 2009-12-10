@@ -7,7 +7,7 @@ goog.provide("plt.wescheme.AjaxActions");
 
 
     // loadAProject: number (jquery -> void) (-> void)
-    AjaxActions.prototype.loadAProject = function(pid, publicId, onSuccess, onFailure) {
+    plt.wescheme.AjaxActions.prototype.loadAProject = function(pid, publicId, onSuccess, onFailure) {
 	var pid;
 	if (pid) {
 	    data = { pid: pid };
@@ -32,7 +32,7 @@ goog.provide("plt.wescheme.AjaxActions");
 
     // runTheCompiler: number (-> void) (-> void) -> void
     // Drives the compiler.
-    AjaxActions.prototype.runTheCompiler = function(pid, onSuccess, onFailure) {
+    plt.wescheme.AjaxActions.prototype.runTheCompiler = function(pid, onSuccess, onFailure) {
 	jQuery.ajax({cache : false,
   		     data : { pid: pid },
   		     dataType: "xml",
@@ -52,7 +52,7 @@ goog.provide("plt.wescheme.AjaxActions");
 
     // makeAClone: number string (number -> void) (-> void) -> void
     // Clones a program.
-    AjaxActions.prototype.makeAClone = function(pid, code, onSuccess, onFailure) {
+    plt.wescheme.AjaxActions.prototype.makeAClone = function(pid, code, onSuccess, onFailure) {
 	jQuery.ajax({cache : false,
   		     data : { pid: pid, code: code },
   		     dataType: "text",
@@ -75,7 +75,7 @@ goog.provide("plt.wescheme.AjaxActions");
     // share: number boolean (-> void) (-> void) -> void
     // Shares a program.
     // Sets the published flag on a program.
-    AjaxActions.prototype.share = function(pid, isPublic, onSuccess, onFailure) {
+    plt.wescheme.AjaxActions.prototype.share = function(pid, isPublic, onSuccess, onFailure) {
 	jQuery.ajax({cache : false,
   		     data : { pid: pid,
 			      isPublic: isPublic },
@@ -97,7 +97,7 @@ goog.provide("plt.wescheme.AjaxActions");
 
     // save: (U undefined number) string string (number -> void) (-> void) -> void
     // Does a save.
-    AjaxActions.prototype.save = function(pid, title, code, onSuccess, onFailure) {
+    plt.wescheme.AjaxActions.prototype.save = function(pid, title, code, onSuccess, onFailure) {
 	var data;
 	if (pid) {
 	    data = { pid: pid,
