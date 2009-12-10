@@ -30,6 +30,27 @@ goog.provide("plt.wescheme.AjaxActions");
     }
 
 
+    // listProjects: (jquery -> void) -> void
+    plt.wescheme.AjaxActions.prototype.listProjects = function(onSuccess, onFailure) {
+	var callback = function(data) {
+	    var dom = jQuery(data);
+	    onSuccess(dom);
+	};
+	jQuery.ajax({cache: false,
+		     data: {},
+		     dataType: "xml",
+		     type: "GET",
+		     url: "/listProjects",
+		     success: callback,
+		     error: function() {
+			 onFailure();
+		     },
+		     xhr: function(settings) { return new XMLHttpRequest(settings); }
+		    });
+    };
+
+
+
     // runTheCompiler: number (-> void) (-> void) -> void
     // Drives the compiler.
     plt.wescheme.AjaxActions.prototype.runTheCompiler = function(pid, onSuccess, onFailure) {
