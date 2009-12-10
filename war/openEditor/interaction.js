@@ -1,3 +1,11 @@
+goog.require("plt.Kernel");
+goog.require("plt.world.MobyJsworld");
+goog.require("plt.world.stimuli");
+
+goog.provide("plt.wescheme.interactions");
+
+
+
 var WeSchemeInteractions;
 
 WeSchemeInteractions = (function () {
@@ -84,10 +92,23 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype._prepareToRun = function() {
 	var that = this;
 	plt.world.MobyJsworld.makeToplevelNode = function() {
-	    var area = jQuery("<div id='top' style='border-style: solid; border-width: thin;'></div>");
-	    that.prompt.before(area);
+	    var dialog = jQuery("<div/>");
+	    var handleClose = function(event, ui) {
+		plt.world.stimuli.onShutdown();
+	    };
+
+	    dialog.dialog( {
+		bgiframe : true,
+		position: ["left", "top"],
+		modal : true,
+		width: "auto",
+		height: "auto",
+	        beforeclose: handleClose
+	    });
+
 	    var innerArea = jQuery("<div></div>");
-	    area.append(innerArea);
+	    dialog.append(innerArea);
+	    dialog.dialog("open");
 	    return innerArea.get(0);
 	};
 	plt.Kernel.lastLoc = undefined;
@@ -126,6 +147,9 @@ WeSchemeInteractions = (function () {
 			that.addToInteractions(document.createTextNode(s));
 			that.addToInteractions("\n");
 		    };
+
+
+
 
 		    runToplevel(function(val) {
 			if (val != undefined) {
@@ -248,3 +272,5 @@ WeSchemeInteractions = (function () {
 
     return WeSchemeInteractions;
 })();
+
+plt.wescheme.interactions = WeSchemeInteractions;
