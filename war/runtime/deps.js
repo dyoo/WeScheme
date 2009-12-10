@@ -614,6 +614,7 @@ goog.addDependency('../js/console.js', [], ['goog.ui.AdvancedTooltip', 'goog.dom
 goog.addDependency('../js/helpers.js', ['plt.wescheme.helpers'], []);
 goog.addDependency('../js/flapjax-helpers.js', [], []);
 goog.addDependency('../js/th.compressed.js', [], []);
+goog.addDependency('../js/ajaxactions.js', ['plt.wescheme.AjaxActions'], []);
 goog.addDependency('../js/buildProfile.js', [], []);
 goog.addDependency('../js/flapjax-2.0.1.compressed.js', [], []);
 goog.addDependency('../js/embedProfile.js', [], []);
@@ -727,7 +728,6 @@ goog.addDependency('../modules/bootstrap-teachpack.js', [], []);
 goog.addDependency('../openEditor/textcontainer.js', [], []);
 goog.addDependency('../openEditor/statusbar.js', ['plt.wescheme.WeSchemeStatusBar'], ['plt.wescheme.WeSchemeIntentBus']);
 goog.addDependency('../openEditor/editor.js', ['plt.wescheme.WeSchemeEditor'], ['plt.wescheme.AjaxActions', 'plt.wescheme.SharingDialog', 'plt.wescheme.WeSchemeIntentBus']);
-goog.addDependency('../openEditor/ajaxactions.js', ['plt.wescheme.AjaxActions'], []);
 goog.addDependency('../openEditor/intent.js', ['plt.wescheme.WeSchemeIntentBus'], []);
 goog.addDependency('../openEditor/interaction.js', ['plt.wescheme.interactions'], ['plt.Kernel', 'plt.wescheme.WeSchemeIntentBus', 'plt.world.MobyJsworld', 'plt.world.stimuli']);
 goog.addDependency('../bespin/test.js', [], []);

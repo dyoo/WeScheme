@@ -27,7 +27,7 @@ goog.provide("plt.wescheme.AjaxActions");
 		     },
 		     xhr: function(settings) { return new XMLHttpRequest(settings); }
 		    });
-    }
+    };
 
 
     // listProjects: (jquery -> void) -> void
