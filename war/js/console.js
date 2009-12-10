@@ -1,6 +1,6 @@
 goog.require('goog.ui.AdvancedTooltip');
 goog.require('goog.dom');
-
+goog.require('plt.wescheme.AjaxActions');
 
 
 function loadProgramList() {
@@ -118,28 +118,22 @@ function loadProgramList() {
 
 
 
-
-
-    var callback = function(data) {
-	var dom = jQuery(data);
+    var actions = new plt.wescheme.AjaxActions();
+    actions.listProjects(function(dom) {
 	dom.find("ProgramDigest").each(function() {	
 	    var digest = jQuery(this);
+
+
 	    if (digest.find("published").text() == 'true') {
 		// skip it
 	    } else {
 		addProgramEntry(digest);
 	    }
 	});
-
-    };
-    jQuery.ajax({cache: false,
-		 data: {},
-		 dataType: "xml",
-		 type: "GET",
-		 url: "/listProjects",
-		 success: callback,
-		 xhr: function(settings) { return new XMLHttpRequest(settings); }
-		});
+    },
+			 function() {
+			     alert("Could not load list of projects")
+			 });
 }
 
 
