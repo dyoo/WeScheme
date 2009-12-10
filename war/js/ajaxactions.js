@@ -25,7 +25,7 @@ goog.provide("plt.wescheme.AjaxActions");
   		     type: "GET",
   		     url: "/loadProject",
   		     success: function(dom) {
-			 var jDom = jQuery(dom);
+			 var jDom = jQuery(dom).find("Program");
 			 onSuccess(jDom, new plt.wescheme.Program(jDom));
 		     },
   		     error: function() {
