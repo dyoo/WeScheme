@@ -13,7 +13,7 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Text;
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
-public class SourceCode extends XML {
+public class SourceCode {
 
 	@SuppressWarnings("unused")
 	@PrimaryKey
