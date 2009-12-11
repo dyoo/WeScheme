@@ -7,6 +7,7 @@
 
     <script>
     goog.require('goog.ui.Container');
+    goog.require('goog.style');
     goog.require('goog.ui.SplitPane');
     goog.require('goog.ui.SplitPane.Orientation');
     </script>    
@@ -23,6 +24,11 @@
       width: 100%;
       height: 100%;
       margin: 0px;
+      }
+
+      .wrapper {
+      height: 100%;
+      width: 100%;
       }
 
       .goog-splitpane {
@@ -46,7 +52,6 @@
       
       .goog-splitpane-first-container,
       .goog-splitpane-second-container {
-      border: 5px solid black;
       overflow: auto;
       }
  
@@ -56,18 +61,19 @@
   </head>
   <body>
 
+    <div class="wrapper" id='aSplitterWrapper'>
+      <div class='goog-splitpane' id='aSplitter'> 
+	<div class='goog-splitpane-first-container'> 
+	  Top Frame
+	</div> 
 
-  <div class='goog-splitpane' id='aSplitter'> 
-    <div class='goog-splitpane-first-container'> 
-      Top Frame
-    </div> 
-    <div class='goog-splitpane-handle'></div> 
-    <div class='goog-splitpane-second-container'> 
-      Bottom Frame
-    </div> 
+	<div class='goog-splitpane-handle'></div> 
 
-  </div> 
-
+	<div class='goog-splitpane-second-container'> 
+	  Bottom Frame
+	</div> 
+      </div> 
+    </div>
 
   <script>
     (function() {
@@ -78,6 +84,13 @@
         goog.ui.SplitPane.Orientation.VERTICAL);
  
     splitpane1.decorate(document.getElementById('aSplitter'));
+
+
+    setInterval(function() { 
+
+    splitpane1.setSize(goog.style.getBorderBoxSize(document.getElementById('aSplitterWrapper')));
+
+    }, 1000);
     }());
   </script>
 
