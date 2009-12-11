@@ -18,6 +18,7 @@ body{background: url(images/bootBG.png) no-repeat fixed #f5deb3; background-posi
 	width:			100%;
 	height:			65px;
 	background:		url(images/icon-trans.png) no-repeat #f5deb3;
+	z-index:		5;
 }
 h1{ font-size:	38px;	margin-left:	65px;}
 h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
@@ -30,6 +31,7 @@ h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
 	clear:			both;
 	position:		fixed;
 	top:			65px;
+	z-index:		5;
 }
 
 #toolbar ul{
@@ -96,6 +98,7 @@ div#programList{
 	display:		block;
 	list-style:		none;
 	float:			left;
+	z-index:		0;
 }
 
 #programList ul li input, #programList ul li span{
@@ -114,9 +117,9 @@ li.ProgramEntry:hover{ background: #546DAF;}
 .ProgramTitle{width: 300px; margin-left: 65px;}
 .ProgramId{width: 100px;}
 .ProgramModified{text-align: left; width: 150px;}
-.ProgramPublished{width: 50px; text-align: center; margin-right: 65px}
+.ProgramPublished{width: 50px; text-align: center;}
 .ProgramPublished img.button {width: 18px; height: 18px; cursor: pointer; position: relative}
-.ProgramDelete{width: 50px; text-align: center; margin-right: 65px}
+.ProgramDelete{width: 50px; text-align: center;}
 .ProgramDelete img.button {width: 18px; height: 18px; cursor: pointer;}
 input.ProgramTitle{cursor: pointer; font-size: 16px;font-family: Serif; text-align: left;}
 input.ProgramModified{cursor: pointer; font-size: 16px;font-family: Serif; text-align: left;}
@@ -131,6 +134,8 @@ div.sharebox{
 	padding:	10px; 
 	font-size:	12px; 
 	position:	absolute;
+	left:		530px;
+	z-index:	5;
 	display:	none
 }
 div.sharebox input{width: 100%; border: solid 1px black;}
@@ -145,13 +150,3 @@ a.twitter{background: url(images/icon_twitter.gif) no-repeat; padding-left: 25px
 a.email{background: url(images/icon_email.gif) no-repeat; padding-left: 25px;}
 
 img:hover+div, #programList ul li img+div:hover{display: inline-block; }
-
-
-.tooltip {
-    background: lightyellow;
-    color: black;
-    border: 1px solid black;
-    padding: 5px;
-    font: menu;
-    width: 400px;
-}
