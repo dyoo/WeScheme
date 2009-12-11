@@ -8,6 +8,7 @@
     <script>
     goog.require('goog.ui.Container');
     goog.require('goog.style');
+    goog.require('goog.dom.ViewportSizeMonitor');
     goog.require('goog.ui.SplitPane');
     goog.require('goog.ui.SplitPane.Orientation');
     </script>    
@@ -86,11 +87,34 @@
     splitpane1.decorate(document.getElementById('aSplitter'));
 
 
-    setInterval(function() { 
+    var vsm = new goog.dom.ViewportSizeMonitor();
+    var getSize = function() {
+        return goog.style.getBorderBoxSize(
+            document.getElementById('aSplitterWrapper'));
+    };
 
-    splitpane1.setSize(goog.style.getBorderBoxSize(document.getElementById('aSplitterWrapper')));
+    var currentSize = getSize();
 
-    }, 1000);
+    var onResize = function(e) {
+       var newSize = getSize();
+       if (! goog.math.Size.equals(currentSize, newSize)) {
+           currentSize = newSize;
+           splitpane1.setSize(newSize);
+       }
+    };
+
+    goog.events.listen(document.getElementById('aSplitterWrapper'),
+                       goog.events.EventType.RESIZE,
+                       onResize);
+    goog.events.listen(vsm,
+                       goog.events.EventType.RESIZE,
+                       onResize);
+                     
+<!--     setInterval(function() {  -->
+
+<!--     splitpane1.setSize(goog.style.getBorderBoxSize(document.getElementById('aSplitterWrapper'))); -->
+
+<!--     }, 1000); -->
     }());
   </script>
 
