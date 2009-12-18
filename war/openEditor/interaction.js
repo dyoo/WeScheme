@@ -185,32 +185,6 @@ WeSchemeInteractions = (function () {
 	this.addToInteractions("\n");
 	this.addToInteractions(this.renderErrorAsDomNode(err));
 	this.addToInteractions("\n");
-
-// 	if (err instanceof plt.types.MobyParserError) {
-// 		this.addToInteractions(
-// 		    "Error (" + 
-// 			plt.Kernel.locToString(err.loc)
-// 			+ ")\n");
-// 	    this.addToInteractions(err.msg + "\n");
-// 	} else if (err instanceof plt.types.MobySyntaxError) {
-// 		this.addToInteractions(
-// 		    "Error (" + 
-// 			plt.Kernel.locToString(err.stx.loc)
-// 			+ ")\n");
-// 	    this.addToInteractions(err.msg + "\n");
-// 	} else if (err instanceof plt.types.MobyError){
-// 	    if (plt.Kernel.lastLoc) {
-// 		this.addToInteractions(
-// 		    "Error (" + plt.Kernel.locToString(plt.Kernel.lastLoc) + ")\n");
-// 	    }
-// 	    this.addToInteractions(err.msg + "\n");
-// 	} else {
-// 	    if (plt.Kernel.lastLoc) {
-// 		this.addToInteractions(
-// 		    "Error (" + plt.Kernel.locToString(plt.Kernel.lastLoc) + ")\n");
-// 	    }
-// 	    this.addToInteractions(err.toString() + "\n");
-// 	}
     };
 
 
@@ -241,22 +215,32 @@ WeSchemeInteractions = (function () {
     };
 
 
+
+    // getLocFromError: error -> loc or undefined
+    // Tries to get the location from an error value.
+    // FIXME: this should be refactored so Moby runtime errors
+    // include loc in their structure: we should NOT be touching
+    // plt.Kernel.lastLoc.
+    var getLocFromError = function(err) {
+	if (err instanceof plt.types.MobyParserError) {
+	    return err.log;
+	} else if (err instanceof plt.types.MobySyntaxError) {
+	    return err.stx.loc;
+	} else if (err instanceof plt.types.MobyError){
+	    return plt.Kernel.lastLoc;
+	} else {
+	    if (plt.Kernel.lastLoc) {
+		return plt.Kernel.lastLoc;
+	    }
+	} 
+	return undefined;
+    };
+
+
     // renderErrorLocationAsDomNode: error -> element
     // Given an exception, produces an error location dom node to be displayed.
     WeSchemeInteractions.prototype.renderErrorLocationAsDomNode = function(err) {
-	var loc;
-	if (err instanceof plt.types.MobyParserError) {
-	    loc = err.log;
-	} else if (err instanceof plt.types.MobySyntaxError) {
-	    loc = err.stx.loc;
-	} else if (err instanceof plt.types.MobyError){
-	    loc = plt.Kernel.lastLoc;
-	} else {
-	    if (plt.Kernel.lastLoc) {
-		loc = plt.Kernel.lastLoc;
-	    }
-	}
-	
+	var loc = getLocFromError(err);	
 	if (!loc) {
 	    return createDom(
 		"div",
