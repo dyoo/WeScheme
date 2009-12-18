@@ -755,26 +755,26 @@ goog.provide('plt.types');
 	    throw new MobyRuntimeError("n undefined");
 
 	if (d == undefined) { d = 1; }
-
+	
 	if (d < 0) {
 	    n = -n;
 	    d = -d;
 	}
-	
-	// DEFENSIVE PROGRAMMING KLUDGE:
-	// The following two finiteness checks should
-	// not happen in good code.  That is, n and d should
-	// either be finite numbers or strings.  In the bad
-	// case that we do hit infinity, let's just make sure
-	// the runtime doesn't completely break.
-	if (!isFinite(n)) {
-	    return plt.types.FloatPoint.makeInstance(n);
+
+	// Defensive edge cases.  We should never hit these
+	// cases, but since we don't yet have bignum arithmetic,
+	// it's possible that we may pass bad arguments to
+	// Integer.makeInstance.
+	if (isNaN (n) || isNaN(d)) {
+	    return FloatPoint.nan;
 	}
-	if (!isFinite(d)) {
-	    n = 0;
-	    d = 0;
+	if (! isFinite(d)) {
+	    return Rational.ZERO;
 	}
-	
+	if (! isFinite(n)) {
+	    return FloatPoint.makeInstance(n);
+	}
+
 
 	if (d == 1 && n in _rationalCache) {
 	    return _rationalCache[n];
@@ -808,17 +808,26 @@ goog.provide('plt.types');
     plt.types.FloatPoint = FloatPoint;
 
 
+    var NaN = new FloatPoint(Number.NaN);
+    var inf = new FloatPoint(Number.POSITIVE_INFINITY);
+    var neginf = new FloatPoint(Number.NEGATIVE_INFINITY);
+
+    FloatPoint.pi = new FloatPoint(Math.PI);
+    FloatPoint.e = new FloatPoint(Math.E);
+    FloatPoint.nan = NaN;
+    FloatPoint.inf = inf;
+    FloatPoint.neginf = neginf;
+
     FloatPoint.makeInstance = function(n) {
+	if (isNaN(n)) {
+	    return FloatPoint.nan;
+	} else if (n === Number.POSITIVE_INFINITY) {
+	    return FloatPoint.inf;
+	} else if (n === Number.NEGATIVE_INFINITY) {
+	    return FloatPoint.neginf;
+	}
 	return new FloatPoint(n);
     };
-
-    
-    FloatPoint.pi = FloatPoint.makeInstance(Math.PI);
-    FloatPoint.e = FloatPoint.makeInstance(Math.E);
-
-    var NaN = FloatPoint.makeInstance(Number.NaN);
-    var inf = FloatPoint.makeInstance(Number.POSITIVE_INFINITY);
-    var neginf = FloatPoint.makeInstance(Number.NEGATIVE_INFINITY);
 
 
 
@@ -860,13 +869,14 @@ goog.provide('plt.types');
 
 
     FloatPoint.prototype.isEqual = function(other, aUnionFind) {
-	return this.equals(other);
+	return ((other instanceof FloatPoint) &&
+		((this.n == other.n) ||
+		 (isNaN(this.n) && isNaN(other.n))));
     };
 
     FloatPoint.prototype.equals = function(other) {
 	return ((other instanceof FloatPoint) &&
-		((this.n == other.n) ||
-		 (isNaN(this.n) && isNaN(other.n))));
+		((this.n == other.n)));
     };
 
 
@@ -1582,6 +1592,11 @@ goog.provide('plt.types');
 	
 	return x.equals(y);
     };
+
+    NumberTower.eqv = function(x, y) {
+	return ((x === y) ||
+		(x.level() === y.level() && x.equals(y)));
+    };
     
     NumberTower.approxEqual = function(x, y, delta) {
 	return NumberTower.lessThan(NumberTower.abs(NumberTower.subtract(x, y)),
@@ -1857,6 +1872,34 @@ goog.provide('plt.types');
 	}
     }
 
+
+
+
+
+    // liftToplevelToFunctionValue: primitive-function string fixnum scheme-value -> scheme-value
+    // Lifts a primitive toplevel or module-bound value to a scheme value.
+    plt.types.liftToplevelToFunctionValue = function(primitiveF,
+						     name,
+						     minArity, 
+						     procedureArityDescription) {
+	if (! primitiveF._mobyLiftedFunction) {
+	    var lifted = function(args) {
+		return primitiveF.apply(null, args.slice(0, minArity).concat([args.slice(minArity)]));
+	    };
+	    lifted._eqHashCode = plt.types.makeEqHashCode();
+	    lifted.isEqual = function(other, cache) { 
+		return this === other; 
+	    }
+	    lifted.toWrittenString = function(cache) { 
+		return "<function:" + name + ">";
+	    };
+	    lifted.toDisplayedString = lifted.toWrittenString;
+	    lifted.procedureArity = procedureArityDescription;
+	    primitiveF._mobyLiftedFunction = lifted;
+	    
+	} 
+	return primitiveF._mobyLiftedFunction;
+    };
 
 
 
