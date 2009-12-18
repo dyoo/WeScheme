@@ -1,0 +1,21 @@
+.goog-splitpane-handle {
+    border-left: 1px solid gray;
+    border-right: 1px solid gray;
+    background: #ccc;
+    position: absolute;
+}
+
+.goog-splitpane-handle-horizontal {
+    cursor: col-resize;
+}
+
+.goog-splitpane-handle-vertical {
+    cursor: row-resize;
+}
+
+.goog-splitpane-first-container,
+.goog-splitpane-second-container {
+    border: 5px solid black;
+    overflow: auto;
+    position: absolute;
+}
