@@ -5,7 +5,7 @@ goog.addDependency('../openEditor/editor.js', ['plt.wescheme.WeSchemeEditor'], [
 goog.addDependency('../openEditor/statusbar.js', ['plt.wescheme.WeSchemeStatusBar'], ['plt.wescheme.WeSchemeIntentBus']);
 goog.addDependency('../openEditor/textcontainer.js', [], []);
 goog.addDependency('../openEditor/intent.js', ['plt.wescheme.WeSchemeIntentBus'], []);
-goog.addDependency('../openEditor/interaction.js', ['plt.wescheme.interactions'], ['plt.Kernel', 'plt.wescheme.WeSchemeIntentBus', 'plt.world.MobyJsworld', 'plt.world.stimuli']);
+goog.addDependency('../openEditor/interaction.js', ['plt.wescheme.interactions'], ['plt.Kernel', 'plt.wescheme.WeSchemeIntentBus', 'plt.world.MobyJsworld', 'plt.world.stimuli', 'goog.dom']);
 goog.addDependency('../js/programdigest.js', ['plt.wescheme.ProgramDigest'], ['plt.wescheme.SharedAs']);
 goog.addDependency('../js/sharedas.js', ['plt.wescheme.SharedAs'], []);
 goog.addDependency('../js/program.js', ['plt.wescheme.Program'], ['plt.wescheme.SharedAs']);
