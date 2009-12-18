@@ -373,8 +373,8 @@ goog.provide('plt.Kernel');
 	
 
 	eqv_question_ : function(x, y){
-	    if (isNumber(x) && isNumber(y) && x.level() == y.level()) {
-		return NumberTower.equal(x, y);
+	    if (isNumber(x) && isNumber(y)) {
+		return NumberTower.eqv(x, y);
 	    } else if (isChar(x) && isChar(y)) {
 		return x.getValue() == y.getValue();
 	    }
@@ -2303,9 +2303,6 @@ goog.provide('plt.Kernel');
 
 
 
-
-
-
     // As a program runs, the lastLoc will be assigned to the last location
     // we've evaluated in the program.
     plt.Kernel.lastLoc = undefined;
@@ -2317,12 +2314,11 @@ goog.provide('plt.Kernel');
     plt.Kernel.locToString = function(lastLoc) {
 	if (typeof(lastLoc) === 'string') {
 	    return lastLoc;
-	} else {
-	    return ("offset=" + lastLoc.offset
-		    + ", line=" + lastLoc.line 
-		    + ", span=" + lastLoc.span 
-		    + ", id=" + lastLoc.id);
 	}
+	return ("offset=" + lastLoc.offset
+		+ ", line=" + lastLoc.line 
+		+ ", span=" + lastLoc.span 
+		+ ", id=" + lastLoc.id);
     };
     
 

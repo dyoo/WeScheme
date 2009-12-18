@@ -3,6 +3,8 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
 goog.require("plt.world.MobyJsworld");
 goog.require("plt.world.stimuli");
 
+goog.require("goog.dom");
+
 
 goog.provide("plt.wescheme.interactions");
 
@@ -12,6 +14,7 @@ var WeSchemeInteractions;
 
 WeSchemeInteractions = (function () {
 
+    var createDom = goog.dom.createDom;
     
 
     // WeSchemeInteractions: div -> WeScheme
@@ -149,8 +152,15 @@ WeSchemeInteractions = (function () {
 			that.addToInteractions(document.createTextNode(s));
 			that.addToInteractions("\n");
 		    };
+		    
 
-
+		    plt.Kernel.reportError = function(err) {
+			if (typeof(err) === 'string') {
+			    that.handleError(new Error(err));
+			} else {
+			    that.handleError(err);
+			}
+		    }
 
 
 		    runToplevel(function(val) {
@@ -171,32 +181,100 @@ WeSchemeInteractions = (function () {
     };
     
     WeSchemeInteractions.prototype.handleError = function(err) {
+	this.addToInteractions(this.renderErrorLocationAsDomNode(err));
+	this.addToInteractions("\n");
+	this.addToInteractions(this.renderErrorAsDomNode(err));
+	this.addToInteractions("\n");
+
+// 	if (err instanceof plt.types.MobyParserError) {
+// 		this.addToInteractions(
+// 		    "Error (" + 
+// 			plt.Kernel.locToString(err.loc)
+// 			+ ")\n");
+// 	    this.addToInteractions(err.msg + "\n");
+// 	} else if (err instanceof plt.types.MobySyntaxError) {
+// 		this.addToInteractions(
+// 		    "Error (" + 
+// 			plt.Kernel.locToString(err.stx.loc)
+// 			+ ")\n");
+// 	    this.addToInteractions(err.msg + "\n");
+// 	} else if (err instanceof plt.types.MobyError){
+// 	    if (plt.Kernel.lastLoc) {
+// 		this.addToInteractions(
+// 		    "Error (" + plt.Kernel.locToString(plt.Kernel.lastLoc) + ")\n");
+// 	    }
+// 	    this.addToInteractions(err.msg + "\n");
+// 	} else {
+// 	    if (plt.Kernel.lastLoc) {
+// 		this.addToInteractions(
+// 		    "Error (" + plt.Kernel.locToString(plt.Kernel.lastLoc) + ")\n");
+// 	    }
+// 	    this.addToInteractions(err.toString() + "\n");
+// 	}
+    };
+
+
+
+    // renderErrorAsDomNode: exception -> element
+    // Given an exception, produces error dom node to be displayed.
+    WeSchemeInteractions.prototype.renderErrorAsDomNode = function(err) {
+	var type, msg;
+	if (err.hasOwnProperty("name") &&
+	    err.hasOwnProperty("msg")) {
+	    type = err.name;
+	    msg = err.msg;
+	} else {
+	    type = "Error";
+	    msg = err.msg;
+	}
+	return createDom(
+	    "div",
+	    { class: "moby-error" },
+	    createDom(
+		"div",
+		{ class: "moby-error:type"},
+		type),
+	    createDom(
+		"div",
+		{ class: "moby-error:message"},
+		msg));
+    };
+
+
+    // renderErrorLocationAsDomNode: error -> element
+    // Given an exception, produces an error location dom node to be displayed.
+    WeSchemeInteractions.prototype.renderErrorLocationAsDomNode = function(err) {
+	var loc;
 	if (err instanceof plt.types.MobyParserError) {
-		this.addToInteractions(
-		    "Error (" + 
-			plt.Kernel.locToString(err.loc)
-			+ ")\n");
-	    this.addToInteractions(err.msg + "\n");
+	    loc = err.log;
 	} else if (err instanceof plt.types.MobySyntaxError) {
-		this.addToInteractions(
-		    "Error (" + 
-			plt.Kernel.locToString(err.stx.loc)
-			+ ")\n");
-	    this.addToInteractions(err.msg + "\n");
+	    loc = err.stx.loc;
 	} else if (err instanceof plt.types.MobyError){
-	    if (plt.Kernel.lastLoc) {
-		this.addToInteractions(
-		    "Error (" + plt.Kernel.locToString(plt.Kernel.lastLoc) + ")\n");
-	    }
-	    this.addToInteractions(err.msg + "\n");
+	    loc = plt.Kernel.lastLoc;
 	} else {
 	    if (plt.Kernel.lastLoc) {
-		this.addToInteractions(
-		    "Error (" + plt.Kernel.locToString(plt.Kernel.lastLoc) + ")\n");
+		loc = plt.Kernel.lastLoc;
 	    }
-	    this.addToInteractions(err.toString() + "\n");
+	}
+	
+	if (!loc) {
+	    return createDom(
+		"div",
+		{class : "moby-location-unknown"});
+	} else {
+	    return createDom(
+		"div",
+		{class: "moby-location"},
+		createDom("div", {class: "moby-location:source-id"}, "source: " + loc.id),
+		createDom("div", {class: "moby-location:line"}, "line: " +loc.line),
+		createDom("div", {class: "moby-location:offset"}, "offset: " + loc.offset),
+		createDom("div", {class: "moby-location:span"}, "span: " + loc.span)
+	    );
 	}
     };
+
+
+
 
 
     WeSchemeInteractions.prototype.runCompiledCode = function(compiledCode, permStringArray) {
