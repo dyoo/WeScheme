@@ -7,7 +7,6 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import org.jdom.Element;
-import org.wescheme.util.XML;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Text;
