@@ -22,6 +22,7 @@ public class Compiler extends HttpServlet
 		cx = Context.enter();
 
 		System.out.println("Initializing the compiler.");
+		System.out.println(System.currentTimeMillis());
 		// WORKAROUND: force use of interpretive mode, because the compressed-standalone-compiler is
 		// complex enough that it doesn't compile to class files anymore.
 		cx.setOptimizationLevel(-1);
@@ -49,6 +50,7 @@ public class Compiler extends HttpServlet
 		Object functionArgs[] = { "1" };
 		String result = Context.toString(compiler.call(cx, scope, scope, functionArgs));
 		System.out.println(result);
+		System.out.println(System.currentTimeMillis());
 		Context.exit();
 		} catch (Exception e){
 			e.printStackTrace();
