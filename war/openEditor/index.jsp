@@ -244,7 +244,8 @@
 	  <div id="editorMode" style="float: right; margin-right: 10px;">
             <input type="button"
 		   id="bespinMode" 
-		   value="Bespin Editor Mode"/>
+		   value="Bespin Editor Mode"
+                   style="display:none;"/>
 	  </div>
 
 	  <!-- Temporarily commented out until we fix the css styles -->

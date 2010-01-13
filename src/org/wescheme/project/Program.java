@@ -102,7 +102,8 @@ public class Program {
 	}
 	
 	public void build() {
-		ObjectCode newCode = Compiler.compile(this.getSource());
+		ObjectCode newCode = 
+			org.wescheme.project.Compiler.compile(this.getSource());
 		if (this.obj_ == null) { this.obj_ = new ObjectCode(); }
 		this.obj_.setObj(newCode.getObj());
 		this.obj_.setPermissions(newCode.getPermissions());
