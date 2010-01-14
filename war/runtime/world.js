@@ -308,9 +308,12 @@ goog.provide('plt.world.Kernel');
 
     // Produces true if the thing is considered a color object.
     var isColor = function(thing) {
-	return typeof(colorDb.get(thing)) != 'undefined';
+	return (thing !== undefined &&
+		thing !== null &&
+		(thing instanceof ColorRecord ||
+		 typeof(colorDb.get(thing)) != 'undefined'));
     };
-
+    
 
 
     // text: string number color -> TextImage
@@ -329,10 +332,17 @@ goog.provide('plt.world.Kernel');
     };
 
 
+    var isStyle = function(x) {
+	return ((plt.Kernel.isString(x) || plt.Kernel.isSymbol(x)) &&
+		(x.toString().toLowerCase() == "solid" ||
+		 x.toString().toLowerCase() == "outline"));
+    }
+
+
     // circle: number style color -> TextImage
     plt.world.Kernel.circle = function(aRadius, aStyle, aColor) {
 	plt.Kernel.check(aRadius, plt.Kernel.isNumber, "circle", "number", 1);
-	plt.Kernel.check(aStyle, plt.Kernel.isString, "circle", "string", 2);
+	plt.Kernel.check(aStyle, isStyle, "circle", "style", 2);
 	plt.Kernel.check(aColor, isColor, "circle", "color", 3);
 
 
@@ -346,6 +356,29 @@ goog.provide('plt.world.Kernel');
     };
 
 
+
+    plt.world.Kernel.star = function(aPoints, anOuter, anInner, aStyle, aColor) {
+	plt.Kernel.check(aPoints, plt.Kernel.isNumber, "star", "number", 1);
+	plt.Kernel.check(anOuter, plt.Kernel.isNumber, "star", "number", 2);
+	plt.Kernel.check(anInner, plt.Kernel.isNumber, "star", "number", 3);
+	plt.Kernel.check(aStyle, isStyle, "star", "style", 4);
+	plt.Kernel.check(aColor, isColor, "star", "color", 5);
+
+	if (colorDb.get(aColor)) {
+	    aColor = colorDb.get(aColor);
+	}
+	return new StarImage(plt.types.NumberTower.toFixnum(aPoints), 
+			     plt.types.NumberTower.toFixnum(anOuter),
+			     plt.types.NumberTower.toFixnum(anInner),
+			     aStyle,
+			     aColor);
+    };
+
+
+
+
+
+
     plt.world.Kernel.openImageUrl = function(path) {
 	plt.Kernel.check(path, plt.Kernel.isString, "open-image-url", "string", 1);
 	return FileImage.makeInstance(path.toString());
@@ -355,7 +388,7 @@ goog.provide('plt.world.Kernel');
     plt.world.Kernel.nwRectangle = function(w, h, s, c) {
 	plt.Kernel.check(w, plt.Kernel.isNumber, "nw:rectangle", "number", 1);
 	plt.Kernel.check(h, plt.Kernel.isNumber, "nw:rectangle", "number", 2);
-	plt.Kernel.check(s, plt.Kernel.isString, "nw:rectangle", "string", 3);
+	plt.Kernel.check(s, isStyle, "nw:rectangle", "style", 3);
 	plt.Kernel.check(c, isColor, "nw:rectangle", "color", 4);
 
 	if (colorDb.get(c)) {
@@ -372,7 +405,7 @@ goog.provide('plt.world.Kernel');
     plt.world.Kernel.rectangle = function(w, h, s, c) {
 	plt.Kernel.check(w, plt.Kernel.isNumber, "rectangle", "number", 1);
 	plt.Kernel.check(h, plt.Kernel.isNumber, "rectangle", "number", 2);
-	plt.Kernel.check(s, plt.Kernel.isString, "rectangle", "string", 3);
+	plt.Kernel.check(s, isStyle, "rectangle", "style", 3);
 	plt.Kernel.check(c, isColor, "rectangle", "color", 4);
 
 	if (colorDb.get(c)) {
@@ -463,7 +496,7 @@ goog.provide('plt.world.Kernel');
 	canvas.style.display = 'none';
 	document.body.appendChild(canvas);
  	var ctx = canvas.getContext("2d");
-	that.render(ctx, 0, 0) 
+	that.render(ctx, width/2, height/2) 
 	document.body.removeChild(canvas);
 	canvas.style.display = '';
 
@@ -610,6 +643,67 @@ goog.provide('plt.world.Kernel');
     };
 
 
+    // OverlayImage: image (arrayof image) -> image
+    // Creates an image that overlays img1 on top of the
+    // other images.
+    var OverlayImage = function(img1, otherImages) {
+	BaseImage.call(this,
+		       img1.pinholeX,
+		       img1.pinholeY);
+	
+	var i, len;
+	this.images = [img1].concat(otherImages);
+	this.width = 0;
+	this.height = 0;
+	len = this.images.length;
+	for(i = 0 ; i< len; i++) {
+	    this.width= Math.max(this.width, this.images[i].getWidth());
+	    this.height= Math.max(this.height, this.images[i].getHeight());
+	}
+    };
+    OverlayImage.prototype = heir(BaseImage.prototype);
+    
+    
+    OverlayImage.prototype.render = function(ctx, x, y) {
+	var i;
+
+	// Ask every object to render itself.
+	for(i = 0; i < this.images.length; i++) {
+	    var childImage = this.images[i]
+	    childImage.render(ctx,
+			      x - (childImage.pinholeX - this.pinholeX),
+			      y - (childImage.pinholeY - this.pinholeY));
+	}
+
+    };
+    
+    OverlayImage.prototype.getWidth = function() {
+	return this.width;
+    };
+    
+    OverlayImage.prototype.getHeight = function() {
+	return this.height;
+    };
+    
+    plt.world.Kernel.overlay = function(img1, img2, restImages) {
+	plt.Kernel.check(img1, isImage, "overlay", "image", 1);
+	plt.Kernel.check(img2, isImage, "overlay", "image", 2);	
+	plt.Kernel.arrayEach(restImages, function(x, i) { 
+		plt.Kernel.check(x, isImage, "overlay", "image", i+3) });
+	return new OverlayImage(img1, [img2].concat(restImages));
+    };
+    
+    plt.world.Kernel.overlay_slash_xy = function(img, deltaX, deltaY, other) {
+	plt.Kernel.check(img, isImage, "overlay/xy", "image", 1);
+	plt.Kernel.check(deltaX, plt.Kernel.isNumber, "overlay/xy", "number", 2);
+	plt.Kernel.check(deltaY, plt.Kernel.isNumber, "overlay/xy", "number", 3);
+	plt.Kernel.check(other, isImage, "overlay/xy", "image", 4);
+
+	return new OverlayImage(img,
+				[other.updatePinhole(deltaX.toFixnum(),
+						     deltaY.toFixnum())]);
+    };
+
 
     var RectangleImage = function(width, height, style, color) {
 	BaseImage.call(this, width/2, height/2);
@@ -623,6 +717,7 @@ goog.provide('plt.world.Kernel');
 
     RectangleImage.prototype.render = function(ctx, x, y) {
 	ctx.fillStyle = this.color.toString();
+	ctx.strokeStyle = this.color.toString();
 	if (this.style.toString().toLowerCase() == "outline") {
 	    ctx.strokeRect(x, y, this.width, this.height);
 	} else {
@@ -655,6 +750,7 @@ goog.provide('plt.world.Kernel');
 	if(ctx.fillText) {
 	    ctx.font = this.size +"px Optimer";
 	    ctx.fillStyle = this.color.toRGBAString();
+	    ctx.strokeStyle = this.color.toString();
 	    ctx.fillText(this.msg, x, y);
 	}
 	else if (typeof(ctx.mozDrawText) !== 'undefined') {
@@ -662,7 +758,8 @@ goog.provide('plt.world.Kernel');
 	    // Fix me: I don't quite know how to get the
 	    // baseline right.
 	    ctx.translate(x, y + this.size);
-	    ctx.fillStyle = this.color;
+	    ctx.fillStyle = this.color.toString();
+	    ctx.strokeStyle = this.color.toString();
 	    ctx.mozDrawText(this.msg);
 	} 
 	
@@ -679,6 +776,8 @@ goog.provide('plt.world.Kernel');
     };
 
 
+    //////////////////////////////////////////////////////////////////////
+
     var CircleImage = function(radius, style, color) {
 	BaseImage.call(this, radius, radius);
 	this.radius = radius;
@@ -688,11 +787,12 @@ goog.provide('plt.world.Kernel');
     CircleImage.prototype = heir(BaseImage.prototype);
 
     CircleImage.prototype.render = function(ctx, x, y) {
-	ctx.translate(0, 0);
+	//ctx.translate(0, 0);
 	ctx.beginPath();
 	ctx.fillStyle = this.color.toString();
-	ctx.arc(x + this.radius,
-		y + this.radius, 
+	ctx.strokeStyle = this.color.toString();
+	ctx.arc(x,
+		y,
 		this.radius, 0, 2*Math.PI, false);
 	if (this.style.toString().toLowerCase() == "outline")
 	    ctx.stroke();
@@ -708,6 +808,64 @@ goog.provide('plt.world.Kernel');
     CircleImage.prototype.getHeight = function() {
 	return this.radius * 2;
     };
+
+
+
+    //////////////////////////////////////////////////////////////////////
+
+
+    // StarImage: fixnum fixnum fixnum color -> image
+    var StarImage = function(points, outer, inner, style, color) {
+	BaseImage.call(this,
+		       Math.max(outer, inner),
+		       Math.max(outer, inner));
+	this.points = points;
+	this.outer = outer;
+	this.inner = inner;
+	this.style = style;
+	this.color = color;
+    };
+
+    StarImage.prototype = heir(BaseImage.prototype);
+
+    var oneDegreeAsRadian = Math.PI / 180;
+
+    // render: context fixnum fixnum -> void
+    // Draws a star on the given context.
+    // Most of this code here adapted from the Canvas tutorial at:
+    // http://developer.apple.com/safari/articles/makinggraphicswithcanvas.html
+    StarImage.prototype.render = function(ctx, x, y) {
+	ctx.save();
+	ctx.beginPath();
+	ctx.fillStyle = this.color.toString();
+	ctx.strokeStyle = this.color.toString();
+	//ctx.moveTo( x + ( Math.sin( 0 ) * this.outer ), y + ( Math.cos( 0 ) * this.outer ) );
+	for( var pt = 0; pt < (this.points * 2) + 1; pt++ ) {
+	    var rads = ( ( 360 / (2 * this.points) ) * pt ) * oneDegreeAsRadian - 0.5;
+	    var radius = ( pt % 2 == 1 ) ? this.outer : this.inner;
+	    ctx.lineTo(x + ( Math.sin( rads ) * radius ), 
+		       y + ( Math.cos( rads ) * radius ) );
+	}
+	if (this.style.toString().toLowerCase() == "outline") {
+	    ctx.stroke();
+	} else {
+	    ctx.fill();
+	}
+	ctx.closePath();
+	ctx.restore();
+    };
+    
+    // getWidth: -> fixnum
+    StarImage.prototype.getWidth = function() {
+	return Math.max(this.outer, this.inner) * 2;
+    };
+
+
+    // getHeight: -> fixnum
+    StarImage.prototype.getHeight = function() {
+	return Math.max(this.outer, this.inner) * 2;
+    };
+
 
 
 
@@ -850,18 +1008,38 @@ goog.provide('plt.world.Kernel');
 	return this.colors[name.toString().toUpperCase()];
     };
 
-    var ColorRecord = function(r, g, b) {
-	this.r = r;
-	this.g = g;
-	this.b = b;
+
+    plt.world.Kernel.make_dash_color = function(r, g, b) {
+	var isColorNumber = function(x) {
+	    return (plt.types.NumberTower.lessThanOrEqual
+		    (plt.types.Rational.ZERO, x) &&
+		    plt.types.NumberTower.lessThanOrEqual
+		    (x, plt.types.Rational.makeInstance(255, 1)));
+	}
+	plt.Kernel.check(r, isColorNumber, "make-color", "number between 0 and 255", 1);
+	plt.Kernel.check(g, isColorNumber, "make-color", "number between 0 and 255", 2);
+	plt.Kernel.check(b, isColorNumber, "make-color", "number between 0 and 255", 3);
+
+	return new ColorRecord(r.toFixnum(),
+			       g.toFixnum(),
+			       b.toFixnum());
     };
 
+    // FIXME: add accessors
+    // FIXME: update toString to handle the primitive field values.
+
+    var ColorRecord = function(r, g, b) {
+	plt.types.Struct.call(this, "make-color", [r, g, b]);
+	this._eqHashCode = plt.types.makeEqHashCode();
+    };
+    ColorRecord.prototype = heir(plt.types.Struct.prototype);
+
     ColorRecord.prototype.toString = function() {
-	return "rgb(" + this.r + "," + this.g + "," + this.b + ")";
+	return "rgb(" + this._fields[0] + "," + this._fields[1] + "," + this._fields[2] + ")";
     };
 
     ColorRecord.prototype.toRGBAString = function() {
-	return "rgba(" + this.r + "," + this.g + "," + this.b + ", 1)";
+	return "rgba(" + this._fields[0] + "," + this._fields[1] + "," + this._fields[2] + ", 1)";
     }
 
     var colorDb = new ColorDb();
