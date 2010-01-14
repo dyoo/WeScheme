@@ -3170,7 +3170,7 @@ return make_dash_module_dash_binding((plt.types.Symbol.makeInstance("jsworld")),
               })());
 moby_dash_module_dash_binding = make_dash_module_dash_binding((plt.types.Symbol.makeInstance("moby")),_SHARED[190],plt.Kernel.append([module_dash_binding_dash_bindings(world_dash_stub_dash_module),module_dash_binding_dash_bindings(jsworld_dash_module),module_dash_binding_dash_bindings(telephony_dash_module),module_dash_binding_dash_bindings(location_dash_module),module_dash_binding_dash_bindings(net_dash_module)]));
 
-known_dash_modules = plt.Kernel.list([world_dash_module,world_dash_stub_dash_module,location_dash_module,tilt_dash_module,net_dash_module,parser_dash_module,bootstrap_dash_teachpack,telephony_dash_module,moby_dash_module_dash_binding]);
+known_dash_modules = plt.Kernel.list([world_dash_module,world_dash_stub_dash_module,location_dash_module,tilt_dash_module,net_dash_module,parser_dash_module,bootstrap_dash_teachpack,function_dash_teachpack,cage_dash_teachpack,telephony_dash_module,moby_dash_module_dash_binding]);
 
 
 empty_dash_pinfo = make_dash_pinfo(empty_dash_env,plt.types.Empty.EMPTY,empty_dash_rbtree,_SHARED[23],empty_dash_rbtree,empty_dash_rbtree,empty_dash_rbtree,plt.types.Logic.TRUE);
