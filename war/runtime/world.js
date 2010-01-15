@@ -455,6 +455,10 @@ goog.provide('plt.world.Kernel');
     };
 
 
+
+    // render: context fixnum fixnum: -> void
+    // Render the image, where the upper-left corner of the image is drawn at
+    // (x, y).
     BaseImage.prototype.render = function(ctx, x, y) {
 	throw new MobyRuntimeError("Unimplemented method render");
     };
@@ -496,7 +500,7 @@ goog.provide('plt.world.Kernel');
 	canvas.style.display = 'none';
 	document.body.appendChild(canvas);
  	var ctx = canvas.getContext("2d");
-	that.render(ctx, width/2, height/2) 
+	that.render(ctx, 0, 0) 
 	document.body.removeChild(canvas);
 	canvas.style.display = '';
 
@@ -540,7 +544,9 @@ goog.provide('plt.world.Kernel');
     SceneImage.prototype.add = function(anImage, x, y) {
 	return new SceneImage(this.width, 
 			      this.height,
-			      this.children.concat([[anImage, x, y]]));
+			      this.children.concat([[anImage, 
+						     x - anImage.pinholeX, 
+						     y - anImage.pinholeY]]));
     };
 
     // render: 2d-context primitive-number primitive-number -> void
@@ -548,17 +554,14 @@ goog.provide('plt.world.Kernel');
 	var i;
 	var childImage, childX, childY;
 	// Clear the scene.
-	ctx.clearRect(x - this.pinholeX, y - this.pinholeY, 
- 		      this.width, this.height);
+	ctx.clearRect(x, y, this.width, this.height);
 	// Then ask every object to render itself.
 	for(i = 0; i < this.children.length; i++) {
 	    childImage = this.children[i][0];
 	    childX = this.children[i][1];
 	    childY = this.children[i][2];
 	    ctx.save();
-	    childImage.render(ctx,
-			      childX + x - childImage.pinholeX,
-			      childY + y - childImage.pinholeY);
+	    childImage.render(ctx, childX + x, childY + y);
 	    ctx.restore();
 	}
     };
@@ -571,6 +574,8 @@ goog.provide('plt.world.Kernel');
 	return this.height;
     };
 
+
+    //////////////////////////////////////////////////////////////////////
 
    
     var FileImage = function(src, rawImage) {
@@ -643,39 +648,44 @@ goog.provide('plt.world.Kernel');
     };
 
 
-    // OverlayImage: image (arrayof image) -> image
+    //////////////////////////////////////////////////////////////////////
+
+
+    // OverlayImage: image image -> image
     // Creates an image that overlays img1 on top of the
-    // other images.
-    var OverlayImage = function(img1, otherImages) {
+    // other image.
+    var OverlayImage = function(img1, img2) {
+	var deltaX = img1.pinholeX - img2.pinholeX;
+	var deltaY = img1.pinholeY - img2.pinholeY;
+	var left = Math.min(0, deltaX);
+	var top = Math.min(0, deltaY);
+	var right = Math.max(deltaX + img2.getWidth(), 
+			     img1.getWidth());
+	var bottom = Math.max(deltaY + img2.getHeight(),
+			      img1.getHeight());
+
 	BaseImage.call(this,
-		       img1.pinholeX,
-		       img1.pinholeY);
-	
-	var i, len;
-	this.images = [img1].concat(otherImages);
-	this.width = 0;
-	this.height = 0;
-	len = this.images.length;
-	for(i = 0 ; i< len; i++) {
-	    this.width= Math.max(this.width, this.images[i].getWidth());
-	    this.height= Math.max(this.height, this.images[i].getHeight());
-	}
+		       img1.pinholeX - left,
+		       img1.pinholeY - top);
+	this.img1 = img1;
+	this.img2 = img2;
+	this.width = right - left;
+	this.height = bottom - top;
+
+	this.img1Dx = -left;
+	this.img1Dy = -top;
+	this.img2Dx = deltaX - left;	
+	this.img2Dy = deltaY - top;
     };
+
     OverlayImage.prototype = heir(BaseImage.prototype);
     
     
     OverlayImage.prototype.render = function(ctx, x, y) {
-	var i;
-
-	// Ask every object to render itself.
-	for(i = 0; i < this.images.length; i++) {
-	    var childImage = this.images[i]
-	    childImage.render(ctx,
-			      x - (childImage.pinholeX - this.pinholeX),
-			      y - (childImage.pinholeY - this.pinholeY));
-	}
-
+	this.img1.render(ctx, x + this.img1Dx, y + this.img1Dy);
+	this.img2.render(ctx, x + this.img2Dx, y + this.img2Dy);
     };
+
     
     OverlayImage.prototype.getWidth = function() {
 	return this.width;
@@ -685,14 +695,21 @@ goog.provide('plt.world.Kernel');
 	return this.height;
     };
     
+
+
     plt.world.Kernel.overlay = function(img1, img2, restImages) {
 	plt.Kernel.check(img1, isImage, "overlay", "image", 1);
 	plt.Kernel.check(img2, isImage, "overlay", "image", 2);	
 	plt.Kernel.arrayEach(restImages, function(x, i) { 
 		plt.Kernel.check(x, isImage, "overlay", "image", i+3) });
-	return new OverlayImage(img1, [img2].concat(restImages));
+	var img = new OverlayImage(img1, img2);
+	for (var i = 0; i < restImages.length; i++) {
+	    img = new OverlayImage(img, restImages[i]);
+	}
+	return img;
     };
     
+
     plt.world.Kernel.overlay_slash_xy = function(img, deltaX, deltaY, other) {
 	plt.Kernel.check(img, isImage, "overlay/xy", "image", 1);
 	plt.Kernel.check(deltaX, plt.Kernel.isNumber, "overlay/xy", "number", 2);
@@ -700,9 +717,12 @@ goog.provide('plt.world.Kernel');
 	plt.Kernel.check(other, isImage, "overlay/xy", "image", 4);
 
 	return new OverlayImage(img,
-				[other.updatePinhole(deltaX.toFixnum(),
-						     deltaY.toFixnum())]);
+				other.updatePinhole(deltaX.toFixnum(),
+						    deltaY.toFixnum()));
     };
+
+
+    //////////////////////////////////////////////////////////////////////
 
 
     var RectangleImage = function(width, height, style, color) {
@@ -735,44 +755,45 @@ goog.provide('plt.world.Kernel');
     };
 
 
-
+    //////////////////////////////////////////////////////////////////////
     
     var TextImage = function(msg, size, color) {
 	BaseImage.call(this, 0, 0);
 	this.msg = msg;
 	this.size = size;
 	this.color = color;
-	this.font = "Optimer";
+	this.font = this.size + "px Optimer";
+
+	
+	var canvas = plt.world.Kernel.makeCanvas(0, 0);
+ 	var ctx = canvas.getContext("2d");
+	ctx.font = this.font;
+	var metrics = ctx.measureText(msg);
+
+	this.width = metrics.width;
+	// KLUDGE: I don't know how to get at the height.
+	this.height = ctx.measureText("m").width + 20;
+
     }
+
     TextImage.prototype = heir(BaseImage.prototype);
 
     TextImage.prototype.render = function(ctx, x, y) {
-	if(ctx.fillText) {
-	    ctx.font = this.size +"px Optimer";
-	    ctx.fillStyle = this.color.toRGBAString();
-	    ctx.strokeStyle = this.color.toString();
-	    ctx.fillText(this.msg, x, y);
-	}
-	else if (typeof(ctx.mozDrawText) !== 'undefined') {
-	    ctx.mozTextStyle=this.size+"px "+this.font;
-	    // Fix me: I don't quite know how to get the
-	    // baseline right.
-	    ctx.translate(x, y + this.size);
-	    ctx.fillStyle = this.color.toString();
-	    ctx.strokeStyle = this.color.toString();
-	    ctx.mozDrawText(this.msg);
-	} 
-	
+	ctx.font = this.font;
+	ctx.textAlign = 'left';
+	ctx.textBaseline = 'top';
+	ctx.fillStyle = this.color.toString();
+	ctx.strokeStyle = this.color.toString();
+	ctx.fillText(this.msg, x, y);
     };
     
     TextImage.prototype.getWidth = function() {
-	// Fixme: we need the font metrics to do this right...
-	return this.size * this.msg.length;
+	return this.width;
     };
 
+
     TextImage.prototype.getHeight = function() {
-	return 10;
-	// Fixme: we need the font metrics to do this right...
+	return this.height;
     };
 
 
@@ -791,8 +812,8 @@ goog.provide('plt.world.Kernel');
 	ctx.beginPath();
 	ctx.fillStyle = this.color.toString();
 	ctx.strokeStyle = this.color.toString();
-	ctx.arc(x,
-		y,
+	ctx.arc(x + this.radius,
+		y + this.radius,
 		this.radius, 0, 2*Math.PI, false);
 	if (this.style.toString().toLowerCase() == "outline")
 	    ctx.stroke();
@@ -824,6 +845,8 @@ goog.provide('plt.world.Kernel');
 	this.inner = inner;
 	this.style = style;
 	this.color = color;
+
+	this.radius = Math.max(this.inner, this.outer);
     };
 
     StarImage.prototype = heir(BaseImage.prototype);
@@ -843,8 +866,8 @@ goog.provide('plt.world.Kernel');
 	for( var pt = 0; pt < (this.points * 2) + 1; pt++ ) {
 	    var rads = ( ( 360 / (2 * this.points) ) * pt ) * oneDegreeAsRadian - 0.5;
 	    var radius = ( pt % 2 == 1 ) ? this.outer : this.inner;
-	    ctx.lineTo(x + ( Math.sin( rads ) * radius ), 
-		       y + ( Math.cos( rads ) * radius ) );
+	    ctx.lineTo(x + this.radius + ( Math.sin( rads ) * radius ), 
+		       y + this.radius + ( Math.cos( rads ) * radius ) );
 	}
 	if (this.style.toString().toLowerCase() == "outline") {
 	    ctx.stroke();
@@ -857,13 +880,13 @@ goog.provide('plt.world.Kernel');
     
     // getWidth: -> fixnum
     StarImage.prototype.getWidth = function() {
-	return Math.max(this.outer, this.inner) * 2;
+	return this.radius * 2;
     };
 
 
     // getHeight: -> fixnum
     StarImage.prototype.getHeight = function() {
-	return Math.max(this.outer, this.inner) * 2;
+	return this.radius * 2;
     };
 
 
