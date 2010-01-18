@@ -76,7 +76,7 @@ goog.provide('plt.Kernel');
     var UnionFind = function() {
 	// this.parenMap holds the arrows from an arbitrary pointer
 	// to its parent.
-	this.parentMap = makeEqHashtable();
+	this.parentMap = plt.types.makeLowLevelEqHash();
     }
 
     // find: ptr -> UnionFindNode
@@ -1125,13 +1125,19 @@ goog.provide('plt.Kernel');
 
 	compose: function(functions) {
 	    // TODO: add contract on higher order argument testF.
-	    return function(args) {
-		var resultArray = args;
-		for (var i = functions.length - 1; i >= 0; i--) {
-		    resultArray = [functions[i](resultArray)];
-		}
-		return resultArray[0];
-	    }
+	    return plt.types.liftToplevelToFunctionValue(
+		function(v) {
+		    for (var i = functions.length - 1; i >= 0; i--) {
+			v = plt.Kernel.apply(functions[i], 
+					     plt.types.Cons.makeInstance(
+						 v, plt.types.Empty.EMPTY),
+					     []);
+		    }
+		    return v;
+		},
+		plt.types.String.makeInstance("composed"),
+		1,
+		plt.types.Rational.makeInstance(1));
 	},
 	
 
@@ -1506,93 +1512,23 @@ goog.provide('plt.Kernel');
     };
 
 
+
+
     //////////////////////////////////////////////////////////////////////
-
-
-    // makeEqHashtable: -> hashtable
-    // Constructs an eq hashtable that uses Moby's getEqHashCode function.
-    var makeEqHashtable = function() {
-	return new plt._Hashtable(function(x) { return plt.types.getEqHashCode(x); },
-				  function(x, y) { return x === y; });
-    };
-
-
-    var EqHashTable = function(inputHash) {
-	this.hash = makeEqHashtable();
-	this._eqHashCode = plt.types.makeEqHashCode();
-    };
-
-    EqHashTable.prototype.toWrittenString = function(cache) {
-	return "<hash>";
-    };
-
-    EqHashTable.prototype.toDisplayedString = function(cache) {
-	return "<hash>";
-    };
-
-    EqHashTable.prototype.isEqual = function(other, aUnionFind) {
-	if (other == undefined || other == null || (! (other instanceof EqHashTable))) {
-	    return false; 
-	}
-
-	if (this.hash.keys().length != other.hash.keys().length) { 
-	    return false;
-	}
-
-	var keys = this.hash.keys();
-	for (var i = 0; i < keys.length; i++){
-	    if (! (this.hash.get(keys[i]) === other.hash.get(keys[i]))) {
-		return false;
-	    }
-	}
-	return true;
-    };
-
-    var EqualHashTable = function(inputHash) {
-	this.hash = new plt._Hashtable(function(x) { 
-                                           return plt.types.toWrittenString(x); 
-                                       },
-				       function(x, y) {
-					   return plt.Kernel.equal_question_(x, y); 
-				       });
-	this._eqHashCode = plt.types.makeEqHashCode();
-    };
-    EqualHashTable.prototype.toWrittenString = function(cache) {
-	return "<hash>";
-    };
-    EqualHashTable.prototype.toDisplayedString = function(cache) {
-	return "<hash>";
-    };
-
-    EqualHashTable.prototype.isEqual = function(other, aUnionFind) {
-	if (other == undefined || other == null || (! (other instanceof EqualHashTable))) {
-	    return false; 
-	}
-
-	if (this.hash.keys().length != other.hash.keys().length) { 
-	    return false;
-	}
-
-	var keys = this.hash.keys();
-	for (var i = 0; i < keys.length; i++){
-	    if (! (plt.Kernel.isEqual(this.hash.get(keys[i]),
-				      other.hash.get(keys[i]),
-				      aUnionFind))) {
-		return false;
-	    }
-	}
-	return true;
-    };
+    // Hashtable functions
 
 
     // makeHashEq: -> hash
     plt.Kernel.makeHashEq = function() {
-	return new EqHashTable();
+	return new plt.types.EqHashTable();
     };
 
+
+    // makeHash: -> hash
     plt.Kernel.makeHash = function() {
-	return new EqualHashTable();
+	return new plt.types.EqualHashTable();
     };
+
 
     // plt.Kernel.hashSet: hash object value -> undefined
     // Mutates the hash with a new key/value binding.
@@ -1645,9 +1581,10 @@ goog.provide('plt.Kernel');
     };
 
     var isHash = function(x) {
-	return ((x != null) && 
-		(x != undefined) && 
-		((x instanceof EqHashTable) || (x instanceof EqualHashTable)));
+	return ((x !== null) && 
+		(x !== undefined) && 
+		((x instanceof plt.types.EqHashTable) || 
+		 (x instanceof plt.types.EqualHashTable)));
     }
     plt.Kernel.isHash = isHash;
 
@@ -2266,6 +2203,9 @@ goog.provide('plt.Kernel');
 	}
     };
 
+    plt.Kernel.EXAMPLE = plt.Kernel.check_dash_expect;
+
+
     plt.Kernel.check_dash_within = function(testThunk, expectedThunk, boundsThunk) {
 	var val = testThunk([]);
 	var expectedVal = expectedThunk([]);
@@ -2315,10 +2255,11 @@ goog.provide('plt.Kernel');
 	if (typeof(lastLoc) === 'string') {
 	    return lastLoc;
 	}
-	return ("offset=" + lastLoc.offset
-		+ ", line=" + lastLoc.line 
-		+ ", span=" + lastLoc.span 
-		+ ", id=" + lastLoc.id);
+	return ("offset=" + Loc_dash_offset(lastLoc)
+		+ ", line=" + Loc_dash_line(lastLoc) 
+		+ ", column=" + Loc_dash_column(lastLoc) 
+		+ ", span=" + Loc_dash_span(lastLoc)
+		+ ", id=" + Loc_dash_id(lastLoc));
     };
     
 
