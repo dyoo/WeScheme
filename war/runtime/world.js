@@ -142,7 +142,7 @@ goog.provide('plt.world.Kernel');
         var newWindow = window.open(
 	    "big-bang.html",
 	    "big-bang");
-	    //"toolbar=false,location=false,directories=false,status=false,menubar=false,width="+width+",height="+height);
+	//"toolbar=false,location=false,directories=false,status=false,menubar=false,width="+width+",height="+height);
 	if (newWindow == null) { 
             throw new Error("Error: Not allowed to create a new window."); }
 
@@ -165,8 +165,8 @@ goog.provide('plt.world.Kernel');
 	var newWindow = getBigBangWindow(width, height);
 	var canvas = 
 	    newWindow.document.getElementById("canvas");
-	canvas.width = width.toFixnum();
-	canvas.height = height.toFixnum();
+	canvas.width = plt.types.NumberTower.toFixnum(width);
+	canvas.height = plt.types.NumberTower.toFixnum(height);
 
 	resetWorld();
 
@@ -207,7 +207,7 @@ goog.provide('plt.world.Kernel');
 
 
  	if(config.lookup('onTick')) {
-	  scheduleTimerTick(newWindow, config);
+	    scheduleTimerTick(newWindow, config);
 	}
 
 
@@ -420,7 +420,51 @@ goog.provide('plt.world.Kernel');
     };
 
 
+    //Triangle number style color --> TextImage
+    plt.world.Kernel.triangle = function(r, s, c) {
+	plt.Kernel.check(r, plt.Kernel.isNumber, "triangle", "number", 1);
+	plt.Kernel.check(s, isStyle, "triangle", "string", 2);
+	plt.Kernel.check(c, isColor, "triangle", "color", 3);
+	if (colorDb.get(c)) {
+	    c = colorDb.get(c);
+	}
+	return new TriangleImage(plt.types.NumberTower.toFixnum(r),
+				 s,
+				 c);
+    };
 
+    
+    //Ellipse number number style color --> TextImage
+    plt.world.Kernel.ellipse = function(w, h, s, c) {
+	plt.Kernel.check(w, plt.Kernel.isNumber, "ellipse", "number", 1);
+	plt.Kernel.check(h, plt.Kernel.isNumber, "ellipse", "number", 2);
+	plt.Kernel.check(s, isStyle, "ellipse", "string", 3);
+	plt.Kernel.check(c, isColor, "ellipse", "color", 4);
+	
+	if (colorDb.get(c)) {
+	    c = colorDb.get(c);
+	}
+	return new EllipseImage(plt.types.NumberTower.toFixnum(w),
+				plt.types.NumberTower.toFixnum(h),
+				s,
+				c);
+    };
+    
+
+    //Line number number color
+    plt.world.Kernel.line = function(x, y, c) {
+	plt.Kernel.check(x, plt.Kernel.isNumber, "line", "number", 1);
+	plt.Kernel.check(y, plt.Kernel.isNumber, "line", "number", 2);
+	plt.Kernel.check(c, isColor, "line", "color", 3);
+	if (colorDb.get(c)) {
+	    c = colorDb.get(c);
+	}
+	var line =  new LineImage(plt.types.NumberTower.toFixnum(x),
+				  plt.types.NumberTower.toFixnum(y),
+				  c);
+	return line.updatePinhole(0, 0);
+    };
+    
 
 
     // Base class for all images.
@@ -442,7 +486,8 @@ goog.provide('plt.world.Kernel');
 	plt.Kernel.check(img, isImage, "put-pinhole", "image", 1);
 	plt.Kernel.check(x, plt.Kernel.isNumber, "put-pinhole", "number", 2);
 	plt.Kernel.check(y, plt.Kernel.isNumber, "put-pinhole", "number", 3);
-	return img.updatePinhole(x.toFixnum(), y.toFixnum());
+	return img.updatePinhole(plt.types.NumberTower.toFixnum(x),
+				 plt.types.NumberTower.toFixnum(y));
     };
 
 
@@ -488,8 +533,8 @@ goog.provide('plt.world.Kernel');
 
     BaseImage.prototype.toDomNode = function(cache) {
 	var that = this;
-	var width = plt.world.Kernel.imageWidth(that).toFixnum();
-	var height = plt.world.Kernel.imageHeight(that).toFixnum();
+	var width = plt.types.NumberTower.toFixnum(plt.world.Kernel.imageWidth(that));
+	var height = plt.types.NumberTower.toFixnum(plt.world.Kernel.imageHeight(that));
 	var canvas = plt.world.Kernel.makeCanvas(width, height);
 
 	// KLUDGE: some of the rendering functions depend on a context
@@ -577,7 +622,7 @@ goog.provide('plt.world.Kernel');
 
     //////////////////////////////////////////////////////////////////////
 
-   
+    
     var FileImage = function(src, rawImage) {
 	BaseImage.call(this, 0, 0);
 	var self = this;
@@ -608,7 +653,7 @@ goog.provide('plt.world.Kernel');
     FileImage.prototype = heir(BaseImage.prototype);
     plt.world.Kernel.FileImage = FileImage;
 
- 
+    
     var imageCache = {};
     FileImage.makeInstance = function(path) {
 	if (! (path in imageCache)) {
@@ -701,7 +746,7 @@ goog.provide('plt.world.Kernel');
 	plt.Kernel.check(img1, isImage, "overlay", "image", 1);
 	plt.Kernel.check(img2, isImage, "overlay", "image", 2);	
 	plt.Kernel.arrayEach(restImages, function(x, i) { 
-		plt.Kernel.check(x, isImage, "overlay", "image", i+3) });
+	    plt.Kernel.check(x, isImage, "overlay", "image", i+3) });
 	var img = new OverlayImage(img1, img2);
 	for (var i = 0; i < restImages.length; i++) {
 	    img = new OverlayImage(img, restImages[i]);
@@ -717,8 +762,8 @@ goog.provide('plt.world.Kernel');
 	plt.Kernel.check(other, isImage, "overlay/xy", "image", 4);
 
 	return new OverlayImage(img,
-				other.updatePinhole(deltaX.toFixnum(),
-						    deltaY.toFixnum()));
+				other.updatePinhole(plt.types.NumberTower.toFixnum(deltaX),
+						    plt.types.NumberTower.toFixnum(deltaY)));
     };
 
 
@@ -736,11 +781,11 @@ goog.provide('plt.world.Kernel');
 
 
     RectangleImage.prototype.render = function(ctx, x, y) {
-	ctx.fillStyle = this.color.toString();
-	ctx.strokeStyle = this.color.toString();
 	if (this.style.toString().toLowerCase() == "outline") {
+	    ctx.strokeStyle = this.color.toString();
 	    ctx.strokeRect(x, y, this.width, this.height);
 	} else {
+	    ctx.fillStyle = this.color.toString();
 	    ctx.fillRect(x, y, this.width, this.height);
 	}
     };
@@ -779,12 +824,13 @@ goog.provide('plt.world.Kernel');
     TextImage.prototype = heir(BaseImage.prototype);
 
     TextImage.prototype.render = function(ctx, x, y) {
+	ctx.save();
 	ctx.font = this.font;
 	ctx.textAlign = 'left';
 	ctx.textBaseline = 'top';
 	ctx.fillStyle = this.color.toString();
-	ctx.strokeStyle = this.color.toString();
 	ctx.fillText(this.msg, x, y);
+	ctx.restore();
     };
     
     TextImage.prototype.getWidth = function() {
@@ -808,18 +854,20 @@ goog.provide('plt.world.Kernel');
     CircleImage.prototype = heir(BaseImage.prototype);
 
     CircleImage.prototype.render = function(ctx, x, y) {
-	//ctx.translate(0, 0);
+	ctx.save();
 	ctx.beginPath();
-	ctx.fillStyle = this.color.toString();
-	ctx.strokeStyle = this.color.toString();
 	ctx.arc(x + this.radius,
 		y + this.radius,
 		this.radius, 0, 2*Math.PI, false);
-	if (this.style.toString().toLowerCase() == "outline")
+	if (this.style.toString().toLowerCase() == "outline") {
+	    ctx.strokeStyle = this.color.toString();
 	    ctx.stroke();
-	else
+	} else {
+	    ctx.fillStyle = this.color.toString();
 	    ctx.fill();
+	}
 	ctx.closePath();
+	ctx.restore();
     };
     
     CircleImage.prototype.getWidth = function() {
@@ -860,9 +908,6 @@ goog.provide('plt.world.Kernel');
     StarImage.prototype.render = function(ctx, x, y) {
 	ctx.save();
 	ctx.beginPath();
-	ctx.fillStyle = this.color.toString();
-	ctx.strokeStyle = this.color.toString();
-	//ctx.moveTo( x + ( Math.sin( 0 ) * this.outer ), y + ( Math.cos( 0 ) * this.outer ) );
 	for( var pt = 0; pt < (this.points * 2) + 1; pt++ ) {
 	    var rads = ( ( 360 / (2 * this.points) ) * pt ) * oneDegreeAsRadian - 0.5;
 	    var radius = ( pt % 2 == 1 ) ? this.outer : this.inner;
@@ -870,8 +915,10 @@ goog.provide('plt.world.Kernel');
 		       y + this.radius + ( Math.cos( rads ) * radius ) );
 	}
 	if (this.style.toString().toLowerCase() == "outline") {
+	    ctx.strokeStyle = this.color.toString();
 	    ctx.stroke();
 	} else {
+	    ctx.fillStyle = this.color.toString();
 	    ctx.fill();
 	}
 	ctx.closePath();
@@ -892,6 +939,133 @@ goog.provide('plt.world.Kernel');
 
 
 
+    //////////////////////////////////////////////////////////////////////
+    //Triangle
+    ///////
+    var TriangleImage = function(side, style, color) {
+	BaseImage.call(this, side, side);
+	this.side = side;
+	this.style = style;
+	this.color = color;
+    }
+    TriangleImage.prototype = heir(BaseImage.prototype);
+
+
+    TriangleImage.prototype.render = function(ctx, x, y) {
+	var width = this.getWidth();
+	var height = this.getHeight();
+
+	ctx.beginPath();
+	ctx.moveTo(x + this.side/2, y);
+	ctx.lineTo(x + width, y + height);
+	ctx.lineTo(x, y + height);
+	ctx.closePath();
+
+	if (this.style.toString().toLowerCase() == "outline") {
+	    ctx.strokeStyle = this.color.toString();
+	    ctx.stroke();
+	}
+	else {
+	    ctx.fillStyle = this.color.toString();
+	    ctx.fill();
+	}
+    };
+    
+
+
+    TriangleImage.prototype.getWidth = function() {
+	return this.side;
+    };
+
+    TriangleImage.prototype.getHeight = function() {
+	return Math.ceil(this.side * Math.sqrt(3) / 2);
+    };
+
+
+
+
+    //////////////////////////////////////////////////////////////////////
+    //Ellipse 
+    var EllipseImage = function(width, height, style, color) {
+	BaseImage.call(this, Math.floor(width/2), Math.floor(height/2));
+	this.width = width;
+	this.height = height;
+	this.style = style;
+	this.color = color;
+    }
+
+    EllipseImage.prototype = heir(BaseImage.prototype);
+
+    
+    EllipseImage.prototype.render = function(ctx, aX, aY) {
+	ctx.save();
+	// Most of this code is taken from:
+	// http://webreflection.blogspot.com/2009/01/ellipse-and-circle-for-canvas-2d.html
+        var hB = (this.width / 2) * .5522848,
+            vB = (this.height / 2) * .5522848,
+            eX = aX + this.width,
+            eY = aY + this.height,
+            mX = aX + this.width / 2,
+            mY = aY + this.height / 2;
+        ctx.moveTo(aX, mY);
+        ctx.bezierCurveTo(aX, mY - vB, mX - hB, aY, mX, aY);
+        ctx.bezierCurveTo(mX + hB, aY, eX, mY - vB, eX, mY);
+        ctx.bezierCurveTo(eX, mY + vB, mX + hB, eY, mX, eY);
+        ctx.bezierCurveTo(mX - hB, eY, aX, mY + vB, aX, mY);
+        ctx.closePath();
+	if (this.style.toString().toLowerCase() == "outline") {
+ 	    ctx.strokeStyle = this.color.toString();
+	    ctx.stroke();
+	}
+	else {
+ 	    ctx.fillStyle = this.color.toString();
+	    ctx.fill();
+	}
+	ctx.restore();
+    };
+    
+    EllipseImage.prototype.getWidth = function() {
+	return this.width;
+    };
+
+    EllipseImage.prototype.getHeight = function() {
+	return this.height;
+    };
+
+
+    //////////////////////////////////////////////////////////////////////
+    //Line
+    var LineImage = function(x, y, color) {
+	BaseImage.call(this, 0, 0);
+	this.x = x;
+	this.y = y;
+	this.color = color;
+    }
+
+    LineImage.prototype = heir(BaseImage.prototype);
+
+    
+    LineImage.prototype.render = function(ctx, xstart, ystart) {
+	ctx.save();
+	ctx.moveTo(0, 0);
+	ctx.lineTo((this.x + xstart),
+		   (this.y + ystart));
+	ctx.strokeStyle = this.color.toString();
+	ctx.stroke();
+	ctx.restore();
+    };
+    
+
+    LineImage.prototype.getWidth = function() {
+	return (this.x + 1);
+    };
+    
+
+    LineImage.prototype.getHeight = function() {
+	return (this.y + 1);
+    };
+
+
 
 
 
@@ -910,17 +1084,17 @@ goog.provide('plt.world.Kernel');
 	var results = [];
 	if (plt.Kernel.empty_question_(aCompEffect)) {
     	    // Do Nothing
-    	} else if (plt.Kernel.pair_question_(aCompEffect)) {
+	} else if (plt.Kernel.pair_question_(aCompEffect)) {
     	    results = results.concat(
 		plt.world.Kernel.applyEffect(aCompEffect.first()));
     	    results = results.concat(
 		plt.world.Kernel.applyEffect(aCompEffect.rest()));
-    	} else {
+	} else {
 	    var newResult = aCompEffect.run();
 	    if (newResult) {
 		results = results.concat(newResult);
 	    }
-    	}
+	}
 	return results;
     }
 
@@ -933,8 +1107,8 @@ goog.provide('plt.world.Kernel');
     };
     effect_colon_play_dash_dtmf_dash_tone.prototype.run = function() {
 	plt.platform.Platform.getInstance().getSoundService().playDtmfTone(
-	    this._fields[0].toFixnum(),
-	    this._fields[1].toFixnum());
+	    plt.types.NumberTower.toFixnum(this._fields[0]),
+	    plt.types.NumberTower.toFixnum(this._fields[1]));
     };
     effect_colon_send_dash_sms.prototype.run = function() {
 	plt.platform.Platform.getInstance().getSmsService().send(
@@ -969,7 +1143,7 @@ goog.provide('plt.world.Kernel');
     };
     effect_colon_set_dash_sound_dash_volume.prototype.run = function() {
 	plt.platform.Platform.getInstance().getSoundService().setVolume(
-	    this._fields[0].toFixnum());
+	    plt.types.NumberTower.toFixnum(this._fields[0]));
     };
     effect_colon_raise_dash_sound_dash_volume.prototype.run = function() {
 	plt.platform.Platform.getInstance().getSoundService.raiseVolume();
@@ -979,7 +1153,7 @@ goog.provide('plt.world.Kernel');
     };
     effect_colon_set_dash_wake_dash_lock.prototype.run = function() {
 	plt.platform.Platform.getInstance().getPowerService().setWakeLock(
-	    this._fields[0].toFixnum());
+	    plt.types.NumberTower.toFixnum(this._fields[0]));
     };
     effect_colon_release_dash_wake_dash_lock.prototype.run = function() {
 	plt.platform.Platform.getInstance().getPowerService().releaseWakeLock();
@@ -1007,9 +1181,9 @@ goog.provide('plt.world.Kernel');
 	return function(w) { return callback([w, aRandomNumber]) }
     };
 
-    
 
-//////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
 
 
 
@@ -1043,9 +1217,9 @@ goog.provide('plt.world.Kernel');
 	plt.Kernel.check(g, isColorNumber, "make-color", "number between 0 and 255", 2);
 	plt.Kernel.check(b, isColorNumber, "make-color", "number between 0 and 255", 3);
 
-	return new ColorRecord(r.toFixnum(),
-			       g.toFixnum(),
-			       b.toFixnum());
+	return new ColorRecord(plt.types.NumberTower.toFixnum(r),
+			       plt.types.NumberTower.toFixnum(g),
+			       plt.types.NumberTower.ToFixnum(b));
     };
 
     // FIXME: add accessors
