@@ -32,11 +32,18 @@
       };
     </script>
 
-    <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dojo/dojo.xd.js">
-    </script>
+
+    
+    <SCRIPT TYPE="text/javascript" SRC="http://o.aolcdn.com/dojo/1.4/dojo/dojo.xd.js"></SCRIPT>
     <link rel="stylesheet"
 	  type="text/css"
-	  href="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dijit/themes/tundra/tundra.css"/>
+	  href="http://o.aolcdn.com/dojo/1.4/dijit/themes/tundra/tundra.css"/>
+
+<!--     <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dojo/dojo.xd.js"> -->
+<!--     </script> -->
+<!--     <link rel="stylesheet" -->
+<!-- 	  type="text/css" -->
+<!-- 	  href="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dijit/themes/tundra/tundra.css"/> -->
 
     <script>
       dojo.require("dijit.layout.ContentPane");
