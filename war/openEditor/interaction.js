@@ -212,7 +212,14 @@ WeSchemeInteractions = (function () {
 			plt.Kernel.first(plt.Kernel.first(nodeAttrList)));
 		var attrValue = 
 		    plt.Kernel.second(plt.Kernel.first(nodeAttrList));
-		newNode[attrName] = attrValue;
+		if (attrName === "style") {
+		    newNode.style.cssText = attrValue;
+		} else if (attrName === "class") {
+		    newNode.className = attrValue;
+		} else {
+		    newNode[attrName] = attrValue;
+		}
+
 		nodeAttrList = plt.Kernel.rest(nodeAttrList);
 	    }
 
