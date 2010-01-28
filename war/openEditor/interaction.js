@@ -17,6 +17,8 @@ WeSchemeInteractions = (function () {
     var createDom = goog.dom.createDom;
     
 
+    var compilerModule = plt.Kernel.invokeModule("moby/compiler");
+
     // WeSchemeInteractions: div -> WeScheme
     function WeSchemeInteractions(interactionsDiv) { 
 	this.interactionsDiv = jQuery(interactionsDiv);
@@ -37,7 +39,7 @@ WeSchemeInteractions = (function () {
     // Returns a new Pinfo object with a good toplevel environment.
     function freshPinfo() {
 	if (!_freshToplevel) { 
-	    _freshToplevel = get_dash_base_dash_pinfo(plt.types.Symbol.makeInstance("moby"));
+	    _freshToplevel = compilerModule.EXPORTS.get_dash_base_dash_pinfo(plt.types.Symbol.makeInstance("moby"));
 	}
 	return _freshToplevel;
     }
@@ -127,12 +129,12 @@ WeSchemeInteractions = (function () {
 	try {
 	    var program = plt.reader.readSchemeExpressions(aSource, sourceName);
 	    var compiledProgram = 
-		program_dash__greaterthan_compiled_dash_program_slash_pinfo(program, this.pinfo);
+		compilerModule.EXPORTS.program_dash__greaterthan_compiled_dash_program_slash_pinfo(program, this.pinfo);
 
 	    var newPinfo = 
-		compiled_dash_program_dash_pinfo(compiledProgram);
+		compilerModule.EXPORTS.compiled_dash_program_dash_pinfo(compiledProgram);
 
-	    var permArray = that._getPermissionArray(pinfo_dash_permissions(newPinfo));
+	    var permArray = that._getPermissionArray(compilerModule.EXPORTS.pinfo_dash_permissions(newPinfo));
 	} catch (err) {
 	    this.handleError(err);
 	    return;
@@ -144,8 +146,8 @@ WeSchemeInteractions = (function () {
 	    function() {
 		try {
 
-		    var defns = compiled_dash_program_dash_defns(compiledProgram);
-		    var interFunc = compiled_dash_program_dash_toplevel_dash_exprs(compiledProgram);
+		    var defns = compilerModule.EXPORTS.compiled_dash_program_dash_defns(compiledProgram);
+		    var interFunc = compilerModule.EXPORTS.compiled_dash_program_dash_toplevel_dash_exprs(compiledProgram);
 		    var runToplevel = that.namespace.eval(defns, interFunc);
 		    
 		    plt.Kernel.printHook = function(s) {
@@ -254,42 +256,6 @@ WeSchemeInteractions = (function () {
 		createDom("div", {'class': "moby-location:offset"}, "offset: " + loc.offset),
 		createDom("div", {'class': "moby-location:span"}, "span: " + loc.span)
 	    );
-	}
-    };
-
-
-
-
-
-    WeSchemeInteractions.prototype.runCompiledCode = function(compiledCode, permStringArray) {
-	this.notifyBus("before-run", this);
-	var that = this;
-	this._prepareToRun();
-	var permArray = [];
-	for (var i = 0; i < permStringArray.length; i++) {
-	    permArray.push(symbol_dash__greaterthan_permission(permStringArray[i]))
-	}
-	var afterPermissionsGranted = function() {
-	    try {
-		var runToplevel = that.namespace.eval("", compiledCode);
- 		runToplevel(function(val) {
- 		    if (val != undefined) {
- 			that.addToInteractions(
- 			    plt.types.toDomNode(val));
-			that.addToInteractions("\n");
- 		    }
- 		});
-		that.notifyBus("after-run", that);
-	    } catch (err) {
-		handleError(err);
-	    }
-	};
-
-	try {
-	    plt.permission.startupAllPermissions(
-		permArray, afterPermissionsGranted);
-	} catch (err) {
-	    handleError(err);
 	}
     };
 
