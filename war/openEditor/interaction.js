@@ -20,7 +20,7 @@ WeSchemeInteractions = (function () {
     var compilerModule = plt.Kernel.invokeModule("moby/compiler");
     var errorStructModule = plt.Kernel.invokeModule("moby/runtime/error-struct");
     var errorToDomModule = plt.Kernel.invokeModule("moby/runtime/error-struct-to-dom");
-    var schemeValueToDom = plt.Kernel.invokeModule("moby/runtime/scheme-value-to-dom");
+    var schemeValueToDomModule = plt.Kernel.invokeModule("moby/runtime/scheme-value-to-dom");
     
 
 
@@ -172,7 +172,11 @@ WeSchemeInteractions = (function () {
 
 		    runToplevel(function(val) {
 			if (val != undefined) {
-			    that.addToInteractions(plt.types.toDomNode(val));
+			    that.addToInteractions(
+				sexpToDom(
+				    schemeValueToDomModule.EXPORTS.scheme_dash_value_dash_to_dash_dom_dash_sexp(val))
+				//plt.types.toDomNode(val)
+			    );
 			    that.addToInteractions("\n");
 			}
 		    });
