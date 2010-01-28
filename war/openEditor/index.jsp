@@ -34,10 +34,10 @@
 
 
     
-    <SCRIPT TYPE="text/javascript" SRC="http://o.aolcdn.com/dojo/1.4/dojo/dojo.xd.js"></SCRIPT>
+    <SCRIPT TYPE="text/javascript" SRC="http://o.aolcdn.com/dojo/1.3/dojo/dojo.xd.js"></SCRIPT>
     <link rel="stylesheet"
 	  type="text/css"
-	  href="http://o.aolcdn.com/dojo/1.4/dijit/themes/tundra/tundra.css"/>
+	  href="http://o.aolcdn.com/dojo/1.3/dijit/themes/tundra/tundra.css"/>
 
 <!--     <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dojo/dojo.xd.js"> -->
 <!--     </script> -->
@@ -73,6 +73,8 @@
 
     <!-- Includes the moby runtime libraries -->
     <jsp:include page="/moby-runtime-includes.jsp" />
+    <!-- And we need the compiler. -->
+    <script src="/runtime/compiler.js"></script>
 
 
     <script src="/openEditor/intent.js"></script>
@@ -83,8 +85,6 @@
     <script src="/heartbeat.js"></script>
     <script src="/js/submitpost.js"></script>
 
-    <!-- And we need the compiler. -->
-    <script src="/runtime/compiler.js"></script>
 
 
 
