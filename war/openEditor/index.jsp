@@ -11,12 +11,13 @@
 	  id="style" />
 
 
-    <!-- Google Ajax APIs -->
-    <script src="http://www.google.com/jsapi"></script>
-    <script>
-      google.load("jquery", "1.3.2");
-      google.load("jqueryui", "1.7.2");
-    </script>
+    <!-- JQuery libraries -->
+    <script src="/js/jquery/jquery.js"></script>
+    <script src="/js/jquery/jquery-ui-min.js"></script>
+    <script src="/js/jquery/jquery.createdomnodes.js"></script>
+    <script src="/js/jquery/jquery.center-in-client.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="/css/jquery-ui.css"/>
 
 
 
@@ -30,10 +31,9 @@
       modulePaths: {bespin: '../js/bespin'}
       };
     </script>
+
     <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dojo/dojo.xd.js">
     </script>
-
-
     <link rel="stylesheet"
 	  type="text/css"
 	  href="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dijit/themes/tundra/tundra.css"/>
@@ -57,14 +57,10 @@
 
 
 
-    <!-- JQuery UI style sheet -->
-    <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css"/>
 
 
     <script src="/js/flapjax-2.0.1.compressed.js"></script>
     <script src="/js/flapjax-helpers.js"></script>
-    <script src="/js/jquery/jquery.createdomnodes.js"></script>
-    <script src="/js/jquery/jquery.center-in-client.js"></script>
     <script src="/safeSubmit.js"></script>
     <script src="/editor/debug.js"></script>
 
