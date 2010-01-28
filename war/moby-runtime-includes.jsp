@@ -7,6 +7,6 @@
  
 <!-- FIXME: figure out how to dynamically import these modules,
      rather than do it now.  -->
-<script src="/runtime/collects/bootstrap-teachpack.js"></script>
-<script src="/runtime/collects/cage-teachpack.js"></script>
-<script src="/runtime/collects/function-teachpack.js"></script>
+<script src="/runtime/collects/bootstrap/bootstrap-teachpack.js"></script>
+<script src="/runtime/collects/bootstrap/cage-teachpack.js"></script>
+<script src="/runtime/collects/bootstrap/function-teachpack.js"></script>

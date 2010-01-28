@@ -108,8 +108,8 @@ Runner.prototype.addToInteractions = function (interactionVal) {
 
 
 function init() { 
-    var interactions = 
-	new Runner(document.getElementById('interactions'));
+    var runner = 
+	new Runner(document.getElementById('runner'));
 
     var data = { publicId: "<%= publicId %>" };
     var type = "xml";
@@ -122,7 +122,7 @@ function init() {
 	    find("permission").
 	    each(function() { 
 		permissions.push(jQuery(this).text()); });
-	interactions.runCompiledCode(program, permissions);
+	runner.runCompiledCode(program, permissions);
     };
     jQuery.get("/loadProject", data, callback, type);
 }
