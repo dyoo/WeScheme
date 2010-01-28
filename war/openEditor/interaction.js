@@ -18,6 +18,11 @@ WeSchemeInteractions = (function () {
     
 
     var compilerModule = plt.Kernel.invokeModule("moby/compiler");
+    var errorStructModule = plt.Kernel.invokeModule("moby/runtime/error-struct");
+    var errorToDomModule = plt.Kernel.invokeModule("moby/runtime/error-struct-to-dom");
+    var schemeValueToDom = plt.Kernel.invokeModule("moby/runtime/scheme-value-to-dom");
+    
+
 
     // WeSchemeInteractions: div -> WeScheme
     function WeSchemeInteractions(interactionsDiv) { 
@@ -181,12 +186,58 @@ WeSchemeInteractions = (function () {
 		}
 	    });
     };
+
+
+
+    var sexpToDom = function(anSexp) {
+	if (typeof(anSexp) === 'string') {
+	    return document.createTextNode(anSexp)
+	} else {
+	    var nodeType = 
+		plt.Kernel.symbol_dash__greaterthan_string(
+		    plt.Kernel.list_dash_ref(anSexp, plt.types.Rational.ZERO));
+	    var nodeAttrList =
+		plt.Kernel.list_dash_ref(anSexp, plt.types.Rational.ONE);
+	    var nodeChildList =
+		plt.Kernel.rest(plt.Kernel.rest(anSexp));
+	    
+	    var newNode = document.createElement(nodeType);
+	    while (! plt.Kernel.empty_question_(nodeAttrList)) {
+		var attrName = 
+		    plt.Kernel.symbol_dash__greaterthan_string(
+			plt.Kernel.first(plt.Kernel.first(nodeAttrList)));
+		var attrValue = 
+		    plt.Kernel.second(plt.Kernel.first(nodeAttrList));
+		newNode[attrName] = attrValue;
+		nodeAttrList = plt.Kernel.rest(nodeAttrList);
+	    }
+
+	    while (! plt.Kernel.empty_question_(nodeChildList)) {
+		newNode.appendChild(sexpToDom(plt.Kernel.first(nodeChildList)));
+		nodeChildList = plt.Kernel.rest(nodeChildList);
+	    }
+
+	    
+	    return newNode;
+	}
+    }
+
+
+
     
     WeSchemeInteractions.prototype.handleError = function(err) {
-	this.addToInteractions(this.renderErrorLocationAsDomNode(err));
-	this.addToInteractions("\n");
-	this.addToInteractions(this.renderErrorAsDomNode(err));
-	this.addToInteractions("\n");
+	if (errorStructModule.EXPORTS.moby_dash_error_question_(err)) {
+	    var newSexp = 
+		errorToDomModule.EXPORTS.moby_dash_error_dash_struct_dash_to_dash_dom_dash_sexp(err);
+	    this.addToInteractions(sexpToDom(newSexp));
+	    this.addToInteractions("\n");
+	    
+	} else {
+	    this.addToInteractions(this.renderErrorLocationAsDomNode(err));
+	    this.addToInteractions("\n");
+	    this.addToInteractions(this.renderErrorAsDomNode(err));
+	    this.addToInteractions("\n");
+	}
     };
 
 
