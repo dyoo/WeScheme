@@ -53,55 +53,54 @@ var set_dash_world_dash_y_bang_ = function(obj,newVal) {
 var world_question_ = function(obj) { 
               return obj != null && obj != undefined && obj instanceof world; };
 
-var move = function(w, key) { return (plt.world.Kernel.isKeyEqual(key,_SHARED[6]) ?
+var move = function(w, key) { return (plt.kernel.misc.verifyBooleanBranchValue(plt.world.Kernel.isKeyEqual(key,_SHARED[6]),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(801, 1)),(plt.types.Rational.makeInstance(32, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(18, 1)),(plt.types.String.makeInstance("collects/bootstrap/cage-teachpack.ss"))]))) ?
  make_dash_world(plt.Kernel._dash_(world_dash_x(w), [_SHARED[7]]),world_dash_y(w)) :
- (plt.world.Kernel.isKeyEqual(key,_SHARED[8]) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.world.Kernel.isKeyEqual(key,_SHARED[8]),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(870, 1)),(plt.types.Rational.makeInstance(33, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.String.makeInstance("collects/bootstrap/cage-teachpack.ss"))]))) ?
  make_dash_world(plt.Kernel._plus_([world_dash_x(w),_SHARED[7]]),world_dash_y(w)) :
- (plt.world.Kernel.isKeyEqual(key,_SHARED[9]) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.world.Kernel.isKeyEqual(key,_SHARED[9]),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(940, 1)),(plt.types.Rational.makeInstance(34, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(18, 1)),(plt.types.String.makeInstance("collects/bootstrap/cage-teachpack.ss"))]))) ?
  make_dash_world(world_dash_x(w),plt.Kernel._dash_(world_dash_y(w), [_SHARED[7]])) :
- (plt.world.Kernel.isKeyEqual(key,_SHARED[10]) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.world.Kernel.isKeyEqual(key,_SHARED[10]),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(1009, 1)),(plt.types.Rational.makeInstance(35, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(16, 1)),(plt.types.String.makeInstance("collects/bootstrap/cage-teachpack.ss"))]))) ?
  make_dash_world(world_dash_x(w),plt.Kernel._plus_([world_dash_y(w),_SHARED[7]])) :
- (plt.types.Logic.TRUE ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(1076, 1)),(plt.types.Rational.makeInstance(36, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("collects/bootstrap/cage-teachpack.ss"))]))) ?
  w :
- plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),_SHARED[11])))))); };
+ plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(790, 1)),(plt.types.Rational.makeInstance(31, 1)),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Rational.makeInstance(294, 1)),(plt.types.String.makeInstance("collects/bootstrap/cage-teachpack.ss"))])))))))); };
 var draw_dash_world = function(w) { return plt.Kernel.apply(((function() {
+   var _result_ = (function(args11) {
+var draw_dash_butterfly = args11[0];  return plt.Kernel.apply(((function() {
    var _result_ = (function(args12) {
-var draw_dash_butterfly = args12[0];  return plt.Kernel.apply(((function() {
+var draw_dash_text = args12[0];  return plt.Kernel.apply(draw_dash_butterfly,                     plt.Kernel.list([w, plt.Kernel.apply(draw_dash_text,                     plt.Kernel.list([w, plt.world.Kernel.emptyScene(WIDTH,HEIGHT)]),                    [])]),                    []); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),                    plt.Kernel.list([((function() {
    var _result_ = (function(args13) {
-var draw_dash_text = args13[0];  return plt.Kernel.apply(draw_dash_butterfly,                     plt.Kernel.list([w, plt.Kernel.apply(draw_dash_text,                     plt.Kernel.list([w, plt.world.Kernel.emptyScene(WIDTH,HEIGHT)]),                    [])]),                    []); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),                    plt.Kernel.list([((function() {
-   var _result_ = (function(args14) {
-var w = args14[0];
-var scene = args14[1];  return plt.world.Kernel.placeImage(plt.world.Kernel.text(plt.Kernel.string_dash_append([_SHARED[15],plt.Kernel.number_dash__greaterthan_string(world_dash_x(w)),_SHARED[16],plt.Kernel.number_dash__greaterthan_string(world_dash_y(w))]),_SHARED[17],(plt.types.Symbol.makeInstance("black"))),_SHARED[18],_SHARED[19],scene); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })())]),                    []); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),                    plt.Kernel.list([((function() {
-   var _result_ = (function(args20) {
-var w = args20[0];
-var scene = args20[1];  return plt.world.Kernel.placeImage(butterfly,world_dash_x(w),plt.Kernel._dash_(HEIGHT, [world_dash_y(w)]),scene); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })())]),                    []); };
+var w = args13[0];
+var scene = args13[1];  return plt.world.Kernel.placeImage(plt.world.Kernel.text(plt.Kernel.string_dash_append([_SHARED[14],plt.Kernel.number_dash__greaterthan_string(world_dash_x(w)),_SHARED[15],plt.Kernel.number_dash__greaterthan_string(world_dash_y(w))]),_SHARED[16],(plt.types.Symbol.makeInstance("black"))),_SHARED[17],_SHARED[18],scene); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })())]),                    []); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),                    plt.Kernel.list([((function() {
+   var _result_ = (function(args19) {
+var w = args19[0];
+var scene = args19[1];  return plt.world.Kernel.placeImage(butterfly,world_dash_x(w),plt.Kernel._dash_(HEIGHT, [world_dash_y(w)]),scene); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })())]),                    []); };
 var start = function(offscreen_question_) { return plt.Kernel.apply(((function() {
-   var _result_ = (function(args21) {
-var update = args21[0];  return plt.world.MobyJsworld.bigBang(make_dash_world(_SHARED[2],_SHARED[22]), [plt.world.config.Kernel.onKey(update),plt.world.config.Kernel.onRedraw((plt.types.liftToplevelToFunctionValue(draw_dash_world,(plt.types.String.makeInstance("draw-world")),1,(plt.types.Rational.makeInstance(1, 1)))))]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),                    plt.Kernel.list([((function() {
-   var _result_ = (function(args23) {
-var w = args23[0];
-var k = args23[1];  return (plt.Kernel.char_question_(k) ?
+   var _result_ = (function(args20) {
+var update = args20[0];  return plt.world.MobyJsworld.bigBang(make_dash_world(_SHARED[2],_SHARED[21]), [plt.world.config.Kernel.onKey(update),plt.world.config.Kernel.onRedraw((plt.types.liftToplevelToFunctionValue(draw_dash_world,(plt.types.String.makeInstance("draw-world")),1,(plt.types.Rational.makeInstance(1, 1)))))]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),                    plt.Kernel.list([((function() {
+   var _result_ = (function(args22) {
+var w = args22[0];
+var k = args22[1];  return (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.char_question_(k),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(2000, 1)),(plt.types.Rational.makeInstance(58, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(9, 1)),(plt.types.String.makeInstance("collects/bootstrap/cage-teachpack.ss"))]))) ?
  w :
- (plt.Kernel.apply(offscreen_question_,                     plt.Kernel.list([world_dash_x(move(w,k)), world_dash_y(move(w,k))]),                    []) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.apply(offscreen_question_,                     plt.Kernel.list([world_dash_x(move(w,k)), world_dash_y(move(w,k))]),                    []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(2035, 1)),(plt.types.Rational.makeInstance(59, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(89, 1)),(plt.types.String.makeInstance("collects/bootstrap/cage-teachpack.ss"))]))) ?
  w :
- (plt.types.Logic.TRUE ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(2150, 1)),(plt.types.Rational.makeInstance(61, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("collects/bootstrap/cage-teachpack.ss"))]))) ?
  move(w,k) :
- plt.Kernel.error((plt.types.Symbol.makeInstance("cond")),_SHARED[11])))); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })())]),                    []); };_SHARED[3] = (plt.types.String.makeInstance("http://www.wescheme.org/images/teachpacks/butterfly.png"));
+ plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(1971, 1)),(plt.types.Rational.makeInstance(57, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.Rational.makeInstance(196, 1)),(plt.types.String.makeInstance("collects/bootstrap/cage-teachpack.ss"))])))))); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })())]),                    []); };_SHARED[3] = (plt.types.String.makeInstance("http://www.wescheme.org/images/teachpacks/butterfly.png"));
 _SHARED[8] = (plt.types.String.makeInstance("right"));
 _SHARED[10] = (plt.types.String.makeInstance("up"));
-_SHARED[15] = (plt.types.String.makeInstance("x-coordinate: "));
+_SHARED[14] = (plt.types.String.makeInstance("x-coordinate: "));
 _SHARED[6] = (plt.types.String.makeInstance("left"));
-_SHARED[18] = (plt.types.Rational.makeInstance(60, 1));
+_SHARED[17] = (plt.types.Rational.makeInstance(60, 1));
 _SHARED[2] = (plt.types.Rational.makeInstance(200, 1));
-_SHARED[11] = (plt.types.String.makeInstance("cond: fell out of cond"));
+_SHARED[15] = (plt.types.String.makeInstance("   y-coordinate: "));
 _SHARED[9] = (plt.types.String.makeInstance("down"));
 _SHARED[1] = (plt.types.Rational.makeInstance(400, 1));
-_SHARED[16] = (plt.types.String.makeInstance("   y-coordinate: "));
-_SHARED[22] = (plt.types.Rational.makeInstance(100, 1));
+_SHARED[21] = (plt.types.Rational.makeInstance(100, 1));
 _SHARED[7] = (plt.types.Rational.makeInstance(10, 1));
-_SHARED[17] = (plt.types.Rational.makeInstance(14, 1));
+_SHARED[16] = (plt.types.Rational.makeInstance(14, 1));
 _SHARED[4] = (plt.types.Rational.makeInstance(2, 1));
-_SHARED[19] = (plt.types.Rational.makeInstance(0, 1));
+_SHARED[18] = (plt.types.Rational.makeInstance(0, 1));
 
         plt._MODULES["bootstrap/cage-teachpack"].invoke = function() {             ((function (toplevel_dash_expression_dash_show0) { 
 WIDTH = _SHARED[1];
