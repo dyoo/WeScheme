@@ -1,0 +1,109 @@
+.SchemeValue\:Number {
+    color: blue;
+}
+
+.SchemeValue\:SharedLabel {}
+
+.SchemeValue\:SharedReference {}
+
+.SchemeValue\:String {
+    color: green;
+}
+
+.SchemeValue\:Boolean {
+    color: red;
+}
+
+.SchemeValue\:Character {
+    color: green;
+}
+
+.SchemeValue\:Symbol {
+    font-weight: bold;
+    font-family:     "Courier New"
+                      Courier
+                      monospace;
+}
+
+.SchemeValue\:List\.lparen {
+    font-weight: bold;
+    font-family:     "Courier New"
+                      Courier
+                      monospace;
+}
+
+.SchemeValue\:List\.keyword {
+    font-weight: bold;
+    font-family:     "Courier New"
+                      Courier
+                      monospace;
+}
+
+.SchemeValue\:List\.rparen {
+    font-weight: bold;
+    font-family:     "Courier New"
+                      Courier
+                      monospace;
+}
+
+
+
+.SchemeValue\:Vector\.lparen {
+    font-weight: bold;
+    font-family:     "Courier New"
+                      Courier
+                      monospace;
+}
+
+.SchemeValue\:Vector\.keyword {
+    font-weight: bold;
+    font-family:     "Courier New"
+                      Courier
+                      monospace;
+}
+
+.SchemeValue\:Vector\.rparen {
+    font-weight: bold;
+    font-family:     "Courier New"
+                      Courier
+                      monospace;
+}
+
+
+.SchemeValue\:Structure {
+    font-weight: bold;
+}
+
+
+.SchemeValue\:Box\.lparen {
+    font-weight: bold;
+    font-family:     "Courier New"
+                      Courier
+                      monospace;
+
+}
+.SchemeValue\:Box\.keyword {
+    font-weight: bold;
+    font-family:     "Courier New"
+                      Courier
+                      monospace;
+
+}
+
+.SchemeValue\:Box\.rparen {
+    font-weight: bold;
+    font-family:     "Courier New"
+                      Courier
+                      monospace;
+
+}
+
+
+.SchemeValue\:Hash {
+    font-weight: bold;
+}
+
+
+.SchemeValue\:Function {
+    font-weight: bold;
+}

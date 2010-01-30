@@ -175,7 +175,6 @@ WeSchemeInteractions = (function () {
 			    that.addToInteractions(
 				sexpToDom(
 				    schemeValueToDomModule.EXPORTS.scheme_dash_value_dash_to_dash_dom_dash_sexp(val))
-				//plt.types.toDomNode(val)
 			    );
 			    that.addToInteractions("\n");
 			}
@@ -242,7 +241,6 @@ WeSchemeInteractions = (function () {
 		errorToDomModule.EXPORTS.moby_dash_error_dash_struct_dash_to_dash_dom_dash_sexp(err);
 	    this.addToInteractions(sexpToDom(newSexp));
 	    this.addToInteractions("\n");
-	    
 	} else {
 	    this.addToInteractions(this.renderErrorLocationAsDomNode(err));
 	    this.addToInteractions("\n");

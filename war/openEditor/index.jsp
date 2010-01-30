@@ -11,6 +11,10 @@
 	  id="style" />
 
 
+    <link rel="stylesheet" type="text/css" href="/css/scheme.css"
+	  id="style" />
+
+
     <!-- JQuery libraries -->
     <script src="/js/jquery/jquery.js"></script>
     <script src="/js/jquery/jquery-ui-min.js"></script>
