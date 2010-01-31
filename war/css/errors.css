@@ -1,0 +1,365 @@
+/* ****************************************************
+ * Basic SchemeValues
+ *******************************************************
+	<span class="SchemeValue:String">"hello world"</span>
+	<span class="SchemeValue:Number">42</span>
+	<span class="SchemeValue:Boolean">true</span>
+	<span class="SchemeValue:Char">#\S</span>
+	<span class="SchemeValue:Symbol">sqr</span>
+*/
+span.SchemeValue:String	{color: green;}
+span.SchemeValue:Number	{color: blue;}
+span.SchemeValue:Boolean{color: darkred;}
+span.SchemeValue:Char	{color: orange;}
+span.SchemeValue:Symbol	{color: turqoise;}
+span.SchemeValue:Image	{color: purple;}
+
+/* ****************************************************
+ * Complex SchemeValues
+ *******************************************************
+    List of (listof SchemeValue)
+    <span class="SchemeValue:List">
+		<span class="SchemeValue:List.lparen">(</span>
+		<span class="SchemeValue:List.keyword">list</span>
+		<span class="SchemeValue:List.item">
+			<span class="SchemeValue:Number">1</span>
+		</span>
+            span class="SchemeValue:List.item">
+			<span class="SchemeValue:String">"two"</span>
+		</span>
+		<span class="SchemeValue:List.rparen">)</span>
+	</span>
+*/
+span.SchemeValue:List.lparen, span.SchemeValue:List.rparen{color: black;}
+span.SchemeValue:List.keyword{font-weight: bold;}
+
+/*  Vector of (listof SchemeValue)
+    <span class="SchemeValue:Vector">
+		<span class="SchemeValue:Vector.lparen">(</span>
+		<span class="SchemeValue:Vector.keyword">vector</span>
+		<span class="SchemeValue:Vector.item">
+			<span class="SchemeValue:Symbol">x</span>
+		</span>
+		<span class="SchemeValue:Vector.item">
+			<span class="SchemeValue:Symbol">y</span>
+		</span>
+		<span class="SchemeValue:Vector.rparen">)</span>
+	</span>
+*/
+span.SchemeValue:Vector.lparen, span.SchemeValue:Vector.rparen{color: black; font-style: italic; }
+
+/*  Struct of symbol * (listof SchemeValue)
+    <span class="SchemeValue:Struct">
+		<span class="SchemeValue:Struct.lparen">(</span>
+		<span class="SchemeValue:Struct.keyword">make-posn</span>
+		<span class="SchemeValue:Struct.item">
+			<span class="SchemeValue:Number">3</span>
+		</span>
+		<span class="SchemeValue:Struct.item">
+			<span class="SchemeValue:Number">4</span>
+		</span>
+		<span class="SchemeValue:Struct.rparen">)</span>
+	</span>
+*/
+span.SchemeValue:Struct.lparen, span.SchemeValue:Struct.rparen{color: black; font-weight: bolder; }
+
+ 
+/*  Box of SchemeValue
+    <span class="SchemeValue:Box">
+		<span class="SchemeValue:Box.lparen">(<span>
+		<span class="SchemeValue:Box.keyword">box<span>
+	<span class="SchemeValue:Box.item">
+		<span class="SchemeValue:String">"I am in a box"</span>
+		</span>
+		<span class="SchemeValue:Box.rparen">)<span>
+	</span>
+*/
+span.SchemeValue:Box{}
+ 
+/*  Hash
+    <span class="SchemeValue:Hash">
+		<span class="SchemeValue:Hash.keyword">&lt;#hash&gt;<span>
+	</span>
+*/ 
+span.SchemeValue:Hash{font-style: italic;}
+
+/*  Function of String * Location
+	<span class="SchemeValue:Function">
+		<span class="SchemeValue:function.keyword">&lt;function:circle&gt;<span>
+		<span class="SchemeValue:function.name">circle</span>
+		<span class="SchemeValue:function.location">...</span>
+	</span>
+*/ 
+span.SchemeValue:function.keyword{font-family:"Courier", serif;}
+span.SchemeValue:function.name{display: none;}
+
+/*  SharedLabel of string * SchemeValue
+    <span class="SchemeValue:SharedLabel">
+		<span class="SchemeValue:SharedLabel.label">#1</span>
+		<span class="SharedValue:SharedLabel.item">
+			<span class="SchemeValue:List">
+				<span class="SchemeValue:List.lparen">(</span>
+				<span class="SchemeValue:List.keyword">list</span>
+				<span class="SchemeValue:List.item">
+					<span class="SchemeValue:Number">1</span>
+				</span>
+				<span class="SchemeValue:List.item">
+					<span class="SchemeValue:SharedReference">#1</span>
+				</span>
+				<span class="SchemeValue:List.rparen">)</span>
+			<span>
+		</span>
+	</span>
+*/ 
+span.SchemeValue:SharedLabel{}
+
+/*  SharedReference of string
+    <span class="SchemeValue:SharedReference">#1</span>
+*/ 
+span.SchemeValue:SharedReference{}
+ 
+/*  Undefined
+    <span class="SchemeValue:Undefined">
+		<span class="SchemeValue:Undefined.keyword">&lt;undefined&gt;</span>
+	<span>
+*/ 
+span.SchemeValue:Undefined{color: red; font-weight: bold;} 
+ 
+/*  DisplayedObject of string        ;; catchall for a Javascript object value with some kind of DOM display
+    <span class="SchemeValue:DisplayedObject">
+		blah
+	</span>
+*/
+span.SchemeValue:Undefined{color: black; font-weight: bold;}
+ 
+/* ****************************************************
+ *  Error Components
+ *******************************************************
+An Arity is one of:
+    Fixed of number
+    e.g.  <span class="Arity:Fixed">
+              <span class="Arity:Fixed.exact">2</span>
+          </span>
+ 
+    Variable of number
+    e.g.  <span class="Arity:Variable">
+               <span class="Arity:Variable.minimum">3</span>
+          </span>
+    e.g.  <span class="Arity:Variable">
+               <span class="Arity:Variable.minimum">1</span>
+          </span>
+ 
+    Mixed of (listof (Fixed | Variable))
+    e.g.  <span class="Arity:Mixed">
+              <span class="Arity:Mixed.item">
+                  <span class="Arity:Fixed">
+                      <span class="Arity:Fixed.exact">2</span>
+                  </span>
+              </span>
+              <span class="Arity:Mixed.item">
+                  <span class="Arity:Fixed">
+                      <span class="Arity:Fixed.exact">3</span>
+                  </span>
+              </span>
+          </span>
+*/ 
+span.Arity:Fixed	{}
+span.Arity:Variable	{}
+span.Arity:Mixed	{}
+ 
+/* A Location is a:
+ 
+    Loc of number * number * number * number * string      ;; offset, line, column, span, source identifier
+    e.g.  <span class="Location">
+             <span class="Location.offset">24</span>
+             <span class="Location.line">1</span>
+             <span class="Location.column">0</span>
+             <span class="Location.span">4</span>
+             <span class="Location.id">&lt;definitions&gt;</span>
+          </span>
+*/ 
+span.Location span	{display: inline; padding-right: 5; float: left;} 
+span.Location.offset{display: none;}
+span.Location.span	{display: none;}
+ 
+/* ****************************************************
+ *  Errors
+ *******************************************************
+ 
+    UnclosedLexicalTokenError of string * Location         ;; reason, location
+    e.g.  <span class="Error:UnclosedLexicalTokenError">
+              <span class="Error:UnclosedLexicalTokenError.reason">I saw " to start a string, but no " to close it.</span>
+              <span class="Error:UnclosedLexicalTokenError.location">...</span>
+		</span>
+*/
+span.Error:UnclosedLexicalTokenError.reason{color: red; font-style: italic;}
+ 
+/*  UnrecognizedLexicalTokenError of string * Location         ;; reason, location
+    e.g.  <span class="Error:UnrecognizedLexicalTokenError">
+              <span class="Error:UnrecognizedLexicalTokenError.reason">I saw \newline which I don't recognize as a program element.</span>
+              <span class="Error:UnrecognizedLexicalTokenError.location">...</span>
+          </span>
+*/
+span.Error:UnrecognizedLexicalTokenError.reason{color: red; font-style: italic;}
+ 
+ 
+/*  UnsupportedLexicalTokenError of string * Location         ;; reason, location
+    e.g.  <span class="Error:UnsupportedLexicalTokenError">
+              <span class="Error:UnsupportedLexicalTokenError.reason">Dotted pairs are currently unsupported.</span>
+              <span class="Error:UnsupportedLexicalTokenError.location">...</span>
+          </span>
+*/
+span.Error:UnsupportedLexicalTokenError.reason{color: red; font-style: italic;} 
+ 
+/*  UnclosedParensError of string * Location
+    e.g.  <span class="Error:UnclosedParensError">
+              <span class="Error:UnclosedParensError.reason">I saw ( to start an expression, but no ) to close it.</span>
+              <span class="Error:UnclosedParensError.location">...</span>
+          </span>
+    e.g.  <span class="Error:UnclosedParensError">
+              <span class="Error:UnclosedParensError.reason">I saw ) to end an expression, but no ( to open it.</span>
+              <span class="Error:UnclosedParensError.location">...</span>
+          </span>
+*/ 
+span.Error:UnclosedParensError.reason{color: red; font-style: italic;} 
+ 
+/*  MissingExpressionError of string * Location
+    e.g.  <span class="Error:UnclosedParensError">
+              <span class="Error:MissingExpressionError.reason">I expected an expression following `, but did not find one.</span>
+              <span class="Error:MissingExpressionError.location">...</span>
+          </span>
+*/ 
+span.Error:MissingExpressionError.reason{color: red; font-style: italic;} 
+ 
+/*  DuplicateIdentifierError of string * Location * Location       ;; the identifier, where it was first observed, where the duplication is being seen
+    e.g.  <span class="Error:DuplicateIdentifierError">
+              <span class="Error:DuplicateIdentifierError.reason">The identifier foo has been duplicated.</span>
+              <span class="Error:DuplicateIdentifierError.location">...</span>
+              <span class="Error:DuplicateIdentifierError.secondLocation">
+                  <span class="Location">...</span>
+              </span>
+          </span>
+*/ 
+span.Error:DuplicateIdentifierError.reason{color: red; font-style: italic;} 
+ 
+/*  UndefinedIdentifierError of string * Location
+    e.g.  <span class="Error:UndefinedIdentifierError">
+              <span class="Error:UndefinedIdentifierError.reason">I don't know what beer is; it's not defined as an input or a primitive.</span>
+              <span class="Error:UndefinedIdentifierError.location">...</span>
+          </span>
+*/
+span.Error:UndefinedIdentifierError.reason{color: red; font-style: italic;} 
+ 
+/*  ArityError of Arity * number * Location                  ;; expected arity, observed # of arguments, syntactic location
+    e.g.  <span class="Error:ArityError">
+              <span class="Error:ArityError.reason">The function circle expects 3 inputs, but instead I see 1 input.</span>
+              <span class="Error:ArityError.expectedArity">
+                  <span class="Arity:Fixed">
+                      <span class="Arity:Fixed.exact">3</span>
+                  </span>
+              </span>
+              <span class="Error:ArityError.location">...</span>
+          </span>
+*/ 
+span.Error:ArityError.reason{color: red; font-style: italic;} 
+ 
+/* IndexError of number * number * number * Location            ;; minimum index, maximum index, observed index, syntactic location
+    e.g.  <span class="Error:IndexError">
+              <span class="Error:IndexError.reason">The index -1 is not within the expected boundary [0, 20].</span>
+              <span class="Error:IndexError.observed">-1</span>
+              <span class="Error:IndexError.minimum">0</span>
+              <span class="Error:IndexError.maximum">20</span>
+              <span class="Error:IndexError.location">...</span>
+          </span>
+*/ 
+span.Error:IndexError.reason{color: red; font-style: italic;} 
+ 
+/*  TypeError of SchemeValue * ExpectedValue * number * SchemeValue * Location       ;; who's raising the error, the expected value, position in the function application, the observed value, syntactic location
+    e.g.  <span class="Error:TypeError">
+              <span class="Error:TypeError.reason">
+                  The function
+ 
+                      <span class="SchemeValue:Function">
+                          <span class="SchemeValue:function.keyword">&lt;function:circle&gt;<span>
+                          <span class="SchemeValue:function.name">circle</span>
+                          <span class="SchemeValue:function.location">...</span>
+                      </span>
+ 
+                  expects 
+ 
+                      <span class="ExpectedValue:ExpectedSomething.display">
+                          a fill (<span class="SchemeValue:String">"solid"</span> or 
+                          <span class="SchemeValue:String">"outline"</span>)
+                      </span>
+ 
+                  as its 2nd argument, but instead I see
+ 
+                  <span class="SchemeValue:String">"sloid"</span>
+              </span>
+ 
+              <span class="Error:TypeError.who">
+                  <span class="SchemeValue:Function">
+                      <span class="SchemeValue:function.keyword">&lt;function:circle&gt;<span>
+                      <span class="SchemeValue:function.name">circle</span>
+                      <span class="SchemeValue:function.location">...</span>
+                  </span>
+              </span>
+ 
+              <span class="Error:TypeError.expected">
+                  <span class="ExpectedValue:ExpectedSomething">
+                      <span class="ExpectedValue:ExpectedSomething.display">
+                          a fill (<span class="SchemeValue:String">"solid"</span> or 
+                          <span class="SchemeValue:String">"outline"</span>)
+                      </span>
+                  </span>
+              </span>
+ 
+              <span class="Error:TypeError.position">2</span>
+              <span class="Error:TypeError.observed">
+                  <span class="SchemeValue:String">"sloid"</span>
+              </span>
+          </span>
+*/ 
+span.Error:TypeError.reason	 {color: red; font-style: italic;} 
+span.Error:TypeError.who	 {display: none;}
+span.Error:TypeError.expected{display: none;}
+span.Error:TypeError.position{display: none;}
+span.Error:TypeError.observed{display: none;}
+ 
+/*  RuntimeError of string * Location
+    e.g.  <span class="Error:RuntimeError">
+              <span class="Error:RuntimeError.reason">
+                  Inside a cond branch, I expected a question and an answer, but the first expression is not a question
+              </span>
+              <span class="Error:RuntimeError.location">...</span>
+          </span>
+    e.g.  <span class="Error:RuntimeError">
+              <span class="Error:RuntimeError.reason">
+	          I can't divide by zero.
+              </span>
+              <span class="Error:RuntimeError.location">...</span>
+          </span>
+ */
+span.Error:RuntimeError.reason{color: red; font-style: italic;} 
+
+/* ****************************************************
+ *  Expected Values - match SchemeValue colors
+ *******************************************************/
+span.ExpectedValue:ExpectedString	{color: green;}
+span.ExpectedValue:ExpectedInteger	{color: blue;}
+span.ExpectedValue:ExpectedNatural	{color: blue;}
+span.ExpectedValue:ExpectedRational	{color: blue;}
+span.ExpectedValue:ExpectedReal		{color: blue;}
+span.ExpectedValue:ExpectedComplex	{color: blue;}
+span.ExpectedValue:ExpectedInteger	{color: blue;}
+span.ExpectedValue:ExpectedBoolean	{color: darkred;}
+span.ExpectedValue:ExpectedChar		{color: orange;}
+span.ExpectedValue:ExpectedSymbol	{color: turqoise;}
+span.SchemeValue:Image				{color: purple;}
+span.ExpectedValue:ExpectedList		{}
+span.ExpectedValue:ExpectedVector	{}
+span.ExpectedValue:ExpectedStruct	{}
+span.ExpectedValue:ExpectedBox		{}
+span.ExpectedValue:ExpectedHash		{}
+span.ExpectedValue:ExpectedFunction	{}
+span.ExpectedValue:ExpectedSomething{}
