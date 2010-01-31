@@ -1,5 +1,5 @@
 .SchemeValue\:Number {
-    color: blue;
+    color: darkred;
 }
 
 .SchemeValue\:SharedLabel {}
@@ -15,14 +15,19 @@
 }
 
 .SchemeValue\:Character {
-    color: green;
+    color: orange;
 }
 
 .SchemeValue\:Symbol {
+    color: steelblue;
     font-weight: bold;
     font-family:     "Courier New"
                       Courier
                       monospace;
+}
+
+.SchemeValue\:Image {
+    color: purple;
 }
 
 .SchemeValue\:List\.lparen {

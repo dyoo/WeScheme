@@ -11,8 +11,16 @@
 	  id="style" />
 
 
-    <link rel="stylesheet" type="text/css" href="/css/scheme.css"
-	  id="style" />
+<link rel="stylesheet" type="text/css" href="/css/default.css"
+      id="style" />
+<link rel="stylesheet" type="text/css" href="/css/errors.css"
+      id="style" />
+<script src="/flapjax-2.0.1.compressed.js"></script>
+<script src="/flapjax-helpers.js"></script>
+<script src="/editor/jquery.js"></script>
+<script src="/editor/jquery.createdomnodes.js"></script>
+<script src="/safeSubmit.js"></script>
+<script src="/editor/debug.js"></script>
 
 
     <!-- JQuery libraries -->
