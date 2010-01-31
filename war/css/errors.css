@@ -11,7 +11,7 @@ span.SchemeValue:String	{color: green;}
 span.SchemeValue:Number	{color: blue;}
 span.SchemeValue:Boolean{color: darkred;}
 span.SchemeValue:Char	{color: orange;}
-span.SchemeValue:Symbol	{color: turqoise;}
+span.SchemeValue:Symbol	{color: steelblue;}
 span.SchemeValue:Image	{color: purple;}
 
 /* ****************************************************
