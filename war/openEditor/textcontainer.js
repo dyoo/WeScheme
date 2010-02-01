@@ -36,6 +36,10 @@ var WeSchemeTextContainer;
 	    var code = this.getCode();
 	    this.impl.shutdown();
 	    jQuery(this.div).empty();
+	    
+	    var implementations = { bespin: BespinImplementation,
+				    textarea: TextareaImplmentation,
+				    codemirror: CodeMirrorImplementation };
 
 	    var afterConstruction = function() {
 		that.impl.setCode(code);
@@ -43,19 +47,8 @@ var WeSchemeTextContainer;
 		that.mode = mode;
 	    };
 
-	    if (mode == 'bespin') {
-		this.impl =
-		    new BespinImplementation(
-			this.div, 
-			afterConstruction);
-	    } else if (mode == 'textarea') {
-		this.impl =
-		    new TextareaImplementation(
-			this.div,
-			afterConstruction);
-	    } else if (mode == 'domeditor') {
-		// When Brendan's editor is ready, use this...
-		// FIXME
+	    if (implementations.hasOwnProperty(mode)) {
+		implementations[mode](this.div, afterConstruction);
 	    } else {
 		throw new Error("Unknown mode " + mode);
 	    }
@@ -115,6 +108,40 @@ var WeSchemeTextContainer;
     TextareaImplementation.prototype.shutdown = function() {
     };
 
+
+    //////////////////////////////////////////////////////////////////////
+    function CodeMirrorImplementation(div, onSuccess) {
+	var that = this;
+	this.behaviorE = receiverE();
+	this.behavior = startsWith(this.behaviorE, "");
+
+
+	this.editor = new CodeMirror(
+	    div, 
+	    { 
+		onChange: function() {
+		    this.behaviorE.sendEvent(that.editor.getCode());
+		},
+
+		initCallback: function() {
+		    onSuccess();
+		}});
+    }
+    CodeMirrorImplementation.prototype.getSourceB = function() {
+	return this.behavior;
+    }
+
+    CodeMirrorImplementation.prototype.getCode = function() {
+	return valueNow(this.behavior);
+    }
+
+    CodeMirrorImplementation.prototype.setCode = function(code) {
+	this.editor.setCode(code);
+	this.behaviorE.sendEvent(code);
+    }
+
+    CodeMirrorImplementation.prototype.shutdown = function() {
+    }
 
 
     //////////////////////////////////////////////////////////////////////
