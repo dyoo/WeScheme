@@ -15,19 +15,18 @@
       id="style" />
 <link rel="stylesheet" type="text/css" href="/css/errors.css"
       id="style" />
-<script src="/editor/jquery.js"></script>
-<script src="/editor/jquery.createdomnodes.js"></script>
-<script src="/safeSubmit.js"></script>
-<script src="/editor/debug.js"></script>
+
 
 
     <!-- JQuery libraries -->
-    <script src="/js/jquery/jquery.js"></script>
-    <script src="/js/jquery/jquery-ui.min.js"></script>
+    <script src="/js/jquery/jquery-1.3.2.min.js"></script>
+    <script src="/js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
     <script src="/js/jquery/jquery.createdomnodes.js"></script>
     <script src="/js/jquery/jquery.center-in-client.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="/css/jquery-ui.css"/>
+    <link rel="stylesheet" type="text/css" href="/css/ui-lightness/jquery-ui-1.7.2.custom.css" />
+
+
 
 
 
