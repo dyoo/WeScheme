@@ -57,8 +57,6 @@ var WeSchemeTextContainer;
 
     // Returns a behavior of the source code
     WeSchemeTextContainer.prototype.getSourceB = function() {
-	console.log('this.impl: ' + this.impl);
-	console.log(this.impl);
 	return this.impl.getSourceB();
     };
 
