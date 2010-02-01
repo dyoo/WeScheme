@@ -5,7 +5,8 @@
 
     <!-- Add compatibility libraries for IE. -->
     <jsp:include page="/ie-compat.jsp"/>
-    <script src="/runtime/compat/XMLHttpRequest.js"></script>
+    <script type="text/javascript"
+	    src="/runtime/compat/XMLHttpRequest.js"></script>
 
     <link rel="stylesheet" type="text/css" href="/css/default.css"
 	  id="style" />
@@ -19,12 +20,22 @@
 
 
     <!-- JQuery libraries -->
-    <script src="/js/jquery/jquery-1.3.2.min.js"></script>
-    <script src="/js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
-    <script src="/js/jquery/jquery.createdomnodes.js"></script>
-    <script src="/js/jquery/jquery.center-in-client.js"></script>
+    <script type="text/javascript"
+	    src="/js/jquery/jquery-1.3.2.min.js"></script>
+    <script type="text/javascript"
+	    src="/js/jquery/jquery-ui-1.7.2.custom.min.js"></script>
+    <script type="text/javascript"
+	    src="/js/jquery/jquery.createdomnodes.js"></script>
+    <script type="text/javascript"
+	    src="/js/jquery/jquery.center-in-client.js"></script>
 
     <link rel="stylesheet" type="text/css" href="/css/ui-lightness/jquery-ui-1.7.2.custom.css" />
+
+
+
+    <!-- Codemirror -->
+    <script type="text/javascript" 
+	    src="/js/codemirror/js/codemirror.js"></script>
 
 
 
@@ -39,10 +50,7 @@
       baseUrl: './',
       modulePaths: {bespin: '../js/bespin'}
       };
-    </script>
-
-
-    
+    </script>    
     <SCRIPT TYPE="text/javascript" SRC="http://o.aolcdn.com/dojo/1.3/dojo/dojo.xd.js"></SCRIPT>
     <link rel="stylesheet"
 	  type="text/css"
@@ -53,6 +61,7 @@
 <!--     <link rel="stylesheet" -->
 <!-- 	  type="text/css" -->
 <!-- 	  href="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dijit/themes/tundra/tundra.css"/> -->
+
 
     <script>
       dojo.require("dijit.layout.ContentPane");

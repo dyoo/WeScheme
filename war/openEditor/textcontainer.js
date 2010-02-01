@@ -15,14 +15,12 @@ var WeSchemeTextContainer;
     WeSchemeTextContainer = function(aDiv, afterInitialization) {
 	var that = this;
 	this.div = aDiv;
-	this.impl = new TextareaImplementation(
+	this.mode = 'textarea';
+	this.impl = null;
+	new TextareaImplementation(
 	    this.div, 
-	    function(){
-		that.behaviorE = receiverE();
-		that.mode = 'textarea';
-		that.behavior = switchB(
-		    startsWith(that.behaviorE,
-			       this.getSourceB()));
+	    function(anImpl){
+		that.impl = anImpl;
 		afterInitialization(that);
 	    });
     };
@@ -41,9 +39,9 @@ var WeSchemeTextContainer;
 				    textarea: TextareaImplmentation,
 				    codemirror: CodeMirrorImplementation };
 
-	    var afterConstruction = function() {
+	    var afterConstruction = function(impl) {
+		that.impl = impl;
 		that.impl.setCode(code);
-		that.behaviorE.sendEvent(this.getSourceB());
 		that.mode = mode;
 	    };
 
@@ -59,7 +57,9 @@ var WeSchemeTextContainer;
 
     // Returns a behavior of the source code
     WeSchemeTextContainer.prototype.getSourceB = function() {
-	return this.behavior;
+	console.log('this.impl: ' + this.impl);
+	console.log(this.impl);
+	return this.impl.getSourceB();
     };
 
 
@@ -85,7 +85,7 @@ var WeSchemeTextContainer;
     function TextareaImplementation(rawContainer, onSuccess) {
 	this.container = new FlapjaxValueHandler(
 	    jQuery(rawContainer).find("#defn").get(0));
-	onSuccess.call(this, []);
+	onSuccess.call(this, this);
     }
 
     // Returns a behavior of the source code
@@ -119,12 +119,19 @@ var WeSchemeTextContainer;
 	this.editor = new CodeMirror(
 	    div, 
 	    { 
+		path: "/js/codemirror/js/",
+		parserfile: ["/js/codemirror/contrib/scheme/js/tokenizescheme.js",
+			     "/js/codemirror/contrib/scheme/js/parsescheme.js"],
+		stylesheet: "/js/codemirror/contrib/scheme/css/schemecolors.css",
+		autoMatchParens: true,
+		disableSpellcheck: true,
+
 		onChange: function() {
 		    this.behaviorE.sendEvent(that.editor.getCode());
 		},
 
 		initCallback: function() {
-		    onSuccess();
+		    onSuccess.call(that, that);
 		}});
     }
     CodeMirrorImplementation.prototype.getSourceB = function() {
@@ -169,7 +176,7 @@ var WeSchemeTextContainer;
 	    that.component.onchange(function() {
 		that.behaviorE.sendEvent(that.component.getContent());
 	    });
-	    onSuccess.call(that, []);
+	    onSuccess.call(that, that);
 	});
     }
 
