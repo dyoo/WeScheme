@@ -12,7 +12,7 @@ var WeSchemeTextContainer;
     // container: DIV
     // Assumption of the textarea implementation:
     // The div contains a "defn" element.
-    WeSchemeTextContainer = function(aDiv) {
+    WeSchemeTextContainer = function(aDiv, afterInitialization) {
 	var that = this;
 	this.div = aDiv;
 	this.impl = new TextareaImplementation(
@@ -23,6 +23,7 @@ var WeSchemeTextContainer;
 		that.behavior = switchB(
 		    startsWith(that.behaviorE,
 			       this.getSourceB()));
+		afterInitialization(that);
 	    });
     };
 
