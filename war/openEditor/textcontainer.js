@@ -26,7 +26,8 @@ var WeSchemeTextContainer;
     };
 
 
-    WeSchemeTextContainer.prototype.setMode = function(mode) {
+    WeSchemeTextContainer.prototype.setMode = function(mode,
+						       afterModeSwitch) {
 	var that = this;
 	if (mode == this.mode) {
 	    return;
@@ -36,17 +37,21 @@ var WeSchemeTextContainer;
 	    jQuery(this.div).empty();
 	    
 	    var implementations = { bespin: BespinImplementation,
-				    textarea: TextareaImplmentation,
+				    textarea: TextareaImplementation,
 				    codemirror: CodeMirrorImplementation };
 
 	    var afterConstruction = function(impl) {
 		that.impl = impl;
-		that.impl.setCode(code);
 		that.mode = mode;
+		that.impl.setCode(code);
+
+		if (afterModeSwitch) { 
+		    afterModeSwitch(); 
+		}
 	    };
 
 	    if (implementations.hasOwnProperty(mode)) {
-		implementations[mode](this.div, afterConstruction);
+		new implementations[mode](this.div, afterConstruction);
 	    } else {
 		throw new Error("Unknown mode " + mode);
 	    }
@@ -118,14 +123,16 @@ var WeSchemeTextContainer;
 	    div, 
 	    { 
 		path: "/js/codemirror/js/",
-		parserfile: ["/js/codemirror/contrib/scheme/js/tokenizescheme.js",
-			     "/js/codemirror/contrib/scheme/js/parsescheme.js"],
+		parserfile: ["../contrib/scheme/js/tokenizescheme.js",
+			     "../contrib/scheme/js/parsescheme.js"],
 		stylesheet: "/js/codemirror/contrib/scheme/css/schemecolors.css",
 		autoMatchParens: true,
 		disableSpellcheck: true,
+		width: "100%",
+		height: "100%",
 
 		onChange: function() {
-		    this.behaviorE.sendEvent(that.editor.getCode());
+		    that.behaviorE.sendEvent(that.editor.getCode());
 		},
 
 		initCallback: function() {
