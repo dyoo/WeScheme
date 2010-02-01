@@ -114,41 +114,45 @@
 
     <script>
       var myEditor;
-      var defnSourceContainer;
+      var theDefnSourceContainer;
 
       jQuery(document).ready(function() {
 
       // Fixme: trigger file load if the pid has been provided.
 
       var statusBar = new WeSchemeStatusBar(jQuery("#statusbar"));
-      defnSourceContainer = new WeSchemeTextContainer(
+      new WeSchemeTextContainer(
 	  jQuery("#definitions").get(0),
-	  function(defnSourceContainer) {
-	      // After the definitions class is loaded, we do the rest of the initialization.
-	      myEditor = new WeSchemeEditor(
-		  { userName: "<%= userSession != null? userSession.getName() : null %>",
-		    defn: defnSourceContainer,
-		    interactions: jQuery("#inter").get(0),
-		    filenameInput: jQuery("#filename")});
-	      
-	      jQuery("#save").click(function() { myEditor.save(); });
-	      jQuery("#run").click(function()  { myEditor.run(); });
-	      jQuery("#share").click(function()  { myEditor.share(); });
-	      jQuery("#account").click(function()  { submitPost("/console"); });
-	      jQuery("#logout").click(function() { submitPost("/logout"); });
-	      jQuery("#bespinMode").click(function() { defnSourceContainer.setMode("codemirror")});
+	  function(defn) {
+              defn.setMode(
+		  "codemirror",
+                  function() {
+		      theDefnSourceContainer = defn;
+		      // After the definitions class is loaded, we do the rest of the initialization.
+		      myEditor = new WeSchemeEditor(
+			  { userName: "<%= userSession != null? userSession.getName() : null %>",
+			    defn: theDefnSourceContainer,
+			    interactions: jQuery("#inter").get(0),
+			    filenameInput: jQuery("#filename")});
+		      
+		      jQuery("#save").click(function() { myEditor.save(); });
+		      jQuery("#run").click(function()  { myEditor.run(); });
+		      jQuery("#share").click(function()  { myEditor.share(); });
+		      jQuery("#account").click(function()  { submitPost("/console"); });
+		      jQuery("#logout").click(function() { submitPost("/logout"); });
+		      jQuery("#bespinMode").click(function() { theDefnSourceContainer.setMode("bespin")});
 
-		  <% if (request.getParameter("pid") != null) { %>
-								myEditor.load({pid : parseInt(decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("pid"), "utf-8") %>')) });
-								<% } else if (request.getParameter("publicId") != null) { %>
-															  myEditor.load({publicId : decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("publicId"), "utf-8") %>') });
-															  <% } %>
+			  <% if (request.getParameter("pid") != null) { %>
+			  myEditor.load({pid : parseInt(decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("pid"), "utf-8") %>')) });
+			  <% } else if (request.getParameter("publicId") != null) { %>
+			  myEditor.load({publicId : decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("publicId"), "utf-8") %>') });
+			  <% } %>
 
-	      // For debugging:
-	      //   plt.wescheme.WeSchemeIntentBus.addNotifyListener(function(action, category, data) {
-	      //       debugLog(action + ": " + category + " " + data.toString());
-	      //   });
-
+		      // For debugging:
+		      //   plt.wescheme.WeSchemeIntentBus.addNotifyListener(function(action, category, data) {
+		      //       debugLog(action + ": " + category + " " + data.toString());
+		      //   });
+		  });
 
 
 	  });
@@ -267,7 +271,8 @@
 	  <div id="editorMode" style="float: right; margin-right: 10px;">
             <input type="button"
 		   id="bespinMode" 
-		   value="CodeMirror Editor Mode"/>
+		   value="Bespin Editor Mode"
+                   style="display:none;"/>
 	  </div>
 
 	  <!-- Temporarily commented out until we fix the css styles -->
