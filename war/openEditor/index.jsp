@@ -48,7 +48,7 @@
       isDebug: false, 
       debugAtAllCosts: true,
       baseUrl: './',
-      modulePaths: {bespin: '../js/bespin'}
+      // modulePaths: {bespin: '../js/bespin'}
       };
     </script>    
     <SCRIPT TYPE="text/javascript" SRC="http://o.aolcdn.com/dojo/1.3/dojo/dojo.xd.js"></SCRIPT>
@@ -140,7 +140,6 @@
 		      jQuery("#share").click(function()  { myEditor.share(); });
 		      jQuery("#account").click(function()  { submitPost("/console"); });
 		      jQuery("#logout").click(function() { submitPost("/logout"); });
-		      jQuery("#bespinMode").click(function() { theDefnSourceContainer.setMode("bespin")});
 
 			  <% if (request.getParameter("pid") != null) { %>
 			  myEditor.load({pid : parseInt(decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("pid"), "utf-8") %>')) });
@@ -269,10 +268,6 @@
 	<div id="footer">
 	  <div id="statusbar" style="float: left; margin-left: 10px;" ></div>
 	  <div id="editorMode" style="float: right; margin-right: 10px;">
-            <input type="button"
-		   id="bespinMode" 
-		   value="Bespin Editor Mode"
-                   style="display:none;"/>
 	  </div>
 
 	  <!-- Temporarily commented out until we fix the css styles -->
