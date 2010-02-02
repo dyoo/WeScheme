@@ -36,8 +36,7 @@ var WeSchemeTextContainer;
 	    this.impl.shutdown();
 	    jQuery(this.div).empty();
 	    
-	    var implementations = { bespin: BespinImplementation,
-				    textarea: TextareaImplementation,
+	    var implementations = { textarea: TextareaImplementation,
 				    codemirror: CodeMirrorImplementation };
 
 	    var afterConstruction = function(impl) {
@@ -154,57 +153,6 @@ var WeSchemeTextContainer;
 
     CodeMirrorImplementation.prototype.shutdown = function() {
     }
-
-
-    //////////////////////////////////////////////////////////////////////
-
-    function BespinImplementation(div, onSuccess) {
-	var that = this;
-	this.div = div;
-	this.component = undefined;
-	this.behaviorE = receiverE();
-	this.behavior = startsWith(this.behaviorE, "");
-
-	dojo.require("bespin.editor.component");
-	dojo.addOnLoad(function() { 
-	    that.component = 
-		new bespin.editor.Component(that.div.id, {
-		    language: "scheme",
-		    loadfromdiv: true,
-		    set: {
-			strictlines: 'on',
-			closepairs: 'off',
-			tabmode: 'off',
-			tabsize: 1
-		    }
-		});
-	    that.component.onchange(function() {
-		that.behaviorE.sendEvent(that.component.getContent());
-	    });
-	    onSuccess.call(that, that);
-	});
-    }
-
-    // Returns a behavior of the source code
-    BespinImplementation.prototype.getSourceB = function() {
-	return this.behavior;
-    };
-
-    // getCode: void -> string
-    BespinImplementation.prototype.getCode = function() {
-	return valueNow(this.behavior);
-    };
-
-    // setCode: string -> void
-    BespinImplementation.prototype.setCode = function(code) {
-	this.component.setContent(code);
-	this.behaviorE.sendEvent(code);
-    };
-
-    // shutdown: -> void
-    BespinImplementation.prototype.shutdown = function() {
-	this.component.dispose();
-    };
 
 
 
