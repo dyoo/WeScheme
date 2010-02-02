@@ -118,7 +118,7 @@ var WeSchemeTextContainer;
 	this.behavior = startsWith(this.behaviorE, "");
 
 
-	this.editor = new CodeMirror(
+	new CodeMirror(
 	    div, 
 	    { 
 		path: "/js/codemirror/js/",
@@ -134,7 +134,8 @@ var WeSchemeTextContainer;
 		    that.behaviorE.sendEvent(that.editor.getCode());
 		},
 
-		initCallback: function() {
+		initCallback: function(editor) {
+		    that.editor = editor;
 		    onSuccess.call(that, that);
 		}});
     }
