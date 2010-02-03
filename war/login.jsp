@@ -6,7 +6,9 @@
 <%@ page import="org.wescheme.user.Session" %>
 
 <html>
-<head><title>WeScheme</title></head>
+<head><title>WeScheme</title>
+<script src="/runtime/base.js"></script>
+</head>
   <body>
 
 <h1 class="title">WeScheme Login</h1>

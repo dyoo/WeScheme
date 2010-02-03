@@ -13,6 +13,7 @@
 <head>
 <title>Dropbox</title>
 <link rel="stylesheet" href="/demo.css"/>
+<script src="/runtime/base.js"></script>
 </head>
 
 <body onload="loader()">

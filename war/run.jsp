@@ -12,6 +12,8 @@
 <head>
 <title>WeScheme</title>
 
+<script src="/runtime/base.js"></script>
+
 <!-- Add compatibility libraries for IE. -->
 <jsp:include page="/ie-compat.jsp"/>
 
