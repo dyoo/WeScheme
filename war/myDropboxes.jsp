@@ -9,6 +9,7 @@
 <html>
 <head>
 
+<script src="/runtime/base.js"></script>
 <script src="safeSubmit.js"></script>
 
 </head>
