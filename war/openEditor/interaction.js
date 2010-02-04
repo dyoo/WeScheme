@@ -18,6 +18,7 @@ WeSchemeInteractions = (function () {
     
 
     var compilerModule = plt.Kernel.invokeModule("moby/compiler");
+    var stxModule = plt.Kernel.invokeModule("moby/runtime/stx");
     var errorStructModule = plt.Kernel.invokeModule("moby/runtime/error-struct");
     var errorToDomModule = plt.Kernel.invokeModule("moby/runtime/error-struct-to-dom");
     var schemeValueToDomModule = plt.Kernel.invokeModule("moby/runtime/scheme-value-to-dom");
@@ -239,6 +240,17 @@ WeSchemeInteractions = (function () {
 	if (errorStructModule.EXPORTS.moby_dash_error_question_(err)) {
 	    var newSexp = 
 		errorToDomModule.EXPORTS.moby_dash_error_dash_struct_dash_to_dash_dom_dash_sexp(err);
+	    var aLoc = errorStructModule.EXPORTS.moby_dash_error_dash_location(err);
+	    
+	    var aLocHash = 
+		{ offset: plt.types.NumberTower.toFixnum(stxModule.EXPORTS.Loc_dash_offset(aLoc)),
+		  line: plt.types.NumberTower.toFixnum(stxModule.EXPORTS.Loc_dash_line(aLoc)),
+		  column: plt.types.NumberTower.toFixnum(stxModule.EXPORTS.Loc_dash_column(aLoc)),
+		  span: plt.types.NumberTower.toFixnum(stxModule.EXPORTS.Loc_dash_span(aLoc)),
+		  id: stxModule.EXPORTS.Loc_dash_id(aLoc) };
+
+	    this.addToInteractions(renderLocHashAsDom(aLocHash));
+	    this.addToInteractions("\n");
 	    this.addToInteractions(sexpToDom(newSexp));
 	    this.addToInteractions("\n");
 	} else {
@@ -308,15 +320,21 @@ WeSchemeInteractions = (function () {
 		"div",
 		{'class' : "moby-location-unknown"});
 	} else {
-	    return createDom(
-		"div",
-		{'class': "moby-location"},
-		createDom("div", {'class': "moby-location:source-id"}, "source: " + loc.id),
-		createDom("div", {'class': "moby-location:line"}, "line: " +loc.line),
-		createDom("div", {'class': "moby-location:offset"}, "offset: " + loc.offset),
-		createDom("div", {'class': "moby-location:span"}, "span: " + loc.span)
-	    );
+	    return renderLocHashAsDom(loc);
 	}
+    };
+
+
+    var renderLocHashAsDom = function(loc) {
+	return createDom(
+	    "div",
+	    {'class': "moby-location"},
+	    createDom("div", {'class': "moby-location:source-id"}, "source: " + loc.id),
+	    createDom("div", {'class': "moby-location:line"}, "line: " +loc.line),
+	    createDom("div", {'class': "moby-location:line"}, "column: " +loc.column),
+	    createDom("div", {'class': "moby-location:offset"}, "offset: " + loc.offset),
+	    createDom("div", {'class': "moby-location:span"}, "span: " + loc.span)
+	);
     };
 
 
