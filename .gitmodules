@@ -1,0 +1,3 @@
+[submodule "war/js/codemirror"]
+	path = war/js/codemirror
+	url = git://github.com/dyoo/codemirror.git
