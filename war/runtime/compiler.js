@@ -1747,83 +1747,89 @@ var handle_dash_quoted = function(a_dash_stx, depth) { return (plt.kernel.misc.v
  (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](a_dash_stx,(plt.types.Symbol.makeInstance("quasiquote"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(31830, 1)),(plt.types.Rational.makeInstance(737, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(36, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(31830, 1)),(plt.types.Rational.makeInstance(737, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(36, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  (function(){;
 return (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._greaterthan_(depth,_SHARED[7], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(31954, 1)),(plt.types.Rational.makeInstance(740, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(31954, 1)),(plt.types.Rational.makeInstance(740, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
- plt._MODULES["moby/runtime/stx"].EXPORTS["datum_dash__greaterthan_stx"](_SHARED[2],plt.Kernel.list([(plt.types.Symbol.makeInstance("list")),plt.Kernel.list([(plt.types.Symbol.makeInstance("quasiquote")),plt.Kernel.first(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_stx))]),handle_dash_quoted(plt.Kernel.second(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_stx)),plt.Kernel.add1(depth))]),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx)) :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(32309, 1)),(plt.types.Rational.makeInstance(745, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(32309, 1)),(plt.types.Rational.makeInstance(745, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ plt._MODULES["moby/runtime/stx"].EXPORTS["datum_dash__greaterthan_stx"](_SHARED[2],plt.Kernel.cons((plt.types.Symbol.makeInstance("list")),plt.Kernel.cons((plt.Kernel.list([(plt.types.Symbol.makeInstance("quote")),(plt.types.Symbol.makeInstance("quasiquote"))])),plt.Kernel.map(((function() {
+   var _result_ = (function(args272) {
+var x = args272[0];  return handle_dash_quoted(x,plt.Kernel.add1(depth)); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [plt.Kernel.rest(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_stx))]))),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx)) :
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(32398, 1)),(plt.types.Rational.makeInstance(747, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(32398, 1)),(plt.types.Rational.makeInstance(747, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  (function(){check_dash_single_dash_argument_dash_form_bang_(a_dash_stx,(plt.types.liftToplevelToFunctionValue(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_quasiquote_dash_too_dash_few_dash_elements"],(plt.types.String.makeInstance("make-moby-error-type:quasiquote-too-few-elements")),0,(plt.types.Rational.makeInstance(0, 1)))),(plt.types.liftToplevelToFunctionValue(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_quasiquote_dash_too_dash_many_dash_elements"],(plt.types.String.makeInstance("make-moby-error-type:quasiquote-too-many-elements")),0,(plt.types.Rational.makeInstance(0, 1)))));
-return plt._MODULES["moby/runtime/stx"].EXPORTS["datum_dash__greaterthan_stx"](_SHARED[2],handle_dash_quoted(plt.Kernel.second(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_stx)),plt.Kernel.add1(depth)),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx));})() :
- plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(31921, 1)),(plt.types.Rational.makeInstance(739, 1)),(plt.types.Rational.makeInstance(24, 1)),(plt.types.Rational.makeInstance(923, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))])))));})() :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](a_dash_stx,(plt.types.Symbol.makeInstance("unquote"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(32891, 1)),(plt.types.Rational.makeInstance(754, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(33, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(32891, 1)),(plt.types.Rational.makeInstance(754, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(33, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+return handle_dash_quoted(plt.Kernel.second(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_stx)),plt.Kernel.add1(depth));})() :
+ plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(31921, 1)),(plt.types.Rational.makeInstance(739, 1)),(plt.types.Rational.makeInstance(24, 1)),(plt.types.Rational.makeInstance(924, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))])))));})() :
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](a_dash_stx,(plt.types.Symbol.makeInstance("unquote"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(32892, 1)),(plt.types.Rational.makeInstance(755, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(33, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(32892, 1)),(plt.types.Rational.makeInstance(755, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(33, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  (function(){;
-return (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._greaterthan_(depth,_SHARED[6], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(33011, 1)),(plt.types.Rational.makeInstance(757, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(33011, 1)),(plt.types.Rational.makeInstance(757, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
- plt._MODULES["moby/runtime/stx"].EXPORTS["datum_dash__greaterthan_stx"](_SHARED[2],plt.Kernel.list([(plt.types.Symbol.makeInstance("list")),plt.Kernel.list([(plt.types.Symbol.makeInstance("unquote")),plt.Kernel.first(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_stx))]),handle_dash_quoted(plt.Kernel.second(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_stx)),plt.Kernel.sub1(depth))]),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx)) :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._equal_(depth,_SHARED[6], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(33364, 1)),(plt.types.Rational.makeInstance(762, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(33364, 1)),(plt.types.Rational.makeInstance(762, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+return (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._greaterthan_(depth,_SHARED[6], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(33012, 1)),(plt.types.Rational.makeInstance(758, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(33012, 1)),(plt.types.Rational.makeInstance(758, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ plt._MODULES["moby/runtime/stx"].EXPORTS["datum_dash__greaterthan_stx"](_SHARED[2],plt.Kernel.cons((plt.types.Symbol.makeInstance("list")),plt.Kernel.cons((plt.Kernel.list([(plt.types.Symbol.makeInstance("quote")),(plt.types.Symbol.makeInstance("unquote"))])),plt.Kernel.map(((function() {
+   var _result_ = (function(args273) {
+var x = args273[0];  return handle_dash_quoted(x,plt.Kernel.sub1(depth)); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [plt.Kernel.rest(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_stx))]))),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx)) :
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._equal_(depth,_SHARED[6], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(33473, 1)),(plt.types.Rational.makeInstance(765, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(33473, 1)),(plt.types.Rational.makeInstance(765, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  (function(){check_dash_single_dash_argument_dash_form_bang_(a_dash_stx,(plt.types.liftToplevelToFunctionValue(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_unquote_dash_too_dash_few_dash_elements"],(plt.types.String.makeInstance("make-moby-error-type:unquote-too-few-elements")),0,(plt.types.Rational.makeInstance(0, 1)))),(plt.types.liftToplevelToFunctionValue(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_unquote_dash_too_dash_many_dash_elements"],(plt.types.String.makeInstance("make-moby-error-type:unquote-too-many-elements")),0,(plt.types.Rational.makeInstance(0, 1)))));
 return plt.Kernel.second(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_stx));})() :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(33796, 1)),(plt.types.Rational.makeInstance(769, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(33796, 1)),(plt.types.Rational.makeInstance(769, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
- plt.Kernel.raise(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx),plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_generic_dash_syntactic_dash_error"](_SHARED[272],plt.Kernel.list([])))) :
- plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(32978, 1)),(plt.types.Rational.makeInstance(756, 1)),(plt.types.Rational.makeInstance(24, 1)),(plt.types.Rational.makeInstance(1224, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))))));})() :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](a_dash_stx,(plt.types.Symbol.makeInstance("unquote-splicing"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34228, 1)),(plt.types.Rational.makeInstance(776, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(42, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34228, 1)),(plt.types.Rational.makeInstance(776, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(42, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._greaterthan_(depth,_SHARED[6], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34324, 1)),(plt.types.Rational.makeInstance(778, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34324, 1)),(plt.types.Rational.makeInstance(778, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
- (function(){check_dash_single_dash_argument_dash_form_bang_(a_dash_stx,(plt.types.liftToplevelToFunctionValue(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_unquote_dash_splicing_dash_too_dash_few_dash_elements"],(plt.types.String.makeInstance("make-moby-error-type:unquote-splicing-too-few-elements")),0,(plt.types.Rational.makeInstance(0, 1)))),(plt.types.liftToplevelToFunctionValue(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_unquote_dash_splicing_dash_too_dash_many_dash_elements"],(plt.types.String.makeInstance("make-moby-error-type:unquote-splicing-too-many-elements")),0,(plt.types.Rational.makeInstance(0, 1)))));
-return plt._MODULES["moby/runtime/stx"].EXPORTS["datum_dash__greaterthan_stx"](_SHARED[2],plt.Kernel.list([(plt.types.Symbol.makeInstance("list")),plt.Kernel.list([(plt.types.Symbol.makeInstance("unquote-splicing")),plt.Kernel.first(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_stx))]),handle_dash_quoted(plt.Kernel.second(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_stx)),plt.Kernel.sub1(depth))]),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx));})() :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._equal_(depth,_SHARED[6], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35003, 1)),(plt.types.Rational.makeInstance(787, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35003, 1)),(plt.types.Rational.makeInstance(787, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
- plt.Kernel.raise(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx),plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_generic_dash_syntactic_dash_error"](_SHARED[273],plt.Kernel.list([])))) :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35404, 1)),(plt.types.Rational.makeInstance(793, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35404, 1)),(plt.types.Rational.makeInstance(793, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(33875, 1)),(plt.types.Rational.makeInstance(771, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(33875, 1)),(plt.types.Rational.makeInstance(771, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  plt.Kernel.raise(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx),plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_generic_dash_syntactic_dash_error"](_SHARED[274],plt.Kernel.list([])))) :
- plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34293, 1)),(plt.types.Rational.makeInstance(777, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(1460, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))])))))) :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35799, 1)),(plt.types.Rational.makeInstance(799, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35799, 1)),(plt.types.Rational.makeInstance(799, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
- plt._MODULES["moby/runtime/stx"].EXPORTS["datum_dash__greaterthan_stx"](_SHARED[2],plt.Kernel.cons((plt.types.Symbol.makeInstance("append")),plt.Kernel.map(((function() {
+ plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(32979, 1)),(plt.types.Rational.makeInstance(757, 1)),(plt.types.Rational.makeInstance(24, 1)),(plt.types.Rational.makeInstance(1302, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))))));})() :
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](a_dash_stx,(plt.types.Symbol.makeInstance("unquote-splicing"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34307, 1)),(plt.types.Rational.makeInstance(778, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(42, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34307, 1)),(plt.types.Rational.makeInstance(778, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(42, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._greaterthan_(depth,_SHARED[6], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34403, 1)),(plt.types.Rational.makeInstance(780, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34403, 1)),(plt.types.Rational.makeInstance(780, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ (function(){;
+return plt._MODULES["moby/runtime/stx"].EXPORTS["datum_dash__greaterthan_stx"](_SHARED[2],plt.Kernel.cons((plt.types.Symbol.makeInstance("list")),plt.Kernel.cons((plt.Kernel.list([(plt.types.Symbol.makeInstance("quote")),(plt.types.Symbol.makeInstance("unquote-splicing"))])),plt.Kernel.map(((function() {
    var _result_ = (function(args275) {
-var s = args275[0];  return (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](s,(plt.types.Symbol.makeInstance("quasiquote"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36132, 1)),(plt.types.Rational.makeInstance(805, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(32, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36132, 1)),(plt.types.Rational.makeInstance(805, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(32, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+var x = args275[0];  return handle_dash_quoted(x,plt.Kernel.sub1(depth)); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [plt.Kernel.rest(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_stx))]))),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx));})() :
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._equal_(depth,_SHARED[6], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34876, 1)),(plt.types.Rational.makeInstance(788, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34876, 1)),(plt.types.Rational.makeInstance(788, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ plt.Kernel.raise(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx),plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_generic_dash_syntactic_dash_error"](_SHARED[276],plt.Kernel.list([])))) :
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35252, 1)),(plt.types.Rational.makeInstance(793, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35252, 1)),(plt.types.Rational.makeInstance(793, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ plt.Kernel.raise(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx),plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_generic_dash_syntactic_dash_error"](_SHARED[277],plt.Kernel.list([])))) :
+ plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34372, 1)),(plt.types.Rational.makeInstance(779, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(1229, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))])))))) :
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35646, 1)),(plt.types.Rational.makeInstance(798, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35646, 1)),(plt.types.Rational.makeInstance(798, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ plt._MODULES["moby/runtime/stx"].EXPORTS["datum_dash__greaterthan_stx"](_SHARED[2],plt.Kernel.cons((plt.types.Symbol.makeInstance("append")),plt.Kernel.map(((function() {
+   var _result_ = (function(args278) {
+var s = args278[0];  return (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](s,(plt.types.Symbol.makeInstance("quasiquote"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35979, 1)),(plt.types.Rational.makeInstance(804, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(32, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35979, 1)),(plt.types.Rational.makeInstance(804, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(32, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  plt.Kernel.list([(plt.types.Symbol.makeInstance("list")),handle_dash_quoted(s,depth)]) :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](s,(plt.types.Symbol.makeInstance("unquote"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36350, 1)),(plt.types.Rational.makeInstance(808, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(29, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36350, 1)),(plt.types.Rational.makeInstance(808, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(29, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](s,(plt.types.Symbol.makeInstance("unquote"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36197, 1)),(plt.types.Rational.makeInstance(807, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(29, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36197, 1)),(plt.types.Rational.makeInstance(807, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(29, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  plt.Kernel.list([(plt.types.Symbol.makeInstance("list")),handle_dash_quoted(s,depth)]) :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](s,(plt.types.Symbol.makeInstance("unquote-splicing"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36565, 1)),(plt.types.Rational.makeInstance(811, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(38, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36565, 1)),(plt.types.Rational.makeInstance(811, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(38, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._greaterthan_(depth,_SHARED[6], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36711, 1)),(plt.types.Rational.makeInstance(813, 1)),(plt.types.Rational.makeInstance(52, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36711, 1)),(plt.types.Rational.makeInstance(813, 1)),(plt.types.Rational.makeInstance(52, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](s,(plt.types.Symbol.makeInstance("unquote-splicing"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36412, 1)),(plt.types.Rational.makeInstance(810, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(38, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36412, 1)),(plt.types.Rational.makeInstance(810, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(38, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._greaterthan_(depth,_SHARED[6], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36558, 1)),(plt.types.Rational.makeInstance(812, 1)),(plt.types.Rational.makeInstance(52, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36558, 1)),(plt.types.Rational.makeInstance(812, 1)),(plt.types.Rational.makeInstance(52, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  plt.Kernel.list([(plt.types.Symbol.makeInstance("list")),handle_dash_quoted(s,depth)]) :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._equal_(depth,_SHARED[6], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36865, 1)),(plt.types.Rational.makeInstance(815, 1)),(plt.types.Rational.makeInstance(52, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36865, 1)),(plt.types.Rational.makeInstance(815, 1)),(plt.types.Rational.makeInstance(52, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
- (function(){check_dash_single_dash_body_dash_stx_bang_(plt.Kernel.rest(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](s)),s);
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._equal_(depth,_SHARED[6], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36712, 1)),(plt.types.Rational.makeInstance(814, 1)),(plt.types.Rational.makeInstance(52, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36712, 1)),(plt.types.Rational.makeInstance(814, 1)),(plt.types.Rational.makeInstance(52, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ (function(){check_dash_single_dash_argument_dash_form_bang_(s,(plt.types.liftToplevelToFunctionValue(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_unquote_dash_splicing_dash_too_dash_few_dash_elements"],(plt.types.String.makeInstance("make-moby-error-type:unquote-splicing-too-few-elements")),0,(plt.types.Rational.makeInstance(0, 1)))),(plt.types.liftToplevelToFunctionValue(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_unquote_dash_splicing_dash_too_dash_many_dash_elements"],(plt.types.String.makeInstance("make-moby-error-type:unquote-splicing-too-many-elements")),0,(plt.types.Rational.makeInstance(0, 1)))));
 return plt.Kernel.second(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](s));})() :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(37161, 1)),(plt.types.Rational.makeInstance(819, 1)),(plt.types.Rational.makeInstance(52, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(37161, 1)),(plt.types.Rational.makeInstance(819, 1)),(plt.types.Rational.makeInstance(52, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
- plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx),plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_generic_dash_syntactic_dash_error"](_SHARED[273],plt.Kernel.list([]))) :
- plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36653, 1)),(plt.types.Rational.makeInstance(812, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(937, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))])))))) :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(37690, 1)),(plt.types.Rational.makeInstance(826, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(37690, 1)),(plt.types.Rational.makeInstance(826, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(37273, 1)),(plt.types.Rational.makeInstance(821, 1)),(plt.types.Rational.makeInstance(52, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(37273, 1)),(plt.types.Rational.makeInstance(821, 1)),(plt.types.Rational.makeInstance(52, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx),plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_generic_dash_syntactic_dash_error"](_SHARED[276],plt.Kernel.list([]))) :
+ plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36500, 1)),(plt.types.Rational.makeInstance(811, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(1202, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))])))))) :
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(37802, 1)),(plt.types.Rational.makeInstance(828, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(37802, 1)),(plt.types.Rational.makeInstance(828, 1)),(plt.types.Rational.makeInstance(49, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  plt.Kernel.list([(plt.types.Symbol.makeInstance("list")),handle_dash_quoted(s,depth)]) :
- plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(36077, 1)),(plt.types.Rational.makeInstance(804, 1)),(plt.types.Rational.makeInstance(46, 1)),(plt.types.Rational.makeInstance(1705, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))))))); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_stx)])),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx)) :
- plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(31823, 1)),(plt.types.Rational.makeInstance(737, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(6073, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))))))) :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(37913, 1)),(plt.types.Rational.makeInstance(830, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(37913, 1)),(plt.types.Rational.makeInstance(830, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._greaterthan_(depth,_SHARED[7], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(37957, 1)),(plt.types.Rational.makeInstance(832, 1)),(plt.types.Rational.makeInstance(18, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(37957, 1)),(plt.types.Rational.makeInstance(832, 1)),(plt.types.Rational.makeInstance(18, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35924, 1)),(plt.types.Rational.makeInstance(803, 1)),(plt.types.Rational.makeInstance(46, 1)),(plt.types.Rational.makeInstance(1970, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))))))); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_stx)])),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx)) :
+ plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(31823, 1)),(plt.types.Rational.makeInstance(737, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(6185, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))))))) :
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38025, 1)),(plt.types.Rational.makeInstance(832, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38025, 1)),(plt.types.Rational.makeInstance(832, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._greaterthan_(depth,_SHARED[7], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38069, 1)),(plt.types.Rational.makeInstance(834, 1)),(plt.types.Rational.makeInstance(18, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38069, 1)),(plt.types.Rational.makeInstance(834, 1)),(plt.types.Rational.makeInstance(18, 1)),(plt.types.Rational.makeInstance(11, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  plt._MODULES["moby/runtime/stx"].EXPORTS["datum_dash__greaterthan_stx"](_SHARED[2],plt.Kernel.list([(plt.types.Symbol.makeInstance("quote")),a_dash_stx]),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_stx)) :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38058, 1)),(plt.types.Rational.makeInstance(834, 1)),(plt.types.Rational.makeInstance(18, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38058, 1)),(plt.types.Rational.makeInstance(834, 1)),(plt.types.Rational.makeInstance(18, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38170, 1)),(plt.types.Rational.makeInstance(836, 1)),(plt.types.Rational.makeInstance(18, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38170, 1)),(plt.types.Rational.makeInstance(836, 1)),(plt.types.Rational.makeInstance(18, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  a_dash_stx :
- plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(37933, 1)),(plt.types.Rational.makeInstance(831, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(155, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))))) :
- plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(31769, 1)),(plt.types.Rational.makeInstance(735, 1)),(plt.types.Rational.makeInstance(12, 1)),(plt.types.Rational.makeInstance(6321, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))))); };
+ plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38045, 1)),(plt.types.Rational.makeInstance(833, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(155, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))))) :
+ plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(31769, 1)),(plt.types.Rational.makeInstance(735, 1)),(plt.types.Rational.makeInstance(12, 1)),(plt.types.Rational.makeInstance(6433, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))))); };
 (function (toplevel_dash_expression_dash_show271) { 
  })(plt.Kernel.identity)
 return plt.Kernel.list([handle_dash_quoted(a_dash_stx,_SHARED[7]),pinfo]);
               })()); };
-var desugar_dash_quote = function(expr, pinfo) { return (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._lessthan_(plt.Kernel.length(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)),_SHARED[8], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38253, 1)),(plt.types.Rational.makeInstance(845, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+var desugar_dash_quote = function(expr, pinfo) { return (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._lessthan_(plt.Kernel.length(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)),_SHARED[8], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38365, 1)),(plt.types.Rational.makeInstance(847, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  plt.Kernel.raise(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](expr),plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_quote_dash_too_dash_few_dash_elements"]())) :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._greaterthan_(plt.Kernel.length(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)),_SHARED[8], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38408, 1)),(plt.types.Rational.makeInstance(848, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._greaterthan_(plt.Kernel.length(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)),_SHARED[8], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38520, 1)),(plt.types.Rational.makeInstance(850, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  plt.Kernel.raise(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](expr),plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_quote_dash_too_dash_many_dash_elements"]())) :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38564, 1)),(plt.types.Rational.makeInstance(851, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38676, 1)),(plt.types.Rational.makeInstance(853, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  plt.Kernel.list([expr,pinfo]) :
- plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38242, 1)),(plt.types.Rational.makeInstance(844, 1)),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Rational.makeInstance(351, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))])))))); };
+ plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38354, 1)),(plt.types.Rational.makeInstance(846, 1)),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Rational.makeInstance(351, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))])))))); };
 var provide_slash_contract_dash_statement_question_ = function(a_dash_stx) { return plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](a_dash_stx,(plt.types.Symbol.makeInstance("provide/contract"))); };
-var desugar_dash_provide_slash_contract = function(a_dash_provide_dash_contract, a_dash_pinfo) { return (plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](a_dash_provide_dash_contract,(plt.types.Symbol.makeInstance("provide/contract"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38990, 1)),(plt.types.Rational.makeInstance(865, 1)),(plt.types.Rational.makeInstance(9, 1)),(plt.types.Rational.makeInstance(55, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+var desugar_dash_provide_slash_contract = function(a_dash_provide_dash_contract, a_dash_pinfo) { return (plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](a_dash_provide_dash_contract,(plt.types.Symbol.makeInstance("provide/contract"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(39102, 1)),(plt.types.Rational.makeInstance(867, 1)),(plt.types.Rational.makeInstance(9, 1)),(plt.types.Rational.makeInstance(55, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  plt.Kernel.list([plt.Kernel.list([plt._MODULES["moby/runtime/stx"].EXPORTS["datum_dash__greaterthan_stx"](_SHARED[2],plt.Kernel.append([plt.Kernel.list([(plt.types.Symbol.makeInstance("provide"))]),plt.Kernel.map((plt.types.liftToplevelToFunctionValue(convert_dash_provide_slash_contract_dash_clause,(plt.types.String.makeInstance("convert-provide/contract-clause")),1,(plt.types.Rational.makeInstance(1, 1)))), [plt.Kernel.rest(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_provide_dash_contract))])]),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_provide_dash_contract))]),a_dash_pinfo]) :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(39351, 1)),(plt.types.Rational.makeInstance(871, 1)),(plt.types.Rational.makeInstance(9, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(39463, 1)),(plt.types.Rational.makeInstance(873, 1)),(plt.types.Rational.makeInstance(9, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  plt.Kernel.list([plt.Kernel.list([a_dash_provide_dash_contract]),a_dash_pinfo]) :
- plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38983, 1)),(plt.types.Rational.makeInstance(865, 1)),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Rational.makeInstance(440, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))))); };
-var convert_dash_provide_slash_contract_dash_clause = function(a_dash_clause) { return (plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](a_dash_clause,(plt.types.Symbol.makeInstance("struct"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(39538, 1)),(plt.types.Rational.makeInstance(879, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(35, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(39095, 1)),(plt.types.Rational.makeInstance(867, 1)),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Rational.makeInstance(440, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))))); };
+var convert_dash_provide_slash_contract_dash_clause = function(a_dash_clause) { return (plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](a_dash_clause,(plt.types.Symbol.makeInstance("struct"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(39650, 1)),(plt.types.Rational.makeInstance(881, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(35, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  plt._MODULES["moby/runtime/stx"].EXPORTS["datum_dash__greaterthan_stx"](_SHARED[2],plt.Kernel.append([plt.Kernel.list([(plt.types.Symbol.makeInstance("struct-out"))]),plt.Kernel.list([plt.Kernel.first(plt.Kernel.rest(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_clause)))])]),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_clause)) :
- (plt.kernel.misc.verifyBooleanBranchValue(list_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_clause)),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(39769, 1)),(plt.types.Rational.makeInstance(884, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(24, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(list_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_clause)),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(39881, 1)),(plt.types.Rational.makeInstance(886, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(24, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  plt.Kernel.first(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_clause)) :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.symbol_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_clause)),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(39874, 1)),(plt.types.Rational.makeInstance(887, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(26, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.symbol_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_clause)),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(39986, 1)),(plt.types.Rational.makeInstance(889, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(26, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
  a_dash_clause :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(39921, 1)),(plt.types.Rational.makeInstance(889, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
- plt.Kernel.raise(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_clause),plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_generic_dash_syntactic_dash_error"](plt.Kernel.format(_SHARED[276], [a_dash_clause]),plt.Kernel.list([])))) :
- plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(39527, 1)),(plt.types.Rational.makeInstance(878, 1)),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Rational.makeInstance(635, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))))))); };
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(40033, 1)),(plt.types.Rational.makeInstance(891, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))) ?
+ plt.Kernel.raise(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](a_dash_clause),plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_generic_dash_syntactic_dash_error"](plt.Kernel.format(_SHARED[279], [a_dash_clause]),plt.Kernel.list([])))) :
+ plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(39639, 1)),(plt.types.Rational.makeInstance(880, 1)),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Rational.makeInstance(635, 1)),(plt.types.String.makeInstance("compiler/desugar.ss"))]))))))); };
 var MAJOR; 
 var MINOR; 
 var VERSION; 
@@ -1884,52 +1890,52 @@ var set_dash_compiled_dash_program_dash_pinfo_bang_ = function(obj,newVal) {
 var compiled_dash_program_question_ = function(obj) { 
               return obj != null && obj != undefined && obj instanceof compiled_dash_program; };
 
-var compiled_dash_program_dash_main = function(a_dash_compiled_dash_program) { return plt.Kernel.string_dash_append([_SHARED[281],compiled_dash_program_dash_defns(a_dash_compiled_dash_program),_SHARED[282],_SHARED[283],_SHARED[284],compiled_dash_program_dash_toplevel_dash_exprs(a_dash_compiled_dash_program),_SHARED[285],_SHARED[286]]); };
+var compiled_dash_program_dash_main = function(a_dash_compiled_dash_program) { return plt.Kernel.string_dash_append([_SHARED[284],compiled_dash_program_dash_defns(a_dash_compiled_dash_program),_SHARED[285],_SHARED[286],_SHARED[287],compiled_dash_program_dash_toplevel_dash_exprs(a_dash_compiled_dash_program),_SHARED[288],_SHARED[289]]); };
 var compiled_dash_program_dash_main_slash_expose = function(a_dash_compiled_dash_program) { return ((function() { 
 
 var defined_dash_names; 
-(function (toplevel_dash_expression_dash_show287) { 
+(function (toplevel_dash_expression_dash_show290) { 
 defined_dash_names = expose_dash_provided_dash_names(a_dash_compiled_dash_program); })(plt.Kernel.identity)
 return (function(){;
-return plt.Kernel.string_dash_append([_SHARED[288],compiled_dash_program_dash_defns(a_dash_compiled_dash_program),_SHARED[282],_SHARED[289],_SHARED[284],compiled_dash_program_dash_toplevel_dash_exprs(a_dash_compiled_dash_program),_SHARED[285],plt.Kernel.apply((plt.types.liftToplevelToFunctionValue(plt.Kernel.string_dash_append,(plt.types.String.makeInstance("string-append")),0,plt.Kernel.list([plt.types.Symbol.makeInstance('at-least'), (plt.types.Rational.makeInstance(0, 1))]))),plt.Kernel.map(((function() {
-   var _result_ = (function(args290) {
-var a_dash_name = args290[0];  return ((function() { 
+return plt.Kernel.string_dash_append([_SHARED[291],compiled_dash_program_dash_defns(a_dash_compiled_dash_program),_SHARED[285],_SHARED[292],_SHARED[287],compiled_dash_program_dash_toplevel_dash_exprs(a_dash_compiled_dash_program),_SHARED[288],plt.Kernel.apply((plt.types.liftToplevelToFunctionValue(plt.Kernel.string_dash_append,(plt.types.String.makeInstance("string-append")),0,plt.Kernel.list([plt.types.Symbol.makeInstance('at-least'), (plt.types.Rational.makeInstance(0, 1))]))),plt.Kernel.map(((function() {
+   var _result_ = (function(args293) {
+var a_dash_name = args293[0];  return ((function() { 
 
 var munged_dash_name; 
-(function (toplevel_dash_expression_dash_show291) { 
+(function (toplevel_dash_expression_dash_show294) { 
 munged_dash_name = identifier_dash__greaterthan_munged_dash_java_dash_identifier(a_dash_name); })(plt.Kernel.identity)
-return plt.Kernel.format(_SHARED[292], [plt.Kernel.symbol_dash__greaterthan_string(munged_dash_name),munged_dash_name]);
-              })()); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [defined_dash_names]), []),_SHARED[293],_SHARED[294]]);})();
+return plt.Kernel.format(_SHARED[295], [plt.Kernel.symbol_dash__greaterthan_string(munged_dash_name),munged_dash_name]);
+              })()); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [defined_dash_names]), []),_SHARED[296],_SHARED[297]]);})();
               })()); };
 var compiled_dash_program_dash_main_slash_expose_dash_as_dash_module = function(a_dash_compiled_dash_program, module_dash_name) { return ((function() { 
 
 var module_dash_name_dash_string; 
 var defined_dash_names; 
-(function (toplevel_dash_expression_dash_show295) { 
+(function (toplevel_dash_expression_dash_show298) { 
 module_dash_name_dash_string = plt.Kernel.symbol_dash__greaterthan_string(module_dash_name);
 defined_dash_names = expose_dash_provided_dash_names(a_dash_compiled_dash_program); })(plt.Kernel.identity)
-return plt.Kernel.string_dash_append([_SHARED[296],_SHARED[297],_SHARED[298],plt.Kernel.format(_SHARED[299], [module_dash_name_dash_string]),_SHARED[300],_SHARED[301],plt.Kernel.format(_SHARED[299], [module_dash_name_dash_string]),_SHARED[302],_SHARED[303],plt.Kernel.format(_SHARED[299], [VERSION]),_SHARED[304],_SHARED[305],_SHARED[306],_SHARED[14],compiled_dash_program_dash_defns(a_dash_compiled_dash_program),_SHARED[282],plt.Kernel.format(_SHARED[307], [module_dash_name_dash_string]),_SHARED[308],compiled_dash_program_dash_toplevel_dash_exprs(a_dash_compiled_dash_program),_SHARED[309],_SHARED[14],plt.Kernel.apply((plt.types.liftToplevelToFunctionValue(plt.Kernel.string_dash_append,(plt.types.String.makeInstance("string-append")),0,plt.Kernel.list([plt.types.Symbol.makeInstance('at-least'), (plt.types.Rational.makeInstance(0, 1))]))),plt.Kernel.map(((function() {
-   var _result_ = (function(args310) {
-var a_dash_name = args310[0];  return ((function() { 
+return plt.Kernel.string_dash_append([_SHARED[299],_SHARED[300],_SHARED[301],plt.Kernel.format(_SHARED[302], [module_dash_name_dash_string]),_SHARED[303],_SHARED[304],plt.Kernel.format(_SHARED[302], [module_dash_name_dash_string]),_SHARED[305],_SHARED[306],plt.Kernel.format(_SHARED[302], [VERSION]),_SHARED[307],_SHARED[308],_SHARED[309],_SHARED[14],compiled_dash_program_dash_defns(a_dash_compiled_dash_program),_SHARED[285],plt.Kernel.format(_SHARED[310], [module_dash_name_dash_string]),_SHARED[311],compiled_dash_program_dash_toplevel_dash_exprs(a_dash_compiled_dash_program),_SHARED[312],_SHARED[14],plt.Kernel.apply((plt.types.liftToplevelToFunctionValue(plt.Kernel.string_dash_append,(plt.types.String.makeInstance("string-append")),0,plt.Kernel.list([plt.types.Symbol.makeInstance('at-least'), (plt.types.Rational.makeInstance(0, 1))]))),plt.Kernel.map(((function() {
+   var _result_ = (function(args313) {
+var a_dash_name = args313[0];  return ((function() { 
 
 var munged_dash_name; 
-(function (toplevel_dash_expression_dash_show311) { 
+(function (toplevel_dash_expression_dash_show314) { 
 munged_dash_name = identifier_dash__greaterthan_munged_dash_java_dash_identifier(a_dash_name); })(plt.Kernel.identity)
-return plt.Kernel.format(_SHARED[312], [module_dash_name_dash_string,plt.Kernel.symbol_dash__greaterthan_string(munged_dash_name),munged_dash_name]);
-              })()); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [defined_dash_names]), []),_SHARED[313],_SHARED[314],_SHARED[315]]);
+return plt.Kernel.format(_SHARED[315], [module_dash_name_dash_string,plt.Kernel.symbol_dash__greaterthan_string(munged_dash_name),munged_dash_name]);
+              })()); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [defined_dash_names]), []),_SHARED[316],_SHARED[317],_SHARED[318]]);
               })()); };
 var expose_dash_provided_dash_names = function(a_dash_compiled_dash_program) { return rbtree_dash_fold(pinfo_dash_provided_dash_names(compiled_dash_program_dash_pinfo(a_dash_compiled_dash_program)),((function() {
-   var _result_ = (function(args316) {
-var name = args316[0];
-var binding = args316[1];
-var acc = args316[2];  return plt.Kernel.append([expose_dash_provided_dash_names_slash_provide_dash_binding(binding,a_dash_compiled_dash_program),acc]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(3, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),plt.types.Empty.EMPTY); };
+   var _result_ = (function(args319) {
+var name = args319[0];
+var binding = args319[1];
+var acc = args319[2];  return plt.Kernel.append([expose_dash_provided_dash_names_slash_provide_dash_binding(binding,a_dash_compiled_dash_program),acc]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(3, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),plt.types.Empty.EMPTY); };
 var expose_dash_provided_dash_names_slash_provide_dash_binding = function(a_dash_provide_dash_binding, a_dash_compiled_dash_program) { return (plt.kernel.misc.verifyBooleanBranchValue(provide_dash_binding_colon_id_question_(a_dash_provide_dash_binding),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(5927, 1)),(plt.types.Rational.makeInstance(129, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(39, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  plt.Kernel.list([plt._MODULES["moby/runtime/binding"].EXPORTS["binding_dash_id"](lookup_dash_provide_dash_binding_dash_in_dash_definition_dash_bindings(a_dash_provide_dash_binding,a_dash_compiled_dash_program))]) :
  (plt.kernel.misc.verifyBooleanBranchValue(provide_dash_binding_colon_struct_dash_id_question_(a_dash_provide_dash_binding),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(6155, 1)),(plt.types.Rational.makeInstance(133, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(46, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  ((function() { 
 
 var a_dash_binding; 
-(function (toplevel_dash_expression_dash_show317) { 
+(function (toplevel_dash_expression_dash_show320) { 
 a_dash_binding = lookup_dash_provide_dash_binding_dash_in_dash_definition_dash_bindings(a_dash_provide_dash_binding,a_dash_compiled_dash_program); })(plt.Kernel.identity)
 return (plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_structure_question_"](a_dash_binding),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(6422, 1)),(plt.types.Rational.makeInstance(137, 1)),(plt.types.Rational.makeInstance(10, 1)),(plt.types.Rational.makeInstance(30, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  plt.Kernel.append([plt.Kernel.list([plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_structure_dash_name"](a_dash_binding)]),plt.Kernel.list([plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_structure_dash_constructor"](a_dash_binding)]),plt.Kernel.list([plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_structure_dash_predicate"](a_dash_binding)]),plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_structure_dash_accessors"](a_dash_binding),plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_structure_dash_mutators"](a_dash_binding)]) :
@@ -1941,7 +1947,7 @@ return (plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/bind
 var lookup_dash_provide_dash_binding_dash_in_dash_definition_dash_bindings = function(a_dash_provide_dash_binding, a_dash_compiled_dash_program) { return ((function() { 
 
 var list_dash_or_dash_false; 
-(function (toplevel_dash_expression_dash_show318) { 
+(function (toplevel_dash_expression_dash_show321) { 
 list_dash_or_dash_false = rbtree_dash_lookup((plt.types.liftToplevelToFunctionValue(symbol_lessthan_,(plt.types.String.makeInstance("symbol<")),2,(plt.types.Rational.makeInstance(2, 1)))),pinfo_dash_defined_dash_names(compiled_dash_program_dash_pinfo(a_dash_compiled_dash_program)),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](provide_dash_binding_dash_stx(a_dash_provide_dash_binding))); })(plt.Kernel.identity)
 return (plt.kernel.misc.verifyBooleanBranchValue(list_question_(list_dash_or_dash_false),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(7468, 1)),(plt.types.Rational.makeInstance(156, 1)),(plt.types.Rational.makeInstance(7, 1)),(plt.types.Rational.makeInstance(21, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  plt.Kernel.second(list_dash_or_dash_false) :
@@ -1959,40 +1965,40 @@ var desugared_dash_program_plus_pinfo;
 var a_dash_pinfo; 
 var toplevel_dash_env; 
 var collect_dash_shared_dash_expression_dash_translation_dash_definitions = function(a_dash_pinfo) { return rbtree_dash_fold(pinfo_dash_shared_dash_expressions(a_dash_pinfo),((function() {
-   var _result_ = (function(args320) {
-var an_dash_expression = args320[0];
-var a_dash_labeled_dash_translation = args320[1];
-var acc = args320[2];  return plt.Kernel.string_dash_append([plt.Kernel.format(_SHARED[321], [labeled_dash_translation_dash_label(a_dash_labeled_dash_translation),labeled_dash_translation_dash_translation(a_dash_labeled_dash_translation)]),acc]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(3, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),_SHARED[14]); };
+   var _result_ = (function(args323) {
+var an_dash_expression = args323[0];
+var a_dash_labeled_dash_translation = args323[1];
+var acc = args323[2];  return plt.Kernel.string_dash_append([plt.Kernel.format(_SHARED[324], [labeled_dash_translation_dash_label(a_dash_labeled_dash_translation),labeled_dash_translation_dash_translation(a_dash_labeled_dash_translation)]),acc]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(3, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),_SHARED[14]); };
 var loop = function(program, defns, tops, a_dash_pinfo) { return (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.empty_question_(program),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(10135, 1)),(plt.types.Rational.makeInstance(213, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.Rational.makeInstance(16, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(10135, 1)),(plt.types.Rational.makeInstance(213, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.Rational.makeInstance(16, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  make_dash_compiled_dash_program((plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(at_dash_toplevel_question_,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(10242, 1)),(plt.types.Rational.makeInstance(216, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(12, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(10242, 1)),(plt.types.Rational.makeInstance(216, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(12, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- plt.Kernel.string_dash_append([_SHARED[322],defns,collect_dash_shared_dash_expression_dash_translation_dash_definitions(a_dash_pinfo)]) :
+ plt.Kernel.string_dash_append([_SHARED[325],defns,collect_dash_shared_dash_expression_dash_translation_dash_definitions(a_dash_pinfo)]) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(10496, 1)),(plt.types.Rational.makeInstance(220, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(10496, 1)),(plt.types.Rational.makeInstance(220, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  defns :
- plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(10235, 1)),(plt.types.Rational.makeInstance(216, 1)),(plt.types.Rational.makeInstance(20, 1)),(plt.types.Rational.makeInstance(300, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))),plt.Kernel.string_dash_append([_SHARED[323],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(toplevel_dash_expression_dash_show)),_SHARED[324],tops,_SHARED[325]]),a_dash_pinfo) :
+ plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(10235, 1)),(plt.types.Rational.makeInstance(216, 1)),(plt.types.Rational.makeInstance(20, 1)),(plt.types.Rational.makeInstance(300, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))),plt.Kernel.string_dash_append([_SHARED[326],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(toplevel_dash_expression_dash_show)),_SHARED[327],tops,_SHARED[328]]),a_dash_pinfo) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(10877, 1)),(plt.types.Rational.makeInstance(228, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(10877, 1)),(plt.types.Rational.makeInstance(228, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(defn_question_(plt.Kernel.first(program)),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(10908, 1)),(plt.types.Rational.makeInstance(229, 1)),(plt.types.Rational.makeInstance(26, 1)),(plt.types.Rational.makeInstance(23, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(10908, 1)),(plt.types.Rational.makeInstance(229, 1)),(plt.types.Rational.makeInstance(26, 1)),(plt.types.Rational.makeInstance(23, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  ((function() { 
 
 var defn_dash_string_plus_expr_dash_string_plus_pinfo; 
-(function (toplevel_dash_expression_dash_show326) { 
+(function (toplevel_dash_expression_dash_show329) { 
 defn_dash_string_plus_expr_dash_string_plus_pinfo = definition_dash__greaterthan_javascript_dash_strings(plt.Kernel.first(program),toplevel_dash_env,a_dash_pinfo); })(plt.Kernel.identity)
-return loop(plt.Kernel.rest(program),plt.Kernel.string_dash_append([defns,_SHARED[282],plt.Kernel.first(defn_dash_string_plus_expr_dash_string_plus_pinfo)]),plt.Kernel.string_dash_append([tops,_SHARED[282],plt.Kernel.second(defn_dash_string_plus_expr_dash_string_plus_pinfo)]),plt.Kernel.third(defn_dash_string_plus_expr_dash_string_plus_pinfo));
+return loop(plt.Kernel.rest(program),plt.Kernel.string_dash_append([defns,_SHARED[285],plt.Kernel.first(defn_dash_string_plus_expr_dash_string_plus_pinfo)]),plt.Kernel.string_dash_append([tops,_SHARED[285],plt.Kernel.second(defn_dash_string_plus_expr_dash_string_plus_pinfo)]),plt.Kernel.third(defn_dash_string_plus_expr_dash_string_plus_pinfo));
               })()) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(library_dash_require_question_(plt.Kernel.first(program)),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(11853, 1)),(plt.types.Rational.makeInstance(246, 1)),(plt.types.Rational.makeInstance(26, 1)),(plt.types.Rational.makeInstance(34, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(11853, 1)),(plt.types.Rational.makeInstance(246, 1)),(plt.types.Rational.makeInstance(26, 1)),(plt.types.Rational.makeInstance(34, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- loop(plt.Kernel.rest(program),defns,plt.Kernel.string_dash_append([tops,_SHARED[282],module_dash_require_dash__greaterthan_javascript_dash_string(plt.Kernel.first(program),a_dash_pinfo),_SHARED[327]]),a_dash_pinfo) :
+ loop(plt.Kernel.rest(program),defns,plt.Kernel.string_dash_append([tops,_SHARED[285],module_dash_require_dash__greaterthan_javascript_dash_string(plt.Kernel.first(program),a_dash_pinfo),_SHARED[330]]),a_dash_pinfo) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(provide_dash_statement_question_(plt.Kernel.first(program)),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(12365, 1)),(plt.types.Rational.makeInstance(257, 1)),(plt.types.Rational.makeInstance(26, 1)),(plt.types.Rational.makeInstance(36, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(12365, 1)),(plt.types.Rational.makeInstance(257, 1)),(plt.types.Rational.makeInstance(26, 1)),(plt.types.Rational.makeInstance(36, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  loop(plt.Kernel.rest(program),defns,tops,a_dash_pinfo) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue((test_dash_case_question_(plt.Kernel.first(program))||expression_question_(plt.Kernel.first(program))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(12618, 1)),(plt.types.Rational.makeInstance(263, 1)),(plt.types.Rational.makeInstance(26, 1)),(plt.types.Rational.makeInstance(93, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(12618, 1)),(plt.types.Rational.makeInstance(263, 1)),(plt.types.Rational.makeInstance(26, 1)),(plt.types.Rational.makeInstance(93, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  ((function() { 
 
 var expression_dash_string_plus_pinfo; 
-(function (toplevel_dash_expression_dash_show328) { 
+(function (toplevel_dash_expression_dash_show331) { 
 expression_dash_string_plus_pinfo = expression_dash__greaterthan_javascript_dash_string(plt.Kernel.first(program),toplevel_dash_env,a_dash_pinfo); })(plt.Kernel.identity)
-return loop(plt.Kernel.rest(program),defns,plt.Kernel.string_dash_append([tops,_SHARED[282],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(toplevel_dash_expression_dash_show)),_SHARED[329],plt.Kernel.first(expression_dash_string_plus_pinfo),_SHARED[330]]),plt.Kernel.second(expression_dash_string_plus_pinfo));
+return loop(plt.Kernel.rest(program),defns,plt.Kernel.string_dash_append([tops,_SHARED[285],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(toplevel_dash_expression_dash_show)),_SHARED[332],plt.Kernel.first(expression_dash_string_plus_pinfo),_SHARED[333]]),plt.Kernel.second(expression_dash_string_plus_pinfo));
               })()) :
  plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(10901, 1)),(plt.types.Rational.makeInstance(229, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.Rational.makeInstance(3266, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))))) :
  plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(10128, 1)),(plt.types.Rational.makeInstance(213, 1)),(plt.types.Rational.makeInstance(12, 1)),(plt.types.Rational.makeInstance(4041, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))); };
-(function (toplevel_dash_expression_dash_show319) { 
+(function (toplevel_dash_expression_dash_show322) { 
 pinfo_dash_1_plus_gensym = pinfo_dash_gensym(input_dash_pinfo,(plt.types.Symbol.makeInstance("toplevel-expression-show")));
 toplevel_dash_expression_dash_show = plt.Kernel.second(pinfo_dash_1_plus_gensym);
 desugared_dash_program_plus_pinfo = desugar_dash_program(program,plt.Kernel.first(pinfo_dash_1_plus_gensym));
@@ -2003,19 +2009,19 @@ toplevel_dash_env = pinfo_dash_env(a_dash_pinfo);
 return loop(plt.Kernel.first(desugared_dash_program_plus_pinfo),_SHARED[14],_SHARED[14],a_dash_pinfo);
               })()); };
 var module_dash_require_dash__greaterthan_javascript_dash_string = function(a_dash_module_dash_require, a_dash_pinfo) { return string_dash_join(plt.Kernel.map(((function() {
-   var _result_ = (function(args331) {
-var a_dash_path = args331[0];  return plt.Kernel.format(_SHARED[332], [plt.Kernel.apply(pinfo_dash_module_dash_path_dash_resolver(a_dash_pinfo),                    plt.Kernel.list([plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_path), pinfo_dash_current_dash_module_dash_path(a_dash_pinfo)]),                    [])]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [plt.Kernel.rest(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_module_dash_require))]),_SHARED[282]); };
-var definition_dash__greaterthan_javascript_dash_strings = function(defn, env, a_dash_pinfo) { return case_dash_analyze_dash_definition(defn,((function() {
-   var _result_ = (function(args333) {
-var fun = args333[0];
-var args = args333[1];
-var body = args333[2];  return function_dash_definition_dash__greaterthan_java_dash_string(fun,args,body,env,a_dash_pinfo); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(3, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),((function() {
    var _result_ = (function(args334) {
-var id = args334[0];
-var body = args334[1];  return variable_dash_definition_dash__greaterthan_javascript_dash_strings(id,body,env,a_dash_pinfo); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),((function() {
-   var _result_ = (function(args335) {
-var id = args335[0];
-var fields = args335[1];  return struct_dash_definition_dash__greaterthan_javascript_dash_string(id,fields,env,a_dash_pinfo); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })())); };
+var a_dash_path = args334[0];  return plt.Kernel.format(_SHARED[335], [plt.Kernel.apply(pinfo_dash_module_dash_path_dash_resolver(a_dash_pinfo),                    plt.Kernel.list([plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_path), pinfo_dash_current_dash_module_dash_path(a_dash_pinfo)]),                    [])]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [plt.Kernel.rest(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_module_dash_require))]),_SHARED[285]); };
+var definition_dash__greaterthan_javascript_dash_strings = function(defn, env, a_dash_pinfo) { return case_dash_analyze_dash_definition(defn,((function() {
+   var _result_ = (function(args336) {
+var fun = args336[0];
+var args = args336[1];
+var body = args336[2];  return function_dash_definition_dash__greaterthan_java_dash_string(fun,args,body,env,a_dash_pinfo); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(3, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),((function() {
+   var _result_ = (function(args337) {
+var id = args337[0];
+var body = args337[1];  return variable_dash_definition_dash__greaterthan_javascript_dash_strings(id,body,env,a_dash_pinfo); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),((function() {
+   var _result_ = (function(args338) {
+var id = args338[0];
+var fields = args338[1];  return struct_dash_definition_dash__greaterthan_javascript_dash_string(id,fields,env,a_dash_pinfo); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })())); };
 var function_dash_definition_dash__greaterthan_java_dash_string = function(fun, args, body, env, a_dash_pinfo) { return ((function() { 
 
 var munged_dash_fun_dash_id; 
@@ -2025,34 +2031,34 @@ var env_dash_with_dash_arg_dash_bindings;
 var body_dash_string_plus_pinfo; 
 var body_dash_string; 
 var updated_dash_pinfo; 
-(function (toplevel_dash_expression_dash_show336) { 
+(function (toplevel_dash_expression_dash_show339) { 
 munged_dash_fun_dash_id = identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](fun));
 munged_dash_arg_dash_ids = plt.Kernel.map(((function() {
-   var _result_ = (function(args337) {
-var id = args337[0];  return identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id)); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [args]);
+   var _result_ = (function(args340) {
+var id = args340[0];  return identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id)); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [args]);
 new_dash_env = env_dash_extend_dash_function(env,plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](fun),plt.types.Logic.FALSE,plt.Kernel.length(args),plt.types.Logic.FALSE,plt.Kernel.symbol_dash__greaterthan_string(munged_dash_fun_dash_id));
 env_dash_with_dash_arg_dash_bindings = plt.Kernel.foldl(((function() {
-   var _result_ = (function(args338) {
-var arg_dash_id = args338[0];
-var env = args338[1];  return env_dash_extend(env,plt._MODULES["moby/runtime/binding"].EXPORTS["make_dash_binding_colon_constant"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](arg_dash_id),plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](arg_dash_id))),plt.types.Empty.EMPTY)); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),new_dash_env, [args]);
+   var _result_ = (function(args341) {
+var arg_dash_id = args341[0];
+var env = args341[1];  return env_dash_extend(env,plt._MODULES["moby/runtime/binding"].EXPORTS["make_dash_binding_colon_constant"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](arg_dash_id),plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](arg_dash_id))),plt.types.Empty.EMPTY)); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),new_dash_env, [args]);
 body_dash_string_plus_pinfo = expression_dash__greaterthan_javascript_dash_string(body,env_dash_with_dash_arg_dash_bindings,a_dash_pinfo);
 body_dash_string = plt.Kernel.first(body_dash_string_plus_pinfo);
 updated_dash_pinfo = plt.Kernel.second(body_dash_string_plus_pinfo); })(plt.Kernel.identity)
 return (function(){check_dash_duplicate_dash_identifiers_bang_(plt.Kernel.cons(fun,args));
-return plt.Kernel.list([plt.Kernel.string_dash_append([_SHARED[339],plt.Kernel.symbol_dash__greaterthan_string(munged_dash_fun_dash_id),_SHARED[340],string_dash_join(plt.Kernel.map(((function() {
-   var _result_ = (function(args341) {
-var arg_dash_id = args341[0];  return plt.Kernel.symbol_dash__greaterthan_string(arg_dash_id); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [munged_dash_arg_dash_ids]),_SHARED[342]),_SHARED[343],body_dash_string,_SHARED[344]]),_SHARED[14],updated_dash_pinfo]);})();
+return plt.Kernel.list([plt.Kernel.string_dash_append([_SHARED[342],plt.Kernel.symbol_dash__greaterthan_string(munged_dash_fun_dash_id),_SHARED[343],string_dash_join(plt.Kernel.map(((function() {
+   var _result_ = (function(args344) {
+var arg_dash_id = args344[0];  return plt.Kernel.symbol_dash__greaterthan_string(arg_dash_id); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [munged_dash_arg_dash_ids]),_SHARED[345]),_SHARED[346],body_dash_string,_SHARED[347]]),_SHARED[14],updated_dash_pinfo]);})();
               })()); };
 var variable_dash_definition_dash__greaterthan_javascript_dash_strings = function(id, body, env, a_dash_pinfo) { return ((function() { 
 
 var munged_dash_id; 
 var new_dash_env; 
 var str_plus_p; 
-(function (toplevel_dash_expression_dash_show345) { 
+(function (toplevel_dash_expression_dash_show348) { 
 munged_dash_id = identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id));
 new_dash_env = env_dash_extend(env,plt._MODULES["moby/runtime/binding"].EXPORTS["make_dash_binding_colon_constant"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id),plt.Kernel.symbol_dash__greaterthan_string(munged_dash_id),plt.types.Empty.EMPTY));
 str_plus_p = expression_dash__greaterthan_javascript_dash_string(body,new_dash_env,a_dash_pinfo); })(plt.Kernel.identity)
-return plt.Kernel.list([plt.Kernel.string_dash_append([_SHARED[339],plt.Kernel.symbol_dash__greaterthan_string(munged_dash_id),_SHARED[346]]),plt.Kernel.string_dash_append([plt.Kernel.symbol_dash__greaterthan_string(munged_dash_id),_SHARED[347],plt.Kernel.first(str_plus_p),_SHARED[348]]),plt.Kernel.second(str_plus_p)]);
+return plt.Kernel.list([plt.Kernel.string_dash_append([_SHARED[342],plt.Kernel.symbol_dash__greaterthan_string(munged_dash_id),_SHARED[349]]),plt.Kernel.string_dash_append([plt.Kernel.symbol_dash__greaterthan_string(munged_dash_id),_SHARED[350],plt.Kernel.first(str_plus_p),_SHARED[351]]),plt.Kernel.second(str_plus_p)]);
               })()); };
 var struct_dash_definition_dash__greaterthan_javascript_dash_string = function(id, fields, env, a_dash_pinfo) { return ((function() { 
 
@@ -2062,8 +2068,8 @@ var updated_dash_pinfo;
 var predicate_dash_name; 
 var make_dash_unmunged_dash_accessor_dash_name = function(a_dash_field) { return plt.Kernel.string_dash_append([plt.Kernel.symbol_dash__greaterthan_string(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id)),_SHARED[197],plt.Kernel.symbol_dash__greaterthan_string(a_dash_field)]); };
 var make_dash_accessor_dash_name = function(a_dash_field) { return plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt.Kernel.string_dash__greaterthan_symbol(make_dash_unmunged_dash_accessor_dash_name(a_dash_field)))); };
-var make_dash_mutator_dash_name = function(a_dash_field) { return plt.Kernel.string_dash_append([_SHARED[350],make_dash_accessor_dash_name(a_dash_field),_SHARED[351]]); };
-(function (toplevel_dash_expression_dash_show349) { 
+var make_dash_mutator_dash_name = function(a_dash_field) { return plt.Kernel.string_dash_append([_SHARED[353],make_dash_accessor_dash_name(a_dash_field),_SHARED[354]]); };
+(function (toplevel_dash_expression_dash_show352) { 
 
 pinfo_dash_1_plus_gensym = pinfo_dash_gensym(a_dash_pinfo,(plt.types.Symbol.makeInstance("fresh-struct-name")));
 updated_dash_pinfo = plt.Kernel.first(pinfo_dash_1_plus_gensym);
@@ -2072,28 +2078,28 @@ predicate_dash_name = plt.Kernel.symbol_dash__greaterthan_string(identifier_dash
 
  })(plt.Kernel.identity)
 return (function(){check_dash_duplicate_dash_identifiers_bang_(fields);
-return plt.Kernel.list([plt.Kernel.string_dash_append([plt.Kernel.string_dash_append([_SHARED[339],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id))),_SHARED[352],string_dash_join(plt.Kernel.map(((function() {
-   var _result_ = (function(args353) {
-var i = args353[0];  return plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](i))); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [fields]),_SHARED[304]),_SHARED[324],plt.Kernel.format(_SHARED[354], [plt.Kernel.string_dash_append([_SHARED[194],plt.Kernel.symbol_dash__greaterthan_string(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id))]),string_dash_join(plt.Kernel.map(((function() {
-   var _result_ = (function(args355) {
-var i = args355[0];  return plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](i))); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [fields]),_SHARED[304])]),string_dash_join(plt.Kernel.map(((function() {
+return plt.Kernel.list([plt.Kernel.string_dash_append([plt.Kernel.string_dash_append([_SHARED[342],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id))),_SHARED[355],string_dash_join(plt.Kernel.map(((function() {
    var _result_ = (function(args356) {
-var i = args356[0];  return plt.Kernel.string_dash_append([_SHARED[357],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](i))),_SHARED[347],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](i))),_SHARED[348]]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [fields]),_SHARED[282]),_SHARED[358],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id))),_SHARED[359]]),_SHARED[282],plt.Kernel.string_dash_append([_SHARED[339],((function() { 
+var i = args356[0];  return plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](i))); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [fields]),_SHARED[307]),_SHARED[327],plt.Kernel.format(_SHARED[357], [plt.Kernel.string_dash_append([_SHARED[194],plt.Kernel.symbol_dash__greaterthan_string(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id))]),string_dash_join(plt.Kernel.map(((function() {
+   var _result_ = (function(args358) {
+var i = args358[0];  return plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](i))); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [fields]),_SHARED[307])]),string_dash_join(plt.Kernel.map(((function() {
+   var _result_ = (function(args359) {
+var i = args359[0];  return plt.Kernel.string_dash_append([_SHARED[360],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](i))),_SHARED[350],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](i))),_SHARED[351]]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [fields]),_SHARED[285]),_SHARED[361],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id))),_SHARED[362]]),_SHARED[285],plt.Kernel.string_dash_append([_SHARED[342],((function() { 
 
 var make_dash_id; 
-(function (toplevel_dash_expression_dash_show360) { 
+(function (toplevel_dash_expression_dash_show363) { 
 make_dash_id = plt.Kernel.string_dash__greaterthan_symbol(plt.Kernel.string_dash_append([_SHARED[194],plt.Kernel.symbol_dash__greaterthan_string(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id))])); })(plt.Kernel.identity)
 return plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(make_dash_id));
-              })()),_SHARED[361],_SHARED[329],string_dash_join(plt.Kernel.build_dash_list(plt.Kernel.length(fields),((function() {
-   var _result_ = (function(args362) {
-var i = args362[0];  return plt.Kernel.string_dash_append([_SHARED[363],plt.Kernel.number_dash__greaterthan_string(i)]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })())),_SHARED[304]),_SHARED[364],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id))),_SHARED[329],string_dash_join(plt.Kernel.build_dash_list(plt.Kernel.length(fields),((function() {
+              })()),_SHARED[364],_SHARED[332],string_dash_join(plt.Kernel.build_dash_list(plt.Kernel.length(fields),((function() {
    var _result_ = (function(args365) {
-var i = args365[0];  return plt.Kernel.string_dash_append([_SHARED[363],plt.Kernel.number_dash__greaterthan_string(i)]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })())),_SHARED[304]),_SHARED[366]]),_SHARED[282],string_dash_join(plt.Kernel.map(((function() {
-   var _result_ = (function(args367) {
-var a_dash_field = args367[0];  return plt.Kernel.string_dash_append([_SHARED[339],make_dash_accessor_dash_name(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_field)),_SHARED[368],_SHARED[369],predicate_dash_name,_SHARED[370],_SHARED[371],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_field))),_SHARED[327],_SHARED[372],_SHARED[373],_SHARED[374],make_dash_unmunged_dash_accessor_dash_name(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_field)),_SHARED[375],plt.Kernel.symbol_dash__greaterthan_string(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id)),_SHARED[376],_SHARED[377],_SHARED[378]]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [fields]),_SHARED[282]),_SHARED[282],string_dash_join(mapi(((function() {
-   var _result_ = (function(args379) {
-var a_dash_field = args379[0];
-var an_dash_index = args379[1];  return plt.Kernel.string_dash_append([_SHARED[339],make_dash_mutator_dash_name(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_field)),_SHARED[380],_SHARED[381],predicate_dash_name,_SHARED[370],_SHARED[382],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_field))),_SHARED[383],_SHARED[384],plt.Kernel.number_dash__greaterthan_string(an_dash_index),_SHARED[385],_SHARED[372],_SHARED[373],_SHARED[374],make_dash_mutator_dash_name(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_field)),_SHARED[375],plt.Kernel.symbol_dash__greaterthan_string(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id)),_SHARED[376],_SHARED[377],_SHARED[378]]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),fields),_SHARED[282]),_SHARED[282],plt.Kernel.string_dash_append([_SHARED[339],predicate_dash_name,_SHARED[386],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id))),_SHARED[387]])]),_SHARED[14],updated_dash_pinfo]);})();
+var i = args365[0];  return plt.Kernel.string_dash_append([_SHARED[366],plt.Kernel.number_dash__greaterthan_string(i)]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })())),_SHARED[307]),_SHARED[367],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id))),_SHARED[332],string_dash_join(plt.Kernel.build_dash_list(plt.Kernel.length(fields),((function() {
+   var _result_ = (function(args368) {
+var i = args368[0];  return plt.Kernel.string_dash_append([_SHARED[366],plt.Kernel.number_dash__greaterthan_string(i)]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })())),_SHARED[307]),_SHARED[369]]),_SHARED[285],string_dash_join(plt.Kernel.map(((function() {
+   var _result_ = (function(args370) {
+var a_dash_field = args370[0];  return plt.Kernel.string_dash_append([_SHARED[342],make_dash_accessor_dash_name(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_field)),_SHARED[371],_SHARED[372],predicate_dash_name,_SHARED[373],_SHARED[374],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_field))),_SHARED[330],_SHARED[375],_SHARED[376],_SHARED[377],make_dash_unmunged_dash_accessor_dash_name(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_field)),_SHARED[378],plt.Kernel.symbol_dash__greaterthan_string(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id)),_SHARED[379],_SHARED[380],_SHARED[381]]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [fields]),_SHARED[285]),_SHARED[285],string_dash_join(mapi(((function() {
+   var _result_ = (function(args382) {
+var a_dash_field = args382[0];
+var an_dash_index = args382[1];  return plt.Kernel.string_dash_append([_SHARED[342],make_dash_mutator_dash_name(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_field)),_SHARED[383],_SHARED[384],predicate_dash_name,_SHARED[373],_SHARED[385],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_field))),_SHARED[386],_SHARED[387],plt.Kernel.number_dash__greaterthan_string(an_dash_index),_SHARED[388],_SHARED[375],_SHARED[376],_SHARED[377],make_dash_mutator_dash_name(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](a_dash_field)),_SHARED[378],plt.Kernel.symbol_dash__greaterthan_string(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id)),_SHARED[379],_SHARED[380],_SHARED[381]]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),fields),_SHARED[285]),_SHARED[285],plt.Kernel.string_dash_append([_SHARED[342],predicate_dash_name,_SHARED[389],plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id))),_SHARED[390]])]),_SHARED[14],updated_dash_pinfo]);})();
               })()); };
 var expression_dash__greaterthan_javascript_dash_string = function(expr, env, a_dash_pinfo) { return (plt.kernel.misc.verifyBooleanBranchValue(expression_dash_sharable_question_(expr,a_dash_pinfo),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(26358, 1)),(plt.types.Rational.makeInstance(531, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(35, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  sharable_dash_expression_dash__greaterthan_javascript_dash_string(expr,env,a_dash_pinfo) :
@@ -2101,13 +2107,13 @@ var expression_dash__greaterthan_javascript_dash_string = function(expr, env, a_
  unsharable_dash_expression_dash__greaterthan_javascript_dash_string(expr,env,a_dash_pinfo) :
  plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(26347, 1)),(plt.types.Rational.makeInstance(530, 1)),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Rational.makeInstance(187, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))); };
 var sharable_dash_expression_dash__greaterthan_javascript_dash_string = function(expr, env, a_dash_pinfo) { return (plt.kernel.misc.verifyBooleanBranchValue(rbtree_dash_member_question_((plt.types.liftToplevelToFunctionValue(expression_lessthan__question_,(plt.types.String.makeInstance("expression<?")),2,(plt.types.Rational.makeInstance(2, 1)))),pinfo_dash_shared_dash_expressions(a_dash_pinfo),expr),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(26721, 1)),(plt.types.Rational.makeInstance(541, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(111, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- plt.Kernel.list([plt.Kernel.format(_SHARED[388], [labeled_dash_translation_dash_label(plt.Kernel.second(rbtree_dash_lookup((plt.types.liftToplevelToFunctionValue(expression_lessthan__question_,(plt.types.String.makeInstance("expression<?")),2,(plt.types.Rational.makeInstance(2, 1)))),pinfo_dash_shared_dash_expressions(a_dash_pinfo),expr)))]),a_dash_pinfo]) :
+ plt.Kernel.list([plt.Kernel.format(_SHARED[391], [labeled_dash_translation_dash_label(plt.Kernel.second(rbtree_dash_lookup((plt.types.liftToplevelToFunctionValue(expression_lessthan__question_,(plt.types.String.makeInstance("expression<?")),2,(plt.types.Rational.makeInstance(2, 1)))),pinfo_dash_shared_dash_expressions(a_dash_pinfo),expr)))]),a_dash_pinfo]) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(27163, 1)),(plt.types.Rational.makeInstance(550, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  ((function() { 
 
 var translation_plus_pinfo; 
 var updated_dash_pinfo; 
-(function (toplevel_dash_expression_dash_show389) { 
+(function (toplevel_dash_expression_dash_show392) { 
 translation_plus_pinfo = unsharable_dash_expression_dash__greaterthan_javascript_dash_string(expr,env,a_dash_pinfo);
 updated_dash_pinfo = pinfo_dash_accumulate_dash_shared_dash_expression(expr,plt.Kernel.first(translation_plus_pinfo),plt.Kernel.second(translation_plus_pinfo)); })(plt.Kernel.identity)
 return sharable_dash_expression_dash__greaterthan_javascript_dash_string(expr,env,updated_dash_pinfo);
@@ -2118,7 +2124,7 @@ var unsharable_dash_expression_dash__greaterthan_javascript_dash_string = functi
 
 var defns; 
 var body; 
-(function (toplevel_dash_expression_dash_show390) { 
+(function (toplevel_dash_expression_dash_show393) { 
 defns = plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](plt.Kernel.second(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)));
 body = plt.Kernel.third(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)); })(plt.Kernel.identity)
 return local_dash_expression_dash__greaterthan_javascript_dash_string(defns,body,env,a_dash_pinfo);
@@ -2127,7 +2133,7 @@ return local_dash_expression_dash__greaterthan_javascript_dash_string(defns,body
  ((function() { 
 
 var exprs; 
-(function (toplevel_dash_expression_dash_show391) { 
+(function (toplevel_dash_expression_dash_show394) { 
 exprs = plt.Kernel.rest(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)); })(plt.Kernel.identity)
 return begin_dash_sequence_dash__greaterthan_javascript_dash_string(expr,exprs,env,a_dash_pinfo);
               })()) :
@@ -2136,7 +2142,7 @@ return begin_dash_sequence_dash__greaterthan_javascript_dash_string(expr,exprs,e
 
 var id; 
 var value; 
-(function (toplevel_dash_expression_dash_show392) { 
+(function (toplevel_dash_expression_dash_show395) { 
 id = plt.Kernel.second(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr));
 value = plt.Kernel.third(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)); })(plt.Kernel.identity)
 return set_bang__dash_expression_dash__greaterthan_javascript_dash_string(id,value,env,a_dash_pinfo);
@@ -2147,7 +2153,7 @@ return set_bang__dash_expression_dash__greaterthan_javascript_dash_string(id,val
 var test; 
 var consequent; 
 var alternative; 
-(function (toplevel_dash_expression_dash_show393) { 
+(function (toplevel_dash_expression_dash_show396) { 
 test = plt.Kernel.second(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr));
 consequent = plt.Kernel.third(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr));
 alternative = plt.Kernel.fourth(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)); })(plt.Kernel.identity)
@@ -2157,24 +2163,24 @@ return if_dash_expression_dash__greaterthan_javascript_dash_string(test,conseque
  ((function() { 
 
 var exprs; 
-(function (toplevel_dash_expression_dash_show394) { 
+(function (toplevel_dash_expression_dash_show397) { 
 exprs = plt.Kernel.rest(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)); })(plt.Kernel.identity)
-return boolean_dash_chain_dash__greaterthan_javascript_dash_string(_SHARED[395],exprs,env,a_dash_pinfo);
+return boolean_dash_chain_dash__greaterthan_javascript_dash_string(_SHARED[398],exprs,env,a_dash_pinfo);
               })()) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](expr,(plt.types.Symbol.makeInstance("or"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(29056, 1)),(plt.types.Rational.makeInstance(598, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  ((function() { 
 
 var exprs; 
-(function (toplevel_dash_expression_dash_show396) { 
+(function (toplevel_dash_expression_dash_show399) { 
 exprs = plt.Kernel.rest(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)); })(plt.Kernel.identity)
-return boolean_dash_chain_dash__greaterthan_javascript_dash_string(_SHARED[397],exprs,env,a_dash_pinfo);
+return boolean_dash_chain_dash__greaterthan_javascript_dash_string(_SHARED[400],exprs,env,a_dash_pinfo);
               })()) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_begins_dash_with_question_"](expr,(plt.types.Symbol.makeInstance("lambda"))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(29242, 1)),(plt.types.Rational.makeInstance(603, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(31, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  ((function() { 
 
 var args; 
 var body; 
-(function (toplevel_dash_expression_dash_show398) { 
+(function (toplevel_dash_expression_dash_show401) { 
 args = plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](plt.Kernel.second(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)));
 body = plt.Kernel.third(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)); })(plt.Kernel.identity)
 return lambda_dash_expression_dash__greaterthan_javascript_dash_string(expr,args,body,env,a_dash_pinfo);
@@ -2196,7 +2202,7 @@ return lambda_dash_expression_dash__greaterthan_javascript_dash_string(expr,args
 
 var operator; 
 var operands; 
-(function (toplevel_dash_expression_dash_show399) { 
+(function (toplevel_dash_expression_dash_show402) { 
 operator = plt.Kernel.first(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr));
 operands = plt.Kernel.rest(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)); })(plt.Kernel.identity)
 return application_dash_expression_dash__greaterthan_javascript_dash_string(expr,operator,operands,env,a_dash_pinfo);
@@ -2205,14 +2211,14 @@ return application_dash_expression_dash__greaterthan_javascript_dash_string(expr
 var expressions_dash__greaterthan_javascript_dash_strings = function(expressions, env, a_dash_pinfo) { return ((function() { 
 
 var strings_slash_rev_plus_pinfo; 
-(function (toplevel_dash_expression_dash_show400) { 
+(function (toplevel_dash_expression_dash_show403) { 
 strings_slash_rev_plus_pinfo = plt.Kernel.foldl(((function() {
-   var _result_ = (function(args401) {
-var e = args401[0];
-var ss_plus_p = args401[1];  return ((function() { 
+   var _result_ = (function(args404) {
+var e = args404[0];
+var ss_plus_p = args404[1];  return ((function() { 
 
 var new_dash_string_plus_p; 
-(function (toplevel_dash_expression_dash_show402) { 
+(function (toplevel_dash_expression_dash_show405) { 
 new_dash_string_plus_p = expression_dash__greaterthan_javascript_dash_string(e,env,plt.Kernel.second(ss_plus_p)); })(plt.Kernel.identity)
 return plt.Kernel.list([plt.Kernel.cons(plt.Kernel.first(new_dash_string_plus_p),plt.Kernel.first(ss_plus_p)),plt.Kernel.second(new_dash_string_plus_p)]);
               })()); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),plt.Kernel.list([plt.types.Empty.EMPTY,a_dash_pinfo]), [expressions]); })(plt.Kernel.identity)
@@ -2226,11 +2232,11 @@ var set_bang__dash_expression_dash__greaterthan_javascript_dash_string = functio
 var es_plus_p; 
 var idExprString; 
 var valExprString; 
-(function (toplevel_dash_expression_dash_show403) { 
+(function (toplevel_dash_expression_dash_show406) { 
 es_plus_p = expressions_dash__greaterthan_javascript_dash_strings(plt.Kernel.list([id_dash_stx,newVal_dash_stx]),env,a_dash_pinfo);
 idExprString = plt.Kernel.first(plt.Kernel.first(es_plus_p));
 valExprString = plt.Kernel.second(plt.Kernel.first(es_plus_p)); })(plt.Kernel.identity)
-return plt.Kernel.list([plt.Kernel.string_dash_append([_SHARED[404],idExprString,_SHARED[347],valExprString,_SHARED[405]]),plt.Kernel.second(es_plus_p)]);
+return plt.Kernel.list([plt.Kernel.string_dash_append([_SHARED[407],idExprString,_SHARED[350],valExprString,_SHARED[408]]),plt.Kernel.second(es_plus_p)]);
               })()) :
  plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(31789, 1)),(plt.types.Rational.makeInstance(674, 1)),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Rational.makeInstance(750, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))); };
 var begin_dash_sequence_dash__greaterthan_javascript_dash_string = function(original_dash_stx, exprs, env, a_dash_pinfo) { return (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.empty_question_(exprs),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(32729, 1)),(plt.types.Rational.makeInstance(697, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(14, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
@@ -2241,11 +2247,11 @@ var begin_dash_sequence_dash__greaterthan_javascript_dash_string = function(orig
 var split_dash_last_dash_element = function(ls) { return plt.Kernel.list([plt.Kernel.reverse(plt.Kernel.rest(plt.Kernel.reverse(ls))),plt.Kernel.first(plt.Kernel.reverse(ls))]); };
 var strings_plus_pinfo; 
 var exprs_plus_last_dash_expr; 
-(function (toplevel_dash_expression_dash_show406) { 
+(function (toplevel_dash_expression_dash_show409) { 
 
 strings_plus_pinfo = expressions_dash__greaterthan_javascript_dash_strings(exprs,env,a_dash_pinfo);
 exprs_plus_last_dash_expr = split_dash_last_dash_element(plt.Kernel.first(strings_plus_pinfo)); })(plt.Kernel.identity)
-return plt.Kernel.list([plt.Kernel.string_dash_append([_SHARED[407],string_dash_join(plt.Kernel.first(exprs_plus_last_dash_expr),_SHARED[327]),_SHARED[327],_SHARED[408],plt.Kernel.second(exprs_plus_last_dash_expr),_SHARED[348],_SHARED[409]]),plt.Kernel.second(strings_plus_pinfo)]);
+return plt.Kernel.list([plt.Kernel.string_dash_append([_SHARED[410],string_dash_join(plt.Kernel.first(exprs_plus_last_dash_expr),_SHARED[330]),_SHARED[330],_SHARED[411],plt.Kernel.second(exprs_plus_last_dash_expr),_SHARED[351],_SHARED[412]]),plt.Kernel.second(strings_plus_pinfo)]);
               })()) :
  plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(32718, 1)),(plt.types.Rational.makeInstance(696, 1)),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Rational.makeInstance(1009, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))); };
 var if_dash_expression_dash__greaterthan_javascript_dash_string = function(test, consequent, alternative, env, a_dash_pinfo) { return ((function() { 
@@ -2254,19 +2260,19 @@ var es_plus_p;
 var s1; 
 var s2; 
 var s3; 
-(function (toplevel_dash_expression_dash_show410) { 
+(function (toplevel_dash_expression_dash_show413) { 
 es_plus_p = expressions_dash__greaterthan_javascript_dash_strings(plt.Kernel.list([test,consequent,alternative]),env,a_dash_pinfo);
 s1 = plt.Kernel.first(plt.Kernel.first(es_plus_p));
 s2 = plt.Kernel.second(plt.Kernel.first(es_plus_p));
 s3 = plt.Kernel.third(plt.Kernel.first(es_plus_p)); })(plt.Kernel.identity)
-return plt.Kernel.list([plt.Kernel.string_dash_append([_SHARED[329],s1,_SHARED[411],s2,_SHARED[412],s3,_SHARED[413]]),plt.Kernel.second(es_plus_p)]);
+return plt.Kernel.list([plt.Kernel.string_dash_append([_SHARED[332],s1,_SHARED[414],s2,_SHARED[415],s3,_SHARED[416]]),plt.Kernel.second(es_plus_p)]);
               })()); };
 var quote_dash_expression_dash__greaterthan_javascript_dash_string = function(expr) { return (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.empty_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34449, 1)),(plt.types.Rational.makeInstance(739, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(21, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- _SHARED[414] :
+ _SHARED[417] :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.pair_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34511, 1)),(plt.types.Rational.makeInstance(742, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(20, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- plt.Kernel.string_dash_append([_SHARED[415],string_dash_join(plt.Kernel.map((plt.types.liftToplevelToFunctionValue(quote_dash_expression_dash__greaterthan_javascript_dash_string,(plt.types.String.makeInstance("quote-expression->javascript-string")),1,(plt.types.Rational.makeInstance(1, 1)))), [plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)]),_SHARED[304]),_SHARED[416]]) :
+ plt.Kernel.string_dash_append([_SHARED[418],string_dash_join(plt.Kernel.map((plt.types.liftToplevelToFunctionValue(quote_dash_expression_dash__greaterthan_javascript_dash_string,(plt.types.String.makeInstance("quote-expression->javascript-string")),1,(plt.types.Rational.makeInstance(1, 1)))), [plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)]),_SHARED[307]),_SHARED[419]]) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.symbol_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34747, 1)),(plt.types.Rational.makeInstance(749, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- plt.Kernel.string_dash_append([_SHARED[417],plt.Kernel.symbol_dash__greaterthan_string(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)),_SHARED[418]]) :
+ plt.Kernel.string_dash_append([_SHARED[420],plt.Kernel.symbol_dash__greaterthan_string(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)),_SHARED[421]]) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.number_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34930, 1)),(plt.types.Rational.makeInstance(755, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  number_dash__greaterthan_javascript_dash_string(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr),expr) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.string_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35030, 1)),(plt.types.Rational.makeInstance(759, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
@@ -2276,19 +2282,19 @@ var quote_dash_expression_dash__greaterthan_javascript_dash_string = function(ex
  (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.boolean_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35220, 1)),(plt.types.Rational.makeInstance(767, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(23, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  boolean_dash__greaterthan_javascript_dash_string(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](expr)) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35302, 1)),(plt.types.Rational.makeInstance(770, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- plt.Kernel.raise(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](expr),plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_generic_dash_syntactic_dash_error"](plt.Kernel.format(_SHARED[419], [plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash__greaterthan_datum"](expr)]),plt.Kernel.list([])))) :
+ plt.Kernel.raise(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](expr),plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_generic_dash_syntactic_dash_error"](plt.Kernel.format(_SHARED[422], [plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash__greaterthan_datum"](expr)]),plt.Kernel.list([])))) :
  plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(34438, 1)),(plt.types.Rational.makeInstance(738, 1)),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Rational.makeInstance(1215, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))))))))); };
 var boolean_dash__greaterthan_javascript_dash_string = function(a_dash_bool) { return (plt.kernel.misc.verifyBooleanBranchValue(a_dash_bool,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35764, 1)),(plt.types.Rational.makeInstance(782, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(6, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- _SHARED[420] :
+ _SHARED[423] :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35805, 1)),(plt.types.Rational.makeInstance(784, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- _SHARED[421] :
+ _SHARED[424] :
  plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(35753, 1)),(plt.types.Rational.makeInstance(781, 1)),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Rational.makeInstance(87, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))); };
 var boolean_dash_chain_dash__greaterthan_javascript_dash_string = function(joiner, exprs, env, a_dash_pinfo) { return ((function() { 
 
 var strings_plus_pinfo; 
-(function (toplevel_dash_expression_dash_show422) { 
+(function (toplevel_dash_expression_dash_show425) { 
 strings_plus_pinfo = expressions_dash__greaterthan_javascript_dash_strings(exprs,env,a_dash_pinfo); })(plt.Kernel.identity)
-return plt.Kernel.list([plt.Kernel.string_dash_append([_SHARED[329],string_dash_join(plt.Kernel.first(strings_plus_pinfo),joiner),_SHARED[413]]),plt.Kernel.second(strings_plus_pinfo)]);
+return plt.Kernel.list([plt.Kernel.string_dash_append([_SHARED[332],string_dash_join(plt.Kernel.first(strings_plus_pinfo),joiner),_SHARED[416]]),plt.Kernel.second(strings_plus_pinfo)]);
               })()); };
 var local_dash_expression_dash__greaterthan_javascript_dash_string = function(defns, body, env, a_dash_pinfo) { return ((function() { 
 
@@ -2296,15 +2302,15 @@ var inner_dash_compiled_dash_program;
 var inner_dash_body_dash_string_plus_pinfo; 
 var inner_dash_body_dash_string; 
 var updated_dash_pinfo; 
-(function (toplevel_dash_expression_dash_show423) { 
+(function (toplevel_dash_expression_dash_show426) { 
 inner_dash_compiled_dash_program = program_dash__greaterthan_compiled_dash_program_slash_pinfo_slash_at_dash_toplevel_question_(defns,pinfo_dash_update_dash_env(a_dash_pinfo,env),plt.types.Logic.FALSE);
 inner_dash_body_dash_string_plus_pinfo = expression_dash__greaterthan_javascript_dash_string(body,pinfo_dash_env(compiled_dash_program_dash_pinfo(inner_dash_compiled_dash_program)),compiled_dash_program_dash_pinfo(inner_dash_compiled_dash_program));
 inner_dash_body_dash_string = plt.Kernel.first(inner_dash_body_dash_string_plus_pinfo);
 updated_dash_pinfo = plt.Kernel.second(inner_dash_body_dash_string_plus_pinfo); })(plt.Kernel.identity)
-return plt.Kernel.list([plt.Kernel.string_dash_append([_SHARED[424],compiled_dash_program_dash_defns(inner_dash_compiled_dash_program),_SHARED[282],compiled_dash_program_dash_toplevel_dash_exprs(inner_dash_compiled_dash_program),_SHARED[425],_SHARED[282],_SHARED[408],inner_dash_body_dash_string,_SHARED[426]]),pinfo_dash_update_dash_defined_dash_names(pinfo_dash_update_dash_env(updated_dash_pinfo,pinfo_dash_env(a_dash_pinfo)),pinfo_dash_defined_dash_names(a_dash_pinfo))]);
+return plt.Kernel.list([plt.Kernel.string_dash_append([_SHARED[427],compiled_dash_program_dash_defns(inner_dash_compiled_dash_program),_SHARED[285],compiled_dash_program_dash_toplevel_dash_exprs(inner_dash_compiled_dash_program),_SHARED[428],_SHARED[285],_SHARED[411],inner_dash_body_dash_string,_SHARED[429]]),pinfo_dash_update_dash_defined_dash_names(pinfo_dash_update_dash_env(updated_dash_pinfo,pinfo_dash_env(a_dash_pinfo)),pinfo_dash_defined_dash_names(a_dash_pinfo))]);
               })()); };
 var maybe_dash_emit_dash_location_dash_mark = function(a_dash_str, a_dash_loc, a_dash_pinfo) { return (plt.kernel.misc.verifyBooleanBranchValue(pinfo_dash_with_dash_location_dash_emits_question_(a_dash_pinfo),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(37804, 1)),(plt.types.Rational.makeInstance(830, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(36, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- plt.Kernel.format(_SHARED[427], [Loc_dash__greaterthan_javascript_dash_string(a_dash_loc),a_dash_str]) :
+ plt.Kernel.format(_SHARED[430], [Loc_dash__greaterthan_javascript_dash_string(a_dash_loc),a_dash_str]) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(37960, 1)),(plt.types.Rational.makeInstance(834, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  a_dash_str :
  plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(37793, 1)),(plt.types.Rational.makeInstance(829, 1)),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Rational.makeInstance(184, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))); };
@@ -2317,27 +2323,27 @@ var operator_dash_binding;
 var operand_dash_strings_plus_pinfo; 
 var operand_dash_strings; 
 var updated_dash_pinfo; 
-(function (toplevel_dash_expression_dash_show428) { 
+(function (toplevel_dash_expression_dash_show431) { 
 operator_dash_binding = env_dash_lookup_slash_context(env,operator);
 operand_dash_strings_plus_pinfo = expressions_dash__greaterthan_javascript_dash_strings(operands,env,a_dash_pinfo);
 operand_dash_strings = plt.Kernel.first(operand_dash_strings_plus_pinfo);
 updated_dash_pinfo = plt.Kernel.second(operand_dash_strings_plus_pinfo); })(plt.Kernel.identity)
 return (plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_constant_question_"](operator_dash_binding),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38929, 1)),(plt.types.Rational.makeInstance(858, 1)),(plt.types.Rational.makeInstance(10, 1)),(plt.types.Rational.makeInstance(36, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- plt.Kernel.list([maybe_dash_emit_dash_location_dash_mark(plt.Kernel.string_dash_append([_SHARED[429],plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_constant_dash_java_dash_string"](operator_dash_binding),_SHARED[342],_SHARED[430],string_dash_join(operand_dash_strings,_SHARED[342]),_SHARED[431],_SHARED[432]]),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](original_dash_stx),updated_dash_pinfo),updated_dash_pinfo]) :
+ plt.Kernel.list([maybe_dash_emit_dash_location_dash_mark(plt.Kernel.string_dash_append([_SHARED[432],plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_constant_dash_java_dash_string"](operator_dash_binding),_SHARED[345],_SHARED[433],string_dash_join(operand_dash_strings,_SHARED[345]),_SHARED[434],_SHARED[435]]),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](original_dash_stx),updated_dash_pinfo),updated_dash_pinfo]) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_question_"](operator_dash_binding),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(39479, 1)),(plt.types.Rational.makeInstance(867, 1)),(plt.types.Rational.makeInstance(10, 1)),(plt.types.Rational.makeInstance(36, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._lessthan_(plt.Kernel.length(operands),plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](operator_dash_binding), []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(39545, 1)),(plt.types.Rational.makeInstance(869, 1)),(plt.types.Rational.makeInstance(13, 1)),(plt.types.Rational.makeInstance(83, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  plt.Kernel.raise(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](original_dash_stx),plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_application_dash_arity"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](operator),plt._MODULES["moby/runtime/arity-struct"].EXPORTS["make_dash_arity_colon_fixed"](plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](operator_dash_binding)),plt.Kernel.length(operands)))) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_var_dash_arity_question_"](operator_dash_binding),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(40037, 1)),(plt.types.Rational.makeInstance(875, 1)),(plt.types.Rational.makeInstance(13, 1)),(plt.types.Rational.makeInstance(46, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._greaterthan_(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](operator_dash_binding),_SHARED[7], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(40104, 1)),(plt.types.Rational.makeInstance(876, 1)),(plt.types.Rational.makeInstance(20, 1)),(plt.types.Rational.makeInstance(51, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- plt.Kernel.list([maybe_dash_emit_dash_location_dash_mark(plt.Kernel.string_dash_append([plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_java_dash_string"](operator_dash_binding),_SHARED[329],string_dash_join(take(operand_dash_strings,plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](operator_dash_binding)),_SHARED[304]),_SHARED[433],string_dash_join(list_dash_tail(operand_dash_strings,plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](operator_dash_binding)),_SHARED[304]),_SHARED[434]]),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](original_dash_stx),updated_dash_pinfo),updated_dash_pinfo]) :
+ plt.Kernel.list([maybe_dash_emit_dash_location_dash_mark(plt.Kernel.string_dash_append([plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_java_dash_string"](operator_dash_binding),_SHARED[332],string_dash_join(take(operand_dash_strings,plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](operator_dash_binding)),_SHARED[307]),_SHARED[436],string_dash_join(list_dash_tail(operand_dash_strings,plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](operator_dash_binding)),_SHARED[307]),_SHARED[437]]),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](original_dash_stx),updated_dash_pinfo),updated_dash_pinfo]) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(41062, 1)),(plt.types.Rational.makeInstance(888, 1)),(plt.types.Rational.makeInstance(20, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- plt.Kernel.list([maybe_dash_emit_dash_location_dash_mark(plt.Kernel.string_dash_append([plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_java_dash_string"](operator_dash_binding),_SHARED[435],string_dash_join(operand_dash_strings,_SHARED[304]),_SHARED[434]]),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](original_dash_stx),updated_dash_pinfo),updated_dash_pinfo]) :
+ plt.Kernel.list([maybe_dash_emit_dash_location_dash_mark(plt.Kernel.string_dash_append([plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_java_dash_string"](operator_dash_binding),_SHARED[438],string_dash_join(operand_dash_strings,_SHARED[307]),_SHARED[437]]),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](original_dash_stx),updated_dash_pinfo),updated_dash_pinfo]) :
  plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(40097, 1)),(plt.types.Rational.makeInstance(876, 1)),(plt.types.Rational.makeInstance(13, 1)),(plt.types.Rational.makeInstance(1507, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(41619, 1)),(plt.types.Rational.makeInstance(897, 1)),(plt.types.Rational.makeInstance(13, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel._greaterthan_(plt.Kernel.length(operands),plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](operator_dash_binding), []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(41659, 1)),(plt.types.Rational.makeInstance(899, 1)),(plt.types.Rational.makeInstance(16, 1)),(plt.types.Rational.makeInstance(86, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  plt.Kernel.raise(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](original_dash_stx),plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_application_dash_arity"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](operator),plt._MODULES["moby/runtime/arity-struct"].EXPORTS["make_dash_arity_colon_fixed"](plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](operator_dash_binding)),plt.Kernel.length(operands)))) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(42251, 1)),(plt.types.Rational.makeInstance(906, 1)),(plt.types.Rational.makeInstance(16, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- plt.Kernel.list([maybe_dash_emit_dash_location_dash_mark(plt.Kernel.string_dash_append([plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_java_dash_string"](operator_dash_binding),_SHARED[329],string_dash_join(operand_dash_strings,_SHARED[304]),_SHARED[413]]),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](original_dash_stx),updated_dash_pinfo),updated_dash_pinfo]) :
+ plt.Kernel.list([maybe_dash_emit_dash_location_dash_mark(plt.Kernel.string_dash_append([plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_java_dash_string"](operator_dash_binding),_SHARED[332],string_dash_join(operand_dash_strings,_SHARED[307]),_SHARED[416]]),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](original_dash_stx),updated_dash_pinfo),updated_dash_pinfo]) :
  plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(41637, 1)),(plt.types.Rational.makeInstance(898, 1)),(plt.types.Rational.makeInstance(13, 1)),(plt.types.Rational.makeInstance(1006, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))) :
  plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(39526, 1)),(plt.types.Rational.makeInstance(868, 1)),(plt.types.Rational.makeInstance(10, 1)),(plt.types.Rational.makeInstance(3119, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))])))))) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_structure_question_"](operator_dash_binding),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(42657, 1)),(plt.types.Rational.makeInstance(913, 1)),(plt.types.Rational.makeInstance(10, 1)),(plt.types.Rational.makeInstance(37, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
@@ -2351,12 +2357,12 @@ var expression_dash_strings_plus_pinfo;
 var operator_dash_string; 
 var operand_dash_strings; 
 var updated_dash_pinfo; 
-(function (toplevel_dash_expression_dash_show436) { 
+(function (toplevel_dash_expression_dash_show439) { 
 expression_dash_strings_plus_pinfo = expressions_dash__greaterthan_javascript_dash_strings(plt.Kernel.cons(operator,operands),env,a_dash_pinfo);
 operator_dash_string = plt.Kernel.first(plt.Kernel.first(expression_dash_strings_plus_pinfo));
 operand_dash_strings = plt.Kernel.rest(plt.Kernel.first(expression_dash_strings_plus_pinfo));
 updated_dash_pinfo = plt.Kernel.second(expression_dash_strings_plus_pinfo); })(plt.Kernel.identity)
-return plt.Kernel.list([maybe_dash_emit_dash_location_dash_mark(plt.Kernel.string_dash_append([_SHARED[429],operator_dash_string,_SHARED[342],_SHARED[437],string_dash_join(operand_dash_strings,_SHARED[342]),_SHARED[438],_SHARED[439]]),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](original_dash_stx),updated_dash_pinfo),updated_dash_pinfo]);
+return plt.Kernel.list([maybe_dash_emit_dash_location_dash_mark(plt.Kernel.string_dash_append([_SHARED[432],operator_dash_string,_SHARED[345],_SHARED[440],string_dash_join(operand_dash_strings,_SHARED[345]),_SHARED[441],_SHARED[442]]),plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](original_dash_stx),updated_dash_pinfo),updated_dash_pinfo]);
               })()) :
  plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(38227, 1)),(plt.types.Rational.makeInstance(842, 1)),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Rational.makeInstance(5615, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))])))))); };
 var identifier_dash_expression_dash__greaterthan_javascript_dash_string = function(an_dash_id, an_dash_env) { return (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.not(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_question_"](env_dash_lookup_slash_context(an_dash_env,an_dash_id))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(44076, 1)),(plt.types.Rational.makeInstance(944, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(50, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
@@ -2365,15 +2371,15 @@ var identifier_dash_expression_dash__greaterthan_javascript_dash_string = functi
  ((function() { 
 
 var binding; 
-(function (toplevel_dash_expression_dash_show440) { 
+(function (toplevel_dash_expression_dash_show443) { 
 binding = env_dash_lookup_slash_context(an_dash_env,an_dash_id); })(plt.Kernel.identity)
 return (plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_constant_question_"](binding),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(44396, 1)),(plt.types.Rational.makeInstance(951, 1)),(plt.types.Rational.makeInstance(10, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_constant_dash_java_dash_string"](binding) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_question_"](binding),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(44484, 1)),(plt.types.Rational.makeInstance(953, 1)),(plt.types.Rational.makeInstance(10, 1)),(plt.types.Rational.makeInstance(27, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  (plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_var_dash_arity_question_"](binding),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(44541, 1)),(plt.types.Rational.makeInstance(955, 1)),(plt.types.Rational.makeInstance(13, 1)),(plt.types.Rational.makeInstance(37, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- plt.Kernel.string_dash_append([_SHARED[329],_SHARED[441],plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_java_dash_string"](binding),_SHARED[304],string_dash__greaterthan_javascript_dash_string(plt.Kernel.symbol_dash__greaterthan_string(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_dash_id"](binding))),_SHARED[304],plt.Kernel.number_dash__greaterthan_string(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](binding)),_SHARED[304],_SHARED[442],rational_dash_number_dash__greaterthan_javascript_dash_string(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](binding)),_SHARED[434],_SHARED[443]]) :
+ plt.Kernel.string_dash_append([_SHARED[332],_SHARED[444],plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_java_dash_string"](binding),_SHARED[307],string_dash__greaterthan_javascript_dash_string(plt.Kernel.symbol_dash__greaterthan_string(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_dash_id"](binding))),_SHARED[307],plt.Kernel.number_dash__greaterthan_string(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](binding)),_SHARED[307],_SHARED[445],rational_dash_number_dash__greaterthan_javascript_dash_string(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](binding)),_SHARED[437],_SHARED[446]]) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(46147, 1)),(plt.types.Rational.makeInstance(972, 1)),(plt.types.Rational.makeInstance(13, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- plt.Kernel.string_dash_append([_SHARED[329],_SHARED[441],plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_java_dash_string"](binding),_SHARED[304],string_dash__greaterthan_javascript_dash_string(plt.Kernel.symbol_dash__greaterthan_string(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_dash_id"](binding))),_SHARED[304],plt.Kernel.number_dash__greaterthan_string(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](binding)),_SHARED[304],rational_dash_number_dash__greaterthan_javascript_dash_string(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](binding)),_SHARED[443]]) :
+ plt.Kernel.string_dash_append([_SHARED[332],_SHARED[444],plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_java_dash_string"](binding),_SHARED[307],string_dash__greaterthan_javascript_dash_string(plt.Kernel.symbol_dash__greaterthan_string(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_dash_id"](binding))),_SHARED[307],plt.Kernel.number_dash__greaterthan_string(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](binding)),_SHARED[307],rational_dash_number_dash__greaterthan_javascript_dash_string(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_function_dash_min_dash_arity"](binding)),_SHARED[446]]) :
  plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(44522, 1)),(plt.types.Rational.makeInstance(954, 1)),(plt.types.Rational.makeInstance(10, 1)),(plt.types.Rational.makeInstance(3158, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt._MODULES["moby/runtime/binding"].EXPORTS["binding_colon_structure_question_"](binding),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(47692, 1)),(plt.types.Rational.makeInstance(994, 1)),(plt.types.Rational.makeInstance(10, 1)),(plt.types.Rational.makeInstance(28, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  plt.Kernel.raise(plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_loc"](an_dash_id),plt._MODULES["moby/runtime/error-struct"].EXPORTS["make_dash_moby_dash_error_dash_type_colon_structure_dash_identifier_dash_not_dash_expression"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](an_dash_id)))) :
@@ -2389,7 +2395,7 @@ var loop = function(i, elts) { return (plt.kernel.misc.verifyBooleanBranchValue(
  (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(48326, 1)),(plt.types.Rational.makeInstance(1010, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(48326, 1)),(plt.types.Rational.makeInstance(1010, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(48326, 1)),(plt.types.Rational.makeInstance(1010, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  plt.Kernel.cons(plt.Kernel.apply(f,                     plt.Kernel.list([plt.Kernel.first(elts), i]),                    []),loop(plt.Kernel.add1(i),plt.Kernel.rest(elts))) :
  plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(48224, 1)),(plt.types.Rational.makeInstance(1007, 1)),(plt.types.Rational.makeInstance(22, 1)),(plt.types.Rational.makeInstance(218, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))); };
-(function (toplevel_dash_expression_dash_show445) { 
+(function (toplevel_dash_expression_dash_show448) { 
  })(plt.Kernel.identity)
 return loop(_SHARED[7],elts);
               })()); };
@@ -2401,15 +2407,15 @@ var args_dash_sym;
 var body_dash_string_plus_p; 
 var body_dash_string; 
 var updated_dash_pinfo; 
-(function (toplevel_dash_expression_dash_show444) { 
+(function (toplevel_dash_expression_dash_show447) { 
 
 munged_dash_arg_dash_ids = plt.Kernel.map(((function() {
-   var _result_ = (function(args446) {
-var id = args446[0];  return identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id)); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [args]);
+   var _result_ = (function(args449) {
+var id = args449[0];  return identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](id)); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(1, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()), [args]);
 new_dash_env = plt.Kernel.foldl(((function() {
-   var _result_ = (function(args447) {
-var arg_dash_id = args447[0];
-var env = args447[1];  return env_dash_extend(env,plt._MODULES["moby/runtime/binding"].EXPORTS["make_dash_binding_colon_constant"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](arg_dash_id),plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](arg_dash_id))),plt.types.Empty.EMPTY)); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),env, [args]);
+   var _result_ = (function(args450) {
+var arg_dash_id = args450[0];
+var env = args450[1];  return env_dash_extend(env,plt._MODULES["moby/runtime/binding"].EXPORTS["make_dash_binding_colon_constant"](plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](arg_dash_id),plt.Kernel.symbol_dash__greaterthan_string(identifier_dash__greaterthan_munged_dash_java_dash_identifier(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](arg_dash_id))),plt.types.Empty.EMPTY)); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),env, [args]);
 pinfo_plus_args_dash_sym = pinfo_dash_gensym(a_dash_pinfo,(plt.types.Symbol.makeInstance("args")));
 a_dash_pinfo_dash_2 = plt.Kernel.first(pinfo_plus_args_dash_sym);
 args_dash_sym = plt.Kernel.second(pinfo_plus_args_dash_sym);
@@ -2417,78 +2423,78 @@ body_dash_string_plus_p = expression_dash__greaterthan_javascript_dash_string(bo
 body_dash_string = plt.Kernel.first(body_dash_string_plus_p);
 updated_dash_pinfo = plt.Kernel.second(body_dash_string_plus_p); })(plt.Kernel.identity)
 return (function(){check_dash_duplicate_dash_identifiers_bang_(args);
-return plt.Kernel.list([plt.Kernel.string_dash_append([_SHARED[448],_SHARED[449],plt.Kernel.symbol_dash__greaterthan_string(args_dash_sym),_SHARED[450],string_dash_join(mapi(((function() {
-   var _result_ = (function(args451) {
-var arg_dash_id = args451[0];
-var i = args451[1];  return plt.Kernel.string_dash_append([_SHARED[339],plt.Kernel.symbol_dash__greaterthan_string(arg_dash_id),_SHARED[347],plt.Kernel.symbol_dash__greaterthan_string(args_dash_sym),_SHARED[452],plt.Kernel.number_dash__greaterthan_string(i),_SHARED[453]]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),munged_dash_arg_dash_ids),_SHARED[282]),_SHARED[454],body_dash_string,_SHARED[455],_SHARED[456],_SHARED[457],_SHARED[458],rational_dash_number_dash__greaterthan_javascript_dash_string(plt.Kernel.length(args)),_SHARED[348],_SHARED[459],_SHARED[460]]),updated_dash_pinfo]);})();
+return plt.Kernel.list([plt.Kernel.string_dash_append([_SHARED[451],_SHARED[452],plt.Kernel.symbol_dash__greaterthan_string(args_dash_sym),_SHARED[453],string_dash_join(mapi(((function() {
+   var _result_ = (function(args454) {
+var arg_dash_id = args454[0];
+var i = args454[1];  return plt.Kernel.string_dash_append([_SHARED[342],plt.Kernel.symbol_dash__greaterthan_string(arg_dash_id),_SHARED[350],plt.Kernel.symbol_dash__greaterthan_string(args_dash_sym),_SHARED[455],plt.Kernel.number_dash__greaterthan_string(i),_SHARED[456]]); });_result_.toWrittenString = function (cache) { return '<function:lambda>'; };_result_.isEqual = function(other, cache) { return this === other; };_result_.procedureArity = (plt.types.Rational.makeInstance(2, 1));_result_.toDisplayedString = _result_.toWrittenString;return _result_;  })()),munged_dash_arg_dash_ids),_SHARED[285]),_SHARED[457],body_dash_string,_SHARED[458],_SHARED[459],_SHARED[460],_SHARED[461],rational_dash_number_dash__greaterthan_javascript_dash_string(plt.Kernel.length(args)),_SHARED[351],_SHARED[462],_SHARED[463]]),updated_dash_pinfo]);})();
               })()); };
-var Loc_dash__greaterthan_javascript_dash_string = function(a_dash_loc) { return plt.Kernel.format(_SHARED[461], [plt._MODULES["moby/runtime/stx"].EXPORTS["Loc_dash_offset"](a_dash_loc),plt._MODULES["moby/runtime/stx"].EXPORTS["Loc_dash_line"](a_dash_loc),plt._MODULES["moby/runtime/stx"].EXPORTS["Loc_dash_column"](a_dash_loc),plt._MODULES["moby/runtime/stx"].EXPORTS["Loc_dash_span"](a_dash_loc),plt.Kernel.format(_SHARED[462], [plt._MODULES["moby/runtime/stx"].EXPORTS["Loc_dash_id"](a_dash_loc)])]); };
-var floating_dash_number_dash__greaterthan_javascript_dash_string = function(a_dash_num) { return plt.Kernel.string_dash_append([_SHARED[463],(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.eqv_question_(a_dash_num,(plt.types.FloatPoint.makeInstance(Number.POSITIVE_INFINITY))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(51335, 1)),(plt.types.Rational.makeInstance(1078, 1)),(plt.types.Rational.makeInstance(20, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- _SHARED[464] :
+var Loc_dash__greaterthan_javascript_dash_string = function(a_dash_loc) { return plt.Kernel.format(_SHARED[464], [plt._MODULES["moby/runtime/stx"].EXPORTS["Loc_dash_offset"](a_dash_loc),plt._MODULES["moby/runtime/stx"].EXPORTS["Loc_dash_line"](a_dash_loc),plt._MODULES["moby/runtime/stx"].EXPORTS["Loc_dash_column"](a_dash_loc),plt._MODULES["moby/runtime/stx"].EXPORTS["Loc_dash_span"](a_dash_loc),plt.Kernel.format(_SHARED[465], [plt._MODULES["moby/runtime/stx"].EXPORTS["Loc_dash_id"](a_dash_loc)])]); };
+var floating_dash_number_dash__greaterthan_javascript_dash_string = function(a_dash_num) { return plt.Kernel.string_dash_append([_SHARED[466],(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.eqv_question_(a_dash_num,(plt.types.FloatPoint.makeInstance(Number.POSITIVE_INFINITY))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(51335, 1)),(plt.types.Rational.makeInstance(1078, 1)),(plt.types.Rational.makeInstance(20, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
+ _SHARED[467] :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.eqv_question_(a_dash_num,(plt.types.FloatPoint.makeInstance(Number.NEGATIVE_INFINITY))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(51423, 1)),(plt.types.Rational.makeInstance(1080, 1)),(plt.types.Rational.makeInstance(20, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- _SHARED[465] :
+ _SHARED[468] :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.eqv_question_(a_dash_num,(plt.types.FloatPoint.makeInstance(Number.NaN))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(51511, 1)),(plt.types.Rational.makeInstance(1082, 1)),(plt.types.Rational.makeInstance(20, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- _SHARED[466] :
+ _SHARED[469] :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(51585, 1)),(plt.types.Rational.makeInstance(1084, 1)),(plt.types.Rational.makeInstance(20, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  plt.Kernel.number_dash__greaterthan_string(a_dash_num) :
- plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(51309, 1)),(plt.types.Rational.makeInstance(1077, 1)),(plt.types.Rational.makeInstance(17, 1)),(plt.types.Rational.makeInstance(325, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))))),_SHARED[443]]); };
-var rational_dash_number_dash__greaterthan_javascript_dash_string = function(a_dash_num) { return plt.Kernel.string_dash_append([_SHARED[467],plt.Kernel.number_dash__greaterthan_string(plt.Kernel.numerator(a_dash_num)),_SHARED[342],plt.Kernel.number_dash__greaterthan_string(plt.Kernel.denominator(a_dash_num)),_SHARED[443]]); };
+ plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(51309, 1)),(plt.types.Rational.makeInstance(1077, 1)),(plt.types.Rational.makeInstance(17, 1)),(plt.types.Rational.makeInstance(325, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))))),_SHARED[446]]); };
+var rational_dash_number_dash__greaterthan_javascript_dash_string = function(a_dash_num) { return plt.Kernel.string_dash_append([_SHARED[470],plt.Kernel.number_dash__greaterthan_string(plt.Kernel.numerator(a_dash_num)),_SHARED[345],plt.Kernel.number_dash__greaterthan_string(plt.Kernel.denominator(a_dash_num)),_SHARED[446]]); };
 var number_dash__greaterthan_javascript_dash_string = function(a_dash_num, original_dash_stx) { return (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.rational_question_(a_dash_num),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(52090, 1)),(plt.types.Rational.makeInstance(1102, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(17, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  rational_dash_number_dash__greaterthan_javascript_dash_string(a_dash_num) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.real_question_(a_dash_num),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(52167, 1)),(plt.types.Rational.makeInstance(1105, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(13, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  floating_dash_number_dash__greaterthan_javascript_dash_string(a_dash_num) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.complex_question_(a_dash_num),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(52240, 1)),(plt.types.Rational.makeInstance(1108, 1)),(plt.types.Rational.makeInstance(5, 1)),(plt.types.Rational.makeInstance(16, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- plt.Kernel.string_dash_append([_SHARED[468],number_dash__greaterthan_javascript_dash_string(plt.Kernel.real_dash_part(a_dash_num),original_dash_stx),_SHARED[342],number_dash__greaterthan_javascript_dash_string(plt.Kernel.imag_dash_part(a_dash_num),original_dash_stx),_SHARED[443]]) :
+ plt.Kernel.string_dash_append([_SHARED[471],number_dash__greaterthan_javascript_dash_string(plt.Kernel.real_dash_part(a_dash_num),original_dash_stx),_SHARED[345],number_dash__greaterthan_javascript_dash_string(plt.Kernel.imag_dash_part(a_dash_num),original_dash_stx),_SHARED[446]]) :
  plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(52078, 1)),(plt.types.Rational.makeInstance(1101, 1)),(plt.types.Rational.makeInstance(2, 1)),(plt.types.Rational.makeInstance(444, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))])))))); };
-var char_dash__greaterthan_javascript_dash_string = function(a_dash_char) { return plt.Kernel.string_dash_append([_SHARED[469],plt.Kernel.number_dash__greaterthan_string(plt.Kernel.char_dash__greaterthan_integer(a_dash_char)),_SHARED[470]]); };
+var char_dash__greaterthan_javascript_dash_string = function(a_dash_char) { return plt.Kernel.string_dash_append([_SHARED[472],plt.Kernel.number_dash__greaterthan_string(plt.Kernel.char_dash__greaterthan_integer(a_dash_char)),_SHARED[473]]); };
 var string_dash__greaterthan_javascript_dash_string = function(a_dash_str) { return ((function() { 
 
-var escape_dash_char_dash_code = function(a_dash_char) { return (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.char_equal__question_(a_dash_char,_SHARED[472], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(52970, 1)),(plt.types.Rational.makeInstance(1129, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(52970, 1)),(plt.types.Rational.makeInstance(1129, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- plt.Kernel.string([_SHARED[473],_SHARED[472]]) :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.char_equal__question_(a_dash_char,_SHARED[473], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(53038, 1)),(plt.types.Rational.makeInstance(1131, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(53038, 1)),(plt.types.Rational.makeInstance(1131, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- plt.Kernel.string([_SHARED[473],_SHARED[473]]) :
- (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.char_equal__question_(a_dash_char,_SHARED[474], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(53106, 1)),(plt.types.Rational.makeInstance(1133, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(53106, 1)),(plt.types.Rational.makeInstance(1133, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
- plt.Kernel.string([_SHARED[473],_SHARED[475]]) :
+var escape_dash_char_dash_code = function(a_dash_char) { return (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.char_equal__question_(a_dash_char,_SHARED[475], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(52970, 1)),(plt.types.Rational.makeInstance(1129, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(52970, 1)),(plt.types.Rational.makeInstance(1129, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
+ plt.Kernel.string([_SHARED[476],_SHARED[475]]) :
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.char_equal__question_(a_dash_char,_SHARED[476], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(53038, 1)),(plt.types.Rational.makeInstance(1131, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(53038, 1)),(plt.types.Rational.makeInstance(1131, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(19, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
+ plt.Kernel.string([_SHARED[476],_SHARED[476]]) :
+ (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.Kernel.char_equal__question_(a_dash_char,_SHARED[477], []),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(53106, 1)),(plt.types.Rational.makeInstance(1133, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(53106, 1)),(plt.types.Rational.makeInstance(1133, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(25, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
+ plt.Kernel.string([_SHARED[476],_SHARED[478]]) :
  (plt.kernel.misc.verifyBooleanBranchValue(plt.kernel.misc.verifyBooleanBranchValue(plt.types.Logic.TRUE,(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(53180, 1)),(plt.types.Rational.makeInstance(1135, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))),(plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(53180, 1)),(plt.types.Rational.makeInstance(1135, 1)),(plt.types.Rational.makeInstance(15, 1)),(plt.types.Rational.makeInstance(4, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))) ?
  plt.Kernel.string([a_dash_char]) :
  plt.kernel.misc.throwCondExhaustedError((plt.Kernel.list([(plt.types.Symbol.makeInstance("make-Loc")),(plt.types.Rational.makeInstance(52949, 1)),(plt.types.Rational.makeInstance(1128, 1)),(plt.types.Rational.makeInstance(12, 1)),(plt.types.Rational.makeInstance(268, 1)),(plt.types.String.makeInstance("compiler/beginner-to-javascript.ss"))]))))))); };
-(function (toplevel_dash_expression_dash_show471) { 
+(function (toplevel_dash_expression_dash_show474) { 
  })(plt.Kernel.identity)
-return plt.Kernel.string_dash_append([_SHARED[476],string_dash_join(plt.Kernel.map((plt.types.liftToplevelToFunctionValue(escape_dash_char_dash_code,(plt.types.String.makeInstance("escape-char-code")),1,(plt.types.Rational.makeInstance(1, 1)))), [plt.Kernel.string_dash__greaterthan_list(a_dash_str)]),_SHARED[14]),_SHARED[418]]);
+return plt.Kernel.string_dash_append([_SHARED[479],string_dash_join(plt.Kernel.map((plt.types.liftToplevelToFunctionValue(escape_dash_char_dash_code,(plt.types.String.makeInstance("escape-char-code")),1,(plt.types.Rational.makeInstance(1, 1)))), [plt.Kernel.string_dash__greaterthan_list(a_dash_str)]),_SHARED[14]),_SHARED[421]]);
               })()); };
 var weird_dash_number_question_ = function(x) { return (plt.Kernel.eqv_question_(x,(plt.types.FloatPoint.makeInstance(Number.POSITIVE_INFINITY)))||plt.Kernel.eqv_question_(x,(plt.types.FloatPoint.makeInstance(Number.NEGATIVE_INFINITY)))||plt.Kernel.eqv_question_(x,(plt.types.FloatPoint.makeInstance(Number.NaN)))); };
 var expression_dash_sharable_question_ = function(an_dash_expr, a_dash_pinfo) { return ((plt.Kernel.number_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](an_dash_expr))&&plt.Kernel.not(weird_dash_number_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](an_dash_expr)))&&(plt.Kernel.integer_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](an_dash_expr))||plt.Kernel.real_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](an_dash_expr))))||plt.Kernel.string_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](an_dash_expr))||plt.Kernel.boolean_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](an_dash_expr))||plt.Kernel.char_question_(plt._MODULES["moby/runtime/stx"].EXPORTS["stx_dash_e"](an_dash_expr))); };_SHARED[47] = (plt.types.String.makeInstance("moby/world-effects"));
 _SHARED[94] = (plt.types.String.makeInstance("plt.world.Kernel.nwRectangle"));
 _SHARED[76] = (plt.types.String.makeInstance("plt.world.config.Kernel.onTilt_star_"));
-_SHARED[322] = (plt.types.String.makeInstance("var _SHARED = {};"));
+_SHARED[325] = (plt.types.String.makeInstance("var _SHARED = {};"));
 _SHARED[222] = (plt.types.String.makeInstance("~a-~a"));
-_SHARED[474] = (plt.types.Char.makeInstance(String.fromCharCode(10)));
+_SHARED[477] = (plt.types.Char.makeInstance(String.fromCharCode(10)));
 _SHARED[22] = (plt.types.Char.makeInstance(String.fromCharCode(45)));
-_SHARED[473] = (plt.types.Char.makeInstance(String.fromCharCode(92)));
-_SHARED[475] = (plt.types.Char.makeInstance(String.fromCharCode(110)));
+_SHARED[476] = (plt.types.Char.makeInstance(String.fromCharCode(92)));
+_SHARED[478] = (plt.types.Char.makeInstance(String.fromCharCode(110)));
 _SHARED[171] = (plt.types.Char.makeInstance(String.fromCharCode(47)));
-_SHARED[472] = (plt.types.Char.makeInstance(String.fromCharCode(34)));
-_SHARED[299] = (plt.types.String.makeInstance("~s"));
+_SHARED[475] = (plt.types.Char.makeInstance(String.fromCharCode(34)));
+_SHARED[302] = (plt.types.String.makeInstance("~s"));
 _SHARED[2] = plt.types.Logic.FALSE;
-_SHARED[279] = (plt.types.String.makeInstance("~a.~a"));
-_SHARED[293] = (plt.types.String.makeInstance("})();"));
-_SHARED[378] = (plt.types.String.makeInstance("};\n"));
-_SHARED[462] = (plt.types.String.makeInstance("~a"));
-_SHARED[286] = (plt.types.String.makeInstance("}); })()"));
-_SHARED[294] = (plt.types.String.makeInstance("})(this);\n"));
-_SHARED[397] = (plt.types.String.makeInstance("||"));
-_SHARED[315] = (plt.types.String.makeInstance("}\n"));
-_SHARED[409] = (plt.types.String.makeInstance("})()"));
-_SHARED[461] = (plt.types.String.makeInstance("{offset:~a,line:~a,column:~a,span:~a,id:~s}"));
-_SHARED[283] = (plt.types.String.makeInstance("return (function() { \n"));
-_SHARED[350] = (plt.types.String.makeInstance("set_dash_"));
-_SHARED[339] = (plt.types.String.makeInstance("var "));
-_SHARED[357] = (plt.types.String.makeInstance("this."));
+_SHARED[282] = (plt.types.String.makeInstance("~a.~a"));
+_SHARED[296] = (plt.types.String.makeInstance("})();"));
+_SHARED[381] = (plt.types.String.makeInstance("};\n"));
+_SHARED[465] = (plt.types.String.makeInstance("~a"));
+_SHARED[289] = (plt.types.String.makeInstance("}); })()"));
+_SHARED[297] = (plt.types.String.makeInstance("})(this);\n"));
+_SHARED[400] = (plt.types.String.makeInstance("||"));
+_SHARED[318] = (plt.types.String.makeInstance("}\n"));
+_SHARED[412] = (plt.types.String.makeInstance("})()"));
+_SHARED[464] = (plt.types.String.makeInstance("{offset:~a,line:~a,column:~a,span:~a,id:~s}"));
+_SHARED[286] = (plt.types.String.makeInstance("return (function() { \n"));
+_SHARED[353] = (plt.types.String.makeInstance("set_dash_"));
+_SHARED[342] = (plt.types.String.makeInstance("var "));
+_SHARED[360] = (plt.types.String.makeInstance("this."));
 _SHARED[200] = (plt.types.String.makeInstance("set-"));
-_SHARED[460] = (plt.types.String.makeInstance("return _result_;  })())"));
+_SHARED[463] = (plt.types.String.makeInstance("return _result_;  })())"));
 _SHARED[189] = (plt.types.String.makeInstance("provide doesn't recognize the syntax of the clause: ~s"));
-_SHARED[276] = (plt.types.String.makeInstance("provide/contract: ~s"));
-_SHARED[408] = (plt.types.String.makeInstance("return "));
+_SHARED[279] = (plt.types.String.makeInstance("provide/contract: ~s"));
+_SHARED[411] = (plt.types.String.makeInstance("return "));
 _SHARED[83] = (plt.types.String.makeInstance("plt.world.config.Kernel.stopWhen"));
 _SHARED[71] = (plt.types.String.makeInstance("plt.world.config.Kernel.onAnnounce"));
 _SHARED[67] = (plt.types.String.makeInstance("plt.world.config.Kernel.onMouse_star_"));
@@ -2539,12 +2545,12 @@ _SHARED[87] = (plt.types.String.makeInstance("plt.world.Kernel.image_equal__ques
 _SHARED[105] = (plt.types.String.makeInstance("plt.world.Kernel.imageHeight"));
 _SHARED[106] = (plt.types.String.makeInstance("plt.world.Kernel.imageRotate"));
 _SHARED[97] = (plt.types.String.makeInstance("plt.world.Kernel.ellipse"));
-_SHARED[414] = (plt.types.String.makeInstance("plt.types.Empty.EMPTY"));
-_SHARED[354] = (plt.types.String.makeInstance("plt.types.Struct.call(this, ~s, [~a]);"));
+_SHARED[417] = (plt.types.String.makeInstance("plt.types.Empty.EMPTY"));
+_SHARED[357] = (plt.types.String.makeInstance("plt.types.Struct.call(this, ~s, [~a]);"));
 _SHARED[85] = (plt.types.String.makeInstance("plt.world.Kernel.bigBang"));
-_SHARED[441] = (plt.types.String.makeInstance("plt.types.liftToplevelToFunctionValue("));
-_SHARED[420] = (plt.types.String.makeInstance("plt.types.Logic.TRUE"));
-_SHARED[421] = (plt.types.String.makeInstance("plt.types.Logic.FALSE"));
+_SHARED[444] = (plt.types.String.makeInstance("plt.types.liftToplevelToFunctionValue("));
+_SHARED[423] = (plt.types.String.makeInstance("plt.types.Logic.TRUE"));
+_SHARED[424] = (plt.types.String.makeInstance("plt.types.Logic.FALSE"));
 _SHARED[137] = (plt.types.String.makeInstance("plt.lib.Tilt.getXAcceleration"));
 _SHARED[138] = (plt.types.String.makeInstance("plt.lib.Tilt.getYAcceleration"));
 _SHARED[142] = (plt.types.String.makeInstance("plt.lib.Tilt.getRoll"));
@@ -2564,12 +2570,12 @@ _SHARED[122] = (plt.types.String.makeInstance("plt._MODULES['cage-teachpack.js']
 _SHARED[45] = (plt.types.String.makeInstance("plt.foreign.get_dash_js_dash_object"));
 _SHARED[42] = (plt.types.String.makeInstance("plt.kernel.misc.throwCondExhaustedError"));
 _SHARED[126] = (plt.types.String.makeInstance("plt._MODULES['function-teachpack.js']"));
-_SHARED[312] = (plt.types.String.makeInstance("plt._MODULES[~s].EXPORTS[~s] = ~a;\n"));
+_SHARED[315] = (plt.types.String.makeInstance("plt._MODULES[~s].EXPORTS[~s] = ~a;\n"));
 _SHARED[39] = (plt.types.String.makeInstance("plt.Kernel."));
-_SHARED[332] = (plt.types.String.makeInstance("plt.Kernel.invokeModule('~a');"));
+_SHARED[335] = (plt.types.String.makeInstance("plt.Kernel.invokeModule('~a');"));
 _SHARED[112] = (plt.types.String.makeInstance("plt._MODULES['bootstrap-teachpack.js']"));
-_SHARED[442] = (plt.types.String.makeInstance("plt.Kernel.list([plt.types.Symbol.makeInstance('at-least'), "));
-_SHARED[429] = (plt.types.String.makeInstance("plt.Kernel.apply("));
+_SHARED[445] = (plt.types.String.makeInstance("plt.Kernel.list([plt.types.Symbol.makeInstance('at-least'), "));
+_SHARED[432] = (plt.types.String.makeInstance("plt.Kernel.apply("));
 _SHARED[63] = (plt.types.String.makeInstance("moby/world-handlers"));
 _SHARED[31] = (plt.types.String.makeInstance("I expected a single body in this expression, but I didn't find any."));
 _SHARED[51] = (plt.types.String.makeInstance("make_dash_effect_colon_send_dash_sms"));
@@ -2587,10 +2593,10 @@ _SHARED[125] = (plt.types.String.makeInstance("moby/function-teachpack"));
 _SHARED[128] = (plt.types.String.makeInstance("moby/geolocation"));
 _SHARED[44] = (plt.types.String.makeInstance("moby/foreign"));
 _SHARED[53] = (plt.types.String.makeInstance("make_dash_effect_colon_stop_dash_sound"));
-_SHARED[272] = (plt.types.String.makeInstance("misuse of a comma or 'unquote, not under a quasiquoting backquote"));
+_SHARED[274] = (plt.types.String.makeInstance("misuse of a comma or 'unquote, not under a quasiquoting backquote"));
 _SHARED[111] = (plt.types.String.makeInstance("moby/bootstrap-teachpack"));
-_SHARED[273] = (plt.types.String.makeInstance("misuse of ,@ or unquote-splicing within a quasiquoting backquote"));
-_SHARED[274] = (plt.types.String.makeInstance("misuse of a ,@ or unquote-splicing, not under a quasiquoting backquote"));
+_SHARED[276] = (plt.types.String.makeInstance("misuse of ,@ or unquote-splicing within a quasiquoting backquote"));
+_SHARED[277] = (plt.types.String.makeInstance("misuse of a ,@ or unquote-splicing, not under a quasiquoting backquote"));
 _SHARED[55] = (plt.types.String.makeInstance("make_dash_effect_colon_set_dash_sound_dash_volume"));
 _SHARED[58] = (plt.types.String.makeInstance("make_dash_effect_colon_set_dash_wake_dash_lock"));
 _SHARED[239] = (plt.types.String.makeInstance("check-error requires two expressions.  Try (check-error test message)."));
@@ -2606,141 +2612,141 @@ _SHARED[54] = (plt.types.String.makeInstance("make_dash_effect_colon_pause_dash_
 _SHARED[49] = (plt.types.String.makeInstance("make_dash_effect_colon_beep"));
 _SHARED[57] = (plt.types.String.makeInstance("make_dash_effect_colon_lower_dash_sound_dash_volume"));
 _SHARED[29] = (plt.types.String.makeInstance("define-struct expects an identifier and a list of fields.  i.e. (define-struct pizza (dough sauce toppings))"));
-_SHARED[296] = (plt.types.String.makeInstance("if (typeof(plt) == 'undefined') { plt = {}; }\n"));
-_SHARED[297] = (plt.types.String.makeInstance("if (typeof(plt._MODULES) == 'undefined') { plt._MODULES = {}; }\n"));
-_SHARED[298] = (plt.types.String.makeInstance("if (typeof(plt._MODULES["));
+_SHARED[299] = (plt.types.String.makeInstance("if (typeof(plt) == 'undefined') { plt = {}; }\n"));
+_SHARED[300] = (plt.types.String.makeInstance("if (typeof(plt._MODULES) == 'undefined') { plt._MODULES = {}; }\n"));
+_SHARED[301] = (plt.types.String.makeInstance("if (typeof(plt._MODULES["));
 _SHARED[261] = (plt.types.String.makeInstance("else clause should be the last, but there's another clause after it"));
-_SHARED[363] = (plt.types.String.makeInstance("id"));
+_SHARED[366] = (plt.types.String.makeInstance("id"));
 _SHARED[238] = (plt.types.String.makeInstance("check-within requires three expressions.  Try (check-within test expected range)."));
 _SHARED[28] = (plt.types.String.makeInstance("define expects an identifier and a body.  e.g. (define answer 42)"));
 _SHARED[236] = (plt.types.String.makeInstance("check-expect requires two expressions.  Try (check-expect test expected)."));
-_SHARED[416] = (plt.types.String.makeInstance("]))"));
-_SHARED[351] = (plt.types.String.makeInstance("_bang_"));
-_SHARED[292] = (plt.types.String.makeInstance("_that[~s] = ~a;\n"));
+_SHARED[419] = (plt.types.String.makeInstance("]))"));
+_SHARED[354] = (plt.types.String.makeInstance("_bang_"));
+_SHARED[295] = (plt.types.String.makeInstance("_that[~s] = ~a;\n"));
 _SHARED[251] = (plt.types.String.makeInstance("case needs a list of values for each clause, but sees ~s instead"));
-_SHARED[458] = (plt.types.String.makeInstance("_result_.procedureArity = "));
-_SHARED[456] = (plt.types.String.makeInstance("_result_.toWrittenString = function (cache) { return '<function:lambda>'; };"));
-_SHARED[459] = (plt.types.String.makeInstance("_result_.toDisplayedString = _result_.toWrittenString;"));
-_SHARED[457] = (plt.types.String.makeInstance("_result_.isEqual = function(other, cache) { return this === other; };"));
+_SHARED[461] = (plt.types.String.makeInstance("_result_.procedureArity = "));
+_SHARED[459] = (plt.types.String.makeInstance("_result_.toWrittenString = function (cache) { return '<function:lambda>'; };"));
+_SHARED[462] = (plt.types.String.makeInstance("_result_.toDisplayedString = _result_.toWrittenString;"));
+_SHARED[460] = (plt.types.String.makeInstance("_result_.isEqual = function(other, cache) { return this === other; };"));
 _SHARED[19] = (plt.types.String.makeInstance("_"));
-_SHARED[321] = (plt.types.String.makeInstance("_SHARED[~a] = ~a;\n"));
-_SHARED[388] = (plt.types.String.makeInstance("_SHARED[~a]"));
-_SHARED[438] = (plt.types.String.makeInstance("]), "));
-_SHARED[453] = (plt.types.String.makeInstance("];"));
-_SHARED[431] = (plt.types.String.makeInstance("]),"));
-_SHARED[302] = (plt.types.String.makeInstance("] = "));
-_SHARED[434] = (plt.types.String.makeInstance("])"));
-_SHARED[300] = (plt.types.String.makeInstance("]) == 'undefined') {\n"));
-_SHARED[385] = (plt.types.String.makeInstance("] = newVal;"));
-_SHARED[464] = (plt.types.String.makeInstance("Number.POSITIVE_INFINITY"));
-_SHARED[419] = (plt.types.String.makeInstance("Unknown unquotable expression encountered: ~s"));
-_SHARED[452] = (plt.types.String.makeInstance("["));
+_SHARED[324] = (plt.types.String.makeInstance("_SHARED[~a] = ~a;\n"));
+_SHARED[391] = (plt.types.String.makeInstance("_SHARED[~a]"));
+_SHARED[441] = (plt.types.String.makeInstance("]), "));
+_SHARED[456] = (plt.types.String.makeInstance("];"));
+_SHARED[434] = (plt.types.String.makeInstance("]),"));
+_SHARED[305] = (plt.types.String.makeInstance("] = "));
+_SHARED[437] = (plt.types.String.makeInstance("])"));
+_SHARED[303] = (plt.types.String.makeInstance("]) == 'undefined') {\n"));
+_SHARED[388] = (plt.types.String.makeInstance("] = newVal;"));
+_SHARED[467] = (plt.types.String.makeInstance("Number.POSITIVE_INFINITY"));
+_SHARED[422] = (plt.types.String.makeInstance("Unknown unquotable expression encountered: ~s"));
+_SHARED[455] = (plt.types.String.makeInstance("["));
 _SHARED[243] = (plt.types.String.makeInstance("Unable to desugar ~s"));
 _SHARED[254] = (plt.types.String.makeInstance("Not a case clause: ~s"));
-_SHARED[465] = (plt.types.String.makeInstance("Number.NEGATIVE_INFINITY"));
-_SHARED[466] = (plt.types.String.makeInstance("Number.NaN"));
+_SHARED[468] = (plt.types.String.makeInstance("Number.NEGATIVE_INFINITY"));
+_SHARED[469] = (plt.types.String.makeInstance("Number.NaN"));
 _SHARED[32] = (plt.types.String.makeInstance("I expected a single body in this expression, but I found more than one."));
-_SHARED[329] = (plt.types.String.makeInstance("("));
+_SHARED[332] = (plt.types.String.makeInstance("("));
 _SHARED[174] = (plt.types.String.makeInstance(".."));
-_SHARED[277] = (plt.types.String.makeInstance("2"));
-_SHARED[327] = (plt.types.String.makeInstance(";\n"));
-_SHARED[387] = (plt.types.String.makeInstance("; };\n"));
+_SHARED[280] = (plt.types.String.makeInstance("2"));
+_SHARED[330] = (plt.types.String.makeInstance(";\n"));
+_SHARED[390] = (plt.types.String.makeInstance("; };\n"));
 _SHARED[195] = (plt.types.String.makeInstance("?"));
 _SHARED[237] = (plt.types.String.makeInstance("EXAMPLE requires two expressions.  Try (EXAMPLE test expected)."));
-_SHARED[405] = (plt.types.String.makeInstance(";})()"));
-_SHARED[346] = (plt.types.String.makeInstance("; "));
-_SHARED[344] = (plt.types.String.makeInstance("; };"));
-_SHARED[455] = (plt.types.String.makeInstance("; });"));
-_SHARED[426] = (plt.types.String.makeInstance(";\n              })())"));
-_SHARED[375] = (plt.types.String.makeInstance(": not a "));
-_SHARED[348] = (plt.types.String.makeInstance(";"));
-_SHARED[376] = (plt.types.String.makeInstance(": ~s', [obj])]);\n"));
-_SHARED[278] = (plt.types.String.makeInstance("33"));
+_SHARED[408] = (plt.types.String.makeInstance(";})()"));
+_SHARED[349] = (plt.types.String.makeInstance("; "));
+_SHARED[347] = (plt.types.String.makeInstance("; };"));
+_SHARED[458] = (plt.types.String.makeInstance("; });"));
+_SHARED[429] = (plt.types.String.makeInstance(";\n              })())"));
+_SHARED[378] = (plt.types.String.makeInstance(": not a "));
+_SHARED[351] = (plt.types.String.makeInstance(";"));
+_SHARED[379] = (plt.types.String.makeInstance(": ~s', [obj])]);\n"));
+_SHARED[281] = (plt.types.String.makeInstance("33"));
 _SHARED[123] = (plt.types.String.makeInstance(".EXPORTS['start']"));
 _SHARED[115] = (plt.types.String.makeInstance(".EXPORTS['test-frame']"));
 _SHARED[172] = (plt.types.String.makeInstance("/"));
 _SHARED[21] = (plt.types.String.makeInstance("0123456789"));
-_SHARED[359] = (plt.types.String.makeInstance(".prototype = new plt.types.Struct();\n"));
+_SHARED[362] = (plt.types.String.makeInstance(".prototype = new plt.types.Struct();\n"));
 _SHARED[119] = (plt.types.String.makeInstance(".EXPORTS['tangent']"));
 _SHARED[117] = (plt.types.String.makeInstance(".EXPORTS['sine']"));
 _SHARED[116] = (plt.types.String.makeInstance(".EXPORTS['sq']"));
 _SHARED[114] = (plt.types.String.makeInstance(".EXPORTS['START']"));
 _SHARED[118] = (plt.types.String.makeInstance(".EXPORTS['cosine']"));
-_SHARED[413] = (plt.types.String.makeInstance(")"));
-_SHARED[330] = (plt.types.String.makeInstance(");"));
-_SHARED[304] = (plt.types.String.makeInstance(","));
-_SHARED[433] = (plt.types.String.makeInstance(", ["));
+_SHARED[416] = (plt.types.String.makeInstance(")"));
+_SHARED[333] = (plt.types.String.makeInstance(");"));
+_SHARED[307] = (plt.types.String.makeInstance(","));
+_SHARED[436] = (plt.types.String.makeInstance(", ["));
 _SHARED[197] = (plt.types.String.makeInstance("-"));
-_SHARED[342] = (plt.types.String.makeInstance(", "));
-_SHARED[366] = (plt.types.String.makeInstance("); };"));
-_SHARED[343] = (plt.types.String.makeInstance(") { return "));
-_SHARED[443] = (plt.types.String.makeInstance("))"));
-_SHARED[470] = (plt.types.String.makeInstance(")))"));
-_SHARED[309] = (plt.types.String.makeInstance(")( function(x){return x;} );\n"));
-_SHARED[364] = (plt.types.String.makeInstance(") { return new "));
-_SHARED[324] = (plt.types.String.makeInstance(") { "));
-_SHARED[450] = (plt.types.String.makeInstance(") {\n"));
-_SHARED[288] = (plt.types.String.makeInstance("(function(_that) {"));
-_SHARED[468] = (plt.types.String.makeInstance("(plt.types.Complex.makeInstance("));
-_SHARED[467] = (plt.types.String.makeInstance("(plt.types.Rational.makeInstance("));
-_SHARED[417] = (plt.types.String.makeInstance("(plt.types.Symbol.makeInstance(\""));
-_SHARED[476] = (plt.types.String.makeInstance("(plt.types.String.makeInstance(\""));
-_SHARED[463] = (plt.types.String.makeInstance("(plt.types.FloatPoint.makeInstance("));
-_SHARED[427] = (plt.types.String.makeInstance("(plt.Kernel.setLastLoc(~a) && ~a)"));
-_SHARED[469] = (plt.types.String.makeInstance("(plt.types.Char.makeInstance(String.fromCharCode("));
-_SHARED[415] = (plt.types.String.makeInstance("(plt.Kernel.list(["));
-_SHARED[425] = (plt.types.String.makeInstance("(plt.Kernel.identity)"));
-_SHARED[281] = (plt.types.String.makeInstance("(function() { "));
-_SHARED[407] = (plt.types.String.makeInstance("(function(){"));
-_SHARED[404] = (plt.types.String.makeInstance("(function(){ \n"));
-_SHARED[289] = (plt.types.String.makeInstance("(function() { \n"));
-_SHARED[435] = (plt.types.String.makeInstance("(["));
-_SHARED[323] = (plt.types.String.makeInstance("(function ("));
-_SHARED[424] = (plt.types.String.makeInstance("((function() { \n"));
-_SHARED[448] = (plt.types.String.makeInstance("((function() {\n"));
-_SHARED[372] = (plt.types.String.makeInstance("     } else {\n"));
-_SHARED[352] = (plt.types.String.makeInstance(" = function ("));
-_SHARED[383] = (plt.types.String.makeInstance(" = newVal;\n"));
-_SHARED[325] = (plt.types.String.makeInstance(" })"));
-_SHARED[418] = (plt.types.String.makeInstance("\"))"));
-_SHARED[395] = (plt.types.String.makeInstance("&&"));
+_SHARED[345] = (plt.types.String.makeInstance(", "));
+_SHARED[369] = (plt.types.String.makeInstance("); };"));
+_SHARED[346] = (plt.types.String.makeInstance(") { return "));
+_SHARED[446] = (plt.types.String.makeInstance("))"));
+_SHARED[473] = (plt.types.String.makeInstance(")))"));
+_SHARED[312] = (plt.types.String.makeInstance(")( function(x){return x;} );\n"));
+_SHARED[367] = (plt.types.String.makeInstance(") { return new "));
+_SHARED[327] = (plt.types.String.makeInstance(") { "));
+_SHARED[453] = (plt.types.String.makeInstance(") {\n"));
+_SHARED[291] = (plt.types.String.makeInstance("(function(_that) {"));
+_SHARED[471] = (plt.types.String.makeInstance("(plt.types.Complex.makeInstance("));
+_SHARED[470] = (plt.types.String.makeInstance("(plt.types.Rational.makeInstance("));
+_SHARED[420] = (plt.types.String.makeInstance("(plt.types.Symbol.makeInstance(\""));
+_SHARED[479] = (plt.types.String.makeInstance("(plt.types.String.makeInstance(\""));
+_SHARED[466] = (plt.types.String.makeInstance("(plt.types.FloatPoint.makeInstance("));
+_SHARED[430] = (plt.types.String.makeInstance("(plt.Kernel.setLastLoc(~a) && ~a)"));
+_SHARED[472] = (plt.types.String.makeInstance("(plt.types.Char.makeInstance(String.fromCharCode("));
+_SHARED[418] = (plt.types.String.makeInstance("(plt.Kernel.list(["));
+_SHARED[428] = (plt.types.String.makeInstance("(plt.Kernel.identity)"));
+_SHARED[284] = (plt.types.String.makeInstance("(function() { "));
+_SHARED[410] = (plt.types.String.makeInstance("(function(){"));
+_SHARED[407] = (plt.types.String.makeInstance("(function(){ \n"));
+_SHARED[292] = (plt.types.String.makeInstance("(function() { \n"));
+_SHARED[438] = (plt.types.String.makeInstance("(["));
+_SHARED[326] = (plt.types.String.makeInstance("(function ("));
+_SHARED[427] = (plt.types.String.makeInstance("((function() { \n"));
+_SHARED[451] = (plt.types.String.makeInstance("((function() {\n"));
+_SHARED[375] = (plt.types.String.makeInstance("     } else {\n"));
+_SHARED[355] = (plt.types.String.makeInstance(" = function ("));
+_SHARED[386] = (plt.types.String.makeInstance(" = newVal;\n"));
+_SHARED[328] = (plt.types.String.makeInstance(" })"));
+_SHARED[421] = (plt.types.String.makeInstance("\"))"));
+_SHARED[398] = (plt.types.String.makeInstance("&&"));
 _SHARED[201] = (plt.types.String.makeInstance("!"));
-_SHARED[358] = (plt.types.String.makeInstance(" };\n"));
-_SHARED[411] = (plt.types.String.makeInstance(" ?\n "));
-_SHARED[368] = (plt.types.String.makeInstance(" = function(obj) {\n"));
-_SHARED[380] = (plt.types.String.makeInstance(" = function(obj,newVal) {\n"));
-_SHARED[386] = (plt.types.String.makeInstance(" = function(obj) { \n              return obj != null && obj != undefined && obj instanceof "));
-_SHARED[340] = (plt.types.String.makeInstance(" = function("));
-_SHARED[284] = (plt.types.String.makeInstance("  ("));
-_SHARED[313] = (plt.types.String.makeInstance("  };\n"));
-_SHARED[412] = (plt.types.String.makeInstance(" :\n "));
-_SHARED[347] = (plt.types.String.makeInstance(" = "));
-_SHARED[361] = (plt.types.String.makeInstance(" = function "));
-_SHARED[370] = (plt.types.String.makeInstance(" (obj)) {\n"));
-_SHARED[285] = (plt.types.String.makeInstance("  )(arguments[0] || plt.Kernel.identity);\n"));
-_SHARED[454] = (plt.types.String.makeInstance("  return "));
-_SHARED[306] = (plt.types.String.makeInstance("    (function() {\n"));
-_SHARED[301] = (plt.types.String.makeInstance("    plt._MODULES["));
-_SHARED[449] = (plt.types.String.makeInstance("   var _result_ = (function("));
-_SHARED[314] = (plt.types.String.makeInstance("     }());\n"));
+_SHARED[361] = (plt.types.String.makeInstance(" };\n"));
+_SHARED[414] = (plt.types.String.makeInstance(" ?\n "));
+_SHARED[371] = (plt.types.String.makeInstance(" = function(obj) {\n"));
+_SHARED[383] = (plt.types.String.makeInstance(" = function(obj,newVal) {\n"));
+_SHARED[389] = (plt.types.String.makeInstance(" = function(obj) { \n              return obj != null && obj != undefined && obj instanceof "));
+_SHARED[343] = (plt.types.String.makeInstance(" = function("));
+_SHARED[287] = (plt.types.String.makeInstance("  ("));
+_SHARED[316] = (plt.types.String.makeInstance("  };\n"));
+_SHARED[415] = (plt.types.String.makeInstance(" :\n "));
+_SHARED[350] = (plt.types.String.makeInstance(" = "));
+_SHARED[364] = (plt.types.String.makeInstance(" = function "));
+_SHARED[373] = (plt.types.String.makeInstance(" (obj)) {\n"));
+_SHARED[288] = (plt.types.String.makeInstance("  )(arguments[0] || plt.Kernel.identity);\n"));
+_SHARED[457] = (plt.types.String.makeInstance("  return "));
+_SHARED[309] = (plt.types.String.makeInstance("    (function() {\n"));
+_SHARED[304] = (plt.types.String.makeInstance("    plt._MODULES["));
+_SHARED[452] = (plt.types.String.makeInstance("   var _result_ = (function("));
+_SHARED[317] = (plt.types.String.makeInstance("     }());\n"));
 _SHARED[14] = (plt.types.String.makeInstance(""));
-_SHARED[373] = (plt.types.String.makeInstance("        plt.types.throwMobyError(false, \"make-moby-error-type:generic-runtime-error\", "));
-_SHARED[303] = (plt.types.String.makeInstance("        { COMPILER_VERSION: "));
-_SHARED[369] = (plt.types.String.makeInstance("     if ("));
-_SHARED[377] = (plt.types.String.makeInstance("     }\n"));
-_SHARED[371] = (plt.types.String.makeInstance("        return obj."));
-_SHARED[430] = (plt.types.String.makeInstance("                    plt.Kernel.list(["));
-_SHARED[374] = (plt.types.String.makeInstance("            [plt.Kernel.format('"));
-_SHARED[307] = (plt.types.String.makeInstance("        plt._MODULES[~s].invoke = function() { "));
-_SHARED[384] = (plt.types.String.makeInstance("           obj._fields["));
-_SHARED[437] = (plt.types.String.makeInstance("                   plt.Kernel.list(["));
-_SHARED[308] = (plt.types.String.makeInstance("            ("));
-_SHARED[439] = (plt.types.String.makeInstance("                   [])"));
-_SHARED[305] = (plt.types.String.makeInstance("\n	BINDINGS: {},\n	EXPORTS : {},\n	isInvoked: false};\n"));
-_SHARED[432] = (plt.types.String.makeInstance("                    [])"));
-_SHARED[381] = (plt.types.String.makeInstance("	 if ("));
-_SHARED[282] = (plt.types.String.makeInstance("\n"));
-_SHARED[382] = (plt.types.String.makeInstance("		obj."));
+_SHARED[376] = (plt.types.String.makeInstance("        plt.types.throwMobyError(false, \"make-moby-error-type:generic-runtime-error\", "));
+_SHARED[306] = (plt.types.String.makeInstance("        { COMPILER_VERSION: "));
+_SHARED[372] = (plt.types.String.makeInstance("     if ("));
+_SHARED[380] = (plt.types.String.makeInstance("     }\n"));
+_SHARED[374] = (plt.types.String.makeInstance("        return obj."));
+_SHARED[433] = (plt.types.String.makeInstance("                    plt.Kernel.list(["));
+_SHARED[377] = (plt.types.String.makeInstance("            [plt.Kernel.format('"));
+_SHARED[310] = (plt.types.String.makeInstance("        plt._MODULES[~s].invoke = function() { "));
+_SHARED[387] = (plt.types.String.makeInstance("           obj._fields["));
+_SHARED[440] = (plt.types.String.makeInstance("                   plt.Kernel.list(["));
+_SHARED[311] = (plt.types.String.makeInstance("            ("));
+_SHARED[442] = (plt.types.String.makeInstance("                   [])"));
+_SHARED[308] = (plt.types.String.makeInstance("\n	BINDINGS: {},\n	EXPORTS : {},\n	isInvoked: false};\n"));
+_SHARED[435] = (plt.types.String.makeInstance("                    [])"));
+_SHARED[384] = (plt.types.String.makeInstance("	 if ("));
+_SHARED[285] = (plt.types.String.makeInstance("\n"));
+_SHARED[385] = (plt.types.String.makeInstance("		obj."));
 _SHARED[9] = (plt.types.Rational.makeInstance(3, 1));
 _SHARED[11] = (plt.types.Rational.makeInstance(5, 1));
 _SHARED[12] = (plt.types.Rational.makeInstance(6, 1));
@@ -3049,9 +3055,9 @@ plt.Kernel.invokeModule('moby/runtime/error-struct');;
 
 
 
-MAJOR = _SHARED[277];
-MINOR = _SHARED[278];
-VERSION = plt.Kernel.format(_SHARED[279], [MAJOR,MINOR]);
+MAJOR = _SHARED[280];
+MINOR = _SHARED[281];
+VERSION = plt.Kernel.format(_SHARED[282], [MAJOR,MINOR]);
 plt.Kernel.invokeModule('moby/runtime/binding');;
 
 plt.Kernel.invokeModule('moby/runtime/stx');;

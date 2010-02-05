@@ -22,7 +22,27 @@ WeSchemeInteractions = (function () {
     var errorStructModule = plt.Kernel.invokeModule("moby/runtime/error-struct");
     var errorToDomModule = plt.Kernel.invokeModule("moby/runtime/error-struct-to-dom");
     var schemeValueToDomModule = plt.Kernel.invokeModule("moby/runtime/scheme-value-to-dom");
-    
+    var domParametersModule = plt.Kernel.invokeModule("moby/runtime/dom-parameters");
+
+
+    var customDomParameters =
+	domParametersModule.EXPORTS.make_dash_dom_dash_parameters(
+	plt.types.liftToplevelToFunctionValue(
+	    function(val) {
+		return plt.world.Kernel.isImage(val);
+	    },
+	    "->dom?",
+	    1,
+	    plt.types.Rational.makeInstance(1)),
+
+
+	plt.types.liftToplevelToFunctionValue(
+	    function(val, recur) {
+		return val.toDomNode(false);
+	    },
+	    "->dom",
+	    2,
+	    plt.types.Rational.makeInstance(2)));
 
 
     // WeSchemeInteractions: div -> WeScheme
@@ -175,8 +195,7 @@ WeSchemeInteractions = (function () {
 			if (val != undefined) {
 			    that.addToInteractions(
 				sexpToDom(
-				    schemeValueToDomModule.EXPORTS.scheme_dash_value_dash_to_dash_dom_dash_sexp(val))
-			    );
+				    schemeValueToDomModule.EXPORTS.scheme_dash_value_dash__greaterthan_dom_dash_sexp(val, customDomParameters)));
 			    that.addToInteractions("\n");
 			}
 		    });
@@ -196,6 +215,8 @@ WeSchemeInteractions = (function () {
     var sexpToDom = function(anSexp) {
 	if (typeof(anSexp) === 'string') {
 	    return document.createTextNode(anSexp)
+	} else if (anSexp.hasOwnProperty('nodeType')) {
+	    return anSexp;
 	} else {
 	    var nodeType = 
 		plt.Kernel.symbol_dash__greaterthan_string(
@@ -239,7 +260,7 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.handleError = function(err) {
 	if (errorStructModule.EXPORTS.moby_dash_error_question_(err)) {
 	    var newSexp = 
-		errorToDomModule.EXPORTS.moby_dash_error_dash_struct_dash_to_dash_dom_dash_sexp(err);
+		errorToDomModule.EXPORTS.error_dash_struct_dash__greaterthan_dom_dash_sexp(err, false);
 	    var aLoc = errorStructModule.EXPORTS.moby_dash_error_dash_location(err);
 	    
 	    var aLocHash = 

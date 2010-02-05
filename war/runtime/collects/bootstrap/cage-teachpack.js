@@ -3,7 +3,7 @@
 if (typeof(plt) == 'undefined') { plt = {}; }
 if (typeof(plt._MODULES) == 'undefined') { plt._MODULES = {}; }
 if (typeof(plt._MODULES["bootstrap/cage-teachpack"]) == 'undefined') {
-    plt._MODULES["bootstrap/cage-teachpack"] =         { COMPILER_VERSION: "2.31",
+    plt._MODULES["bootstrap/cage-teachpack"] =         { COMPILER_VERSION: "2.33",
 	BINDINGS: {},
 	EXPORTS : {},
 	isInvoked: false};
@@ -22,7 +22,7 @@ var world_dash_x = function(obj) {
      if (world_question_ (obj)) {
         return obj.x;
      } else {
-        throw new plt.Kernel.MobyRuntimeError(            plt.Kernel.format('world-x: not a world: ~s', [obj]));
+        plt.types.throwMobyError(false, "make-moby-error-type:generic-runtime-error",             [plt.Kernel.format('world-x: not a world: ~s', [obj])]);
      }
 };
 
@@ -30,7 +30,7 @@ var world_dash_y = function(obj) {
      if (world_question_ (obj)) {
         return obj.y;
      } else {
-        throw new plt.Kernel.MobyRuntimeError(            plt.Kernel.format('world-y: not a world: ~s', [obj]));
+        plt.types.throwMobyError(false, "make-moby-error-type:generic-runtime-error",             [plt.Kernel.format('world-y: not a world: ~s', [obj])]);
      }
 };
 
@@ -38,7 +38,7 @@ var set_dash_world_dash_x_bang_ = function(obj,newVal) {
 	 if (world_question_ (obj)) {
 		obj.x = newVal;
            obj._fields[0] = newVal;     } else {
-        throw new plt.Kernel.MobyRuntimeError(            plt.Kernel.format('set_dash_world_dash_x_bang_: not a world: ~s', [obj]));
+        plt.types.throwMobyError(false, "make-moby-error-type:generic-runtime-error",             [plt.Kernel.format('set_dash_world_dash_x_bang_: not a world: ~s', [obj])]);
      }
 };
 
@@ -46,7 +46,7 @@ var set_dash_world_dash_y_bang_ = function(obj,newVal) {
 	 if (world_question_ (obj)) {
 		obj.y = newVal;
            obj._fields[1] = newVal;     } else {
-        throw new plt.Kernel.MobyRuntimeError(            plt.Kernel.format('set_dash_world_dash_y_bang_: not a world: ~s', [obj]));
+        plt.types.throwMobyError(false, "make-moby-error-type:generic-runtime-error",             [plt.Kernel.format('set_dash_world_dash_y_bang_: not a world: ~s', [obj])]);
      }
 };
 
