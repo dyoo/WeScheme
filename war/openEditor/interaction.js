@@ -162,7 +162,7 @@ WeSchemeInteractions = (function () {
 
 	    var permArray = that._getPermissionArray(compilerModule.EXPORTS.pinfo_dash_permissions(newPinfo));
 	} catch (err) {
-	    this.handleError(err);
+	    that.handleError(err);
 	    return;
 	}
 
@@ -213,6 +213,9 @@ WeSchemeInteractions = (function () {
 
 
     var sexpToDom = function(anSexp) {
+	if (typeof(anSexp) === 'undefined') {
+	    return document.createTextNode("undefined");
+	}
 	if (typeof(anSexp) === 'string') {
 	    return document.createTextNode(anSexp)
 	} else if (anSexp.hasOwnProperty('nodeType')) {
@@ -288,7 +291,8 @@ WeSchemeInteractions = (function () {
     // Given an exception, produces error dom node to be displayed.
     WeSchemeInteractions.prototype.renderErrorAsDomNode = function(err) {
 	var type, msg;
-	if (err.hasOwnProperty("name") &&
+	if (err && 
+	    err.hasOwnProperty("name") &&
 	    err.hasOwnProperty("msg")) {
 	    type = err.name;
 	    msg = err.msg;
