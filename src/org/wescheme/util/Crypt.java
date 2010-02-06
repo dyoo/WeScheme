@@ -111,10 +111,6 @@ public class Crypt {
 			_val = hash(s + key.toString());
 		}
 
-		public Token(String s){
-			_val = s.getBytes();
-		}
-		
 		public byte[] getValue(){
 			return _val;
 		}

@@ -39,8 +39,7 @@ public class Session implements Serializable {
 		
 		String s = Base64.encodeObject(this);
 		Token stoken = new Token(s, k);
-		return Base64.encodeObject(t).equals(Base64.encodeObject(stoken)); //TODO There's a cleaner way to do this.
-		
+		return t.equals(stoken);
 	}	
 	
 	
