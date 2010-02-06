@@ -31,14 +31,14 @@ public class SessionManager {
 		Cookie[] cookies 	= req.getCookies();
 		String token		= Cookies.getUndecodedCookie(cookies, "token");
 		
-		if( tokenPOST == null || token == null || tokenPOST == "" || token == "" ){ 
+		if( tokenPOST == null || token == null || tokenPOST.equals("") || token.equals("") ){ 
 			System.out.println("Not intentional; tokenPOST = " + tokenPOST + ", tokenCookie=" + token);
 			return false; 
 		}
 		
 		if (! tokenPOST.equals(token))
 			System.out.println("Not intentional; tokenPOST = " + tokenPOST + ", tokenCookie=" + token);
-		return (tokenPOST.equals(token) && tokenPOST != "");
+		return (tokenPOST.equals(token) && (!tokenPOST.equals(""));
 		
 	}
 
