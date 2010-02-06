@@ -38,7 +38,7 @@ public class SessionManager {
 		
 		if (! tokenPOST.equals(token))
 			System.out.println("Not intentional; tokenPOST = " + tokenPOST + ", tokenCookie=" + token);
-		return (tokenPOST.equals(token) && (!tokenPOST.equals(""));
+		return (tokenPOST.equals(token) && (!tokenPOST.equals("")));
 		
 	}
 
