@@ -305,11 +305,11 @@ WeSchemeInteractions = (function () {
 	    { 'class': "moby-error" },
 	    createDom(
 		"div",
-		{ 'class' : "moby-error:type"},
+		{ 'class' : "moby-error-type"},
 		type),
 	    createDom(
 		"div",
-		{ 'class': "moby-error:message"},
+		{ 'class': "moby-error-message"},
 		msg));
     };
 
@@ -354,11 +354,11 @@ WeSchemeInteractions = (function () {
 	return createDom(
 	    "div",
 	    {'class': "moby-location"},
-	    createDom("div", {'class': "moby-location:source-id"}, "source: " + loc.id),
-	    createDom("div", {'class': "moby-location:line"}, "line: " +loc.line),
-	    createDom("div", {'class': "moby-location:line"}, "column: " +loc.column),
-	    createDom("div", {'class': "moby-location:offset"}, "offset: " + loc.offset),
-	    createDom("div", {'class': "moby-location:span"}, "span: " + loc.span)
+	    createDom("div", {'class': "moby-location-source-id"}, "source: " + loc.id),
+	    createDom("div", {'class': "moby-location-line"}, "line: " +loc.line),
+	    createDom("div", {'class': "moby-location-line"}, "column: " +loc.column),
+	    createDom("div", {'class': "moby-location-offset"}, "offset: " + loc.offset),
+	    createDom("div", {'class': "moby-location-span"}, "span: " + loc.span)
 	);
     };
 
