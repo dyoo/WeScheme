@@ -163,9 +163,9 @@ An Arity is one of:
               </span>
           </span>
 */ 
-span.Arity:Fixed	{}
-span.Arity:Variable	{}
-span.Arity:Mixed	{}
+span.Arity-Fixed	{}
+span.Arity-Variable	{}
+span.Arity-Mixed	{}
  
 /* A Location is a:
  
@@ -192,7 +192,7 @@ span.Location.span	{display: none;}
               <span class="Error:UnclosedLexicalTokenError.location">...</span>
 		</span>
 */
-span.Error:UnclosedLexicalTokenError.reason{color: red; font-style: italic;}
+span.Error-UnclosedLexicalTokenError.reason{color: red; font-style: italic;}
  
 /*  UnrecognizedLexicalTokenError of string * Location         ;; reason, location
     e.g.  <span class="Error:UnrecognizedLexicalTokenError">
@@ -200,7 +200,7 @@ span.Error:UnclosedLexicalTokenError.reason{color: red; font-style: italic;}
               <span class="Error:UnrecognizedLexicalTokenError.location">...</span>
           </span>
 */
-span.Error:UnrecognizedLexicalTokenError.reason{color: red; font-style: italic;}
+span.Error-UnrecognizedLexicalTokenError.reason{color: red; font-style: italic;}
  
  
 /*  UnsupportedLexicalTokenError of string * Location         ;; reason, location
@@ -209,7 +209,7 @@ span.Error:UnrecognizedLexicalTokenError.reason{color: red; font-style: italic;}
               <span class="Error:UnsupportedLexicalTokenError.location">...</span>
           </span>
 */
-span.Error:UnsupportedLexicalTokenError.reason{color: red; font-style: italic;} 
+span.Error-UnsupportedLexicalTokenError.reason{color: red; font-style: italic;} 
  
 /*  UnclosedParensError of string * Location
     e.g.  <span class="Error:UnclosedParensError">
@@ -221,7 +221,7 @@ span.Error:UnsupportedLexicalTokenError.reason{color: red; font-style: italic;}
               <span class="Error:UnclosedParensError.location">...</span>
           </span>
 */ 
-span.Error:UnclosedParensError.reason{color: red; font-style: italic;} 
+span.Error-UnclosedParensError.reason{color: red; font-style: italic;} 
  
 /*  MissingExpressionError of string * Location
     e.g.  <span class="Error:UnclosedParensError">
@@ -229,7 +229,7 @@ span.Error:UnclosedParensError.reason{color: red; font-style: italic;}
               <span class="Error:MissingExpressionError.location">...</span>
           </span>
 */ 
-span.Error:MissingExpressionError.reason{color: red; font-style: italic;} 
+span.Error-MissingExpressionError.reason{color: red; font-style: italic;} 
  
 /*  DuplicateIdentifierError of string * Location * Location       ;; the identifier, where it was first observed, where the duplication is being seen
     e.g.  <span class="Error:DuplicateIdentifierError">
@@ -240,7 +240,7 @@ span.Error:MissingExpressionError.reason{color: red; font-style: italic;}
               </span>
           </span>
 */ 
-span.Error:DuplicateIdentifierError.reason{color: red; font-style: italic;} 
+span.Error-DuplicateIdentifierError.reason{color: red; font-style: italic;} 
  
 /*  UndefinedIdentifierError of string * Location
     e.g.  <span class="Error:UndefinedIdentifierError">
@@ -248,7 +248,7 @@ span.Error:DuplicateIdentifierError.reason{color: red; font-style: italic;}
               <span class="Error:UndefinedIdentifierError.location">...</span>
           </span>
 */
-span.Error:UndefinedIdentifierError.reason{color: red; font-style: italic;} 
+span.Error-UndefinedIdentifierError.reason{color: red; font-style: italic;} 
  
 /*  ArityError of Arity * number * Location                  ;; expected arity, observed # of arguments, syntactic location
     e.g.  <span class="Error:ArityError">
@@ -261,7 +261,7 @@ span.Error:UndefinedIdentifierError.reason{color: red; font-style: italic;}
               <span class="Error:ArityError.location">...</span>
           </span>
 */ 
-span.Error:ArityError.reason{color: red; font-style: italic;} 
+span.Error-ArityError.reason{color: red; font-style: italic;} 
  
 /* IndexError of number * number * number * Location            ;; minimum index, maximum index, observed index, syntactic location
     e.g.  <span class="Error:IndexError">
@@ -272,7 +272,7 @@ span.Error:ArityError.reason{color: red; font-style: italic;}
               <span class="Error:IndexError.location">...</span>
           </span>
 */ 
-span.Error:IndexError.reason{color: red; font-style: italic;} 
+span.Error-IndexError.reason{color: red; font-style: italic;} 
  
 /*  TypeError of SchemeValue * ExpectedValue * number * SchemeValue * Location       ;; who's raising the error, the expected value, position in the function application, the observed value, syntactic location
     e.g.  <span class="Error:TypeError">
@@ -320,11 +320,11 @@ span.Error:IndexError.reason{color: red; font-style: italic;}
               </span>
           </span>
 */ 
-span.Error:TypeError.reason	 {color: red; font-style: italic;} 
-span.Error:TypeError.who	 {display: none;}
-span.Error:TypeError.expected{display: none;}
-span.Error:TypeError.position{display: none;}
-span.Error:TypeError.observed{display: none;}
+span.Error-TypeError.reason	 {color: red; font-style: italic;} 
+span.Error-TypeError.who	 {display: none;}
+span.Error-TypeError.expected{display: none;}
+span.Error-TypeError.position{display: none;}
+span.Error-TypeError.observed{display: none;}
  
 /*  RuntimeError of string * Location
     e.g.  <span class="Error:RuntimeError">
