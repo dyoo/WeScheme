@@ -40,7 +40,8 @@ public class SaveProjectServlet extends HttpServlet{
 					saveExistingProgram(pm, userSession, resp, pid, title, code);
 					}
 			} else {
-				log.warning("User does not own project " + req.getParameter("pid"));
+				log.warning("User session can't be retrieved; user appears to be logged out.");
+//				log.warning("User does not own project " + req.getParameter("pid"));
 				resp.sendError(401);
 				return;
 			}
