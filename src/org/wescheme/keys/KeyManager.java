@@ -68,9 +68,17 @@ public class KeyManager {
 		pm.makePersistent(key);
 	}
 
-	public static Crypt.Key retrieveKey(PersistenceManager pm, Cache c, String key) throws KeyNotFoundException{
+	public static Crypt.Key retrieveKey(PersistenceManager pm, Cache c, String keyName) throws KeyNotFoundException{
 
-		Object o = (Crypt.Key) c.get(key);
+		Crypt.Key inMemoryKey = getFromInMemoryCache(keyName, c);
+		Crypt.Key inDbKey = getFromPersistentStorage(pm, keyName);
+		if (inMemoryKey != null) {
+			logger.info("Does the in memory key match the persistent key?: " + (inMemoryKey.equals(inDbKey)));
+			c.put(keyName, inDbKey);
+		}
+
+		return inDbKey;
+/*		Object o = (Crypt.Key) c.get(key);
 
 		// attempt to fetch the key from the cache
 		if( o != null && o instanceof Crypt.Key ){
@@ -78,17 +86,35 @@ public class KeyManager {
 			return (Crypt.Key) o;
 		} else {
 			// failing that, fetch it from persistent memory
-			try {
-				Key k = KeyFactory.createKey(Key.class.getName(), key);
-				// FIXME: Why would this fail?
-				o = pm.getObjectById(Key.class, k);
-				logger.info("retrieved key " + key + " from persistent cache.");
-				return (Crypt.Key) o;	
-			} catch (Exception e){
-				logger.warning("Exception occured while looking up key " + key);
-				logger.warning(e.toString());
-				throw new Crypt.KeyNotFoundException();
-			}
+			return getFromPersistentStorage(pm, key);
+		}
+*/	}
+	
+	private static Crypt.Key getFromInMemoryCache(String key, Cache c) {
+		Object o = (Crypt.Key) c.get(key);
+
+		// attempt to fetch the key from the cache
+		if( o != null && o instanceof Crypt.Key ){
+			logger.info("retrieved key " + key + " from in-memory cache.");
+			return (Crypt.Key) o;
+		}
+		return null;
+	}
+	
+
+	private static Crypt.Key getFromPersistentStorage(PersistenceManager pm,
+			String key) throws KeyNotFoundException {
+		Object o;
+		try {
+			Key k = KeyFactory.createKey(Key.class.getName(), key);
+			// FIXME: Why would this fail?
+			o = pm.getObjectById(Key.class, k);
+			logger.info("retrieved key " + key + " from persistent cache.");
+			return (Crypt.Key) o;	
+		} catch (Exception e){
+			logger.warning("Exception occured while looking up key " + key);
+			logger.warning(e.toString());
+			throw new Crypt.KeyNotFoundException();
 		}
 	}
 

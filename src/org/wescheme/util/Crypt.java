@@ -71,12 +71,12 @@ public class Crypt {
 		private static final long serialVersionUID = 6490160398746446795L;
 		@PrimaryKey
 		@Persistent
-		private String _name;
+		private String name;
 		@Persistent
 		private byte[] _val;
 		
 		public Key(String name, byte[] k){
-			_name = name;
+			name = this.name;
 			_val = k;
 		}
 		
@@ -85,11 +85,11 @@ public class Crypt {
 		}
 		
 		public String getName(){
-			return _name;
+			return name;
 		}
 		
 		public void setName(String n){
-			_name = n;
+			this.name = n;
 		}
 		
 		public String toString(){
