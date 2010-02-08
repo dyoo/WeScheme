@@ -66,14 +66,14 @@ public class SessionManager {
 				Cache cache = cf.createCache(Collections.emptyMap());
 				
 				Crypt.Key fk = KeyManager.retrieveKey(pm, cache, "freshKey");
-				Crypt.Key sk = KeyManager.retrieveKey(pm, cache, "staleKey");
-
 				if( userSession.isValid(userToken, fk) ){
 					logger.info("credentials valid.  Returning session.");
 					return userSession;
 				}
 				logger.info("credentials don't match the fresh key.");
+
 				
+				Crypt.Key sk = KeyManager.retrieveKey(pm, cache, "staleKey");
 				if( userSession.isValid(userToken, sk) ){
 					logger.info("credentials expired, but has stale key.  Reissuing new session.");
 					issueSession(userSession, resp);
