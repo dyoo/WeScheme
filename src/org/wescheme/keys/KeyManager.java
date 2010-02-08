@@ -68,8 +68,8 @@ public class KeyManager {
 		pm.makePersistent(key);
 	}
 
+	
 	public static Crypt.Key retrieveKey(PersistenceManager pm, Cache c, String keyName) throws KeyNotFoundException{
-
 		Crypt.Key inMemoryKey = getFromInMemoryCache(keyName, c);
 		Crypt.Key inDbKey = getFromPersistentStorage(pm, keyName);
 		if (inMemoryKey != null) {
@@ -90,12 +90,12 @@ public class KeyManager {
 		}
 */	}
 	
-	private static Crypt.Key getFromInMemoryCache(String key, Cache c) {
-		Object o = (Crypt.Key) c.get(key);
+	private static Crypt.Key getFromInMemoryCache(String keyName, Cache c) {
+		Object o = (Crypt.Key) c.get(keyName);
 
 		// attempt to fetch the key from the cache
 		if( o != null && o instanceof Crypt.Key ){
-			logger.info("retrieved key " + key + " from in-memory cache.");
+			logger.info("retrieved key " + keyName + " from in-memory cache.");
 			return (Crypt.Key) o;
 		}
 		return null;
@@ -103,16 +103,16 @@ public class KeyManager {
 	
 
 	private static Crypt.Key getFromPersistentStorage(PersistenceManager pm,
-			String key) throws KeyNotFoundException {
+			String keyName) throws KeyNotFoundException {
 		Object o;
 		try {
-			Key k = KeyFactory.createKey(Key.class.getName(), key);
+			//Key k = KeyFactory.createKey(Crypt.Key.class.getName(), keyName);
 			// FIXME: Why would this fail?
-			o = pm.getObjectById(Key.class, k);
-			logger.info("retrieved key " + key + " from persistent cache.");
+			o = pm.getObjectById(Crypt.Key.class, keyName);
+			logger.info("retrieved key " + keyName + " from persistent cache.");
 			return (Crypt.Key) o;	
 		} catch (Exception e){
-			logger.warning("Exception occured while looking up key " + key);
+			logger.warning("Exception occured while looking up key " + keyName);
 			logger.warning(e.toString());
 			throw new Crypt.KeyNotFoundException();
 		}
