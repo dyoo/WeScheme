@@ -75,8 +75,15 @@ public class Schedule {
 			try {
 				Crypt.Key fromKey = KeyManager.retrieveKey(pm, cache, from);
 				Crypt.Key toKey = KeyManager.retrieveKey(pm, cache, to);
-				toKey.setValue(fromKey.getValue());
-				KeyManager.storeKey(pm, cache, toKey);
+				if (fromKey.getValue() != null) {
+					logger.info("seting value of " + to + " to " + fromKey.getValue());
+					toKey.setValue(fromKey.getValue());
+					KeyManager.storeKey(pm, cache, toKey);
+				} else {
+					logger.info("fromKey's value was null.  Generating fresh value.");
+					Crypt.Key key = generateNewKey(to);
+					KeyManager.storeKey(pm, cache, key);
+				}
 			} catch (KeyNotFoundException e) {
 				Crypt.Key key = generateNewKey(to);
 				KeyManager.storeKey(pm, cache, key);
@@ -91,7 +98,7 @@ public class Schedule {
 
 	private Crypt.Key generateNewKey(String keyName) {
 		Crypt.Key key;
-		logger.info("Key " + keyName + " not found. Generating a " + (size * 8) + " bit key.");
+		logger.info("Generating a " + (size * 8) + " bit key named " + keyName + ".");
 		key = new Crypt.Key(keyName, Crypt.getBytes(size));
 		return key;
 	}

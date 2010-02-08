@@ -78,7 +78,7 @@ public class Crypt {
 		private byte[] val;
 		
 		public Key(String name, byte[] k){
-			logger.info("Crypt.Key constructor: constructing key " + name);
+			logger.info("Crypt.Key constructor: constructing key " + name + " with value " + this.val);
 			this.name = name;
 			this.val = k;
 		}
