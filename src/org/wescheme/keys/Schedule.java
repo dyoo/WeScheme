@@ -59,7 +59,6 @@ public class Schedule {
 	 * @param pm
 	 */
 	public void clockTick(Cache cache, PersistenceManager pm) {
-		logger.info("Key: " + from + " Ticks: " + tickcount + " of " + cronTicks );
 		if (tickcount == 0) {
 			performKeyRotation(cache, pm);
 		}
@@ -69,18 +68,27 @@ public class Schedule {
 
 	private void performKeyRotation(Cache cache, PersistenceManager pm) {
 		logger.info("Rotating <" + from + "> to <" + to + ">" );
-		Crypt.Key key;
 		if( null == from ){
-			key = generateNewKey();
+			Crypt.Key key = generateNewKey(to);
+			KeyManager.storeKey(pm, cache, key);
 		} else {
 			try {
-				key = KeyManager.retrieveKey(pm, cache, from);
+				Crypt.Key fromKey = KeyManager.retrieveKey(pm, cache, from);
+				Crypt.Key toKey = KeyManager.retrieveKey(pm, cache, to);
+				if (fromKey.getValue() != null) {
+					logger.info("seting value of " + to + " to " + fromKey.getValue());
+					toKey.setValue(fromKey.getValue());
+					KeyManager.storeKey(pm, cache, toKey);
+				} else {
+					logger.info("fromKey's value was null.  Generating fresh value.");
+					Crypt.Key key = generateNewKey(to);
+					KeyManager.storeKey(pm, cache, key);
+				}
 			} catch (KeyNotFoundException e) {
-				key = generateNewKey();
+				Crypt.Key key = generateNewKey(to);
+				KeyManager.storeKey(pm, cache, key);
 			}
 		}
-		key.setName(to);
-		KeyManager.storeKey(pm, cache, key);
 	}
 
 	private void tallyTick() {
@@ -88,10 +96,10 @@ public class Schedule {
 	}
 
 
-	private Crypt.Key generateNewKey() {
+	private Crypt.Key generateNewKey(String keyName) {
 		Crypt.Key key;
-		key = new Crypt.Key(to, Crypt.getBytes(size));
-		logger.info("Key " + from + " not found. Generating a " + (size * 8) + " bit key.");
+		logger.info("Generating a " + (size * 8) + " bit key named " + keyName + ".");
+		key = new Crypt.Key(keyName, Crypt.getBytes(size));
 		return key;
 	}
 }
