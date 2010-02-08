@@ -71,24 +71,14 @@ public class KeyManager {
 	
 	public static Crypt.Key retrieveKey(PersistenceManager pm, Cache c, String keyName) throws KeyNotFoundException{
 		Crypt.Key inMemoryKey = getFromInMemoryCache(keyName, c);
-		Crypt.Key inDbKey = getFromPersistentStorage(pm, keyName);
 		if (inMemoryKey != null) {
-			logger.info("Does the in memory key match the persistent key?: " + (inMemoryKey.equals(inDbKey)));
+			return inMemoryKey;
+		} else  {
+			Crypt.Key inDbKey = getFromPersistentStorage(pm, keyName);
 			c.put(keyName, inDbKey);
+			return inDbKey;
 		}
-
-		return inDbKey;
-/*		Object o = (Crypt.Key) c.get(key);
-
-		// attempt to fetch the key from the cache
-		if( o != null && o instanceof Crypt.Key ){
-			logger.info("retrieved key " + key + " from in-memory cache.");
-			return (Crypt.Key) o;
-		} else {
-			// failing that, fetch it from persistent memory
-			return getFromPersistentStorage(pm, key);
-		}
-*/	}
+	}
 	
 	private static Crypt.Key getFromInMemoryCache(String keyName, Cache c) {
 		Object o = (Crypt.Key) c.get(keyName);
