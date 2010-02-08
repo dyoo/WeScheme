@@ -5,6 +5,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
+import java.util.logging.Logger;
 
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
@@ -67,33 +68,52 @@ public class Crypt {
 	
 	@PersistenceCapable()
 	public static class Key implements Serializable {
-
+		static Logger logger = Logger.getLogger(Key.class.getName());
+		
 		private static final long serialVersionUID = 6490160398746446795L;
 		@PrimaryKey
 		@Persistent
 		private String name;
 		@Persistent
-		private byte[] _val;
+		private byte[] val;
 		
 		public Key(String name, byte[] k){
-			name = this.name;
-			_val = k;
+			logger.info("Crypt.Key constructor: constructing key " + name);
+			this.name = name;
+			this.val = k;
 		}
 		
 		public byte[] getValue(){
-			return _val;
+			return this.val;
 		}
 		
 		public String getName(){
-			return name;
+			return this.name;
 		}
 		
-		public void setName(String n){
-			this.name = n;
+		public void setValue(byte[] newVal) {
+			this.val = Arrays.copyOf(newVal, newVal.length);
 		}
 		
 		public String toString(){
-			return Base64.encodeBytes(_val);
+			return Base64.encodeBytes(val);
+		}
+		
+		public boolean equals(Object other) {
+			if (other instanceof Key) {
+				Key o = (Key) other;
+				if (! o.name.equals(this.name)) 
+					return false;
+				if (o.val.length != this.val.length)
+					return false;
+				for(int i = 0; i < this.val.length; i++) {
+					if (this.val[i] != o.val[i])
+						return false;
+				}
+				return true;
+			} else {
+				return false;
+			}
 		}
 		
 	}
