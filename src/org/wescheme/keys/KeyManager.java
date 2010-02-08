@@ -3,6 +3,7 @@ package org.wescheme.keys;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
@@ -18,7 +19,7 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 
 public class KeyManager {
-
+	static Logger logger = Logger.getLogger(KeyManager.class.getName());
 	private static List<Schedule> keySchedule;
 
 	public static void initializeKeys() throws CacheException{
@@ -48,6 +49,7 @@ public class KeyManager {
 	public static void rotateKeys() throws KeyNotFoundException, CacheException{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try {
+			logger.info("rotateKeys called");
 			CacheFactory cf = CacheManager.getInstance().getCacheFactory();
 			Cache cache = cf.createCache(Collections.emptyMap());
 
@@ -72,6 +74,7 @@ public class KeyManager {
 
 		// attempt to fetch the key from the cache
 		if( o != null && o instanceof Crypt.Key ){
+			logger.info("retrieved key " + key + " from in-memory cache.");
 			return (Crypt.Key) o;
 		} else {
 			// failing that, fetch it from persistent memory
@@ -79,8 +82,11 @@ public class KeyManager {
 				Key k = KeyFactory.createKey(Key.class.getName(), key);
 				// FIXME: Why would this fail?
 				o = pm.getObjectById(Key.class, k);
+				logger.info("retrieved key " + key + " from persistent cache.");
 				return (Crypt.Key) o;	
 			} catch (Exception e){
+				logger.warning("Exception occured while looking up key " + key);
+				logger.warning(e.toString());
 				throw new Crypt.KeyNotFoundException();
 			}
 		}
