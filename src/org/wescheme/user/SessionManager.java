@@ -1,13 +1,8 @@
 package org.wescheme.user;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.logging.Logger;
 
-import javax.cache.Cache;
-import javax.cache.CacheException;
-import javax.cache.CacheFactory;
-import javax.cache.CacheManager;
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
 import javax.servlet.http.Cookie;
@@ -26,7 +21,7 @@ import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 public class SessionManager {
 	Logger logger = Logger.getLogger(SessionManager.class.getName());
-	
+
 	// test for POST data double submission to ward against CSRF.
 	public boolean isIntentional(HttpServletRequest req, HttpServletResponse resp) {
 		String tokenPOST 	= req.getParameter("token");
@@ -61,25 +56,22 @@ public class SessionManager {
 				logger.info("missing credentials: returning null session.");
 				return null;
 			}
-			try {		
-				CacheFactory cf = CacheManager.getInstance().getCacheFactory();
-				Cache cache = cf.createCache(Collections.emptyMap());
-				
-				Crypt.Key fk = KeyManager.retrieveKey(pm, cache, "freshKey");
+			try {						
+				Crypt.Key fk = KeyManager.getKey("freshKey");
 				if( userSession.isValid(userToken, fk) ){
 					logger.info("credentials valid.  Returning session.");
 					return userSession;
 				}
 				logger.info("credentials don't match the fresh key.");
 
-				
-				Crypt.Key sk = KeyManager.retrieveKey(pm, cache, "staleKey");
+
+				Crypt.Key sk = KeyManager.getKey("staleKey");
 				if( userSession.isValid(userToken, sk) ){
 					logger.info("credentials expired, but has stale key.  Reissuing new session.");
 					issueSession(userSession, resp);
 					return userSession;
 				}
-				
+
 				logger.warning("Neither fresh key nor stale key matches credentials.");
 			} finally {
 				pm.close();
@@ -134,22 +126,15 @@ public class SessionManager {
 	public void issueSession(Session session, HttpServletResponse resp) throws KeyNotFoundException, IOException, UnauthorizedUserException{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try {
-			try {
-				CacheFactory cf = CacheManager.getInstance().getCacheFactory();
-				Cache cache = cf.createCache(Collections.emptyMap());
+			Crypt.Key freshKey = KeyManager.getKey("freshKey");	
 
-				Crypt.Key freshKey = KeyManager.retrieveKey(pm, cache, "freshKey");	
+			String serialSession = Base64.encodeObject(session);
+			Token token 		 = new Token(serialSession, freshKey);
+			String serialToken   = Base64.encodeObject(token);
 
-				String serialSession = Base64.encodeObject(session);
-				Token token 		 = new Token(serialSession, freshKey);
-				String serialToken   = Base64.encodeObject(token);
+			resp.addCookie(new Cookie("session", serialSession));
+			resp.addCookie(new Cookie("token", serialToken));
 
-				resp.addCookie(new Cookie("session", serialSession));
-				resp.addCookie(new Cookie("token", serialToken));
-			} catch (CacheException e) {
-				logger.info("while issuing session, could not ");
-				throw new UnauthorizedUserException(); // fail safe
-			}
 		} finally {
 			pm.close();
 		}
