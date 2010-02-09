@@ -1,5 +1,7 @@
 package org.wescheme.keys;
 
+import java.util.logging.Logger;
+
 import javax.cache.Cache;
 import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.IdGeneratorStrategy;
@@ -14,78 +16,82 @@ import org.wescheme.keys.KeyManager;
 import com.google.appengine.api.datastore.Key;
 
 @PersistenceCapable()
-public class Schedule implements Comparable<Schedule> {
-	
+public class Schedule {
+
 	@SuppressWarnings("unused")
 	@PrimaryKey
-    @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-    private Key key;
+	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+	private Key key;
 	@Persistent
-	String from_;
+	String from;
 	@Persistent
-	String to_;
+	String to;
 	@Persistent
-	int size_;
+	int size;
 	@Persistent
-	int cronTicks_ = 1;
+	int cronTicks = 1;
 	@Persistent
-	int tickcount_;
+	int tickcount;
 
-	public void execute(Cache cache, PersistenceManager pm) {
-		Crypt.Key key;
-		
-		System.out.println("Key: " + from_ + " Ticks: " + tickcount_ + " of " + cronTicks_ );
-		
-		if( tickcount_ % cronTicks_ != 0 ) { tickcount_ += 1; return;} else {
-			tickcount_ = 1;
+	private Logger logger = Logger.getLogger(Schedule.class.getName());
+
+
+	/**
+	 * Schedules key rotation from -> to.
+	 * If from is null, creates a new key that goes into to.
+	 * @param from  either null or the name of the key 
+	 * @param to
+	 * @param size
+	 * @param ticks
+	 */
+	public Schedule(String from, String to, int size, int ticks) {
+		this.from = from;
+		this.to = to;
+		this.size = size;
+		this.cronTicks = ticks;
+		this.tickcount = 0;
+	}
+	
+	
+	/**
+	 * Handle another tick.  Every interval number of ticks, perform the actions.
+	 * @param cache
+	 * @param pm
+	 */
+	public void clockTick(Cache cache, PersistenceManager pm) {
+		logger.info("Key: " + from + " Ticks: " + tickcount + " of " + cronTicks );
+		if (tickcount == 0) {
+			performKeyRotation(cache, pm);
 		}
-		
-		System.out.println("Rotating <" + from_ + "> to <" + to_ + ">" );
-		
-		if( null == from_ ){
-			key = new Crypt.Key(to_, Crypt.getBytes(size_));
-			System.out.println("Key " + from_ + " not found. Generating a " + (size_ * 8) + " bit key.");
+		tallyTick();
+	}
+
+
+	private void performKeyRotation(Cache cache, PersistenceManager pm) {
+		logger.info("Rotating <" + from + "> to <" + to + ">" );
+		Crypt.Key key;
+		if( null == from ){
+			key = generateNewKey();
 		} else {
 			try {
-				key = KeyManager.retrieveKey(pm, cache, from_);
+				key = KeyManager.retrieveKey(pm, cache, from);
 			} catch (KeyNotFoundException e) {
-				key = new Crypt.Key(to_, Crypt.getBytes(size_));
-				System.out.println("Key " + from_ + " not found. Generating a " + (size_ * 8) + " bit key.");
+				key = generateNewKey();
 			}
 		}
-			key.setName(to_);
-			KeyManager.storeKey(pm, cache, key);
-		
+		key.setName(to);
+		KeyManager.storeKey(pm, cache, key);
 	}
-	
-	public Schedule(String from, String to){
-		init(from, to, 16, 1);
+
+	private void tallyTick() {
+		tickcount = (tickcount + 1) % cronTicks;
 	}
-	
-	public Schedule(String from, String to, int length, int ticks){
-		init(from, to, length, ticks);
+
+
+	private Crypt.Key generateNewKey() {
+		Crypt.Key key;
+		key = new Crypt.Key(to, Crypt.getBytes(size));
+		logger.info("Key " + from + " not found. Generating a " + (size * 8) + " bit key.");
+		return key;
 	}
-	
-	private void init(String from, String to, int length, int ticks){
-		from_ = from;
-		to_ = to;
-		size_ = length;
-		cronTicks_ = ticks;
-		tickcount_ = 0;
-	}
-	
-	public int compareTo(Schedule s) {
-		
-		if( from_ == s.to_ ){
-			return -1;
-		}
-		
-		if( to_ == s.from_ ){
-			return 1;
-		}
-		
-		return 0;
-			
-	}
-	
 }

@@ -1,7 +1,8 @@
 package org.wescheme.keys;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.PriorityQueue;
+import java.util.List;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
@@ -18,7 +19,7 @@ import com.google.appengine.api.datastore.KeyFactory;
 
 public class KeyManager {
 
-	private static PriorityQueue<Schedule> keySchedule;
+	private static List<Schedule> keySchedule;
 	
 	public static void initializeKeys() throws CacheException{
 		Cache cache;
@@ -27,16 +28,16 @@ public class KeyManager {
 			CacheFactory cf = CacheManager.getInstance().getCacheFactory();
 			cache = cf.createCache(Collections.emptyMap());
 	
-			keySchedule = new PriorityQueue<Schedule>();
-			keySchedule.add(new Schedule(null, "freshKey", 8, 1));
+			keySchedule = new ArrayList<Schedule>();
 			keySchedule.add(new Schedule("freshKey", "staleKey", 8, 1));
-			keySchedule.add(new Schedule(null, "dailyKey", 8, 24));
 			keySchedule.add(new Schedule("dailyKey", "staleDailyKey", 8, 24));
+			keySchedule.add(new Schedule(null, "freshKey", 8, 1));
+			keySchedule.add(new Schedule(null, "dailyKey", 8, 24));
 					
 			pm.makePersistentAll(keySchedule);
 			
 			for( Schedule s : keySchedule ){
-				s.execute(cache, pm);
+				s.clockTick(cache, pm);
 			}
 			
 		} finally {
@@ -53,7 +54,7 @@ public class KeyManager {
 			cache = cf.createCache(Collections.emptyMap());
 		
 			for( Schedule s : keySchedule ){
-				s.execute(cache, pm);
+				s.clockTick(cache, pm);
 			}
 			
 		} finally {
@@ -78,6 +79,7 @@ public class KeyManager {
 			// failing that, fetch it from persistent memory
 			try {
 			Key k = KeyFactory.createKey(Key.class.getName(), key);
+			// Why would 
 			o = pm.getObjectById(Key.class, k);
 			return (Crypt.Key) o;	
 			} catch (Exception e){
