@@ -15,8 +15,6 @@ import org.wescheme.util.Crypt;
 import org.wescheme.util.PMF;
 import org.wescheme.util.Crypt.KeyNotFoundException;
 
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
 
 public class KeyManager {
 	static Logger logger = Logger.getLogger(KeyManager.class.getName());

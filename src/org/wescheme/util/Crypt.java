@@ -92,7 +92,10 @@ public class Crypt {
 		}
 		
 		public void setValue(byte[] newVal) {
-			this.val = Arrays.copyOf(newVal, newVal.length);
+			this.val = new byte[newVal.length];
+			for(int i = 0; i < newVal.length; i++) {
+				this.val[i] = newVal[i];
+			}
 		}
 		
 		public String toString(){
