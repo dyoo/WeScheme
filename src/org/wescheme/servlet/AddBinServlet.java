@@ -19,31 +19,31 @@ public class AddBinServlet extends HttpServlet {
 	private static final long serialVersionUID = -182869406403756507L;
 	private static final Logger log = Logger.getLogger(AddBinServlet.class.getName());
 	public void doPost(HttpServletRequest req, HttpServletResponse resp){
-		PersistenceManager pm = PMF.get().getPersistenceManager();
+		PersistenceManager pm = PMF.getManager();
 		Transaction tx = pm.currentTransaction();
-		
-		try{
-			
-			
-			
+
+		try {
+
+
+
 			tx.begin();
 			Session userSession;
 			SessionManager sm = new SessionManager();
 			userSession = sm.authenticate(req, resp);
-			
+
 			if( !sm.isIntentional(req, resp) ){
 				log.warning("Intentionality check failed. Potential CSRF.");
 				throw new UnauthorizedUserException();
 			}
-			
+
 			Long dbID = new Long(req.getParameter("dbid"));
-			
+
 			String binName = req.getParameter("binName");
-			
+
 			System.out.println("Entered addBin as " + userSession.getName() + " with dbid " + dbID + " and bin " + binName);
-			
+
 			Dropbox db = Dropbox.getDropbox(pm, dbID);
-				
+
 			if( userSession.getName().equals(db.owner()) ){
 				db.addBin(binName);
 			}
@@ -58,14 +58,14 @@ public class AddBinServlet extends HttpServlet {
 			if(tx.isActive()){
 				tx.rollback();
 			}
-				pm.close();
-				
-				try {
-					resp.sendRedirect("/dropbox");
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} // TODO make this AJAXian
-			}
+			pm.close();
+
+			try {
+				resp.sendRedirect("/dropbox");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} // TODO make this AJAXian
+		}
 	}
 }

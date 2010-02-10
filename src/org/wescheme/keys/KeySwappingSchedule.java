@@ -125,13 +125,13 @@ public class KeySwappingSchedule {
 		logger.info("Rotating <" + from + "> to <" + to + ">" );
 		if( null == from ){
 			Crypt.Key key = Crypt.Key.getInstance(to, size);
-			key.rotate();
+			key.regenerateFreshValue();
 		} else {
 			Crypt.Key fromKey = Crypt.Key.getInstance(from, size);
 			Crypt.Key toKey = Crypt.Key.getInstance(to, size);
 			if (fromKey.getValue() != null) {
 				logger.info("seting value of " + to + " to " + fromKey.getValue());
-				PersistenceManager pm = PMF.get().getPersistenceManager();
+				PersistenceManager pm = PMF.getManager();
 				try {
 					toKey.setValue(fromKey.getValue());
 					pm.makePersistent(toKey);
@@ -141,7 +141,7 @@ public class KeySwappingSchedule {
 			} else {
 				logger.info("fromKey's value was null.  Generating fresh value.");
 				Crypt.Key key = Crypt.Key.getInstance(to, size);
-				key.rotate();
+				key.regenerateFreshValue();
 			}
 		} 
 	}

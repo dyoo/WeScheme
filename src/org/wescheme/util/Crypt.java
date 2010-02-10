@@ -129,9 +129,11 @@ public class Crypt {
 			}
 		}
 		
-
-		public void rotate() {
-			PersistenceManager pm = PMF.get().getPersistenceManager();
+		/**
+		 * Regenerates the contents of the key, using the same key length.
+		 */
+		public void regenerateFreshValue() {
+			PersistenceManager pm = PMF.getManager();
 			try {
 				this.val = Crypt.getBytes(this.val.length);
 				pm.makePersistent(this);
@@ -199,7 +201,7 @@ public class Crypt {
 			} 
 			
 			// Finally, create it anew.
-			PersistenceManager pm = PMF.get().getPersistenceManager();
+			PersistenceManager pm = PMF.getManager();
 			try {
 				logger.info("Generating a " + (size * 8) + " bit key named " + keyName + ".");
 				Crypt.Key newKey = new Crypt.Key(keyName, Crypt.getBytes(size));
@@ -239,7 +241,7 @@ public class Crypt {
 		 * @return
 		 */
 		private static Crypt.Key getFromPersistentStorage(String keyName) {
-			PersistenceManager pm = PMF.get().getPersistenceManager();
+			PersistenceManager pm = PMF.getManager();
 			Object o;
 			try {
 				o = pm.getObjectById(Crypt.Key.class, keyName);

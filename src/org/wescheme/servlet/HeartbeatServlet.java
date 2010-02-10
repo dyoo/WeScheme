@@ -19,20 +19,13 @@ public class HeartbeatServlet extends HttpServlet {
 	private static final long serialVersionUID = 1165047992267892812L;
 
 	public void service(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		
-			PersistenceManager pm = PMF.get().getPersistenceManager();
-			try {
-				
-					Session userSession;
-					SessionManager sm = new SessionManager();
-					userSession = sm.authenticate(req, resp);
-					if( null != userSession ){
-						resp.sendError(200);
-					} else {
-						resp.sendError(500);
-					}
-			} finally {
-				pm.close();
-			}
-	}
+		Session userSession;
+		SessionManager sm = new SessionManager();
+		userSession = sm.authenticate(req, resp);
+		if( null != userSession ){
+			resp.sendError(200);
+		} else {
+			resp.sendError(500);
+		}
+	} 
 }

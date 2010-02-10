@@ -23,7 +23,7 @@ public class Build extends HttpServlet {
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)	throws IOException 
 	{
-		PersistenceManager pm = PMF.get().getPersistenceManager();
+		PersistenceManager pm = PMF.getManager();
 		Session userSession;
 		SessionManager sm = new SessionManager();
 		try {

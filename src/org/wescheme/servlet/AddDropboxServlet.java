@@ -18,7 +18,7 @@ public class AddDropboxServlet extends HttpServlet {
 	private static final Logger log = Logger.getLogger(AddDropboxServlet.class.getName());
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp){
-		PersistenceManager pm = PMF.get().getPersistenceManager();
+		PersistenceManager pm = PMF.getManager();
 		SessionManager sm = new SessionManager();
 		try {
 			if( !sm.isIntentional(req, resp)) {
@@ -31,9 +31,7 @@ public class AddDropboxServlet extends HttpServlet {
 					String title = req.getParameter("title");
 					
 					Dropbox db = new Dropbox(name, title);
-					pm.makePersistent(db);
-					pm.close();
-				
+					pm.makePersistent(db);				
 					resp.getWriter().println(db.getId());
 			} catch (Exception e ) {
 				// TODO `Authenticate` must throw fewer exceptions. Perhaps 'AuthenticationFailedException' 
@@ -44,6 +42,8 @@ public class AddDropboxServlet extends HttpServlet {
 			// TODO Auto-generated catch block
 			log.severe("IO problem in AddDropboxServlet. (This is bad)");
 			e.printStackTrace();
+		} finally {
+			pm.close();
 		}
 		
 	}

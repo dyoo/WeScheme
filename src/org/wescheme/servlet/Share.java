@@ -20,13 +20,11 @@ public class Share extends HttpServlet{
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)	throws IOException 
 	{
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		Session userSession;
-		SessionManager sm = new SessionManager();
+		PersistenceManager pm = PMF.getManager();
 		try {
-			
+			Session userSession;
+			SessionManager sm = new SessionManager();			
 			userSession = sm.authenticate(req, resp);
-			
 				
 			if( null != userSession ) {
 				XMLOutputter outputter = new XMLOutputter();

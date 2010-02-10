@@ -22,7 +22,7 @@ public class AddProjectServlet extends HttpServlet {
 	
 	@SuppressWarnings("unused")
 	public void doPost(HttpServletRequest req, HttpServletResponse resp){
-		PersistenceManager pm = PMF.get().getPersistenceManager();
+		PersistenceManager pm = PMF.getManager();
 		
 		try {
 			
@@ -64,13 +64,14 @@ public class AddProjectServlet extends HttpServlet {
 				Entry entry = new Entry(db.getId(), binID, pid);
 				pm.makePersistent(entry);
 			}
-			pm.close();
 			resp.sendError(200);
 					
 		} catch (Exception e){
 			log.warning("Caught " + e + " in AddProjectServlet. Unable to add project.");
 			e.printStackTrace();
 			//TODO make error handling robust.
+		} finally {
+			pm.close();
 		}
 	
 	}

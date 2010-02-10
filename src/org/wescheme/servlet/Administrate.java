@@ -66,7 +66,7 @@ public class Administrate extends HttpServlet {
 		if (programId == null) {
 			throw new RuntimeException("pid missing");
 		}
-		PersistenceManager pm = PMF.get().getPersistenceManager();
+		PersistenceManager pm = PMF.getManager();
 		try {
 			Program prog = pm.getObjectById(Program.class,
 					Long.parseLong(req.getParameter("pid")));
@@ -86,7 +86,7 @@ public class Administrate extends HttpServlet {
 
 	// Lists all programs across all of WeScheme.
 	private void listPrograms(HttpServletRequest req, HttpServletResponse res) throws IOException {
-		PersistenceManager pm = PMF.get().getPersistenceManager();
+		PersistenceManager pm = PMF.getManager();
 		try {
 			Extent<Program> extent = null;
 			try {

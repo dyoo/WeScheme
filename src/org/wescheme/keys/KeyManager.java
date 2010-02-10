@@ -6,6 +6,7 @@ import java.util.logging.Logger;
 
 import javax.cache.CacheException;
 import javax.jdo.PersistenceManager;
+import javax.servlet.ServletContext;
 
 import org.wescheme.util.Crypt;
 import org.wescheme.util.PMF;
@@ -17,7 +18,7 @@ public class KeyManager {
 
 	static public int KEY_SIZE = 8;
 
-	
+
 	/**
 	 * Returns the keySchedule.
 	 * 
@@ -26,7 +27,7 @@ public class KeyManager {
 	 * @return
 	 */
 	private static List<KeySwappingSchedule> getKeySchedule() {
-		PersistenceManager pm = PMF.get().getPersistenceManager();
+		PersistenceManager pm = PMF.getManager();
 		try {
 			List<KeySwappingSchedule> keySchedule = new ArrayList<KeySwappingSchedule>();
 			keySchedule.add(KeySwappingSchedule.getInstance(pm, "freshKey", "staleKey", KEY_SIZE, 1));
@@ -39,12 +40,12 @@ public class KeyManager {
 		}
 	}
 
-	
+
 	public static Crypt.Key getKey(String keyName) {
 		return Crypt.Key.getInstance(keyName, KEY_SIZE);
 	}
-	
-	
+
+
 	/**
 	 * Performs a clock tick on all of the elements in the Schedule.
 	 * @throws KeyNotFoundException
@@ -59,16 +60,11 @@ public class KeyManager {
 
 
 	public static Crypt.Token generateToken(String text, String keyName){
-		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try {
-			try {
-				Crypt.Key k = Crypt.Key.getInstance(keyName, KEY_SIZE);
-				return generateToken(text, k);
-			} catch (Exception e) {
-				return null;
-			}
-		} finally {
-			pm.close();
+			Crypt.Key k = Crypt.Key.getInstance(keyName, KEY_SIZE);
+			return generateToken(text, k);
+		} catch (Exception e) {
+			return null;
 		}
 	}
 

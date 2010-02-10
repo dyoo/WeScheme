@@ -34,7 +34,7 @@ public class LoadProjectServlet extends HttpServlet {
 	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		
-			PersistenceManager pm = PMF.get().getPersistenceManager();
+			PersistenceManager pm = PMF.getManager();
 			try {
 				Session userSession;
 				SessionManager sm = new SessionManager();

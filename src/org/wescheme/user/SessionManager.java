@@ -20,7 +20,7 @@ import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
 public class SessionManager {
-	Logger logger = Logger.getLogger(SessionManager.class.getName());
+	static Logger logger = Logger.getLogger(SessionManager.class.getName());
 
 	// test for POST data double submission to ward against CSRF.
 	public boolean isIntentional(HttpServletRequest req, HttpServletResponse resp) {
@@ -46,7 +46,6 @@ public class SessionManager {
 	 * @return
 	 */
 	public Session authenticate(HttpServletRequest req, HttpServletResponse resp) {
-		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try { 
 			Token userToken	 = (Token) Cookies.getDecodedCookie(req.getCookies(), "token");
 			Session userSession = (Session) Cookies.getDecodedCookie(req.getCookies(), "session");
@@ -56,26 +55,22 @@ public class SessionManager {
 				logger.info("missing credentials: returning null session.");
 				return null;
 			}
-			try {						
-				Crypt.Key fk = KeyManager.getKey("freshKey");
-				if( userSession.isValid(userToken, fk) ){
-					logger.info("credentials valid.  Returning session.");
-					return userSession;
-				}
-				logger.info("credentials don't match the fresh key.");
-
-
-				Crypt.Key sk = KeyManager.getKey("staleKey");
-				if( userSession.isValid(userToken, sk) ){
-					logger.info("credentials expired, but has stale key.  Reissuing new session.");
-					issueSession(userSession, resp);
-					return userSession;
-				}
-
-				logger.warning("Neither fresh key nor stale key matches credentials.");
-			} finally {
-				pm.close();
+			Crypt.Key fk = KeyManager.getKey("freshKey");
+			if( userSession.isValid(userToken, fk) ){
+				logger.info("credentials valid.  Returning session.");
+				return userSession;
 			}
+			logger.info("credentials don't match the fresh key.");
+
+
+			Crypt.Key sk = KeyManager.getKey("staleKey");
+			if( userSession.isValid(userToken, sk) ){
+				logger.info("credentials expired, but has stale key.  Reissuing new session.");
+				issueSession(userSession, resp);
+				return userSession;
+			}
+
+			logger.warning("Neither fresh key nor stale key matches credentials.");
 		} catch (Exception e){
 			//TODO perhaps we want finer control over errors.
 			logger.warning("Exception happened: " + e);
@@ -104,45 +99,45 @@ public class SessionManager {
 	public Session authWeScheme(HttpServletRequest req, HttpServletResponse resp) {
 		String username = req.getParameter("user");
 		String password = req.getParameter("password");
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		if( username != null && password != null ){
-			try {
-				Key k = KeyFactory.createKey("WeSchemeUser", username);
-				WeSchemeUser wu = pm.getObjectById(WeSchemeUser.class, k);
+		PersistenceManager pm = PMF.getManager();
+		try {
+			if( username != null && password != null ){
+				try {
+					Key k = KeyFactory.createKey("WeSchemeUser", username);
+					WeSchemeUser wu = pm.getObjectById(WeSchemeUser.class, k);
 
-				if( wu.checkPassword(password) && wu.isActive() ) {
-					return new Session(wu);
+					if( wu.checkPassword(password) && wu.isActive() ) {
+						return new Session(wu);
 
-				} else {
+					} else {
+						return null;
+					}
+				} catch (JDOObjectNotFoundException e) {
 					return null;
 				}
-			} catch (JDOObjectNotFoundException e) {
-				return null;
 			}
-		}
-		return null;
-	}
-
-	public void issueSession(Session session, HttpServletResponse resp) throws KeyNotFoundException, IOException, UnauthorizedUserException{
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		try {
-			Crypt.Key freshKey = KeyManager.getKey("freshKey");	
-
-			String serialSession = Base64.encodeObject(session);
-			Token token 		 = new Token(serialSession, freshKey);
-			String serialToken   = Base64.encodeObject(token);
-
-			resp.addCookie(new Cookie("session", serialSession));
-			resp.addCookie(new Cookie("token", serialToken));
-
+			return null;
 		} finally {
 			pm.close();
 		}
 	}
 
+	public void issueSession(Session session, HttpServletResponse resp) throws KeyNotFoundException, IOException, UnauthorizedUserException{
+
+		Crypt.Key freshKey = KeyManager.getKey("freshKey");	
+
+		String serialSession = Base64.encodeObject(session);
+		Token token 		 = new Token(serialSession, freshKey);
+		String serialToken   = Base64.encodeObject(token);
+
+		resp.addCookie(new Cookie("session", serialSession));
+		resp.addCookie(new Cookie("token", serialToken));
+
+
+	}
+
 
 	public void login(HttpServletRequest req,  HttpServletResponse resp) throws IOException, KeyNotFoundException{
-		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try{
 			//Attempt to authenticate against Google.
 			UserService userService = UserServiceFactory.getUserService();
@@ -170,8 +165,6 @@ public class SessionManager {
 			} 	
 		} catch (UnauthorizedUserException e) {
 			resp.sendError(401);
-		} finally {
-			pm.close();
 		}
 
 
