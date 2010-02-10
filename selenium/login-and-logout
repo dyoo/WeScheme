@@ -13,8 +13,13 @@
 </thead><tbody>
 <tr>
 	<td>deleteCookie</td>
-	<td></td>
-	<td></td>
+	<td>token</td>
+	<td>path=""</td>
+</tr>
+<tr>
+	<td>deleteCookie</td>
+	<td>session</td>
+	<td>path=""</td>
 </tr>
 <tr>
 	<td>open</td>
