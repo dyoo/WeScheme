@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 
 import javax.cache.CacheException;
 import javax.jdo.PersistenceManager;
-import javax.servlet.ServletContext;
 
 import org.wescheme.util.Crypt;
 import org.wescheme.util.PMF;
