@@ -25,27 +25,28 @@
 
 <%
 
-	PersistenceManager pm = PMF.get().getPersistenceManager();
-	SessionManager sm = new SessionManager();
-	Session s = sm.authenticate(request, response);
+	PersistenceManager pm = PMF.getManager();
+        try {
+	    SessionManager sm = new SessionManager();
+	    Session s = sm.authenticate(request, response);
 		
-	if( s == null ){
+	    if( s == null ){
 %>
 
 not authenticated
 <%
-	} else {
+            } else {
 %>
 <form action="/addProject" method="POST">
 <%
-		Query query = pm.newQuery(Program.class);
+	        Query query = pm.newQuery(Program.class);
 		query.setFilter("owner_== userParam && author_ == userParam");
 		query.setOrdering("time_ desc");
 		query.declareParameters("String userParam");
 
 		try {
-			List<Program> pl = (List<Program>) query.execute(s.getName());
-			for( Program p : pl ){	
+		    List<Program> pl = (List<Program>) query.execute(s.getName());
+		    for( Program p : pl ){	
 %>
 
 	<div id="<%= p.getId() %>"> 
@@ -56,14 +57,14 @@ not authenticated
 <%
 			}
 		} finally {
-			query.closeAll();
+		    query.closeAll();
 		}
 
 %>
 
 <%
-	Long dbid = new Long(request.getParameter("dbid"));
-	Dropbox db = Dropbox.getDropbox(pm, dbid);
+		Long dbid = new Long(request.getParameter("dbid"));
+		Dropbox db = Dropbox.getDropbox(pm, dbid);
 
 
 %>
@@ -75,12 +76,15 @@ document.title = "WeScheme.org Dropbox: <%= db.getTitle() %>";
 </script>
 <select name="binID">
 <%	
-	List<Bin> bins = db.getBins();
+                List<Bin> bins = db.getBins();
 	
 		for( Bin b : bins ){ %>
 			<option value="<%= b.toString() %>"><%= b.toString() %></option>
 		<%
 		}
+	    }
+	} finally {
+	    pm.close();
 	}
 %>
 </select>
