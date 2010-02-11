@@ -354,9 +354,8 @@ WeSchemeInteractions = (function () {
 	return createDom(
 	    "div",
 	    {'class': "moby-location"},
-	    createDom("div", {'class': "moby-location-source-id"}, "source: " + loc.id),
-	    createDom("div", {'class': "moby-location-line"}, "line: " +loc.line),
-	    createDom("div", {'class': "moby-location-line"}, "column: " +loc.column),
+	    createDom("div", {'class': "moby-location-source-id"}, "In the " + loc.id + " window"),
+	    createDom("div", {'class': "moby-location-line"}, " at line " +loc.line + ", column " + loc.column + "."),
 	    createDom("div", {'class': "moby-location-offset"}, "offset: " + loc.offset),
 	    createDom("div", {'class': "moby-location-span"}, "span: " + loc.span)
 	);
