@@ -15,14 +15,17 @@ public class ProgramManager {
 
 	@SuppressWarnings("unchecked")
 	List<Program> getPrograms(){
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		Query query = pm.newQuery(Program.class);
-	
-		List<Program> programs = (List<Program>) query.execute();
-		return programs;
+		PersistenceManager pm = PMF.getManager();
+		try {
+			Query query = pm.newQuery(Program.class);
+			List<Program> programs = (List<Program>) query.execute();
+			return programs;
+		} finally {
+			pm.close();
+		}
 	}
 
-		
+
 }
-	
+
 

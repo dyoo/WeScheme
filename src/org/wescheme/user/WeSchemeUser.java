@@ -56,10 +56,8 @@ public class WeSchemeUser{
 	}
 	
 	public static void createUser(String username, String password, String email) throws UnauthorizedUserException, CacheException, KeyNotFoundException{
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		Transaction tx = pm.currentTransaction();
-
-		
+		PersistenceManager pm = PMF.getManager();
+		Transaction tx = pm.currentTransaction();		
 		try {
 			tx.begin();
 			try{
@@ -79,7 +77,6 @@ public class WeSchemeUser{
 			}
 			pm.close();
 		} 
-			
 	}
 
 	public boolean activate(){

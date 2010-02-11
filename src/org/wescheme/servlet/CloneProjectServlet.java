@@ -25,7 +25,7 @@ public class CloneProjectServlet extends javax.servlet.http.HttpServlet {
 	// you own the project, or
 	// you don't own the project but you can see it because it's been published.
 	public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException{
-		PersistenceManager pm = PMF.get().getPersistenceManager();
+		PersistenceManager pm = PMF.getManager();
 		
 		try {
 			Session userSession;

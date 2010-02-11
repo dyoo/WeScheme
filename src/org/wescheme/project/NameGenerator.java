@@ -15,15 +15,26 @@ public class NameGenerator {
 	private Random gen;
 	
 	private static String DICTIONARY = "/WEB-INF/five-letter-nouns.txt";
+
+	// The label we'll use to refer to the global NameGenerator instance in WeScheme.
+	private static String INSTANCE_LABEL = "org.wescheme.project.NameGenerator.instance";
 	
 	
-	private static NameGenerator _instance;
-	
+	/**
+	 * Return the global NameGenerator used for the system.
+	 * @param ctx
+	 * @return
+	 * @throws IOException
+	 */
 	public static NameGenerator getInstance(ServletContext ctx) throws IOException {
-		if (_instance == null) {
-			_instance = new NameGenerator(ctx);
+		Object instance = ctx.getAttribute(INSTANCE_LABEL);
+		if (instance == null) {
+			instance = new NameGenerator(ctx);
+			ctx.setAttribute(INSTANCE_LABEL, instance);
+			return (NameGenerator) instance;
+		} else {
+			return (NameGenerator) instance;
 		}
-		return _instance;
 	}
 		
 	private NameGenerator(ServletContext ctx) throws IOException {

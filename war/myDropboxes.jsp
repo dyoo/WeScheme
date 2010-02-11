@@ -16,28 +16,32 @@
 <body>
 
 <%
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		SessionManager sm = new SessionManager();
-		Session s = sm.authenticate(request, response);
-		XMLOutputter x = new XMLOutputter();
-		
-		if( s != null ) {
-
+		PersistenceManager pm = PMF.getManager();
+                try {
+		    SessionManager sm = new SessionManager();
+		    Session s = sm.authenticate(request, response);
+		    XMLOutputter x = new XMLOutputter();
+		    
+		    if( s != null ) {
+			
 			Query query = pm.newQuery(Dropbox.class);
 			query.setFilter("ownerName_ == ownerParam");
 			query.declareParameters("String ownerParam");
-
-		try {
-			List<Dropbox> dbl = (List<Dropbox>) query.execute(s.getName());
-			for( Dropbox d : dbl ){	
+			
+			try {
+			    List<Dropbox> dbl = (List<Dropbox>) query.execute(s.getName());
+			    for( Dropbox d : dbl ){	
 %>
 	<p><b><%= x.outputString(d.toXML()) %></b><i><%= d.getId() %></i></p>
 <%
+			    }
+		        } finally {
+			    query.closeAll();
 			}
+		    }
 		} finally {
-			query.closeAll();
+		    pm.close();
 		}
-	}
 %>
 
 

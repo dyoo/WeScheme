@@ -21,27 +21,28 @@ public class SaveProjectServlet extends HttpServlet{
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)	throws IOException 
 	{
-		PersistenceManager pm = PMF.get().getPersistenceManager();
+		PersistenceManager pm = PMF.getManager();
 		SessionManager sm = new SessionManager();
-		
-		if( !sm.isIntentional(req, resp) ){
-			resp.sendError(401);
-			return;
-		}
-		String title = req.getParameter("title");
-		String code = req.getParameter("code");
-		String pid = req.getParameter("pid");
+
 		try {
+
+			if( !sm.isIntentional(req, resp) ){
+				resp.sendError(401);
+				return;
+			}
+			String title = req.getParameter("title");
+			String code = req.getParameter("code");
+			String pid = req.getParameter("pid");
 			Session userSession = sm.authenticate(req, resp);
 			if( null != userSession ){			
 				if (pid == null) {
 					saveNewProgram(pm, userSession, resp, title, code);
 				} else {
 					saveExistingProgram(pm, userSession, resp, pid, title, code);
-					}
+				}
 			} else {
 				log.warning("User session can't be retrieved; user appears to be logged out.");
-//				log.warning("User does not own project " + req.getParameter("pid"));
+				//				log.warning("User does not own project " + req.getParameter("pid"));
 				resp.sendError(401);
 				return;
 			}
@@ -61,10 +62,10 @@ public class SaveProjectServlet extends HttpServlet{
 		resp.setContentType("text/plain"); 
 		resp.getWriter().println(prog.getId());					
 	}
-	
-	
 
-	
+
+
+
 
 
 	private void saveExistingProgram(PersistenceManager pm, Session userSession,
@@ -80,7 +81,7 @@ public class SaveProjectServlet extends HttpServlet{
 			if (prog.getPublicId() == null) {
 				prog.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueName(pm));
 			}
-		
+
 			resp.setContentType("text/plain");
 			resp.getWriter().println(prog.getId());					
 		} else {
