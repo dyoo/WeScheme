@@ -37,7 +37,8 @@ img{background: none;
 }
 
 #footer{
-	position: fixed;
+	display:	none;
+	position:	fixed;
 	width:		100%;
 	bottom:		0px;
 	height:		20px;
