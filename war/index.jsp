@@ -40,6 +40,10 @@
 <h2>Sometimes YouTube. Perhaps iPhone. Together, WeScheme!</h2>
 
 
+<div id="links">
+     <a href="http://www.vidiowiki.com/watch/cydr9yk/#">What is WeScheme? [video]</a>
+</div>
+
 
 
 <div id="footer">
