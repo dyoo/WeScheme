@@ -53,6 +53,12 @@ img{background: none;
 	padding:	0px;
 }
 
+#links {
+       margin-top: 1.5em;
+       margin-bottom: 1.5em;
+}
+
+
 div#footer a{
 	display:	inline-block; 
 	width:		25%;
