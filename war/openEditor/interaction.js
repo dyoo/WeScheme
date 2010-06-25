@@ -1,12 +1,10 @@
-goog.require("plt.Kernel");
-goog.require("plt.wescheme.WeSchemeIntentBus");
-goog.require("plt.world.MobyJsworld");
-goog.require("plt.world.stimuli");
+if (typeof (plt) === 'undefined') {
+    this.plt = {};
+}
+if (typeof (plt.wescheme) === 'undefined') {
+    this.plt.wescheme = {};
+}
 
-goog.require("goog.dom");
-
-
-goog.provide("plt.wescheme.interactions");
 
 
 
@@ -14,7 +12,6 @@ var WeSchemeInteractions;
 
 WeSchemeInteractions = (function () {
 
-    var createDom = goog.dom.createDom;
     
 
     // WeSchemeInteractions: div -> WeScheme
@@ -201,17 +198,21 @@ WeSchemeInteractions = (function () {
 	    type = "Error";
 	    msg = err.msg;
 	}
-	return createDom(
-	    "div",
-	    { 'class': "moby-error" },
-	    createDom(
-		"div",
-		{ 'class' : "moby-error:type"},
-		type),
-	    createDom(
-		"div",
-		{ 'class': "moby-error:message"},
-		msg));
+
+	var dom = document.createElement("div");
+	dom['class'] = 'moby-error';
+	return dom;
+// 	return createDom(
+// 	    "div",
+// 	    { 'class': "moby-error" },
+// 	    createDom(
+// 		"div",
+// 		{ 'class' : "moby-error:type"},
+// 		type),
+// 	    createDom(
+// 		"div",
+// 		{ 'class': "moby-error:message"},
+// 		msg));
     };
 
 
@@ -242,21 +243,26 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.renderErrorLocationAsDomNode = function(err) {
 	var loc = getLocFromError(err);	
 	if (!loc) {
-	    return createDom(
-		"div",
-		{'class' : "moby-location-unknown"});
+	    var dom = document.createElement("div");
+	    dom['class'] = 'moby-location-unknown';
+	    return dom;
+// 	    return createDom(
+// 		"div",
+// 		{'class' : "moby-location-unknown"});
 	} else {
-	    return createDom(
-		"div",
-		{'class': "moby-location"},
-		createDom("div", {'class': "moby-location:source-id"}, "source: " + loc.id),
-		createDom("div", {'class': "moby-location:line"}, "line: " +loc.line),
-		createDom("div", {'class': "moby-location:offset"}, "offset: " + loc.offset),
-		createDom("div", {'class': "moby-location:span"}, "span: " + loc.span)
-	    );
+	    var dom = document.createElement("div");
+	    dom['class'] = 'moby-location';
+	    return dom;
+// 	    return createDom(
+// 		"div",
+// 		{'class': "moby-location"},
+// 		createDom("div", {'class': "moby-location:source-id"}, "source: " + loc.id),
+// 		createDom("div", {'class': "moby-location:line"}, "line: " +loc.line),
+// 		createDom("div", {'class': "moby-location:offset"}, "offset: " + loc.offset),
+// 		createDom("div", {'class': "moby-location:span"}, "span: " + loc.span)
+// 	    );
 	}
     };
-
 
 
 

@@ -1,4 +1,11 @@
-goog.provide("plt.wescheme.WeSchemeIntentBus");
+if (typeof (plt) === 'undefined') {
+    this.plt = {};
+}
+if (typeof (plt.wescheme) === 'undefined') {
+    this.plt.wescheme = {};
+}
+
+
 
 var WeSchemeIntentBus = (function() {
 

@@ -1,8 +1,10 @@
-goog.require("plt.wescheme.AjaxActions");
-goog.require("plt.wescheme.SharingDialog");
-goog.require("plt.wescheme.WeSchemeIntentBus");
+if (typeof (plt) === 'undefined') {
+    this.plt = {};
+}
+if (typeof (plt.wescheme) === 'undefined') {
+    this.plt.wescheme = {};
+}
 
-goog.provide("plt.wescheme.WeSchemeEditor");
 
 
 
