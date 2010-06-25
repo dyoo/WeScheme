@@ -17,28 +17,18 @@ WeSchemeInteractions = (function () {
     // WeSchemeInteractions: div -> WeScheme
     function WeSchemeInteractions(interactionsDiv) { 
 	this.interactionsDiv = jQuery(interactionsDiv);
-	this.prompt = undefined;
-	this.namespace = undefined;
-	this.pinfo = undefined;
-
 	this.prompt = jQuery("<div style='width:100%'><span>&gt; <input type='text' style='width: 75%'></span></div>");
 	this.interactionsDiv.append(this.prompt);
+
+
+//	this.evaluator = new Evaluator();
+
+
 	// history: (listof string)
 	this.history = [];
     };
 
     
-
-    var _freshToplevel = false;
-    // freshPinfo: -> pinfo
-    // Returns a new Pinfo object with a good toplevel environment.
-    function freshPinfo() {
-	if (!_freshToplevel) { 
-	    _freshToplevel = get_dash_base_dash_pinfo(plt.types.Symbol.makeInstance("moby"));
-	}
-	return _freshToplevel;
-    }
-
 
 
     WeSchemeInteractions.prototype.notifyBus = function(action, data) {
@@ -61,8 +51,6 @@ WeSchemeInteractions = (function () {
 
 	this.prompt.contents().keydown(function(e) { that._maybeRunPrompt(e) });
 
-	this.namespace = new Namespace();
-	this.pinfo = freshPinfo();
 
 	this.notifyBus("after-reset", this);
     }
@@ -93,27 +81,28 @@ WeSchemeInteractions = (function () {
 
     WeSchemeInteractions.prototype._prepareToRun = function() {
 	var that = this;
-	plt.world.MobyJsworld.makeToplevelNode = function() {
-	    var dialog = jQuery("<div/>");
-	    var handleClose = function(event, ui) {
-		plt.world.stimuli.onShutdown();
-	    };
+// 	plt.world.MobyJsworld.makeToplevelNode = function() {
+// 	    var dialog = jQuery("<div/>");
+// 	    var handleClose = function(event, ui) {
+// 		plt.world.stimuli.onShutdown();
+// 	    };
 
-	    dialog.dialog( {
-		bgiframe : true,
-		position: ["left", "top"],
-		modal : true,
-		width: "auto",
-		height: "auto",
-	        beforeclose: handleClose
-	    });
+// 	    dialog.dialog( {
+// 		bgiframe : true,
+// 		position: ["left", "top"],
+// 		modal : true,
+// 		width: "auto",
+// 		height: "auto",
+// 	        beforeclose: handleClose
+// 	    });
 
-	    var innerArea = jQuery("<div></div>");
-	    dialog.append(innerArea);
-	    dialog.dialog("open");
-	    return innerArea.get(0);
-	};
-	plt.Kernel.lastLoc = undefined;
+// 	    var innerArea = jQuery("<div></div>");
+// 	    dialog.append(innerArea);
+// 	    dialog.dialog("open");
+// 	    return innerArea.get(0);
+// 	};
+// 	plt.Kernel.lastLoc = undefined;
+
     }
 
     // Evaluate the source code and accumulate its effects.
@@ -122,59 +111,59 @@ WeSchemeInteractions = (function () {
 	var that = this;
 	this._prepareToRun();
 	try {
-	    var program = plt.reader.readSchemeExpressions(aSource, sourceName);
-	    var compiledProgram = 
-		program_dash__greaterthan_compiled_dash_program_slash_pinfo(program, this.pinfo);
+// 	    var program = plt.reader.readSchemeExpressions(aSource, sourceName);
+// 	    var compiledProgram = 
+// 		program_dash__greaterthan_compiled_dash_program_slash_pinfo(program, this.pinfo);
 
-	    var newPinfo = 
-		compiled_dash_program_dash_pinfo(compiledProgram);
+// 	    var newPinfo = 
+// 		compiled_dash_program_dash_pinfo(compiledProgram);
 
-	    var permArray = that._getPermissionArray(pinfo_dash_permissions(newPinfo));
+// 	    var permArray = that._getPermissionArray(pinfo_dash_permissions(newPinfo));
 	} catch (err) {
 	    this.handleError(err);
 	    return;
 	}
 
 
-	plt.permission.startupAllPermissions(
-	    permArray,
-	    function() {
-		try {
+// 	plt.permission.startupAllPermissions(
+// 	    permArray,
+// 	    function() {
+// 		try {
 
-		    var defns = compiled_dash_program_dash_defns(compiledProgram);
-		    var interFunc = compiled_dash_program_dash_toplevel_dash_exprs(compiledProgram);
-		    var runToplevel = that.namespace.eval(defns, interFunc);
+// 		    var defns = compiled_dash_program_dash_defns(compiledProgram);
+// 		    var interFunc = compiled_dash_program_dash_toplevel_dash_exprs(compiledProgram);
+// 		    var runToplevel = that.namespace.eval(defns, interFunc);
 		    
-		    plt.Kernel.printHook = function(s) {
-			that.addToInteractions(document.createTextNode(s));
-			that.addToInteractions("\n");
-		    };
+// 		    plt.Kernel.printHook = function(s) {
+// 			that.addToInteractions(document.createTextNode(s));
+// 			that.addToInteractions("\n");
+// 		    };
 		    
 
-		    plt.Kernel.reportError = function(err) {
-			if (typeof(err) === 'string') {
-			    that.handleError(new Error(err));
-			} else {
-			    that.handleError(err);
-			}
-		    }
+// 		    plt.Kernel.reportError = function(err) {
+// 			if (typeof(err) === 'string') {
+// 			    that.handleError(new Error(err));
+// 			} else {
+// 			    that.handleError(err);
+// 			}
+// 		    }
 
 
-		    runToplevel(function(val) {
-			if (val != undefined) {
-			    that.addToInteractions(plt.types.toDomNode(val));
-			    that.addToInteractions("\n");
-			}
-		    });
+// 		    runToplevel(function(val) {
+// 			if (val != undefined) {
+// 			    that.addToInteractions(plt.types.toDomNode(val));
+// 			    that.addToInteractions("\n");
+// 			}
+// 		    });
 
-		    // Update the pinfo.
-		    that.pinfo = newPinfo;
-		    that.notifyBus("after-run", that);
+// 		    // Update the pinfo.
+// 		    that.pinfo = newPinfo;
+// 		    that.notifyBus("after-run", that);
 
-		} catch (err) {
-		    that.handleError(err);
-		}
-	    });
+// 		} catch (err) {
+// 		    that.handleError(err);
+// 		}
+// 	    });
     };
     
     WeSchemeInteractions.prototype.handleError = function(err) {
@@ -277,14 +266,14 @@ WeSchemeInteractions = (function () {
 	}
 	var afterPermissionsGranted = function() {
 	    try {
-		var runToplevel = that.namespace.eval("", compiledCode);
- 		runToplevel(function(val) {
- 		    if (val != undefined) {
- 			that.addToInteractions(
- 			    plt.types.toDomNode(val));
-			that.addToInteractions("\n");
- 		    }
- 		});
+// 		var runToplevel = that.namespace.eval("", compiledCode);
+//  		runToplevel(function(val) {
+//  		    if (val != undefined) {
+//  			that.addToInteractions(
+//  			    plt.types.toDomNode(val));
+// 			that.addToInteractions("\n");
+//  		    }
+//  		});
 		that.notifyBus("after-run", that);
 	    } catch (err) {
 		handleError(err);
@@ -292,8 +281,8 @@ WeSchemeInteractions = (function () {
 	};
 
 	try {
-	    plt.permission.startupAllPermissions(
-		permArray, afterPermissionsGranted);
+// 	    plt.permission.startupAllPermissions(
+// 		permArray, afterPermissionsGranted);
 	} catch (err) {
 	    handleError(err);
 	}

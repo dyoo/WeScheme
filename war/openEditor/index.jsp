@@ -68,11 +68,9 @@
     <script src="/safeSubmit.js"></script>
     <script src="/editor/debug.js"></script>
 
-    <!-- Includes the moby runtime libraries -->
-    <jsp:include page="/moby-runtime-includes.jsp" />
-
 
     <script src="/openEditor/intent.js"></script>
+    <script src="/js/ajaxactions.js"></script>
     <script src="/openEditor/editor.js"></script>
     <script src="/openEditor/statusbar.js"></script>
     <script src="/openEditor/textcontainer.js"></script>
@@ -80,8 +78,6 @@
     <script src="/heartbeat.js"></script>
     <script src="/js/submitpost.js"></script>
 
-    <!-- And we need the compiler. -->
-    <script src="/runtime/compiler.js"></script>
 
 
 
@@ -90,7 +86,6 @@
        (new org.wescheme.user.SessionManager()).authenticate(request, response); 
        
        %>
-
 
 
 
