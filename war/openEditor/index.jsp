@@ -79,6 +79,9 @@
     <script src="/js/submitpost.js"></script>
 
 
+    <!-- mzscheme-vm evaluator -->
+    <script src="/js/mzscheme-vm/support.js"></script>
+    <script src="/js/mzscheme-vm/evaluator.js"></script>
 
 
     <%

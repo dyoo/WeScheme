@@ -16,16 +16,32 @@ WeSchemeInteractions = (function () {
 
     // WeSchemeInteractions: div -> WeScheme
     function WeSchemeInteractions(interactionsDiv) { 
+	var that = this;
+
 	this.interactionsDiv = jQuery(interactionsDiv);
 	this.prompt = jQuery("<div style='width:100%'><span>&gt; <input type='text' style='width: 75%'></span></div>");
 	this.interactionsDiv.append(this.prompt);
 
 
-//	this.evaluator = new Evaluator();
-
-
+	this.evaluator = this.makeFreshEvaluator();
+	
+	
 	// history: (listof string)
 	this.history = [];
+    };
+
+
+    WeSchemeInteractions.prototype.makeFreshEvaluator = function() {
+	var that = this;
+	return new Evaluator({
+	    write: function(thing) {
+		that.addToInteractions(thing);
+	    },
+	    writeError:function(err) {
+		that.handleError(err);
+	    },
+	    compilationServletUrl: "http://go.cs.brown.edu:8000/servlets/standalone.ss"
+	});
     };
 
     
@@ -50,7 +66,7 @@ WeSchemeInteractions = (function () {
 	this.interactionsDiv.append(this.prompt);
 
 	this.prompt.contents().keydown(function(e) { that._maybeRunPrompt(e) });
-
+	this.evaluator = this.makeFreshEvaluator();
 
 	this.notifyBus("after-reset", this);
     }
@@ -102,68 +118,19 @@ WeSchemeInteractions = (function () {
 // 	    return innerArea.get(0);
 // 	};
 // 	plt.Kernel.lastLoc = undefined;
+    };
 
-    }
+
 
     // Evaluate the source code and accumulate its effects.
-    WeSchemeInteractions.prototype.runCode = function(aSource, sourceName) {
+    WeSchemeInteractions.prototype.runCode = function(aSource, sourceName, contK) {
 	this.notifyBus("before-run", this);
 	var that = this;
 	this._prepareToRun();
-	try {
-// 	    var program = plt.reader.readSchemeExpressions(aSource, sourceName);
-// 	    var compiledProgram = 
-// 		program_dash__greaterthan_compiled_dash_program_slash_pinfo(program, this.pinfo);
 
-// 	    var newPinfo = 
-// 		compiled_dash_program_dash_pinfo(compiledProgram);
-
-// 	    var permArray = that._getPermissionArray(pinfo_dash_permissions(newPinfo));
-	} catch (err) {
-	    this.handleError(err);
-	    return;
-	}
-
-
-// 	plt.permission.startupAllPermissions(
-// 	    permArray,
-// 	    function() {
-// 		try {
-
-// 		    var defns = compiled_dash_program_dash_defns(compiledProgram);
-// 		    var interFunc = compiled_dash_program_dash_toplevel_dash_exprs(compiledProgram);
-// 		    var runToplevel = that.namespace.eval(defns, interFunc);
-		    
-// 		    plt.Kernel.printHook = function(s) {
-// 			that.addToInteractions(document.createTextNode(s));
-// 			that.addToInteractions("\n");
-// 		    };
-		    
-
-// 		    plt.Kernel.reportError = function(err) {
-// 			if (typeof(err) === 'string') {
-// 			    that.handleError(new Error(err));
-// 			} else {
-// 			    that.handleError(err);
-// 			}
-// 		    }
-
-
-// 		    runToplevel(function(val) {
-// 			if (val != undefined) {
-// 			    that.addToInteractions(plt.types.toDomNode(val));
-// 			    that.addToInteractions("\n");
-// 			}
-// 		    });
-
-// 		    // Update the pinfo.
-// 		    that.pinfo = newPinfo;
-// 		    that.notifyBus("after-run", that);
-
-// 		} catch (err) {
-// 		    that.handleError(err);
-// 		}
-// 	    });
+	this.evaluator.executeProgram(sourceName,
+				      aSource,
+				      contK);
     };
     
     WeSchemeInteractions.prototype.handleError = function(err) {
@@ -212,17 +179,17 @@ WeSchemeInteractions = (function () {
     // include loc in their structure: we should NOT be touching
     // plt.Kernel.lastLoc.
     var getLocFromError = function(err) {
-	if (err instanceof plt.types.MobyParserError) {
-	    return err.log;
-	} else if (err instanceof plt.types.MobySyntaxError) {
-	    return err.stx.loc;
-	} else if (err instanceof plt.types.MobyError){
-	    return plt.Kernel.lastLoc;
-	} else {
-	    if (plt.Kernel.lastLoc) {
-		return plt.Kernel.lastLoc;
-	    }
-	} 
+// 	if (err instanceof plt.types.MobyParserError) {
+// 	    return err.log;
+// 	} else if (err instanceof plt.types.MobySyntaxError) {
+// 	    return err.stx.loc;
+// 	} else if (err instanceof plt.types.MobyError){
+// 	    return plt.Kernel.lastLoc;
+// 	} else {
+// 	    if (plt.Kernel.lastLoc) {
+// 		return plt.Kernel.lastLoc;
+// 	    }
+// 	} 
 	return undefined;
     };
 
@@ -257,62 +224,66 @@ WeSchemeInteractions = (function () {
 
 
     WeSchemeInteractions.prototype.runCompiledCode = function(compiledCode, permStringArray) {
-	this.notifyBus("before-run", this);
-	var that = this;
-	this._prepareToRun();
-	var permArray = [];
-	for (var i = 0; i < permStringArray.length; i++) {
-	    permArray.push(symbol_dash__greaterthan_permission(permStringArray[i]))
-	}
-	var afterPermissionsGranted = function() {
-	    try {
-// 		var runToplevel = that.namespace.eval("", compiledCode);
-//  		runToplevel(function(val) {
-//  		    if (val != undefined) {
-//  			that.addToInteractions(
-//  			    plt.types.toDomNode(val));
-// 			that.addToInteractions("\n");
-//  		    }
-//  		});
-		that.notifyBus("after-run", that);
-	    } catch (err) {
-		handleError(err);
-	    }
-	};
+// 	this.notifyBus("before-run", this);
+// 	var that = this;
+// 	this._prepareToRun();
+// 	var permArray = [];
+// 	for (var i = 0; i < permStringArray.length; i++) {
+// 	    permArray.push(symbol_dash__greaterthan_permission(permStringArray[i]))
+// 	}
+// 	var afterPermissionsGranted = function() {
+// 	    try {
+// // 		var runToplevel = that.namespace.eval("", compiledCode);
+// //  		runToplevel(function(val) {
+// //  		    if (val != undefined) {
+// //  			that.addToInteractions(
+// //  			    plt.types.toDomNode(val));
+// // 			that.addToInteractions("\n");
+// //  		    }
+// //  		});
+// 		that.notifyBus("after-run", that);
+// 	    } catch (err) {
+// 		handleError(err);
+// 	    }
+// 	};
 
-	try {
-// 	    plt.permission.startupAllPermissions(
-// 		permArray, afterPermissionsGranted);
-	} catch (err) {
-	    handleError(err);
-	}
+// 	try {
+// // 	    plt.permission.startupAllPermissions(
+// // 		permArray, afterPermissionsGranted);
+// 	} catch (err) {
+// 	    handleError(err);
+// 	}
     };
 
 
 
 
-    WeSchemeInteractions.prototype._getPermissionArray = function(permissionList) {
-	// FIXME: we should notify the user what permissionList are being asked,
-	// and what to permit.
-	var perms = [];
-	while (! permissionList.isEmpty()) {
-	    var nextPermission = permissionList.first();
-	    perms.push(nextPermission);
-	    permissionList = permissionList.rest();
-	}
-	return perms;
-    };
+//     WeSchemeInteractions.prototype._getPermissionArray = function(permissionList) {
+// 	// FIXME: we should notify the user what permissionList are being asked,
+// 	// and what to permit.
+// 	var perms = [];
+// 	while (! permissionList.isEmpty()) {
+// 	    var nextPermission = permissionList.first();
+// 	    perms.push(nextPermission);
+// 	    permissionList = permissionList.rest();
+// 	}
+// 	return perms;
+//     };
 
 
 
 
     WeSchemeInteractions.prototype._maybeRunPrompt = function(keyEvent) {
+	var that = this;
  	if (keyEvent.keyCode == 13) {
 	    var nextCode = this.prompt.find("input").attr("value");
 	    this.addToInteractions("> " + nextCode + "\n");
-	    this.runCode(nextCode, "<interactions>");
-	    this.history.push(nextCode);
-	    this.prompt.find("input").attr("value", "");
+	    this.runCode(nextCode, "<interactions>", function() {
+		// FIXME: must disable prompt, and wait for computation
+		// to complete.
+		that.history.push(nextCode);
+		that.prompt.find("input").attr("value", "");
+	    });
 	    return false;
  	} else if (keyEvent.keyCode == 38) {
 	    this.history.unshift(this.prompt.find("input").attr("value"));
