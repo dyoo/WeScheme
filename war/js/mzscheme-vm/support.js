@@ -174,13 +174,13 @@ var helpers = {};
 			reporter(e);
 		} else if ( types.isSchemeError(e) ) {
 			if ( types.isExn(e.val) ) {
-				reporter( types.exnValue(e.val) );
+				reporter( types.exnMessage(e.val) );
 			}
 			else {
 				reporter(e.val);
 			}
-		} else if (e.msg) {
-			reporter(e.msg);
+		} else if (e.message) {
+			reporter(e.message);
 		} else {
 			reporter(e.toString());
 		}
@@ -253,6 +253,19 @@ var helpers = {};
 	};
 
 
+	var ordinalize = function(n) {
+		var res = n;
+		switch( n % 10 ) {
+			case 1: res += 'st'; break;
+			case 2: res += 'nd'; break;
+			case 3: res += 'rd'; break;
+			default: res += 'th'; break;
+		}
+		return res;
+	}
+
+
+
 
 
 	////////////////////////////////////////////////
@@ -266,32 +279,30 @@ var helpers = {};
 	helpers.deepListToArray = deepListToArray;
 	helpers.assocListToHash = assocListToHash;
 
+	helpers.ordinalize = ordinalize;
+
 })();
 
 /////////////////////////////////////////////////////////////////
 
 // Scheme numbers.
-/*
+
+/**
 var __PLTNUMBERS_TOP__;
 if (typeof(exports) !== 'undefined') {
     __PLTNUMBERS_TOP__ = exports;
 } else {
-    if (! this['plt']) {
-	this['plt'] = {};
+    if (! this['jsnums']) {
+	this['jsnums'] = {};
     }
-    
-    if (! this['plt']['lib']) {
-	this['plt']['lib'] = {};
-    }
-    
-    if (! this['plt']['lib']['Numbers']) {
-	this['plt']['lib']['Numbers'] = {};
-    }
-    __PLTNUMBERS_TOP__  = this['plt']['lib']['Numbers'];
+    __PLTNUMBERS_TOP__  = this['jsnums'];
 }
+
 */
 
 var jsnums = {};
+
+
 
 // The numeric tower has the following levels:
 //     integers
@@ -313,9 +324,11 @@ var jsnums = {};
 // A boxed-scheme-number is either BigInteger, Rational, FloatPoint, or Complex.
 // An integer-scheme-number is either fixnum or BigInteger.
 
+
 (function() {
     // Abbreviation
-//    var Numbers = __PLTNUMBERS_TOP__;
+    //    var Numbers = __PLTNUMBERS_TOP__;
+
     var Numbers = jsnums;
 
     // makeNumericBinop: (fixnum fixnum -> any) (scheme-number scheme-number -> any) -> (scheme-number scheme-number) X
@@ -653,27 +666,26 @@ var jsnums = {};
     var expt = (function() {
 	var _expt = makeNumericBinop(
 	    function(x, y){
-		if (y > 0) {
-		    var pow = Math.pow(x, y);
-		    if (isOverflow(pow)) {
-			return (makeBignum(x)).expt(makeBignum(y));
-		    } else {
-			return pow;
-		    }
-		} else {
+		var pow = Math.pow(x, y);
+		if (isOverflow(pow)) {
 		    return (makeBignum(x)).expt(makeBignum(y));
+		} else {
+		    return pow;
 		}
 	    },
 	    function(x, y) {
 		if (equals(y, 0)) {
 		    return add(y, 1);
 		} else {
-		return x.expt(y);
+		    return x.expt(y);
 		}
 	    });
 	return function(x, y) {
 	    if (equals(y, 0)) 
 		return add(y, 1);
+	    if (isReal(y) && lessThan(y, 0)) {
+		return _expt(divide(1, x), negate(y));
+	    }
 	    return _expt(x, y);
 	};
     })();
@@ -757,7 +769,7 @@ var jsnums = {};
 		    return FloatPoint.makeInstance(result);
 		}
 	    } else {
-		return (makeBignum(n)).sqrt();
+		return (Complex.makeInstance(0, sqrt(-n)));
 	    }
 	}
 	return n.sqrt();
@@ -961,8 +973,12 @@ var jsnums = {};
 
     var quotient = function(x, y) {
  	if (! isInteger(x)) {
+	    throwRuntimeError('quotient: the first argument ' + x.toString() +
+			      " is not an integer.", x);
 	}
 	if (! isInteger(y)) {
+	    throwRuntimeError('quotient: the second argument ' + y.toString() +
+			      " is not an integer.", y);
 	}
 	return _integerQuotient(x, y);
     };
@@ -970,8 +986,12 @@ var jsnums = {};
     
     var remainder = function(x, y) {
 	if (! isInteger(x)) {
+	    throwRuntimeError('remainder: the first argument ' + x.toString() +
+			      " is not an integer.", x);
 	}
 	if (! isInteger(y)) {
+	    throwRuntimeError('remainder: the second argument ' + y.toString() +
+			      " is not an integer.", y);
 	}
 	return _integerRemainder(x, y);
     };
@@ -1576,7 +1596,7 @@ var jsnums = {};
     };
 
     Rational.prototype.integerSqrt = function() {
-	var result = sqrt(x);
+	var result = sqrt(this);
 	if (isRational(result)) {
 	    return toExact(floor(result));
 	} else if (isReal(result)) {
@@ -1723,7 +1743,6 @@ var jsnums = {};
 
 
 
-    var _rationalCache = {};
     Rational.makeInstance = function(n, d) {
 	if (n === undefined)
 	    throwRuntimeError("n undefined", n, d);
@@ -1747,18 +1766,6 @@ var jsnums = {};
 
 	return new Rational(n, d);
     };
-
-    //     _rationalCache = {};
-    //     (function() {
-    // 	var i;
-    // 	for(i = -500; i < 500; i++) {
-    // 	    _rationalCache[i] = new Rational(i, 1);
-    // 	}
-    //     })();
-    //     Rational.NEGATIVE_ONE = new Rational(-1, 1);
-    //     Rational.ZERO = new Rational(0, 1);
-    //     Rational.ONE = new Rational(1, 1);
-    //     Rational.TWO = new Rational(2, 1);
 
 
 
@@ -3952,8 +3959,8 @@ var jsnums = {};
 		    return searchIter(this, this);
 		} else {
 		    var tmpThis = multiply(this, -1);
-		    return makeComplex(0, 
-				       searchIter(tmpThis, tmpThis));
+		    return Complex.makeInstance(0, 
+						searchIter(tmpThis, tmpThis));
 		}
 	    };
     })();
@@ -4329,35 +4336,43 @@ var Class = (function(){
 //////////////////////////////////////////////////////////////////////
 
 
-var makeStructureType = function(theName, initFieldCnt, autoFieldCnt, parentType) {
+var makeStructureType = function(theName, initFieldCnt, autoFieldCnt, parentType, autoV) {
     // If no parent type given, then the parent type is Struct
     if ( !parentType ) {
 	parentType = ({type: Struct,
 		       numberOfArgs: 0,
-		       numberOfFields: 0});
+		       numberOfFields: 0,
+		       firstField: 0});
     }
+    var numParentArgs = parentType.numberOfArgs;
 
     // Create a new struct type inheriting from the parent
     var aStruct = parentType.type.extend({
 	init: function(name, args) {
 		this._super(name, args);
-	}
-    });
 
-    // Compute the number of arguments and fields for the new type
-    var numArgs = initFieldCnt + parentType.numberOfArgs;
-    var numFields = initFieldCnt + autoFieldCnt + parentType.numberOfFields;
+		for (var i = 0; i < initFieldCnt; i++) {
+			this._fields.push(args[i+numParentArgs]);
+		}
+		for (var i = 0; i < autoFieldCnt; i++) {
+			this._fields.push(autoV);
+		}
+	},
+    });
+    // Set type, necessary for equality checking
+    aStruct.prototype.type = aStruct;
 
     // construct and return the new type
     return { 
 	type: aStruct,
-	numberOfArgs: numArgs,
-	numberOfFields: numFields,
+	numberOfArgs: initFieldCnt + numParentArgs,
+	numberOfFields: initFieldCnt + autoFieldCnt,
+	firstField: parentType.firstField + parentType.numberOfFields,
 
-	constructor: function(args) { return new aStruct(theName, args); },
+	constructor: function() { return new aStruct(theName, arguments); },
 	predicate: function(x) { return x instanceof aStruct; },
-	accessor: function(x, i) { return x._fields[i]; },
-	mutator: function(x, i, v) { x._fields[i] = v; }
+	accessor: function(x, i) { return x._fields[i + this.firstField]; },
+	mutator: function(x, i, v) { x._fields[i + this.firstField] = v; }
     };
 };
 
@@ -4366,7 +4381,7 @@ var makeStructureType = function(theName, initFieldCnt, autoFieldCnt, parentType
 var Struct = Class.extend({
 	init: function (constructorName, fields) {
 	    this._constructorName = constructorName; 
-	    this._fields = fields;
+	    this._fields = [];
 	},
 
 	toWrittenString: function(cache) { 
@@ -4399,21 +4414,26 @@ var Struct = Class.extend({
 
 
 	isEqual: function(other, aUnionFind) {
-	    if (typeof(other) != 'object') {
-		return false;
+	    if ( this.type === undefined ||
+		 other.type === undefined ||
+		 this.type !== other.type ) {
+		    return false;
 	    }
-	    if (! other._constructorName) {
-		return false;
-	    }
-	    if (other._constructorName != this._constructorName) {
-		return false;
-	    }
-	    if (typeof(other._fields) === 'undefined') {
-		return false;
-	    }
-	    if (this._fields.length != other._fields.length) {
-		return false;
-	    }
+//	    if (typeof(other) != 'object') {
+//		return false;
+//	    }
+//	    if (! other._constructorName) {
+//		return false;
+//	    }
+//	    if (other._constructorName != this._constructorName) {
+//		return false;
+//	    }
+//	    if (typeof(other._fields) === 'undefined') {
+//		return false;
+//	    }
+//	    if (this._fields.length != other._fields.length) {
+//		return false;
+//	    }
 	    for (var i = 0; i < this._fields.length; i++) {
 		if (! isEqual(this._fields[i],
 			      other._fields[i],
@@ -4424,6 +4444,7 @@ var Struct = Class.extend({
 	    return true;
 	}
 });
+Struct.prototype.type = Struct;
 
 
 
@@ -5070,7 +5091,7 @@ EqHashTable.prototype.toDisplayedString = function(cache) {
 };
 
 EqHashTable.prototype.isEqual = function(other, aUnionFind) {
-    if (other == undefined || other == null || (! (other instanceof EqHashTable))) {
+    if ( !(other instanceof EqHashTable) ) {
 	return false; 
     }
 
@@ -5080,8 +5101,11 @@ EqHashTable.prototype.isEqual = function(other, aUnionFind) {
 
     var keys = this.hash.keys();
     for (var i = 0; i < keys.length; i++){
-	if (! (this.hash.get(keys[i]) === other.hash.get(keys[i]))) {
-	    return false;
+	if ( !(other.hash.containsKey(keys[i]) &&
+	       isEqual(this.hash.get(keys[i]),
+		       other.hash.get(keys[i]),
+		       aUnionFind)) ) {
+		return false;
 	}
     }
     return true;
@@ -5109,7 +5133,7 @@ EqualHashTable.prototype.toDisplayedString = function(cache) {
 };
 
 EqualHashTable.prototype.isEqual = function(other, aUnionFind) {
-    if (other == undefined || other == null || (! (other instanceof EqualHashTable))) {
+    if ( !(other instanceof EqualHashTable) ) {
 	return false; 
     }
 
@@ -5119,7 +5143,8 @@ EqualHashTable.prototype.isEqual = function(other, aUnionFind) {
 
     var keys = this.hash.keys();
     for (var i = 0; i < keys.length; i++){
-	if (! (isEqual(this.hash.get(keys[i]),
+	if (! (other.hash.containsKey(keys[i]) &&
+	       isEqual(this.hash.get(keys[i]),
 		       other.hash.get(keys[i]),
 		       aUnionFind))) {
 	    return false;
@@ -5474,7 +5499,7 @@ VariableReference.prototype.set = function(v) {
 // Continuation Marks
 
 var ContMarkRecordControl = function(dict) {
-    this.dict = dict || {};
+    this.dict = dict || makeLowLevelEqHash();
 };
 
 ContMarkRecordControl.prototype.invoke = function(state) {
@@ -5482,15 +5507,14 @@ ContMarkRecordControl.prototype.invoke = function(state) {
 };
 
 ContMarkRecordControl.prototype.update = function(key, val) {
-    var newDict = {};
+    var newDict = makeLowLevelEqHash();
     // FIXME: what's the javascript idiom for hash key copy?
     // Maybe we should use a rbtree instead?
-    for (var k in this.dict) {
-	if (this.dict.hasOwnProperty(key)) {
-	    newDict[k] = this.dict[key];
-	}
+    var oldKeys = this.dict.keys();
+    for (var i = 0; i < oldKeys.length; i++) {
+	    newDict.put( oldKeys[i], this.dict.get(oldKeys[i]) );
     }
-    newDict[key] = val;
+    newDict.put(key, val);
     return new ContMarkRecordControl(newDict);
 };
 
@@ -5515,7 +5539,10 @@ ContinuationMarkSet.prototype.toDisplayedString = function(cache) {
 };
 
 ContinuationMarkSet.prototype.ref = function(key) {
-    return this.dict[key] || [];
+    if ( this.dict.containsKey(key) ) {
+	    return this.dict.get(key);
+    }
+    return [];
 };
 
 
@@ -5637,9 +5664,9 @@ var makeHashEqual = function(lst) {
 }
 
 
-var Posn = makeStructureType('posn', 2, 0, false);
-var Color = makeStructureType('color', 3, 0, false);
-var ArityAtLeast = makeStructureType('arity-at-least', 1, 0, false);
+var Posn = makeStructureType('posn', 2, 0, false, false);
+var Color = makeStructureType('color', 3, 0, false, false);
+var ArityAtLeast = makeStructureType('arity-at-least', 1, 0, false, false);
 
 
 types.symbol = Symbol.makeInstance;
@@ -5666,16 +5693,16 @@ types.toWrittenString = toWrittenString;
 types.toDisplayedString = toDisplayedString;
 types.toDomNode = toDomNode;
 
-types.posn = function(x, y) { return Posn.constructor([x, y]); };
+types.posn = Posn.constructor;
 types.posnX = function(psn) { return Posn.accessor(psn, 0); };
 types.posnY = function(psn) { return Posn.accessor(psn, 1); };
 
-types.color = function(r, g, b) { return Color.constructor([r, g, b]); };
+types.color = Color.constructor;
 types.colorRed = function(x) { return Color.accessor(x, 0); };
 types.colorGreen = function(x) { return Color.accessor(x, 1); };
 types.colorBlue = function(x) { return Color.accessor(x, 2); };
 
-types.arityAtLeast = function(x) { return ArityAtLeast.constructor([x]); };
+types.arityAtLeast = ArityAtLeast.constructor;
 types.arityValue = function(arity) { return ArityAtLeast.accessor(arity, 0); };
 
 
@@ -5713,8 +5740,10 @@ types.CaseLambdaValue = CaseLambdaValue;
 types.PrimProc = PrimProc;
 types.CasePrimitive = CasePrimitive;
 
-types.ContMarkRecordControl = ContMarkRecordControl;
-types.ContinuationMarkSet = ContinuationMarkSet;
+types.contMarkRecordControl = function(dict) { return new ContMarkRecordControl(dict); };
+types.isContMarkRecordControl = function(x) { return x instanceof ContMarkRecordControl; };
+types.continuationMarkSet = function(dict) { return new ContinuationMarkSet(dict); };
+types.isContinuationMarkSet = function(x) { return x instanceof ContinuationMarkSet; };
 
 
 types.PrefixValue = PrefixValue;
@@ -5732,6 +5761,9 @@ types.Class = Class;
 types.makeStructureType = makeStructureType;
 
 
+types.makeLowLevelEqHash = makeLowLevelEqHash;
+
+
 // Error type exports
 var SchemeError = function(val) {
 	this.val = val;
@@ -5739,24 +5771,20 @@ var SchemeError = function(val) {
 types.schemeError = function(v) { return new SchemeError(v); };
 types.isSchemeError = function(v) { return v instanceof SchemeError; };
 
-var Exn = makeStructureType('exn', 2, 0, false);
-types.exn = function(msg, contMrks) { return Exn.constructor([msg, contMrks]); };
+var Exn = makeStructureType('exn', 2, 0, false, false);
+types.exn = Exn.constructor;
 types.isExn = Exn.predicate;
-types.exnValue = function(exn) { return Exn.accessor(exn, 0); };
+types.exnMessage = function(exn) { return Exn.accessor(exn, 0); };
 types.exnContMarks = function(exn) { return Exn.accessor(exn, 1); };
+types.exnSetContMarks = function(exn, v) { Exn.mutator(exn, 1, v); };
 
-var ExnFail = makeStructureType('exn:fail', 0, 0, Exn);
-types.exnFail = function(msg, contMrks) { return ExnFail.constructor([msg, contMrks]); };
+var ExnFail = makeStructureType('exn:fail', 0, 0, Exn, false);
+types.exnFail = ExnFail.constructor;
 types.isExnFail = ExnFail.predicate;
-types.exnFailValue = function(exn) { return ExnFail.accessor(exn, 0); };
-types.exnFailContMarks = function(exn) { return ExnFail.accessor(exn, 1); };
 
-var ExnFailContract = makeStructureType('exn:fail:contract', 0, 0, ExnFail);
-types.exnFailContract = function(msg, contMrks) { return ExnFailContract.constructor([msg, contMrks]); };
+var ExnFailContract = makeStructureType('exn:fail:contract', 0, 0, ExnFail, false);
+types.exnFailContract = ExnFailContract.constructor;
 types.isExnFailContract = ExnFailContract.predicate;
-types.exnFailContractValue = function(exn) { return ExnFailContract.accessor(exn, 0); };
-types.exnFailContractContMarks = function(exn) { return ExnFailContract.accessor(exn, 1); };
-
 
 
 })();
@@ -6233,11 +6261,17 @@ var world = {};
     var doNothing = function() {};
 
 
-    var StimuliHandler = function(config, caller) {
+    var StimuliHandler = function(config, caller, restarter) {
 	this.config = config;
 	this.caller = caller;
+	this.restarter = restarter;
 	handlers.push(this);
     };
+
+//    StimuliHandler.prototype.failHandler = function(e) {
+//	this.onShutdown();
+//    	this.restarter(e);
+//    };	
 
     // doStimuli: CPS( (world -> effect) (world -> world) -> void )
     //
@@ -6263,7 +6297,8 @@ var world = {};
 // 			    function(effect) {
 // 			    	effectUpdaters = applyEffect(effect);
 // 				doStimuliHelper();
-// 			    });
+// 			    },
+//	    		    this.failHandler);
 // 		}
 // 		else { doStimuliHelper(); }
 // 	    },
@@ -9083,13 +9118,38 @@ var jsworld = {};
 
 
     var caller;
-    var setCaller = function(c) { caller = c; };
+    var setCaller = function(c) {
+    	caller = function(op, args, k) {
+		c(op, args, k, handleError);
+	};
+    };
     var unsetCaller = function() {
     	caller = function() {
 		throw new Error('caller not defined!');
 	};
     };
     unsetCaller();
+
+    // The restarted and things to set it
+    // Note that we never want to restart the same computation
+    // more than once, so we throw an error if someone tries to do that
+    var restarter;
+    var setRestarter = function(r) {
+	    var hasRestarted = false;
+	    restarter = function(v) {
+		    if (hasRestarted) {
+			    throw new Error('Cannot restart twice!');
+		    }
+		    hasRestarted = true;
+		    r(v);
+	    };
+    };
+    var unsetRestarter = function() {
+	restarter = function() {
+		throw new Error('restarter not defined!');
+	};
+    };
+    unsetRestarter();
     
 
 
@@ -9188,32 +9248,22 @@ var jsworld = {};
     // Each of the rest of the elements must be dom trees.
     // If the first element is a text node, it must NOT have children.
     var checkWellFormedDomTree = function(x, top, index) {
+	var fail = function(formatStr, formatArgs) {
+		throw types.schemeError(
+			types.exnFailContract(helpers.format(formatStr, formatArgs),
+			       		      false));
+	}
+
 	if (types.isPair(x)) {
 	    var firstElt = x.first();
 	    var restElts = x.rest();
 
 	    if (! isNode(firstElt)) {
-		    throw new Error('typeError: on-draw, 1, dom element, ' + firstElt);
-//		plt.Kernel.throwTypeError("on-draw",
-//					  1,
-//					  "dom element",
-//					  firstElt)
-//// 		throw new MobyTypeError(
-//// 		    plt.Kernel.format(
-//// 		         "on-draw: expected a dom-element, but received ~s instead, the first element within ~s",
-//// 			 [firstElt, top]));
+		fail("on-draw: expected a dom-element, but received ~s instead, the first element within ~s", [firstElt, top]);
 	    }
 
 	    if (firstElt.nodeType == Node.TEXT_NODE && !restElts.isEmpty() ) {
-		    throw new Error('typeError: on-draw, 1, text node without children, ' + firstElt);
-//		plt.Kernel.throwTypeError("on-draw",
-//					  1,
-//					  "text node without children",
-//					  firstElt);
-//// 		throw new MobyTypeError(
-//// 		    plt.Kernel.format(
-//// 			"on-draw: the text node ~s must not have children.  It has ~s", 
-//// 			[firstElt, restElts]));
+		fail("on-draw: the text node ~s must not have children.  It has ~s", [firstElt, restElts]);
 	    }
 
 	    var i = 2;
@@ -9223,19 +9273,16 @@ var jsworld = {};
 		i++;
 	    }
 	} else {
-		throw new Error('typeError: on-draw, 1, dom s-expression, ' + x);
-//	    plt.Kernel.throwTypeError("on-draw",
-//				      1,
-//				      "dom s-expression",
-//				      x);
-////	    throw new MobyTypeError(
-//// 		plt.Kernel.format(
-//// 		    "on-draw: expected a dom-s-expression, but received ~s instead~a",
-//// 		    [x,
-//// 		     (index != undefined ? 
-//// 		      plt.Kernel.format(", the ~a element within ~s.", [plt.Kernel.ordinalize(index), top])
-//// 		      : 
-//// 		      ".")]));
+		var formatStr = "on-draw: expected a dom-s-expression, but received ~s instead";
+		var formatArgs = [x];
+		if (index != undefined) {
+			formatStr += ", the ~a element within ~s";
+			formatArgs.push( helpers.ordinalize(index) );
+			formatArgs.push(top);
+		}
+		formatStr += ".";
+
+		fail(formatStr, formatArgs);
 	}
     };
 
@@ -9283,9 +9330,10 @@ var jsworld = {};
 
 
     // bigBang: world dom (listof (list string string)) (arrayof handler) -> world
-    Jsworld.bigBang = function(initWorld, toplevelNode, handlers, theCaller, restarter) {
+    Jsworld.bigBang = function(initWorld, toplevelNode, handlers, theCaller, theRestarter) {
 	    //console.log('in high level big-bang');
 	setCaller(theCaller);
+	setRestarter(theRestarter);
 	var attribs = types.EMPTY;
 	
 	// Ensure that the toplevelNode can be focused by mouse or keyboard
@@ -9311,7 +9359,7 @@ var jsworld = {};
 	}
 	config = config.updateAll({'changeWorld': Jsworld.updateWorld,
 				   'shutdownWorld': Jsworld.shutdownWorld});
-	var stimuli = new world.stimuli.StimuliHandler(config, caller);
+	var stimuli = new world.stimuli.StimuliHandler(config, caller, restarter);
 	
 	var wrappedHandlers = [];
 	var wrappedRedraw;
@@ -9331,7 +9379,7 @@ var jsworld = {};
 			    });
 		} catch (e) {
 		    handleError(e);
-		    throw e;
+//		    throw e;
 		}
 	    }
 
@@ -9345,7 +9393,7 @@ var jsworld = {};
 			    });
 		} catch (e) {
 		    handleError(e);
-		    throw e;
+//		    throw e;
 		}
 	    }
 	    wrappedHandlers.push(_js.on_draw(wrappedRedraw, wrappedRedrawCss));
@@ -9386,7 +9434,7 @@ var jsworld = {};
 			   });
 		} catch (e) {
 		    handleError(e);
-		    throw e;
+//		    throw e;
 		}
 	    }
 	    
@@ -9480,21 +9528,34 @@ var jsworld = {};
 	helpers.reportError("Shutting down jsworld computations");
 //	world.stimuli.onShutdown(); 
 	world.stimuli.massShutdown();
+
+	if ( types.isSchemeError(e) ) {
+		restarter(e);
+	}
+	else if (typeof(e) == 'string') {
+		restarter( types.schemeError(types.exnFail(e, false)) );
+	}
+	else if (e instanceof Error) {
+		restarter( types.schemeError(types.exnFail(e.message, false)) );
+	}
+	else {
+		restarter( type.schemeError(e) );
+	}
     }
     
 
 
     // updateWorld: CPS( CPS(world -> world) -> void )
     Jsworld.updateWorld = function(updater, k) {
-	var wrappedUpdater = function(world, k2) {
+	var wrappedUpdater = function(w, k2) {
 	    try {
-		updater(world, k2);
+		updater(w, k2);
 	    } catch (e) {
 		    if (console && console.log && e.stack) {
 			    console.log(e.stack);
 		    }
 		handleError(e);
-		k2(world);
+//		k2(w);
 	    }
 	}
 
@@ -9510,17 +9571,17 @@ var jsworld = {};
     };
 
 
-    var getAttribs = function(args) {
-	if (args.length == 0) {
-	    return []
-	}
-	if (args.length == 1) {
-	    return helpers.assocListToHash(args[0]);
-	} else {
-	    throw new Error("getAttribs recevied unexpected value for args: "
-			    + args);
-	}
-    }
+//    var getAttribs = function(args) {
+//	if (args.length == 0) {
+//	    return []
+//	}
+//	if (args.length == 1) {
+//	    return helpers.assocListToHash(args[0]);
+//	} else {
+//	    throw new Error("getAttribs recevied unexpected value for args: "
+//			    + args);
+//	}
+//    }
 
 
     Jsworld.p = _js.p;
@@ -9528,12 +9589,12 @@ var jsworld = {};
     Jsworld.div = _js.div;
 
     Jsworld.buttonBang = function(updateWorldF, effectF, attribs) {
-	var wrappedF = function(world, evt, k) {
+	var wrappedF = function(w, evt, k) {
 	    try {
 // FIXME: Get effects back online!
 //		caller(effectF, [world],
 //			function(effect) {
-			    caller(updateWorldF, [world],
+			    caller(updateWorldF, [w],
 				function(newWorld) {
 //					world.Kernel.applyEffect(effect);
 					k(newWorld);
@@ -9544,7 +9605,7 @@ var jsworld = {};
 			    console.log(e.stack);
 		    }
 		handleError(e);
-		k(world);
+//		k(w);
 	    }
 	}
 	return _js.button(wrappedF, attribs);
@@ -9552,9 +9613,9 @@ var jsworld = {};
     
 
     Jsworld.input = function(type, updateF, attribs) {
-	    var wrappedUpdater = function(w, e, k) {
+	    var wrappedUpdater = function(w, evt, k) {
 //		    console.log(e);
-		    caller(updateF, [w, e], k);
+		    caller(updateF, [w, evt], k);
 	    }
 	    return _js.input(type, wrappedUpdater, attribs);
     };
@@ -9596,15 +9657,15 @@ var jsworld = {};
     // fixme: add support for textarea, h1, canvas
 
 
-    // raw_node: scheme-value assoc -> node
-    Jsworld.rawNode = function(x, args) {
-	var attribs = getAttribs(args);
-	var node = _js.raw_node(types.toDomNode(x), attribs);
-	node.toWrittenString = function(cache) { return "(js-raw-node ...)"; }
-	node.toDisplayedString = node.toWrittenString;
-	node.toDomNode = function(cache) { return node; }
-	return node;
-    };
+//    // raw_node: scheme-value assoc -> node
+//    Jsworld.rawNode = function(x, args) {
+//	var attribs = getAttribs(args);
+//	var node = _js.raw_node(types.toDomNode(x), attribs);
+//	node.toWrittenString = function(cache) { return "(js-raw-node ...)"; }
+//	node.toDisplayedString = node.toWrittenString;
+//	node.toDomNode = function(cache) { return node; }
+//	return node;
+//    };
 
 
 
@@ -9984,12 +10045,6 @@ var isFunction = function(x) {
 		x instanceof types.ContinuationClosureValue);
 }
 
-
-var isContinuationMarkSet = function(x) {
-    return x instanceof types.ContinuationMarkSet;
-};
-
-
 var isEqual = function(x, y) {
 	return types.isEqual(x, y, new types.UnionFind());
 }
@@ -10025,18 +10080,6 @@ var isAssocList = function(x) {
 
 
 
-var nthStr = function(n) {
-	var res = n;
-	switch( n % 10 ) {
-		case 1: res += 'st'; break;
-		case 2: res += 'nd'; break;
-		case 3: res += 'rd'; break;
-		default: res += 'th'; break;
-	}
-	return res;
-}
-
-
 var arrayEach = function(arr, f) {
 	for (var i = 0; i < arr.length; i++) {
 		f.apply(arr[i], [arr[i], i]);
@@ -10058,7 +10101,7 @@ var check = function(x, f, functionName, typeName, position, otherArgs) {
 
 		var msg = helpers.format(errorFormatStr, [functionName,
 					 		  typeName,
-					 		  nthStr(position),
+					 		  helpers.ordinalize(position),
 							  x,
 					 		  otherArgsStr]);
 		raise( types.exnFailContract(msg, false) );
@@ -10077,7 +10120,7 @@ var checkList = function(x, functionName, position, otherArgs) {
 
 		var msg = helpers.format(errorFormatStr, [functionName,
 					 		  "list",
-					 		  nthStr(position),
+					 		  helpers.ordinalize(position),
 							  x,
 					 		  otherArgsStr]);
 		raise( types.exnFailContract(msg, false) );
@@ -10096,7 +10139,7 @@ var checkListOf = function(lst, f, functionName, typeName, position, otherArgs) 
 	if ( !isList(lst) ) {
 		var msg = helpers.format(errorFormatStr, [functionName,
 							  "list of " + typeName,
-							   nthStr(position),
+							   helpers.ordinalize(position),
 							   x,
 							   otherArgsStr]);
 		raise( types.exnFailContract(msg, false) );
@@ -10104,8 +10147,8 @@ var checkListOf = function(lst, f, functionName, typeName, position, otherArgs) 
 	else {
 		while( !lst.isEmpty() ) {
 			if ( !f(lst.first()) ) {
-				var msg = (functionName + ': expects type <proper list of ' +
-					   typeName + '> as ' + nthStr(position) + ' argument, given: ' +
+				var msg = (functionName + ': expects type <list of ' +
+					   typeName + '> as ' + helpers.ordinalize(position) + ' argument, given: ' +
 					   types.toWrittenString(x) + otherArgsStr);
 
 				raise( types.exnFailContract(msg, false) );
@@ -10232,22 +10275,18 @@ PRIMITIVES['current-continuation-marks'] =
 		 0,
 		 false, true,
 		 function(state) {
-		     var dict = {};
-		     console.log("here\n");
-		     console.log(state.cstack);
+		     var dict = types.makeLowLevelEqHash();
 		     for (var i = 0; i < state.cstack.length; i++) {
-			 if (state.cstack[i] instanceof
-			     types.ContMarkRecordControl) {
-			     console.log("I see something\n");
+			 if ( types.isContMarkRecordControl(state.cstack[i]) ) {
 			     var aDict = state.cstack[i].dict;
-			     for (var key in aDict) {
-				 console.log("adding " + key);
-				 dict[key] = dict[key] || [];
-				 dict[key].push(aDict[key]);
+			     var keys = aDict.keys();
+			     for (var j = 0; j < keys.length; j++) {
+				 dict.put( keys[j], (dict.get(keys[j]) || []) );
+				 dict.get(keys[j]).push( aDict.get(keys[j]) );
 			     }
 			 }
 		     }
-		     state.v = new types.ContinuationMarkSet(dict);
+		     state.v = types.continuationMarkSet(dict);
 		 });
 
 PRIMITIVES['continuation-mark-set->list'] = 
@@ -10257,13 +10296,11 @@ PRIMITIVES['continuation-mark-set->list'] =
 		 true,
 		 function(state, markSet, keyV) {
 		     check(markSet, 
-			   isContinuationMarkSet, 
+			   types.isContinuationMarkSet, 
 			   'continuation-mark-set->list',
 			   'continuation-mark-set',
 			   1);
-		     // FIXME: the markSet should use a real id hash table
-		     // to avoid collision issues.
-		     state.v = types.list(markSet.ref(keyV+''));
+		     state.v = types.list(markSet.ref(keyV));
 		 });
 
 
@@ -10408,7 +10445,8 @@ PRIMITIVES['make-struct-type'] =
 		    types.makeStructureType(name,
 					    jsnums.toFixnum(initFieldCnt),
 					    jsnums.toFixnum(autoFieldCnt),
-					    superType);
+					    superType,
+					    autoV);
 
 		return new types.ValuesWrapper
 		([aStructType,
@@ -10416,16 +10454,7 @@ PRIMITIVES['make-struct-type'] =
 			       aStructType.numberOfArgs,
 			       false,
 			       false,
-			       function(){ 
-				     var args = [];
-				     for (var i = 0; i < arguments.length; i++) {
-					 args.push(arguments[i]);
-				     }
-				     for (var i = 0; i < autoFieldCnt; i++) {
-					 args.push(autoV);
-				     }
-				     return aStructType.constructor(args);
-			       })),
+			       aStructType.constructor)),
 		 (new PrimProc('predicate', 1, false, false, aStructType.predicate)),
 		 (new PrimProc('accessor',
 			       2,
@@ -10655,6 +10684,58 @@ PRIMITIVES['error'] =
 				}
 				raise( types.exnFail(msg, false) );
 			}
+		 });
+
+
+PRIMITIVES['make-exn'] =
+    new PrimProc('make-exn',
+		 2,
+		 false, false,
+		 function(msg, contMarks) {
+		 	check(msg, isString, 'make-exn', 'string', 1);
+			check(contMarks, types.isContinuationMarkSet, 'make-exn', 'continuation mark set', 2);
+			return types.exn(msg, contMarks);
+		 });
+
+PRIMITIVES['exn-message'] =
+    new PrimProc('exn-message',
+		 1,
+		 false, false,
+		 function(exn) {
+		 	check(exn, types.isExn, 'exn-message', 'exn', 1);
+			return types.exnMessage(exn);
+		 });
+
+
+PRIMITIVES['exn-continuation-marks'] =
+    new PrimProc('exn-continuation-marks',
+		 1,
+		 false, false,
+		 function(exn) {
+		 	check(exn, types.isExn, 'exn-continuation-marks', 'exn', 1);
+			return types.exnContMarks(exn);
+		 });
+
+
+PRIMITIVES['make-exn:fail'] =
+    new PrimProc('make-exn:fail',
+		 2,
+		 false, false,
+		 function(msg, contMarks) {
+		 	check(msg, isString, 'make-exn:fail', 'string', 1);
+			check(contMarks, types.isContinuationMarkSet, 'make-exn:fail', 'continuation mark set', 2);
+			return types.exnFail(msg, contMarks);
+		 });
+
+
+PRIMITIVES['make-exn:fail:contract'] =
+    new PrimProc('make-exn:fail:contract',
+		 2,
+		 false, false,
+		 function(msg, contMarks) {
+		 	check(msg, isString, 'make-exn:fail:contract', 'string', 1);
+			check(contMarks, types.isContinuationMarkSet, 'make-exn:fail:contract', 'continuation mark set', 2);
+			return types.exnFailContract(msg, contMarks);
 		 });
 
 
@@ -13766,13 +13847,13 @@ PRIMITIVES['overlay/xy'] =
     new PrimProc('overlay/xy',
 		 4,
 		 false, false,
-		 function(img, deltaX, deltaY, other) {
-			check(img, isImage, "overlay/xy", "image", 1);
+		 function(img1, deltaX, deltaY, img2) {
+			check(img1, isImage, "overlay/xy", "image", 1);
 			check(deltaX, isNumber, "overlay/xy", "number", 2);
 			check(deltaY, isNumber, "overlay/xy", "number", 3);
-			check(other, isImage, "overlay/xy", "image", 4);
+			check(img2, isImage, "overlay/xy", "image", 4);
 
-			return world.Kernel.overlayImage(img, other,
+			return world.Kernel.overlayImage(img1, img2,
 							 jsnums.toFixnum(deltaX),
 							 jsnums.toFixnum(deltaY));
 		 });
@@ -13782,14 +13863,14 @@ PRIMITIVES['underlay'] =
     new PrimProc('underlay',
 		 2,
 		 true, false,
-		 function(img1, img2, images) {
-		 	images.unshift(img2);
-			images.unshift(img1);
-			arrayEach(images, function(x, i) { check(x, isImage, "underlay", "image", i+1); });
+		 function(img1, img2, restImages) {
+			check(img1, isImage, "underlay", "image", 1);
+			check(img2, isImage, "underlay", "image", 2);	
+			arrayEach(restImages, function(x, i) { check(x, isImage, "underlay", "image", i+3); });
 
-			var img = images.pop();
-			for (var i = images.length-1; i >= 0; i--) {
-				img = world.Kernel.overlayImage(images[i], img, 0, 0);
+			var img = world.Kernel.overlayImage(img2, img1, 0, 0);
+			for (var i = 0; i < restImages.length; i++) {
+				img = world.Kernel.overlayImage(restImages[i], img, 0, 0);
 			}
 			return img;
 		 });
@@ -14863,7 +14944,7 @@ var callClosureProcedure = function(state, procValue, n, operandValues) {
 	state.pushControl(procValue.body);
 
     } else if (state.cstack.length >= 2 &&
-	       state.cstack[state.cstack.length - 1] instanceof types.ContMarkRecordControl &&
+	       types.isContMarkRecordControl(state.cstack[state.cstack.length - 1]) &&
 	       state.cstack[state.cstack.length - 2] instanceof PopnControl) {
 	// Other tail call optimzation: if there's a continuation mark frame...
 	state.cstack[state.cstack.length - 2].invoke(state);
@@ -15051,18 +15132,16 @@ var WithContMarkVal = function(key, body) {
 };
 
 WithContMarkVal.prototype.invoke = function(state) {
-    var evaluatedKey = this.key + "";
     var evaluatedVal = state.v;
     // Check to see if there's an existing ContMarkRecordControl
     if (state.cstack.length !== 0 && 
-	(state.cstack[state.cstack.length - 1] instanceof 
-	 types.ContMarkRecordControl)) {
+	( types.isContMarkRecordControl(state.cstack[state.cstack.length - 1]) )) {
 	state.pushControl(state.cstack.pop().update
-			  (evaluatedKey, evaluatedVal));
+			  (this.key, evaluatedVal));
     } else {
-	var aHash = {};
-	aHash[evaluatedKey] = evaluatedVal;
-	state.pushControl(new types.ContMarkRecordControl(aHash));
+	var aHash = types.makeLowLevelEqHash();
+	aHash.put(this.key, evaluatedVal);
+	state.pushControl(types.contMarkRecordControl(aHash));
     }
     state.pushControl(this.body);
 };
@@ -15860,12 +15939,27 @@ var run = function(state, onSuccessK, onFailK) {
 	return;
     } catch (e) {
 	if (e instanceof control.PauseException) {
-	    var onRestart = makeOnRestart(state, onSuccessK);
+	    var onRestart = makeOnRestart(state, onSuccessK, onFailK);
 	    var onCall = makeOnCall(state);
 	    e.onPause(onRestart, onCall);
 	    return;
 	} else if (types.isSchemeError(e)) {
 	    // scheme exception
+	    if ( types.isExn(e.val) &&
+		!types.isContinuationMarkSet( types.exnContMarks(e.val) ) ) {
+		    var dict = types.makeLowLevelEqHash();
+		    for (var i = 0; i < state.cstack.length; i++) {
+			if ( types.isContMarkRecordControl(state.cstack[i]) ) {
+			    var aDict = state.cstack[i].dict;
+			    var keys = aDict.keys();
+			    for (var j = 0; j < keys.length; j++) {
+				dict.put( keys[j], (dict.get(keys[j]) || []) );
+				dict.get(keys[j]).push( aDict.get(keys[j]) );
+			    }
+			}
+		    }
+		    types.exnSetContMarks(e.val, types.continuationMarkSet(dict));
+	    }
 	    onFailK(e);
 	    return;
 	} else {
@@ -15880,7 +15974,7 @@ var run = function(state, onSuccessK, onFailK) {
     
 
 // call: state scheme-procedure (arrayof scheme-values) (scheme-value -> void) -> void
-var call = function(state, operator, operands, k) {
+var call = function(state, operator, operands, k, onFail) {
     var stateValues = state.save();
     state.clearForEval();
 
@@ -15895,7 +15989,11 @@ var call = function(state, operator, operands, k) {
 	run(state, 
 	    function(v) {
 		state.restore(stateValues);
-		k(v)});
+		k(v)},
+	    function(exn) {
+		state.restore(stateValues);
+		onFail(exn);
+	    });
     } catch (e) {
 	state.restore(stateValues);
 	throw e;
@@ -15904,8 +16002,8 @@ var call = function(state, operator, operands, k) {
 
 
 var makeOnCall = function(state) {
-    return function(operator, operands, k) {
-	return call(state, operator, operands, k);
+    return function(operator, operands, k, onFail) {
+	return call(state, operator, operands, k, onFail);
     };
 };
 
@@ -15915,10 +16013,15 @@ var makeOnCall = function(state) {
 
 // create function for restarting a run, given the state
 // and the continuation k.
-var makeOnRestart = function(state, k) {
+var makeOnRestart = function(state, onSuccessK, onFailK) {
     return function(v) {
-	state.v = v;
-	run(state, k);
+	if ( types.isSchemeError(v) ) {
+		onFailK(v);
+	}
+	else {
+		state.v = v;
+		run(state, onSuccessK, onFailK);
+	}
     };
 };
 

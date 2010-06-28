@@ -22,7 +22,6 @@ WeSchemeInteractions = (function () {
 	this.prompt = jQuery("<div style='width:100%'><span>&gt; <input type='text' style='width: 75%'></span></div>");
 	this.interactionsDiv.append(this.prompt);
 
-
 	this.evaluator = this.makeFreshEvaluator();
 	
 	
@@ -36,9 +35,6 @@ WeSchemeInteractions = (function () {
 	return new Evaluator({
 	    write: function(thing) {
 		that.addToInteractions(thing);
-	    },
-	    writeError:function(err) {
-		that.handleError(err);
 	    },
 	    compilationServletUrl: "http://go.cs.brown.edu:8000/servlets/standalone.ss"
 	});
@@ -117,7 +113,6 @@ WeSchemeInteractions = (function () {
 // 	    dialog.dialog("open");
 // 	    return innerArea.get(0);
 // 	};
-// 	plt.Kernel.lastLoc = undefined;
     };
 
 
@@ -130,14 +125,15 @@ WeSchemeInteractions = (function () {
 
 	this.evaluator.executeProgram(sourceName,
 				      aSource,
-				      contK);
+				      contK,
+				      function(err) { that.handleError(err)} );
     };
     
     WeSchemeInteractions.prototype.handleError = function(err) {
-	this.addToInteractions(this.renderErrorLocationAsDomNode(err));
-	this.addToInteractions("\n");
 	this.addToInteractions(this.renderErrorAsDomNode(err));
 	this.addToInteractions("\n");
+// 	this.addToInteractions(this.renderErrorLocationAsDomNode(err));
+// 	this.addToInteractions("\n");
     };
 
 
@@ -145,131 +141,24 @@ WeSchemeInteractions = (function () {
     // renderErrorAsDomNode: exception -> element
     // Given an exception, produces error dom node to be displayed.
     WeSchemeInteractions.prototype.renderErrorAsDomNode = function(err) {
-	var type, msg;
-	if (err.hasOwnProperty("name") &&
-	    err.hasOwnProperty("msg")) {
-	    type = err.name;
-	    msg = err.msg;
-	} else {
-	    type = "Error";
-	    msg = err.msg;
-	}
+	var msg = this.evaluator.getMessageFromExn(err);
 
-	var dom = document.createElement("div");
+	var dom = document.createElement('div');
 	dom['class'] = 'moby-error';
-	return dom;
-// 	return createDom(
-// 	    "div",
-// 	    { 'class': "moby-error" },
-// 	    createDom(
-// 		"div",
-// 		{ 'class' : "moby-error:type"},
-// 		type),
-// 	    createDom(
-// 		"div",
-// 		{ 'class': "moby-error:message"},
-// 		msg));
-    };
 
+	var msgDom = document.createElement('div');
+	msgDom['class'] = 'moby-error:message';
+	msgDom.appendChild(document.createTextNode(msg));
+	dom.appendChild(msgDom);
 
-
-    // getLocFromError: error -> loc or undefined
-    // Tries to get the location from an error value.
-    // FIXME: this should be refactored so Moby runtime errors
-    // include loc in their structure: we should NOT be touching
-    // plt.Kernel.lastLoc.
-    var getLocFromError = function(err) {
-// 	if (err instanceof plt.types.MobyParserError) {
-// 	    return err.log;
-// 	} else if (err instanceof plt.types.MobySyntaxError) {
-// 	    return err.stx.loc;
-// 	} else if (err instanceof plt.types.MobyError){
-// 	    return plt.Kernel.lastLoc;
-// 	} else {
-// 	    if (plt.Kernel.lastLoc) {
-// 		return plt.Kernel.lastLoc;
-// 	    }
-// 	} 
-	return undefined;
-    };
-
-
-    // renderErrorLocationAsDomNode: error -> element
-    // Given an exception, produces an error location dom node to be displayed.
-    WeSchemeInteractions.prototype.renderErrorLocationAsDomNode = function(err) {
-	var loc = getLocFromError(err);	
-	if (!loc) {
-	    var dom = document.createElement("div");
-	    dom['class'] = 'moby-location-unknown';
-	    return dom;
-// 	    return createDom(
-// 		"div",
-// 		{'class' : "moby-location-unknown"});
-	} else {
-	    var dom = document.createElement("div");
-	    dom['class'] = 'moby-location';
-	    return dom;
-// 	    return createDom(
-// 		"div",
-// 		{'class': "moby-location"},
-// 		createDom("div", {'class': "moby-location:source-id"}, "source: " + loc.id),
-// 		createDom("div", {'class': "moby-location:line"}, "line: " +loc.line),
-// 		createDom("div", {'class': "moby-location:offset"}, "offset: " + loc.offset),
-// 		createDom("div", {'class': "moby-location:span"}, "span: " + loc.span)
-// 	    );
+	var stacktrace = this.evaluator.getTraceFromExn(err);
+	for (var i = 0; i < stacktrace.length; i++) {
+	    dom.appendChild(document.createTextNode("at: line " + stacktrace[i].line + 
+						    ", column " + stacktrace[i].column));
 	}
+
+	return dom;
     };
-
-
-
-
-    WeSchemeInteractions.prototype.runCompiledCode = function(compiledCode, permStringArray) {
-// 	this.notifyBus("before-run", this);
-// 	var that = this;
-// 	this._prepareToRun();
-// 	var permArray = [];
-// 	for (var i = 0; i < permStringArray.length; i++) {
-// 	    permArray.push(symbol_dash__greaterthan_permission(permStringArray[i]))
-// 	}
-// 	var afterPermissionsGranted = function() {
-// 	    try {
-// // 		var runToplevel = that.namespace.eval("", compiledCode);
-// //  		runToplevel(function(val) {
-// //  		    if (val != undefined) {
-// //  			that.addToInteractions(
-// //  			    plt.types.toDomNode(val));
-// // 			that.addToInteractions("\n");
-// //  		    }
-// //  		});
-// 		that.notifyBus("after-run", that);
-// 	    } catch (err) {
-// 		handleError(err);
-// 	    }
-// 	};
-
-// 	try {
-// // 	    plt.permission.startupAllPermissions(
-// // 		permArray, afterPermissionsGranted);
-// 	} catch (err) {
-// 	    handleError(err);
-// 	}
-    };
-
-
-
-
-//     WeSchemeInteractions.prototype._getPermissionArray = function(permissionList) {
-// 	// FIXME: we should notify the user what permissionList are being asked,
-// 	// and what to permit.
-// 	var perms = [];
-// 	while (! permissionList.isEmpty()) {
-// 	    var nextPermission = permissionList.first();
-// 	    perms.push(nextPermission);
-// 	    permissionList = permissionList.rest();
-// 	}
-// 	return perms;
-//     };
-
 
 
 
@@ -278,11 +167,11 @@ WeSchemeInteractions = (function () {
  	if (keyEvent.keyCode == 13) {
 	    var nextCode = this.prompt.find("input").attr("value");
 	    this.addToInteractions("> " + nextCode + "\n");
+	    that.history.push(nextCode);
+	    that.prompt.find("input").attr("value", "");
 	    this.runCode(nextCode, "<interactions>", function() {
 		// FIXME: must disable prompt, and wait for computation
 		// to complete.
-		that.history.push(nextCode);
-		that.prompt.find("input").attr("value", "");
 	    });
 	    return false;
  	} else if (keyEvent.keyCode == 38) {
