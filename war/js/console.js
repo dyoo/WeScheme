@@ -78,8 +78,7 @@ function loadProgramList() {
 	 .append(form)
 	 .append(modifiedSpan)
 	 .append(shareSpan)
-	 .append(deleteSpan);
-	);
+	 .append(deleteSpan));
 	
 	programListUl.append(programEntry);
     };
