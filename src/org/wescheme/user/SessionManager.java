@@ -143,7 +143,7 @@ public class SessionManager {
 				String serialSession = Base64.encodeObject(session);
 				Token token 		 = new Token(serialSession, freshKey);
 				String serialToken   = Base64.encodeObject(token);
-
+				
 				resp.addCookie(new Cookie("session", serialSession));
 				resp.addCookie(new Cookie("token", serialToken));
 			} catch (CacheException e) {

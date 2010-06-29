@@ -9,7 +9,14 @@
 	    c_start=document.cookie.indexOf(c_name + "=");
 	    if (c_start!=-1) {
 		c_start=c_start + c_name.length+1;
-		c_end=document.cookie.indexOf(";",c_start);
+		// According to http://tools.ietf.org/html/rfc2965,
+		// the cookie value may be a quoted string.
+		if (document.cookie[c_start] === '"') {
+		    c_start++;
+		    c_end = document.cookie.indexOf('"', c_start);
+		} else {
+		    c_end=document.cookie.indexOf(";",c_start);
+		}
 		if (c_end==-1){ c_end=document.cookie.length; }
 		return document.cookie.substring(c_start,c_end);
 	    }
