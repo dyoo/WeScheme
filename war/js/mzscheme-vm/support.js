@@ -707,6 +707,9 @@ var jsnums = {};
 
     // exp: scheme-number -> scheme-number
     var exp = function(n) {
+	if ( eqv(n, 0) ) {
+		return 1;
+	}
 	if (typeof(n) === 'number') {
 	    return FloatPoint.makeInstance(Math.exp(n));
 	}
@@ -828,6 +831,9 @@ var jsnums = {};
 
     // log: scheme-number -> scheme-number
     var log = function(n) {
+	if ( eqv(n, 1) ) {
+		return 0;
+	}
 	if (typeof(n) === 'number') {
 	    return FloatPoint.makeInstance(Math.log(n));
 	}
@@ -2027,7 +2033,11 @@ var jsnums = {};
 	var stringRep = this.n.toString();
 	var match = stringRep.match(/^(.*)\.(.*)$/);
 	if (match) {
-	    return FloatPoint.makeInstance(parseFloat(match[1] + match[2]));
+	    var afterDecimal = parseInt(match[2]);
+	    var factorToInt = Math.pow(10, match[2].length);
+	    var extraFactor = _integerGcd(factorToInt, afterDecimal);
+	    var multFactor = factorToInt / extraFactor;
+	    return FloatPoint.makeInstance( Math.round(this.n * multFactor) );
 	} else {
 	    return this;
 	}
@@ -2037,9 +2047,12 @@ var jsnums = {};
 	var stringRep = this.n.toString();
 	var match = stringRep.match(/^(.*)\.(.*)$/);
 	if (match) {
-	    return FloatPoint.makeInstance(Math.pow(10, match[2].length));
+	    var afterDecimal = parseInt(match[2]);
+	    var factorToInt = Math.pow(10, match[2].length);
+	    var extraFactor = _integerGcd(factorToInt, afterDecimal);
+	    return FloatPoint.makeInstance( Math.round(factorToInt/extraFactor) );
 	} else {
-	    return FloatPoint.makeInstance(1.0);
+	    return FloatPoint.makeInstance(1);
 	}
     };
 
@@ -6532,13 +6545,13 @@ var world = {};
 
 
 
-    // Time ticks
-    // args: []
-    StimuliHandler.prototype.onTick = function(args, k) {
-	var onTick = this.lookup('onTick');
-	var onTickEffect = this.lookup('onTickEffect');
-	this.doStimuli(onTickEffect, onTick, [], k);
-    };
+//    // Time ticks
+//    // args: []
+//    StimuliHandler.prototype.onTick = function(args, k) {
+//	var onTick = this.lookup('onTick');
+//	var onTickEffect = this.lookup('onTickEffect');
+//	this.doStimuli(onTickEffect, onTick, [], k);
+//    };
 
 
 
@@ -6617,7 +6630,7 @@ var world = {};
     world.stimuli.onSmsReceive = makeStimulusHandler('onSmsReceive');
     world.stimuli.onLocation = makeStimulusHandler('onLocation');
     world.stimuli.onKey = makeStimulusHandler('onKey');
-    world.stimuli.onTick = makeStimulusHandler('onTick');
+//    world.stimuli.onTick = makeStimulusHandler('onTick');
     world.stimuli.onAnnounce = makeStimulusHandler('onAnnounce');
 
     world.stimuli.massShutdown = function() {
@@ -9593,8 +9606,7 @@ var jsworld = {};
 
 	if (config.lookup('tickDelay')) {
 	    var wrappedTick = function(w, k) {
-		    //console.log('in onTick handler');
-		world.stimuli.onTick([], k);
+		caller(config.lookup('onTick'), [w], k);
 	    }
 	    var wrappedDelay = jsnums.toFixnum( config.lookup('tickDelay') );
 	    wrappedHandlers.push(_js.on_tick(wrappedDelay, wrappedTick));
@@ -11162,10 +11174,10 @@ PRIMITIVES['gcd'] =
 		 1,
 		 true, false,
 		 function(x, args) {
-		 	args.unshift(x);
-		 	arrayEach(args, function(y, i) {check(y, isInteger, 'gcd', 'integer', i+1);});
+		 	check(x, isInteger, 'gcd', 'integer', 1);
+		 	arrayEach(args, function(y, i) {check(y, isInteger, 'gcd', 'integer', i+2);});
 
-		 	return jsnums.gcd.apply(null, args);
+		 	return jsnums.gcd(x, args);
 		 });
 
 PRIMITIVES['lcm'] =
@@ -11173,10 +11185,10 @@ PRIMITIVES['lcm'] =
 		 1,
 		 true, false,
 		 function(x, args) {
-		 	args.unshift(x);
-		 	arrayEach(args, function(y, i) {check(y, isInteger, 'lcm', 'integer', i+1);});
+		 	check(x, isInteger, 'lcm', 'integer', 1);
+		 	arrayEach(args, function(y, i) {check(y, isInteger, 'lcm', 'integer', i+2);});
 
-		 	return jsnums.gcd.apply(null, args);
+		 	return jsnums.lcm(x, args);
 		 });
 
 
@@ -11215,7 +11227,7 @@ PRIMITIVES['numerator'] =
 		 1,
 		 false, false,
 		 function(x) {
-		 	check(x, isRational, 'numerator', 'rational', 1);
+		 	check(x, isRational, 'numerator', 'rational number', 1);
 			return jsnums.numerator(x);
 		 });
 
@@ -11225,7 +11237,7 @@ PRIMITIVES['denominator'] =
 		 1,
 		 false, false,
 		 function(x) {
-		 	check(x, isRational, 'denominator', 'rational', 1);
+		 	check(x, isRational, 'denominator', 'rational number', 1);
 			return jsnums.denominator(x);
 		 });
 
@@ -12525,7 +12537,7 @@ PRIMITIVES['hash-for-each'] =
 				var val = ht.hash.get(keys[i]);
 				return CALL(f, [keys[i], val],
 					function(result) {
-						hashForEachHelp(i+1);
+						return hashForEachHelp(i+1);
 					});
 			}
 			return hashForEachHelp(0);
@@ -14159,19 +14171,34 @@ var OnTickBang = WorldConfigOption.extend({
 
 
 
-
+// The default tick delay is 28 times a second.
+var DEFAULT_TICK_DELAY = jsnums.makeRational(1, 28);
 
 PRIMITIVES['on-tick'] =
-    new PrimProc('on-tick',
-		 2,
-		 false, false,
-		 function(aDelay, f) {
-			check(aDelay, isNumber, "on-tick", "number", 1);
-			check(f, isFunction, "on-tick", "procedure", 2);
-			return new OnTickBang(aDelay, f,
-				new PrimProc('', 1, false, false,
-					function(w) { return world.config.getNoneEffect(); }));
-		 });
+	new CasePrimitive(
+	    'on-tick',
+	    [new PrimProc('on-tick',
+			  2,
+			  false, false,
+			  function(aDelay, f) {
+			      check(aDelay, isNumber, "on-tick", "number", 1);
+			      check(f, isFunction, "on-tick", "procedure", 2);
+			      return new OnTickBang(aDelay, f,
+						    new PrimProc('', 1, false, false,
+								 function(w) { return world.config.getNoneEffect(); }));
+			  }),
+	     new PrimProc('on-tick',
+			  1,
+			  false, false,
+			  function(f) {
+			      check(f, isFunction, "on-tick", "procedure", 1);
+			      return new OnTickBang(DEFAULT_TICK_DELAY,
+						    f,
+						    new PrimProc('', 1, false, false,
+								 function(w) { return world.config.getNoneEffect(); }));
+			  })]);;
+
+
 
 PRIMITIVES['on-tick!'] =
     new PrimProc('on-tick!',
