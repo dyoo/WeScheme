@@ -205,6 +205,17 @@
   </servlet-mapping>
 
 
+  <servlet>
+    <servlet-name>deleteProject</servlet-name>
+    <servlet-class>org.wescheme.servlet.Delete</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>deleteProject</servlet-name>
+    <url-pattern>/deleteProject</url-pattern>
+  </servlet-mapping>
+
+
+
  
   <servlet>
     <servlet-name>cloneProject</servlet-name>

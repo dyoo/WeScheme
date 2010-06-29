@@ -30,7 +30,12 @@ public class Program {
 	@Persistent
 	protected ObjectCode obj_;
 	
+	@Persistent
 	protected Boolean isSourcePublic;
+
+	@Persistent
+	protected Boolean isDeleted;
+
 	
 	// Kludge: haven't figured out how to get JDO to update an existing
 	// child element in a one-to-one relationship.
@@ -44,6 +49,8 @@ public class Program {
 	protected long time_;
 	@Persistent
 	private boolean published_ = false;
+
+
 
 	@Persistent
 	private Long backlink_;
@@ -61,6 +68,7 @@ public class Program {
 		this.srcs_.add(new SourceCode(src));
 		this.obj_ = new ObjectCode();
 		this.isSourcePublic = false;
+		this.isDeleted = false;
 		this.owner_ 	= ownerName;
 		this.author_ = owner_;
 		this.backlink_ = null;
@@ -95,6 +103,17 @@ public class Program {
 		return this.isSourcePublic;
 	}
 	
+	
+	public boolean getIsDeleted() {
+		if (this.isDeleted == null) {
+			return false;
+		} 
+		return this.isDeleted.booleanValue();
+	}
+	
+	public void setIsDeleted(boolean v) {
+		this.isDeleted = v;
+	}
 	
 	public void unpublish(){
 		published_ = false;

@@ -48,16 +48,18 @@ public class ListProjectsServlet extends HttpServlet {
 			
 			Query query = pm.newQuery(Program.class);
 			query.setFilter("owner_ == ownerParam");
+//			query.setFilter("is_deleted == false");
 			query.setOrdering("time_ desc");
-			query.declareParameters("String ownerParam");
-			
+			query.declareParameters("String ownerParam");		       
 			try {
 				@SuppressWarnings({ "unchecked" })
-				List<Program> pl = (List<Program>) query.execute(userSession.getName());
+				    List<Program> pl = (List<Program>) 
+				    query.execute(userSession.getName());
 
 				Element elt = new Element("ProgramDigests");
 				for( Program p : pl ){
-					elt.addContent(new ProgramDigest(p).toXML(pm));
+					if (! p.getIsDeleted())
+						elt.addContent(new ProgramDigest(p).toXML(pm));
 				}
 				resp.setContentType("text/xml");
 				PrintWriter w = resp.getWriter();

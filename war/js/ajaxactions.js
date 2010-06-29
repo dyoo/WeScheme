@@ -8,9 +8,7 @@ if (typeof (plt.wescheme) === 'undefined') {
 
 
 (function() {
-
-    plt.wescheme.AjaxActions = function() {
-    }
+    plt.wescheme.AjaxActions = function() {}
 
 
     // loadAProject: number (jquery -> void) (-> void)
@@ -75,7 +73,7 @@ if (typeof (plt.wescheme) === 'undefined') {
 		     },
 		     xhr: function(settings) { return new XMLHttpRequest(settings); }
 		    });
-    }
+    };
 
 
 
@@ -97,7 +95,7 @@ if (typeof (plt.wescheme) === 'undefined') {
 		     }, 
 		     xhr: function(settings) { return new XMLHttpRequest(settings); }
 		    });
-    }
+    };
 
 
 
@@ -121,7 +119,27 @@ if (typeof (plt.wescheme) === 'undefined') {
 		     }, 
 		     xhr: function(settings) { return new XMLHttpRequest(settings); }
   		    });
-    }
+    };
+
+
+    // deleteProject: number (program -> void) (-> void) -> void
+    // Deletes a program.
+    plt.wescheme.AjaxActions.prototype.deleteProject = function(pid, onSuccess, onFailure) {
+	jQuery.ajax({cache : false,
+  		     data : { pid: pid },
+  		     dataType: "xml",
+  		     type: "POST",
+  		     url: "/deleteProject",
+  		     success: function(data) {
+			 onSuccess(jQuery(data));
+		     },
+  		     error: function() {
+			 // FIXME
+			 onFailure();
+		     }, 
+		     xhr: function(settings) { return new XMLHttpRequest(settings); }
+  		    });
+    };
 
 
 
@@ -151,5 +169,5 @@ if (typeof (plt.wescheme) === 'undefined') {
 		     },
 		     xhr: function(settings) { return new XMLHttpRequest(settings); }
 		    });
-    }
+    };
 })();

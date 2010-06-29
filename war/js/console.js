@@ -71,10 +71,14 @@ function loadProgramList() {
 	var shareSpan = plt.wescheme.SharingDialog.makeShareButton(
 	    aProgramDigest, loadProgramList);
 
+	var deleteSpan = plt.wescheme.DeleteDialog.makeDeleteButton(
+	    aProgramDigest, loadProgramList);
+
 	(programEntry
 	 .append(form)
 	 .append(modifiedSpan)
 	 .append(shareSpan)
+	 .append(deleteSpan);
 	);
 	
 	programListUl.append(programEntry);
