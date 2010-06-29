@@ -1,6 +1,7 @@
+
 (function() {
 
-    // http://www.w3schools.com/JS/js_cookies.asp  
+// http://www.w3schools.com/JS/js_cookies.asp  
     var getCookie = function(c_name) {
 	var c_start = -1;
 	var c_end = -1;
@@ -14,7 +15,8 @@
 	    }
 	}
 	return "";
-    }
+    };
+    
 
     // adapted from http://diveintogreasemonkey.org/patterns/override-method.html
     var newsubmit = function(event) {
@@ -27,7 +29,7 @@
 	target.appendChild(tokenNode);
 	// call real submit function
 	return this._submit.apply(this, arguments);
-    }
+    };
 
     var instrumentedOpen = function() {
 	var method = arguments[0].toUpperCase();
@@ -44,7 +46,7 @@
 	var result = this._open.apply(this, arguments);
 	this.method = method;
 	return result;
-    }
+    };
 
     var instrumentedSend = function(body){
 	if (this.method == "GET") {
@@ -58,7 +60,7 @@
 	    body += "token=" + encodeURIComponent(getCookie("token"));
 	    return this._send.call(this, body);
 	}
-    }
+    };
 
 
     // From http://msdn.microsoft.com/en-us/library/ms537509(VS.85).aspx
@@ -75,7 +77,7 @@
 		rv = parseFloat( RegExp.$1 );
 	}
 	return rv;
-    }
+    };
 
 
 
@@ -88,7 +90,7 @@
     var isIE8 = function() {
 	var version = getInternetExplorerVersion();
 	return ((version != undefined) && (Math.floor(version) == 8));
-    }
+    };
     
 
     //////////////////////////////////////////////////////////////////////

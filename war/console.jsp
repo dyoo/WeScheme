@@ -11,7 +11,7 @@
    if( s == null ) {
        UserService us = UserServiceFactory.getUserService();
        // Not logged in: we should send them off to the login page.
-       response.sendRedirect(us.createLoginURL("/login.jsp?dest=") + URLEncoder.encode("/console", "utf-8"));
+       response.sendRedirect(us.createLoginURL("/login.jsp"));
    } else {
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

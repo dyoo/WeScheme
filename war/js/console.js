@@ -72,7 +72,7 @@ function loadProgramList() {
 	    aProgramDigest, loadProgramList);
 
 	var deleteSpan = plt.wescheme.DeleteDialog.makeDeleteButton(
-	    aProgramDigest, loadProgramList);
+	    aProgramDigest, loadProgramList, loadProgramList);
 
 	(programEntry
 	 .append(form)
