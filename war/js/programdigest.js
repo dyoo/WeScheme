@@ -1,7 +1,17 @@
-goog.require("plt.wescheme.SharedAs");
+//goog.require("plt.wescheme.SharedAs");
+
+if (typeof (plt) === 'undefined') {
+    this.plt = {};
+}
+if (typeof (plt.wescheme) === 'undefined') {
+    this.plt.wescheme = {};
+}
+
+plt.wescheme.ProgramDigest = {};
 
 
-goog.provide("plt.wescheme.ProgramDigest");
+
+//goog.provide("plt.wescheme.ProgramDigest");
 
 // Abstraction around ProgramDigest XML objects
 

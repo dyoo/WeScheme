@@ -1,13 +1,22 @@
-goog.require("plt.wescheme.AjaxActions");
-goog.require("plt.wescheme.helpers");
+if (typeof (plt) === 'undefined') {
+    this.plt = {};
+}
+if (typeof (plt.wescheme) === 'undefined') {
+    this.plt.wescheme = {};
+}
 
-goog.require("goog.dom");
-goog.require('goog.ui.AdvancedTooltip');
-
-//goog.require("plt.wescheme.WeSchemeIntentBus");
 
 
-goog.provide("plt.wescheme.SharingDialog");
+// goog.require("plt.wescheme.AjaxActions");
+// goog.require("plt.wescheme.helpers");
+// goog.require("goog.dom");
+// goog.require('goog.ui.AdvancedTooltip');
+// goog.require("plt.wescheme.WeSchemeIntentBus");
+
+
+//goog.provide("plt.wescheme.SharingDialog");
+
+plt.wescheme.SharingDialog = {};
 
 
 (function() {
@@ -176,37 +185,37 @@ goog.provide("plt.wescheme.SharingDialog");
     };
 
 
+    // attachSharingPopupTooltip: dom program-or-digest -> void
     var attachSharingPopupTooltip = function(parent, aProgramOrDigest) {
-	var tooltip = new goog.ui.AdvancedTooltip(parent);
-	tooltip.className = 'tooltip';
-	if (aProgramOrDigest.hasSharingUrls()) {
-	    tooltip.setHtml(
-		"<h2>Program sharing</h2>" +
-		    "This program has been shared.", true);
-	    var aList = goog.dom.createElement("ul");
-	    var entries = aProgramOrDigest.getSharedAsEntries();
-	    // We'll just look at the first one.
-	    var elt = entries[0];
-	    var item = goog.dom.createElement("li");
-	    aList.appendChild(item);
-	    var title = elt.title;
-	    var anchor = makeShareAnchor(elt.publicId, elt.title);
-	    item.appendChild(anchor);
-	    item.appendChild(goog.dom.createTextNode(
-		" [" + plt.wescheme.helpers.prettyPrintDate(elt.modified) + "]"));
-	    item.appendChild(plt.wescheme.helpers.generateSocialBookmarks(
-		title, anchor.href));
-	    goog.dom.appendChild(tooltip.getElement(), aList);
+// 	var tooltip = new goog.ui.AdvancedTooltip(parent);
+// 	tooltip.className = 'tooltip';
+// 	if (aProgramOrDigest.hasSharingUrls()) {
+// 	    tooltip.setHtml(
+// 		"<h2>Program sharing</h2>" +
+// 		    "This program has been shared.", true);
+// 	    var aList = goog.dom.createElement("ul");
+// 	    var entries = aProgramOrDigest.getSharedAsEntries();
+// 	    // We'll just look at the first one.
+// 	    var elt = entries[0];
+// 	    var item = goog.dom.createElement("li");
+// 	    aList.appendChild(item);
+// 	    var title = elt.title;
+// 	    var anchor = makeShareAnchor(elt.publicId, elt.title);
+// 	    item.appendChild(anchor);
+// 	    item.appendChild(goog.dom.createTextNode(
+// 		" [" + plt.wescheme.helpers.prettyPrintDate(elt.modified) + "]"));
+// 	    item.appendChild(plt.wescheme.helpers.generateSocialBookmarks(
+// 		title, anchor.href));
+// 	    goog.dom.appendChild(tooltip.getElement(), aList);
 
-	} else {
-	    tooltip.setHtml(
-		"<h2>Program sharing</h2>" +
-		    "This program has not been shared yet.  Click the share icon to share it.", true);
-	}
-	tooltip.setHotSpotPadding(new goog.math.Box(5, 5, 5, 5));
-	tooltip.setCursorTracking(true);
-	tooltip.setHideDelayMs(250);
-
+// 	} else {
+// 	    tooltip.setHtml(
+// 		"<h2>Program sharing</h2>" +
+// 		    "This program has not been shared yet.  Click the share icon to share it.", true);
+// 	}
+// 	tooltip.setHotSpotPadding(new goog.math.Box(5, 5, 5, 5));
+// 	tooltip.setCursorTracking(true);
+// 	tooltip.setHideDelayMs(250);
     }
 
 
@@ -214,9 +223,9 @@ goog.provide("plt.wescheme.SharingDialog");
     // Produces the sharing url
     var makeShareAnchor = function(publicId, name) {
 	if (publicId != "") {
-	    var a = goog.dom.createElement("a");
+	    var a = document.createElement("a");
 	    a.href = "/view?publicId=" + encodeURIComponent(publicId);
-	    a.appendChild(goog.dom.createTextNode(name || a.href));
+	    a.appendChild(document.createTextNode(name || a.href));
 	    return a;
 	} else {
 	    throw new Error();

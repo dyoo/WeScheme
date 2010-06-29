@@ -1,6 +1,5 @@
 package org.wescheme.project;
 
-import java.io.IOException;
 import javax.servlet.http.HttpServlet;
 
 public class Compiler extends HttpServlet

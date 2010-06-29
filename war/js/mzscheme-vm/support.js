@@ -297,11 +297,8 @@ if (typeof(exports) !== 'undefined') {
     }
     __PLTNUMBERS_TOP__  = this['jsnums'];
 }
-
 */
-
 var jsnums = {};
-
 
 
 // The numeric tower has the following levels:
@@ -327,8 +324,7 @@ var jsnums = {};
 
 (function() {
     // Abbreviation
-    //    var Numbers = __PLTNUMBERS_TOP__;
-
+    //var Numbers = __PLTNUMBERS_TOP__;
     var Numbers = jsnums;
 
     // makeNumericBinop: (fixnum fixnum -> any) (scheme-number scheme-number -> any) -> (scheme-number scheme-number) X
@@ -443,6 +439,15 @@ var jsnums = {};
 		(isSchemeNumber(n) && n.isExact()));
     };
 
+    // isExact: scheme-number -> boolean
+    var isInexact = function(n) {
+	if (typeof(n) === 'number') {
+	    return false;
+	} else {
+	    return (isSchemeNumber(n) && n.isInexact());
+	}
+    };
+
     // isInteger: scheme-number -> boolean
     var isInteger = function(n) {
 	return (typeof(n) === 'number' ||
@@ -472,6 +477,15 @@ var jsnums = {};
 	    return n;
 	return n.toExact();
     };
+
+
+    // toExact: scheme-number -> scheme-number
+    var toInexact = function(n) {
+	if (typeof(n) === 'number')
+	    return FloatPoint.makeInstance(n);
+	return n.toInexact();
+    };
+
 
 
     //////////////////////////////////////////////////////////////////////
@@ -942,7 +956,7 @@ var jsnums = {};
 	    while (! _integerIsZero(b)) {
 		t = a;
 		a = b;
-		b = integerModulo(t, b);
+		b = _integerModulo(t, b);
 	    }
 	}
 	return a;
@@ -961,7 +975,7 @@ var jsnums = {};
 		throwRuntimeError('lcm: the argument ' + rest[i].toString() +
 				  " is not an integer.", rest[i]);
 	    }
-	    var divisor = gcd(result, rest[i]);
+	    var divisor = _integerGcd(result, rest[i]);
 	    if (_integerIsZero(divisor)) {
 		return 0;
 	    }
@@ -1557,9 +1571,19 @@ var jsnums = {};
 	return this;
     };
 
+    Rational.prototype.toInexact = function() {
+	return FloatPoint.makeInstance(this.toFixnum());
+    };
+
+
     Rational.prototype.isExact = function() {
         return true;
     };
+
+    Rational.prototype.isInexact = function() {
+        return false;
+    };
+
 
     Rational.prototype.toFixnum = function() {
 	return _integerDivideToFixnum(this.n, this.d);
@@ -1807,6 +1831,14 @@ var jsnums = {};
     };
 
 
+    FloatPoint.prototype.isExact = function() {
+	return false;
+    };
+
+    FloatPoint.prototype.isInexact = function() {
+	return true;
+    };
+
 
     FloatPoint.prototype.isFinite = function() {
 	return (isFinite(this.n) ||
@@ -1826,8 +1858,12 @@ var jsnums = {};
 		   Rational.makeInstance(Math.floor(fracPart * 10e16), 10e16));
     };
 
-    FloatPoint.prototype.isExact = function() {
-	return false;
+    FloatPoint.prototype.toInexact = function() {
+	return this;
+    };
+
+    FloatPoint.prototype.isInexact = function() {
+	return true;
     };
 
 
@@ -2214,10 +2250,20 @@ var jsnums = {};
 	return toExact(this.r);
     };
 
+    Complex.prototype.toInexact = function() {
+	return Complex.makeInstance(toInexact(this.r),
+				    toInexact(this.i));
+    };
+
+
     Complex.prototype.isExact = function() {
         return isExact(this.r) && isExact(this.i);
     };
 
+
+    Complex.prototype.isInexact = function() {
+	return isInexact(this.r) || isInexact(this.i);
+    };
 
 
     Complex.prototype.level = 3;
@@ -3875,8 +3921,16 @@ var jsnums = {};
 	return true;
     };
 
+    BigInteger.prototype.isInexact = function() {
+	return false;
+    };
+
     BigInteger.prototype.toExact = function() {
 	return this;
+    };
+
+    BigInteger.prototype.toInexact = function() {
+	return FloatPoint.makeInstance(this.toFixnum());
     };
 
     BigInteger.prototype.toFixnum = function() {
@@ -4069,10 +4123,12 @@ var jsnums = {};
     Numbers['isRational'] = isRational;
     Numbers['isReal'] = isReal;
     Numbers['isExact'] = isExact;
+    Numbers['isInexact'] = isInexact;
     Numbers['isInteger'] = isInteger;
 
     Numbers['toFixnum'] = toFixnum;
     Numbers['toExact'] = toExact;
+    Numbers['toInexact'] = toInexact;
     Numbers['add'] = add;
     Numbers['subtract'] = subtract;
     Numbers['multiply'] = multiply;
@@ -4545,7 +4601,23 @@ Box.prototype.set = function(newVal) {
 
 Box.prototype.toString = function() {
     return "#&" + this.val.toString();
-}
+};
+
+Box.prototype.toWrittenString = function(cache) {
+    return "#&" + toWrittenString(this.val, cache);
+};
+
+Box.prototype.toDisplayedString = function(cache) {
+    return "#&" + toDisplayedString(this.val, cache);
+};
+
+Box.prototype.toDomNode = function(cache) {
+    var parent = document.createElement("span");
+    parent.appendChild(document.createTextNode('#&'));
+    parent.appendChild(toDomNode(child, cache));
+    return parent;
+};
+
 //////////////////////////////////////////////////////////////////////
 
 
@@ -5015,12 +5087,42 @@ Str.prototype.match = function(regexpr) {
 }
 
 
-var _quoteReplacingRegexp = new RegExp("[\"\\\\]", "g");
+//var _quoteReplacingRegexp = new RegExp("[\"\\\\]", "g");
 var escapeString = function(s) {
-    return '"' + s.replace(_quoteReplacingRegexp,
-			      function(match, submatch, index) {
-				  return "\\" + match;
-			      }) + '"';
+    return '"' + replaceUnprintableChars(s) + '"';
+//    return '"' + s.replace(_quoteReplacingRegexp,
+//			      function(match, submatch, index) {
+//				  return "\\" + match;
+//			      }) + '"';
+};
+
+var replaceUnprintableChars = function(s) {
+	var ret = [];
+	for (var i = 0; i < s.length; i++) {
+		var val = s.charCodeAt(i);
+		switch(val) {
+			case 7: ret.push('\\a'); break;
+			case 8: ret.push('\\b'); break;
+			case 9: ret.push('\\t'); break;
+			case 10: ret.push('\\n'); break;
+			case 11: ret.push('\\v'); break;
+			case 12: ret.push('\\f'); break;
+			case 13: ret.push('\\r'); break;
+			case 92: ret.push('\\\\'); break;
+			default: if (val >= 32 && val <= 126) {
+					 ret.push( s.charAt(i) );
+				 }
+				 else {
+					 var numStr = val.toString(8);
+					 while (numStr.length < 4) {
+						 numStr = '0' + numStr;
+					 }
+					 ret.push('\\u' + numStr);
+				 }
+				 break;
+		}
+	}
+	return ret.join('');
 };
 
 
@@ -5063,9 +5165,6 @@ var makeLowLevelEqHash = function() {
 			  function(x, y) { return x === y; });
 };
 
-makeLowLevelEqHash = makeLowLevelEqHash;
-
-
 
 
 
@@ -5083,11 +5182,11 @@ var EqHashTable = function(inputHash) {
 EqHashTable = EqHashTable;
 
 EqHashTable.prototype.toWrittenString = function(cache) {
-    return "<hash>";
+    return "#<hash>";
 };
 
 EqHashTable.prototype.toDisplayedString = function(cache) {
-    return "<hash>";
+    return "#<hash>";
 };
 
 EqHashTable.prototype.isEqual = function(other, aUnionFind) {
@@ -5126,10 +5225,10 @@ var EqualHashTable = function(inputHash) {
 EqualHashTable = EqualHashTable;
 
 EqualHashTable.prototype.toWrittenString = function(cache) {
-    return "<hash>";
+    return "#<hash>";
 };
 EqualHashTable.prototype.toDisplayedString = function(cache) {
-    return "<hash>";
+    return "#<hash>";
 };
 
 EqualHashTable.prototype.isEqual = function(other, aUnionFind) {
@@ -5176,12 +5275,15 @@ var toWrittenString = function(x, cache) {
      	cache = makeLowLevelEqHash();
     }
 
-    if (x && cache.containsKey(x)) {
-     	return "...";
+    if (typeof(x) == 'object') {
+	    if (cache.containsKey(x)) {
+		    return "...";
+	    }
+	    cache.put(x, true);
     }
 
     if (x == undefined || x == null) {
-	return "<undefined>";
+	return "#<undefined>";
     }
     if (typeof(x) == 'string') {
 	return escapeString(x.toString());
@@ -5205,15 +5307,18 @@ var toDisplayedString = function(x, cache) {
     if (! cache) {
     	cache = makeLowLevelEqHash();
     }
-    if (x && cache.containsKey(x)) {
-    	return "...";
+    if (typeof(x) == 'object') {
+	    if (cache.containsKey(x)) {
+		    return "...";
+	    }
+	    cache.put(x, true);
     }
 
     if (x == undefined || x == null) {
-	return "<undefined>";
+	return "#<undefined>";
     }
     if (typeof(x) == 'string') {
-	return x.toString();
+	return x;
     }
     if (typeof(x) != 'object' && typeof(x) != 'function') {
 	return x.toString();
@@ -5236,17 +5341,23 @@ var toDomNode = function(x, cache) {
     	cache = makeLowLevelEqHash();
     }
     
-    if (x && cache.containsKey(x)) {
-    	return document.createTextNode("...");
+    if (typeof(x) == 'object') {
+	    if (cache.containsKey(x)) {
+		    return "...";
+	    }
+	    cache.put(x, true);
     }
 
     if (x == undefined || x == null) {
-	var node = document.createTextNode("<undefined>");
+	var node = document.createTextNode("#<undefined>");
 	return node;
     }
     if (typeof(x) == 'string') {
+	var wrapper = document.createElement("span");
+        wrapper.style["white-space"] = "pre";	
 	var node = document.createTextNode(toWrittenString(x));
-	return node;
+	wrapper.appendChild(node);
+	return wrapper;
     }
     if (typeof(x) != 'object' && typeof(x) != 'function') {
 	var node = document.createTextNode(x.toString());
@@ -5259,11 +5370,11 @@ var toDomNode = function(x, cache) {
 	return x.toDomNode(cache);
     }
     if (typeof(x.toWrittenString) !== 'undefined') {
-	var node = document.createTextNode(toWrittenString(x, cache));
+	var node = document.createTextNode(x.toWrittenString(cache));
 	return node;
     }
     if (typeof(x.toDisplayedString) !== 'undefined') {
-	var node = document.createTextNode(toDisplayedString(x, cache));
+	var node = document.createTextNode(x.toDisplayedString(cache));
 	return node;
     } else {
 	var node = document.createTextNode(x.toString());
@@ -5328,7 +5439,7 @@ var liftToplevelToFunctionValue = function(primitiveF,
 	    return this === other; 
 	}
 	lifted.toWrittenString = function(cache) { 
-	    return "<procedure:" + name + ">";
+	    return "#<procedure:" + name + ">";
 	};
 	lifted.toDisplayedString = lifted.toWrittenString;
 	lifted.procedureArity = procedureArityDescription;
@@ -5360,13 +5471,13 @@ var ValuesWrapper = function(elts) {
 var UndefinedValue = function() {
 };
 UndefinedValue.prototype.toString = function() {
-    return "<undefined>";
+    return "#<undefined>";
 };
 var UNDEFINED_VALUE = new UndefinedValue();
 
 var VoidValue = function() {};
 VoidValue.prototype.toString = function() {
-	return "<void>";
+	return "#<void>";
 };
 
 var VOID_VALUE = new VoidValue();
@@ -5374,7 +5485,7 @@ var VOID_VALUE = new VoidValue();
 
 var EofValue = function() {};
 EofValue.prototype.toString = function() {
-	return "<eof>";
+	return "#<eof>";
 }
 
 var EOF_VALUE = new EofValue();
@@ -5560,21 +5671,21 @@ var PrimProc = function(name, numParams, isRest, usesState, impl) {
 };
 
 PrimProc.prototype.toString = function() {
-    return ("<procedure:" + this.name + ">");
+    return ("#<procedure:" + this.name + ">");
 };
 
 PrimProc.prototype.toWrittenString = function(cache) {
-    return ("<procedure:" + this.name + ">");
+    return ("#<procedure:" + this.name + ">");
 };
 
 PrimProc.prototype.toDisplayedString = function(cache) {
-    return ("<procedure:" + this.name + ">");
+    return ("#<procedure:" + this.name + ">");
 };
 
 
 PrimProc.prototype.toDomNode = function(cache) {
     var div = document.createElement("span");
-    div.appendChild(document.createTextNode("<procedure:"+ this.name +">"));
+    div.appendChild(document.createTextNode("#<procedure:"+ this.name +">"));
     return div;
 };
 
@@ -5587,16 +5698,16 @@ var CasePrimitive = function(name, cases) {
 
 CasePrimitive.prototype.toDomNode = function(cache) {
     var div = document.createElement("span");
-    div.appendChild(document.createTextNode("<procedure:"+ this.name +">"));
+    div.appendChild(document.createTextNode("#<procedure:"+ this.name +">"));
     return div;    
 };
 
 CasePrimitive.prototype.toWrittenString = function(cache) {
-    return ("<procedure:" + this.name + ">");
+    return ("#<procedure:" + this.name + ">");
 };
 
 CasePrimitive.prototype.toDisplayedString = function(cache) {
-    return ("<procedure:" + this.name + ">");
+    return ("#<procedure:" + this.name + ">");
 };
 
 
@@ -5999,7 +6110,30 @@ State.prototype.setToplevelNodeHook = function(hook) {
 
 
 
+// Captures the current continuation marks in the state.
+// Helper function
+var captureCurrentContinuationMarks = function(state) {
+    var dict = types.makeLowLevelEqHash();
+    for (var i = 0; i < state.cstack.length; i++) {
+	if ( types.isContMarkRecordControl(state.cstack[i]) ) {
+	    var aDict = state.cstack[i].dict;
+	    var keys = aDict.keys();
+	    for (var j = 0; j < keys.length; j++) {
+		dict.put(keys[j], (dict.get(keys[j]) || []) );
+		dict.get(keys[j]).push(aDict.get(keys[j]) );
+	    }
+	}
+    }
+    return types.continuationMarkSet(dict);
+};
+
+
+
+
+
 state.State = State;
+state.captureCurrentContinuationMarks = captureCurrentContinuationMarks;
+
 
 })();
 
@@ -6393,7 +6527,7 @@ var world = {};
 	var keyname = getKeyCodeName(args[0]);
 	var onKey = this.lookup('onKey');
 	var onKeyEffect = this.lookup('onKeyEffect');
-	this.doStimuli(onKeyEffect, onKey, [keyname], doNothing, k);
+	this.doStimuli(onKeyEffect, onKey, [keyname], k);
     };
 
 
@@ -6441,7 +6575,7 @@ var world = {};
 
     //////////////////////////////////////////////////////////////////////
     // Helpers
-    var flt = jsnums.float;
+    var flt = types.float;
     
     StimuliHandler.prototype.lookup = function(s) {
 	return this.config.lookup(s);
@@ -6979,8 +7113,8 @@ var world = {};
 	    return (other instanceof FileImage &&
 		    this.pinholeX == other.pinholeX &&
 		    this.pinholeY == other.pinholeY &&
-		    this.src == other.src &&
-		    types.isEqual(this.img, other.img, aUnionFind));
+		    this.src == other.src);
+//		    types.isEqual(this.img, other.img, aUnionFind));
     };
 
 
@@ -8153,8 +8287,9 @@ var jsworld = {};
 	
 	// arrange siblings in proper order
 	// truly terrible... BUBBLE SORT
-	for (;;) {
-	    var unsorted = false;
+	var unsorted = true;
+	while (unsorted) {
+	    unsorted = false;
 		
 	    for (var i = 0; i < relations.length; i++) {
 		if (relations[i].relation == 'neighbor') {
@@ -8167,7 +8302,7 @@ var jsworld = {};
 		}
 	    }
 		
-	    if (!unsorted) break;
+//	    if (!unsorted) break;
 	}
 
 	
@@ -8202,10 +8337,9 @@ var jsworld = {};
 	
 	var node = toplevelNode, stop = toplevelNode.parentNode;
 	while (node != stop) {
-	    for (;;) {
+	    while ( !(node.firstChild == null || node.jsworldOpaque) ) {
 		// process first
 		// move down
-		if (node.firstChild == null || node.jsworldOpaque == true) break;
 		node = node.firstChild;
 	    }
 		
@@ -8974,7 +9108,11 @@ var jsworld = {};
     
 
     function text(s, attribs) {
-	var result = document.createTextNode(s);
+//	var result = document.createTextNode(s);
+	var result = document.createElement("div");
+	result.appendChild(document.createTextNode(s));
+	result.style['white-space'] = 'pre';
+	result.jsworldOpaque = true;
 	return result;
     }
     Jsworld.text = text;
@@ -9478,7 +9616,7 @@ var jsworld = {};
 	    attachEvent(toplevelNode,
 			'keydown',
 			function(e) {
-			    stimuli.onKey(e);
+			    stimuli.onKey([e], function() {});
 			    preventDefault(e);
 			    stopPropagation(e);
 			    return false;
@@ -9751,23 +9889,58 @@ var procedureArity = function(proc) {
 		return singleCaseArity(proc);
 	}
 	else if ( proc instanceof CasePrimitive ) {
-		var ret = types.EMPTY;
+		var ret = [];
 		for (var i = 0; i < proc.cases.length; i++) {
-			ret = types.cons(singleCaseArity(proc.cases[i]), ret);
+			ret.push( singleCaseArity(proc.cases[i]) );
 		}
-		return ret.reverse();
+		ret = normalizeArity(ret);
+		if (ret.length == 1) {
+			return ret[0];
+		}
+		return types.list(ret);
 	}
 	else if ( proc instanceof types.CaseLambdaValue ) {
-		var ret = types.EMPTY;
+		var ret = [];
 		for (var i = 0; i < proc.closures.length; i++) {
-			ret = types.cons( singleCaseArity(proc.closures[i]), ret );
+			ret.push( singleCaseArity(proc.closures[i]) );
 		}
-		return ret.reverse();
+		ret = normalizeArity(ret);
+		if (ret.length == 1) {
+			return ret[0];
+		}
+		return types.list(ret);
 	}
 	else {
 		throw new Error('procedure-arity given wrong type that passed isFunction!');
 	}
 };
+
+var normalizeArity = function(arity) {
+	var newArity = arity.splice(0);
+	var sortFunc = function(x, y) {
+		if ( types.isArityAtLeast(x) && types.isArityAtLeast(y) ) {
+			return types.arityValue(x) - types.arityValue(y);
+		}
+		else if ( types.isArityAtLeast(x) ) {
+			return types.arityValue(x) - y - 0.5;
+		}
+		else if ( types.isArityAtLeast(y) ) {
+			return x - types.arityValue(y) + 0.5;
+		}
+		else {
+			return x - y;
+		}
+	};
+	newArity.sort(sortFunc);
+
+	for (var i = 0; i < newArity.length-1; i++) {
+		if ( types.isArityAtLeast(newArity[i]) ) {
+			return newArity.splice(0, i+1);
+		}
+	}
+	return newArity;
+};
+
 
 var funArityContains = function(n) {
 	return function(proc) {
@@ -10229,7 +10402,7 @@ var defaultPrint =
 		 false, 
 		 true, 
 		 function(state, x) {
-		     state.getPrintHook()(''+ types.toWrittenString(x) + '\n');
+		     state.getPrintHook()(types.toWrittenString(x));
 		     state.v = types.VOID;
 		 });
 
@@ -10237,7 +10410,7 @@ var defaultPrint =
 PRIMITIVES['display'] = 
 	new CasePrimitive('display',
 		      [new PrimProc('display', 1, false, true, function(state, x) {
-				  state.getPrintHook()('' + types.toDisplayedString(x));
+				  state.getDisplayHook()(types.toDisplayedString(x));
 			  state.v = types.VOID;
 	}),
 			  new PrimProc('display', 2, false, true, function(state, x, port) {
@@ -10250,7 +10423,7 @@ PRIMITIVES['display'] =
 PRIMITIVES['newline'] = 
 	new CasePrimitive('newline',
 	[new PrimProc('newline', 0, false, true, function(state) {
-		    state.getPrintHook()('\n');
+		    state.getDisplayHook()('\n');
 	    state.v = types.VOID;
 	}),
 	 new PrimProc('newline', 1, false, false, function(port) {
@@ -10274,19 +10447,8 @@ PRIMITIVES['current-continuation-marks'] =
     new PrimProc('current-continuation-marks',
 		 0,
 		 false, true,
-		 function(state) {
-		     var dict = types.makeLowLevelEqHash();
-		     for (var i = 0; i < state.cstack.length; i++) {
-			 if ( types.isContMarkRecordControl(state.cstack[i]) ) {
-			     var aDict = state.cstack[i].dict;
-			     var keys = aDict.keys();
-			     for (var j = 0; j < keys.length; j++) {
-				 dict.put( keys[j], (dict.get(keys[j]) || []) );
-				 dict.get(keys[j]).push( aDict.get(keys[j]) );
-			     }
-			 }
-		     }
-		     state.v = types.continuationMarkSet(dict);
+		 function(aState) {
+		     aState.v = state.captureCurrentContinuationMarks(aState);
 		 });
 
 PRIMITIVES['continuation-mark-set->list'] = 
@@ -10646,7 +10808,7 @@ PRIMITIVES['void'] =
 PRIMITIVES['random'] =
 	new CasePrimitive('random',
 	[new PrimProc('random', 0, false, false,
-		      function() {return jsnums.float(Math.random());}),
+		      function() {return types.float(Math.random());}),
 	 new PrimProc('random', 1, false, false,
 		      function(n) {
 			  check(n, isNatural, 'random', 'non-negative exact integer', 1);
@@ -10675,14 +10837,14 @@ PRIMITIVES['error'] =
 				check(formatStr, isString, 'error', 'string', 2);
 
 				args.unshift(arg1);
-				raise( types.exnFail(format('~s: '+formatStr.toString(), args), false) );
+				raise( types.exnFail(helpers.format('~s: '+formatStr.toString(), args), false) );
 			}
 			else {
-				var msg = arg1.toString();
+				var msgBuffer = [arg1.toString()];
 				for (var i = 0; i < args.length; i++) {
-					msg += args[i].toWrittenString();
+					msgBuffer.push( types.toWrittenString(args[i]) );
 				}
-				raise( types.exnFail(msg, false) );
+				raise( types.exnFail(msgBuffer.join(''), false) );
 			}
 		 });
 
@@ -11308,6 +11470,16 @@ PRIMITIVES['inexact->exact'] =
 		 });
 
 
+PRIMITIVES['exact->inexact'] =
+    new PrimProc('exact->inexact',
+		 1,
+		 false, false,
+		 function (x) {
+		 	check(x, isNumber, 'exact->inexact', 'number', 1);
+			return jsnums.toInexact(x);
+		 });
+
+
 PRIMITIVES['number->string'] =
     new PrimProc('number->string',
 		 1,
@@ -11442,7 +11614,7 @@ PRIMITIVES['inexact?'] =
     new PrimProc('inexact?', 1, false, false,
 		 function(x) {
 			check(x, isNumber, 'inexact?', 'number', 1);
-			return !jsnums.isExact(x);
+			return jsnums.isInexact(x);
 		 });
 
 PRIMITIVES['odd?'] =
@@ -13920,10 +14092,23 @@ PRIMITIVES['text'] =
 PRIMITIVES['open-image-url'] =
     new PrimProc('open-image-url',
 		 1,
-		 false, false,
-		 function(path) {
-			check(path, isString, "open-image-url", "string", 1);
-			return world.Kernel.fileImage(path.toString());
+		 false, true,
+		 function(state, path) {
+		     check(path, isString, "open-image-url", "string", 1);
+		     return PAUSE(function(restarter, caller) {
+			 var rawImage = new Image();
+			 rawImage.onload = function() {
+			     restarter(world.Kernel.fileImage(
+				 path.toString(),
+				 rawImage));
+			 };
+			 rawImage.onerror = function(e) {
+			     restarter(types.schemeError(types.exnFail(
+				 " (unable to load: " + path + ")",
+				 false)));
+			 };
+			 rawImage.src = path.toString();
+		     });
 		 });
 
 
@@ -13982,7 +14167,7 @@ PRIMITIVES['on-tick'] =
 		 false, false,
 		 function(aDelay, f) {
 			check(aDelay, isNumber, "on-tick", "number", 1);
-			check(f, isFunction, "on-tick", "function", 2);
+			check(f, isFunction, "on-tick", "procedure", 2);
 			return new OnTickBang(aDelay, f,
 				new PrimProc('', 1, false, false,
 					function(w) { return world.config.getNoneEffect(); }));
@@ -13994,8 +14179,8 @@ PRIMITIVES['on-tick!'] =
 		 false, false,
 		 function(aDelay, handler, effectHandler) {
 			check(aDelay, isNumber, "on-tick!", "number", 1);
-			check(handler, isFunction, "on-tick!", "function", 2);
-			check(effectHandler, isFunction, "on-tick!","function", 3);
+			check(handler, isFunction, "on-tick!", "procedure", 2);
+			check(effectHandler, isFunction, "on-tick!","procedure", 3);
 			return new OnTickBang(aDelay, handler, effectHandler);
 		 });
 
@@ -15913,7 +16098,7 @@ var makeClosureValsFromMap = function(state, closureMap, closureTypes) {
 
 
     // run: state (scheme-value -> void) (exn -> void) -> void
-var run = function(state, onSuccessK, onFailK) {
+var run = function(aState, onSuccessK, onFailK) {
     if (! onSuccessK) { onSuccessK = function(lastResult) {} };
     if (! onFailK) { onFailK = function(exn) { throw exn; } };
 
@@ -15922,43 +16107,33 @@ var run = function(state, onSuccessK, onFailK) {
     // FIXME: Clear the existing control stack on run?
 
     try {
-	while(! state.isStuck()) {
+	while(! aState.isStuck()) {
 	    //debug("\n\nstate:\n");
 	    // NOTE: sys.inspect is expensive, so we want to 
 	    // control the order of evaluation within this tight
 	    // loop.
-	    //debugF(function() { return sys.inspect(state) });
-	    step(state);
+	    //debugF(function() { return sys.inspect(aState) });
+	    step(aState);
 	}
 
 	//     debug("\n\nFinished with: \n")
-	//     debugF(function() { return sys.inspect(state) });
+	//     debugF(function() { return sys.inspect(aState) });
 	//     debug("\n\nfinal value: ")
-	//     debugF(function() { return sys.inspect(state.v) });
-	onSuccessK(state.v);
+	//     debugF(function() { return sys.inspect(aState.v) });
+	onSuccessK(aState.v);
 	return;
     } catch (e) {
 	if (e instanceof control.PauseException) {
-	    var onRestart = makeOnRestart(state, onSuccessK, onFailK);
-	    var onCall = makeOnCall(state);
+	    var onRestart = makeOnRestart(aState, onSuccessK, onFailK);
+	    var onCall = makeOnCall(aState);
 	    e.onPause(onRestart, onCall);
 	    return;
 	} else if (types.isSchemeError(e)) {
 	    // scheme exception
 	    if ( types.isExn(e.val) &&
 		!types.isContinuationMarkSet( types.exnContMarks(e.val) ) ) {
-		    var dict = types.makeLowLevelEqHash();
-		    for (var i = 0; i < state.cstack.length; i++) {
-			if ( types.isContMarkRecordControl(state.cstack[i]) ) {
-			    var aDict = state.cstack[i].dict;
-			    var keys = aDict.keys();
-			    for (var j = 0; j < keys.length; j++) {
-				dict.put( keys[j], (dict.get(keys[j]) || []) );
-				dict.get(keys[j]).push( aDict.get(keys[j]) );
-			    }
-			}
-		    }
-		    types.exnSetContMarks(e.val, types.continuationMarkSet(dict));
+		types.exnSetContMarks(e.val, 
+				      state.captureCurrentContinuationMarks(aState));
 	    }
 	    onFailK(e);
 	    return;
@@ -15970,7 +16145,7 @@ var run = function(state, onSuccessK, onFailK) {
 	}
     }
 };
-    
+
     
 
 // call: state scheme-procedure (arrayof scheme-values) (scheme-value -> void) -> void
@@ -16011,20 +16186,26 @@ var makeOnCall = function(state) {
 
 
 
-// create function for restarting a run, given the state
-// and the continuation k.
-var makeOnRestart = function(state, onSuccessK, onFailK) {
+// create function for restarting a run, given the state and the
+// continuation k.
+var makeOnRestart = function(aState, onSuccessK, onFailK) {
     return function(v) {
 	if ( types.isSchemeError(v) ) {
-		onFailK(v);
-	}
-	else {
-		state.v = v;
-		run(state, onSuccessK, onFailK);
-	}
-    };
-};
+	    // on a scheme scheme exception, install the marks
+	    if ( types.isExn(v.val) &&
+		 !types.isContinuationMarkSet( types.exnContMarks(v.val) ) ) {
+		types.exnSetContMarks(v.val, 
+				      state.captureCurrentContinuationMarks(aState));
+	    }
 
+	    onFailK(v);
+	} else {
+	    aState.v = v;
+	    run(aState, onSuccessK, onFailK);
+	}
+    }
+};
+    
 
 
 // step: state -> void
@@ -16043,48 +16224,6 @@ var step = function(state) {
 
 
 //////////////////////////////////////////////////////////////////////
-
-/*
-primitive.addPrimitive(
-    "apply",
-    new primitive.Primitive('apply', 
-			    2, 
-			    true, true,
-			    function(state, f, firstArg, restArgs) {
-				var numArgs = 0;
-				restArgs.unshift(firstArg);
-				if (restArgs.length > 0) {
-				    var lastLst = 
-					restArgs[restArgs.length - 1].reverse();
-				    while (! lastLst.isEmpty()) {
-					state.pushValue(lastLst.first());
-					numArgs++;
-					lastLst = lastLst.rest();
-				    }
-				}
-				for (var i = restArgs.length - 2; i >= 0; i--) {
-				    state.pushValue(restArgs[i]);
-				    numArgs++;
-				}
-
-				state.v = f;
-				state.pushControl(new control.CallControl(numArgs));
-			    }));
-
-
-primitive.addPrimitive('values',
-		       new primitive.Primitive(
-			   'values', 
-			   0, 
-			   true, false,
-			   function(args) {
-			       if (args.length === 1) {
-				   return args[0];
-			       }
-			       return new types.ValuesWrapper(args);
-			   }));
-*/
-
 
 
 
