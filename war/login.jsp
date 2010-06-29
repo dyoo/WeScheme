@@ -19,7 +19,7 @@
 		Session s = sm.authenticate(request, response);
 		
 		if( s != null ) {
-			response.sendRedirect("/openEditor");
+			response.sendRedirect("/console");
 		} else {
 
 			// We aren't logged in, so let's try to authenticate against google.
@@ -38,7 +38,7 @@
 	if (request.getParameter("dest") != null) {
    	    response.sendRedirect(request.getParameter("dest"));
         } else {
-            response.sendRedirect("/openEditor"); 
+            response.sendRedirect("/console"); 
         }
 %>
 
