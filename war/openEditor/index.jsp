@@ -65,6 +65,7 @@
     <script src="/js/flapjax-helpers.js"></script>
     <script src="/js/jquery/jquery.createdomnodes.js"></script>
     <script src="/js/jquery/jquery.center-in-client.js"></script>
+    <script src="/js/codemirror/js/codemirror.js"></script>
     <script src="/safeSubmit.js"></script>
     <script src="/editor/debug.js"></script>
 
@@ -99,42 +100,52 @@
       var myEditor;
       var defnSourceContainer;
 
-      jQuery(document).ready(function() {
+jQuery(document).ready(
+    function() {
 
-      // Fixme: trigger file load if the pid has been provided.
+	// Fixme: trigger file load if the pid has been provided.
 
-      var statusBar = new WeSchemeStatusBar(jQuery("#statusbar"));
-      defnSourceContainer = new WeSchemeTextContainer(jQuery("#definitions").get(0));
+	var statusBar = new WeSchemeStatusBar(jQuery("#statusbar"));
+	new WeSchemeTextContainer(
+	    jQuery("#definitions").get(0),
+	    function(container) {
+		defnSourceContainer = container;
+		defnSourceContainer.setMode(
+		    "codemirror",
+		    function() {
+			myEditor = new WeSchemeEditor(
+			    { userName: "<%= userSession != null? userSession.getName() : null %>",
+			      defn: defnSourceContainer,
+			      interactions: jQuery("#inter").get(0),
+			      filenameInput: jQuery("#filename")});
+			
+			jQuery("#save").click(function() { myEditor.save(); });
+			jQuery("#run").click(function()  { myEditor.run(); });
+			jQuery("#share").click(function()  { myEditor.share(); });
+			jQuery("#account").click(function()  { submitPost("/console"); });
+			jQuery("#logout").click(function() { submitPost("/logout"); });
+			jQuery("#bespinMode").click(function() { defnSourceContainer.setMode("bespin")});
 
-
-      myEditor = new WeSchemeEditor(
-      { userName: "<%= userSession != null? userSession.getName() : null %>",
-      defn: defnSourceContainer,
-      interactions: jQuery("#inter").get(0),
-      filenameInput: jQuery("#filename")});
-      
-      jQuery("#save").click(function() { myEditor.save(); });
-      jQuery("#run").click(function()  { myEditor.run(); });
-      jQuery("#share").click(function()  { myEditor.share(); });
-      jQuery("#account").click(function()  { submitPost("/console"); });
-      jQuery("#logout").click(function() { submitPost("/logout"); });
-      jQuery("#bespinMode").click(function() { defnSourceContainer.setMode("bespin")});
-
-      <% if (request.getParameter("pid") != null) { %>
-      myEditor.load({pid : parseInt(decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("pid"), "utf-8") %>')) });
-      <% } else if (request.getParameter("publicId") != null) { %>
-      myEditor.load({publicId : decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("publicId"), "utf-8") %>') });
-      <% } %>
-
-
-      // For debugging:
-      //   plt.wescheme.WeSchemeIntentBus.addNotifyListener(function(action, category, data) {
-      //       debugLog(action + ": " + category + " " + data.toString());
-      //   });
-
+			    <% if (request.getParameter("pid") != null) { %>
+									  myEditor.load({pid : parseInt(decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("pid"), "utf-8") %>')) });
+									  <% } else if (request.getParameter("publicId") != null) { %>
+																    myEditor.load({publicId : decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("publicId"), "utf-8") %>') });
+																    <% } %>
 
 
-      });
+			// For debugging:
+			//   plt.wescheme.WeSchemeIntentBus.addNotifyListener(function(action, category, data) {
+			//       debugLog(action + ": " + category + " " + data.toString());
+			//   });
+		    });
+
+
+	    });
+
+
+    });
+
+
 
 
       function switchStyle(style){
