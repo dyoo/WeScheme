@@ -5,9 +5,11 @@ import javax.servlet.http.HttpServlet;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.HashSet;
 
@@ -23,10 +25,20 @@ public class Compiler extends HttpServlet
 	 */
 	public static ObjectCode compile(SourceCode src){
 		try {
-			URL url = new URL(compilationServletURL+"?" +
-					"name="+ URLEncoder.encode(src.getName(), "UTF-8") +
-					"&program=" + URLEncoder.encode(src.toString(), "UTF-8"));
-			String compiledCode = readStream(url.openStream());
+			URL url = new URL(compilationServletURL);
+			
+			
+			
+			String data = "name="+ URLEncoder.encode(src.getName(), "UTF-8") +
+					"&program=" + URLEncoder.encode(src.toString(), "UTF-8");
+					
+			URLConnection conn = url.openConnection();
+			conn.setDoOutput(true);
+			OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+			wr.write(data);
+			wr.flush();
+				
+			String compiledCode = readStream(conn.getInputStream());
 			// FIXME: no error trapping when the compile goes bad!
 			return new ObjectCode(compiledCode, 
 					new HashSet<String>(), false);
