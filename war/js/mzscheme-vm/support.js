@@ -6,12 +6,17 @@ sys.print = function(str) {
 	document.write(s);
 };
 
-sys.error = function(str) {
+sys.error = function(e) {
 	if (console && console.log) {
-		console.log("Error: " + str);
+		if (e.stack) {
+			console.log(e.stack);
+		}
+		else {
+			console.log("Error: " + str);
+		}
 	}
 	else {
-		var s = str.toString().replace(new RegExp('\n', 'g'), '<br />');
+		var s = e.toString().replace(new RegExp('\n', 'g'), '<br />');
 		s = "<br />Error: " + s + "<br />";
 		document.write(s);
 	}
@@ -1858,10 +1863,19 @@ var jsnums = {};
 	if (! isFinite(this.n) || isNaN(this.n)) {
 	    throwRuntimeError("toExact: no exact representation for " + this, this);
 	}
-	var fracPart = this.n - Math.floor(this.n);
-	var intPart = this.n - fracPart;
-	return add(intPart,
-		   Rational.makeInstance(Math.floor(fracPart * 10e16), 10e16));
+
+	var stringRep = this.n.toString();
+	var match = stringRep.match(/^(.*)\.(.*)$/);
+	if (match) {
+	    var intPart = parseInt(match[1]);
+	    var fracPart = parseInt(match[2]);
+	    var tenToDecimalPlaces = Math.pow(10, match[2].length);
+	    return Rational.makeInstance(Math.round(this.n * tenToDecimalPlaces),
+					 tenToDecimalPlaces);
+	}
+	else {
+	    return this.n;
+	}
     };
 
     FloatPoint.prototype.toInexact = function() {
@@ -1891,8 +1905,10 @@ var jsnums = {};
 	    return "-inf.0";
 	if (this === NEGATIVE_ZERO)
 	    return "-0.0";
-	if (this.n === 0)
-	    return "0.0";
+//	if (this.n === 0)
+//	    return "0.0";
+	if (this.isFinite())
+	    return this.n.toString() + ".0";
 	return this.n.toString();
     };
 
@@ -2229,6 +2245,10 @@ var jsnums = {};
 	if (isExact(i) && isInteger(i) && _integerIsZero(i)) {
 	    return r;
 	}
+	if (isInexact(r) || isInexact(i)) {
+	    r = toInexact(r);
+	    i = toInexact(i);
+	}
 	return new Complex(r, i);
     };
 
@@ -2257,10 +2277,7 @@ var jsnums = {};
     };
 
     Complex.prototype.toExact = function() {
-	if (! this.isReal()) {
-	    throwRuntimeError("inexact->exact: expects argument of type real number", this);
-	}
-	return toExact(this.r);
+	return Complex.makeInstance( toExact(this.r), toExact(this.i) );
     };
 
     Complex.prototype.toInexact = function() {
@@ -2440,7 +2457,7 @@ var jsnums = {};
 
 	var r = sqrt(halve(r_plus_x));
 
-	var i = divide(this.i, sqrt(multiply(r_plus_x, FloatPoint.makeInstance(2))));
+	var i = divide(this.i, sqrt(multiply(r_plus_x, 2)));
 
 
 	return Complex.makeInstance(r, i);
@@ -5121,6 +5138,7 @@ var replaceUnprintableChars = function(s) {
 			case 11: ret.push('\\v'); break;
 			case 12: ret.push('\\f'); break;
 			case 13: ret.push('\\r'); break;
+			case 34: ret.push('\\"'); break;
 			case 92: ret.push('\\\\'); break;
 			default: if (val >= 32 && val <= 126) {
 					 ret.push( s.charAt(i) );
@@ -5505,6 +5523,7 @@ var EOF_VALUE = new EofValue();
 
 
 var ClosureValue = function(numParams, paramTypes, isRest, closureVals, body) {
+    this.name = false;
     this.numParams = numParams;
     this.paramTypes = paramTypes;
     this.isRest = isRest;
@@ -5516,7 +5535,7 @@ var ClosureValue = function(numParams, paramTypes, isRest, closureVals, body) {
 
 
 ClosureValue.prototype.toString = function() {
-    return "<closure>";
+    return "#<procedure>";
 };
 
 
@@ -5525,11 +5544,20 @@ var CaseLambdaValue = function(name, closures) {
     this.closures = closures;
 };
 
+CaseLambdaValue.prototype.toString = function() {
+    return "#<case-lambda-procedure>";
+};
+
 
 
 var ContinuationClosureValue = function(vstack, cstack) {
+    this.name = false;
     this.vstack = vstack.slice(0);
     this.cstack = cstack.slice(0);
+};
+
+ContinuationClosureValue.prototype.toString = function() {
+    return "#<procedure>";
 };
 
 
@@ -5566,14 +5594,17 @@ PrefixValue.prototype.ref = function(n) {
 	if (this.definedMask[n]) {
 	    return this.slots[n].value;
 	} else {
-	    throw new Error(this.slots[n].name + " is not defined");
+	    throw types.schemeError(types.exnFailContractVariable(
+			"reference to an identifier before its definition: " + this.slots[n].name,
+			false, this.slots[n].name));
 	}
 
     } else {
 	if (this.definedMask[n]) {
 	    return this.slots[n];
 	} else {
-	    throw new Error("variable has not been defined");
+	    throw types.schemeError(types.exnFailContractVariable(
+			"variable has not been defined", false, false));
 	}
     }
 };
@@ -5762,8 +5793,9 @@ var makeString = function(s) {
 		return Str.fromString(s);
 	}
 	else {
-		throw new Error('makeString expects and array of 1-character strings or a string;' +
-				' given ' + s.toString());
+		throw types.internalError('makeString expects and array of 1-character strings or a string;' +
+					  ' given ' + s.toString(),
+					  false);
 	}
 }
 
@@ -5849,6 +5881,13 @@ types.isStruct = function(x) { return x instanceof Struct; };
 types.isPosn = Posn.predicate;
 types.isArityAtLeast = ArityAtLeast.predicate;
 types.isColor = Color.predicate;
+types.isFunction = function(x) {
+	return (x instanceof PrimProc ||
+		x instanceof CasePrimitive ||
+		x instanceof ClosureValue ||
+		x instanceof CaseLambdaValue ||
+		x instanceof ContinuationClosureValue);
+}
 
 types.UnionFind = UnionFind;
 types.cons = Cons.makeInstance;
@@ -5889,6 +5928,13 @@ types.makeLowLevelEqHash = makeLowLevelEqHash;
 
 
 // Error type exports
+var InternalError = function(val, contMarks) {
+	this.val = val;
+	this.contMarks = (contMarks ? contMarks : false);
+}
+types.internalError = function(v, contMarks) { return new InternalError(v, contMarks); };
+types.isInternalError = function(x) { return x instanceof InternalError; };
+
 var SchemeError = function(val) {
 	this.val = val;
 }
@@ -5909,6 +5955,19 @@ types.isExnFail = ExnFail.predicate;
 var ExnFailContract = makeStructureType('exn:fail:contract', 0, 0, ExnFail, false);
 types.exnFailContract = ExnFailContract.constructor;
 types.isExnFailContract = ExnFailContract.predicate;
+
+var ExnFailContractArity = makeStructureType('exn:fail:contract:arity', 0, 0, ExnFailContract, false);
+types.exnFailContractArity = ExnFailContract.constructor;
+types.isExnFailContractArity = ExnFailContract.predicate;
+
+var ExnFailContractVariable = makeStructureType('exn:fail:contract:variable', 1, 0, ExnFailContract, false);
+types.exnFailContractVariable = ExnFailContract.constructor;
+types.isExnFailContractVariable = ExnFailContract.predicate;
+types.exnFailContractVariableId = function(exn) { return ExnFailContractVariable.accessor(exn, 0); };
+
+var ExnFailContractDivisionByZero = makeStructureType('exn:fail:contract:division-by-zero', 0, 0, ExnFailContract, false);
+types.exnFailContractDivisionByZero = ExnFailContractDivisionByZero.constructor;
+types.isExnFailContractDivisionByZero = ExnFailContractDivisionByZero.predicate;
 
 
 })();
@@ -6020,7 +6079,7 @@ State.prototype.isStuck = function() {
 // Pop the last pushed form.
 State.prototype.popControl = function() {
     if (this.cstack.length === 0) {
-	throw new Error("cstack empty");
+	throw types.internalError("cstack empty", captureCurrentContinuationMarks(this));
     }
     return this.cstack.pop();
 };
@@ -6037,7 +6096,7 @@ State.prototype.pushValue = function(aVal) {
 State.prototype.popValue = function() {
     debugF(function(){ return "popValue" });
     if (this.vstack.length === 0) {
- 	throw new Error("vstack empty");
+ 	throw types.internalError("vstack empty", captureCurrentContinuationMarks(this));
     }
     return this.vstack.pop();
 };
@@ -6055,7 +6114,7 @@ State.prototype.popn = function(n) {
     debugF(function(){ return "POPN " + n } );
     for (var i = 0; i < n; i++) {
 	if (this.vstack.length === 0) {
- 	    throw new Error("vstack empty");
+ 	    throw types.internalError("vstack empty", captureCurrentContinuationMarks(this));
 	}
 	this.vstack.pop();
     }
@@ -6065,7 +6124,7 @@ State.prototype.popn = function(n) {
 // Peek at the nth value on the stack.
 State.prototype.peekn = function(depth) {
     if (this.vstack.length - 1 - (depth || 0) < 0) {
-	throw new Error("vstack not long enough");
+	throw types.internalError("vstack not long enough", captureCurrentContinuationMarks(this));
     }
     return this.vstack[this.vstack.length - 1 - (depth || 0)];
 };
@@ -9923,7 +9982,7 @@ var procedureArity = function(proc) {
 		return types.list(ret);
 	}
 	else {
-		throw new Error('procedure-arity given wrong type that passed isFunction!');
+		throw types.internalError('procedure-arity given wrong type that passed isFunction!', false);
 	}
 };
 
@@ -10128,7 +10187,7 @@ var WorldConfigOption = types.Class.extend({
 	},
 
 	configure: function(config) {
-	    throw new Error("unimplemented");
+	    throw types.internalError("unimplemented", false);
 	},
 
 	toDomNode: function(cache) {
@@ -10222,13 +10281,7 @@ var isBoolean = function(x) {
 	return (x === true || x === false);
 }
 
-var isFunction = function(x) {
-	return (x instanceof types.PrimProc ||
-		x instanceof types.CasePrimitive ||
-		x instanceof types.ClosureValue ||
-		x instanceof types.CaseLambdaValue ||
-		x instanceof types.ContinuationClosureValue);
-}
+var isFunction = types.isFunction;
 
 var isEqual = function(x, y) {
 	return types.isEqual(x, y, new types.UnionFind());
@@ -10387,7 +10440,7 @@ PRIMITIVES['throw-cond-exhausted-error'] =
 			     // FIXME: should throw structure
 			     // make-moby-error-type:conditional-exhausted
 			     // instead.
-			 throw new Error("cond exhausted at " + aLoc);
+			 throw types.schemeError(types.exnFail("cond: all question results were false", false));
 		     });
 
 
@@ -10404,6 +10457,53 @@ PRIMITIVES['print-values'] =
 		     }
 		     state.v = types.VOID;
 		 });
+
+
+PRIMITIVES['check-expect'] =
+    new PrimProc('check-expect',
+		 2,
+		 false, false,
+		 function(actual, expected) {
+		 	if ( isFunction(actual) || isFunction(expected) ) {
+				var msg = 'check-expect cannot compare functions';
+				raise( types.exnFailContract(msg, false) );
+			}
+		 	if ( !isEqual(actual, expected) ) {
+				var msg = helpers.format('check-expect: actual value ~s differs from ~s, the expected value.',
+							 [actual, expected]);
+				helpers.reportError(msg);
+			}
+			return types.VOID;
+		});
+PRIMITIVES['EXAMPLE'] = PRIMITIVES['check-expect'];
+
+
+PRIMITIVES['check-within'] =
+    new PrimProc('check-within',
+		 3,
+		 false, false,
+		 function(actual, expected, range) {
+		 	if ( !isReal(range) ) {
+				var msg = helpers.format('check-within requires a non-negative real number for range, given ~s.',
+							 [range]);
+				raise( types.exnFailContract(msg, false) );
+			}
+		 	if ( isFunction(actual) || isFunction(expected) ) {
+				var msg = 'check-within cannot compare functions';
+				raise( types.exnFailContract(msg, false) );
+			}
+			
+		 	if ( !( isEqual(actual, expected) ||
+			        (isReal(actual) && isReal(expected) &&
+				 jsnums.lessThanOrEqual(jsnums.abs(jsnums.subtract(actual, expected)),
+					 		range)) ) ) {
+				var msg = helpers.format('check-within: actual value ~s is not within ~s of expected value ~s.',
+							 [actual, range, expected]);
+				helpers.reportError(msg);
+			}
+			return types.VOID;
+		});
+				
 
 
 //////////////////////////////////////////////////////////////////////
@@ -10427,7 +10527,7 @@ PRIMITIVES['display'] =
 	}),
 			  new PrimProc('display', 2, false, true, function(state, x, port) {
 	     // FIXME
-	     throw new Error("display to a port not implemented yet.");
+	     throw types.internalError("display to a port not implemented yet.", false);
 	 } )]);
 
 
@@ -10440,7 +10540,7 @@ PRIMITIVES['newline'] =
 	}),
 	 new PrimProc('newline', 1, false, false, function(port) {
 	     // FIXME
-	     throw new Error("newline to a port not implemented yet.");
+	     throw types.internalError("newline to a port not implemented yet.", false);
 	 } )]);
 
 
@@ -10507,25 +10607,6 @@ PRIMITIVES['for-each'] =
 
 			return forEachHelp(arglists);
 		 });
-
-
-/*
-PRIMITIVES['random'] =
-    new PrimProc("random",
-		 0,
-		 true, false,
-		 function(args) {
-		     if (args.length === 0) {
-			  throw new Error("random not implemented yet\n");
-		     } else if (args.length === 1) {
-			  // FIXME: NOT RIGHT
-			  sys.print("FIXME: random not implemented correctly yet\n");
-			  return 0;
-		     } else if (args.length === 2) {
-			  throw new Error("random not implemented yet\n");
-		     }
-		 });
-*/
 
 
 PRIMITIVES['make-thread-cell'] = 
@@ -10913,6 +10994,17 @@ PRIMITIVES['make-exn:fail:contract'] =
 		 });
 
 
+PRIMITIVES['make-exn:fail:contract:division-by-zero'] =
+    new PrimProc('make-exn:fail:contract:division-by-zero',
+		 2,
+		 false, false,
+		 function(msg, contMarks) {
+		 	check(msg, isString, 'make-exn:fail:contract:division-by-zero', 'string', 1);
+			check(contMarks, types.isContinuationMarkSet, 'make-exn:fail:contract:division-by-zero', 'continuation mark set', 2);
+			return types.exnFailContractDivisionByZero(msg, contMarks);
+		 });
+
+
 
 /***********************
  *** Math Primitives ***
@@ -11008,11 +11100,17 @@ PRIMITIVES['/'] =
 		 	arrayEach(args, function(y, i) {check(y, isNumber, '/', 'number', i+2);});
 			
 			if (args.length == 0) {
+				if ( jsnums.equals(x, 0) ) {
+					raise( types.exnFailContractDivisionByZero('/: division by zero', false) );
+				}	
 				return jsnums.divide(1, x);
 			}
 
 		 	var res = x;
 		 	for (var i = 0; i < args.length; i++) {
+				if ( jsnums.equals(args[i], 0) ) {
+					raise( types.exnFailContractDivisionByZero('/: division by zero', false) );
+				}	
 				res = jsnums.divide(res, args[i]);
 		 	}
 		 	return res;
@@ -11390,7 +11488,7 @@ PRIMITIVES['make-rectangular'] =
 		 function(x, y) {
 		 	check(x, isReal, 'make-rectangular', 'real', 1);
 			check(y, isReal, 'make-rectangular', 'real', 2);
-			return jsnums.makeRectangular(x, y);
+			return types.complex(x, y);
 		 });
 
 PRIMITIVES['make-polar'] =
@@ -11400,7 +11498,7 @@ PRIMITIVES['make-polar'] =
 		 function(x, y) {
 		 	check(x, isReal, 'make-polar', 'real', 1);
 			check(x, isReal, 'make-polar', 'real', 2);
-			return jsnums.makePolar(x, y);
+			return jsnums.makeComplexPolar(x, y);
 		 });
 
 
@@ -11478,7 +11576,13 @@ PRIMITIVES['inexact->exact'] =
 		 false, false,
 		 function (x) {
 		 	check(x, isNumber, 'inexact->exact', 'number', 1);
-			return jsnums.toExact(x);
+			try {
+				return jsnums.toExact(x);
+			} catch(e) {
+				raise( types.exnFailContract('inexact->exact: no exact representation for '
+							     + types.toWrittenString(x),
+							     false) );
+			}
 		 });
 
 
@@ -14172,7 +14276,7 @@ var OnTickBang = WorldConfigOption.extend({
 
 
 // The default tick delay is 28 times a second.
-var DEFAULT_TICK_DELAY = jsnums.makeRational(1, 28);
+var DEFAULT_TICK_DELAY = types.rational(1, 28);
 
 PRIMITIVES['on-tick'] =
 	new CasePrimitive(
@@ -14573,7 +14677,8 @@ var SetControl = function(depth) {
 SetControl.prototype.invoke = function(state) {
     debug("SET " + this.depth);
     if (state.vstack.length - 1 - (this.depth || 0) < 0) {
-	throw new Error("vstack not long enough");
+	throw types.internalError("vstack not long enough",
+				  state.captureCurrentContinuationMarks(aState));
     }
     state.setn(this.depth, state.v);
 };
@@ -14599,7 +14704,8 @@ var SwapControl = function(depth) {
 SwapControl.prototype.invoke = function(state) {
     debug("SWAP " + this.depth);
     if (state.vstack.length - 1 - (this.depth || 0) < 0) {
-	throw new Error("vstack not long enough");
+	throw types.internalError("vstack not long enough",
+				  state.captureCurrentContinuationMarks(aState));
     }
     var tmp = state.vstack[state.vstack.length - 1 - (this.depth || 0)];
     state.vstack[state.vstack.length - 1 - (this.depth || 0)] = state.v;
@@ -14661,7 +14767,7 @@ ModControl.prototype.invoke = function(state) {
 };
 
 
-var processPrefix = function(state, prefix) {
+var processPrefix = function(aState, prefix) {
     var numLifts = prefix.numLifts;
     var newPrefix = new types.PrefixValue();
     for (var i = 0; i < prefix.toplevels.length + numLifts; i++) {
@@ -14673,21 +14779,23 @@ var processPrefix = function(state, prefix) {
 	    if (typeof(aPrim) !== 'undefined') {
 		newPrefix.addSlot(aPrim);
 	    } else {
-		throw new Error("unable to install toplevel element " + top.sym); 
+		throw types.internalError("unable to install toplevel element " + top.sym,
+					  state.captureCurrentContinuationMarks(aState)); 
 	    }
 	} else if (top['$'] === 'global-bucket') {
 	    var name = top.value+'';
-	    if (! state.globals[name]) {
-		state.globals[name] =
+	    if (! aState.globals[name]) {
+		aState.globals[name] =
 		    new types.GlobalBucket(name, types.UNDEFINED);
 	    } else {
 	    }
-	    newPrefix.addSlot(state.globals[name]);
+	    newPrefix.addSlot(aState.globals[name]);
 	} else {
-	    throw new Error("unable to install toplevel element " + top); 
+	    throw types.internalError("unable to install toplevel element " + top,
+				      state.captureCurrentContinuationMarks(aState)); 
 	}
     }
-    state.vstack.push(newPrefix);
+    aState.vstack.push(newPrefix);
 };
 
 
@@ -14840,13 +14948,13 @@ var PrimvalControl = function(name) {
     this.name = name + '';
 };
 
-PrimvalControl.prototype.invoke = function(state) {
+PrimvalControl.prototype.invoke = function(aState) {
     var prim = primitive.getPrimitive(this.name);
     if (! prim) {
-	throw new Error("Primitive " + this.name
-			+ " not implemented!");
+	throw types.internalError("Primitive " + this.name + " not implemented!",
+				  state.captureCurrentContinuationMarks(aState));
     }
-    state.v = prim;
+    aState.v = prim;
 };
 
 
@@ -14956,26 +15064,29 @@ var DefValuesInstallControl = function(ids) {
     this.ids = ids;
 };
 
-DefValuesInstallControl.prototype.invoke = function(state) {
+DefValuesInstallControl.prototype.invoke = function(aState) {
     debug("DEF_VALUES");
-    var bodyValue = state.v;
+    var bodyValue = aState.v;
     if (bodyValue instanceof types.ValuesWrapper) {
 	if (this.ids.length !== bodyValue.elts.length) {
-	    throw new Error("define-values: expected " + this.ids.length 
-			    + " values, but received " 
-			    + bodyValue.elts.length);
+	    throw types.schemeError(
+		types.exnFailContractArity("define-values: expected " + this.ids.length 
+					   + " values, but received " + bodyValue.elts.length,
+					   state.captureCurrentContinuationMarks(aState)));
 	}
 	for (var i = 0; i < this.ids.length; i++) {
-	    state.setPrefix(this.ids[i].depth,
+	    aState.setPrefix(this.ids[i].depth,
 			    this.ids[i].pos,
 			    bodyValue.elts[i]);
 	}
     } else {
 	if (this.ids.length !== 1) {
-	    throw new Error("define-values: expected " + this.ids.length 
-			    + " values, but only received one: " + bodyValue);
+	    throw types.schemeError(
+		types.exnFailContractArity("define-values: expected " + this.ids.length 
+					   + " values, but only received one: " + bodyValue,
+					   state.captureCurrentContinuationMarks(aState)));
 	} else {
-	    state.setPrefix(this.ids[0].depth,
+	    aState.setPrefix(this.ids[0].depth,
 			    this.ids[0].pos,
 			    bodyValue);
 	}
@@ -15040,16 +15151,17 @@ CallControl.prototype.invoke = function(state) {
 };
 
 
-var callProcedure = function(state, procValue, n, operandValues) {
-    procValue = selectProcedureByArity(n, procValue);
+var callProcedure = function(aState, procValue, n, operandValues) {
+    procValue = selectProcedureByArity(n, procValue, operandValues);
     if (primitive.isPrimitive(procValue)) {
-	callPrimitiveProcedure(state, procValue, n, operandValues);
+	callPrimitiveProcedure(aState, procValue, n, operandValues);
     } else if (procValue instanceof types.ClosureValue) {
-	callClosureProcedure(state, procValue, n, operandValues);
+	callClosureProcedure(aState, procValue, n, operandValues);
     } else if (procValue instanceof types.ContinuationClosureValue) {
-	callContinuationProcedure(state, procValue, n, operandValues);
+	callContinuationProcedure(aState, procValue, n, operandValues);
     } else {
-	throw new Error("Procedure is neither primitive nor a closure");
+	throw types.internalError("Something went wrong with checking procedures!",
+				  state.captureCurrentContinuationMarks(aState));
     }
 };
 
@@ -15192,7 +15304,28 @@ var callContinuationProcedure = function(state, procValue, n, operandValues) {
 
 
 // selectProcedureByArity: (CaseLambdaValue | CasePrimitive | Continuation | Closure | Primitive) -> (Continuation | Closure | Primitive)
-var selectProcedureByArity = function(n, procValue) {
+var selectProcedureByArity = function(n, procValue, operands) {
+    var getArgStr = function() {
+	var argStr = '';
+	if (operands.length > 0) {
+		var argStrBuffer = [':'];
+		for (var i = 0; i < operands.length; i++) {
+			argStrBuffer.push( types.toWrittenString(operands[i]) );
+		}
+		argStr = argStrBuffer.join(' ');
+	}
+	return argStr;
+    }
+
+    if ( !types.isFunction(procValue) ) {
+	    var argStr = getArgStr('; arguments were:');
+	    throw types.schemeError(
+		types.exnFailContract(helpers.format("procedure application: expected procedure, given: ~s~a",
+						     [procValue,
+						      (operands.length == 0) ? ' (no arguments)' : '; arguments were' + getArgStr()]),
+				      false));
+    }
+
     if (procValue instanceof types.CaseLambdaValue) {
 	for (var j = 0; j < procValue.closures.length; j++) {
 	    if (n === procValue.closures[j].numParams ||
@@ -15205,8 +15338,12 @@ var selectProcedureByArity = function(n, procValue) {
 	for (var i = 0; i < procValue.closures.length; i++) {
 	    acceptableParameterArity.push(procValue.closures[i].numParams + '');
 	}
-	throw new Error("Procedure expects [" + acceptableParameterArity.join(', ') + 
-			"] arguments, but received " + n);
+	throw types.schemeError(types.exnFailContractArity(
+		helpers.format("~a: expects [~a] arguments, given ~s~a",
+			       [(procValue.name ? procValue.name : "#<case-lambda-procedure>"),
+			        acceptableParameterArity.join(', '),
+				n,
+				getArgStr()])));
     } else if (procValue instanceof primitive.CasePrimitive) {
 	for (var j = 0; j < procValue.cases.length; j++) {
 	    if (n === procValue.cases[j].numParams ||
@@ -15219,8 +15356,9 @@ var selectProcedureByArity = function(n, procValue) {
 	for (var i = 0; i < procValue.cases.length; i++) {
 	    acceptableParameterArity.push(procValue.cases[i].numParams + '');
 	}
-	throw new Error("Procedure expects [" + acceptableParameterArity.join(', ') + 
-			"] arguments, but received " + n);
+	throw types.schemeError(types.exnFailContractArity(
+		helpers.format("~a: expects [~a] arguments, given ~s~a",
+			       [procValue.name, acceptableParameterArity.join(', '), n, getArgStr()])));
     }
 
 
@@ -15236,7 +15374,14 @@ var selectProcedureByArity = function(n, procValue) {
 	    (n > procValue.numParams && procValue.isRest)) {
 	    return procValue;
 	} else {
-	    throw new Error("Procedure expects " + procValue.numParams + " arguments, but received " + n);
+	    throw types.schemeError(types.exnFailContractArity(
+		helpers.format("~a: expects ~a ~a argument~a, given ~s~a",
+			       [(procValue.name ? procValue.name : "#<procedure>"),
+			        (procValue.isRest ? 'at least' : ''),
+				procValue.numParams,
+				(procValue.numParams == 1) ? '' : 's',
+				n,
+				getArgStr()])));
 	}
     }
 };
@@ -15276,9 +15421,9 @@ var preparePrimitiveArguments = function(state, primitiveValue, operandValues, n
     }
 
     if (n < primitiveValue.numParams) {
-	throw new Error("arity error: expected at least "
-			+ primitiveValue.numParams + " arguments, but "
-			+ "received " + n + " arguments instead.");
+//	throw new Error("arity error: expected at least "
+//			+ primitiveValue.numParams + " arguments, but "
+//			+ "received " + n + " arguments instead.");
     }
     if (primitiveValue.isRest) {
 	for(var i = 0; i < primitiveValue.numParams; i++) {
@@ -15291,9 +15436,9 @@ var preparePrimitiveArguments = function(state, primitiveValue, operandValues, n
 	args.push(restArgs);
     } else {
 	if (primitiveValue.numParams !== n) {
-	    throw new Error("arity error: expected " 
-			    + primitiveValue.numParams 
-			    + " but received " + n);
+//	    throw new Error("arity error: expected " 
+//			    + primitiveValue.numParams 
+//			    + " but received " + n);
 	}
 	for(var i = 0; i < primitiveValue.numParams; i++) {
 	    args.push(operandValues.shift());
@@ -15513,16 +15658,18 @@ InstallValueRhsControl.prototype.invoke = function(state) {
     var vals = [];
     if (aValue instanceof types.ValuesWrapper) {
 	if (this.count !== aValue.elts.length) {  
-	    throw new Error("expected " + this.count 
-			    + " values, but received " 
-			    + aValue.elts.length)
+	    throw types.schemeError(
+		types.exnFailContractArity("expected " + this.count 
+					   + " values, but received " + aValue.elts.length,
+					   state.captureCurrentContinuationMarks(aState)));
 	}
 	vals = aValue.elts;
     } else {
 	if (this.count !== 1) {
-	    throw new Error("expected " + this.count 
-			    + " values, but received"
-			    + " one");
+	    throw types.schemeError(
+		types.exnFailContractArity("expected " + this.count 
+					   + " values, but received one",
+					   state.captureCurrentContinuationMarks(aState)));
 	}
 	vals = [aValue];
     }
@@ -15572,12 +15719,13 @@ var SetToplevelControl = function(depth, pos, isUndefOk) {
     this.isUndefOk = isUndefOk;
 };
 
-SetToplevelControl.prototype.invoke = function(state) {
+SetToplevelControl.prototype.invoke = function(aState) {
     debug("SET_TOPLEVEL " + this.depth + ", " + this.pos);
-    if (state.vstack.length - 1 - (this.depth || 0) < 0) {
-	throw new Error("vstack not long enough");
+    if (aState.vstack.length - 1 - (this.depth || 0) < 0) {
+	throw types.internalError("vstack not long enough",
+				  state.captureCurrentContinuationMarks(aState));
     }
-    state.setPrefix(this.depth, this.pos, state.v)
+    aState.setPrefix(this.depth, this.pos, aState.v)
 };
 
 
@@ -15719,81 +15867,82 @@ var loader = {};
 
 
 // loadCode: State code -> Control
-var loadCode = function(state, nextCode) {
+var loadCode = function(aState, nextCode) {
     switch(nextCode.$) {
     case 'mod':
-	return loadMod(state, nextCode);
+	return loadMod(aState, nextCode);
 	break;
     case 'def-values':
-	return loadDefValues(state, nextCode);
+	return loadDefValues(aState, nextCode);
 	break;
     case 'indirect':
-	return loadIndirect(state, nextCode);
+	return loadIndirect(aState, nextCode);
 	break;
     case 'apply-values':
-	return loadApplyValues(state, nextCode);
+	return loadApplyValues(aState, nextCode);
 	break;
     case 'toplevel':
-	return loadToplevel(state, nextCode);
+	return loadToplevel(aState, nextCode);
 	break;
     case 'constant':
-	return loadConstant(state, nextCode);
+	return loadConstant(aState, nextCode);
 	break;
     case 'seq':
-	return loadSeq(state, nextCode);
+	return loadSeq(aState, nextCode);
 	break;
     case 'application':
-	return loadApplication(state, nextCode);
+	return loadApplication(aState, nextCode);
 	break;
     case 'localref':
-	return loadLocalRef(state, nextCode);
+	return loadLocalRef(aState, nextCode);
 	break;
     case 'primval':
-	return loadPrimval(state, nextCode);
+	return loadPrimval(aState, nextCode);
 	break;
     case 'branch':
-	return loadBranch(state, nextCode);
+	return loadBranch(aState, nextCode);
 	break;
     case 'lam':
-	return loadLam(state, nextCode);
+	return loadLam(aState, nextCode);
 	break;
     case 'let-one':
-	return loadLetOne(state, nextCode);
+	return loadLetOne(aState, nextCode);
 	break;
     case 'let-void':
-	return loadLetVoid(state, nextCode);
+	return loadLetVoid(aState, nextCode);
 	break;
     case 'beg0':
-	return loadBeg0(state, nextCode);
+	return loadBeg0(aState, nextCode);
 	break;
     case 'boxenv':
-	return loadBoxenv(state, nextCode);
+	return loadBoxenv(aState, nextCode);
 	break;
     case 'install-value':
-	return loadInstallValue(state, nextCode);
+	return loadInstallValue(aState, nextCode);
 	break;
     case 'with-cont-mark':
-	return loadWithContMark(state, nextCode);
+	return loadWithContMark(aState, nextCode);
 	break;
     case 'assign':
-	return loadAssign(state, nextCode);
+	return loadAssign(aState, nextCode);
 	break;
     case 'varref':
-	return loadVarref(state, nextCode);
+	return loadVarref(aState, nextCode);
 	break;
     case 'closure':
-	return loadClosure(state, nextCode);
+	return loadClosure(aState, nextCode);
 	break;
     case 'case-lam':
-	return loadCaseLam(state, nextCode);
+	return loadCaseLam(aState, nextCode);
 	break;
     case 'let-rec':
-	return loadLetRec(state, nextCode);
+	return loadLetRec(aState, nextCode);
 	break;
     default:
 	// FIXME: as soon as we implement topsyntax,
 	// we should never get here.
-	throw new Error("I don't know how to handle " + sys.inspect(nextCode));
+	throw types.internalError("I don't know how to handle " + sys.inspect(nextCode),
+				  state.captureCurrentContinuationMarks(aState));
     }
 };
 
@@ -16237,14 +16386,15 @@ var makeOnRestart = function(aState, onSuccessK, onFailK) {
 
 // step: state -> void
 // Takes one step in the abstract machine.
-var step = function(state) {
-    var nextCode = state.popControl();
+var step = function(aState) {
+    var nextCode = aState.popControl();
     debugF(function() { return sys.inspect(nextCode) });
     if (typeof(nextCode) === 'object' && nextCode['invoke']) {
-	nextCode.invoke(state);
+	nextCode.invoke(aState);
     } else {
 	// we should never get here.
-	throw new Error("I don't know how to handle " + sys.inspect(nextCode));
+	throw types.internalError("I don't know how to handle " + sys.inspect(nextCode),
+				  state.captureCurrentContinuationMarks(aState));
     }
 };
 
