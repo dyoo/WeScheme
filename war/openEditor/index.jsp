@@ -68,7 +68,6 @@
     <script src="/safeSubmit.js"></script>
     <script src="/editor/debug.js"></script>
 
-
     <script src="/openEditor/intent.js"></script>
     <script src="/js/ajaxactions.js"></script>
     <script src="/openEditor/editor.js"></script>
@@ -77,8 +76,10 @@
     <script src="/openEditor/interaction.js"></script>
     <script src="/heartbeat.js"></script>
     <script src="/js/submitpost.js"></script>
-
+    <script src="/js/sharingdialog.js"></script>
     <script src="/js/program.js"></script>
+    <script src="/js/ajaxactions.js"></script>
+    <script src="/js/helpers.js"></script>
 
 
     <!-- mzscheme-vm evaluator -->
