@@ -10,6 +10,9 @@
     <link rel="stylesheet" type="text/css" href="/css/default.css"
 	  id="style" />
 
+    <link rel="stylesheet" type="text/css" href="/css/codemirror.css"
+	  id="style" />
+
 
     <!-- Google Ajax APIs -->
     <script src="http://www.google.com/jsapi"></script>
