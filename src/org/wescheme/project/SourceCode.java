@@ -22,9 +22,13 @@ public class SourceCode {
 	@Persistent
 	private Text src_;
 		
+	@Persistent
+	private String name;
 	
-	public SourceCode(String src){
+	
+	public SourceCode(String name, String src){
 		this.key = null;
+		this.name = name;
 		src_ = new Text(src);
 	}
 	
@@ -32,6 +36,17 @@ public class SourceCode {
 		return src_.getValue();
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public String getName() {
+		if (this.name == null) {
+			return "program";
+		}
+		return this.name;
+	}
+	
 	public Element toXML() {
 		Element root = new Element("source");
 		root.setText(src_.getValue());

@@ -65,7 +65,7 @@ public class Program {
 	public Program(String src, String ownerName){
 		this.title_ = "Unknown";
 		this.srcs_ = new ArrayList<SourceCode>();
-		this.srcs_.add(new SourceCode(src));
+		this.srcs_.add(new SourceCode(this.title_, src));
 		this.obj_ = new ObjectCode();
 		this.isSourcePublic = false;
 		this.isDeleted = false;
@@ -135,7 +135,7 @@ public class Program {
 	}
 	
 	public void updateSource(String src){
-		this.setSource(new SourceCode(src));
+		this.setSource(new SourceCode(this.title_, src));
 		this.obj_ = new ObjectCode();
 		updateTime();
 	}

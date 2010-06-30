@@ -20,70 +20,35 @@
 
 <script src="/editor/jquery.js"></script>
 <script src="/editor/jquery.createdomnodes.js"></script>
-<jsp:include page="/moby-runtime-includes.jsp" />
-<script src="/runtime/permission-struct.js"></script>
-<script src="/openEditor/interaction.js"></script>
-
+<script src="/js/mzscheme-vm/support.js"></script>
+<script src="/js/mzscheme-vm/evaluator.js"></script>
 
 
 
 <script>
 
-function Runner(interactionsDiv) {
-    this.namespace = new Namespace();
+var Runner = function(interactionsDiv) {
+    var that = this;
     this.interactionsDiv = jQuery(interactionsDiv);
-}
+    this.evaluator = new Evaluator({
+	    write: function(thing) {
+		that.addToInteractions(thing);
+	    },
+	    compilationServletUrl: "http://go.cs.brown.edu:8000/servlets/standalone.ss"
+	});
+};
 
 
-Runner.prototype._prepareToRun = function() {
+Runner.prototype.runCompiledCode = function(title, compiledCode, permStringArray) {
     var that = this;
-    plt.world.MobyJsworld.makeToplevelNode = function() {
-	var area = jQuery("<div></div>");
-	that.interactionsDiv.append(area);
-	return area.get(0);
+    var onSuccessRun = function() {
     };
-}
-
-
-Runner.prototype.runCompiledCode = function(compiledCode, permStringArray) {
-    var that = this;
-    this._prepareToRun();
-
-    var permArray = [];
-    for (var i = 0; i < permStringArray.length; i++) {
-	permArray.push(string_dash__greaterthan_permission(permStringArray[i]))
-    }
-    
-(function() { ((function (toplevel_dash_expression_dash_show0) { toplevel_dash_expression_dash_show0((plt.types.String.makeInstance("this should be shared."))); }))(plt.Kernel.identity) })();
-
-    plt.permission.startupAllPermissions(
-	permArray,
-        function() { 
-            try {
-
-	        plt.Kernel.printHook = function(s) {
-		    that.addToInteractions(document.createTextNode(s));
-	            that.addToInteractions("\n");
-		};
-
-	        // FIXME: we may want a repl.
-		var runToplevel = that.namespace.eval(compiledCode);
- 		runToplevel(function(val) {
- 		    if (val != undefined) {
- 			that.addToInteractions(
- 			    plt.types.toDomNode(val));
-			that.addToInteractions("\n");
- 		    }
- 		});
-
-
-
-            } catch (err) {
-                that.addToInteractions(err.toString() + "\n");
- 	        throw err;
-            }
-	    
-        });
+    var onFailRun = function(exn) {
+	that.renderErrorAsDomNode(exn);
+    };
+    this.evaluator.executeCompiledProgram(eval('(' + compiledCode + ')'),
+					  onSuccessRun,
+					  onFailRun);
 };
 
 
@@ -106,25 +71,48 @@ Runner.prototype.addToInteractions = function (interactionVal) {
 
 
 
+// renderErrorAsDomNode: exception -> element
+// Given an exception, produces error dom node to be displayed.
+Runner.prototype.renderErrorAsDomNode = function(err) {
+    var msg = this.evaluator.getMessageFromExn(err);
+
+    var dom = document.createElement('div');
+    dom['class'] = 'moby-error';
+
+    var msgDom = document.createElement('div');
+    msgDom['class'] = 'moby-error:message';
+    msgDom.appendChild(document.createTextNode(msg));
+    dom.appendChild(msgDom);
+
+    var stacktrace = this.evaluator.getTraceFromExn(err);
+    for (var i = 0; i < stacktrace.length; i++) {
+	dom.appendChild(document.createTextNode("at: line " + stacktrace[i].line + 
+						", column " + stacktrace[i].column));
+    }
+
+    return dom;
+};
+
+
 
 
 
 function init() { 
-    var interactions = 
+    var runner = 
 	new Runner(document.getElementById('interactions'));
-
     var data = { publicId: "<%= publicId %>" };
     var type = "xml";
     var callback = function(data) {
         var dom = jQuery(data);
-	var program = dom.find("ObjectCode").find("obj").text();
+	var title = dom.find("title").text();
+	var programCode = dom.find("ObjectCode").find("obj").text();
 	var permissions = [];
 	dom.find("ObjectCode").
 	    find("permissions").
 	    find("permission").
 	    each(function() { 
 		permissions.push(jQuery(this).text()); });
-	interactions.runCompiledCode(program, permissions);
+	runner.runCompiledCode(title, programCode, permissions);
     };
     jQuery.get("/loadProject", data, callback, type);
 }
