@@ -15,7 +15,7 @@
 <script src="/runtime/base.js"></script>
 
 <!-- Add compatibility libraries for IE. -->
-<jsp:include page="/ie-compat.jsp"/>
+<jsp:include page="/js/compat/compat.jsp"/>
 
 
 <script src="/editor/jquery.js"></script>

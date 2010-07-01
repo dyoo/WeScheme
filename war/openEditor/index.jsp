@@ -4,8 +4,7 @@
     <title>WeScheme</title>
 
     <!-- Add compatibility libraries for IE. -->
-    <jsp:include page="/ie-compat.jsp"/>
-    <script src="/runtime/compat/XMLHttpRequest.js"></script>
+    <jsp:include page="/js/compat/compat.jsp"/>
 
     <link rel="stylesheet" type="text/css" href="/css/default.css"
 	  id="style" />

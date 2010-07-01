@@ -23,9 +23,7 @@
 
 <script src="/runtime/base.js"></script>
 
-<jsp:include page="/ie-compat.jsp"/>
-
-<script src="/runtime/compat/XMLHttpRequest.js"></script>
+<jsp:include page="/js/compat/compat.jsp"/>
 
 
 <script src="http://www.google.com/jsapi"></script>
