@@ -19,18 +19,18 @@
 <h2>makes use of...</h2>
 <div id="text">
 <ul>
-	<li><a href="#">moby</a> : a Scheme compiler which allows Scheme programs to be run as "native" Android apps, or as javascript programs which run in a web browser.</li>
-	<li><a href="#">AppEngine</a> : Google's "cloud" of computing infrastructure. WeScheme uses AppEngine to handle user accounts, serverside compilation, and file management </li>
-	<li><a href="#">IE8</a> : Dean Edwards' excellent javascript library, which allows us to ignore many of the cross-browser issues associated with supporting IE6 and 7. </li>
-	<li><a href="#">ExCanvas</a> : Google's javascript library that provides a Canvas implementation on browsers which do not support it (IE). </li>
-	<li><a href="#">Closure</a> : Google's javascript compiler, library and template system.</li>
+	<li><a href="http://github.com/dyoo/moby-scheme">moby</a> : a Scheme compiler which allows Scheme programs to be run as "native" Android apps, or as javascript programs which run in a web browser.</li>
+	<li><a href="http://appspot.com">AppEngine</a> : Google's "cloud" of computing infrastructure. WeScheme uses AppEngine to handle user accounts, serverside compilation, and file management </li>
+	<li><a href="http://code.google.com/p/ie7-js/">ie7-js</a> : Dean Edwards' excellent javascript library, which allows us to ignore many of the cross-browser issues associated with supporting IE6 and 7. </li>
+	<li><a href="http://excanvas.sourceforge.net/">ExCanvas</a> : Google's javascript library that provides a Canvas implementation on browsers which do not support it (IE). </li>
+	<li><a href="http://code.google.com/closure/">Closure</a> : Google's javascript compiler, library and template system.</li>
 </ul>
 </div>
 
 <div id="footer">
-<a href="About.jsp">About</a>
-<a href="#">Contact</a>
-<a href="#">Copyright</a>
+<a href="/about.jsp">About</a>
+<a href="/contact.jsp">Contact</a>
+<a href="/copyright.jsp">Copyright</a>
 </div>
 
 </body></html>

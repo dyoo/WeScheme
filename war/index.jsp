@@ -47,10 +47,10 @@
 
 
 <div id="footer">
-<a href="#">About</a>
+<a href="/about.jsp">About</a>
 
-<a href="#">Contact</a>
-<a href="#">Copyright</a>
+<a href="/contact.jsp">Contact</a>
+<a href="/copyright.jsp">Copyright</a>
 </div>
 
 </body></html>
