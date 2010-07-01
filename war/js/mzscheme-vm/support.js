@@ -292,17 +292,17 @@ var helpers = {};
 
 // Scheme numbers.
 
-/**
-var __PLTNUMBERS_TOP__;
-if (typeof(exports) !== 'undefined') {
-    __PLTNUMBERS_TOP__ = exports;
-} else {
-    if (! this['jsnums']) {
-	this['jsnums'] = {};
-    }
-    __PLTNUMBERS_TOP__  = this['jsnums'];
-}
-*/
+
+// var __PLTNUMBERS_TOP__;
+// if (typeof(exports) !== 'undefined') {
+//     __PLTNUMBERS_TOP__ = exports;
+// } else {
+//     if (! this['jsnums']) {
+// 	this['jsnums'] = {};
+//     }
+//     __PLTNUMBERS_TOP__  = this['jsnums'];
+// }
+
 var jsnums = {};
 
 
@@ -331,6 +331,7 @@ var jsnums = {};
     // Abbreviation
     //var Numbers = __PLTNUMBERS_TOP__;
     var Numbers = jsnums;
+
 
     // makeNumericBinop: (fixnum fixnum -> any) (scheme-number scheme-number -> any) -> (scheme-number scheme-number) X
     // Creates a binary function that works either on fixnums or boxnums.
@@ -1905,11 +1906,12 @@ var jsnums = {};
 	    return "-inf.0";
 	if (this === NEGATIVE_ZERO)
 	    return "-0.0";
-//	if (this.n === 0)
-//	    return "0.0";
-	if (this.isFinite())
-	    return this.n.toString() + ".0";
-	return this.n.toString();
+	var partialResult = this.n.toString();
+	if (! partialResult.match('\\.')) {
+	    return partialResult + ".0";
+	} else {
+	    return partialResult;
+	}
     };
 
 
@@ -4644,7 +4646,7 @@ Box.prototype.toDisplayedString = function(cache) {
 Box.prototype.toDomNode = function(cache) {
     var parent = document.createElement("span");
     parent.appendChild(document.createTextNode('#&'));
-    parent.appendChild(toDomNode(child, cache));
+    parent.appendChild(toDomNode(this.val, cache));
     return parent;
 };
 
@@ -5322,14 +5324,17 @@ var toWrittenString = function(x, cache) {
     if (typeof(x) != 'object' && typeof(x) != 'function') {
 	return x.toString();
     }
+
+    var returnVal;
     if (typeof(x.toWrittenString) !== 'undefined') {
-	return x.toWrittenString(cache);
-    }
-    if (typeof(x.toDisplayedString) !== 'undefined') {
-	return x.toDisplayedString(cache);
+	returnVal = x.toWrittenString(cache);
+    } else if (typeof(x.toDisplayedString) !== 'undefined') {
+	returnVal = x.toDisplayedString(cache);
     } else {
-	return x.toString();
+	returnVal = x.toString();
     }
+    cache.remove(x);
+    return returnVal;
 };
 
 
@@ -5354,14 +5359,17 @@ var toDisplayedString = function(x, cache) {
     if (typeof(x) != 'object' && typeof(x) != 'function') {
 	return x.toString();
     }
+
+    var returnVal;
     if (typeof(x.toDisplayedString) !== 'undefined') {
-	return x.toDisplayedString(cache);
-    }
-    if (typeof(x.toWrittenString) !== 'undefined') {
-	return x.toWrittenString(cache);
+	returnVal = x.toDisplayedString(cache);
+    } else if (typeof(x.toWrittenString) !== 'undefined') {
+	returnVal = x.toWrittenString(cache);
     } else {
-	return x.toString();
+	returnVal = x.toString();
     }
+    cache.remove(x);
+    return returnVal;
 };
 
 
@@ -5374,7 +5382,7 @@ var toDomNode = function(x, cache) {
     
     if (typeof(x) == 'object') {
 	    if (cache.containsKey(x)) {
-		    return "...";
+		    return document.createTextNode("...");
 	    }
 	    cache.put(x, true);
     }
@@ -5394,23 +5402,24 @@ var toDomNode = function(x, cache) {
 	var node = document.createTextNode(x.toString());
 	return node;
     }
+
+    var returnVal;
     if (x.nodeType) {
-	return x;
-    }
-    if (typeof(x.toDomNode) !== 'undefined') {
-	return x.toDomNode(cache);
-    }
-    if (typeof(x.toWrittenString) !== 'undefined') {
+	returnVal =  x;
+    } else if (typeof(x.toDomNode) !== 'undefined') {
+	returnVal =  x.toDomNode(cache);
+    } else if (typeof(x.toWrittenString) !== 'undefined') {
 	var node = document.createTextNode(x.toWrittenString(cache));
-	return node;
-    }
-    if (typeof(x.toDisplayedString) !== 'undefined') {
+	returnVal =  node;
+    } else if (typeof(x.toDisplayedString) !== 'undefined') {
 	var node = document.createTextNode(x.toDisplayedString(cache));
-	return node;
+	returnVal =  node;
     } else {
 	var node = document.createTextNode(x.toString());
-	return node;
+	returnVal =  node;
     }
+    cache.remove(x);
+    return returnVal;
 };
 
 
@@ -10462,8 +10471,8 @@ PRIMITIVES['print-values'] =
 PRIMITIVES['check-expect'] =
     new PrimProc('check-expect',
 		 2,
-		 false, false,
-		 function(actual, expected) {
+		 false, true,
+		 function(state, actual, expected) {
 		 	if ( isFunction(actual) || isFunction(expected) ) {
 				var msg = 'check-expect cannot compare functions';
 				raise( types.exnFailContract(msg, false) );
@@ -10472,8 +10481,9 @@ PRIMITIVES['check-expect'] =
 				var msg = helpers.format('check-expect: actual value ~s differs from ~s, the expected value.',
 							 [actual, expected]);
 				helpers.reportError(msg);
+			        state.getDisplayHook()(msg);
 			}
-			return types.VOID;
+			state.v = types.VOID;
 		});
 PRIMITIVES['EXAMPLE'] = PRIMITIVES['check-expect'];
 
@@ -10481,8 +10491,8 @@ PRIMITIVES['EXAMPLE'] = PRIMITIVES['check-expect'];
 PRIMITIVES['check-within'] =
     new PrimProc('check-within',
 		 3,
-		 false, false,
-		 function(actual, expected, range) {
+		 false, true,
+		 function(state, actual, expected, range) {
 		 	if ( !isReal(range) ) {
 				var msg = helpers.format('check-within requires a non-negative real number for range, given ~s.',
 							 [range]);
@@ -10500,8 +10510,9 @@ PRIMITIVES['check-within'] =
 				var msg = helpers.format('check-within: actual value ~s is not within ~s of expected value ~s.',
 							 [actual, range, expected]);
 				helpers.reportError(msg);
+			        state.getDisplayHook()(msg);
 			}
-			return types.VOID;
+			state.v = types.VOID;
 		});
 				
 
