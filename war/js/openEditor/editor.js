@@ -60,7 +60,7 @@ var WeSchemeEditor;
 	// defn is assumed to be Containers.
 	// The only container we've got so far are TextContainers.
 	this.defn = attrs.defn;  // TextAreaContainer
-	this.isOwner = true;
+	this.isOwner = false;
 
 	this.interactions = new WeSchemeInteractions(attrs.interactions);
 	this.interactions.reset();
@@ -301,7 +301,7 @@ var WeSchemeEditor;
  	    that.filenameEntry.attr("value", aProgram.getTitle());
  	    that.defn.setCode(aProgram.getSourceCode());
 			      
-	    if (that.userName == aProgram.getOwner()) {
+	    if (that.userName === aProgram.getOwner()) {
 		that._setIsOwner(true);
 	    } else {
 		that._setIsOwner(false);
