@@ -154,9 +154,9 @@
 	      <a id="stop"><img src="/images/break.png"/>Stop</a>
 	    </li>
 	    <% if (userSession != null) { %>
-	    <li class="save">	<a id="save">Save<span></span></a></li>
-	    <li class="share">	<a id="share">Share<span></span></a></li>
-	    <li class="logout">	<a id="logout">Logout</a></li>
+	    <li class="save"><a id="save"><img src="/images/save.png"/>Save<span></span></a></li>
+	    <li class="share"><a id="share"><img src="/images/share.png"/>Share<span></span></a></li>
+	    <li class="logout"><a id="logout">Logout</a></li>
 	    <li class="account"><a id="account">Manage<span></span></a></li>
 	    <% } %>
 	    <li class="docs">	<a id="docs" target="_blank" href="/openEditor/moby-user-api.txt">API</a></li>
