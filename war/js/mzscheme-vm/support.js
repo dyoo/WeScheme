@@ -4871,7 +4871,7 @@ Cons.prototype.isEmpty = function() {
     
 // Cons.append: (listof X) -> (listof X)
 Cons.prototype.append = function(b){
-    if (b.isEmpty())
+    if (b === Empty.EMPTY)
 	return this;
     var ret = b;
     var lst = this.reverse();
@@ -4888,17 +4888,25 @@ Cons.prototype.toWrittenString = function(cache) {
     //    cache.put(this, true);
     var texts = [];
     var p = this;
-    while (true) {
-	if ((!(p instanceof Cons)) && (!(p instanceof Empty))) {
-	    texts.push(".");
-	    texts.push(toWrittenString(p, cache));
-	    break;
-	}
-	if (p.isEmpty())
-	    break;
+    while ( p instanceof Cons ) {
 	texts.push(toWrittenString(p.first(), cache));
 	p = p.rest();
     }
+    if ( p !== Empty.EMPTY ) {
+	texts.push('.');
+	texts.push(toWrittenString(p, cache));
+    }
+//    while (true) {
+//	if ((!(p instanceof Cons)) && (!(p instanceof Empty))) {
+//	    texts.push(".");
+//	    texts.push(toWrittenString(p, cache));
+//	    break;
+//	}
+//	if (p.isEmpty())
+//	    break;
+//	texts.push(toWrittenString(p.first(), cache));
+//	p = p.rest();
+//    }
     return "(" + texts.join(" ") + ")";
 };
 
@@ -4908,17 +4916,25 @@ Cons.prototype.toDisplayedString = function(cache) {
     //    cache.put(this, true);
     var texts = [];
     var p = this;
-    while (true) {
-	if ((!(p instanceof Cons)) && (!(p instanceof Empty))) {
-	    texts.push(".");
-	    texts.push(toDisplayedString(p, cache));
-	    break;
-	}
-	if (p.isEmpty()) 
-	    break;
+    while ( p instanceof Cons ) {
 	texts.push(toDisplayedString(p.first(), cache));
 	p = p.rest();
     }
+    if ( p !== Empty.EMPTY ) {
+	texts.push('.');
+	texts.push(toDisplayedString(p, cache));
+    }
+//    while (true) {
+//	if ((!(p instanceof Cons)) && (!(p instanceof Empty))) {
+//	    texts.push(".");
+//	    texts.push(toDisplayedString(p, cache));
+//	    break;
+//	}
+//	if (p.isEmpty()) 
+//	    break;
+//	texts.push(toDisplayedString(p.first(), cache));
+//	p = p.rest();
+//    }
     return "(" + texts.join(" ") + ")";
 };
 
@@ -4929,22 +4945,34 @@ Cons.prototype.toDomNode = function(cache) {
     var node = document.createElement("span");
     node.appendChild(document.createTextNode("("));
     var p = this;
-    while (true) {
-	if ((!(p instanceof Cons)) && (!(p instanceof Empty))) {
-	    appendChild(node, document.createTextNode(" "));
-	    appendChild(node, document.createTextNode("."));
-	    appendChild(node, document.createTextNode(" "));
-	    appendChild(node, toDomNode(p, cache));
-	    break;
-	}
-	if (p.isEmpty())
-	    break;
+    while ( p instanceof Cons ) {
 	appendChild(node, toDomNode(p.first(), cache));
 	p = p.rest();
-	if (! p.isEmpty()) {
+	if ( p !== Empty.EMPTY ) {
 	    appendChild(node, document.createTextNode(" "));
 	}
     }
+    if ( p !== Empty.EMPTY ) {
+	appendChild(node, document.createTextNode("."));
+	appendChild(node, document.createTextNode(" "));
+	appendChild(node, toDomNode(p, cache));
+    }
+//    while (true) {
+//	if ((!(p instanceof Cons)) && (!(p instanceof Empty))) {
+//	    appendChild(node, document.createTextNode(" "));
+//	    appendChild(node, document.createTextNode("."));
+//	    appendChild(node, document.createTextNode(" "));
+//	    appendChild(node, toDomNode(p, cache));
+//	    break;
+//	}
+//	if (p.isEmpty())
+//	    break;
+//	appendChild(node, toDomNode(p.first(), cache));
+//	p = p.rest();
+//	if (! p.isEmpty()) {
+//	    appendChild(node, document.createTextNode(" "));
+//	}
+//    }
     node.appendChild(document.createTextNode(")"));
     return node;
 };
@@ -5146,7 +5174,7 @@ var replaceUnprintableChars = function(s) {
 					 ret.push( s.charAt(i) );
 				 }
 				 else {
-					 var numStr = val.toString(8);
+					 var numStr = val.toString(16).toUpperCase();
 					 while (numStr.length < 4) {
 						 numStr = '0' + numStr;
 					 }
@@ -5957,6 +5985,13 @@ types.exnMessage = function(exn) { return Exn.accessor(exn, 0); };
 types.exnContMarks = function(exn) { return Exn.accessor(exn, 1); };
 types.exnSetContMarks = function(exn, v) { Exn.mutator(exn, 1, v); };
 
+// (define-struct (exn:break exn) (continuation))
+var ExnBreak = makeStructureType('exn:break', 1, 0, Exn, false);
+types.exnBreak = ExnBreak.constructor;
+types.isExnBreak = ExnBreak.predicate;
+types.exnBreakContinuation = function(exn) {
+    return ExnBreak.accessor(exn, 0); };
+
 var ExnFail = makeStructureType('exn:fail', 0, 0, Exn, false);
 types.exnFail = ExnFail.constructor;
 types.isExnFail = ExnFail.predicate;
@@ -6033,6 +6068,9 @@ var State = function() {
     this.hooks = { printHook: defaultPrintHook,
 		   displayHook: defaultPrintHook,
 		   toplevelNodeHook: defaultToplevelNodeHook };
+
+    // Internal flag: if set, then we stop evaluation immediately.
+    this.breakRequested = false;
 };
 
 
@@ -6042,6 +6080,7 @@ State.prototype.clearForEval = function() {
     this.v = [];
     this.vstack = [];
     this.cstack = [];
+    this.breakRequested = false;
 };
 
 
@@ -6051,7 +6090,8 @@ State.prototype.save = function() {
 	     cstack: this.cstack.slice(0),
 	     heap: this.heap,
 	     globals: this.globals,
-             hooks: this.hooks };
+             hooks: this.hooks,
+	     breakRequested: this.breakRequested};
 };
 
 
@@ -6062,8 +6102,13 @@ State.prototype.restore = function(params) {
     this.heap = params.heap;
     this.globals = params.globals;
     this.hooks = params.hooks;
+    this.breakRequested = params.breakRequested;
 };
 
+
+State.prototype.requestBreak = function() {
+    this.breakRequested = true;
+};
 
 
 // Add the following form to the control stack.
@@ -6588,20 +6633,50 @@ var world = {};
 	var getKeyCodeName = function(e) {
 	    var code = e.charCode || e.keyCode;
 	    var keyname;
-	    if (code == 37) {
-		keyname = "left";
-	    } else if (code == 38) {
-		keyname = "up";
-	    } else if (code == 39) {
-		keyname = "right";
-	    } else if (code == 40) {
-		keyname = "down";
-	    } else if (code == 32) {
-		keyname = "space";
-	    } else if (code == 13) {
-		keyname = "enter";
-	    } else {
-		keyname = String.fromCharCode(code); 
+	    switch(code) {
+		case 16: keyname = "shift"; break;
+		case 17: keyname = "control"; break;
+		case 19: keyname = "pause"; break;
+		case 27: keyname = "escape"; break;
+		case 33: keyname = "prior"; break;
+		case 34: keyname = "next"; break;
+		case 35: keyname = "end"; break;
+		case 36: keyname = "home"; break;
+		case 37: keyname = "left"; break;
+		case 38: keyname = "up"; break;
+		case 39: keyname = "right"; break;
+		case 40: keyname = "down"; break;
+		case 42: keyname = "print"; break;
+		case 45: keyname = "insert"; break;
+		case 46: keyname = String.fromCharCode(127); break;
+		case 106: keyname = "*"; break;
+		case 107: keyname = "+"; break;
+		case 109: keyname = "-"; break;
+		case 110: keyname = "."; break;
+		case 111: keyname = "/"; break;
+		case 144: keyname = "numlock"; break;
+		case 145: keyname = "scroll"; break;
+		case 186: keyname = ";"; break;
+		case 187: keyname = "="; break;
+		case 188: keyname = ","; break;
+		case 189: keyname = "-"; break;
+		case 190: keyname = "."; break;
+		case 191: keyname = "/"; break;
+		case 192: keyname = "`"; break;
+		case 219: keyname = "["; break;
+		case 220: keyname = "\\"; break;
+		case 221: keyname = "]"; break;
+		case 222: keyname = "'"; break;
+		default: if (code >= 96 && code <= 105) {
+				 keyname = (code - 96).toString();
+			 }
+			 else if (code >= 112 && code <= 123) {
+				 keyname = "f" + (code - 111);
+			 }
+			 else {
+				 keyname = String.fromCharCode(code).toLowerCase();
+			 }
+			 break;
 	    }
 	    return keyname;
 	}
@@ -9708,6 +9783,14 @@ var jsworld = {};
 			    stopPropagation(e);
 			    return false;
 			});
+//	    attachEvent(toplevelNode,
+//			'keyup',
+//			function(e) {
+//			    console.log(e);
+//			    preventDefault(e);
+//			    stopPropagation(e);
+//			    return false;
+//			});
 	    toplevelNode.focus();
 	}
 
@@ -10058,14 +10141,14 @@ var length = function(lst) {
 }
 
 var append = function(args) {
-	var i;
-	arrayEach(args, function(x, i) {checkList(x, 'append', i+1);});
-
 	if (args.length == 0) {
 		return types.EMPTY;
 	}
-	var ret = args[args.length-1];
-	for (i = args.length-2; i >= 0; i--) {
+	var lastArg = args.pop();
+	arrayEach(args, function(x, i) {checkList(x, 'append', i+1);});
+
+	var ret = lastArg;
+	for (var i = args.length-1; i >= 0; i--) {
 		ret = args[i].append(ret);
 	}
 	return ret;
@@ -10268,14 +10351,18 @@ var isInteger = jsnums.isInteger;
 
 var isNatural = function(x) {
 	return jsnums.isExact(x) && isInteger(x) && jsnums.greaterThanOrEqual(x, 0);
-}
+};
+
+var isNonnegativeReal = function(x) {
+    return jsnums.isReal(x) && jsnums.greaterThanOrEqual(x, 0);
+};
 
 var isSymbol = types.isSymbol;
 var isChar = types.isChar;
 var isString = types.isString;
 var isPair = types.isPair;
 var isEmpty = function(x) { return x === types.EMPTY; };
-var isList = function(x) { return (isPair(x) || isEmpty(x)); };
+var isList = function(x) { return (isEmpty(x) || ( isPair(x) && isList(x.rest()) )); };
 var isVector = types.isVector;
 var isBox = types.isBox;
 var isHash = types.isHash;
@@ -10333,48 +10420,7 @@ var arrayEach = function(arr, f) {
 	}
 }
 
-var errorFormatStr = "~a: expects type <~a> as ~a argument, given: ~s~a";
-
-var check = function(x, f, functionName, typeName, position, otherArgs) {
-	
-	if ( !f(x) ) {
-		var otherArgsStr = '';
-		if (otherArgs && otherArgs.length > 0) {
-			otherArgsStr = '; other arguments were:';
-			for (var i = 0; i < otherArgs.length; i++) {
-				otherArgsStr += ' ' + types.toWrittenString(otherArgs[i]);
-			}
-		}
-
-		var msg = helpers.format(errorFormatStr, [functionName,
-					 		  typeName,
-					 		  helpers.ordinalize(position),
-							  x,
-					 		  otherArgsStr]);
-		raise( types.exnFailContract(msg, false) );
-	}
-}
-
-var checkList = function(x, functionName, position, otherArgs) {
-	if ( !isList(x) ) {
-		var otherArgsStr = '';
-		if (otherArgs && otherArgs.length > 0) {
-			otherArgsStr = '; other arguments were:';
-			for (var i = 0; i < otherArgs.length; i++) {
-				otherArgsStr += ' ' + types.toWrittenString(otherArgs[i]);
-			}
-		}
-
-		var msg = helpers.format(errorFormatStr, [functionName,
-					 		  "list",
-					 		  helpers.ordinalize(position),
-							  x,
-					 		  otherArgsStr]);
-		raise( types.exnFailContract(msg, false) );
-	}
-}
-
-var checkListOf = function(lst, f, functionName, typeName, position, otherArgs) {
+var throwCheckError = function(details, otherArgs) {
 	var otherArgsStr = '';
 	if (otherArgs && otherArgs.length > 0) {
 		otherArgsStr = '; other arguments were:';
@@ -10382,26 +10428,61 @@ var checkListOf = function(lst, f, functionName, typeName, position, otherArgs) 
 			otherArgsStr += ' ' + types.toWrittenString(otherArgs[i]);
 		}
 	}
+	details.push(otherArgsStr);
 
+	var errorFormatStr = "~a: expects type <~a> as ~a argument, given: ~s~a";
+	raise( types.exnFailContract(helpers.format(errorFormatStr, details), false) );
+};
+
+var check = function(x, f, functionName, typeName, position, otherArgs) {
+	if ( !f(x) ) {
+		throwCheckError([functionName,
+				 typeName,
+				 helpers.ordinalize(position),
+				 x],
+				otherArgs);
+	}
+}
+
+var checkList = function(x, functionName, position, otherArgs) {
+	if ( !isList(x) ) {
+		throwCheckError([functionName,
+				 'list',
+				 helpers.ordinalize(position),
+				 x],
+				otherArgs);
+	}
+}
+
+var checkListOf = function(lst, f, functionName, typeName, position, otherArgs) {
 	if ( !isList(lst) ) {
-		var msg = helpers.format(errorFormatStr, [functionName,
-							  "list of " + typeName,
-							   helpers.ordinalize(position),
-							   x,
-							   otherArgsStr]);
-		raise( types.exnFailContract(msg, false) );
+		throwCheckError([functionName,
+				 'list of ' + typeName,
+				 helpers.ordinalize(position),
+				 x],
+				otherArgs);
 	}
 	else {
 		while( !lst.isEmpty() ) {
 			if ( !f(lst.first()) ) {
-				var msg = (functionName + ': expects type <list of ' +
-					   typeName + '> as ' + helpers.ordinalize(position) + ' argument, given: ' +
-					   types.toWrittenString(x) + otherArgsStr);
-
-				raise( types.exnFailContract(msg, false) );
+				throwCheckError([functionName,
+						 'list of ' + typeName,
+						 helpers.ordinalize(position),
+						 x],
+						otherArgs);
 			}
 			lst = lst.rest();
 		}
+	}
+}
+
+var checkListOfLength = function(lst, n, functionName, position, otherArgs) {
+	if ( !isList(lst) || (length(lst) < n) ) {
+		throwCheckError([functionName,
+				 'list with ' + n + ' or more elements',
+				 helpers.ordinalize(position),
+				 lst],
+				otherArgs);
 	}
 }
 
@@ -10727,7 +10808,7 @@ PRIMITIVES['make-struct-type'] =
 			       false,
 			       false,
 			       function(x, i) {
-					check(x, aStructType.predicate, name+'-ref', '<struct:'+name+'>', 1);
+					check(x, aStructType.predicate, name+'-ref', 'struct:'+name, 1);
 					check(i, isNatural, name+'-ref', 'non-negative exact integer', 2);
 
 					var numFields = aStructType.numberOfFields;
@@ -10743,7 +10824,7 @@ PRIMITIVES['make-struct-type'] =
 			       false,
 			       false,
 			       function(x, i, v) {
-					check(x, aStructType.predicate, name+'-set!', '<struct:'+name+'>', 1);
+					check(x, aStructType.predicate, name+'-set!', 'struct:'+name, 1);
 					check(i, isNatural, name+'-set!', 'non-negative exact integer', 2);
 
 					var numFields = aStructType.numberOfFields;
@@ -11839,55 +11920,56 @@ PRIMITIVES['cons'] =
 		 2,
 		 false, false,
 		 function(f, r) {
-		 	checkList(r, "cons", 2);
+//		 	checkList(r, "cons", 2);
 		 	return types.cons(f, r);
 		 });
 
 
-var carFirst = function(name) {
-	return function (lst) {
-		checkList(lst, name, 1);
-		return lst.first();
-	};
-}
-PRIMITIVES['first'] = new PrimProc('first', 1, false, false, carFirst('first'));
-PRIMITIVES['car'] = new PrimProc('car', 1, false, false, carFirst('car'));
+PRIMITIVES['car'] =
+    new PrimProc('car',
+		 1,
+		 false, false,
+		 function(lst) {
+		 	check(lst, isPair, 'car', 'pair', 1);
+			return lst.first();
+		 });
 
-
-var cdrRest = function(name) {
-	return function (lst) {
-		checkList(lst, name, 1);
-		return lst.rest();
-	};
-}
-PRIMITIVES['rest'] = new PrimProc('rest', 1, false, false, cdrRest('rest'));
-PRIMITIVES['cdr'] = new PrimProc('cdr', 1, false, false, cdrRest('cdr'));
-
+PRIMITIVES['cdr'] =
+    new PrimProc('cdr',
+		 1,
+		 false, false,
+		 function (lst) {
+			check(lst, isPair, 'cdr', 'pair', 1);
+			return lst.rest();
+		 });
 
 PRIMITIVES['caar'] =
     new PrimProc('caar',
 		 1,
 		 false, false,
 		 function(lst) {
-		 	checkList(lst, 'caar', 1);
+		 	check(lst, function(x) { return (isPair(x) && isPair(x.first())); },
+			      'caar', 'caarable value', 1);
 		 	lst.first().first();
 		 });
 
-var cadrSecond = function(name) {
-	return function(lst) {
-		checkList(lst, name, 1);
-		return lst.rest().first();
-	};
-}
-PRIMITIVES['cadr'] = new PrimProc('cadr', 1, false, false, cadrSecond('cadr'));
-PRIMITIVES['second'] = new PrimProc('second', 1, false, false, cadrSecond('second'));
+PRIMITIVES['cadr'] =
+    new PrimProc('cadr',
+		 1,
+		 false, false,
+		 function(lst) {
+		 	check(lst, function(x) { return isPair(x) && isPair(x.rest()); },
+			      'cadr', 'cadrable value', 1);
+			return lst.rest().first();
+		 });
 
 PRIMITIVES['cdar'] =
     new PrimProc('cdar',
 		 1,
 		 false, false,
 		 function(lst) {
-		 	checkList(lst, 'cdar', 1);
+		 	check(lst, function(x) { return isPair(x) && isPair(x.first()); },
+			      'cdar', 'cdarable value', 1);
 		 	return lst.first().rest();
 		 });
 
@@ -11896,7 +11978,8 @@ PRIMITIVES['cddr'] =
 		 1,
 		 false, false,
 		 function(lst) {
-		 	checkList(lst, 'cddr', 1);
+		 	check(lst, function(x) { return isPair(x) && isPair(x.rest()); },
+			      'cddr', 'cddrable value', 1);
 		 	return lst.rest().rest();
 		 });
 
@@ -11905,7 +11988,10 @@ PRIMITIVES['caaar'] =
 		 1,
 		 false, false,
 		 function(lst) {
-		 	checkList(lst, 'caaar', 1);
+		 	check(lst, function(x) { return ( isPair(x) &&
+							  isPair(x.first()) &&
+							  isPair(x.first().first()) ); },
+			      'caaar', 'caaarable value', 1);
 		 	return lst.first().first().first();
 		 });
 
@@ -11914,7 +12000,10 @@ PRIMITIVES['caadr'] =
 		 1,
 		 false, false,
 		 function(lst) {
-		 	checkList(lst, 'caadr', 1);
+		 	check(lst, function(x) { return ( isPair(x) &&
+							  isPair(x.rest()) &&
+							  isPair(x.rest().first()) ); },
+			      'caadr', 'caadrable value', 1);
 		 	return lst.rest().first().first();
 		 });
 
@@ -11923,7 +12012,10 @@ PRIMITIVES['cadar'] =
 		 1,
 		 false, false,
 		 function(lst) {
-		 	checkList(lst, 'cadar', 1);
+		 	check(lst, function(x) { return ( isPair(x) &&
+							  isPair(x.first()) &&
+							  isPair(x.first().rest()) ); },
+			      'cadar', 'cadarable value', 1);
 		 	return lst.first().rest().first();
 		 });
 
@@ -11932,7 +12024,10 @@ PRIMITIVES['cdaar'] =
 		 1,
 		 false, false,
 		 function(lst) {
-		 	checkList(lst, 'cdaar', 1);
+		 	check(lst, function(x) { return ( isPair(x) &&
+							  isPair(x.first()) &&
+							  isPair(x.first().first()) ); },
+			      'cdaar', 'cdaarable value', 1);
 		 	return lst.first().first().rest();
 		 });
 
@@ -11941,7 +12036,10 @@ PRIMITIVES['cdadr'] =
 		 1,
 		 false, false,
 		 function(lst) {
-		 	checkList(lst, 'cdadr', 1);
+		 	check(lst, function(x) { return ( isPair(x) &&
+							  isPair(x.rest()) &&
+							  isPair(x.rest().first()) ); },
+			      'cdadr', 'cdadrable value', 1);
 		 	return lst.rest().first().rest();
 		 });
 
@@ -11950,43 +12048,104 @@ PRIMITIVES['cddar'] =
 		 1,
 		 false, false,
 		 function(lst) {
-		 	checkList(lst, 'cddar', 1);
+		 	check(lst, function(x) { return ( isPair(x) &&
+							  isPair(x.first()) &&
+							  isPair(x.first().rest()) ); },
+			      'cddar', 'cddarable value', 1);
 		 	return lst.first().rest().rest();
 		 });
 
-var caddrThird = function(name) {
-	return function(lst) {
-		checkList(lst, name, 1);
-		return lst.rest().rest().first();
-	};
-}
-PRIMITIVES['caddr'] = new PrimProc('caddr', 1, false, false, caddrThird('caddr'));
-PRIMITIVES['third'] = new PrimProc('third', 1, false, false, caddrThird('third'));
+PRIMITIVES['caddr'] =
+    new PrimProc('caddr',
+		 1,
+		 false, false,
+		 function(lst) {
+		 	check(lst, function(x) { return ( isPair(x) &&
+							  isPair(x.rest()) &&
+							  isPair(x.rest().rest()) ); },
+			      'caddr', 'caddrable value', 1);
+		 	return lst.rest().rest().first();
+		 });
 
 PRIMITIVES['cdddr'] =
     new PrimProc('cdddr',
 		 1,
 		 false, false,
 		 function(lst) {
-		 	checkList(lst, 'cdddr', 1);
+		 	check(lst, function(x) { return ( isPair(x) &&
+							  isPair(x.rest()) &&
+							  isPair(x.rest().rest()) ); },
+			      'cdddr', 'cdddrable value', 1);
 		 	return lst.rest().rest().rest();
 		 });
 
-var cadddrFourth = function(name) {
-	return function (lst) {
-		checkList(lst, name, 1);
-		return lst.rest().rest().rest().first();
-	};
-}
-PRIMITIVES['cadddr'] = new PrimProc('cadddr', 1, false, false, cadddrFourth('cadddr'));
-PRIMITIVES['fourth'] = new PrimProc('fourth', 1, false, false, cadddrFourth('fourth'));
+PRIMITIVES['cadddr'] =
+    new PrimProc('cadddr',
+		 1,
+		 false, false,
+		 function(lst) {
+		 	check(lst, function(x) { return ( isPair(x) &&
+							  isPair(x.rest()) &&
+							  isPair(x.rest().rest()) &&
+				       			  isPair(x.rest().rest().rest()) ); },
+			      'cadddr', 'cadddrable value', 1);
+		 	return lst.rest().rest().rest().first();
+		 });
+
+
+PRIMITIVES['rest'] =
+    new PrimProc('rest',
+		 1,
+		 false, false,
+		 function(lst) {
+		 	check(lst, function(x) { return isList(x) && !isEmpty(x); },
+			      'rest', 'non-empty list', 1);
+			return lst.rest();
+		 });
+
+PRIMITIVES['first'] =
+    new PrimProc('first',
+		 1,
+		 false, false,
+		 function(lst) {
+		 	check(lst, function(x) { return isList(x) && !isEmpty(x); },
+			      'first', 'non-empty list', 1);
+			return lst.first();
+		 });
+
+PRIMITIVES['second'] =
+    new PrimProc('second',
+		 1,
+		 false, false,
+		 function(lst) {
+			checkListOfLength(lst, 2, 'second', 1);
+			return lst.rest().first();
+		 });
+
+PRIMITIVES['third'] =
+    new PrimProc('third',
+		 1,
+		 false, false,
+		 function(lst) {
+		 	checkListOfLength(lst, 3, 'third', 1);
+			return lst.rest().rest().first();
+		 });
+
+PRIMITIVES['fourth'] =
+    new PrimProc('fourth',
+		 1,
+		 false, false,
+		 function(lst) {
+		 	checkListOfLength(lst, 4, 'fourth', 1);
+			return lst.rest().rest().rest().first();
+		 });
 
 PRIMITIVES['fifth'] =
     new PrimProc('fifth',
 		 1,
 		 false, false,
 		 function(lst) {
-		 	checkList(lst, 'fifth', 1);
+		 	checkListOfLength(lst, 5, 'fifth', 1);
 		 	return lst.rest().rest().rest().rest().first();
 		 });
 
@@ -11995,7 +12154,7 @@ PRIMITIVES['sixth'] =
 		 1,
 		 false, false,
 		 function(lst) {
-		 	checkList(lst, 'sixth', 1);
+		 	checkListOfLength(lst, 6, 'sixth', 1);
 		 	return lst.rest().rest().rest().rest().rest().first();
 		 });
 
@@ -12005,7 +12164,7 @@ PRIMITIVES['seventh'] =
 		 1,
 		 false, false,
 		 function(lst) {
-		 	checkList(lst, 'seventh', 1);
+		 	checkListOfLength(lst, 7, 'seventh', 1);
 		 	return lst.rest().rest().rest().rest().rest().rest().first();
 		 });
 
@@ -12014,7 +12173,7 @@ PRIMITIVES['eighth'] =
 		 1,
 		 false, false,
 		 function(lst) {
-		 	checkList(lst, 'eighth', 1);
+		 	checkListOfLength(lst, 8, 'eighth', 1);
 		 	return lst.rest().rest().rest().rest().rest().rest().rest().first();
 		 });
 
@@ -13025,7 +13184,7 @@ PRIMITIVES['printf'] =
 		 function(state, formatStr, args) {
 		 	check(formatStr, isString, 'printf', 'string', 1);
 			var msg = helpers.format(formatStr, args);
-			state.getPrintHook()(msg);
+			state.getDisplayHook()(msg);
 			state.v = types.VOID;
 		 });
 
@@ -14000,7 +14159,7 @@ PRIMITIVES['circle'] =
 		 3,
 		 false, false,
 		 function(aRadius, aStyle, aColor) {
-			check(aRadius, isNumber, "circle", "number", 1);
+			check(aRadius, isNonnegativeReal, "circle", "non-negative real", 1);
 			check(aStyle, isStyle, "circle", "style", 2);
 			check(aColor, isColor, "circle", "color", 3);
 
@@ -14017,9 +14176,9 @@ PRIMITIVES['star'] =
 		 5,
 		 false, false,
 		 function(aPoints, anOuter, anInner, aStyle, aColor) {
-			check(aPoints, isNumber, "star", "number", 1);
-			check(anOuter, isNumber, "star", "number", 2);
-			check(anInner, isNumber, "star", "number", 3);
+			check(aPoints, isNatural, "star", "non-negative exact integer", 1);
+			check(anOuter, isNonnegativeReal, "star", "non-negative real", 2);
+			check(anInner, isNonnegativeReal, "star", "non-negative real", 3);
 			check(aStyle, isStyle, "star", "style", 4);
 			check(aColor, isColor, "star", "color", 5);
 
@@ -14039,8 +14198,8 @@ PRIMITIVES['nw:rectangle'] =
 		 4,
 		 false, false,
 		 function(w, h, s, c) {
-			check(w, isNumber, "nw:rectangle", "number", 1);
-			check(h, isNumber, "nw:rectangle", "number", 2);
+			check(w, isNonnegativeReal, "nw:rectangle", "non-negative real", 1);
+			check(h, isNonnegativeReal, "nw:rectangle", "non-negative real", 2);
 			check(s, isStyle, "nw:rectangle", "style", 3);
 			check(c, isColor, "nw:rectangle", "color", 4);
 
@@ -14059,8 +14218,8 @@ PRIMITIVES['rectangle'] =
 		 4,
 		 false, false,
 		 function(w, h, s, c) {
-			check(w, isNumber, "rectangle", "number", 1);
-			check(h, isNumber, "rectangle", "number", 2);
+			check(w, isNonnegativeReal, "rectangle", "non-negative real", 1);
+			check(h, isNonnegativeReal, "rectangle", "non-negative real", 2);
 			check(s, isStyle, "rectangle", "style", 3);
 			check(c, isColor, "rectangle", "color", 4);
 
@@ -14078,7 +14237,7 @@ PRIMITIVES['triangle'] =
 		 3,
 		 false, false,
 		 function(r, s, c) {
-			check(r, isNumber, "triangle", "number", 1);
+			check(r, isNonnegativeReal, "triangle", "non-negative real", 1);
 			check(s, isStyle, "triangle", "string", 2);
 			check(c, isColor, "triangle", "color", 3);
 			if (colorDb.get(c)) {
@@ -14093,8 +14252,8 @@ PRIMITIVES['ellipse'] =
 		 4,
 		 false, false,
 		 function(w, h, s, c) {
-			check(w, isNumber, "ellipse", "number", 1);
-			check(h, isNumber, "ellipse", "number", 2);
+			check(w, isNonnegativeReal, "ellipse", "non-negative real", 1);
+			check(h, isNonnegativeReal, "ellipse", "non-negative real", 2);
 			check(s, isStyle, "ellipse", "string", 3);
 			check(c, isColor, "ellipse", "color", 4);
 			
@@ -14112,8 +14271,8 @@ PRIMITIVES['line'] =
 		 3,
 		 false, false,
 		 function(x, y, c) {
-			check(x, isNumber, "line", "number", 1);
-			check(y, isNumber, "line", "number", 2);
+			check(x, isReal, "line", "real", 1);
+			check(y, isReal, "line", "real", 2);
 			check(c, isColor, "line", "color", 3);
 			if (colorDb.get(c)) {
 				c = colorDb.get(c);
@@ -16283,32 +16442,34 @@ var makeClosureValsFromMap = function(state, closureMap, closureTypes) {
 };
 
 
+// We bounce every so often to allow UI events to process.
+var MAX_STEPS_BEFORE_BOUNCE = 10000;
 
-    // run: state (scheme-value -> void) (exn -> void) -> void
+
+// run: state (scheme-value -> void) (exn -> void) -> void
 var run = function(aState, onSuccessK, onFailK) {
     if (! onSuccessK) { onSuccessK = function(lastResult) {} };
     if (! onFailK) { onFailK = function(exn) { throw exn; } };
 
-
-
-    // FIXME: Clear the existing control stack on run?
-
     try {
-	while(! aState.isStuck()) {
-	    //debug("\n\nstate:\n");
-	    // NOTE: sys.inspect is expensive, so we want to 
-	    // control the order of evaluation within this tight
-	    // loop.
-	    //debugF(function() { return sys.inspect(aState) });
+	var gas = MAX_STEPS_BEFORE_BOUNCE;
+	while( (! aState.isStuck()) && (gas > 0)) {
 	    step(aState);
+	    gas--;
 	}
-
-	//     debug("\n\nFinished with: \n")
-	//     debugF(function() { return sys.inspect(aState) });
-	//     debug("\n\nfinal value: ")
-	//     debugF(function() { return sys.inspect(aState.v) });
-	onSuccessK(aState.v);
-	return;
+	if (aState.breakRequested) {
+	    onFailK(types.schemeError(
+                types.exnBreak("user break", 
+			       state.captureCurrentContinuationMarks(aState),
+			       captureContinuationClosure(aState))));
+	    return;
+	} else if (gas <= 0) {
+	    setTimeout(function(){ run(aState, onSuccessK, onFailK); },
+		       0);
+	} else {
+	    onSuccessK(aState.v);
+	    return;
+	}
     } catch (e) {
 	if (e instanceof control.PauseException) {
 	    var onRestart = makeOnRestart(aState, onSuccessK, onFailK);
@@ -16325,8 +16486,6 @@ var run = function(aState, onSuccessK, onFailK) {
 	    onFailK(e);
 	    return;
 	} else {
-	    // internal exception:
-	    // FIXME: wrap it up
 	    onFailK(e);
 	    return;
 	}
