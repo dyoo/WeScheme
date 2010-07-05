@@ -1,33 +1,33 @@
 /* Some global settings */
 html {
-     width: 100%;
-     height: 100%;
-     min-width: 625px;
-     background: #f5deb3;
-     padding:		0px;
-     margin:		0px;
+    width: 100%;
+    height: 100%;
+    min-width: 625px;
+    background: #f5deb3;
+    padding:		0px;
+    margin:		0px;
 }
 
 html, body, h1, h2, #header, #fileInfo, #toolbar *, #defn, #footer, #inter, input{
-	padding:		0px;
-	margin:			0px;
+    padding:		0px;
+    margin:			0px;
 }
 
 
 body {
-     width: 100%;
-     height: 100%;
-     padding:		0px;
-     margin:		0px;
+    width: 100%;
+    height: 100%;
+    padding:		0px;
+    margin:		0px;
 }
 
 
 
 #editor {
-	width: 100%;
-	height: 100%;
-        padding:		0px;
-        margin:			0px;
+    width: 100%;
+    height: 100%;
+    padding:		0px;
+    margin:			0px;
 
 }
 
@@ -35,16 +35,17 @@ body {
 
 
 .form {
-   display: inline-block;
+    display: inline-block;
 }
 
 
 /* 65px: LOGO AND TITLE */
 #header{
-	width:			100%;
-	height:			65px;
-	background:		url(/css/images/icon-trans.png) ;
-	background-repeat:no-repeat;
+    display: none;
+    width:			100%;
+    height:			65px;
+    background:		url(/css/images/icon-trans.png) ;
+    background-repeat:no-repeat;
 }
 
 h1{ font-size:	38px;	margin-left:	65px;}
@@ -52,53 +53,60 @@ h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
 
 /* 30px: FILENAME & URL */
 #fileInfo{
-	width:			100%;
-	height:			29px;	/* leave room for the border */
-	clear:			both;
-	padding:		5px 0px;
-	white-space:	nowrap;
-	border-top:		solid 1px black;
+    width:			100%;
+    height:			29px;	/* leave room for the border */
+    clear:			both;
+    padding:		5px 0px;
+    white-space:	nowrap;
+    border-top:		solid 1px black;
 }
 
 #fileInfo *{
-	width:                  auto;
-	float:			left;
-	margin:			0px 10px;
+    width:                  auto;
+    float:			left;
+    margin:			0px 10px;
 }
+
+
+
+
+
 
 /* 20px: TOOLBAR, BUTTONS, ETC */
 #toolbar{
-	width:			100%;
-	height:			19px;	/* leave room for the border */
-	border-bottom:	solid 1px black;
-	background:		black;
-	clear:			both;
+    width:			100%;
+    height:			19px;	/* leave room for the border */
+    padding-top:                10px;
+    padding-bottom:             10px;
+    border-bottom:	solid 1px black;
+    background:		black;
+    clear:			both;
 }
 
 #toolbar ul{
-	clear:			both;
-	list-style-type:none;
+    clear:			both;
+    list-style-type:none;
 }
 
 #toolbar li{
-	float:			left;
-	text-align:		center;
-	width:			125px;
-	background-repeat: no-repeat;
-	background-position: 0 50%;
-	clear:			right;
+    float:			left;
+    text-align:		center;
+    width:			125px;
+    background-repeat: no-repeat;
+    background-position: 0 50%;
+    clear:			right;
 }
 
 #toolbar li a, #toolbar li a:visited{
-	display:		block;
-	color:			white;
-	width:			100%;
-	text-decoration:none;
+    display:		block;
+    color:			white;
+    width:			100%;
+    text-decoration:none;
 }
 #toolbar li a:hover{
-	background:		#546DAF;
-	color:			white;
-	cursor:			pointer;
+    background:		#546DAF;
+    color:			white;
+    cursor:			pointer;
 }
 
 /* tooltips */
@@ -118,28 +126,28 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 
 /* DEFINITIONS */
 #definitions{
-	width:                  100%;
-	clear:			both;
-	text-align:		center;
-	padding:		0px;
-	overflow:		hidden;
-	margin:			0px;
-	borders:		0px;
-	background:		gray;
-	border-bottom:	solid 1px black;
+    width:                  100%;
+    clear:			both;
+    text-align:		center;
+    padding:		0px;
+    overflow:		hidden;
+    margin:			0px;
+    borders:		0px;
+    background:		gray;
+    border-bottom:	solid 1px black;
 }
 #defn {
-	clear:			both;
-        height:			100%;
-	width:			100%;
-	overflow:		auto;
-	background:		white url(/css/images/fadeIcon.png) no-repeat right bottom;
-	font-size:		12px; 
-	font-family:	Monaco, sans-serif; 
+    clear:			both;
+    height:			100%;
+    width:			100%;
+    overflow:		auto;
+    background:		white url(/css/images/fadeIcon.png) no-repeat right bottom;
+    font-size:		12px; 
+    font-family:	Monaco, sans-serif; 
 
-	padding:                0px;
-	margin: 		0px;
-	borders:		0px;
+    padding:                0px;
+    margin: 		0px;
+    borders:		0px;
 }
 #defn:hover{background:	white url(/css/images/fadeWords.png) no-repeat right bottom;}
 
@@ -151,43 +159,43 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 
 /* INTERACTIONS */
 #interactions{
-	border-top:		solid 1px black;
-	clear:			both;
-	width:			100%;
-	height:                 30%;
-	background:		white url(images/blank.gif) no-repeat;
+    border-top:		solid 1px black;
+    clear:			both;
+    width:			100%;
+    height:                 30%;
+    background:		white url(images/blank.gif) no-repeat;
 }
 
 #interactions:hover{
     background:	white url(/css/images/interactions.png) no-repeat right bottom;}
 
 #inter {
-        width:                  100%;
-	height:			100%;
-	padding:		0px;
-	margin:			0px;
-	overflow:		auto;
-	font-family:	Monaco, sans-serif;
-	font-size:		12px;
+    width:                  100%;
+    height:			100%;
+    padding:		0px;
+    margin:			0px;
+    overflow:		auto;
+    font-family:	Monaco, sans-serif;
+    font-size:		12px;
 }
 #inter input{
-	font-size:		12px; 
-	font-family:	Monaco, sans-serif; 
-	border:			0px;
-	outline: 0 !important; /* disable focus ring in Safari */
+    font-size:		12px; 
+    font-family:	Monaco, sans-serif; 
+    border:			0px;
+    outline: 0 !important; /* disable focus ring in Safari */
 }
 
 
 /* 22px: FOOTER */
 #footer {
-	clear:                  both;
-        width:			100%;
-	height:			24px;
-	padding:		1px 0px;
-	border-top:		solid 1px black;
-	color:			black;
-	min-width:		625px;
-	background:		#f5deb3; /* prevent interactions from peeking through footer in short windows */
+    clear:                  both;
+    width:			100%;
+    height:			24px;
+    padding:		1px 0px;
+    border-top:		solid 1px black;
+    color:			black;
+    min-width:		625px;
+    background:		#f5deb3; /* prevent interactions from peeking through footer in short windows */
 }
 
 

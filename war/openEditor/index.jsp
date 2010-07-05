@@ -96,70 +96,35 @@
        
        %>
 
+    <script src="/js/openEditor/index.js"></script>
+
 
 
     <script>
-      var myEditor;
-      var defnSourceContainer;
+      jQuery(document).ready(function() {
+          setInterval(beat, 1800000);
+          var userName, pid, publicId;
+          userName = pid = publicId = null;
+      
+          userName = "<%= userSession != null? userSession.getName() : null %>";
 
-jQuery(document).ready(
-    function() {
+          <% if (request.getParameter("pid") != null) { %>
+	      pid = decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("pid"), "utf-8") %>');
+	  <% } else if (request.getParameter("publicId") != null){ %>
+   	      publicId = decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("publicId"), "utf-8") %>';
+	  <% } else { %>
+	  <% } %>
 
-	// Fixme: trigger file load if the pid has been provided.
-
-	var statusBar = new WeSchemeStatusBar(jQuery("#statusbar"));
-	new WeSchemeTextContainer(
-	    jQuery("#definitions").get(0),
-	    function(container) {
-		defnSourceContainer = container;
-		defnSourceContainer.setMode(
-		    "codemirror",
-		    function() {
-			myEditor = new WeSchemeEditor(
-			    { userName: "<%= userSession != null? userSession.getName() : null %>",
-			      defn: defnSourceContainer,
-			      interactions: jQuery("#inter").get(0),
-			      filenameInput: jQuery("#filename")});
-			
-			jQuery("#save").click(function() { myEditor.save(); });
-			jQuery("#run").click(function()  { myEditor.run(); });
-			jQuery("#share").click(function()  { myEditor.share(); });
-			jQuery("#account").click(function()  { submitPost("/console"); });
-			jQuery("#logout").click(function() { submitPost("/logout"); });
-			jQuery("#bespinMode").click(function() { defnSourceContainer.setMode("bespin")});
-
-			    <% if (request.getParameter("pid") != null) { %>
-									  myEditor.load({pid : parseInt(decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("pid"), "utf-8") %>')) });
-									  <% } else if (request.getParameter("publicId") != null) { %>
-																    myEditor.load({publicId : decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("publicId"), "utf-8") %>') });
-																    <% } %>
-
-
-			// For debugging:
-			//   plt.wescheme.WeSchemeIntentBus.addNotifyListener(function(action, category, data) {
-			//       debugLog(action + ": " + category + " " + data.toString());
-			//   });
-		    });
-
-
-	    });
-
-
-    });
-
-
-
-
-      function switchStyle(style){
-      document.getElementById('style').href = '/css/'+style;
-      }
+          initializeEditor({userName: userName,
+                            pid : pid, 
+                            publicId: publicId});
+      });
     </script>
-
 
   </head>
   
   
-  <body onload='setInterval("beat()",1800000);'>
+  <body>
     <div id="editor"
 	 dojoType="dijit.layout.BorderContainer"
 	 gutters="false">
@@ -169,49 +134,42 @@ jQuery(document).ready(
       <div class="top"
 	   dojoType="dijit.layout.ContentPane"
 	   region="top">
-
-	<div id="header">
-	  <h1>WeScheme</h1>
-	  <h2>Sometimes YouTube.  Perhaps iPhone.  Together, WeScheme!</h2>
-	</div>
 	
 	<!-- The dialog div here will be used by jquery -->
 	<div id="dialog" style="display:none;"></div>
 	
 	
-	<% if (userSession != null) { %>
 	<div id="toolbar">
 	  <ul>
-	    <li class="run">	<a id="run">Run<span>&nbsp;your program.</span></a></li>
-	    <li class="save">	<a id="save">Save<span>&nbsp;for later.</span></a></li>
-	    <li class="share">	<a id="share">Share<span>&nbsp;with friends.</span></a></li>
+	    <li class="run">	
+	      <a id="run"><img src="/images/run.png" />Run</a>
+	    </li>
+	    <li class="stop">	
+	      <a id="stop"><img src="/images/break.png"/>Stop</a>
+	    </li>
+	    <% if (userSession != null) { %>
+	    <li class="save">	<a id="save">Save<span></span></a></li>
+	    <li class="share">	<a id="share">Share<span></span></a></li>
 	    <li class="logout">	<a id="logout">Logout</a></li>
+	    <li class="account"><a id="account">Manage<span></span></a></li>
+	    <% } %>
 	    <li class="docs">	<a id="docs" target="_blank" href="/openEditor/moby-user-api.txt">API</a></li>
-	    <li class="account"><a id="account">Manage<span>&nbsp;your account.</span></a></li>
+	    
 	  </ul>
+
+
+	  <div id="header">
+	    <h1>WeScheme</h1>
+	    <h2>Sometimes YouTube.  Perhaps iPhone.  Together, WeScheme!</h2>
+	  </div>
 	</div>
-	<% } else { %>
-	<div id="toolbar">
-	  <ul>
-	    <li class="run">	<a id="run">Run<span>&nbsp;your program.</span></a></li>
-            <li class="docs">	<a id="docs" target="_blank" href="/openEditor/moby-user-api.txt">API</a></li>
-	    <li class="account"><a id="account">Manage<span>&nbsp;your account.</span></a></li>
-	  </ul>
-	</div>
-	<% } %>
-	
 
 	<div id="fileInfo">
 	  <label id="filenamelabel" for="filename">Project name:</label>
 	  <input id="filename" type="text" style="width: 20%"/>
 	</div>
 
-
-      </div>
-
-
-
-
+      </div> <!-- End top -->
 
 
 
@@ -245,7 +203,7 @@ jQuery(document).ready(
 	</div>
 
 
-      </div>
+      </div> <!-- End middle -->
       
 
 
@@ -275,11 +233,11 @@ jQuery(document).ready(
 <!-- 	    </select> -->
 <!-- 	  </div> -->
 
-	</div>
+	</div> <!-- end footer -->
 	
-      </div>
+      </div> <!-- end bottom -->
 
-    </div>
+    </div> <!-- end editor -->
 
   </body>
 </html>
