@@ -27,6 +27,7 @@ var initializeEditor = function(attrs) {
 		    
 		    jQuery("#save").click(function() { myEditor.save(); });
 		    jQuery("#run").click(function()  { myEditor.run(); });
+		    jQuery("#stop").click(function()  { myEditor.requestBreak(); });
 		    jQuery("#share").click(function()  { myEditor.share(); });
 		    jQuery("#account").click(function()  { submitPost("/console"); });
 		    jQuery("#logout").click(function() { submitPost("/logout"); });

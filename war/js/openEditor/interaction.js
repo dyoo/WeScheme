@@ -91,49 +91,28 @@ WeSchemeInteractions = (function () {
 
 
 
-    WeSchemeInteractions.prototype._prepareToRun = function() {
-	var that = this;
-// 	plt.world.MobyJsworld.makeToplevelNode = function() {
-// 	    var dialog = jQuery("<div/>");
-// 	    var handleClose = function(event, ui) {
-// 		plt.world.stimuli.onShutdown();
-// 	    };
-
-// 	    dialog.dialog( {
-// 		bgiframe : true,
-// 		position: ["left", "top"],
-// 		modal : true,
-// 		width: "auto",
-// 		height: "auto",
-// 	        beforeclose: handleClose
-// 	    });
-
-// 	    var innerArea = jQuery("<div></div>");
-// 	    dialog.append(innerArea);
-// 	    dialog.dialog("open");
-// 	    return innerArea.get(0);
-// 	};
-    };
-
-
 
     // Evaluate the source code and accumulate its effects.
     WeSchemeInteractions.prototype.runCode = function(aSource, sourceName, contK) {
 	this.notifyBus("before-run", this);
 	var that = this;
-	this._prepareToRun();
-
+	this.disableInput();
 	this.evaluator.executeProgram(sourceName,
 				      aSource,
-				      contK,
-				      function(err) { that.handleError(err)} );
+				      function() { 
+					  that.enableInput();
+					  contK();
+				      },
+				      function(err) { 
+					  that.handleError(err); 
+					  that.enableInput();
+					  contK();
+				      });
     };
     
     WeSchemeInteractions.prototype.handleError = function(err) {
 	this.addToInteractions(this.renderErrorAsDomNode(err));
 	this.addToInteractions("\n");
-// 	this.addToInteractions(this.renderErrorLocationAsDomNode(err));
-// 	this.addToInteractions("\n");
     };
 
 
@@ -169,10 +148,11 @@ WeSchemeInteractions = (function () {
 	    this.addToInteractions("> " + nextCode + "\n");
 	    that.history.push(nextCode);
 	    that.prompt.find("input").attr("value", "");
-	    this.runCode(nextCode, "<interactions>", function() {
-		// FIXME: must disable prompt, and wait for computation
-		// to complete.
-	    });
+	    this.runCode(nextCode, 
+			 "<interactions>", 
+			 function() {
+			     that.prompt.find("input").get(0).focus();
+			 });
 	    return false;
  	} else if (keyEvent.keyCode == 38) {
 	    this.history.unshift(this.prompt.find("input").attr("value"));
@@ -186,6 +166,21 @@ WeSchemeInteractions = (function () {
 	    return true;
 	}
     }
+
+    WeSchemeInteractions.prototype.disableInput = function() {
+	this.prompt.hide();
+    };
+
+
+    WeSchemeInteractions.prototype.enableInput = function() {
+ 	this.prompt.show();
+    };
+
+
+    WeSchemeInteractions.prototype.requestBreak = function() {
+	this.evaluator.requestBreak();
+    };
+
 
     WeSchemeInteractions.prototype.toString = function() { return "WeSchemeInteractions()"; };
 

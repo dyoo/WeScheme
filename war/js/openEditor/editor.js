@@ -352,10 +352,20 @@ var WeSchemeEditor;
 
 
     WeSchemeEditor.prototype.run = function() {
+	var that = this;
 	plt.wescheme.WeSchemeIntentBus.notify("before-run", this);
 	this.interactions.reset();
-	this.interactions.runCode(this.defn.getCode(), "<definitions>");
-	plt.wescheme.WeSchemeIntentBus.notify("after-run", this);
+	this.interactions.runCode(
+	    this.defn.getCode(), 
+	    "<definitions>",
+	    function() {
+		plt.wescheme.WeSchemeIntentBus.notify("after-run", that);
+	    });
+    };
+
+
+    WeSchemeEditor.prototype.requestBreak = function() {
+	this.interactions.requestBreak();
     };
 
 
