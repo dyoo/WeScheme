@@ -101,11 +101,15 @@ WeSchemeInteractions = (function () {
 				      aSource,
 				      function() { 
 					  that.enableInput();
+					  document.getElementById('inputBox').focus();
+					  document.getElementById('inputBox').select();
 					  contK();
 				      },
 				      function(err) { 
 					  that.handleError(err); 
 					  that.enableInput();
+					  document.getElementById('inputBox').focus();
+					  document.getElementById('inputBox').select();
 					  contK();
 				      });
     };
@@ -151,7 +155,6 @@ WeSchemeInteractions = (function () {
 	    this.runCode(nextCode, 
 			 "<interactions>", 
 			 function() {
-			     that.prompt.find("input").get(0).focus();
 			 });
 	    return false;
  	} else if (keyEvent.keyCode == 38) {
