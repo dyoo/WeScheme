@@ -63,21 +63,27 @@
     <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css"/>
 
 
+
+
+    <script src="/safeSubmit.js"></script>
+    <script src="/editor/debug.js"></script>
+
     <script src="/js/flapjax-2.0.1.compressed.js"></script>
     <script src="/js/flapjax-helpers.js"></script>
     <script src="/js/jquery/jquery.createdomnodes.js"></script>
     <script src="/js/jquery/jquery.center-in-client.js"></script>
     <script src="/js/codemirror/js/codemirror.js"></script>
-    <script src="/safeSubmit.js"></script>
-    <script src="/editor/debug.js"></script>
 
-    <script src="/openEditor/intent.js"></script>
-    <script src="/js/ajaxactions.js"></script>
-    <script src="/openEditor/editor.js"></script>
-    <script src="/openEditor/statusbar.js"></script>
-    <script src="/openEditor/textcontainer.js"></script>
-    <script src="/openEditor/interaction.js"></script>
     <script src="/heartbeat.js"></script>
+
+    <script src="/js/ajaxactions.js"></script>
+
+    <script src="/js/openEditor/intent.js"></script>
+    <script src="/js/openEditor/editor.js"></script>
+    <script src="/js/openEditor/statusbar.js"></script>
+    <script src="/js/openEditor/textcontainer.js"></script>
+    <script src="/js/openEditor/interaction.js"></script>
+
     <script src="/js/submitpost.js"></script>
     <script src="/js/sharingdialog.js"></script>
     <script src="/js/program.js"></script>
