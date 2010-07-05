@@ -6076,11 +6076,15 @@ var State = function() {
 
 // clearForEval: -> void
 // Clear out the value register, the vstack, and the cstack.
-State.prototype.clearForEval = function() {
+State.prototype.clearForEval = function(attrs) {
     this.v = [];
     this.vstack = [];
     this.cstack = [];
-    this.breakRequested = false;
+
+    if (attrs && attrs.preserveBreak) {
+    } else {
+	this.breakRequested = false;
+    }
 };
 
 
@@ -16497,7 +16501,7 @@ var run = function(aState, onSuccessK, onFailK) {
 // call: state scheme-procedure (arrayof scheme-values) (scheme-value -> void) -> void
 var call = function(state, operator, operands, k, onFail) {
     var stateValues = state.save();
-    state.clearForEval();
+    state.clearForEval({preserveBreak: true});
 
 
     state.pushControl(
