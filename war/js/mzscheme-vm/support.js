@@ -4445,7 +4445,7 @@ var makeStructureType = function(theName, initFieldCnt, autoFieldCnt, parentType
 		for (var i = 0; i < autoFieldCnt; i++) {
 			this._fields.push(autoV);
 		}
-	},
+	}
     });
     // Set type, necessary for equality checking
     aStruct.prototype.type = aStruct;
@@ -7080,19 +7080,33 @@ var world = {};
 	var canvas = document.createElement("canvas");
  	canvas.width = width;
  	canvas.height = height;
+
  	canvas.style.width = canvas.width + "px";
  	canvas.style.height = canvas.height + "px";
 	
 	// KLUDGE: IE compatibility uses /js/excanvas.js, and dynamic
 	// elements must be marked this way.
 	if (window && typeof window.G_vmlCanvasManager != 'undefined') {
-	    canvas.style.display = 'none';
-	    document.body.appendChild(canvas);
-	    canvas = window.G_vmlCanvasManager.initElement(canvas);
-	    document.body.removeChild(canvas);
-	    canvas.style.display = '';
+	    withIeHack(canvas, function(c) {
+		    canvas = window.G_vmlCanvasManager.initElement(canvas);
+		});
 	}
 	return canvas;
+    };
+
+    var withIeHack = function(canvas, f) {
+// 	canvas.style.display = 'none';
+// 	document.body.appendChild(canvas);
+// 	try {
+	var result = f(canvas);
+// 	} catch(e) {
+// 	    document.body.removeChild(canvas);
+// 	    canvas.style.display = '';
+// 	    throw e;
+// 	}
+// 	document.body.removeChild(canvas);
+// 	canvas.style.display = '';
+	return result;
     };
 
 
@@ -7106,16 +7120,14 @@ var world = {};
 	// where the canvas is attached to the DOM tree.  So we temporarily
 	// make it invisible, attach it to the tree, render, and then rip it out
 	// again.
-	var oldDisplay = canvas.style.display;
-	canvas.style.display = 'none';
-	document.body.appendChild(canvas);
- 	var ctx = canvas.getContext("2d");
-	that.render(ctx, 0, 0) 
-	document.body.removeChild(canvas);
-	canvas.style.display = '';
-
+	withIeHack(canvas,
+		   function(canvas) {
+		       var ctx = canvas.getContext("2d");
+		       that.render(ctx, 0, 0);
+			   });
 	return canvas;
     };
+
     BaseImage.prototype.toWrittenString = function(cache) { return "<image>"; }
     BaseImage.prototype.toDisplayedString = function(cache) { return "<image>"; }
 

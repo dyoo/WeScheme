@@ -36,7 +36,8 @@ WeSchemeInteractions = (function () {
 	    write: function(thing) {
 		that.addToInteractions(thing);
 	    },
-	    compilationServletUrl: "http://go.cs.brown.edu:8000/servlets/standalone.ss"
+	    compilationServletUrl: "/compile"
+	    //"http://go.cs.brown.edu:8000/servlets/standalone.ss"
 	});
     };
 

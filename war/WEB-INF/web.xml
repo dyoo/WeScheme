@@ -9,11 +9,9 @@
     <servlet-class>org.wescheme.keys.KeyServer</servlet-class>
     <load-on-startup>1</load-on-startup>
   </servlet>
-  <servlet>
-    <servlet-name>initCompiler</servlet-name>
-    <servlet-class>org.wescheme.project.Compiler</servlet-class>
-    <load-on-startup>2</load-on-startup>
-  </servlet>
+
+
+
   <servlet-mapping>
     <servlet-name>/cron/keyServer</servlet-name>
     <url-pattern>/cron/keyServer</url-pattern>
@@ -246,6 +244,17 @@
   <servlet-mapping>
     <servlet-name>administrate</servlet-name>
     <url-pattern>/administrate</url-pattern>
+  </servlet-mapping>
+
+
+
+  <servlet>
+    <servlet-name>compile</servlet-name>
+    <servlet-class>org.wescheme.servlet.Compile</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>compile</servlet-name>
+    <url-pattern>/compile</url-pattern>
   </servlet-mapping>
 
 
