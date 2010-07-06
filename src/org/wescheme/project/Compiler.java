@@ -76,17 +76,10 @@ public class Compiler extends HttpServlet
 			wr.flush();
 				
 			if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				System.out.println("good thing happened");
-				// FIXME: no error trapping when the compile goes bad!
 				String compiledCode = readStream(conn.getInputStream());
 				return new GoodCompilationResult(compiledCode);		
 			} else {
-				System.out.println("bad thing happened: "+ conn.getResponseCode());
-				String errorMessage = readStream(conn.getErrorStream());//readStream(conn.getInputStream());
-				String otherMessage = readStream(conn.getInputStream());
-				System.out.println("errorMessage: "  + errorMessage);
-				System.out.println("otherMessage: " + otherMessage);
-				System.out.println("response message: " + conn.getResponseMessage());
+				String errorMessage = readStream(conn.getErrorStream());
 				return new BadCompilationResult(errorMessage);
 			}
 		} catch (MalformedURLException e) {
