@@ -9,6 +9,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class Compile extends HttpServlet {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 3135841183108071715L;
+
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) 
 	throws IOException, ServletException {		
