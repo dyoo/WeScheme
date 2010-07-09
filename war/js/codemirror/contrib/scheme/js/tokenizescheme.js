@@ -1,145 +1,261 @@
-/* Tokenizer for JavaScript code */
+/* Tokenizer for Scheme code */
+
+
+
+
+/**
+  TODO: follow the definitions in:
+
+      http://docs.racket-lang.org/reference/reader.html
+
+  to the letter; at the moment, we've just done something quick-and-dirty.
+
+*/
+
 
 var tokenizeScheme = (function() {
-    // Advance the stream until the given character (not preceded by a
-    // backslash) is encountered, or the end of the line is reached.
-    function nextUntilUnescaped(source, end) {
+    var isWhiteSpace = function(ch) {
+	// The messy regexp is because IE's regexp matcher is of the
+	// opinion that non-breaking spaces are no whitespace.
+	return ch != "\n" && /^[\s\u00a0]*$/.test(ch);
+    };
+
+
+    // scanUntilUnescaped: string-stream char -> boolean
+    // Advances the stream until the given character (not preceded by a
+    // backslash) is encountered.
+    // Returns true if we hit end of line without closing.
+    // Returns false otherwise.
+    var scanUntilUnescaped = function(source, end) {
 	var escaped = false;
-	var next;
-	while (!source.endOfLine()) {
+	while (true) {
+	    if (source.endOfLine()) {
+		return true;
+	    }
 	    var next = source.next();
 	    if (next == end && !escaped)
 		return false;
 	    escaped = !escaped && next == "\\";
 	}
-	return escaped;
+	return false;
     }
+    
 
-    // A map of JavaScript's keywords. The a/b/c keyword distinction is
-    // very rough, but it gives the parser enough information to parse
-    // correct code correctly (we don't care that much how we parse
-    // incorrect code). The style information included in these objects
-    // is used by the highlighter to pick the correct CSS style for a
-    // token.
-    var keywords = function(){
-	function result(type, style){
-	    return {type: type, style: "scheme-" + style};
+    // Advance the stream until endline.
+    var scanUntilEndline = function(source, end) {
+	while (!source.endOfLine()) {
+	    source.next();
 	}
-	// keywords that take a parenthised expression, and then a
-	// statement (if)
-	var keywordA = result("keyword a", "keyword");
-	// keywords that take just a statement (else)
-	var keywordB = result("keyword b", "keyword");
-	// keywords that optionally take an expression, and form a
-	// statement (return)
-	var keywordC = result("keyword c", "keyword");
-	var operator = result("operator", "keyword");
-	var aBoolean = result("boolean", "boolean");
-	var atom = result("atom", "symbol");
-	return {
-	    "if": keywordA, "while": keywordA, "with": keywordA,
-	    "else": keywordB, "do": keywordB, "try": keywordB, "finally": keywordB,
-	    "return": keywordC, "break": keywordC, "continue": keywordC, "new": keywordC, "delete": keywordC, "throw": keywordC,
-	    "in": operator, "typeof": operator, "instanceof": operator,
-	    "var": result("var", "keyword"), "function": result("function", "keyword"), "catch": result("catch", "keyword"),
-	    "for": result("for", "keyword"), "switch": result("switch", "keyword"),
-	    "case": result("case", "keyword"), "default": result("default", "keyword"),
-	    "true": aBoolean, "false": aBoolean, "null": atom, "undefined": atom, "NaN": atom, "Infinity": atom
-	};
-    }();
-
-    // Some helper regexps
-    var isOperatorChar = /[+\-*&%=<>!?|]/;
-    var isHexDigit = /[0-9A-Fa-f]/;
-    var isWordChar = /[\w\-\$_]/;
-
-    // Wrapper around schemeToken that helps maintain parser state (whether
-    // we are inside of a multi-line comment and whether the next token
-    // could be a regular expression).
-    function schemeTokenState() {
-	return function(source, setState) {
-	    var type = schemeToken(source, 
-				   function(c) {newInside = c;});
-	    return type;
-	};
     }
 
-    // The token reader, inteded to be used by the tokenizer from
-    // tokenize.js (through schemeTokenState). Advances the source stream
-    // over a token, and returns an object containing the type and style
-    // of that token.
-    function schemeToken(source, setInside) {
-	function readHexNumber(){
+    
+    // Some helper regexps
+    var isHexDigit = /[0-9A-Fa-f]/;
+    
+
+    var whitespaceChar = new RegExp("[\\s\\u00a0]");
+    
+    var isDelimiterChar = 
+	new RegExp("[\\s\\\(\\\)\\\[\\\]\\\{\\\}\\\"\\\,\\\'\\\`\\\;]");
+
+    var isNotDelimiterChar = 
+	new RegExp("[^\\s\\\(\\\)\\\[\\\]\\\{\\\}\\\"\\\,\\\'\\\`\\\;]");
+
+
+    var numberHeader = ("(?:(?:\\d+\\/\\d+)|"+
+			(  "(?:(?:\\d+\\.\\d+|\\d+\\.|\\.\\d+)(?:[eE][+\\-]?\\d+)?)|")+
+			(  "(?:\\d+(?:[eE][+\\-]?\\d+)?))"));
+    var numberPatterns = [
+	// complex numbers
+	new RegExp("^((?:(?:\\#[ei])?[+\\-]?" + numberHeader +")?"
+		   + "(?:[+\\-]" + numberHeader + ")i$)"),
+	    /^((?:\#[ei])?[+-]inf.0)$/,
+	    /^((?:\#[ei])?[+-]nan.0)$/,
+	new RegExp("^((?:\\#[ei])?[+\\-]?" + numberHeader + "$)"),
+	new RegExp("^0[xX][0-9A-Fa-f]+$")];
+   
+
+    // looksLikeNumber: string -> boolean
+    // Returns true if string s looks like a number.
+    var looksLikeNumber = function(s) {
+	for (var i = 0; i < numberPatterns.length; i++) {
+	    if (numberPatterns[i].test(s)) {
+		return true;
+	    }
+	}
+	return false;
+    };
+
+
+
+    var UNCLOSED_STRING = function(source, setState) {
+	var readNewline = function() {
+	    var content = source.get();
+	    return { type:'whitespace', style:'whitespace', content: content };
+	};
+
+	var ch = source.peek();
+	if (ch === '\n') {
+	    source.next();
+	    return readNewline();
+	} else {
+	    var isUnclosedString = scanUntilUnescaped(source, '"');
+	    if (isUnclosedString) {
+		setState(UNCLOSED_STRING);
+	    } else {
+		setState(START);
+	    }
+	    var content = source.get();
+	    return {type: "string", style: "scheme-string", content: content,
+		    isUnclosed: isUnclosedString};
+	}
+    };
+
+
+
+    var START = function(source, setState) {
+	var readHexNumber = function(){
 	    source.next(); // skip the 'x'
 	    source.nextWhileMatches(isHexDigit);
 	    return {type: "number", style: "scheme-number"};
-	}
+	};
 
-	function readNumber() {
-	    source.nextWhileMatches(/[0-9]/);
-	    if (source.equals(".")){
+
+	var readNumber = function() {
+	    scanSimpleNumber();
+	    if (source.equals("-") || source.equals("+")) {
 		source.next();
-		source.nextWhileMatches(/[0-9]/);
 	    }
-	    if (source.equals("e") || source.equals("E")){
+	    scanSimpleNumber();
+	    if (source.equals("i")) {
 		source.next();
-		if (source.equals("-"))
-		    source.next();
-		source.nextWhileMatches(/[0-9]/);
 	    }
 	    return {type: "number", style: "scheme-number"};
-	}
+	};
+
+
 	// Read a word, look it up in keywords. If not found, it is a
 	// variable, otherwise it is a keyword of the type found.
-	function readWord() {
-	    source.nextWhileMatches(isWordChar);
+	var readWordOrNumber = function() {
+	    source.nextWhileMatches(isNotDelimiterChar);
 	    var word = source.get();
-	    var known = keywords.hasOwnProperty(word) && keywords.propertyIsEnumerable(word) && keywords[word];
-	    return known ? {type: known.type, style: known.style, content: word} :
-	    {type: "variable", style: "scheme-symbol", content: word};
-	}
-	function readOperator() {
-	    source.nextWhileMatches(isOperatorChar);
-	    return {type: "operator", style: "scheme-operator"};
-	}
-	function readString(quote) {
-	    var endBackSlash = nextUntilUnescaped(source, quote);
-	    setInside(endBackSlash ? quote : null);
-	    return {type: "string", style: "scheme-string"};
-	}
+	    if (looksLikeNumber(word)) {
+		return {type: "number", style: "scheme-number", content: word};
+	    } else {
+		return {type: "variable", style: "scheme-symbol", content: word};
+	    }
+	};
+
+
+	var readString = function(quote) {
+	    var isUnclosedString = scanUntilUnescaped(source, quote);
+	    if (isUnclosedString) {
+		setState(UNCLOSED_STRING);
+	    }
+	    var word = source.get();
+	    return {type: "string", style: "scheme-string", content: word,
+		    isUnclosed: isUnclosedString};
+	};
+
+
+	var readPound = function() {
+	    var text;
+	    // FIXME: handle special things here
+	    if (source.equals(";")) {
+		source.next();
+		text = source.get();
+		return {type: text, 
+			style:"scheme-symbol",
+			content: text};
+	    } else {
+		text = source.get();
+
+		return {type : "symbol",
+			style: "scheme-symbol",
+			content: text};
+	    }
+
+	};
 	
+	var readLineComment = function() {
+	    scanUntilEndline(source);
+	    var text = source.get();
+	    return { type: "comment", style: "scheme-comment", content: text};	
+	};
+
+
+	var readWhitespace = function() {
+	    source.nextWhile(isWhiteSpace);
+	    var content = source.get();
+	    return { type: 'whitespace', style:'whitespace', content: content };
+	};
+
+	var readNewline = function() {
+	    var content = source.get();
+	    return { type:'whitespace', style:'whitespace', content: content };
+	};
+
 
 	// Fetch the next token. Dispatches on first character in the
 	// stream, or first two characters when the first is a slash.
 	var ch = source.next();
-	if (ch == "\"") {
+	if (ch === '\n') {
+	    return readNewline();
+	} else if (whitespaceChar.test(ch)) {
+	    return readWhitespace();
+	} else if (ch === "#") {
+	    return readPound();
+	} else if (ch ===';') {
+	    return readLineComment();
+	} else if (ch === "\"") {
 	    return readString(ch);
-	}
-	// with punctuation, the type of the token is the symbol itself
-	else if (/[\[\]{}\(\),\:\.\']/.test(ch)) {
+	} else if (isDelimiterChar.test(ch)) {
 	    return {type: ch, style: "scheme-punctuation"};
-	}
-	else if (ch == "0" && (source.equals("x") || source.equals("X"))) {
-	    return readHexNumber();
-	}
-	else if (/[0-9]/.test(ch)) {
-	    return readNumber();
-	}
-	else if (ch == ";") {
-	    nextUntilUnescaped(source, null);
-	    return { type: "comment", style: "scheme-comment"};
-	}
-	else if (isOperatorChar.test(ch)) {
-	    return readOperator();
-	}
-	else {
-	    return readWord();
+	} else {
+	    return readWordOrNumber();
 	}
     }
 
+
+
+
+
+
+
+    var makeTokenizer = function(source, state) {
+	// Newlines are always a separate token.
+
+	var tokenizer = {
+	    state: state,
+
+	    take: function(type) {
+ 		if (typeof(type) == "string")
+ 		    type = {style: type, type: type};
+
+ 		type.content = (type.content || "") + source.get();
+		type.value = type.content;
+		return type;
+	    },
+
+	    next: function () {
+		if (!source.more()) throw StopIteration;
+
+		var type;
+		while (!type) {
+		    type = tokenizer.state(source, function(s) {
+			tokenizer.state = s;
+		    });
+		}
+		var result = this.take(type);
+		return result;		    
+	    }
+	};
+	return tokenizer;
+    };
+
+
     // The external interface to the tokenizer.
     return function(source, startState) {
-	return tokenizer(source, startState || schemeTokenState());
+	return makeTokenizer(source, startState || START);
     };
 })();
-

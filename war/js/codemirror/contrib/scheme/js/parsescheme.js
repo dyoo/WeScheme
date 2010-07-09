@@ -1,341 +1,442 @@
 var SchemeParser = Editor.Parser = (function() {
-  // Token types that can be considered to be atoms.
-  var atomicTypes = {"atom": true, "number": true, "variable": true, "string": true, "regexp": true};
-  // Setting that can be used to have JSON data indent properly.
-  var json = false;
-  // Constructor for the lexical context objects.
-  function JSLexical(indented, column, type, align, prev, info) {
-    // indentation at start of this line
-    this.indented = indented;
-    // column at which this scope was opened
-    this.column = column;
-    // type of scope ('vardef', 'stat' (statement), 'form' (special form), '[', '{', or '(')
-    this.type = type;
-    // '[', '{', or '(' blocks that have any text after their opening
-    // character are said to be 'aligned' -- any lines below are
-    // indented all the way to the opening character.
-    if (align != null)
-      this.align = align;
-    // Parent scope, if any.
-    this.prev = prev;
-    this.info = info;
-  }
 
-  // My favourite JavaScript indentation rules.
-  function indentJS(lexical) {
-    return function(firstChars) {
-      var firstChar = firstChars && firstChars.charAt(0), type = lexical.type;
-      var closing = firstChar == type;
-      if (type == "vardef")
-        return lexical.indented + 4;
-      else if (type == "form" && firstChar == "{")
-        return lexical.indented;
-      else if (type == "stat" || type == "form")
-        return lexical.indented + indentUnit;
-      else if (lexical.info == "switch" && !closing)
-        return lexical.indented + (/^(?:case|default)\b/.test(firstChars) ? indentUnit : 2 * indentUnit);
-      else if (lexical.align)
-        return lexical.column - (closing ? 1 : 0);
-      else
-        return lexical.indented + (closing ? 0 : indentUnit);
+
+    // isLparen: char -> boolean
+    var isLparen = function(ch) {
+	return ch === '(' || ch === '[' || ch === '{';
     };
-  }
 
-  // The parser-iterator-producing function itself.
-  function parseJS(input, basecolumn) {
-    // Wrap the input in a token stream
-    var tokens = tokenizeScheme(input);
-    // The parser state. cc is a stack of actions that have to be
-    // performed to finish the current statement. For example we might
-    // know that we still need to find a closing parenthesis and a
-    // semicolon. Actions at the end of the stack go first. It is
-    // initialized with an infinitely looping action that consumes
-    // whole statements.
-    var cc = [statements];
-    // Context contains information about the current local scope, the
-    // variables defined in that, and the scopes above it.
-    var context = null;
-    // The lexical scope, used mostly for indentation.
-    var lexical = new JSLexical((basecolumn || 0) - indentUnit, 0, "block", false);
-    // Current column, and the indentation at the start of the current
-    // line. Used to create lexical scope objects.
-    var column = 0;
-    var indented = 0;
-    // Variables which are used by the mark, cont, and pass functions
-    // below to communicate with the driver loop in the 'next'
-    // function.
-    var consume, marked;
-  
-    // The iterator object.
-    var parser = {next: next, copy: copy};
+    // isRparen: char -> boolean
+    var isRparen = function(ch) {
+	return ch === ')' || ch === ']' || ch === '}';
+    };
 
-    function next(){
-      // Start by performing any 'lexical' actions (adjusting the
-      // lexical variable), or the operations below will be working
-      // with the wrong lexical state.
-      while(cc[cc.length - 1].lex)
-        cc.pop()();
+    // isMatchingParens: char char -> boolean
+    var isMatchingParens = function(lparen, rparen) {
+	return ((lparen === '(' && rparen === ')') ||
+		(lparen === '[' && rparen === ']') ||
+		(lparen === '{' && rparen === '}'));
+    };
 
-      // Fetch a token.
-      var token = tokens.next();
 
-      // Adjust column and indented.
-      if (token.type == "whitespace" && column == 0)
-        indented = token.value.length;
-      column += token.value.length;
-      if (token.content == "\n"){
-        indented = column = 0;
-        // If the lexical scope's align property is still undefined at
-        // the end of the line, it is an un-aligned scope.
-        if (!("align" in lexical))
-          lexical.align = false;
-        // Newline tokens get an indentation function associated with
-        // them.
-        token.indentation = indentJS(lexical);
-      }
-      // No more processing for meaningless tokens.
-      if (token.type == "whitespace" || token.type == "comment")
-        return token;
-      // When a meaningful token is found and the lexical scope's
-      // align is undefined, it is an aligned scope.
-      if (!("align" in lexical))
-        lexical.align = true;
+    // Compute the indentation context enclosing the end of the token
+    // sequence tokens.
+    // The context is the token sequence of the enclosing s-expression,
+    // augmented with column information.
+    var getIndentationContext = function(tokens) {
+	var pendingParens = [], i, j, line, column, context;
 
-      // Execute actions until one 'consumes' the token and we can
-      // return it.
-      while(true) {
-        consume = marked = false;
-        // Take and execute the topmost action.
-        cc.pop()(token.type, token.content);
-        if (consume){
-          // Marked is used to change the style of the current token.
-          if (marked)
-            token.style = marked;
-          // Here we differentiate between local and global variables.
-          else if (token.type == "variable" && inScope(token.content))
-            token.style = "js-localvariable";
-          return token;
-        }
-      }
-    }
+	// Scan for the start of the indentation context.
+	for (i = tokens.length-1; i >= 0; i--) {
+	    if (isLparen(tokens[i].type)) {
+		if (pendingParens.length === 0) {
+		    break;
+		} else {
+		    if (isMatchingParens(tokens[i].value,
+					 pendingParens[pendingParens.length - 1])) {
+			pendingParens.pop();
+		    } else {
+			// Error condition: we see mismatching parens,
+			// so we exit with no known indentation context.
+			return [];
+		    }
+		}
+	    } else if (isRparen(tokens[i].type))  {
+		pendingParens.push(tokens[i].type);
+	    }
+	}
+	// If we scanned backward too far, we couldn't find a context.  Just
+	// return the empty context.
+	if (i === -1) { return []; }
 
-    // This makes a copy of the parser state. It stores all the
-    // stateful variables in a closure, and returns a function that
-    // will restore them when called with a new input stream. Note
-    // that the cc array has to be copied, because it is contantly
-    // being modified. Lexical objects are not mutated, and context
-    // objects are not mutated in a harmful way, so they can be shared
-    // between runs of the parser.
-    function copy(){
-      var _context = context, _lexical = lexical, _cc = cc.concat([]), _tokenState = tokens.state;
-  
-      return function copyParser(input){
-        context = _context;
-        lexical = _lexical;
-        cc = _cc.concat([]); // copies the array
-        column = indented = 0;
-        tokens = tokenizeScheme(input);
-        return parser;
-      };
-    }
+	// Scan backwards to closest newline to figure out the column
+	// number:
+	for (j = i; j >= 0; j--) {
+	    if(tokens[j].type === 'whitespace' && 
+	       tokens[j].value === '\n') {
+		break;
+	    }
+	}
+	j++;
+	line = 0;
+	column = 0;
+	context = [];
+	// Start generating the context, walking forward.
+	for (; j < tokens.length; j++) {
+	    if (j >= i) {
+		context.push({ type: tokens[j].type,
+			       value: tokens[j].value,
+			       line: line,
+			       column: column });
+	    }
 
-    // Helper function for pushing a number of actions onto the cc
-    // stack in reverse order.
-    function push(fs){
-      for (var i = fs.length - 1; i >= 0; i--)
-        cc.push(fs[i]);
-    }
-    // cont and pass are used by the action functions to add other
-    // actions to the stack. cont will cause the current token to be
-    // consumed, pass will leave it for the next action.
-    function cont(){
-      push(arguments);
-      consume = true;
-    }
-    function pass(){
-      push(arguments);
-      consume = false;
-    }
-    // Used to change the style of the current token.
-    function mark(style){
-      marked = style;
-    }
+	    if (tokens[j].type === 'whitespace' && 
+		tokens[j].value === '\n') {
+		column = 0;
+		line++;
+	    } else {
+		column += tokens[j].value.length;
+	    }
+	}
+	return context;
 
-    // Push a new scope. Will automatically link the current scope.
-    function pushcontext(){
-      context = {prev: context, vars: {"this": true, "arguments": true}};
-    }
-    // Pop off the current scope.
-    function popcontext(){
-      context = context.prev;
-    }
-    // Register a variable in the current scope.
-    function register(varname){
-      if (context){
-        mark("js-variabledef");
-        context.vars[varname] = true;
-      }
-    }
-    // Check whether a variable is defined in the current scope.
-    function inScope(varname){
-      var cursor = context;
-      while (cursor) {
-        if (cursor.vars[varname])
-          return true;
-        cursor = cursor.prev;
-      }
-      return false;
-    }
-  
-    // Push a new lexical context of the given type.
-    function pushlex(type, info) {
-      var result = function(){
-        lexical = new JSLexical(indented, column, type, null, lexical, info)
-      };
-      result.lex = true;
-      return result;
-    }
-    // Pop off the current lexical context.
-    function poplex(){
-      lexical = lexical.prev;
-    }
-    poplex.lex = true;
-    // The 'lex' flag on these actions is used by the 'next' function
-    // to know they can (and have to) be ran before moving on to the
-    // next token.
-  
-    // Creates an action that discards tokens until it finds one of
-    // the given type.
-    function expect(wanted){
-      return function expecting(type){
-        if (type == wanted) cont();
-        else cont(arguments.callee);
-      };
+
+    };
+
+
+
+    // printTokens: (arrayof tokens) -> void
+    // debug function to show what the set of tokens look like.
+    var printTokens = function(tokens) {
+	var text = [];
+	for (var i = 0; i < tokens.length; i++) {
+	    text.push(tokens[i].value);
+	}
+	console.log(text.join(''));
+    };
+
+
+
+    // calculateIndentationFromContext: indentation-context number -> number
+    var calculateIndentationFromContext = function(context, currentIndentation) {
+	if (context.length === 0) {
+	    return 0;
+	}
+ 	if (isBeginLikeContext(context)) {
+	    return beginLikeIndentation(context);
+ 	}
+	if (isDefineLikeContext(context)) {
+	    return defineLikeIndentation(context);
+	}
+  	if (isLambdaLikeContext(context)) {
+	    return lambdaLikeIndentation(context);
+  	}
+
+//	return currentIndentation;
+	return defaultIndentation(context);
+    };
+
+
+
+    // scanForward: indentation-context index -> index or -1
+    // looks for the first non-whitespace thing, starting from i.
+    // If we can't find one, returns -1.
+    var scanForward = function(context, i) {
+	var depth = 0;
+	for(; i < context.length; i++) {
+	    if (context[i].type !== 'whitespace' && depth === 0)
+		return i;
+	    if (isLparen(context[i].type)) {
+		depth++;
+	    }
+	    if (isRparen(context[i].type)) {
+		depth = Math.max(depth - 1, 0);
+	    }
+	}
+	return -1;
+    };
+
+    // findContextElement: indentation-context number -> index or -1
+    var findContextElement = function(context, index) {
+	var depth = 0;
+	for(var i = 0; i < context.length; i++) {
+	    if (context[i].type !== 'whitespace' && depth === 1) {
+		if (index === 0)
+		    return i;
+		else
+		    index--;
+	    }
+
+	    if (isLparen(context[i].type)) {
+		depth++;
+	    }
+	    if (isRparen(context[i].type)) {
+		depth = Math.max(depth - 1, 0);
+	    }
+	}
+	return -1;
+    };
+
+
+    var scanForwardWithoutNewlines = function(context, i) {
+	var depth = 0;
+	for(; i < context.length; i++) {
+	    if (context[i].type !== 'whitespace' && depth === 0)
+		return i;
+	    if (context[i].type === 'whitespace' && context[i].value === '\n')
+		return -1;
+	    if (isLparen(context[i].type)) {
+		depth++;
+	    }
+	    if (isRparen(context[i].type)) {
+		depth = Math.max(depth - 1, 0);
+	    }
+	}
+	return -1;
     }
 
-    // Looks for a statement, and then calls itself.
-    function statements(type){
-      return pass(statement, statements);
-    }
-    // Dispatches various types of statements based on the type of the
-    // current token.
-    function statement(type){
-      if (type == "var") cont(pushlex("vardef"), vardef1, expect(";"), poplex);
-      else if (type == "keyword a") cont(pushlex("form"), expression, statement, poplex);
-      else if (type == "keyword b") cont(pushlex("form"), statement, poplex);
-      else if (type == "{" && json) cont(pushlex("}"), commasep(objprop, "}"), poplex);
-      else if (type == "{") cont(pushlex("}"), block, poplex);
-      else if (type == "function") cont(functiondef);
-      else if (type == "for") cont(pushlex("form"), expect("("), pushlex(")"), forspec1, expect(")"), poplex, statement, poplex);
-      else if (type == "variable") cont(pushlex("stat"), maybelabel);
-      else if (type == "switch") cont(pushlex("form"), expression, pushlex("}", "switch"), expect("{"), block, poplex, poplex);
-      else if (type == "case") cont(expression, expect(":"));
-      else if (type == "default") cont(expect(":"));
-      else if (type == "catch") cont(pushlex("form"), pushcontext, expect("("), funarg, expect(")"), statement, poplex, popcontext);
-      else pass(pushlex("stat"), expression, expect(";"), poplex);
-    }
-    // Dispatch expression types.
-    function expression(type){
-      if (atomicTypes.hasOwnProperty(type)) cont(maybeoperator);
-      else if (type == "function") cont(functiondef);
-      else if (type == "keyword c") cont(expression);
-      else if (type == "(") cont(pushlex(")"), expression, expect(")"), poplex, maybeoperator);
-      else if (type == "operator") cont(expression);
-      else if (type == "[") cont(pushlex("]"), commasep(expression, "]"), poplex, maybeoperator);
-      else if (type == "{") cont(pushlex("}"), commasep(objprop, "}"), poplex, maybeoperator);
-    }
-    // Called for places where operators, function calls, or
-    // subscripts are valid. Will skip on to the next action if none
-    // is found.
-    function maybeoperator(type){
-      if (type == "operator") cont(expression);
-      else if (type == "(") cont(pushlex(")"), expression, commasep(expression, ")"), poplex, maybeoperator);
-      else if (type == ".") cont(property, maybeoperator);
-      else if (type == "[") cont(pushlex("]"), expression, expect("]"), poplex, maybeoperator);
-    }
-    // When a statement starts with a variable name, it might be a
-    // label. If no colon follows, it's a regular statement.
-    function maybelabel(type){
-      if (type == ":") cont(poplex, statement);
-      else pass(maybeoperator, expect(";"), poplex);
-    }
-    // Property names need to have their style adjusted -- the
-    // tokenizer thinks they are variables.
-    function property(type){
-      if (type == "variable") {mark("js-property"); cont();}
-    }
-    // This parses a property and its value in an object literal.
-    function objprop(type){
-      if (type == "variable") mark("js-property");
-      if (atomicTypes.hasOwnProperty(type)) cont(expect(":"), expression);
-    }
-    // Parses a comma-separated list of the things that are recognized
-    // by the 'what' argument.
-    function commasep(what, end){
-      function proceed(type) {
-        if (type == ",") cont(what, proceed);
-        else if (type == end) cont();
-        else cont(expect(end));
-      };
-      return function commaSeparated(type) {
-        if (type == end) cont();
-        else pass(what, proceed);
-      };
-    }
-    // Look for statements until a closing brace is found.
-    function block(type){
-      if (type == "}") cont();
-      else pass(statement, block);
-    }
-    // Variable definitions are split into two actions -- 1 looks for
-    // a name or the end of the definition, 2 looks for an '=' sign or
-    // a comma.
-    function vardef1(type, value){
-      if (type == "variable"){register(value); cont(vardef2);}
-      else cont();
-    }
-    function vardef2(type, value){
-      if (value == "=") cont(expression, vardef2);
-      else if (type == ",") cont(vardef1);
-    }
-    // For loops.
-    function forspec1(type){
-      if (type == "var") cont(vardef1, forspec2);
-      else if (type == ";") pass(forspec2);
-      else if (type == "variable") cont(formaybein);
-      else pass(forspec2);
-    }
-    function formaybein(type, value){
-      if (value == "in") cont(expression);
-      else cont(maybeoperator, forspec2);
-    }
-    function forspec2(type, value){
-      if (type == ";") cont(forspec3);
-      else if (value == "in") cont(expression);
-      else cont(expression, expect(";"), forspec3);
-    }
-    function forspec3(type) {
-      if (type == ")") pass();
-      else cont(expression);
-    }
-    // A function definition creates a new context, and the variables
-    // in its argument list have to be added to this context.
-    function functiondef(type, value){
-      if (type == "variable"){register(value); cont(functiondef);}
-      else if (type == "(") cont(pushcontext, commasep(funarg, ")"), statement, popcontext);
-    }
-    function funarg(type, value){
-      if (type == "variable"){register(value); cont();}
-    }
-  
-    return parser;
-  }
 
-  return {
-    make: parseJS,
-    electricChars: "{}:",
-    configure: function(obj) {
-      if (obj.json != null) json = obj.json;
-    }
-  };
+
+    //////////////////////////////////////////////////////////////////////
+
+    var BEGIN_LIKE_KEYWORDS = ["case-lambda", 
+			       "compound-unit",
+			       "compound-unit/sig",
+			       "cond",
+			       "delay",
+			       "inherit",
+			       "match-lambda",
+			       "match-lambda*",
+			       "override",
+			       "private",
+			       "public",
+			       "sequence",
+			       "unit"];
+
+    var isBeginLikeContext = function(context) {
+	var j = findContextElement(context, 0);
+//	var j = scanForward(context, 1);
+	if (j === -1) { return false; }
+	return (/^begin/.test(context[j].value) ||
+		isMember(context[j].value, BEGIN_LIKE_KEYWORDS));
+    };
+
+    var beginLikeIndentation = function(context) {
+	var i = findContextElement(context, 0);
+//	var i = scanForward(context, 1);
+	if (i === -1) { return 0; }
+	var j = scanForwardWithoutNewlines(context, i+1);
+	if (j === -1) { 
+	    return context[i].column +1; 
+	} else {
+	    return context[j].column;
+	}
+    };
+
+
+
+    //////////////////////////////////////////////////////////////////////
+
+
+    var DEFINE_LIKE_KEYWORDS = ["local"];
+
+    var isDefineLikeContext = function(context) {
+	var j = findContextElement(context, 0);
+//	var j = scanForward(context, 1);
+	if (j === -1) { return false; }
+	return (/^def/.test(context[j].value) ||
+		isMember(context[j].value, DEFINE_LIKE_KEYWORDS));
+    };
+
+
+    var defineLikeIndentation = function(context) {
+	var i = findContextElement(context, 0);
+//	var i = scanForward(context, 1);
+	if (i === -1) { return 0; }
+	return context[i].column +1; 
+    };
+
+    //////////////////////////////////////////////////////////////////////
+
+    var LAMBDA_LIKE_KEYWORDS = ["cases",
+				"instantiate",
+				"super-instantiate",
+				"syntax/loc",
+				"quasisyntax/loc",
+				"lambda",
+				"let",
+				"let*",
+				"letrec",
+				"recur",
+				"lambda/kw",
+				"letrec-values",
+				"with-syntax",
+				"with-continuation-mark",
+				"module",
+				"match",
+				"match-let",
+				"match-let*",
+				"match-letrec",
+				"let/cc",
+				"let/ec",
+				"letcc",
+				"catch",
+				"let-syntax",
+				"letrec-syntax",
+				"fluid-let-syntax",
+				"letrec-syntaxes+values",
+				"for",
+				"for/list",
+				"for/hash",
+				"for/hasheq",
+				"for/and",
+				"for/or",
+				"for/lists",
+				"for/first",
+				"for/last",
+				"for/fold",
+				"for*",
+				"for*/list",
+				"for*/hash",
+				"for*/hasheq",
+				"for*/and",
+				"for*/or",
+				"for*/lists",
+				"for*/first",
+				"for*/last",
+				"for*/fold",
+				"kernel-syntax-case",
+				"syntax-case",
+				"syntax-case*",
+				"syntax-rules",
+				"syntax-id-rules",
+				"let-signature",
+				"fluid-let",
+				"let-struct",
+				"let-macro",
+				"let-values",
+				"let*-values",
+				"case",
+				"when",
+				"unless",
+				"let-enumerate",
+				"class",
+				"class*",
+				"class-asi",
+				"class-asi*",
+				"class*/names",
+				"class100",
+				"class100*",
+				"class100-asi",
+				"class100-asi*",
+				"class100*/names",
+				"rec",
+				"make-object",
+				"mixin",
+				"define-some",
+				"do",
+				"opt-lambda",
+				"send*",
+				"with-method",
+				"define-record",
+				"catch",
+				"shared",
+				"unit/sig",
+				"unit/lang",
+				"with-handlers",
+				"interface",
+				"parameterize",
+				"call-with-input-file",
+				"call-with-input-file*",
+				"with-input-from-file",
+				"with-input-from-port",
+				"call-with-output-file",
+				"with-output-to-file",
+				"with-output-to-port",
+				"for-all"];
+
+
+    var isLambdaLikeContext = function(context) {
+	var j = findContextElement(context, 0);
+	if (j === -1) { return false; }
+	return (isMember(context[j].value, LAMBDA_LIKE_KEYWORDS));
+    };
+
+
+    var lambdaLikeIndentation = function(context) {
+	var i = findContextElement(context, 0);
+	if (i === -1) { return 0; }
+	var j = findContextElement(context, 1);
+	if (j === -1) { 
+	    return context[i].column + 4; 
+	} else {
+	    return context[i].column + 1;
+	}
+    };
+
+
+
+
+
+    //////////////////////////////////////////////////////////////////////
+    var defaultIndentation = function(context) {
+	var i = findContextElement(context, 0);
+	if (i === -1) { return context[0].column+1; }
+	var j = findContextElement(context, 1);
+	if (j === -1) { 
+	    return context[i].column; 
+	} else {
+	    return context[j].column;
+	}
+    };
+
+
+
+    //////////////////////////////////////////////////////////////////////
+    // Helpers
+    var isMember = function(x, l) {
+	for (var i = 0; i < l.length; i++) {
+	    if (x === l[i]) { return true; }
+	}
+	return false;
+    };
+
+
+
+    //////////////////////////////////////////////////////////////////////
+
+
+
+
+
+    var startParse = function(source) {
+	source = tokenizeScheme(source);	
+	var tokenStack = [];
+
+
+
+	var indentTo = function(sourceState, previousTokens) {
+	    return function(tokenText, currentIndentation, direction) {
+
+		// If we're in the middle of an unclosed token,
+		// do not change indentation.
+		if (previousTokens.length >= 2 && 
+		    previousTokens[previousTokens.length-2].isUnclosed) {
+		    return currentIndentation;
+		}
+
+		var indentationContext = 
+		    getIndentationContext(previousTokens);
+		return calculateIndentationFromContext(indentationContext,
+						       currentIndentation);		
+	    };
+	};
+	
+
+	var iter = {
+	    next: function() {
+		var tok = source.next();
+		tokenStack.push(tok);
+		if (tok.type == "whitespace") {
+		    if (tok.value == "\n") {
+			tok.indentation = indentTo(source.state, 
+						   tokenStack.concat([]));
+		    }
+		}
+		return tok;
+	    },
+
+	    copy: function() {
+		var _tokenStack = tokenStack.concat([]);
+		var _tokenState = source.state;
+		return function(_source) {
+		    tokenStack = _tokenStack.concat([]);
+		    source = tokenizeScheme(_source, _tokenState);
+		    return iter;
+		};
+	    }
+	};
+	return iter;
+    };
+    return { make: startParse };
 })();
