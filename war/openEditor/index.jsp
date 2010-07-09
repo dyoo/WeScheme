@@ -117,7 +117,7 @@
           <% if (request.getParameter("pid") != null) { %>
 	      pid = decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("pid"), "utf-8") %>');
 	  <% } else if (request.getParameter("publicId") != null){ %>
-   	      publicId = decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("publicId"), "utf-8") %>';
+   	      publicId = decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("publicId"), "utf-8") %>');
 	  <% } else { %>
 	  <% } %>
 
