@@ -60,7 +60,7 @@ var JSParser = Editor.Parser = (function() {
     // semicolon. Actions at the end of the stack go first. It is
     // initialized with an infinitely looping action that consumes
     // whole statements.
-    var cc = [statements];
+    var cc = [json ? expressions : statements];
     // Context contains information about the current local scope, the
     // variables defined in that, and the scopes above it.
     var context = null;
@@ -226,13 +226,15 @@ var JSParser = Editor.Parser = (function() {
     function statements(type){
       return pass(statement, statements);
     }
+    function expressions(type){
+      return pass(expression, expressions);
+    }
     // Dispatches various types of statements based on the type of the
     // current token.
     function statement(type){
       if (type == "var") cont(pushlex("vardef"), vardef1, expect(";"), poplex);
       else if (type == "keyword a") cont(pushlex("form"), expression, statement, poplex);
       else if (type == "keyword b") cont(pushlex("form"), statement, poplex);
-      else if (type == "{" && json) cont(pushlex("}"), commasep(objprop, "}"), poplex);
       else if (type == "{") cont(pushlex("}"), block, poplex);
       else if (type == "function") cont(functiondef);
       else if (type == "for") cont(pushlex("form"), expect("("), pushlex(")"), forspec1, expect(")"), poplex, statement, poplex);
@@ -252,6 +254,7 @@ var JSParser = Editor.Parser = (function() {
       else if (type == "operator") cont(expression);
       else if (type == "[") cont(pushlex("]"), commasep(expression, "]"), poplex, maybeoperator);
       else if (type == "{") cont(pushlex("}"), commasep(objprop, "}"), poplex, maybeoperator);
+      else cont();
     }
     // Called for places where operators, function calls, or
     // subscripts are valid. Will skip on to the next action if none
@@ -285,7 +288,7 @@ var JSParser = Editor.Parser = (function() {
         if (type == ",") cont(what, proceed);
         else if (type == end) cont();
         else cont(expect(end));
-      };
+      }
       return function commaSeparated(type) {
         if (type == end) cont();
         else pass(what, proceed);
