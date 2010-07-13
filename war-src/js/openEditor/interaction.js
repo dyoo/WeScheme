@@ -219,4 +219,4 @@ WeSchemeInteractions = (function () {
     return WeSchemeInteractions;
 })();
 
-plt.wescheme.interactions = WeSchemeInteractions;
+plt.wescheme.WeSchemeInteractions = WeSchemeInteractions;

@@ -1,5 +1,8 @@
 goog.provide("plt.wescheme.AjaxActions");
 
+
+goog.require('plt.wescheme.Program');
+
 // if (typeof (plt) === 'undefined') {
 //     this.plt = {};
 // }

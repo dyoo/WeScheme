@@ -9,6 +9,10 @@
 goog.provide('plt.wescheme.WeSchemeEditor');
 
 
+goog.require('plt.wescheme.AjaxActions');
+goog.require('plt.wescheme.WeSchemeIntentBus');
+goog.require('plt.wescheme.SharingDialog');
+goog.require('plt.wescheme.WeSchemeInteractions');
 
 
 
@@ -66,7 +70,7 @@ var WeSchemeEditor;
 	this.defn = attrs.defn;  // TextAreaContainer
 	this.isOwner = false;
 
-	this.interactions = new WeSchemeInteractions(attrs.interactions);
+	this.interactions = new plt.wescheme.WeSchemeInteractions(attrs.interactions);
 	this.interactions.reset();
 
 	this.interactions.setSourceHighlighter(function(id, offset, line, column, span) {

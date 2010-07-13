@@ -9,6 +9,8 @@
 goog.provide('plt.wescheme.WeSchemeStatusBar');
 
 
+goog.require('plt.wescheme.WeSchemeIntentBus');
+
 
 
 var WeSchemeStatusBar;

@@ -1,4 +1,6 @@
 goog.require("plt.wescheme.WeSchemeStatusBar");
+goog.require("plt.wescheme.WeSchemeTextContainer");
+goog.require("plt.wescheme.WeSchemeEditor");
 
 
 var myEditor;
@@ -15,14 +17,14 @@ var initializeEditor = function(attrs) {
     // Fixme: trigger file load if the pid has been provided.
 
     var statusBar = new plt.wescheme.WeSchemeStatusBar(jQuery("#statusbar"));
-    new WeSchemeTextContainer(
+    new plt.wescheme.WeSchemeTextContainer(
 	jQuery("#definitions").get(0),
 	function(container) {
 	    defnSourceContainer = container;
 	    defnSourceContainer.setMode(
 		"codemirror",
 		function() {
-		    myEditor = new WeSchemeEditor(
+		    myEditor = new plt.wescheme.WeSchemeEditor(
 			{ userName: "<%= userSession != null? userSession.getName() : null %>",
 			  defn: defnSourceContainer,
 			  interactions: jQuery("#inter").get(0),
