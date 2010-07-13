@@ -1,17 +1,19 @@
-if (typeof (plt) === 'undefined') {
-    this.plt = {};
-}
-if (typeof (plt.wescheme) === 'undefined') {
-    this.plt.wescheme = {};
-}
+// if (typeof (plt) === 'undefined') {
+//     this.plt = {};
+// }
+// if (typeof (plt.wescheme) === 'undefined') {
+//     this.plt.wescheme = {};
+// }
+
+
+goog.provide('plt.wescheme.WeSchemeStatusBar');
 
 
 
 
 var WeSchemeStatusBar;
 
-
-WeSchemeStatusBar = (function() {
+plt.wescheme.WeSchemeStatusBar = WeSchemeStatusBar = (function() {
     function WeSchemeStatusBar(statusbar) {
 	this.statusbar = statusbar;
 

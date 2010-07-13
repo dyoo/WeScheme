@@ -12,12 +12,14 @@ $HOME/work/closure-library/closure/bin/calcdeps.py  -i war-src/js/hello.js -p $H
 if [ -f war-src/js/console.js ]
 then
     echo "Building console"
+    mkdir -p war/js
     $HOME/work/closure-library/closure/bin/calcdeps.py  -i war-src/js/console.js -p $HOME/work/closure-library -p war-src -o script > war/js/console-calc.js
     
 fi
 
-if [ -f war-src/js/openEditor/editor.js ]
+if [ -f war-src/js/openEditor/index.js ]
 then
     echo "Building editor"
-    $HOME/work/closure-library/closure/bin/calcdeps.py  -i war-src/js/openEditor/editor.js -p $HOME/work/closure-library -p war-src -o script > war/js/openEditor/editor-calc.js
+    mkdir -p war/js/openEditor
+    $HOME/work/closure-library/closure/bin/calcdeps.py  -i war-src/js/openEditor/index.js -p $HOME/work/closure-library -p war-src -o script > war/js/openEditor/openEditor-calc.js
 fi

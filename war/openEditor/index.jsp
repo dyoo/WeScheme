@@ -63,8 +63,6 @@
     <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css"/>
 
 
-
-
     <script src="/safeSubmit.js"></script>
     <script src="/editor/debug.js"></script>
 
@@ -75,20 +73,7 @@
     <script src="/js/codemirror/js/codemirror.js"></script>
 
     <script src="/heartbeat.js"></script>
-
-    <script src="/js/ajaxactions.js"></script>
-
-    <script src="/js/openEditor/intent.js"></script>
-    <script src="/js/openEditor/editor.js"></script>
-    <script src="/js/openEditor/statusbar.js"></script>
-    <script src="/js/openEditor/textcontainer.js"></script>
-    <script src="/js/openEditor/interaction.js"></script>
-
     <script src="/js/submitpost.js"></script>
-    <script src="/js/sharingdialog.js"></script>
-    <script src="/js/program.js"></script>
-    <script src="/js/ajaxactions.js"></script>
-    <script src="/js/helpers.js"></script>
 
 
     <!-- mzscheme-vm evaluator -->
@@ -96,14 +81,16 @@
     <script src="/js/mzscheme-vm/evaluator.js"></script>
 
 
+
+    <script src="/js/openEditor/openEditor-calc.js"></script>
+
+
+
     <%
        org.wescheme.user.Session userSession = 
        (new org.wescheme.user.SessionManager()).authenticate(request, response); 
        
        %>
-
-    <script src="/js/openEditor/index.js"></script>
-
 
 
     <script>

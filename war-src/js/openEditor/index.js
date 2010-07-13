@@ -1,3 +1,6 @@
+goog.require("plt.wescheme.WeSchemeStatusBar");
+
+
 var myEditor;
 var defnSourceContainer;
 
@@ -11,7 +14,7 @@ var initializeEditor = function(attrs) {
 
     // Fixme: trigger file load if the pid has been provided.
 
-    var statusBar = new WeSchemeStatusBar(jQuery("#statusbar"));
+    var statusBar = new plt.wescheme.WeSchemeStatusBar(jQuery("#statusbar"));
     new WeSchemeTextContainer(
 	jQuery("#definitions").get(0),
 	function(container) {

@@ -1,3 +1,8 @@
+
+goog.provide('plt.wescheme.WeSchemeTextContainer');
+
+
+
 var WeSchemeTextContainer;
 
 // TextContainers should support the following:
@@ -401,3 +406,7 @@ var WeSchemeTextContainer;
 
 
 // })();
+
+
+
+plt.wescheme.WeSchemeTextContainer = WeSchemeTextContainer;
