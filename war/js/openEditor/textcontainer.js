@@ -142,19 +142,24 @@ var WeSchemeTextContainer;
     }
     CodeMirrorImplementation.prototype.getSourceB = function() {
 	return this.behavior;
-    }
+    };
 
     CodeMirrorImplementation.prototype.getCode = function() {
-	return valueNow(this.behavior);
-    }
+	var code = this.editor.getCode();
+	if (valueNow(this.behavior) !== code) {
+	    this.behaviorE.sendEvent(code);
+	}
+	return code;
+// 	return valueNow(this.behavior);
+    };
 
     CodeMirrorImplementation.prototype.setCode = function(code) {
 	this.editor.setCode(code);
 	this.behaviorE.sendEvent(code);
-    }
+    };
 
     CodeMirrorImplementation.prototype.shutdown = function() {
-    }
+    };
 
 
 
