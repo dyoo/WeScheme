@@ -200,5 +200,18 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 
 
 
+
 div#publicId, div#publicIdLabel{ display: none; }
 
+
+
+div.moby-error {
+    border:	solid 1px black;
+    color: red;
+    width: 100%;
+}
+
+div.error-stack-trace {
+    max-height: 100px;
+    overflow: auto;
+}

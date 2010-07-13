@@ -122,24 +122,32 @@ WeSchemeInteractions = (function () {
 
 
 
+
     // renderErrorAsDomNode: exception -> element
     // Given an exception, produces error dom node to be displayed.
     WeSchemeInteractions.prototype.renderErrorAsDomNode = function(err) {
 	var msg = this.evaluator.getMessageFromExn(err);
 
 	var dom = document.createElement('div');
-	dom['class'] = 'moby-error';
+	dom['className'] = 'moby-error';
 
 	var msgDom = document.createElement('div');
-	msgDom['class'] = 'moby-error:message';
+	msgDom['className'] = 'moby-error:message';
 	msgDom.appendChild(document.createTextNode(msg));
 	dom.appendChild(msgDom);
 
 	var stacktrace = this.evaluator.getTraceFromExn(err);
+	var stacktraceDiv = document.createElement("div");
+	stacktraceDiv['className'] = 'error-stack-trace';
 	for (var i = 0; i < stacktrace.length; i++) {
-	    dom.appendChild(document.createTextNode("at: line " + stacktrace[i].line + 
+	    var anchor = document.createElement("a");
+	    anchor['href'] = "#";
+	    anchor.appendChild(document.createTextNode("at: line " + stacktrace[i].line + 
 						    ", column " + stacktrace[i].column));
+	    stacktraceDiv.appendChild(anchor);
+	    stacktraceDiv.appendChild(document.createElement("br"));
 	}
+	dom.appendChild(stacktraceDiv);
 
 	return dom;
     };
