@@ -142,19 +142,27 @@ var WeSchemeTextContainer;
     }
     CodeMirrorImplementation.prototype.getSourceB = function() {
 	return this.behavior;
-    }
+    };
 
     CodeMirrorImplementation.prototype.getCode = function() {
-	return valueNow(this.behavior);
-    }
+	// On exceptional cases, onChange does NOT get called.
+	// I haven't traced exactly where this is happening in the
+	// CodeMirror source, but it's happening.  So we have to do
+	// some defensive programming here...
+	var code = this.editor.getCode();
+ 	if (valueNow(this.behavior) !== code) {
+ 	    this.behaviorE.sendEvent(code);
+ 	}
+ 	return code;
+    };
 
     CodeMirrorImplementation.prototype.setCode = function(code) {
 	this.editor.setCode(code);
 	this.behaviorE.sendEvent(code);
-    }
+    };
 
     CodeMirrorImplementation.prototype.shutdown = function() {
-    }
+    };
 
 
 
