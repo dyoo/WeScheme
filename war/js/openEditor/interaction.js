@@ -24,7 +24,10 @@ WeSchemeInteractions = (function () {
 
 	this.evaluator = this.makeFreshEvaluator();
 	
-	
+	this.highlighter = function(id, offset, line, column, span) {
+	    // default highlighter does nothing.
+	};
+
 	// history: (listof string)
 	this.history = [];
     };
@@ -48,7 +51,13 @@ WeSchemeInteractions = (function () {
 	if (typeof plt.wescheme.WeSchemeIntentBus != 'undefined') {
 	    plt.wescheme.WeSchemeIntentBus.notify("after-reset", this);
 	}
-    }
+    };
+
+
+    WeSchemeInteractions.prototype.setSourceHighlighter = function(highlighter) {
+	this.highlighter = highlighter;
+    };
+
 
 
 
@@ -126,6 +135,7 @@ WeSchemeInteractions = (function () {
     // renderErrorAsDomNode: exception -> element
     // Given an exception, produces error dom node to be displayed.
     WeSchemeInteractions.prototype.renderErrorAsDomNode = function(err) {
+	var that = this;
 	var msg = this.evaluator.getMessageFromExn(err);
 
 	var dom = document.createElement('div');
@@ -142,6 +152,7 @@ WeSchemeInteractions = (function () {
 	for (var i = 0; i < stacktrace.length; i++) {
 	    var anchor = document.createElement("a");
 	    anchor['href'] = "#";
+	    anchor['onclick'] = makeHighlighterLinkFunction(that, stacktrace[i]);
 	    anchor.appendChild(document.createTextNode("at: line " + stacktrace[i].line + 
 						    ", column " + stacktrace[i].column));
 	    stacktraceDiv.appendChild(anchor);
@@ -151,6 +162,13 @@ WeSchemeInteractions = (function () {
 
 	return dom;
     };
+
+    var makeHighlighterLinkFunction = function(that, elt) {
+	return function() { 
+	    that.highlighter(elt.id, elt.offset, elt.line, elt.column, elt.span);
+	};
+    };
+
 
 
 

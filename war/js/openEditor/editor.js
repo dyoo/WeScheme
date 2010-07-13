@@ -65,6 +65,10 @@ var WeSchemeEditor;
 	this.interactions = new WeSchemeInteractions(attrs.interactions);
 	this.interactions.reset();
 
+	this.interactions.setSourceHighlighter(function(id, offset, line, column, span) {
+	    that.highlight(id, offset, line, column, span);
+	});
+
 
 	this.filenameEntry = new FlapjaxValueHandler(
 	    attrs.filenameInput.get(0));
@@ -195,6 +199,8 @@ var WeSchemeEditor;
 
 
 
+
+
     // Inserting the value of a boolean behavior into the enabled
     // attribute of a node.
     function insertEnabledB(aBooleanBehavior, jQueryNode) {
@@ -209,6 +215,16 @@ var WeSchemeEditor;
 	f(valueNow(aBooleanBehavior));
 	aBooleanBehavior.changes().mapE(f);
     }
+
+
+    WeSchemeEditor.prototype.highlight = function(id, offset, line, column, span) {
+	if (id === '<definitions>') {
+	    this.defn.highlight(id, offset, line, column, span);
+	} else {
+	    // FIXME: we need to make interaction divs also codemirror divs so we can
+	    // do the source highlighting.
+	}
+    };
 
 
 

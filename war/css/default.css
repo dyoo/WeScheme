@@ -164,6 +164,7 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
     width:			100%;
     height:                 30%;
     background:		white url(images/blank.gif) no-repeat;
+    overflow:           auto;
 }
 
 #interactions:hover{

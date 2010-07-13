@@ -80,6 +80,10 @@ var WeSchemeTextContainer;
 	return this.impl.setCode(normalizeString(code));
     };
 
+    WeSchemeTextContainer.prototype.highlight = function(id, offset, line, column, span) {
+	return this.impl.highlight(id, offset, line, column, span);
+    };
+    
 
 
     //////////////////////////////////////////////////////////////////////
@@ -104,6 +108,9 @@ var WeSchemeTextContainer;
     // setCode: string -> void
     TextareaImplementation.prototype.setCode = function(code) {
 	this.container.attr("value", code);
+    };
+
+    TextareaImplementation.prototype.highlight = function(id, offset, line, column, span) {
     };
 
     // shutdown: -> void
@@ -160,6 +167,13 @@ var WeSchemeTextContainer;
 	this.editor.setCode(code);
 	this.behaviorE.sendEvent(code);
     };
+
+
+    CodeMirrorImplementation.prototype.highlight = function(id, offset, line, column, span) {
+	var handle = this.editor.nthLine(line);
+	this.editor.selectLines(handle, column, handle, column+span);
+    };
+
 
     CodeMirrorImplementation.prototype.shutdown = function() {
     };
