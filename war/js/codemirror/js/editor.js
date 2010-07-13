@@ -1025,8 +1025,14 @@ var Editor = (function(){
           self.options.markParen(node, ok);
         }
         else {
-          node.style.fontWeight = "bold";
-          node.style.color = ok ? "#8F8" : "#F88";
+	    if (ok) {
+		addClass(node, "good-matching-paren");
+	    } else {
+		addClass(node, "bad-matching-paren");
+	    }
+	    
+//             node.style.fontWeight = "bold";
+//             node.style.color = ok ? "#8F8" : "#F88";
         }
       }
       function unhighlight(node) {
@@ -1035,8 +1041,10 @@ var Editor = (function(){
           self.options.unmarkParen(node);
         }
         else {
-          node.style.fontWeight = "";
-          node.style.color = "";
+ 	  removeClass(node, "good-matching-paren");
+ 	  removeClass(node, "bad-matching-paren");
+//          node.style.fontWeight = "";
+//          node.style.color = "";
         }
       }
       if (!fromKey && self.highlighted) {
@@ -1076,7 +1084,7 @@ var Editor = (function(){
       function tryFindMatch() {
         var stack = [], ch, ok = true;
         for (var runner = cursor; runner; runner = dir ? runner.nextSibling : runner.previousSibling) {
-          if (runner.className == className && isSpan(runner) && (ch = paren(runner))) {
+          if (hasClass(runner, className) && isSpan(runner) && (ch = paren(runner))) {
             if (forward(ch) == dir)
               stack.push(ch);
             else if (!stack.length)

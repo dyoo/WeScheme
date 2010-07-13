@@ -111,30 +111,10 @@ var SchemeParser = Editor.Parser = (function() {
   	if (isLambdaLikeContext(context)) {
 	    return lambdaLikeIndentation(context);
   	}
-
-//	return currentIndentation;
-	return defaultIndentation(context);
+	return beginLikeIndentation(context, 0);
     };
 
 
-
-    // scanForward: indentation-context index -> index or -1
-    // looks for the first non-whitespace thing, starting from i.
-    // If we can't find one, returns -1.
-    var scanForward = function(context, i) {
-	var depth = 0;
-	for(; i < context.length; i++) {
-	    if (context[i].type !== 'whitespace' && depth === 0)
-		return i;
-	    if (isLparen(context[i].type)) {
-		depth++;
-	    }
-	    if (isRparen(context[i].type)) {
-		depth = Math.max(depth - 1, 0);
-	    }
-	}
-	return -1;
-    };
 
     // findContextElement: indentation-context number -> index or -1
     var findContextElement = function(context, index) {
@@ -157,23 +137,15 @@ var SchemeParser = Editor.Parser = (function() {
 	return -1;
     };
 
-
-    var scanForwardWithoutNewlines = function(context, i) {
-	var depth = 0;
-	for(; i < context.length; i++) {
-	    if (context[i].type !== 'whitespace' && depth === 0)
-		return i;
-	    if (context[i].type === 'whitespace' && context[i].value === '\n')
-		return -1;
-	    if (isLparen(context[i].type)) {
-		depth++;
-	    }
-	    if (isRparen(context[i].type)) {
-		depth = Math.max(depth - 1, 0);
-	    }
+    // contextElement: context -> (arrayof index)
+    var contextElements = function(context) {
+	var i = 0, index, results = [];
+	
+	while ((index = findContextElement(context, i++)) != -1) {
+	    results.push(index);
 	}
-	return -1;
-    }
+	return results;
+    };
 
 
 
@@ -195,21 +167,35 @@ var SchemeParser = Editor.Parser = (function() {
 
     var isBeginLikeContext = function(context) {
 	var j = findContextElement(context, 0);
-//	var j = scanForward(context, 1);
 	if (j === -1) { return false; }
 	return (/^begin/.test(context[j].value) ||
 		isMember(context[j].value, BEGIN_LIKE_KEYWORDS));
     };
 
-    var beginLikeIndentation = function(context) {
-	var i = findContextElement(context, 0);
-//	var i = scanForward(context, 1);
-	if (i === -1) { return 0; }
-	var j = scanForwardWithoutNewlines(context, i+1);
-	if (j === -1) { 
-	    return context[i].column +1; 
+
+    // Begin: if there's no elements within the begin context,
+    // the indentation is that of the begin keyword's column + offset.
+    // Otherwise, find the leading element on the last line.
+    // Also used for default indentation.
+    var beginLikeIndentation = function(context, offset) {
+	if (typeof(offset) === 'undefined') { offset = 1; }
+
+	var indices = contextElements(context), j;
+	if (indices.length === 0) {
+	    return context[0].column + 1;
+	} else if (indices.length === 1) {
+	    // if we only see the begin keyword, indentation is based
+	    // off the keyword.
+	    return context[indices[0]].column + offset;
 	} else {
-	    return context[j].column;
+	    // Otherwise, we scan for the contextElement of the last line
+	    for (j = indices.length -1; j > 1; j--) {
+		if (context[indices[j]].line !==
+		    context[indices[j-1]].line) {
+		    return context[indices[j]].column;
+		}
+	    }
+	    return context[indices[j]].column;
 	}
     };
 
@@ -222,7 +208,6 @@ var SchemeParser = Editor.Parser = (function() {
 
     var isDefineLikeContext = function(context) {
 	var j = findContextElement(context, 0);
-//	var j = scanForward(context, 1);
 	if (j === -1) { return false; }
 	return (/^def/.test(context[j].value) ||
 		isMember(context[j].value, DEFINE_LIKE_KEYWORDS));
@@ -231,7 +216,6 @@ var SchemeParser = Editor.Parser = (function() {
 
     var defineLikeIndentation = function(context) {
 	var i = findContextElement(context, 0);
-//	var i = scanForward(context, 1);
 	if (i === -1) { return 0; }
 	return context[i].column +1; 
     };
@@ -357,21 +341,6 @@ var SchemeParser = Editor.Parser = (function() {
 
 
 
-
-    //////////////////////////////////////////////////////////////////////
-    var defaultIndentation = function(context) {
-	var i = findContextElement(context, 0);
-	if (i === -1) { return context[0].column+1; }
-	var j = findContextElement(context, 1);
-	if (j === -1) { 
-	    return context[i].column; 
-	} else {
-	    return context[j].column;
-	}
-    };
-
-
-
     //////////////////////////////////////////////////////////////////////
     // Helpers
     var isMember = function(x, l) {
@@ -388,39 +357,34 @@ var SchemeParser = Editor.Parser = (function() {
 
 
 
+    var indentTo = function(previousTokens) {
+	return function(tokenText, currentIndentation, direction) {
+
+	    // If we're in the middle of an unclosed token,
+	    // do not change indentation.
+	    if (previousTokens.length >= 2 && 
+		previousTokens[previousTokens.length-2].isUnclosed) {
+		return currentIndentation;
+	    }
+
+	    var indentationContext = 
+		getIndentationContext(previousTokens);
+	    return calculateIndentationFromContext(indentationContext,
+						   currentIndentation);		
+	};
+    };
+
 
     var startParse = function(source) {
 	source = tokenizeScheme(source);	
 	var tokenStack = [];
-
-
-
-	var indentTo = function(sourceState, previousTokens) {
-	    return function(tokenText, currentIndentation, direction) {
-
-		// If we're in the middle of an unclosed token,
-		// do not change indentation.
-		if (previousTokens.length >= 2 && 
-		    previousTokens[previousTokens.length-2].isUnclosed) {
-		    return currentIndentation;
-		}
-
-		var indentationContext = 
-		    getIndentationContext(previousTokens);
-		return calculateIndentationFromContext(indentationContext,
-						       currentIndentation);		
-	    };
-	};
-	
-
 	var iter = {
 	    next: function() {
 		var tok = source.next();
 		tokenStack.push(tok);
-		if (tok.type == "whitespace") {
-		    if (tok.value == "\n") {
-			tok.indentation = indentTo(source.state, 
-						   tokenStack.concat([]));
+		if (tok.type === "whitespace") {
+		    if (tok.value === "\n") {
+			tok.indentation = indentTo(tokenStack.concat([]));
 		    }
 		}
 		return tok;
