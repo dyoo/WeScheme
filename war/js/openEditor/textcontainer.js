@@ -145,12 +145,15 @@ var WeSchemeTextContainer;
     };
 
     CodeMirrorImplementation.prototype.getCode = function() {
+	// On exceptional cases, onChange does NOT get called.
+	// I haven't traced exactly where this is happening in the
+	// CodeMirror source, but it's happening.  So we have to do
+	// some defensive programming here...
 	var code = this.editor.getCode();
-	if (valueNow(this.behavior) !== code) {
-	    this.behaviorE.sendEvent(code);
-	}
-	return code;
-// 	return valueNow(this.behavior);
+ 	if (valueNow(this.behavior) !== code) {
+ 	    this.behaviorE.sendEvent(code);
+ 	}
+ 	return code;
     };
 
     CodeMirrorImplementation.prototype.setCode = function(code) {
