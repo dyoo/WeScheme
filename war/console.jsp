@@ -43,7 +43,8 @@
 <script src="/js/deletedialog.js"></script>
 <script src="/js/programdigest.js"></script>
 <script src="/js/helpers.js"></script>
-<script src="/js/console.js"></script>
+
+<script src="/js/console-calc.js"></script>
 
 </head>
 <body>
