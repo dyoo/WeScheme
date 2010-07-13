@@ -38,11 +38,8 @@
 
 <script src="editor/jquery.createdomnodes.js"></script>
 <script src="safeSubmit.js"></script>
-<script src="/js/ajaxactions.js"></script>
-<script src="/js/sharingdialog.js"></script>
-<script src="/js/deletedialog.js"></script>
-<script src="/js/programdigest.js"></script>
-<script src="/js/helpers.js"></script>
+
+
 
 <script src="/js/console-calc.js"></script>
 

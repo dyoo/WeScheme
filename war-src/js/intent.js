@@ -1,3 +1,6 @@
+goog.provide('plt.wescheme.WeSchemeIntentBus');
+
+
 if (typeof (plt) === 'undefined') {
     this.plt = {};
 }

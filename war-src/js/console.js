@@ -4,6 +4,7 @@
 
 goog.require('plt.wescheme.AjaxActions');
 goog.require('plt.wescheme.SharingDialog');
+goog.require('plt.wescheme.DeleteDialog');
 goog.require("plt.wescheme.ProgramDigest");
 goog.require("plt.wescheme.helpers");
 
