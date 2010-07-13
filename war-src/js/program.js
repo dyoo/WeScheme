@@ -1,17 +1,19 @@
-//goog.require("plt.wescheme.SharedAs");
+goog.provide("plt.wescheme.Program");
 
 
-// goog.provide("plt.wescheme.Program");
-
-if (typeof (plt) === 'undefined') {
-    this.plt = {};
-}
-if (typeof (plt.wescheme) === 'undefined') {
-    this.plt.wescheme = {};
-}
+goog.require("plt.wescheme.SharedAs");
 
 
-plt.wescheme.Program = {};
+
+
+// if (typeof (plt) === 'undefined') {
+//     this.plt = {};
+// }
+// if (typeof (plt.wescheme) === 'undefined') {
+//     this.plt.wescheme = {};
+// }
+// plt.wescheme.Program = {};
+
 
 
 

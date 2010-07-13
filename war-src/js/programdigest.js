@@ -1,17 +1,21 @@
-//goog.require("plt.wescheme.SharedAs");
+goog.provide("plt.wescheme.ProgramDigest");
 
-if (typeof (plt) === 'undefined') {
-    this.plt = {};
-}
-if (typeof (plt.wescheme) === 'undefined') {
-    this.plt.wescheme = {};
-}
-
-plt.wescheme.ProgramDigest = {};
+goog.require("plt.wescheme.SharedAs");
 
 
 
-//goog.provide("plt.wescheme.ProgramDigest");
+// if (typeof (plt) === 'undefined') {
+//     this.plt = {};
+// }
+// if (typeof (plt.wescheme) === 'undefined') {
+//     this.plt.wescheme = {};
+// }
+
+// plt.wescheme.ProgramDigest = {};
+
+
+
+
 
 // Abstraction around ProgramDigest XML objects
 

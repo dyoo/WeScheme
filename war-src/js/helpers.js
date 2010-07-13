@@ -1,13 +1,13 @@
-//goog.provide("plt.wescheme.helpers");
+goog.provide("plt.wescheme.helpers");
 
-if (typeof (plt) === 'undefined') {
-    this.plt = {};
-}
-if (typeof (plt.wescheme) === 'undefined') {
-    this.plt.wescheme = {};
-}
+// if (typeof (plt) === 'undefined') {
+//     this.plt = {};
+// }
+// if (typeof (plt.wescheme) === 'undefined') {
+//     this.plt.wescheme = {};
+// }
 
-plt.wescheme.helpers = {};
+// plt.wescheme.helpers = {};
 
 
 (function() {

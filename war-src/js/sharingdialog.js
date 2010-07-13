@@ -1,22 +1,21 @@
-if (typeof (plt) === 'undefined') {
-    this.plt = {};
-}
-if (typeof (plt.wescheme) === 'undefined') {
-    this.plt.wescheme = {};
-}
+goog.provide("plt.wescheme.SharingDialog");
+
+goog.require("goog.dom");
+goog.require('goog.ui.AdvancedTooltip');
+
+goog.require("plt.wescheme.AjaxActions");
+goog.require("plt.wescheme.helpers");
+goog.require("plt.wescheme.WeSchemeIntentBus");
 
 
+// if (typeof (plt) === 'undefined') {
+//     this.plt = {};
+// }
+// if (typeof (plt.wescheme) === 'undefined') {
+//     this.plt.wescheme = {};
+// }
+//plt.wescheme.SharingDialog = {};
 
-// goog.require("plt.wescheme.AjaxActions");
-// goog.require("plt.wescheme.helpers");
-// goog.require("goog.dom");
-// goog.require('goog.ui.AdvancedTooltip');
-// goog.require("plt.wescheme.WeSchemeIntentBus");
-
-
-//goog.provide("plt.wescheme.SharingDialog");
-
-plt.wescheme.SharingDialog = {};
 
 
 (function() {

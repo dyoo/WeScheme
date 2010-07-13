@@ -1,7 +1,11 @@
-// goog.require('plt.wescheme.AjaxActions');
-// goog.require('plt.wescheme.SharingDialog');
-// goog.require("plt.wescheme.ProgramDigest");
-// goog.require("plt.wescheme.helpers");
+// console.js provides the functionality for the console: listing
+// current projects, deleting and sharing projects.
+
+
+goog.require('plt.wescheme.AjaxActions');
+goog.require('plt.wescheme.SharingDialog');
+goog.require("plt.wescheme.ProgramDigest");
+goog.require("plt.wescheme.helpers");
 
 
 if (typeof (plt) === 'undefined') {

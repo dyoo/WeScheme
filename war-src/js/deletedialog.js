@@ -1,20 +1,21 @@
-if (typeof (plt) === 'undefined') {
-    this.plt = {};
-}
-if (typeof (plt.wescheme) === 'undefined') {
-    this.plt.wescheme = {};
-}
+// if (typeof (plt) === 'undefined') {
+//     this.plt = {};
+// }
+// if (typeof (plt.wescheme) === 'undefined') {
+//     this.plt.wescheme = {};
+// }
+
+goog.provide("plt.wescheme.DeleteDialog");
 
 
 
-// goog.require("plt.wescheme.AjaxActions");
-// goog.require("plt.wescheme.helpers");
-// goog.require("goog.dom");
-// goog.require('goog.ui.AdvancedTooltip');
-// goog.require("plt.wescheme.WeSchemeIntentBus");
+goog.require("plt.wescheme.AjaxActions");
+goog.require("plt.wescheme.helpers");
+goog.require("plt.wescheme.WeSchemeIntentBus");
+goog.require("goog.dom");
+goog.require('goog.ui.AdvancedTooltip');
 
 
-//goog.provide("plt.wescheme.DeleteDialog");
 
 plt.wescheme.DeleteDialog = {};
 
