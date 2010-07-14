@@ -8,7 +8,6 @@
 <html>
 <head><title>WeScheme :: About</title>
 
-<script src="/runtime/base.js"></script>
 <script src="/editor/jquery.js"></script>
 <script src="/heartbeat.js"></script>
 <link rel="stylesheet" type="text/css" href="css/splash.css" id="style" />
