@@ -49,7 +49,7 @@ img{background: none;
 	padding:	0px;
 }
 
-a{
+a.linkbutton{
 	display:	inline-block; 
 	width:		25%;
 	margin:		0px;

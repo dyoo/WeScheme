@@ -9,6 +9,8 @@ echo "Building test hello application: if this fails, something's wrong, and clo
 $HOME/work/closure-library/closure/bin/calcdeps.py  -i war-src/js/hello.js -p $HOME/work/closure-library -p war-src -o script > war/js/hello-calc.js
 
 
+## FIXME: do this as a function!  Don't copy and paste.
+
 if [ -f war-src/js/console.js ]
 then
     echo "Building console"
@@ -16,6 +18,17 @@ then
     $HOME/work/closure-library/closure/bin/calcdeps.py  -i war-src/js/console.js -p $HOME/work/closure-library -p war-src -o script > war/js/console-calc.js
     
 fi
+
+
+
+if [ -f war-src/js/view.js ]
+then
+    echo "Building view"
+    mkdir -p war/js
+    $HOME/work/closure-library/closure/bin/calcdeps.py  -i war-src/js/view.js -p $HOME/work/closure-library -p war-src -o script > war/js/view-calc.js
+fi
+
+
 
 if [ -f war-src/js/openEditor/index.js ]
 then
