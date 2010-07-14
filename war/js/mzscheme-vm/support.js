@@ -7,7 +7,7 @@ sys.print = function(str) {
 };
 
 sys.error = function(e) {
-	if (console && console.log) {
+    if (typeof(console) !== 'undefined' && console.log) {
 		if (e.stack) {
 			console.log(e.stack);
 		}
@@ -4607,9 +4607,40 @@ Bytes.prototype.toString = function() {
 };
 
 Bytes.prototype.toDisplayedString = Bytes.prototype.toString;
+
 Bytes.prototype.toWrittenString = function() {
-	return '#"' + this.toString() + '"';
+	var ret = ['#"'];
+	for (var i = 0; i < this.bytes.length; i++) {
+		ret.push( escapeByte(this.bytes[i]) );
+	}
+	ret.push('"');
+	return ret.join('');
 };
+
+var escapeByte = function(aByte) {
+	var ret = [];
+	var returnVal;
+	switch(aByte) {
+		case 7: returnVal = '\\a'; break;
+		case 8: returnVal = '\\b'; break;
+		case 9: returnVal = '\\t'; break;
+		case 10: returnVal = '\\n'; break;
+		case 11: returnVal = '\\v'; break;
+		case 12: returnVal = '\\f'; break;
+		case 13: returnVal = '\\r'; break;
+		case 34: returnVal = '\\"'; break;
+		case 92: returnVal = '\\\\'; break;
+		default: if (val >= 32 && val <= 126) {
+				 returnVal = String.fromCharCode(val);
+			 }
+			 else {
+				 ret.push( '\\' + val.toString(8) );
+			 }
+			 break;
+	}
+	return returnVal;
+};
+
 
 
 
@@ -4693,15 +4724,39 @@ Char.makeInstance = function(val){
     return new Char(val);
 };
 
-Char.prototype.toWrittenString = function(cache) {
-    return "#\\" + this.val;
+Char.prototype.toString = function() {
+	var code = this.val.charCodeAt(0);
+	var returnVal;
+	switch (code) {
+		case 0: returnVal = '#\\nul'; break;
+		case 8: returnVal = '#\\backspace'; break;
+		case 9: returnVal = '#\\tab'; break;
+		case 10: returnVal = '#\\newline'; break;
+		case 11: returnVal = '#\\vtab'; break;
+		case 12: returnVal = '#\\page'; break;
+		case 13: returnVal = '#\\return'; break;
+		case 20: returnVal = '#\\space'; break;
+		case 127: returnVal = '#\\rubout'; break;
+		default: if (code >= 32 && code <= 126) {
+				 returnVal = ("#\\" + this.val);
+			 }
+			 else {
+				 var numStr = code.toString(16).toUpperCase();
+				 while (numStr.length < 4) {
+					 numStr = '0' + numStr;
+				 }
+				 returnVal = ('#\\u' + numStr);
+			 }
+			 break;
+	}
+	return returnVal;
 };
+
+Char.prototype.toWrittenString = Char.prototype.toString;
 
 Char.prototype.toDisplayedString = function (cache) {
     return this.val;
 };
-
-Char.prototype.toString = function() { return '#\\'+this.val; }
 
 Char.prototype.getValue = function() {
     return this.val;
@@ -5149,14 +5204,14 @@ Str.prototype.match = function(regexpr) {
 
 //var _quoteReplacingRegexp = new RegExp("[\"\\\\]", "g");
 var escapeString = function(s) {
-    return '"' + replaceUnprintableChars(s) + '"';
+    return '"' + replaceUnprintableStringChars(s) + '"';
 //    return '"' + s.replace(_quoteReplacingRegexp,
 //			      function(match, submatch, index) {
 //				  return "\\" + match;
 //			      }) + '"';
 };
 
-var replaceUnprintableChars = function(s) {
+var replaceUnprintableStringChars = function(s) {
 	var ret = [];
 	for (var i = 0; i < s.length; i++) {
 		var val = s.charCodeAt(i);
@@ -5243,11 +5298,25 @@ var EqHashTable = function(inputHash) {
 EqHashTable = EqHashTable;
 
 EqHashTable.prototype.toWrittenString = function(cache) {
-    return "#<hash>";
+    var keys = this.hash.keys();
+    var ret = [];
+    for (var i = 0; i < keys.length; i++) {
+	    var keyStr = types.toWrittenString(keys[i], cache);
+	    var valStr = types.toWrittenString(this.hash.get(keys[i]), cache);
+	    ret.push('(' + keyStr + ' . ' + valStr + ')');
+    }
+    return ('#hasheq(' + ret.join(' ') + ')');
 };
 
 EqHashTable.prototype.toDisplayedString = function(cache) {
-    return "#<hash>";
+    var keys = this.hash.keys();
+    var ret = [];
+    for (var i = 0; i < keys.length; i++) {
+	    var keyStr = types.toDisplayedString(keys[i], cache);
+	    var valStr = types.toDisplayedString(this.hash.get(keys[i]), cache);
+	    ret.push('(' + keyStr + ' . ' + valStr + ')');
+    }
+    return ('#hasheq(' + ret.join(' ') + ')');
 };
 
 EqHashTable.prototype.isEqual = function(other, aUnionFind) {
@@ -5286,10 +5355,24 @@ var EqualHashTable = function(inputHash) {
 EqualHashTable = EqualHashTable;
 
 EqualHashTable.prototype.toWrittenString = function(cache) {
-    return "#<hash>";
+    var keys = this.hash.keys();
+    var ret = [];
+    for (var i = 0; i < keys.length; i++) {
+	    var keyStr = types.toWrittenString(keys[i], cache);
+	    var valStr = types.toWrittenString(this.hash.get(keys[i]), cache);
+	    ret.push('(' + keyStr + ' . ' + valStr + ')');
+    }
+    return ('#hash(' + ret.join(' ') + ')');
 };
 EqualHashTable.prototype.toDisplayedString = function(cache) {
-    return "#<hash>";
+    var keys = this.hash.keys();
+    var ret = [];
+    for (var i = 0; i < keys.length; i++) {
+	    var keyStr = types.toDisplayedString(keys[i], cache);
+	    var valStr = types.toDisplayedString(this.hash.get(keys[i]), cache);
+	    ret.push('(' + keyStr + ' . ' + valStr + ')');
+    }
+    return ('#hash(' + ret.join(' ') + ')');
 };
 
 EqualHashTable.prototype.isEqual = function(other, aUnionFind) {
@@ -5314,6 +5397,18 @@ EqualHashTable.prototype.isEqual = function(other, aUnionFind) {
 };
 
 
+//////////////////////////////////////////////////////////////////////
+
+var JsObject = function(name, obj) {
+	this.name = name;
+	this.obj = obj;
+};
+
+JsObject.prototype.toString = function() {
+	return '#<js-object:' + this.name + '>';
+};
+
+//////////////////////////////////////////////////////////////////////
 
 
 
@@ -5477,7 +5572,10 @@ var isEqual = function(x, y, aUnionFind) {
 	return (y == undefined || y == null);
     }
 
-    if (typeof(x) == 'object' && typeof(y) == 'object') {
+    if ( typeof(x) == 'object' &&
+	 typeof(y) == 'object' &&
+	 x.isEqual &&
+	 y.isEqual) {
 	if (aUnionFind.find(x) === aUnionFind.find(y)) {
 	    return true;
 	}
@@ -5881,6 +5979,7 @@ types.keyword = function(k) { return new Keyword(k); };
 types.pair = function(x, y) { return Cons.makeInstance(x, y); };
 types.hash = makeHashEqual;
 types.hashEq = makeHashEq;
+types.jsObject = function(name, obj) { return new JsObject(name, obj); };
 
 types.toWrittenString = toWrittenString;
 types.toDisplayedString = toDisplayedString;
@@ -5924,7 +6023,8 @@ types.isFunction = function(x) {
 		x instanceof ClosureValue ||
 		x instanceof CaseLambdaValue ||
 		x instanceof ContinuationClosureValue);
-}
+};
+types.isJsObject = function(x) { return x instanceof JsObject; };
 
 types.UnionFind = UnionFind;
 types.cons = Cons.makeInstance;
@@ -9868,7 +9968,7 @@ var jsworld = {};
 	    try {
 		updater(w, k2);
 	    } catch (e) {
-		    if (console && console.log && e.stack) {
+		if (typeof(console) !== 'undefined' && console.log && e.stack) {
 			    console.log(e.stack);
 		    }
 		handleError(e);
@@ -9918,7 +10018,7 @@ var jsworld = {};
 				});
 //			});
 	    } catch (e) {
-		    if (console && console.log && e.stack) {
+		if (typeof(console) !== 'undefined' && console.log && e.stack) {
 			    console.log(e.stack);
 		    }
 		handleError(e);
@@ -10191,7 +10291,7 @@ var foldHelp = function(f, acc, args) {
 var quicksort = function(functionName) {
 	return function(initList, comp) {
 		checkList(initList, functionName, 1);
-		check(comp, funArityContains(2), functionName, 'procedure', 2);
+		check(comp, funArityContains(2), functionName, 'procedure (arity 2)', 2);
 	
 		var quicksortHelp = function(lst) {
 			if ( lst.isEmpty() ) {
@@ -10369,8 +10469,8 @@ var isNatural = function(x) {
 	return jsnums.isExact(x) && isInteger(x) && jsnums.greaterThanOrEqual(x, 0);
 };
 
-var isNonnegativeReal = function(x) {
-    return jsnums.isReal(x) && jsnums.greaterThanOrEqual(x, 0);
+var isNonNegativeReal = function(x) {
+	return isReal(x) && jsnums.greaterThanOrEqual(x, 0);
 };
 
 var isSymbol = types.isSymbol;
@@ -10556,10 +10656,15 @@ PRIMITIVES['print-values'] =
 		 true,
 		 true,
 		 function(state, values) {
+		     var printed = false;
 		     for (var i = 0; i < values.length; i++) {
 			 if (values[i] !== types.VOID) {
 			     state.getPrintHook()(values[i]);
+			     printed = true;
 			 }
+		     }
+		     if (printed) {
+			 state.getDisplayHook()("\n");
 		     }
 		     state.v = types.VOID;
 		 });
@@ -10577,7 +10682,7 @@ PRIMITIVES['check-expect'] =
 		 	if ( !isEqual(actual, expected) ) {
 				var msg = helpers.format('check-expect: actual value ~s differs from ~s, the expected value.',
 							 [actual, expected]);
-				helpers.reportError(msg);
+//				helpers.reportError(msg);
 			        state.getDisplayHook()(msg);
 			}
 			state.v = types.VOID;
@@ -10590,7 +10695,7 @@ PRIMITIVES['check-within'] =
 		 3,
 		 false, true,
 		 function(state, actual, expected, range) {
-		 	if ( !isReal(range) ) {
+		 	if ( !isNonNegativeReal(range) ) {
 				var msg = helpers.format('check-within requires a non-negative real number for range, given ~s.',
 							 [range]);
 				raise( types.exnFailContract(msg, false) );
@@ -10606,7 +10711,7 @@ PRIMITIVES['check-within'] =
 					 		range)) ) ) {
 				var msg = helpers.format('check-within: actual value ~s is not within ~s of expected value ~s.',
 							 [actual, range, expected]);
-				helpers.reportError(msg);
+//				helpers.reportError(msg);
 			        state.getDisplayHook()(msg);
 			}
 			state.v = types.VOID;
@@ -10935,7 +11040,7 @@ PRIMITIVES['call-with-values'] =
 		 2,
 		 false, false,
 		 function(g, r) {
-		 	check(g, funArityContains(0), 'call-with-values', 'procedure', 1);
+		 	check(g, funArityContains(0), 'call-with-values', 'procedure (arity 0)', 1);
 			check(r, isFunction, 'call-with-values', 'procedure', 2);
 
 			return CALL(g, [],
@@ -11192,8 +11297,7 @@ PRIMITIVES['=~'] =
 		 function(x, y, range) {
 		 	check(x, isReal, '=~', 'real', 1);
 			check(y, isReal, '=~', 'real', 2);
-			check(range, function(n) {return isReal(n) && jsnums.greaterThanOrEqual(n, 0);},
-			      '=~', 'non-negative real', 3);
+			check(range, isNonNegativeReal, '=~', 'non-negative-real', 3);
 
 			return jsnums.lessThanOrEqual(jsnums.abs(jsnums.subtract(x, y)), range);
 		 });
@@ -11896,8 +12000,7 @@ PRIMITIVES['equal~?'] =
 		 3,
 		 false, false,
 		 function(x, y, range) {
-		 	check(range, function(n) {return isReal(n) && jsnums.greaterThanOrEqual(n, 0);},
-			      'equal~?', 'non-negative real', 3);
+		 	check(range, isNonNegativeReal, 'equal~?', 'non-negative-real', 3);
 
 			return (isEqual(x, y) ||
 				(isReal(x) && isReal(y) &&
@@ -11966,7 +12069,7 @@ PRIMITIVES['caar'] =
 		 function(lst) {
 		 	check(lst, function(x) { return (isPair(x) && isPair(x.first())); },
 			      'caar', 'caarable value', 1);
-		 	lst.first().first();
+		 	return lst.first().first();
 		 });
 
 PRIMITIVES['cadr'] =
@@ -13450,7 +13553,12 @@ PRIMITIVES['bytes->immutable-bytes'] =
 		 false, false,
 		 function(bstr) {
 		 	check(bstr, isByteString, 'bytes->immutable-bytes', 'byte string', 1);
-			return bstr.copy(false);
+			if ( bstr.mutable ) {
+				return bstr.copy(false);
+			}
+			else {
+				return bstr;
+			}
 		 });
 
 
@@ -14129,8 +14237,8 @@ PRIMITIVES['empty-scene'] =
 		 2,
 		 false, false,
 		 function(width, height) {
-		 	check(width, isNumber, 'empty-scene', 'number', 1);
-			check(height, isNumber, 'empty-scene', 'number', 2);
+		 	check(width, isNonNegativeReal, 'empty-scene', 'non-negative number', 1);
+			check(height, isNonNegativeReal, 'empty-scene', 'non-negative number', 2);
 			return world.Kernel.sceneImage(jsnums.toFixnum(width), jsnums.toFixnum(height), []);
 		 });
 
@@ -14141,8 +14249,8 @@ PRIMITIVES['place-image'] =
 		 false, false,
 		 function(picture, x, y, background) {
 			check(picture, isImage, "place-image", "image", 1);
-			check(x, isNumber, "place-image", "number", 2);
-			check(y, isNumber, "place-image", "number", 3);
+			check(x, isReal, "place-image", "real", 2);
+			check(y, isReal, "place-image", "real", 3);
 			check(background, function(x) { return isScene(x) || isImage(x) },
 			      "place-image", "image", 4);
 			if (isScene(background)) {
@@ -14164,8 +14272,8 @@ PRIMITIVES['put-pinhole'] =
 		 false, false,
 		 function(img, x, y) {
 			check(img, isImage, "put-pinhole", "image", 1);
-			check(x, isNumber, "put-pinhole", "number", 2);
-			check(y, isNumber, "put-pinhole", "number", 3);
+			check(x, isReal, "put-pinhole", "real", 2);
+			check(y, isReal, "put-pinhole", "real", 3);
 			return img.updatePinhole(jsnums.toFixnum(x), jsnums.toFixnum(y));
     		 });
 
@@ -14175,7 +14283,7 @@ PRIMITIVES['circle'] =
 		 3,
 		 false, false,
 		 function(aRadius, aStyle, aColor) {
-			check(aRadius, isNonnegativeReal, "circle", "non-negative real", 1);
+			check(aRadius, isNonNegativeReal, "circle", "non-negative number", 1);
 			check(aStyle, isStyle, "circle", "style", 2);
 			check(aColor, isColor, "circle", "color", 3);
 
@@ -14192,9 +14300,12 @@ PRIMITIVES['star'] =
 		 5,
 		 false, false,
 		 function(aPoints, anOuter, anInner, aStyle, aColor) {
-			check(aPoints, isNatural, "star", "non-negative exact integer", 1);
-			check(anOuter, isNonnegativeReal, "star", "non-negative real", 2);
-			check(anInner, isNonnegativeReal, "star", "non-negative real", 3);
+			check(aPoints, function(x) { return isNatural(x) && jsnums.greaterThanOrEqual(x, 3); },
+			      "star", "positive integer greater than or equal to 3", 1);
+			check(anOuter, function(x) { return isReal(x) && jsnums.greaterThan(x, 0); },
+			      "star", "positive number", 2);
+			check(anInner, function(x) { return isReal(x) && jsnums.greaterThan(x, 0); },
+			      "star", "positive number", 2);
 			check(aStyle, isStyle, "star", "style", 4);
 			check(aColor, isColor, "star", "color", 5);
 
@@ -14214,8 +14325,8 @@ PRIMITIVES['nw:rectangle'] =
 		 4,
 		 false, false,
 		 function(w, h, s, c) {
-			check(w, isNonnegativeReal, "nw:rectangle", "non-negative real", 1);
-			check(h, isNonnegativeReal, "nw:rectangle", "non-negative real", 2);
+			check(w, isNonNegativeReal, "nw:rectangle", "non-negative number", 1);
+			check(h, isNonNegativeReal, "nw:rectangle", "non-negative number", 2);
 			check(s, isStyle, "nw:rectangle", "style", 3);
 			check(c, isColor, "nw:rectangle", "color", 4);
 
@@ -14234,8 +14345,8 @@ PRIMITIVES['rectangle'] =
 		 4,
 		 false, false,
 		 function(w, h, s, c) {
-			check(w, isNonnegativeReal, "rectangle", "non-negative real", 1);
-			check(h, isNonnegativeReal, "rectangle", "non-negative real", 2);
+			check(w, isNonNegativeReal, "rectangle", "non-negative number", 1);
+			check(h, isNonNegativeReal, "rectangle", "non-negative number", 2);
 			check(s, isStyle, "rectangle", "style", 3);
 			check(c, isColor, "rectangle", "color", 4);
 
@@ -14253,7 +14364,7 @@ PRIMITIVES['triangle'] =
 		 3,
 		 false, false,
 		 function(r, s, c) {
-			check(r, isNonnegativeReal, "triangle", "non-negative real", 1);
+			check(r, isNonNegativeReal, "triangle", "non-negative number", 1);
 			check(s, isStyle, "triangle", "string", 2);
 			check(c, isColor, "triangle", "color", 3);
 			if (colorDb.get(c)) {
@@ -14268,8 +14379,8 @@ PRIMITIVES['ellipse'] =
 		 4,
 		 false, false,
 		 function(w, h, s, c) {
-			check(w, isNonnegativeReal, "ellipse", "non-negative real", 1);
-			check(h, isNonnegativeReal, "ellipse", "non-negative real", 2);
+			check(w, isNonNegativeReal, "ellipse", "non-negative number", 1);
+			check(h, isNonNegativeReal, "ellipse", "non-negative number", 2);
 			check(s, isStyle, "ellipse", "string", 3);
 			check(c, isColor, "ellipse", "color", 4);
 			
@@ -14287,8 +14398,8 @@ PRIMITIVES['line'] =
 		 3,
 		 false, false,
 		 function(x, y, c) {
-			check(x, isReal, "line", "real", 1);
-			check(y, isReal, "line", "real", 2);
+			check(x, isReal, "line", "finite real number", 1);
+			check(y, isReal, "line", "finite real number", 2);
 			check(c, isColor, "line", "color", 3);
 			if (colorDb.get(c)) {
 				c = colorDb.get(c);
@@ -14323,8 +14434,8 @@ PRIMITIVES['overlay/xy'] =
 		 false, false,
 		 function(img1, deltaX, deltaY, img2) {
 			check(img1, isImage, "overlay/xy", "image", 1);
-			check(deltaX, isNumber, "overlay/xy", "number", 2);
-			check(deltaY, isNumber, "overlay/xy", "number", 3);
+			check(deltaX, isReal, "overlay/xy", "finite real number", 2);
+			check(deltaY, isReal, "overlay/xy", "finite real number", 3);
 			check(img2, isImage, "overlay/xy", "image", 4);
 
 			return world.Kernel.overlayImage(img1, img2,
@@ -14356,8 +14467,8 @@ PRIMITIVES['underlay/xy'] =
 		 false, false,
 		 function(img1, deltaX, deltaY, img2) {
 			check(img1, isImage, "underlay/xy", "image", 1);
-			check(deltaX, isNumber, "underlay/xy", "number", 2);
-			check(deltaY, isNumber, "underlay/xy", "number", 3);
+			check(deltaX, isReal, "underlay/xy", "finite real number", 2);
+			check(deltaY, isReal, "underlay/xy", "finite real number", 3);
 			check(img2, isImage, "underlay/xy", "image", 4);
 
 			return world.Kernel.overlayImage(img2, img1,
@@ -14381,7 +14492,8 @@ PRIMITIVES['text'] =
 		 false, false,
 		 function(aString, aSize, aColor) {
 			check(aString, isString, "text", "string", 1);
-			check(aSize, isNumber, "text", "number", 2);
+			check(aSize, function(x) { return jsnums.greaterThan(x, 0) && isByte(x); },
+			      "text", "exact integer between 1 and 255", 2);
 			check(aColor, isColor, "text", "color", 3);
 
 			if (colorDb.get(aColor)) {
@@ -14770,6 +14882,58 @@ PRIMITIVES['js-big-bang'] =
 		     })
 		 });
 
+
+
+
+/********************************
+ *** Scheme -> Javascript FFI ***
+ ********************************/
+
+PRIMITIVES['get-js-object'] =
+    new PrimProc('get-js-object',
+		 1,
+		 true, false,
+		 function(parent, selectors) {
+		 	check(parent, function(x) { return isString(x) || types.isJsObject(x); },
+			      'get-js-object', 'js-object', 1);
+			arrayEach(selectors, function(x, i) { check(x, isString, 'get-js-object', 'string', i+2); });
+
+			var name;
+			var obj;
+			if ( types.isJsObject(parent) ) {
+				name = [parent.name];
+				obj = parent.obj;
+			}
+			else {
+				name = [parent.toString()];
+				obj = (name === 'window') ? window : window[name];
+			}
+
+			for (var i = 0; i < selectors.length; i++) {
+				if ( obj === undefined ) {
+					var joinedName = name.join('.');
+					raise(types.exnFailContract(
+						helpers.format('get-js-object: tried to access field ~a of ~a, but ~a was undefined',
+							       [selectors[i], joinedName, joinedName]),
+						false));
+				}
+				name.push( selectors[i].toString() );
+				obj = obj[selectors[i].toString()];
+			}
+			return types.jsObject(name.join('.'), obj);
+		 });
+
+
+PRIMITIVES['js-call'] =
+    new PrimProc('js-call',
+		 1,
+		 true, false,
+		 function(objF, args) {
+		 	check(objF, function(x) { return types.isJsObject(x) && typeof(x.obj) == 'function'; },
+			      'js-call', 'js-object representing a function', 1);
+
+			return objF.obj.apply(null, args);
+		 });
 
 
 
