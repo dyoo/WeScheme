@@ -4,35 +4,21 @@
 ## We may want to include closure-library as one of the external
 ## submodules of WeScheme.
 
+build() {
+    mkdir -p `dirname war/$2`
+    $HOME/work/closure-library/closure/bin/calcdeps.py  -i war-src/$1 -p $HOME/work/closure-library -p war-src -o script > war/$2    
+}
+
+
 
 echo "Building test hello application: if this fails, something's wrong, and closure-library hasn't been installed"
-$HOME/work/closure-library/closure/bin/calcdeps.py  -i war-src/js/hello.js -p $HOME/work/closure-library -p war-src -o script > war/js/hello-calc.js
+build js/hello.js js/hello-calc.js
 
+echo "Building console"
+build js/console.js js/console-calc.js
 
-## FIXME: do this as a function!  Don't copy and paste.
+echo "Building view"
+build js/view.js js/view-calc.js
 
-if [ -f war-src/js/console.js ]
-then
-    echo "Building console"
-    mkdir -p war/js
-    $HOME/work/closure-library/closure/bin/calcdeps.py  -i war-src/js/console.js -p $HOME/work/closure-library -p war-src -o script > war/js/console-calc.js
-    
-fi
-
-
-
-if [ -f war-src/js/view.js ]
-then
-    echo "Building view"
-    mkdir -p war/js
-    $HOME/work/closure-library/closure/bin/calcdeps.py  -i war-src/js/view.js -p $HOME/work/closure-library -p war-src -o script > war/js/view-calc.js
-fi
-
-
-
-if [ -f war-src/js/openEditor/index.js ]
-then
-    echo "Building editor"
-    mkdir -p war/js/openEditor
-    $HOME/work/closure-library/closure/bin/calcdeps.py  -i war-src/js/openEditor/index.js -p $HOME/work/closure-library -p war-src -o script > war/js/openEditor/openEditor-calc.js
-fi
+echo "Building editor"
+build js/openEditor/index.js js/openEditor/openEditor-calc.js
