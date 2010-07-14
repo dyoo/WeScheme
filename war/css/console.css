@@ -76,7 +76,19 @@ h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
 	cursor:			pointer;
 }
 
+
+
+
 /* tooltips */
+
+.tooltip {
+    background: white;
+    border: solid 1px black;
+}
+
+
+
+
 a:hover {background:transparent;} /*BG color is a must for IE6*/
 a span {display:none; width: 130px; text-align: left;}
 a:hover span{display: inline; position: absolute; background:#546DAF; color: white; }

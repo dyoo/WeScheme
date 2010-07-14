@@ -5,7 +5,7 @@
 ## submodules of WeScheme.
 
 
-echo "Building test hello application: if this fails, something's wrong"
+echo "Building test hello application: if this fails, something's wrong, and closure-library hasn't been installed"
 $HOME/work/closure-library/closure/bin/calcdeps.py  -i war-src/js/hello.js -p $HOME/work/closure-library -p war-src -o script > war/js/hello-calc.js
 
 
