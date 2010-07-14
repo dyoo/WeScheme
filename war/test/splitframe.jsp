@@ -19,6 +19,11 @@
       margin: 0px;
       }
 
+      #aTextarea {
+      width: 100%;
+      height: 100%;
+      }
+
       .wrapper {
       height: 100%;
       width: 100%;
@@ -45,7 +50,9 @@
       
       .goog-splitpane-first-container,
       .goog-splitpane-second-container {
-      overflow: auto;
+      width: 100%;
+      height: 100%;
+      overflow: none;
       }
  
     </style>
@@ -55,13 +62,14 @@
   <body onload="onLoad()">
     <div class="wrapper" id='aSplitterWrapper'>
       <div class='goog-splitpane' id='aSplitter'> 
-	<div class='goog-splitpane-first-container'> 
-	  Top Frame
+	<div id="top" class='goog-splitpane-first-container'> 
+ 	  <textarea id="aTextarea">This is a text area.
+ 	  </textarea>
 	</div> 
 
 	<div class='goog-splitpane-handle'></div> 
 
-	<div class='goog-splitpane-second-container'> 
+	<div id="bottom" class='goog-splitpane-second-container'> 
 	  Bottom Frame
 	</div> 
       </div> 

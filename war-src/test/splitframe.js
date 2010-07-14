@@ -10,11 +10,14 @@ goog.require('goog.ui.SplitPane.Orientation');
 
 var onLoad = function() {
     // Set up splitpane with already existing DOM.
+    var top = new goog.ui.Component();
+    var bottom = new goog.ui.Component();
+
     var splitpane1 = new goog.ui.SplitPane(
-	new goog.ui.Component(), 
-	new goog.ui.Component(),
+	top,
+	bottom,
         goog.ui.SplitPane.Orientation.VERTICAL);
- 
+    
     splitpane1.decorate(document.getElementById('aSplitter'));
 
 
@@ -27,12 +30,29 @@ var onLoad = function() {
     var currentSize = getSize();
 
     var onResize = function(e) {
-       var newSize = getSize();
-       if (! goog.math.Size.equals(currentSize, newSize)) {
-           currentSize = newSize;
-           splitpane1.setSize(newSize);
-       }
+	var newSize = getSize();
+	if (! goog.math.Size.equals(currentSize, newSize)) {
+            currentSize = newSize;
+            splitpane1.setSize(newSize);
+	}
+	synchronizeTopSize();
     };
+
+    var synchronizeTopSize = function() {
+	goog.style.setBorderBoxSize(
+	    document.getElementById("aTextarea"),
+	    goog.style.getBorderBoxSize(
+		document.getElementById("top")));
+    };
+
+
+    synchronizeTopSize();
+
+
+
+    goog.events.listen(splitpane1,
+		       goog.events.EventType.CHANGE,
+		       synchronizeTopSize);
 
     goog.events.listen(document.getElementById('aSplitterWrapper'),
                        goog.events.EventType.RESIZE,
