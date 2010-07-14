@@ -2,33 +2,30 @@
 // or a running program.
 
 goog.require('plt.wescheme.helpers');
-
+goog.require('plt.wescheme.Program');
+goog.require('plt.wescheme.AjaxActions');
 
 function update(publicId) {
 
     // TODO: notify the user if the program uses some
     // permissions
 
-    var callback = function(data) {
-	var dom = jQuery(data);
+    var whenLoadSucceeds = function(data, myProgram) {
 	var programTitle = jQuery("#programTitle");
 	programTitle.empty();
-	var titleText = jQuery("<span/>")
-	    .addClass("programName")
-	    .text(dom.find("title").text());
 	programTitle.append(jQuery("<span/>").text("Program name: "));
-	programTitle.append(titleText);
+	programTitle.append(myProgram.getTitle());
 	jQuery("#runIt").attr(
 	    "href",
 	    "/run?publicId=" + encodeURIComponent(publicId));
 
 	// If the thing doesn't have source, hide the run button
-	if (dom.find("ObjectCode obj").text() === "") {
+	if (myProgram.getObjectCode() === "") {
 	    jQuery("#runIt").hide();
 	}
 
 
-        if (dom.find("isSourcePublic").text() == 'true') {
+        if (myProgram.isSourcePublic()) {
 	    jQuery("#viewSource").attr(
 		"href",
 		"/openEditor?publicId="+ encodeURIComponent(publicId));
@@ -42,12 +39,18 @@ function update(publicId) {
 	jQuery("#socialBookmarks").append(
 	    jQuery(
 	    plt.wescheme.helpers.generateSocialBookmarks(
-		titleText, 
+		myProgram.getTitle(), 
 		plt.wescheme.helpers.makeShareUrl(publicId))));
  
-   };
-    jQuery.get("/loadProject", 
-               {publicId: publicId},
-               callback, 
-               "xml");
+    };
+    
+    var whenLoadFails = function(data, myProgram) {
+	alert("Unable to load program");
+    };
+
+
+    (new plt.wescheme.AjaxActions()).loadAProject(undefined,
+						  publicId,
+						  whenLoadSucceeds,
+						  whenLoadFails);
 }

@@ -68,4 +68,16 @@ goog.require("plt.wescheme.SharedAs");
 	return this.dom.children("source").text();
     };
 
+    // isSourcePublic: -> boolean
+    plt.wescheme.Program.prototype.isSourcePublic = function() {
+	return this.dom.find("isSourcePublic").text() == 'true';
+    };
+
+
+    // getObjectCode: -> string
+    plt.wescheme.Program.prototype.getObjectCode = function() {
+	return this.dom.find("ObjectCode obj").text();
+    };
+
+
 }());
