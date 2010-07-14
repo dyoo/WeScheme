@@ -22,3 +22,8 @@ build js/view.js js/view-calc.js
 
 echo "Building editor"
 build js/openEditor/index.js js/openEditor/openEditor-calc.js
+
+
+
+echo "buildtest splitframe"
+build test/splitframe.js test/splitframe-calc.js
