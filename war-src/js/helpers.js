@@ -99,6 +99,14 @@ goog.provide("plt.wescheme.helpers");
     };
 
 
+    var zpad = function(s) {
+	if ((s+'').length == 1) {
+	    return "0" + s;
+	} else {
+	    return s;
+	}
+    };
+
     // prettyPrintDate: string -> string
     plt.wescheme.helpers.prettyPrintDate = function(modified) {
 	var modifiedDate = new Date();
@@ -112,7 +120,7 @@ goog.provide("plt.wescheme.helpers");
 		     12 :
 		     (modifiedDate.getHours() % 12))
 		    + ":" 
-		    + modifiedDate.getMinutes()
+		    + zpad(modifiedDate.getMinutes())
 		    + (modifiedDate.getHours() >= 12 ? "pm" : "am" ));
 	return day + "/" + month + "/" + year + ", " + time;
     };

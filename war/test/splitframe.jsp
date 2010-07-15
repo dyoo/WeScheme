@@ -2,16 +2,8 @@
 <html>
   <head>
     <title>Split frame test</title>
-    <!-- Includes the moby runtime libraries -->
-    <script src="/runtime/base.js"></script>
 
-    <script>
-    goog.require('goog.ui.Container');
-    goog.require('goog.style');
-    goog.require('goog.dom.ViewportSizeMonitor');
-    goog.require('goog.ui.SplitPane');
-    goog.require('goog.ui.SplitPane.Orientation');
-    </script>    
+    <script src="splitframe-calc.js"></script>    
 
     <style>
       html {
@@ -25,6 +17,11 @@
       width: 100%;
       height: 100%;
       margin: 0px;
+      }
+
+      #aTextarea {
+      width: 100%;
+      height: 100%;
       }
 
       .wrapper {
@@ -53,71 +50,29 @@
       
       .goog-splitpane-first-container,
       .goog-splitpane-second-container {
-      overflow: auto;
+      width: 100%;
+      height: 100%;
+      overflow: none;
       }
  
     </style>
 
 
   </head>
-  <body>
-
+  <body onload="onLoad()">
     <div class="wrapper" id='aSplitterWrapper'>
       <div class='goog-splitpane' id='aSplitter'> 
-	<div class='goog-splitpane-first-container'> 
-	  Top Frame
+	<div id="top" class='goog-splitpane-first-container'> 
+ 	  <textarea id="aTextarea">This is a text area.
+ 	  </textarea>
 	</div> 
 
 	<div class='goog-splitpane-handle'></div> 
 
-	<div class='goog-splitpane-second-container'> 
+	<div id="bottom" class='goog-splitpane-second-container'> 
 	  Bottom Frame
 	</div> 
       </div> 
     </div>
-
-  <script>
-    (function() {
-    // Set up splitpane with already existing DOM.
-    var splitpane1 = new goog.ui.SplitPane(
-	new goog.ui.Component(), 
-	new goog.ui.Component(),
-        goog.ui.SplitPane.Orientation.VERTICAL);
- 
-    splitpane1.decorate(document.getElementById('aSplitter'));
-
-
-    var vsm = new goog.dom.ViewportSizeMonitor();
-    var getSize = function() {
-        return goog.style.getBorderBoxSize(
-            document.getElementById('aSplitterWrapper'));
-    };
-
-    var currentSize = getSize();
-
-    var onResize = function(e) {
-       var newSize = getSize();
-       if (! goog.math.Size.equals(currentSize, newSize)) {
-           currentSize = newSize;
-           splitpane1.setSize(newSize);
-       }
-    };
-
-    goog.events.listen(document.getElementById('aSplitterWrapper'),
-                       goog.events.EventType.RESIZE,
-                       onResize);
-    goog.events.listen(vsm,
-                       goog.events.EventType.RESIZE,
-                       onResize);
-                     
-<!--     setInterval(function() {  -->
-
-<!--     splitpane1.setSize(goog.style.getBorderBoxSize(document.getElementById('aSplitterWrapper'))); -->
-
-<!--     }, 1000); -->
-    }());
-  </script>
-
-
   </body>
 </html>

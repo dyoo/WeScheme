@@ -21,7 +21,6 @@
 <link rel="stylesheet" type="text/css" href="/css/console.css" />
 <title>WeScheme</title>
 
-<script src="/runtime/base.js"></script>
 
 <jsp:include page="/js/compat/compat.jsp"/>
 

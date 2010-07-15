@@ -7,7 +7,7 @@
 
 <html>
 <head><title>WeScheme</title>
-<script src="/runtime/base.js"></script>
+
 </head>
   <body>
 
