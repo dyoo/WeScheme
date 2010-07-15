@@ -37,13 +37,34 @@ WeSchemeInteractions = (function () {
 
     WeSchemeInteractions.prototype.makeFreshEvaluator = function() {
 	var that = this;
-	return new Evaluator({
+	var evaluator = new Evaluator({
 	    write: function(thing) {
 		that.addToInteractions(thing);
 	    },
 	    compilationServletUrl: "/compile",
 	    scriptCompilationServletUrl: "http://go.cs.brown.edu:8000/servlets/standalone.ss"
 	});
+	evaluator.makeToplevelNode = function() {
+	    var dialog = jQuery("<div/>");
+	    var handleClose = function(event, ui) {
+		that.evaluator.requestBreak();
+	    };
+
+	    dialog.dialog( {
+		bgiframe : true,
+		position: ["left", "top"],
+		modal : true,
+		width: "auto",
+		height: "auto",
+	        beforeclose: handleClose
+	    });
+
+	    var innerArea = jQuery("<div></div>");
+	    dialog.append(innerArea);
+	    dialog.dialog("open");
+	    return innerArea.get(0);
+	}
+	return evaluator;
     };
 
     
