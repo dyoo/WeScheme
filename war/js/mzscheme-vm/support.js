@@ -6195,6 +6195,7 @@ var State = function() {
 
     // Internal flag: if set, then we stop evaluation immediately.
     this.breakRequested = false;
+    this.breakRequestedListeners = [];
 };
 
 
@@ -6210,6 +6211,7 @@ State.prototype.clearForEval = function(attrs) {
     if (attrs && attrs.preserveBreak) {
     } else {
 	this.breakRequested = false;
+	this.breakRequestedListeners = [];
     }
 
 
@@ -6228,6 +6230,7 @@ State.prototype.save = function() {
 	     globals: copyHash(this.globals),
              hooks: this.hooks,
 	     breakRequested: this.breakRequested,
+	     breakRequestedListeners: copyHash(this.breakRequestedListeners),
 	     invokedModules: this.invokedModules };
 };
 
@@ -6251,13 +6254,41 @@ State.prototype.restore = function(params) {
     this.globals = params.globals;
     this.hooks = params.hooks;
     this.breakRequested = params.breakRequested;
+    this.breakRequestListeners = params.breakRequestListeners;
     this.invokedModules = params.invokedModules;
 };
 
 
+// Request a break
+//
+// BreakRequestedListeners will be notified.
 State.prototype.requestBreak = function() {
     this.breakRequested = true;
+    for (var i = 0; i < this.breakRequestedListeners.length; i++ ) {
+	try {
+	    this.breakRequestedListeners[i]();
+	} catch(e) {
+	    helpers.reportError(e);
+	}
+    }
 };
+
+
+State.prototype.addBreakRequestedListener = function(listener) {
+    this.breakRequestedListeners.push(listener);
+};
+
+
+
+State.prototype.removeBreakRequestedListener = function(listener) {
+    for (var i = this.breakRequestedListeners.length - 1 ; i >= 0; i--) {
+	if (this.breakRequestedListeners[i] === listener) {
+	    this.breakRequestedListeners.splice(i, 1);
+	}
+    }
+};
+
+
 
 
 // Add the following form to the control stack.
@@ -9996,6 +10027,13 @@ var jsworld = {};
 			 unsetCaller();
 			 restarter(w);
 		     });
+	return {
+	    breaker: function() {
+		handleError(types.schemeError(
+		    types.exnBreak('user break', false)));
+	    }
+	};
+
     }
 
 
@@ -14936,11 +14974,19 @@ PRIMITIVES['js-big-bang'] =
 		     var unwrappedConfigs = 
 			 helpers.map(handlers, function(x) { return function(config) { return x.configure(config); } });
 		     return PAUSE(function(restarter, caller) {
-			 jsworld.MobyJsworld.bigBang(initW, 
+			 var bigBangController;
+			 var onBreak = function() {
+			     bigBangController.breaker();
+			 }
+			 state.addBreakRequestedListener(onBreak);
+			 bigBangController = jsworld.MobyJsworld.bigBang(initW, 
 						     state.getToplevelNodeHook()(),
 						     unwrappedConfigs,
 						     caller, 
-						     restarter);
+						     function(v) {
+							 state.removeBreakRequestedListener(onBreak);
+							 restarter(v);
+						     });
 		     })
 		 });
 
