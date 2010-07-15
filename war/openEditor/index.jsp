@@ -79,6 +79,7 @@
     <!-- mzscheme-vm evaluator -->
     <script src="/js/mzscheme-vm/support.js"></script>
     <script src="/js/mzscheme-vm/evaluator.js"></script>
+    <script src="/js/mzscheme-vm/collections.js"></script>
 
 
 

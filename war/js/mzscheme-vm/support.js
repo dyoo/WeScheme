@@ -15283,7 +15283,7 @@ var BranchRestControl = function(thenPart, elsePart) {
 
 BranchRestControl.prototype.invoke = function(state) {
     debug("BRANCH");
-    if (state.v) {
+    if (state.v !== false && state.v !== undefined) {
 	state.pushControl(this.thenPart);
     } else {
 	state.pushControl(this.elsePart);
