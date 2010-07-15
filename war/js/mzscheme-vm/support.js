@@ -5657,8 +5657,8 @@ EofValue.prototype.toString = function() {
 var EOF_VALUE = new EofValue();
 
 
-var ClosureValue = function(numParams, paramTypes, isRest, closureVals, body) {
-    this.name = false;
+var ClosureValue = function(name, numParams, paramTypes, isRest, closureVals, body) {
+    this.name = name;
     this.numParams = numParams;
     this.paramTypes = paramTypes;
     this.isRest = isRest;
@@ -5670,7 +5670,11 @@ var ClosureValue = function(numParams, paramTypes, isRest, closureVals, body) {
 
 
 ClosureValue.prototype.toString = function() {
-    return "#<procedure>";
+    if (this.name) {
+	return helpers.format("#<procedure:~a>", [this.name]);
+    } else {
+	return "#<procedure>";
+    }
 };
 
 
@@ -5680,7 +5684,11 @@ var CaseLambdaValue = function(name, closures) {
 };
 
 CaseLambdaValue.prototype.toString = function() {
-    return "#<case-lambda-procedure>";
+    if (this.name) {
+	return helpers.format("#<case-lambda-procedure:~a>", [this.name]);
+    } else {
+	return "#<case-lambda-procedure>";
+    }
 };
 
 
@@ -5692,7 +5700,11 @@ var ContinuationClosureValue = function(vstack, cstack) {
 };
 
 ContinuationClosureValue.prototype.toString = function() {
-    return "#<procedure>";
+    if (this.name) {
+	return helpers.format("#<procedure:~a>", [this.name]);
+    } else {
+	return "#<procedure>";
+    }
 };
 
 
@@ -15468,6 +15480,7 @@ PrimvalControl.prototype.invoke = function(aState) {
 // Lambdas
 
 var LamControl = function(params) {
+    this.name = params.name;
     this.numParams = params.numParams;
     this.paramTypes = params.paramTypes;
     this.isRest = params.isRest;
@@ -15478,7 +15491,8 @@ var LamControl = function(params) {
 
 
 LamControl.prototype.invoke = function(state) {
-    state.v = new types.ClosureValue(this.numParams, 
+    state.v = new types.ClosureValue(this.name,
+				     this.numParams, 
 				     this.paramTypes, 
 				     this.isRest, 
 				     makeClosureValsFromMap(state,
@@ -16554,7 +16568,8 @@ var loadBranch = function(state, nextCode) {
 
 var loadLam = function(state, nextCode) {
     var result =  new control.LamControl(
-	{ numParams: nextCode['num-params'],
+	{ name: nextCode['name'],
+	  numParams: nextCode['num-params'],
 	  paramTypes: nextCode['param-types'],
 	  isRest: nextCode['rest?'],
 	  closureMap: nextCode['closure-map'],
@@ -16756,7 +16771,8 @@ var processIndirects = function(state, indirects) {
 	var sentinelBody = new control.ConstantControl(false)
 
 	state.heap[anIndirect.id] = 
-	    new types.ClosureValue(numParams, 
+	    new types.ClosureValue(anIndirect.id,
+				   numParams, 
 				   paramTypes, 
 				   isRest, 
 				   closureVals, 
