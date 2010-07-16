@@ -6,6 +6,7 @@ html {
     background: #f5deb3;
     padding:		0px;
     margin:		0px;
+    border: 0px;
 }
 
 html, body, h1, h2, #header, #fileInfo, #toolbar *, #defn, #footer, #inter, input{
@@ -19,6 +20,7 @@ body {
     height:  100%;
     padding: 0px;
     margin:  0px;
+    border: 0px;
 }
 
 
@@ -28,15 +30,15 @@ body {
     height:  100%;
     padding: 0px;
     margin:  0px;
-
+    border: 0px;
 }
 
 
 #top {
     width: 100%;
-    height: 20px;
     padding: 0px;
     margin: 0px;
+    border: 0px;
 }
 
 
@@ -45,7 +47,7 @@ body {
     height: 100%;
     padding: 0px;
     margin: 0px;
-    border: 5px solid blue;
+    border: 0px;
 }
 
 #splitpane {
@@ -53,14 +55,35 @@ body {
     height: 100%;
     padding: 0px;
     margin: 0px;
+    border: 0px;
 }
 
 
 #bottom {
     width: 100%;
-    height: 20px;
     padding: 0px;
     margin: 0px;
+    border: 0px;
+}
+
+
+.goog-splitpane-handle {
+    background: #ccc;
+    position: absolute;
+}
+
+.goog-splitpane-handle-horizontal {
+    cursor: col-resize;
+}
+
+.goog-splitpane-handle-vertical {
+    cursor: row-resize;
+}
+
+.goog-splitpane-first-container,
+.goog-splitpane-second-container {
+    overflow: none;
+    position: absolute;
 }
 
 
