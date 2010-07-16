@@ -6453,9 +6453,73 @@ var captureCurrentContinuationMarks = function(state) {
 
 
 
+var STACK_KEY = types.symbol("moby-stack-record-continuation-mark-key");
+
+var getStackTraceFromContinuationMarks = function(contMarkSet) {
+    var results = [];
+    var stackTrace = contMarkSet.ref(STACK_KEY);
+    // KLUDGE: the first element in the stack trace
+    // can be weird print-values may introduce a duplicate
+    // location.
+    for (var i = stackTrace.length - 1; 
+	 i >= 0; i--) {
+	var callRecord = stackTrace[i];
+	var id = callRecord.ref(0);
+	var offset = callRecord.ref(1);
+	var line = callRecord.ref(2);
+	var column = callRecord.ref(3);
+	var span = callRecord.ref(4);
+	var newHash = {'id': id, 
+		       'offset': offset,
+		       'line': line, 
+		       'column': column,
+		       'span': span};
+	if (results.length === 0 ||
+	    (! isEqualHash(results[results.length-1],
+			   newHash))) {
+	    results.push(newHash);
+	}
+    }
+    return results;
+};
+
+
+
+var isEqualHash = function(hash1, hash2) {
+    for (var key in hash1) {
+	if (hash1.hasOwnProperty(key)) {
+	    if (hash2.hasOwnProperty(key)) {
+		if (hash1[key] !== hash2[key]) {
+		    return false;
+		}
+	    } else {
+		return false;
+	    }
+	}
+    }
+    for (var key in hash2) {
+	if (hash2.hasOwnProperty(key)) {
+	    if (hash1.hasOwnProperty(key)) {
+		if (hash1[key] !== hash2[key]) {
+		    return false;
+		}
+	    } else {
+		return false;
+	    }
+	}
+    }
+    return true;
+};
+
+
+
+
+
+
 
 state.State = State;
 state.captureCurrentContinuationMarks = captureCurrentContinuationMarks;
+state.getStackTraceFromContinuationMarks = getStackTraceFromContinuationMarks;
 
 
 })();
@@ -9799,6 +9863,9 @@ var jsworld = {};
 	    // IE
 	    node.attachEvent('on' + eventName, fn, false);
 	}
+	return function() {
+	    detachEvent(node, eventName, fn);
+	}
     };
 
     var detachEvent = function(node, eventName, fn) {
@@ -9811,9 +9878,6 @@ var jsworld = {};
 	}
     }
 
-//    var attachEvent = function(node, eventName, fn) {
-//	plt.Kernel.attachEvent(node, eventName, fn);
-//    }
 
     var preventDefault = function(event) {
 	if (event.preventDefault) {
@@ -9834,23 +9898,43 @@ var jsworld = {};
 
     // bigBang: world dom (listof (list string string)) (arrayof handler) -> world
     Jsworld.bigBang = function(initWorld, toplevelNode, handlers, theCaller, theRestarter) {
-	    //console.log('in high level big-bang');
+
+	// shutdownListeners: arrayof (-> void)
+	// We maintain a list of thunks that need to be called as soon as we come out of
+	// bigBang, to do cleanup.
+	var shutdownListeners = [];
+
+	var onTermination = function(w) {
+	    for (var i = 0; i < shutdownListeners.length; i++) {
+		try { 
+		    shutdownListeners[i]();
+		} catch (e) { }
+	    }
+	    unsetCaller();
+	    theRestarter(w);
+	}
+
+
+	//console.log('in high level big-bang');
 	setCaller(theCaller);
-	setRestarter(theRestarter);
+	setRestarter(onTermination);
 	var attribs = types.EMPTY;
 	
 	// Ensure that the toplevelNode can be focused by mouse or keyboard
 	toplevelNode.tabIndex = 0;
+
 	// Absorb all click events so they don't bubble up.
-	attachEvent(toplevelNode,
-		    'click',
-		    function(e) {
-			preventDefault(e);
-			stopPropagation(e);
-			return false;
-		    },
-		    false);
+	var detachClick = attachEvent(toplevelNode,
+				      'click',
+				      function(e) {
+					  preventDefault(e);
+					  stopPropagation(e);
+					  return false;
+				      },
+				      false);
 	
+	shutdownListeners.push(detachClick);
+
 
 	var config = new world.config.WorldConfig();
 	for(var i = 0; i < handlers.length; i++) {
@@ -9977,21 +10061,21 @@ var jsworld = {};
 	    // Add event handlers that listen in on key events that are applied
 	    // directly on the toplevelNode.  We pay attention to keydown, and
 	    // omit keypress.
-	    attachEvent(toplevelNode,
-			'keydown',
-			function(e) {
-			    stimuli.onKey([e], function() {});
-			    preventDefault(e);
-			    stopPropagation(e);
-			    return false;
-			});
-	    attachEvent(toplevelNode,
-			'keypress',
-			function(e) {
-			    preventDefault(e);
-			    stopPropagation(e);
-			    return false;
-			});
+	    shutdownListeners.push(attachEvent(toplevelNode,
+					'keydown',
+					function(e) {
+					    stimuli.onKey([e], function() {});
+					    preventDefault(e);
+					    stopPropagation(e);
+					    return false;
+					}));
+	    shutdownListeners.push(attachEvent(toplevelNode,
+					'keypress',
+					function(e) {
+					    preventDefault(e);
+					    stopPropagation(e);
+					    return false;
+					}));
 //	    attachEvent(toplevelNode,
 //			'keyup',
 //			function(e) {
@@ -10017,16 +10101,12 @@ var jsworld = {};
 // 	    }
 // 	}
 	
-
 	
 	_js.big_bang(toplevelNode,
 		     initWorld,
 		     wrappedHandlers,
 		     helpers.assocListToHash(attribs),
-		     function(w) {
-			 unsetCaller();
-			 restarter(w);
-		     });
+		     onTermination);
 	return {
 	    breaker: function() {
 		handleError(types.schemeError(
@@ -10039,10 +10119,10 @@ var jsworld = {};
 
 
     var handleError = function(e) {
-	helpers.reportError(e);
+//	helpers.reportError(e);
 	// When something bad happens, shut down 
 	// the world computation.
-	helpers.reportError("Shutting down jsworld computations");
+//	helpers.reportError("Shutting down jsworld computations");
 //	world.stimuli.onShutdown(); 
 	world.stimuli.massShutdown();
 
@@ -10774,18 +10854,26 @@ PRIMITIVES['check-expect'] =
     new PrimProc('check-expect',
 		 2,
 		 false, true,
-		 function(state, actual, expected) {
+		 function(aState, actual, expected) {
 		 	if ( isFunction(actual) || isFunction(expected) ) {
 				var msg = 'check-expect cannot compare functions';
 				raise( types.exnFailContract(msg, false) );
 			}
 		 	if ( !isEqual(actual, expected) ) {
-				var msg = helpers.format('check-expect: actual value ~s differs from ~s, the expected value.',
+				var msg = helpers.format('check-expect: actual value ~s differs from ~s, the expected value.\n',
 							 [actual, expected]);
 //				helpers.reportError(msg);
-			        state.getDisplayHook()(msg);
+			        aState.getDisplayHook()(msg);
+			    // HACK: we really need to design a mechanism
+			    // for displaying locations in a systematic way
+			    // outside of errors.
+			    var stackTrace = state.getStackTraceFromContinuationMarks(
+				state.captureCurrentContinuationMarks(aState));
+			    for (var i = 0; i < stackTrace.length; i++) {
+			        aState.getDisplayHook()("at line: " + stackTrace[i].line + "\n");
+			    }
 			}
-			state.v = types.VOID;
+			aState.v = types.VOID;
 		});
 PRIMITIVES['EXAMPLE'] = PRIMITIVES['check-expect'];
 
@@ -10794,7 +10882,7 @@ PRIMITIVES['check-within'] =
     new PrimProc('check-within',
 		 3,
 		 false, true,
-		 function(state, actual, expected, range) {
+		 function(aState, actual, expected, range) {
 		 	if ( !isNonNegativeReal(range) ) {
 				var msg = helpers.format('check-within requires a non-negative real number for range, given ~s.',
 							 [range]);
@@ -10812,9 +10900,9 @@ PRIMITIVES['check-within'] =
 				var msg = helpers.format('check-within: actual value ~s is not within ~s of expected value ~s.',
 							 [actual, range, expected]);
 //				helpers.reportError(msg);
-			        state.getDisplayHook()(msg);
+			        aState.getDisplayHook()(msg);
 			}
-			state.v = types.VOID;
+			aState.v = types.VOID;
 		});
 				
 
