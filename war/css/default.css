@@ -10,26 +10,44 @@ html {
 
 html, body, h1, h2, #header, #fileInfo, #toolbar *, #defn, #footer, #inter, input{
     padding:		0px;
-    margin:			0px;
+    margin:		0px;
 }
 
 
 body {
-    width: 100%;
-    height: 100%;
-    padding:		0px;
-    margin:		0px;
+    width:   100%;
+    height:  100%;
+    padding: 0px;
+    margin:  0px;
 }
 
 
 
 #editor {
-    width: 100%;
-    height: 100%;
-    padding:		0px;
-    margin:			0px;
+    width:   100%;
+    height:  100%;
+    padding: 0px;
+    margin:  0px;
 
 }
+
+
+#top {
+    width: 100%;
+    height: 100px;
+}
+
+#middle {
+    width: 100%;
+    height: 100%;
+}
+
+
+#bottom {
+    width: 100%;
+    height: 20px;
+}
+
 
 
 
@@ -124,9 +142,17 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 
 
 
+
+
+
+
+
+
+
 /* DEFINITIONS */
 #definitions{
     width:                  100%;
+    height:                  50%;
     clear:			both;
     text-align:		center;
     padding:		0px;
@@ -138,8 +164,8 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 }
 #defn {
     clear:			both;
-    height:			100%;
     width:			100%;
+    height:			100%;
     overflow:		auto;
     background:		white url(/css/images/fadeIcon.png) no-repeat right bottom;
     font-size:		12px; 
@@ -155,14 +181,12 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 
 
 
-
-
 /* INTERACTIONS */
 #interactions{
     border-top:		solid 1px black;
     clear:			both;
     width:			100%;
-    height:                 30%;
+    height:                     50%;
     background:		white url(images/blank.gif) no-repeat;
     overflow:           auto;
 }
@@ -180,6 +204,8 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
     font-size:		12px;
 }
 #inter input{
+    width:                  100%;
+    height:                 100%;
     font-size:		12px; 
     font-family:	Monaco, sans-serif; 
     border:			0px;

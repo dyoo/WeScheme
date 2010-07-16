@@ -9,6 +9,20 @@ var defnSourceContainer;
 
 
 var initializeEditor = function(attrs) {
+
+    // Set up the heartbeat.
+    setInterval(beat, 1800000);
+
+
+    jQuery("#interactions").click(function(e) {
+        document.getElementById('inputBox').focus();
+	e.stopPropagation();
+	e.preventDefault();
+	return false;
+    });
+    
+
+
     var userName = attrs['userName'];
     var pid = attrs['pid'];
     var publicId = attrs['publicId'];

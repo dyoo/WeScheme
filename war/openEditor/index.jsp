@@ -22,42 +22,6 @@
 
 
 
-    <!-- Dojo stuff -->
-    <script>
-      var djConfig = { 
-      parseOnLoad: false, 
-      isDebug: false, 
-      debugAtAllCosts: true,
-      baseUrl: './',
-      modulePaths: {bespin: '../js/bespin'}
-      };
-    </script>
-    <script src="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dojo/dojo.xd.js">
-    </script>
-
-
-    <link rel="stylesheet"
-	  type="text/css"
-	  href="http://ajax.googleapis.com/ajax/libs/dojo/1.3/dijit/themes/tundra/tundra.css"/>
-
-    <script>
-      dojo.require("dijit.layout.ContentPane");
-      dojo.require("dijit.layout.BorderContainer");
-      dojo.require("dojo.parser");
-      dojo.addOnLoad(function() {
-	  dojo.parser.parse();
-	  
-	  jQuery("#interactions").click(function(e) {
-              document.getElementById('inputBox').focus();
-	      e.stopPropagation();
-	      e.preventDefault();
-	      return false;
-          });
-      });
-    </script>
-
-
-
 
     <!-- JQuery UI style sheet -->
     <link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css"/>
@@ -96,7 +60,6 @@
 
     <script>
       jQuery(document).ready(function() {
-          setInterval(beat, 1800000);
           var userName, pid, publicId;
           userName = pid = publicId = null;
       
@@ -119,14 +82,11 @@
   
   
   <body>
-    <div id="editor"
-	 dojoType="dijit.layout.BorderContainer"
-	 gutters="false">
+    <div id="editor">
 
 
       
       <div class="top"
-	   dojoType="dijit.layout.ContentPane"
 	   region="top">
 	
 	<!-- The dialog div here will be used by jquery -->
@@ -168,42 +128,25 @@
 
 
 
-      <div class="middle"
-	   dojoType="dijit.layout.ContentPane"
-	   region="center">
+      <div class="middle">
 
-
-	<div id="borderContainer"
-	     dojoType="dijit.layout.BorderContainer" 
-	     class="tundra"
-	     gutters="false">
-	  <div id="definitions"
-	       dojoType="dijit.layout.ContentPane"
-	       splitter="true"
-	       region="center">
-              <textarea id="defn" rows="100">&#59;  Write your code here</textarea>
-	  </div>
-	  
-	  
-	  <div id="interactions" 
-	       dojoType="dijit.layout.ContentPane"
-	       splitter="true"
-	       region="bottom">
-	    <div id="inter">
-	      
-	      <div style="width: 100%;"><span>&gt; <input style="width: 75%;" type="text"/></span></div>
-	    </div>
+	<div id="definitions">
+          <textarea id="defn">&#59;  Write your code here</textarea>
+	</div>
+	
+	
+	<div id="interactions">
+	  <div id="inter">
+	    
+	    <div style="width: 100%; height:100%"><span>&gt; <input style="width: 75%;height:100%" type="text"/></span></div>
 	  </div>
 	</div>
-
 
       </div> <!-- End middle -->
       
 
 
-      <div class="bottom"
-	   dojoType="dijit.layout.ContentPane"
-	   region="bottom">
+      <div class="bottom">
 
 	<div id="footer">
 	  <div id="statusbar" style="float: left; margin-left: 10px;" ></div>
