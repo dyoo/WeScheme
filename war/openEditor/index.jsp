@@ -128,20 +128,20 @@
 
 
 
-      <div class="middle">
-
-	<div id="definitions">
-          <textarea id="defn">&#59;  Write your code here</textarea>
-	</div>
-	
-	
-	<div id="interactions">
-	  <div id="inter">
-	    
-	    <div style="width: 100%; height:100%"><span>&gt; <input style="width: 75%;height:100%" type="text"/></span></div>
+      <div id="middle" class="middle">
+	<div id="splitpane" class="goog-splitpane">
+	  <div id="definitions" class="goog-splitpane-first-container">
+            <textarea id="defn">&#59;  Write your code here</textarea>
 	  </div>
-	</div>
+	  
+	  <div id="interactions" class="goog-splitpane-second-container">
+	    <div id="inter">
+	      <div style="width: 100%; height:100%"><span>&gt; <input style="width: 75%;height:100%" type="text"/></span></div>
+	    </div>
+	  </div>
 
+	  <div class="goog-splitpane-handle"></div> 
+	</div>
       </div> <!-- End middle -->
       
 

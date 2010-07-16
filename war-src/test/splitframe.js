@@ -9,13 +9,9 @@ goog.require('goog.ui.SplitPane.Orientation');
 
 
 var onLoad = function() {
-    // Set up splitpane with already existing DOM.
-    var top = new goog.ui.Component();
-    var bottom = new goog.ui.Component();
-
     var splitpane1 = new goog.ui.SplitPane(
-	top,
-	bottom,
+	new goog.ui.Component(),
+	new goog.ui.Component(),
         goog.ui.SplitPane.Orientation.VERTICAL);
     
     splitpane1.decorate(document.getElementById('aSplitter'));
