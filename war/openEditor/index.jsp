@@ -83,11 +83,8 @@
   
   <body>
     <div id="editor">
-
-
       
-      <div class="top"
-	   region="top">
+      <div class="top" id="top">
 	
 	<!-- The dialog div here will be used by jquery -->
 	<div id="dialog" style="display:none;"></div>
@@ -146,7 +143,7 @@
       
 
 
-      <div class="bottom">
+      <div id="bottom" class="bottom">
 
 	<div id="footer">
 	  <div id="statusbar" style="float: left; margin-left: 10px;" ></div>

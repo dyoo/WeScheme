@@ -9,6 +9,7 @@ goog.require('goog.dom.ViewportSizeMonitor');
 goog.require('goog.ui.SplitPane');
 goog.require('goog.ui.SplitPane.Orientation');
 
+goog.require('goog.math.Size');
 
 
 
@@ -88,11 +89,15 @@ var editorSetup = function(attrs) {
 
 
 var splitPaneSetup = function() {
-    var parentContainer = document.getElementById('middle');
+    var top = document.getElementById("top");
+    var bottom = document.getElementById("bottom");
+    var middle = document.getElementById('middle');
+
+
     var splitpaneDiv = document.getElementById('splitpane');
-    var top = document.getElementById("definitions");
+    var definitions = document.getElementById("definitions");
     var textarea = document.getElementById("defn");
-    var bottom = document.getElementById("interactions");
+    var interactions = document.getElementById("interactions");
 
 
     var splitpane1 = new goog.ui.SplitPane(
@@ -105,22 +110,36 @@ var splitPaneSetup = function() {
     var vsm = new goog.dom.ViewportSizeMonitor();
 
     var getSize = function() {
-        return goog.style.getBorderBoxSize(
-            parentContainer);
+        return goog.style.getBorderBoxSize(middle);
     };
 
 
     var currentSize = getSize();
 
+    // The display should consist of the top, the middle, and the bottom.
+    // The middle should expand to the size of the viewport minus the top and bottom.
     var onResize = function(e) {
-	var newSize = getSize();
+	var viewportSize = vsm.getSize();
+	console.log("whole page is : " + viewportSize);
+	var desiredWidth = viewportSize.width;
+	var desiredHeight = (viewportSize.height - 
+			     goog.style.getBorderBoxSize(top).height - 
+			     goog.style.getBorderBoxSize(bottom).height);
+	console.log("top is ");
+	console.log(goog.style.getBorderBoxSize(top));
+	console.log("bottom is ");
+	console.log(goog.style.getBorderBoxSize(bottom));
+
+
+	var newSize = new goog.math.Size(desiredWidth, desiredHeight);
 	if (! goog.math.Size.equals(currentSize, newSize)) {
             currentSize = newSize;
             splitpane1.setSize(newSize);
+	    goog.style.setBorderBoxSize(middle, newSize);
 	}
 
 	goog.style.setBorderBoxSize(splitpaneDiv,
-				   newSize);
+				    newSize);
 
 	synchronizeTopSize();
     };
@@ -128,21 +147,23 @@ var splitPaneSetup = function() {
     var synchronizeTopSize = function() {
 	goog.style.setBorderBoxSize(
 	    textarea,
-	    goog.style.getBorderBoxSize(top));
+	    goog.style.getBorderBoxSize(definitions));
     };
 
-    synchronizeTopSize();
 
     goog.events.listen(splitpane1,
 		       goog.events.EventType.CHANGE,
 		       synchronizeTopSize);
 
-    goog.events.listen(parentContainer,
-                       goog.events.EventType.RESIZE,
-                       onResize);
+//     goog.events.listen(middle,
+//                        goog.events.EventType.RESIZE,
+//                        onResize);
     goog.events.listen(vsm,
                        goog.events.EventType.RESIZE,
                        onResize);
+
+
+    onResize();
 };
 
 
