@@ -120,16 +120,10 @@ var splitPaneSetup = function() {
     // The middle should expand to the size of the viewport minus the top and bottom.
     var onResize = function(e) {
 	var viewportSize = vsm.getSize();
-	console.log("whole page is : " + viewportSize);
 	var desiredWidth = viewportSize.width;
 	var desiredHeight = (viewportSize.height - 
 			     goog.style.getBorderBoxSize(top).height - 
 			     goog.style.getBorderBoxSize(bottom).height);
-	console.log("top is ");
-	console.log(goog.style.getBorderBoxSize(top));
-	console.log("bottom is ");
-	console.log(goog.style.getBorderBoxSize(bottom));
-
 
 	var newSize = new goog.math.Size(desiredWidth, desiredHeight);
 	if (! goog.math.Size.equals(currentSize, newSize)) {
@@ -155,9 +149,6 @@ var splitPaneSetup = function() {
 		       goog.events.EventType.CHANGE,
 		       synchronizeTopSize);
 
-//     goog.events.listen(middle,
-//                        goog.events.EventType.RESIZE,
-//                        onResize);
     goog.events.listen(vsm,
                        goog.events.EventType.RESIZE,
                        onResize);
