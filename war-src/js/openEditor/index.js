@@ -109,12 +109,9 @@ var splitPaneSetup = function() {
 
     var vsm = new goog.dom.ViewportSizeMonitor();
 
-    var getSize = function() {
-        return goog.style.getBorderBoxSize(middle);
-    };
 
 
-    var currentSize = getSize();
+    var currentSize = undefined;
 
     // The display should consist of the top, the middle, and the bottom.
     // The middle should expand to the size of the viewport minus the top and bottom.
@@ -126,7 +123,8 @@ var splitPaneSetup = function() {
 			     goog.style.getBorderBoxSize(bottom).height);
 
 	var newSize = new goog.math.Size(desiredWidth, desiredHeight);
-	if (! goog.math.Size.equals(currentSize, newSize)) {
+	if ((! currentSize) ||
+	    (! goog.math.Size.equals(currentSize, newSize))) {
             currentSize = newSize;
             splitpane1.setSize(newSize);
 	    goog.style.setBorderBoxSize(middle, newSize);
@@ -152,6 +150,7 @@ var splitPaneSetup = function() {
     goog.events.listen(vsm,
                        goog.events.EventType.RESIZE,
                        onResize);
+
 
 
     onResize();
