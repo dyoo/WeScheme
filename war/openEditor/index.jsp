@@ -132,6 +132,11 @@
 	<!-- The dialog div here will be used by jquery -->
 	<div id="dialog" style="display:none;"></div>
 	
+	<div id="header">
+	  <h1>WeScheme</h1>
+	  <h2>Sometimes YouTube.  Perhaps iPhone.  Together, WeScheme!</h2>
+	</div>
+
 	
 	<div id="toolbar">
 	  <ul>
@@ -150,12 +155,6 @@
 	    <li class="docs">	<a id="docs" target="_blank" href="/openEditor/moby-user-api.txt">API</a></li>
 	    
 	  </ul>
-
-
-	  <div id="header">
-	    <h1>WeScheme</h1>
-	    <h2>Sometimes YouTube.  Perhaps iPhone.  Together, WeScheme!</h2>
-	  </div>
 	</div>
 
 	<div id="fileInfo">
@@ -181,7 +180,8 @@
 	       dojoType="dijit.layout.ContentPane"
 	       splitter="true"
 	       region="center">
-              <textarea id="defn" rows="100">&#59;  Write your code here</textarea>
+              <textarea id="defn" rows="100">&#59;  Write your code here
+</textarea>
 	  </div>
 	  
 	  
