@@ -273,6 +273,29 @@ var helpers = {};
 
 
 
+        // maybeCallAfterAttach: dom-node -> void
+        // walk the tree rooted at aNode, and call afterAttach if the element has
+        // such a method.
+        var maybeCallAfterAttach = function(aNode) {
+	    var stack = [aNode];
+	    while (stack.length !== 0) {
+		var nextNode = stack.pop();
+		if (nextNode.afterAttach) {
+		    nextNode.afterAttach(nextNode);
+		}
+		if (nextNode.hasChildNodes && nextNode.hasChildNodes()) {
+		    var children = nextNode.childNodes;
+		    for (var i = 0; i < children.length; i++) {
+			stack.push(children[i]);
+		    }
+		}
+	    }
+	};
+
+
+
+
+
 	////////////////////////////////////////////////
 
 	helpers.format = format;
@@ -285,6 +308,8 @@ var helpers = {};
 	helpers.assocListToHash = assocListToHash;
 
 	helpers.ordinalize = ordinalize;
+
+        helpers.maybeCallAfterAttach = maybeCallAfterAttach;
 
 })();
 
@@ -7344,12 +7369,12 @@ var world = {};
 	// KLUDGE: IE compatibility uses /js/excanvas.js, and dynamic
 	// elements must be marked this way.
 	if (window && typeof window.G_vmlCanvasManager != 'undefined') {
-	    withIeHack(canvas, function(c) {
-		    canvas = window.G_vmlCanvasManager.initElement(canvas);
-		});
+	    canvas = window.G_vmlCanvasManager.initElement(canvas);
 	}
 	return canvas;
     };
+
+
 
     var withIeHack = function(canvas, f) {
 // 	canvas.style.display = 'none';
@@ -7373,17 +7398,22 @@ var world = {};
 	var height = that.getHeight();
 	var canvas = world.Kernel.makeCanvas(width, height);
 
-	// KLUDGE: some of the rendering functions depend on a context
-	// where the canvas is attached to the DOM tree.  So we temporarily
-	// make it invisible, attach it to the tree, render, and then rip it out
-	// again.
-	withIeHack(canvas,
-		   function(canvas) {
-		       var ctx = canvas.getContext("2d");
-		       that.render(ctx, 0, 0);
-			   });
+	// KLUDGE: on IE, the canvas rendering functions depend on a
+	// context where the canvas is attached to the DOM tree.
+
+	// We initialize an afterAttach hook; the client's responsible
+	// for calling this after the dom node is attached to the
+	// document.
+	canvas.afterAttach = function() {
+	    var ctx = canvas.getContext("2d");
+	    that.render(ctx, 0, 0);
+	};
+
 	return canvas;
     };
+
+
+
 
     BaseImage.prototype.toWrittenString = function(cache) { return "<image>"; }
     BaseImage.prototype.toDisplayedString = function(cache) { return "<image>"; }
@@ -8391,7 +8421,7 @@ var jsworld = {};
 	} catch(e) {
 		world = originalWorld;
 
-		if (console && console.log && e.stack) {
+	    if (typeof(console) !== 'undefined' && console.log && e.stack) {
 			console.log(e.stack);
 		}
 		throw e;
@@ -9775,9 +9805,11 @@ var jsworld = {};
 	if(node.lastChild == null) {
 	    newNode = types.toDomNode(world);
 	    node.appendChild(newNode);
+	    helpers.maybeCallAfterAttach(newNode);
 	} else {
 	    newNode = types.toDomNode(world);
 	    node.replaceChild(newNode, node.lastChild);
+	    helpers.maybeCallAfterAttach(newNode);
 	}
     };
 

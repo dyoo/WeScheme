@@ -33,7 +33,8 @@ goog.require("plt.wescheme.SharedAs");
 
     // hasSharingUrls: -> boolean
     plt.wescheme.Program.prototype.hasSharingUrls = function() {
-	return this.dom.find('sharedAs > Entry').length > 0;
+	return (this.getSharedAsEntries().length > 0);
+	//	return this.dom.find('sharedAs > Entry').length > 0;
     };
 
     // getSharedAsEntries: -> [{publicId: string, title: string, modified: string} ...]
