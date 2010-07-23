@@ -114,9 +114,23 @@ var helpers = {};
 
 (function() {
 
-	var format = function(formatStr, args) {
+	var format = function(formatStr, args, functionName) {
+		var throwFormatError = function() {
+			functionName = functionName || '#<procedure>';
+			var matches = formatStr.match(new RegExp('~[sSaA]', 'g'));
+			var expectedNumberOfArgs = matches == null ? 0 : matches.length;
+			var errorStrBuffer = [functionName + ': format string requires ' + expectedNumberOfArgs
+						+ ' arguments, given ' + args.length + '; arguments were:',
+					      types.toWrittenString(formatStr)];
+			for (var i = 0; i < args.length; i++) {
+				errorStrBuffer.push( types.toWrittenString(args[i]) );
+			}
+
+			raise( types.incompleteExn(types.exnFailContract, errorStrBuffer.join(' '), []) );
+		}
+
 		var pattern = new RegExp("~[sSaAn%~]", "g");
-		var buffer = args;
+		var buffer = args.slice(0);;
 		function f(s) {
 			if (s == "~~") {
 				return "~";
@@ -124,21 +138,21 @@ var helpers = {};
 				return "\n";
 			} else if (s == '~s' || s == "~S") {
 				if (buffer.length == 0) {
-					//TODO Throw some sort of error here!!
+					throwFormatError();
 				}
 				return types.toWrittenString(buffer.shift());
 			} else if (s == '~a' || s == "~A") {
 				if (buffer.length == 0) {
-					//TODO Throw some sort of error here!!
+					throwFormatError();
 				}
 				return types.toDisplayedString(buffer.shift());
 			} else {
-				//TODO Throw some sort of error here!!
+				throw types.internalError('format: string.replace matched invalid regexp', false);
 			}
 		}
 		var result = formatStr.replace(pattern, f);
 		if (buffer.length > 0) {
-			//TODO Throw some sort of error here!!
+			throwFormatError();
 		}
 		return result;
 	};
@@ -239,20 +253,17 @@ var helpers = {};
 	};
 
 	var throwCheckError = function(details, pos, args) {
-		var otherArgsStr;
 		var errorFormatStr;
 		if (args && args.length > 1) {
-			otherArgsStr = '; other arguments were:';
+			var errorFormatStrBuffer = ['~a: expects type <~a> as ~a arguments, given: ~s; other arguments were:'];
 			for (var i = 0; i < args.length; i++) {
 				if ( i != pos-1 ) {
-					otherArgsStr += ' ' + types.toWrittenString(args[i]);
+					errorFormatStrBuffer.push( types.toWrittenString(args[i]) );
 				}
 			}
-			errorFormatStr = "~a: expects type <~a> as ~a argument, given: ~s~a";
-			details.push(otherArgsStr);
+			errorFormatStr = errorFormatStrBuffer.join(' ');
 		}
 		else {
-			otherArgStr = '';
 			errorFormatStr = "~a: expects argument of type <~a>, given: ~s";
 			details.splice(2, 1);
 		}
@@ -446,29 +457,6 @@ var helpers = {};
 
 
 
-        // maybeCallAfterAttach: dom-node -> void
-        // walk the tree rooted at aNode, and call afterAttach if the element has
-        // such a method.
-        var maybeCallAfterAttach = function(aNode) {
-	    var stack = [aNode];
-	    while (stack.length !== 0) {
-		var nextNode = stack.pop();
-		if (nextNode.afterAttach) {
-		    nextNode.afterAttach(nextNode);
-		}
-		if (nextNode.hasChildNodes && nextNode.hasChildNodes()) {
-		    var children = nextNode.childNodes;
-		    for (var i = 0; i < children.length; i++) {
-			stack.push(children[i]);
-		    }
-		}
-	    }
-	};
-
-
-
-
-
 	////////////////////////////////////////////////
 
 	helpers.format = format;
@@ -489,8 +477,6 @@ var helpers = {};
 	helpers.wrapJsObject = wrapJsObject;
 
 	helpers.getKeyCodeName = getKeyCodeName;
-
-        helpers.maybeCallAfterAttach = maybeCallAfterAttach;
 
         helpers.maybeCallAfterAttach = maybeCallAfterAttach;
 
@@ -3079,7 +3065,12 @@ var jsnums = {};
 	var r = this.s-a.s;
 	if(r != 0) return r;
 	var i = this.t;
-	r = i-a.t;
+	if ( this.s < 0 ) {
+		r = a.t - i;
+	}
+	else {
+		r = i - a.t;
+	}
 	if(r != 0) return r;
 	while(--i >= 0) if((r=this[i]-a[i]) != 0) return r;
 	return 0;
@@ -14199,7 +14190,7 @@ PRIMITIVES['format'] =
     new PrimProc('format', 1, true, false,
 		 function(formatStr, args) {
 		 	check(formatStr, isString, 'format', 'string', 1, [formatStr].concat(args));
-			return types.string( helpers.format(formatStr, args) );
+			return types.string( helpers.format(formatStr, args, 'format') );
 		 });
 
 
@@ -14207,7 +14198,7 @@ PRIMITIVES['printf'] =
     new PrimProc('printf', 1, true, true,
 		 function(state, formatStr, args) {
 		 	check(formatStr, isString, 'printf', 'string', 1, [formatStr].concat(args));
-			var msg = helpers.format(formatStr, args);
+			var msg = helpers.format(formatStr, args, 'printf');
 			state.getDisplayHook()(msg);
 			state.v = types.VOID;
 		 });
@@ -15545,31 +15536,31 @@ PRIMITIVES['on-tick!'] =
 PRIMITIVES['on-key'] = new PrimProc('on-key', 1, false, false, onEvent('on-key', 'onKey', 2));
 PRIMITIVES['on-key!'] = new PrimProc('on-key!', 2, false, false, onEventBang('on-key!', 'onKey'));
 
-PRIMITIVES['on-announce'] = new PrimProc('on-announce', 1, false, false,
-					 onEvent('on-announce', 'onAnnounce', 3));
-PRIMITIVES['on-announce!'] = new PrimProc('on-announce!', 2, false, false,
-					  onEventBang('on-announce!', 'onAnnounce'));
+// PRIMITIVES['on-announce'] = new PrimProc('on-announce', 1, false, false,
+// 					 onEvent('on-announce', 'onAnnounce', 3));
+// PRIMITIVES['on-announce!'] = new PrimProc('on-announce!', 2, false, false,
+// 					  onEventBang('on-announce!', 'onAnnounce'));
 
-PRIMITIVES['on-location-change'] = new PrimProc('on-location-change', 1, false, false,
-						onEvent('on-location-change', 'onLocationChange', 3));
-PRIMITIVES['on-location-change!'] = new PrimProc('on-location-change!', 2, false, false,
-						 onEventBang('on-location-change!', 'onLocationChange'));
+// PRIMITIVES['on-location-change'] = new PrimProc('on-location-change', 1, false, false,
+// 						onEvent('on-location-change', 'onLocationChange', 3));
+// PRIMITIVES['on-location-change!'] = new PrimProc('on-location-change!', 2, false, false,
+// 						 onEventBang('on-location-change!', 'onLocationChange'));
 
-PRIMITIVES['on-tilt'] = new PrimProc('on-tilt', 1, false, false, onEvent('on-tilt', 'onTilt', 4));
-PRIMITIVES['on-tilt!'] = new PrimProc('on-tilt!', 2, false, false, onEventBang('on-tilt!', 'onTilt'));
+// PRIMITIVES['on-tilt'] = new PrimProc('on-tilt', 1, false, false, onEvent('on-tilt', 'onTilt', 4));
+// PRIMITIVES['on-tilt!'] = new PrimProc('on-tilt!', 2, false, false, onEventBang('on-tilt!', 'onTilt'));
 
-PRIMITIVES['on-acceleration'] = new PrimProc('on-acceleration', 1, false, false,
-					     onEvent('on-acceleration', 'onAcceleration', 4));
-PRIMITIVES['on-acceleration!'] = new PrimProc('on-acceleration!', 2, false, false,
-					      onEventBang('on-acceleration!', 'onAcceleration'));
+// PRIMITIVES['on-acceleration'] = new PrimProc('on-acceleration', 1, false, false,
+// 					     onEvent('on-acceleration', 'onAcceleration', 4));
+// PRIMITIVES['on-acceleration!'] = new PrimProc('on-acceleration!', 2, false, false,
+// 					      onEventBang('on-acceleration!', 'onAcceleration'));
 
-PRIMITIVES['on-sms-receive'] = new PrimProc('on-sms-receive', 1, false, false,
-					    onEvent('on-sms-receive', 'onSmsReceive', 3));
-PRIMITIVES['on-sms-receive!'] = new PrimProc('on-sms-receive!', 2, false, false,
-					     onEventBang('on-sms-receive!', 'onSmsReceive'));
+// PRIMITIVES['on-sms-receive'] = new PrimProc('on-sms-receive', 1, false, false,
+// 					    onEvent('on-sms-receive', 'onSmsReceive', 3));
+// PRIMITIVES['on-sms-receive!'] = new PrimProc('on-sms-receive!', 2, false, false,
+// 					     onEventBang('on-sms-receive!', 'onSmsReceive'));
 
-PRIMITIVES['on-shake'] = new PrimProc('on-shake', 1, false, false, onEvent('on-shake', 'onShake', 1));
-PRIMITIVES['on-shake!'] = new PrimProc('on-shake!', 2, false, false, onEventBang('on-shake!', 'onShake'));
+// PRIMITIVES['on-shake'] = new PrimProc('on-shake', 1, false, false, onEvent('on-shake', 'onShake', 1));
+// PRIMITIVES['on-shake!'] = new PrimProc('on-shake!', 2, false, false, onEventBang('on-shake!', 'onShake'));
 
 
 PRIMITIVES['stop-when'] = new PrimProc('stop-when', 1, false, false,
@@ -15942,7 +15933,7 @@ PRIMITIVES['scheme->prim-js'] =
 						types.exnFailContract,
 						helpers.format('scheme->primitive-js: only numbers in [-9e15, 9e15] '
 								+ 'are accurately representable in javascript; given: ~s',
-							       x),
+							       [x]),
 						[]));
 				}
 				returnVal = jsnums.toFixnum(x);
@@ -17084,7 +17075,7 @@ var selectProcedureByArity = function(n, procValue, operands) {
 	    helpers.raise(types.incompleteExn(
 		types.exnFailContractArity,
 		helpers.format("~a: expects ~a ~a argument~a, given ~s~a",
-			       [(procValue.name ? procValue.name : "#<procedure>"),
+			       [(procValue.name !== types.EMPTY ? procValue.name : "#<procedure>"),
 			        (procValue.isRest ? 'at least' : ''),
 				procValue.numParams,
 				(procValue.numParams == 1) ? '' : 's',
