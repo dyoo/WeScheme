@@ -446,6 +446,29 @@ var helpers = {};
 
 
 
+        // maybeCallAfterAttach: dom-node -> void
+        // walk the tree rooted at aNode, and call afterAttach if the element has
+        // such a method.
+        var maybeCallAfterAttach = function(aNode) {
+	    var stack = [aNode];
+	    while (stack.length !== 0) {
+		var nextNode = stack.pop();
+		if (nextNode.afterAttach) {
+		    nextNode.afterAttach(nextNode);
+		}
+		if (nextNode.hasChildNodes && nextNode.hasChildNodes()) {
+		    var children = nextNode.childNodes;
+		    for (var i = 0; i < children.length; i++) {
+			stack.push(children[i]);
+		    }
+		}
+	    }
+	};
+
+
+
+
+
 	////////////////////////////////////////////////
 
 	helpers.format = format;
@@ -466,6 +489,8 @@ var helpers = {};
 	helpers.wrapJsObject = wrapJsObject;
 
 	helpers.getKeyCodeName = getKeyCodeName;
+
+        helpers.maybeCallAfterAttach = maybeCallAfterAttach;
 
         helpers.maybeCallAfterAttach = maybeCallAfterAttach;
 
