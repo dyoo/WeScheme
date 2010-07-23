@@ -5822,13 +5822,16 @@ var toDomNode = function(x, cache) {
     
     if (typeof(x) == 'object') {
 	    if (cache.containsKey(x)) {
-		    return document.createTextNode("...");
+		var node = document.createElement("span");
+		node.appendChild(document.createTextNode("..."));
+		return node;
 	    }
 	    cache.put(x, true);
     }
 
     if (x == undefined || x == null) {
-	var node = document.createTextNode("#<undefined>");
+	var node = document.createElement("span");
+	node.appendChild(document.createTextNode("#<undefined>"));
 	return node;
     }
     if (typeof(x) == 'string') {
@@ -5839,7 +5842,8 @@ var toDomNode = function(x, cache) {
 	return wrapper;
     }
     if (typeof(x) != 'object' && typeof(x) != 'function') {
-	var node = document.createTextNode(x.toString());
+	var node = document.createElement("span");
+	node.appendChild(document.createTextNode(x.toString()));
 	return node;
     }
 
@@ -5849,13 +5853,17 @@ var toDomNode = function(x, cache) {
     } else if (typeof(x.toDomNode) !== 'undefined') {
 	returnVal =  x.toDomNode(cache);
     } else if (typeof(x.toWrittenString) !== 'undefined') {
-	var node = document.createTextNode(x.toWrittenString(cache));
+	
+	var node = document.createElement("span");
+	node.appendChild(document.createTextNode(x.toWrittenString(cache)));
 	returnVal =  node;
     } else if (typeof(x.toDisplayedString) !== 'undefined') {
-	var node = document.createTextNode(x.toDisplayedString(cache));
+	var node = document.createElement("span");
+	node.appendChild(document.createTextNode(x.toDisplayedString(cache)));
 	returnVal =  node;
     } else {
-	var node = document.createTextNode(x.toString());
+	var node = document.createElement("span");
+	node.appendChild(document.createTextNode(x.toString()));
 	returnVal =  node;
     }
     cache.remove(x);
@@ -9267,8 +9275,9 @@ var jsworld = {};
 
 
     var clearCss = function(node) {
-	if ('style' in node)
-	    node.style.cssText = "";
+	// FIXME: we should not be clearing the css
+// 	if ('style' in node)
+// 	    node.style.cssText = "";
     }
 
 
@@ -9680,8 +9689,12 @@ var jsworld = {};
 
 
     function sexp2tree(sexp) {
-	if(sexp.length == undefined) return { node: sexp, children: [] };
-	else return { node: sexp[0], children: map(sexp.slice(1), sexp2tree) };
+	if (isPage(sexp)) {
+	    return sexp2tree(node_to_tree(sexp.toDomNode()));
+	} else {
+	    if(sexp.length == undefined) return { node: sexp, children: [] };
+	    else return { node: sexp[0], children: map(sexp.slice(1), sexp2tree) };
+	}
     }
 
     function sexp2attrib(sexp) {
@@ -9727,6 +9740,10 @@ var jsworld = {};
     // Checks to see if thing is a DOM-sexp.  If not,
     // throws an object that explains why not.
     function checkDomSexp(thing, topThing) {
+	if (isPage(thing)) {
+	    return;
+	}
+
 	if (! thing instanceof Array) {
 	    throwDomError(thing, topThing);
 	}
@@ -10087,6 +10104,63 @@ var jsworld = {};
 
 
 
+    //////////////////////////////////////////////////////////////////////
+    // Pages
+
+
+    var Page = function(elts, attribs) {
+	if (typeof(elts) === 'undefined') { 
+	    elts = [];
+	}
+	this.elts = elts;
+	this.attribs = attribs;
+    };
+
+    Page.prototype.add = function(elt, positionLeft, positionTop) {
+	return new Page(this.elts.concat([{elt: elt, 
+					   positionTop: positionTop,
+					   positionLeft: positionLeft}]),
+			this.attribs);
+    };
+
+    Page.prototype.toDomNode = function() {
+	var aDiv = div();
+	for (var i = 0 ; i < this.elts.length; i++) {
+	    var elt = this.elts[i].elt;
+	    if (! elt.style) {
+		elt.style = '';
+	    }
+
+	    elt.style.position = 'absolute';
+	    elt.style.left = this.elts[i].positionLeft + "px";
+	    elt.style.top = this.elts[i].positionTop + "px";	    
+	    aDiv.appendChild(elt);
+	};
+	copy_attribs(aDiv, this.attribs)
+	return aDiv;
+    };
+
+
+    isPage = function(x) {
+	return x instanceof Page;
+    };
+
+    Jsworld.isPage = isPage;
+
+    Jsworld.emptyPage = function(attribs) {
+	var result = new Page([], attribs);
+	return result;
+    };
+
+    Jsworld.placeOnPage = function(elt, positionLeft, positionTop, page) {
+	if (typeof(elt) === 'string') {
+	    elt = text(elt);
+	}
+	return page.add(elt, positionLeft, positionTop);
+    };
+
+
+
 })();
 
 // Depends on world.js, world-config.js
@@ -10331,6 +10405,10 @@ var jsworld = {};
 			types.incompleteExn(types.exnFailContract,
 					    helpers.format(formatStr, formatArgs),
 			       		    []));
+	}
+
+	if (_js.isPage(x)) {
+	    return;
 	}
 
 	if (types.isPair(x)) {
@@ -10684,7 +10762,7 @@ var jsworld = {};
 			terminator( types.schemeError(types.incompleteExn(types.exnFail, e.message, [])) );
 		}
 		else {
-			terminator( type.schemeError(e) );
+			terminator( types.schemeError(e) );
 		}
 	});
     }
@@ -10797,6 +10875,17 @@ var jsworld = {};
 		    caller(updateF, [w, e.target.value], k);
 	    }
 	    return _js.select(attribs, options, wrappedUpdater);
+    };
+
+
+
+
+    //////////////////////////////////////////////////////////////////////
+    Jsworld.emptyPage = _js.emptyPage;
+
+    Jsworld.placeOnPage = function(elt, left, top, page) { 
+	elt = types.toDomNode(deepUnwrapJsObjects(elt));
+ 	return _js.placeOnPage(elt, left, top, page);
     };
 
 
@@ -15815,6 +15904,49 @@ PRIMITIVES['js-big-bang'] =
 						     });
 		     })
 		 });
+
+
+//////////////////////////////////////////////////////////////////////
+
+
+    var emptyPage = function(attribList) {
+	checkListOf(attribList, isAssocList, 'empty-page', '(listof X Y)', 1);
+
+	var attribs = assocListToHash(attribList);
+	var node = jsworld.MobyJsworld.emptyPage(attribs);
+	
+// 	node.toWrittenString = function(cache) { return "(js-div)"; };
+// 	node.toDisplayedString = node.toWrittenString;
+// 	node.toDomNode = function(cache) { return node; };
+// 	return helpers.wrapJsObject(node);
+	return node;
+    };
+
+    PRIMITIVES['empty-page'] =
+	new CasePrimitive('empty-page',
+			  [new PrimProc('empty-page', 0, false, false, 
+					function() {  return emptyPage(types.EMPTY); }),
+			   new PrimProc('empty-page', 1, false, false, emptyPage)]);
+
+    
+    PRIMITIVES['place-on-page'] = 
+	new PrimProc('empty-page',
+		     4,
+		     false, false,
+		     function(elt, left, top, page) {
+			 // FIXME: add type checking
+			 return jsworld.MobyJsworld.placeOnPage(
+			     elt, left, top, page);
+		     });
+					    
+
+
+
+
+//////////////////////////////////////////////////////////////////////
+
+
+
 
 
 PRIMITIVES['make-world-config'] =
