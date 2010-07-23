@@ -126,7 +126,8 @@
       <div id="middle" class="middle">
 	<div id="splitpane" class="goog-splitpane">
 	  <div id="definitions" class="goog-splitpane-first-container">
-            <textarea id="defn">&#59;  Write your code here</textarea>
+            <textarea id="defn">&#59;  Write your code here
+</textarea>
 	  </div>
 	  
 	  <div id="interactions" class="goog-splitpane-second-container">
