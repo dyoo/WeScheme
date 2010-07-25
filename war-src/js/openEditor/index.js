@@ -100,7 +100,7 @@ var splitPaneSetup = function() {
 
     var splitpaneDiv = document.getElementById('splitpane');
     var definitions = document.getElementById("definitions");
-    var textarea = document.getElementById("defn");
+    var defn = document.getElementById("defn");
     var interactions = document.getElementById("interactions");
 
 
@@ -142,13 +142,14 @@ var splitPaneSetup = function() {
 
 
     var synchronize = function() {
+	//synchronizeCodeMirror();
 	synchronizeTopSize();
-	synchronizeCodeMirror();
     };
+
 
     var synchronizeTopSize = function() {
 	goog.style.setBorderBoxSize(
-	    textarea,
+	    defn,
 	    goog.style.getBorderBoxSize(definitions));
     };
 
