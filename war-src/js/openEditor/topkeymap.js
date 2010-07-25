@@ -12,7 +12,7 @@ plt.wescheme.topKeymap = function(e) {
     if (e.keyCode === F5_KEYCODE) {
 	myEditor.run();
 	e.preventDefault();
-    } else if (event.keyCode === BACKSPACE_KEYCODE) {
+    } else if (e.keyCode === BACKSPACE_KEYCODE) {
 	e.stopPropagation();
     }
 }
