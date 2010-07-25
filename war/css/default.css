@@ -248,7 +248,7 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 
 
 #inter input{
-/*     width:              100%; */
+    width:              90%;
     height:             100%;
     font-size:		12px; 
     font-family:	Monaco, sans-serif; 
