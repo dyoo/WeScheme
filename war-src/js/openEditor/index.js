@@ -142,8 +142,8 @@ var splitPaneSetup = function() {
 
 
     var synchronize = function() {
-	//synchronizeCodeMirror();
 	synchronizeTopSize();
+	// synchronizeCodeMirror();
     };
 
 
@@ -153,42 +153,43 @@ var splitPaneSetup = function() {
 	    goog.style.getBorderBoxSize(definitions));
     };
 
-    var synchronizeCodeMirror = function() {
-	// HACK: get the width of the internal frame of the editor to match
-	// the viewport, taking into account the width of the line numbers.
-	var wrapping = goog.dom.getElementsByTagNameAndClass('div', 
-							     'CodeMirror-wrapping',
-							     definitions);
-	for (var i = 0 ; i < wrapping.length; i++) {
-	    var wrappingSize = goog.style.getBorderBoxSize(wrapping[i]);
-	    var lineNumberWidth;
-	    var lineNumberDivs = 
-		goog.dom.getElementsByTagNameAndClass('div', 
-						      'CodeMirror-line-numbers',
-						      wrapping[i]);
-	    for (var j = 0; j < lineNumberDivs.length; j++) {
-		lineNumberWidth = goog.style.getBorderBoxSize(lineNumberDivs[j]).width;
-	    }
-	    if (typeof(lineNumberWidth) !== 'undefined') {
-		var iframes = 
-		    goog.dom.getElementsByTagNameAndClass(
-			'iframe', undefined, wrapping[i]);
-		for (var j = 0; j < iframes.length; j++) {
-		    var iframeSize = goog.style.getBorderBoxSize(iframes[j]);
-		    goog.style.setBorderBoxSize(
-			iframes[j],
-			new goog.math.Size(wrappingSize.width - lineNumberWidth,
-					   iframeSize.height));
-		}
-	    }
-	};
-    };
+//     var synchronizeCodeMirror = function() {
+// 	// HACK: get the width of the internal frame of the editor to match
+// 	// the viewport, taking into account the width of the line numbers.
+// 	var wrapping = goog.dom.getElementsByTagNameAndClass('div', 
+// 							     'CodeMirror-wrapping',
+// 							     definitions);
+// 	for (var i = 0 ; i < wrapping.length; i++) {
+// 	    var wrappingSize = goog.style.getBorderBoxSize(wrapping[i]);
+// 	    var lineNumberWidth;
+// 	    var lineNumberDivs = 
+// 		goog.dom.getElementsByTagNameAndClass('div', 
+// 						      'CodeMirror-line-numbers',
+// 						      wrapping[i]);
+// 	    for (var j = 0; j < lineNumberDivs.length; j++) {
+// 		lineNumberWidth = goog.style.getBorderBoxSize(lineNumberDivs[j]).width;
+// 	    }
 
+// 	    if (typeof(lineNumberWidth) !== 'undefined') {
+// 		var iframes = 
+// 		    goog.dom.getElementsByTagNameAndClass(
+// 			'iframe', undefined, wrapping[i]);
+// 		for (var j = 0; j < iframes.length; j++) {
+// 		    var iframe = iframes[j];
+// 		    var iframeBox = goog.style.getBorderBoxSize(iframe);
+// 		    goog.style.setBorderBoxSize(
+// 			iframe,
+// 			new goog.math.Size(wrappingSize.width - lineNumberWidth,
+// 					   iframeBox.height));
+// 		}
+// 	    }
+// 	};
+//     };
 
 
     goog.events.listen(splitpane1,
 		       goog.events.EventType.CHANGE,
-		       synchronizeTopSize);
+		       synchronize);
 
     goog.events.listen(vsm,
                        goog.events.EventType.RESIZE,
