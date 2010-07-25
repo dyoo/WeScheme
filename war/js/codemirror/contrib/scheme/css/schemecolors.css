@@ -15,6 +15,14 @@ html {
   color: black;
 }
 
+.editbox{
+       background:     white url(/css/images/fadeIcon.png) no-repeat right bottom;
+}
+
+.editbox:hover{
+       background:     white url(/css/images/fadeWords.png) no-repeat right bottom;
+}
+
 
 
 pre.code, .editbox {

@@ -142,6 +142,7 @@ var WeSchemeTextContainer;
 		autoMatchParens: true,
 		disableSpellcheck: true,
 		lineNumbers: true,
+		textWrapping: false,
 		width: "100%",
 		height: "100%",
 
