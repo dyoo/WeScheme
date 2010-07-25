@@ -12,6 +12,8 @@ goog.require('goog.ui.SplitPane.Orientation');
 goog.require('goog.math.Size');
 
 
+goog.require('plt.wescheme.topKeymap');
+
 
 var myEditor;
 var defnSourceContainer;
@@ -42,6 +44,8 @@ var interactionsSetup = function() {
 	return false;
     });
 
+    
+    jQuery("body").keydown(plt.wescheme.topKeymap);
 };
 
 

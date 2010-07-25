@@ -1,6 +1,8 @@
 
 goog.provide('plt.wescheme.WeSchemeTextContainer');
 
+goog.require('plt.wescheme.topKeymap');
+
 
 
 var WeSchemeTextContainer;
@@ -149,6 +151,14 @@ var WeSchemeTextContainer;
 
 		initCallback: function(editor) {
 		    that.editor = editor;
+		    var keyHandler = function(e) {
+			return plt.wescheme.topKeymap(e);
+		    };
+		    var keyFilter = function(keycode) {
+			var result = (keycode === 116);
+			return result;
+		    };
+		    that.editor.grabKeys(keyHandler, keyFilter);
 		    onSuccess.call(that, that);
 		}});
     }
