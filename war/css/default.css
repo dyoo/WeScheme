@@ -242,8 +242,10 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
     font-family:	Monaco, sans-serif;
     font-size:		12px;
 }
+
+
 #inter input{
-    width:              100%;
+/*     width:              100%; */
     height:             100%;
     font-size:		12px; 
     font-family:	Monaco, sans-serif; 
@@ -280,11 +282,4 @@ div.moby-error {
 div.error-stack-trace {
     max-height: 100px;
     overflow: auto;
-}
-
-
-
-#inputBox {
-/*     width: 75%; */
-    background: orange;
 }
