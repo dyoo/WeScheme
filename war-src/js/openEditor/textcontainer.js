@@ -154,10 +154,12 @@ var WeSchemeTextContainer;
 		    var keyHandler = function(e) {
 			return plt.wescheme.topKeymap(e);
 		    };
-		    var keyFilter = function(keycode) {
-			var result = (keycode === 116);
-			return result;
+
+		    var keyFilter = function(keycode, event) {
+			// handle F5 especially
+			return (event.type == 'keydown' && event.keyCode === 116);
 		    };
+
 		    that.editor.grabKeys(keyHandler, keyFilter);
 		    onSuccess.call(that, that);
 		}});
