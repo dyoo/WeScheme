@@ -181,8 +181,10 @@ WeSchemeInteractions = (function () {
 	    var anchor = document.createElement("a");
 	    anchor['href'] = "#";
 	    anchor['onclick'] = makeHighlighterLinkFunction(that, stacktrace[i]);
-	    anchor.appendChild(document.createTextNode("at: line " + stacktrace[i].line + 
-						    ", column " + stacktrace[i].column));
+	    anchor.appendChild(document.createTextNode(
+		"at: line " + stacktrace[i].line + 
+		    ", column " + stacktrace[i].column +
+		    ", in " + stacktrace[i].id));
 	    stacktraceDiv.appendChild(anchor);
 	    stacktraceDiv.appendChild(document.createElement("br"));
 	}
