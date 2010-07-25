@@ -21,7 +21,7 @@ WeSchemeInteractions = (function () {
 	var that = this;
 
 	this.interactionsDiv = jQuery(interactionsDiv);
-	this.prompt = jQuery("<div style='width:100%'><span>&gt;&nbsp;<input type='text' style='width: 75%'></span></div>");
+	this.prompt = makePrompt();
 	this.interactionsDiv.append(this.prompt);
 
 	this.evaluator = this.makeFreshEvaluator();
@@ -33,6 +33,11 @@ WeSchemeInteractions = (function () {
 	// history: (listof string)
 	this.history = [];
     };
+
+    var makePrompt = function() {
+	return jQuery("<div><span>&gt;&nbsp;<input type='text' id='inputBox'></span></div>");
+    };
+
 
 
     WeSchemeInteractions.prototype.makeFreshEvaluator = function() {
@@ -91,7 +96,7 @@ WeSchemeInteractions = (function () {
 	this.notifyBus("before-reset", this);
 	var that = this;
 	this.interactionsDiv.empty();
-	this.prompt = jQuery("<div style='width:100%'><span>&gt;&nbsp;<input type='text' id='inputBox'></span></div>");
+	this.prompt = makePrompt();
 	this.interactionsDiv.append(this.prompt);
 
 	this.prompt.contents().keydown(function(e) { that._maybeRunPrompt(e) });

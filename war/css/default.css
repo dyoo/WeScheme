@@ -111,7 +111,7 @@ h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
 /* 30px: FILENAME & URL */
 #fileInfo{
     width:			100%;
-    height:			29px;	/* leave room for the border */
+    height:			29px;	/\* leave room for the border *\/ 
     clear:			both;
     padding:		5px 0px;
     white-space:	nowrap;
@@ -133,8 +133,8 @@ h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
 #toolbar{
     width:			100%;
     height:			19px;	/* leave room for the border */
-    padding-top:                10px;
-    padding-bottom:             10px;
+    padding-top:                0px;
+    padding-bottom:             0px;
     border-bottom:	solid 1px black;
     background:		black;
     clear:			both;
@@ -285,6 +285,6 @@ div.error-stack-trace {
 
 
 #inputBox {
-    width: 75%;
-    background: none;
+/*     width: 75%; */
+    background: orange;
 }
