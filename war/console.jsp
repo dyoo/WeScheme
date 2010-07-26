@@ -37,6 +37,7 @@
 
 <script src="editor/jquery.createdomnodes.js"></script>
 <script src="safeSubmit.js"></script>
+<script src="/js/submitpost.js"></script>
 
 
 

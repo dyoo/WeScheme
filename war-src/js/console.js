@@ -77,17 +77,27 @@ var addProgramEntry = function(digest, aProgramDigest, programListUl) {
 
     var title = aProgramDigest.getTitle();
     var id = aProgramDigest.getId();
-    var form = (jQuery("<form/>")
-		.attr("method", "post")
-		.attr("action",   "/openEditor")
-		.append(jQuery("<input/>")
-			.addClass("ProgramTitle")
-			.attr("type", "submit")
-			.attr("value", title))
-		.append(jQuery("<input/>")
-			.attr("type", "hidden")
-			.attr("name", "pid")
-			.attr("value", id)));
+    var anchor = jQuery("<span/>")
+	.addClass("ProgramTitle")
+	.append(jQuery("<a/>")
+		.attr("href", "/openEditor?pid="+id)
+		.attr("target", "_editor" + id)
+		.text(title));
+
+
+    // form.submit(function() { 
+// 	console.log("opening first window");
+// 	submitPost("/openEditor",
+// 		   { pid: id },
+// 		   { target: "wescheme_editor_" + id });
+// 	console.log("opening second window");
+// 	submitPost("/openEditor",
+// 		   { pid: id },
+// 		   { target: "2ndwindowwescheme_editor_" + id });
+// 	return false;
+//     });
+
+
     var modifiedSpan = (jQuery("<span/>")
 			.text(plt.wescheme.helpers.prettyPrintDate(
 			    aProgramDigest.getModified()))
@@ -99,7 +109,7 @@ var addProgramEntry = function(digest, aProgramDigest, programListUl) {
 	aProgramDigest, loadProgramList, loadProgramList);
 
     (programEntry
-     .append(form)
+     .append(anchor)
      .append(modifiedSpan)
      .append(shareSpan)
      .append(deleteSpan));
