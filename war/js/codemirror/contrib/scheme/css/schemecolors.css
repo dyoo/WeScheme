@@ -16,6 +16,16 @@ html {
 }
 
 
+html{
+       background:     white url(/css/images/fadeIcon.png) no-repeat right bottom fixed;
+}
+
+html:hover{
+       background:     white url(/css/images/fadeWords.png) no-repeat right bottom fixed;
+}
+
+
+
 
 pre.code, .editbox {
   color: #666666;

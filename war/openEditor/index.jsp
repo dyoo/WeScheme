@@ -132,7 +132,7 @@
 	  
 	  <div id="interactions" class="goog-splitpane-second-container">
 	    <div id="inter">
-	      <div style="width: 100%; height:100%"><span>&gt; <input style="width: 75%;height:100%" type="text"/></span></div>
+	      <div style="width: 100%; height:100%"><span>&gt;&nbsp<input id="inputBox" style="width: 75%;height:100%" type="text"/></span></div>
 	    </div>
 	  </div>
 

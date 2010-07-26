@@ -258,7 +258,6 @@ var WeSchemeEditor;
 	var that = this;
 	var afterSave = function(pid) {
 	    that.pid = pid;
-	    plt.wescheme.WeSchemeIntentBus.notify("before-save", that);
 
 	    that.savedE.sendEvent(true);
 	    plt.wescheme.WeSchemeIntentBus.notify("after-save", that);
@@ -288,6 +287,7 @@ var WeSchemeEditor;
 		 whenSaveBreaks);
 	};
 
+	plt.wescheme.WeSchemeIntentBus.notify("before-save", this);
 	if (this.pid == false) {
 	    onFirstSave();
 	} else {

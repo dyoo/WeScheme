@@ -1,6 +1,8 @@
 
 goog.provide('plt.wescheme.WeSchemeTextContainer');
 
+goog.require('plt.wescheme.topKeymap');
+
 
 
 var WeSchemeTextContainer;
@@ -140,6 +142,7 @@ var WeSchemeTextContainer;
 		autoMatchParens: true,
 		disableSpellcheck: true,
 		//lineNumbers: true,
+		textWrapping: false,
 		width: "100%",
 		height: "100%",
 
@@ -149,6 +152,16 @@ var WeSchemeTextContainer;
 
 		initCallback: function(editor) {
 		    that.editor = editor;
+		    var keyHandler = function(e) {
+			return plt.wescheme.topKeymap(e);
+		    };
+
+		    var keyFilter = function(keycode, event) {
+			// handle F5 especially
+			return (event.type == 'keydown' && event.keyCode === 116);
+		    };
+
+		    that.editor.grabKeys(keyHandler, keyFilter);
 		    onSuccess.call(that, that);
 		}});
     }

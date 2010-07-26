@@ -15,11 +15,12 @@ public class Cookies {
 			for( int ii = 0; ii < cookies.length; ++ii ){
 				if( parameter.equals(cookies[ii].getName()) ){
 					Object val = Base64.decodeToObject(cookies[ii].getValue());
-					System.out.println("Retrieving " + parameter + " = " + val);
+					System.out.println("Cookies: retrieving " + parameter + "=" + val);
 					return val;
 				}
 			}
 		}
+		System.out.println("Cookies: unable to find cookie " + parameter);
 		return null;		
 	}
 	
@@ -43,7 +44,7 @@ public class Cookies {
     	c.setPath("/");
     	c.setMaxAge(-1);
     	res.addCookie(c);
-    	System.out.println("Adding cookie" + name + " : " + valString);
+    	System.out.println("Cookies: Adding cookie" + name + " : " + valString);
     }
    
     // Adds a cookie value to the response.  The programmer here is responsible for encoding the string value. 
@@ -52,6 +53,7 @@ public class Cookies {
     	c.setPath("/");
     	c.setMaxAge(-1);
     	res.addCookie(c);
+    	System.out.println("Cookies: Adding unencoded cookie" + name + " : " + value);
     }
     
 
@@ -61,6 +63,6 @@ public class Cookies {
     	c.setMaxAge(0);
     	c.setPath("/");
     	res.addCookie(c);
-    	System.out.println("removing cookie" + name);
+    	System.out.println("Cookies: removing cookie" + name);
     }	
 }
