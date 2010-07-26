@@ -54,7 +54,11 @@
 
 <div id="toolbar">
 	<ul>
-		<li class="start"><a href="/openEditor">Start a new program</a></li>
+		<li class="start">
+		  <a href="/openEditor" target="_blank">
+		    Start a new program
+		  </a>
+		</li>
 
 		<li class="logout">
 			<form method="POST" action="/logout">
@@ -68,17 +72,8 @@
 
 <h1>Your programs</h1>
 <div id="programList">
-	<%-- The rest will be filled in through Javascript --%>
-</div>
-
-
-<!-- <h1>Your shared programs</h1> -->
-<!-- <div id="sharedList"> -->
-<!-- 	<%-- The rest will be filled in through Javascript --%> -->
-<!-- </div> -->
-
-
-
+The program list is being loaded.  Please wait.
+</div>	
 
 
 </body>
