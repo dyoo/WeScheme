@@ -34,9 +34,10 @@ plt.wescheme.WeSchemeStatusBar = WeSchemeStatusBar = (function() {
 		'before-publish': 'Program is being published',
 		'after-publish': 'Program has been published',
 		'before-run': 'Program is being executed',
-		'after-run': 'Program has been executed'};
+		'after-run': 'Program has been executed',
+		'before-share': 'Program is being shared',
+		'after-share': 'Program has been shared'};
 	    if (action === 'notify' &&
-		data instanceof WeSchemeEditor &&
 		typeof(editorNotifyCategoryMap[category] !== 'undefined')) {
 		that.notify(editorNotifyCategoryMap[category]);
 	    } else if (action === 'notify' &&

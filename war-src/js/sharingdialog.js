@@ -47,6 +47,7 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
 
 	// Does the brunt work of the sharing.
 	var doTheSharing = function(isPublic, onSuccess, onFailure) {
+	    plt.wescheme.WeSchemeIntentBus.notify("before-share", that);
 	    that.actions.makeAClone(
 		that.pid, 
 		that.code,
@@ -62,22 +63,26 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
 				       isPublic,
 				       function(sharedProgram) {
 					   var newDialog = jQuery("<div/>");
-					   newDialog.dialog({title: 'Sharing your program',
-							     bgiframe : true,
-							     modal : true,
-							     close : function() {
-								 if (onShareSuccess) { 
-								     onShareSuccess(sharedProgram); 
-								 }
-							     }
-							    });
+					   newDialog.dialog(
+					       {title: 'Sharing your program',
+						bgiframe : true,
+						modal : true,
+						close : function() {
+						    if (onShareSuccess) { 
+							onShareSuccess(sharedProgram); 
+						    }
+						}
+					       });
+					   plt.wescheme.WeSchemeIntentBus.notify(
+					       "after-share", that);
 					   newDialog.append(
 					       jQuery("<p/>")
 						   .text("Program has been shared: "));
-					   newDialog.append(
-					       jQuery(plt.wescheme.helpers.urlToAnchor(
-						   plt.wescheme.helpers.makeShareUrl(
-						       sharedProgram.find("publicId").text()))));
+					   var anchor = plt.wescheme.helpers.urlToAnchor(
+					       plt.wescheme.helpers.makeShareUrl(
+						   sharedProgram.find("publicId").text()));
+					   anchor.target = "_blank";
+					   newDialog.append(jQuery(anchor));
 					   newDialog.dialog("open");
 
 				       },
@@ -223,7 +228,8 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
     var makeShareAnchor = function(publicId, name) {
 	if (publicId != "") {
 	    var a = document.createElement("a");
-	    a.href = "/view?publicId=" + encodeURIComponent(publicId);
+	    a.href = plt.wescheme.helpers.makeShareUrl(publicId);
+	    a.target = "_blank";
 	    a.appendChild(document.createTextNode(name || a.href));
 	    return a;
 	} else {

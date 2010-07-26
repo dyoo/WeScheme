@@ -11611,6 +11611,7 @@ PRIMITIVES['check-expect'] =
 		 2,
 		 false, true,
 		 function(aState, actual, expected) {
+		     console.log("check expect!");
 		 	if ( isFunction(actual) || isFunction(expected) ) {
 				var msg = 'check-expect cannot compare functions';
 				raise( types.incompleteExn(types.exnFailContract, msg, []) );
@@ -11628,6 +11629,7 @@ PRIMITIVES['check-expect'] =
 			    for (var i = 0; i < stackTrace.length; i++) {
 			        aState.getDisplayHook()("at line: " + stackTrace[i].line + "\n");
 			    }
+			    console.log(msg);
 			}
 			aState.v = types.VOID;
 		});

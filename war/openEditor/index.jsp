@@ -98,14 +98,14 @@
 	<div id="toolbar">
 	  <ul>
 	    <li class="run">	
-	      <a id="run"><img src="/images/run.png" />Run</a>
+	      <a id="run"><img src="/images/run.png" class="button-icon" />Run</a>
 	    </li>
 	    <li class="stop">	
-	      <a id="stop"><img src="/images/break.png"/>Stop</a>
+	      <a id="stop"><img src="/images/break.png" class="button-icon"/>Stop</a>
 	    </li>
 	    <% if (userSession != null) { %>
-	    <li class="save"><a id="save"><img src="/images/save.png"/>Save<span></span></a></li>
-	    <li class="share"><a id="share"><img src="/images/share.png"/>Share<span></span></a></li>
+	    <li class="save"><a id="save"><img src="/images/save.png" class="button-icon"/>Save<span></span></a></li>
+	    <li class="share"><a id="share"><img src="/images/share.png" class="button-icon"/>Share<span></span></a></li>
 	    <li class="logout"><a id="logout">Logout</a></li>
 	    <li class="account"><a id="account">Manage<span></span></a></li>
 	    <% } %>
