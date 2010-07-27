@@ -1,5 +1,6 @@
 package org.wescheme.keys;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -22,9 +23,15 @@ import org.wescheme.util.PMF;
 
 
 @PersistenceCapable
-public class KeyScheduleList {
+public class KeyScheduleList implements Serializable {
 	
-    @PrimaryKey
+    /**
+	 * 
+	 */
+	private static final long serialVersionUID = -783037062058562249L;
+
+
+	@PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
     private Key key;
 	
@@ -55,11 +62,13 @@ public class KeyScheduleList {
 	public static KeyScheduleList getInstance() {		
 		KeyScheduleList ksFromCache = getKeyScheduleFromCache();
 		if (ksFromCache != null) {
+			System.out.println("KeyScheduleList from cache");
 			return ksFromCache;
 		}
 		
 		KeyScheduleList ksFromDb = getKeyScheduleListFromDatabase();
 		if (ksFromDb != null) {
+			System.out.println("KeyScheduleList from db");
 			Cache cache = getCache();
 			if (cache != null) {
 				cache.put("keySchedule", ksFromDb);
@@ -70,6 +79,7 @@ public class KeyScheduleList {
 		// If we still can't find the schedule, create it from scratch.
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try {
+			System.out.println("KeyScheduleList from scratch");
 			KeyScheduleList freshKsl = new KeyScheduleList();
 			pm.makePersistent(freshKsl);
 			Cache cache = getCache();

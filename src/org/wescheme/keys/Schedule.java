@@ -1,5 +1,6 @@
 package org.wescheme.keys;
 
+import java.io.Serializable;
 import java.util.logging.Logger;
 
 import javax.cache.Cache;
@@ -16,8 +17,12 @@ import org.wescheme.keys.KeyManager;
 import com.google.appengine.api.datastore.Key;
 
 @PersistenceCapable()
-public class Schedule {
+public class Schedule implements Serializable {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1498658908860600498L;
 	@SuppressWarnings("unused")
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
@@ -33,7 +38,7 @@ public class Schedule {
 	@Persistent
 	int tickcount;
 
-	private Logger logger = Logger.getLogger(Schedule.class.getName());
+	private static Logger logger = Logger.getLogger(Schedule.class.getName());
 
 
 	/**
