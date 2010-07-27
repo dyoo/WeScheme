@@ -9,11 +9,11 @@
 <head><title>WeScheme</title>
 
 <script src="/editor/jquery.js"></script>
-<script src="/heartbeat.js"></script>
+
 <link rel="stylesheet" type="text/css" href="css/splash.css" id="style" />
 
 </head>
-<body onload='setInterval("beat()",1800000);'>
+<body>
 <h1>WeScheme</h1>
 <input id="newProgram" value="Start Coding" type="button" onclick="javascript:window.location='/openEditor'" />
 	<img src="css/images/BigLogo.png">

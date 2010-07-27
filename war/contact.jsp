@@ -9,11 +9,10 @@
 <head><title>WeScheme :: Contact</title>
 
 <script src="/editor/jquery.js"></script>
-<script src="/heartbeat.js"></script>
 <link rel="stylesheet" type="text/css" href="css/splash.css" id="style" />
 
 </head>
-<body onload='setInterval("beat()",1800000);'>
+<body>
 <h1>WeScheme</h1><img src="css/images/BigLogo.png" width="20%">
 <h2>Talk to us!</h2>
 <div id="text">

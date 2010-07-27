@@ -13,26 +13,19 @@ import org.wescheme.util.PMF;
 
 public class HeartbeatServlet extends HttpServlet {
 
-	/**
-	 * Returns program XML if either pid or publicId is provided.
-	 */
-	private static final long serialVersionUID = 1165047992267892812L;
+    /**
+     * Returns program XML if either pid or publicId is provided.
+     */
+    private static final long serialVersionUID = 1165047992267892812L;
 
-	public void service(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		
-			PersistenceManager pm = PMF.get().getPersistenceManager();
-			try {
-				
-					Session userSession;
-					SessionManager sm = new SessionManager();
-					userSession = sm.authenticate(req, resp);
-					if( null != userSession ){
-						resp.sendError(200);
-					} else {
-						resp.sendError(500);
-					}
-			} finally {
-				pm.close();
-			}
+    public void service(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+	Session userSession;
+	SessionManager sm = new SessionManager();
+	userSession = sm.authenticate(req, resp);
+	if( null != userSession ){
+	    resp.sendError(200);
+	} else {
+	    resp.sendError(500);
 	}
+    }
 }

@@ -36,7 +36,6 @@
     <script src="/js/jquery/jquery.center-in-client.js"></script>
     <script src="/js/codemirror/js/codemirror.js"></script>
 
-    <script src="/heartbeat.js"></script>
     <script src="/js/submitpost.js"></script>
 
 

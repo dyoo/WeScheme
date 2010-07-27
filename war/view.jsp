@@ -14,14 +14,13 @@
 <link rel="stylesheet" type="text/css" href="css/view.css" id="style" />
 
 <script src="/editor/jquery.js"></script>
-<script src="/heartbeat.js"></script>
 <script src="/js/submitpost.js"></script>
 
 <script src="/js/view-calc.js"></script>
 </head>
 
 
-<body onload='setInterval("beat()",1800000); update(decodeURIComponent("<%= encodedId %>"))'>
+<body onload='update(decodeURIComponent("<%= encodedId %>"))'>
 <h1>WeScheme</h1>
 <h2 id="programTitle">&nbsp;</h2>
 

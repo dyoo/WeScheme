@@ -25,7 +25,6 @@ var initializeEditor = function(attrs) {
     splitPaneSetup();
 
     // Set up the heartbeat.
-    setInterval(beat, 1800000);
 
 
     interactionsSetup();
