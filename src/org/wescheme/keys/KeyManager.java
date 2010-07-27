@@ -1,8 +1,6 @@
 package org.wescheme.keys;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.cache.Cache;
@@ -18,47 +16,19 @@ import org.wescheme.util.Crypt.KeyNotFoundException;
 
 public class KeyManager {
 	static Logger logger = Logger.getLogger(KeyManager.class.getName());
-	private static List<Schedule> keySchedule;
 
-	public static void initializeKeys() throws CacheException{
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		try {
-			CacheFactory cf = CacheManager.getInstance().getCacheFactory();
-			Cache cache = cf.createCache(Collections.emptyMap());
-
-			keySchedule = new ArrayList<Schedule>();
-			keySchedule.add(new Schedule("freshKey", "staleKey", 8, 1));
-			keySchedule.add(new Schedule("dailyKey", "staleDailyKey", 8, 24));
-			keySchedule.add(new Schedule(null, "freshKey", 8, 1));
-			keySchedule.add(new Schedule(null, "dailyKey", 8, 24));
-
-			pm.makePersistentAll(keySchedule);
-
-			for( Schedule s : keySchedule ){
-				s.clockTick(cache, pm);
-			}
-
-		} finally {
-			pm.close();
-		}
-
-	}
 
 	public static void rotateKeys() throws KeyNotFoundException, CacheException{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try {
 			logger.info("rotateKeys called");
-			CacheFactory cf = CacheManager.getInstance().getCacheFactory();
-			Cache cache = cf.createCache(Collections.emptyMap());
-
-			for( Schedule s : keySchedule ){
-				s.clockTick(cache, pm);
-			}
-
+			KeyScheduleList keySchedule = KeyScheduleList.getInstance();
+			keySchedule.clockTick();
 		} finally {
 			pm.close();
 		}
 	}
+	
 
 	@SuppressWarnings("unchecked")
 	public static void storeKey(PersistenceManager pm, Cache c, Crypt.Key key){
@@ -67,6 +37,7 @@ public class KeyManager {
 	}
 
 	
+	@SuppressWarnings("unchecked")
 	public static Crypt.Key retrieveKey(PersistenceManager pm, Cache c, String keyName) throws KeyNotFoundException{
 		Crypt.Key inMemoryKey = getFromInMemoryCache(keyName, c);
 		if (inMemoryKey != null) {

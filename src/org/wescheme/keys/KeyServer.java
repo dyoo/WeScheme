@@ -16,11 +16,6 @@ public class KeyServer extends HttpServlet {
 	
 	public void service(HttpServletRequest req, HttpServletResponse resp) throws IOException 
 	{	
-		rotate();
-		resp.sendError(200);
-	}
-	
-	public void rotate(){
 		try {
 			logger.info("Rotating keys.");
 			KeyManager.rotateKeys();
@@ -29,16 +24,6 @@ public class KeyServer extends HttpServlet {
 		} catch (CacheException e) {
 			System.out.println("Cache error!");
 		}
-	}
-	
-	public void init() 
-	{	
-		logger.info("Keyserver intializer called.");
-		try {
-			KeyManager.initializeKeys();	
-			logger.info("Initialized key schedule.");
-		} catch (CacheException e) {
-			e.printStackTrace();
-		} 
+		resp.sendError(200);
 	}
 }
