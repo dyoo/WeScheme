@@ -250,6 +250,7 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
     overflow:		auto;
     font-family:	Monaco, sans-serif;
     font-size:		12px;
+    background:         none;
 }
 
 
@@ -260,6 +261,7 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
     font-family:	Monaco, sans-serif; 
     border:		0px;
     outline: 0 !important; /* disable focus ring in Safari */
+    background:         none;
 }
 
 
