@@ -65,20 +65,20 @@ public class KeyScheduleList implements Serializable {
 			System.out.println("KeyScheduleList from cache");
 			return ksFromCache;
 		}
-		
-		KeyScheduleList ksFromDb = getKeyScheduleListFromDatabase();
-		if (ksFromDb != null) {
-			System.out.println("KeyScheduleList from db");
-			Cache cache = getCache();
-			if (cache != null) {
-				cache.put("keySchedule", ksFromDb);
-			}
-			return ksFromDb;
-		}
-		
+
 		// If we still can't find the schedule, create it from scratch.
 		PersistenceManager pm = PMF.get().getPersistenceManager();
-		try {
+		try {	
+			KeyScheduleList ksFromDb = getKeyScheduleListFromDatabase(pm);
+			if (ksFromDb != null) {
+				System.out.println("KeyScheduleList from db");
+				Cache cache = getCache();
+				if (cache != null) {
+					cache.put("keySchedule", ksFromDb);
+				}
+				return ksFromDb;
+			}
+		
 			System.out.println("KeyScheduleList from scratch");
 			KeyScheduleList freshKsl = new KeyScheduleList();
 			pm.makePersistent(freshKsl);
@@ -117,11 +117,10 @@ public class KeyScheduleList implements Serializable {
 	}
 
 
-	private static KeyScheduleList getKeyScheduleListFromDatabase() {
+	private static KeyScheduleList getKeyScheduleListFromDatabase(PersistenceManager pm) {
 		// If it's not there, try looking at it in the database.
 		// Defensive coding: if we see more than one keySchedule, delete the
 		// others.  There should only be one singleton instance in our database.
-		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Extent<KeyScheduleList> extent = pm.getExtent(KeyScheduleList.class);
 		KeyScheduleList result = null;
 		try {
