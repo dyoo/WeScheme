@@ -15259,7 +15259,7 @@ PRIMITIVES['place-image'] =
 			    var newScene = world.Kernel.sceneImage(background.getWidth(),
 								   background.getHeight(),
 								   []);
-			    newScene = newScene.add(background, 0, 0);
+			    newScene = newScene.add(background.updatePinhole(0, 0), 0, 0);
 			    newScene = newScene.add(picture, jsnums.toFixnum(x), jsnums.toFixnum(y));
 			    return newScene;
 			}
