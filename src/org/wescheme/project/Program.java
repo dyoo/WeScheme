@@ -141,7 +141,17 @@ public class Program {
 	}
 	
 	public SourceCode getSource(){
-		return srcs_.get(0);
+	    // Defensive: it should not be possible for this.srcs_ to
+	    // be null or the empty list, but I'm seeing these
+	    // from JDO.  Argh.
+	    if (this._srcs_ == null) {
+		this.srcs_ = new ArrayList<SourceCode>();
+	    }
+	    if (this.srcs_.size() == 0) {
+		this.srcs_.add(new SourceCode(this.title_, ""));
+	    }
+
+	    return this.srcs_.get(0);
 	}
 	
 	private void setSource(SourceCode src) {
