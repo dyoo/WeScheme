@@ -8232,7 +8232,10 @@ var world = {};
     //Triangle
     ///////
     var TriangleImage = function(side, style, color) {
-	BaseImage.call(this, side, side);
+	this.width = side;
+	this.height = Math.ceil(side * Math.sqrt(3) / 2);
+
+	BaseImage.call(this, Math.floor(this.width/2), Math.floor(this.height/2));
 	this.side = side;
 	this.style = style;
 	this.color = color;
@@ -8263,11 +8266,11 @@ var world = {};
 
 
     TriangleImage.prototype.getWidth = function() {
-	return this.side;
+	return this.width;
     };
 
     TriangleImage.prototype.getHeight = function() {
-	return Math.ceil(this.side * Math.sqrt(3) / 2);
+	return this.height;
     };
 
     TriangleImage.prototype.isEqual = function(other, aUnionFind) {
@@ -11611,7 +11614,6 @@ PRIMITIVES['check-expect'] =
 		 2,
 		 false, true,
 		 function(aState, actual, expected) {
-		     console.log("check expect!");
 		 	if ( isFunction(actual) || isFunction(expected) ) {
 				var msg = 'check-expect cannot compare functions';
 				raise( types.incompleteExn(types.exnFailContract, msg, []) );
@@ -11629,7 +11631,6 @@ PRIMITIVES['check-expect'] =
 			    for (var i = 0; i < stackTrace.length; i++) {
 			        aState.getDisplayHook()("at line: " + stackTrace[i].line + "\n");
 			    }
-			    console.log(msg);
 			}
 			aState.v = types.VOID;
 		});
@@ -15364,7 +15365,7 @@ PRIMITIVES['triangle'] =
 		 false, false,
 		 function(r, s, c) {
 			check(r, isNonNegativeReal, "triangle", "non-negative number", 1, arguments);
-			check(s, isStyle, "triangle", "string", 2, arguments);
+			check(s, isStyle, "triangle", "style", 2, arguments);
 			check(c, isColor, "triangle", "color", 3, arguments);
 			if (colorDb.get(c)) {
 				c = colorDb.get(c);
