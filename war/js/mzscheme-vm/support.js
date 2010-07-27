@@ -8031,11 +8031,21 @@ var world = {};
 
     RectangleImage.prototype.render = function(ctx, x, y) {
 	if (this.style.toString().toLowerCase() == "outline") {
+	    ctx.save();
+	    ctx.beginPath();
 	    ctx.strokeStyle = colorString(this.color);
 	    ctx.strokeRect(x, y, this.width, this.height);
+	    ctx.closePath();
+	    ctx.restore();
 	} else {
+	    ctx.save();
+	    ctx.beginPath();
+
 	    ctx.fillStyle = colorString(this.color);
 	    ctx.fillRect(x, y, this.width, this.height);
+
+	    ctx.closePath();
+	    ctx.restore();
 	}
     };
 
@@ -8128,6 +8138,7 @@ var world = {};
 	ctx.arc(x + this.radius,
 		y + this.radius,
 		this.radius, 0, 2*Math.PI, false);
+	ctx.closePath();
 	if (this.style.toString().toLowerCase() == "outline") {
 	    ctx.strokeStyle = colorString(this.color);
 	    ctx.stroke();
@@ -8135,7 +8146,7 @@ var world = {};
 	    ctx.fillStyle = colorString(this.color);
 	    ctx.fill();
 	}
-	ctx.closePath();
+
 	ctx.restore();
     };
     
@@ -8192,6 +8203,7 @@ var world = {};
 	    ctx.lineTo(x + this.radius + ( Math.sin( rads ) * radius ), 
 		       y + this.radius + ( Math.cos( rads ) * radius ) );
 	}
+	ctx.closePath();
 	if (this.style.toString().toLowerCase() == "outline") {
 	    ctx.strokeStyle = colorString(this.color);
 	    ctx.stroke();
@@ -8199,7 +8211,7 @@ var world = {};
 	    ctx.fillStyle = colorString(this.color);
 	    ctx.fill();
 	}
-	ctx.closePath();
+
 	ctx.restore();
     };
     
@@ -8246,7 +8258,7 @@ var world = {};
     TriangleImage.prototype.render = function(ctx, x, y) {
 	var width = this.getWidth();
 	var height = this.getHeight();
-
+	ctx.save();
 	ctx.beginPath();
 	ctx.moveTo(x + this.side/2, y);
 	ctx.lineTo(x + width, y + height);
@@ -8261,6 +8273,7 @@ var world = {};
 	    ctx.fillStyle = colorString(this.color);
 	    ctx.fill();
 	}
+	ctx.restore();
     };
     
 
@@ -8292,21 +8305,23 @@ var world = {};
 	this.height = height;
 	this.style = style;
 	this.color = color;
-    }
+    };
 
     EllipseImage.prototype = heir(BaseImage.prototype);
 
     
     EllipseImage.prototype.render = function(ctx, aX, aY) {
 	ctx.save();
+	ctx.beginPath();
+
 	// Most of this code is taken from:
 	// http://webreflection.blogspot.com/2009/01/ellipse-and-circle-for-canvas-2d.html
         var hB = (this.width / 2) * .5522848,
-            vB = (this.height / 2) * .5522848,
-            eX = aX + this.width,
-            eY = aY + this.height,
-            mX = aX + this.width / 2,
-            mY = aY + this.height / 2;
+        vB = (this.height / 2) * .5522848,
+        eX = aX + this.width,
+        eY = aY + this.height,
+        mX = aX + this.width / 2,
+        mY = aY + this.height / 2;
         ctx.moveTo(aX, mY);
         ctx.bezierCurveTo(aX, mY - vB, mX - hB, aY, mX, aY);
         ctx.bezierCurveTo(mX + hB, aY, eX, mY - vB, eX, mY);
@@ -8321,6 +8336,8 @@ var world = {};
  	    ctx.fillStyle = colorString(this.color);
 	    ctx.fill();
 	}
+
+
 	ctx.restore();
     };
     
