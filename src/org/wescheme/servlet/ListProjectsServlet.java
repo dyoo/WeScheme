@@ -34,59 +34,69 @@ public class ListProjectsServlet extends HttpServlet {
 	private static final Logger log = Logger.getLogger(ListProjectsServlet.class.getName());
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		getFromDatabase(req, resp);
-	}
-
-	private void getFromDatabase(HttpServletRequest req,
-			HttpServletResponse resp) throws IOException {
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		Session userSession;
-		SessionManager sm = new SessionManager();
+		// Authentication
 	
 		try {
+			Session userSession = authenticate(req, resp);		
+
+			String outputString = getFromDatabase(userSession);			
+			resp.setContentType("text/xml");
+			PrintWriter w = resp.getWriter();
+			w.write(outputString);
+			w.close();
+		} catch (IOException e) {
+			log.severe("IO expection in ListProjectsServlet!");
+			e.printStackTrace();
+			resp.sendError(500);
+		} catch (UnauthorizedUserException e) {
+			log.warning("UnauthorizedUserException: user appears to be logged out");
+			e.printStackTrace();
+			resp.sendError(401);
+		}
+	}
+
+	// authenticate: -> Session
+	// Returns the Session of the currently logged-in user.
+	// If the user isn't logged in, throws UnauthorizedUserException
+	public Session authenticate(HttpServletRequest req, HttpServletResponse resp) throws UnauthorizedUserException {
+		SessionManager sm = new SessionManager();
+		Session userSession = sm.authenticate(req, resp);
+		if( userSession == null ){
+			throw new UnauthorizedUserException();
+		}
+		return userSession;
+	}
+	
+	
+	/**
+	 * Gets the set of ProgramDigests for the user with the given session.
+	 * @param userSession
+	 * @return
+	 * @throws IOException
+	 */
+	private String getFromDatabase(Session userSession) throws IOException {
+		PersistenceManager pm = PMF.get().getPersistenceManager();
 		
-			userSession = sm.authenticate(req, resp);
-		
-			if( userSession == null ){
-				throw new UnauthorizedUserException();
-			}
-			
+		try {
 			Query query = pm.newQuery(Program.class);
 			query.setFilter("owner_ == ownerParam");
-//			query.setFilter("is_deleted == false");
 			query.setOrdering("time_ desc");
 			query.declareParameters("String ownerParam");		       
 			try {
 				@SuppressWarnings({ "unchecked" })
 				    List<Program> pl = (List<Program>) 
 				    query.execute(userSession.getName());
-
 				Element elt = new Element("ProgramDigests");
 				for( Program p : pl ){
 					if (! p.getIsDeleted())
 						elt.addContent(new ProgramDigest(p).toXML(pm));
 				}
-				resp.setContentType("text/xml");
-				PrintWriter w = resp.getWriter();
 				XMLOutputter outputter = new XMLOutputter();
-				w.write(outputter.outputString(elt));
-				w.close();
-				
-				
+				String outputString = outputter.outputString(elt); 			
+				return outputString;				
 			} finally {
 				query.closeAll();
 			}
-		
-		} catch (IOException e) {
-			log.severe("IO expection in ListProjectsServlet!");
-			e.printStackTrace();
-			resp.sendError(500);
-			
-		} catch (UnauthorizedUserException e) {
-			log.warning("This user does not own project " + req.getParameter("pid"));
-			e.printStackTrace();
-			resp.sendError(401);
-			
 		} finally {
 			pm.close();
 		}
