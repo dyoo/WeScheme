@@ -34,6 +34,11 @@ public class ListProjectsServlet extends HttpServlet {
 	private static final Logger log = Logger.getLogger(ListProjectsServlet.class.getName());
 
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+		getFromDatabase(req, resp);
+	}
+
+	private void getFromDatabase(HttpServletRequest req,
+			HttpServletResponse resp) throws IOException {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		Session userSession;
 		SessionManager sm = new SessionManager();
