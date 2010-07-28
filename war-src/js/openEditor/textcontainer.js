@@ -141,8 +141,8 @@ var WeSchemeTextContainer;
 		stylesheet: "/js/codemirror/contrib/scheme/css/schemecolors.css",
 		autoMatchParens: true,
 		disableSpellcheck: true,
-		//lineNumbers: true,
-		textWrapping: false,
+		lineNumbers: true,
+		textWrapping: true,
 		width: "100%",
 		height: "100%",
 

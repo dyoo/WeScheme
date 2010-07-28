@@ -21,22 +21,22 @@ public class Program {
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
 	protected Long id;
-	
+
 	@Persistent
 	protected String publicId_;
-	
+
 	@Persistent
 	protected String title_;
 	@Persistent
 	protected ObjectCode obj_;
-	
+
 	@Persistent
 	protected Boolean isSourcePublic;
 
 	@Persistent
 	protected Boolean isDeleted;
 
-	
+
 	// Kludge: haven't figured out how to get JDO to update an existing
 	// child element in a one-to-one relationship.
 	@Persistent
@@ -55,13 +55,13 @@ public class Program {
 	@Persistent
 	private Long backlink_;
 
-	
-	
+
+
 	private void updateTime(){
 		time_ = System.currentTimeMillis();
 	}
-	
-	
+
+
 	public Program(String src, String ownerName){
 		this.title_ = "Unknown";
 		this.srcs_ = new ArrayList<SourceCode>();
@@ -74,8 +74,8 @@ public class Program {
 		this.backlink_ = null;
 		this.updateTime();
 	}
-	
-	
+
+
 	// Creates a copy of the program owned by the user with the given ownerName.
 	// Authorship is preserved, and we keep track of how the program was shared.
 	public Program clone(String ownerName, PersistenceManager pm){
@@ -84,42 +84,42 @@ public class Program {
 		p.backlink_ = this.getId();
 		p.author_ = this.author_;
 		p.updateTime();
-		
+
 		p = pm.makePersistent(p);
 		return p;
 	}
-	
-	
+
+
 	public void share(boolean isObjectCodePublic){		
 		published_ = true;
 		this.isSourcePublic = isObjectCodePublic;
 		updateTime();
 	}
-	
+
 	public boolean getIsSourcePublic() {	
 		if (this.isSourcePublic == null) {
 			return false;
 		}
 		return this.isSourcePublic;
 	}
-	
-	
+
+
 	public boolean getIsDeleted() {
 		if (this.isDeleted == null) {
 			return false;
 		} 
 		return this.isDeleted.booleanValue();
 	}
-	
+
 	public void setIsDeleted(boolean v) {
 		this.isDeleted = v;
 	}
-	
+
 	public void unpublish(){
 		published_ = false;
 		updateTime();
 	}
-	
+
 	public void build() {
 		ObjectCode newCode = 
 			org.wescheme.project.Compiler.compile(this.getSource());
@@ -128,37 +128,37 @@ public class Program {
 		this.obj_.setPermissions(newCode.getPermissions());
 		this.updateTime();
 	}
-	
+
 	public void updateTitle(String newTitle) {
 		title_ = newTitle;
 		updateTime();
 	}
-	
+
 	public void updateSource(String src){
 		this.setSource(new SourceCode(this.title_, src));
 		this.obj_ = new ObjectCode();
 		updateTime();
 	}
-	
-	public SourceCode getSource(){
-	    // Defensive: it should not be possible for this.srcs_ to
-	    // be null or the empty list, but I'm seeing these
-	    // from JDO.  Argh.
-	    if (this._srcs_ == null) {
-		this.srcs_ = new ArrayList<SourceCode>();
-	    }
-	    if (this.srcs_.size() == 0) {
-		this.srcs_.add(new SourceCode(this.title_, ""));
-	    }
 
-	    return this.srcs_.get(0);
+	public SourceCode getSource(){
+		// Defensive: it should not be possible for this.srcs_ to
+		// be null or the empty list, but I'm seeing these
+		// from JDO.  Argh.
+		if (this.srcs_ == null) {
+			this.srcs_ = new ArrayList<SourceCode>();
+		}
+		if (this.srcs_.size() == 0) {
+			this.srcs_.add(new SourceCode(this.title_, ""));
+		}
+
+		return this.srcs_.get(0);
 	}
-	
+
 	private void setSource(SourceCode src) {
 		this.srcs_.clear();
 		this.srcs_.add(src);
 	}
-	
+
 	public ObjectCode getObject(){
 		return obj_;
 	}
@@ -167,20 +167,20 @@ public class Program {
 	public boolean hasBeenBuilt() {
 		return (this.obj_ != null && this.obj_.getObj().length() > 0);
 	}
-	
-	
+
+
 	public String getOwner(){
 		return owner_;
 	}
-	
+
 	public Long getId(){
 		return id;
 	}
-	
+
 	public Long getBacklink() {
 		return this.backlink_;
 	}
-	
+
 	public Long getTime(){
 		return time_;
 	}
@@ -188,12 +188,12 @@ public class Program {
 	public String getPublicId() {
 		return this.publicId_;
 	}
-	
+
 	public void setPublicId(String id) {
 		this.publicId_ = id;
 	}
-	
-	
+
+
 	public Element toXML(PersistenceManager pm) { return this.toXML(true, pm); }
 
 	public Element toXML(boolean includeSource, PersistenceManager pm) {
@@ -201,7 +201,7 @@ public class Program {
 		if (includeSource) {
 			root.addContent(getSource().toXML());
 		}
-		
+
 		if( null != obj_){
 			root.addContent(obj_.toXML());
 		}
@@ -225,13 +225,13 @@ public class Program {
 			}
 		}
 		root.addContent(sharedAsElt);
-		
+
 		return root;
-		
+
 	}
 
 	public boolean isPublished() {
-		
+
 		return published_;
 	}
 
@@ -243,14 +243,14 @@ public class Program {
 	public String getAuthor() {
 		return author_;
 	}
-	
+
 	public void setAuthor(String author) {
 		author_ = author;
 	}
 
 
-	
-	
+
+
 	/**
 	 * Returns a list of the programs for which this has been backlinked, 
 	 * sorted by modified date in descending order.
@@ -269,6 +269,6 @@ public class Program {
 		} finally {
 			query.closeAll();
 		}
-		
+
 	}
 }
