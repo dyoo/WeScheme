@@ -17,9 +17,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class NetworkProxy extends HttpServlet {
-	/**
-	 * 
-	 */
+	// NetworkProxy currently disabled.  Unsafe as it stands.
+	
+	/*
 	private static final long serialVersionUID = 2565511296203717652L;
 
 	public void doGet(HttpServletRequest req, HttpServletResponse res) {
@@ -72,4 +72,5 @@ public class NetworkProxy extends HttpServlet {
         	w.write(b);
         }
 	}
-}
+*/
+	}
