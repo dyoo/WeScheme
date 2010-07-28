@@ -226,17 +226,6 @@
 
 
 
-
-  <servlet>
-    <servlet-name>networkProxy</servlet-name>
-    <servlet-class>org.wescheme.servlet.NetworkProxy</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>networkProxy</servlet-name>
-    <url-pattern>/networkProxy</url-pattern>
-  </servlet-mapping>
-
-
   <servlet>
     <servlet-name>administrate</servlet-name>
     <servlet-class>org.wescheme.servlet.Administrate</servlet-class>
