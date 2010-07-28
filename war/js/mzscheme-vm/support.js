@@ -7949,7 +7949,8 @@ var world = {};
 
     // OverlayImage: image image -> image
     // Creates an image that overlays img1 on top of the
-    // other image.
+    // other image.  shiftX and shiftY are deltas off the first
+    // image's pinhole.
     var OverlayImage = function(img1, img2, shiftX, shiftY) {
 	var deltaX = img1.pinholeX - img2.pinholeX + shiftX;
 	var deltaY = img1.pinholeY - img2.pinholeY + shiftY;
@@ -7960,9 +7961,9 @@ var world = {};
 	var bottom = Math.max(deltaY + img2.getHeight(),
 			      img1.getHeight());
 
-	BaseImage.call(this,
-		       img1.pinholeX - left,
-		       img1.pinholeY - top);
+	BaseImage.call(this, 
+		       Math.floor((right-left) / 2),
+		       Math.floor((bottom-top) / 2));
 	this.img1 = img1;
 	this.img2 = img2;
 	this.width = right - left;
@@ -8363,10 +8364,26 @@ var world = {};
     //////////////////////////////////////////////////////////////////////
     //Line
     var LineImage = function(x, y, color) {
-	BaseImage.call(this, 0, 0);
+	if (x >= 0) {
+	    if (y >= 0) {
+		BaseImage.call(this, 0, 0);
+	    } else {
+		BaseImage.call(this, 0, -y);
+	    }
+	} else {
+	    if (y >= 0) {
+		BaseImage.call(this, -x, 0);
+	    } else {
+		BaseImage.call(this, -x, -y);
+	    }
+	}
+
+
 	this.x = x;
 	this.y = y;
 	this.color = color;
+	this.width = Math.abs(x) + 1;
+	this.height = Math.abs(y) + 1;
     }
 
     LineImage.prototype = heir(BaseImage.prototype);
@@ -8384,12 +8401,12 @@ var world = {};
     
 
     LineImage.prototype.getWidth = function() {
-	return (this.x + 1);
+	return this.width;
     };
     
 
     LineImage.prototype.getHeight = function() {
-	return (this.y + 1);
+	return this.height;
     };
 
     LineImage.prototype.isEqual = function(other, aUnionFind) {
@@ -15424,7 +15441,7 @@ PRIMITIVES['line'] =
 			var line = world.Kernel.lineImage(jsnums.toFixnum(x),
 							  jsnums.toFixnum(y),
 							  c);
-			return line.updatePinhole(0, 0);
+		        return line;
 		 });
 
 
@@ -15455,9 +15472,10 @@ PRIMITIVES['overlay/xy'] =
 			check(deltaY, isReal, "overlay/xy", "finite real number", 3, arguments);
 			check(img2, isImage, "overlay/xy", "image", 4, arguments);
 
-			return world.Kernel.overlayImage(img1, img2,
-							 jsnums.toFixnum(deltaX),
-							 jsnums.toFixnum(deltaY));
+		     return world.Kernel.overlayImage(img1.updatePinhole(0, 0),
+						      img2.updatePinhole(0, 0),
+						      jsnums.toFixnum(deltaX),
+						      jsnums.toFixnum(deltaY));
 		 });
 
 
@@ -15488,9 +15506,10 @@ PRIMITIVES['underlay/xy'] =
 			check(deltaY, isReal, "underlay/xy", "finite real number", 3, arguments);
 			check(img2, isImage, "underlay/xy", "image", 4, arguments);
 
-			return world.Kernel.overlayImage(img2, img1,
-							 -jsnums.toFixnum(deltaX),
-							 -jsnums.toFixnum(deltaY));
+		     return world.Kernel.overlayImage(img2.updatePinhole(0, 0), 
+						      img1.updatePinhole(0, 0),
+						      -jsnums.toFixnum(deltaX),
+						      -jsnums.toFixnum(deltaY));
 		 });
 
 
