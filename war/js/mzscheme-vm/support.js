@@ -7714,6 +7714,7 @@ var world = {};
     // render: context fixnum fixnum: -> void
     // Render the image, where the upper-left corner of the image is drawn at
     // (x, y).
+    // NOTE: the rendering should be oblivous to the pinhole.
     BaseImage.prototype.render = function(ctx, x, y) {
 	    throw new Error('BaseImage.render unimplemented!');
 //	plt.Kernel.throwMobyError(
@@ -7800,11 +7801,12 @@ var world = {};
     };
 
     // SceneImage: primitive-number primitive-number (listof image) -> Scene
-    var SceneImage = function(width, height, children) {
+    var SceneImage = function(width, height, children, withBorder) {
 	BaseImage.call(this, 0, 0);
 	this.width = width;
 	this.height = height;
 	this.children = children;
+	this.withBorder = withBorder;
     }
     SceneImage.prototype = heir(BaseImage.prototype);
 
@@ -7815,7 +7817,8 @@ var world = {};
 			      this.height,
 			      this.children.concat([[anImage, 
 						     x - anImage.pinholeX, 
-						     y - anImage.pinholeY]]));
+						     y - anImage.pinholeY]]),
+			      this.withBorder);
     };
 
     // render: 2d-context primitive-number primitive-number -> void
@@ -7832,6 +7835,13 @@ var world = {};
 	    ctx.save();
 	    childImage.render(ctx, childX + x, childY + y);
 	    ctx.restore();
+
+
+	}
+	// Finally, draw the black border if withBorder is true
+	if (this.withBorder) {
+	    ctx.strokeStyle = 'black';
+	    ctx.strokeRect(x, y, this.width, this.height);
 	}
     };
 
@@ -8391,9 +8401,26 @@ var world = {};
     
     LineImage.prototype.render = function(ctx, xstart, ystart) {
 	ctx.save();
-	ctx.moveTo(xstart, ystart);
-	ctx.lineTo((this.x + xstart),
-		   (this.y + ystart));
+
+	if (this.x >= 0) {
+	    if (this.y >= 0) {
+		ctx.moveTo(xstart, ystart);
+		ctx.lineTo((xstart + this.x),
+			   (ystart + this.y));
+	    } else {
+		ctx.moveTo(xstart, ystart + (-this.y));
+		ctx.lineTo(xstart + this.x, ystart);
+	    }
+	} else {
+	    if (this.y >= 0) {
+		ctx.moveTo(xstart + (-this.x), ystart);
+		ctx.lineTo(xstart,
+			   (ystart + this.y));		
+	    } else {
+		ctx.moveTo(xstart + (-this.x), ystart + (-this.y));
+		ctx.lineTo(xstart, ystart);
+	    }
+	}
 	ctx.strokeStyle = colorString(this.color);
 	ctx.stroke();
 	ctx.restore();
@@ -8670,8 +8697,8 @@ var world = {};
     };
     world.Kernel.colorDb = colorDb;
 
-    world.Kernel.sceneImage = function(width, height, children) {
-	   return new SceneImage(width, height, children);
+    world.Kernel.sceneImage = function(width, height, children, withBorder) {
+	return new SceneImage(width, height, children, withBorder);
     };
     world.Kernel.circleImage = function(radius, style, color) {
 	    return new CircleImage(radius, style, color);
@@ -15273,7 +15300,7 @@ PRIMITIVES['empty-scene'] =
 		 function(width, height) {
 		 	check(width, isNonNegativeReal, 'empty-scene', 'non-negative number', 1, arguments);
 			check(height, isNonNegativeReal, 'empty-scene', 'non-negative number', 2, arguments);
-			return world.Kernel.sceneImage(jsnums.toFixnum(width), jsnums.toFixnum(height), []);
+		     return world.Kernel.sceneImage(jsnums.toFixnum(width), jsnums.toFixnum(height), [], true);
 		 });
 
 
@@ -15292,7 +15319,8 @@ PRIMITIVES['place-image'] =
 			} else {
 			    var newScene = world.Kernel.sceneImage(background.getWidth(),
 								   background.getHeight(),
-								   []);
+								   [], 
+								   false);
 			    newScene = newScene.add(background.updatePinhole(0, 0), 0, 0);
 			    newScene = newScene.add(picture, jsnums.toFixnum(x), jsnums.toFixnum(y));
 			    return newScene;
