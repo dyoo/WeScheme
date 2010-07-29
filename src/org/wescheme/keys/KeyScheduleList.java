@@ -20,6 +20,7 @@ import javax.jdo.annotations.PrimaryKey;
 import com.google.appengine.api.datastore.Key;
 
 import org.wescheme.util.PMF;
+import org.wescheme.util.CacheHelpers;
 
 
 @PersistenceCapable
@@ -72,7 +73,7 @@ public class KeyScheduleList implements Serializable {
 			KeyScheduleList ksFromDb = getKeyScheduleListFromDatabase(pm);
 			if (ksFromDb != null) {
 				System.out.println("KeyScheduleList from db");
-				Cache cache = getCache();
+				Cache cache = CacheHelpers.getCache();
 				if (cache != null) {
 					cache.put("keySchedule", ksFromDb);
 				}
@@ -82,7 +83,7 @@ public class KeyScheduleList implements Serializable {
 			System.out.println("KeyScheduleList from scratch");
 			KeyScheduleList freshKsl = new KeyScheduleList();
 			pm.makePersistent(freshKsl);
-			Cache cache = getCache();
+			Cache cache = CacheHelpers.getCache();
 			if (cache != null) {
 				cache.put("keySchedule", freshKsl);
 			}
@@ -93,20 +94,10 @@ public class KeyScheduleList implements Serializable {
 	}
 
 
-	private static Cache getCache() {
-		Cache cache;
-		try {
-			CacheFactory cf = CacheManager.getInstance().getCacheFactory();
-			cache = cf.createCache(Collections.emptyMap());
-		} catch (CacheException e) {
-			cache = null;
-		}
-		return cache;
-	}
 
 
 	private static KeyScheduleList getKeyScheduleFromCache() {
-		Cache cache = getCache();
+		Cache cache = CacheHelpers.getCache();
 		if (cache != null) {
 			if (cache.containsKey("keySchedule") &&
 					cache.get("keySchedule") instanceof KeyScheduleList) {

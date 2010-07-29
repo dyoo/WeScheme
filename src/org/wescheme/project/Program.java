@@ -3,8 +3,8 @@ package org.wescheme.project;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.cache.Cache;
 import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
@@ -12,6 +12,8 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PrimaryKey;
 
 import org.jdom.Element;
+import org.wescheme.util.CacheHelpers;
+import org.wescheme.util.Queries;
 import org.wescheme.util.XML;
 
 
@@ -59,9 +61,10 @@ public class Program {
 
 	private void updateTime(){
 		time_ = System.currentTimeMillis();
+		this.markOwnerCacheDirty();
 	}
 
-
+	
 	public Program(String src, String ownerName){
 		this.title_ = "Unknown";
 		this.srcs_ = new ArrayList<SourceCode>();
@@ -76,6 +79,14 @@ public class Program {
 	}
 
 
+	// markOwnerProgramCacheDirty
+	private void markOwnerCacheDirty() {
+		Cache c = CacheHelpers.getCache();
+		if (c != null && this.owner_ != null)
+			c.remove(CacheHelpers.getUserProgramsCacheKey(this.owner_));
+	}
+	
+	
 	// Creates a copy of the program owned by the user with the given ownerName.
 	// Authorship is preserved, and we keep track of how the program was shared.
 	public Program clone(String ownerName, PersistenceManager pm){
@@ -113,6 +124,7 @@ public class Program {
 
 	public void setIsDeleted(boolean v) {
 		this.isDeleted = v;
+		updateTime();
 	}
 
 	public void unpublish(){
@@ -157,6 +169,7 @@ public class Program {
 	private void setSource(SourceCode src) {
 		this.srcs_.clear();
 		this.srcs_.add(src);
+		this.updateTime();
 	}
 
 	public ObjectCode getObject(){
@@ -191,6 +204,7 @@ public class Program {
 
 	public void setPublicId(String id) {
 		this.publicId_ = id;
+		this.updateTime();
 	}
 
 
@@ -246,6 +260,7 @@ public class Program {
 
 	public void setAuthor(String author) {
 		author_ = author;
+		this.updateTime();
 	}
 
 
@@ -257,18 +272,7 @@ public class Program {
 	 * @param pm
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public List<Program> getBacklinkedPrograms(PersistenceManager pm) {
-		Query query = pm.newQuery(Program.class);
-		query.setFilter("backlink_ == id");
-		query.setOrdering("time_ desc");
-		query.declareParameters("Long id");
-		try {
-			List<Program> pl = (List<Program>) query.execute(this.id);
-			return pl;
-		} finally {
-			query.closeAll();
-		}
-
+		return Queries.getBacklinkedPrograms(pm, this.id);
 	}
 }

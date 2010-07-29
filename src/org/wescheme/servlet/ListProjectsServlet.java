@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -19,6 +18,7 @@ import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.user.UnauthorizedUserException;
 import org.wescheme.util.PMF;
+import org.wescheme.util.Queries;
 
 /**
  * Produces a list of projects of the logged-in user, in descending order of modification time.
@@ -66,8 +66,8 @@ public class ListProjectsServlet extends HttpServlet {
 		}
 		return userSession;
 	}
-	
-	
+
+
 	/**
 	 * Gets the set of ProgramDigests for the user with the given session.
 	 * @param userSession
@@ -76,30 +76,21 @@ public class ListProjectsServlet extends HttpServlet {
 	 */
 	private String getFromDatabase(Session userSession) throws IOException {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
-		
+
 		try {
-			Query query = pm.newQuery(Program.class);
-			query.setFilter("owner_ == ownerParam");
-			query.setOrdering("time_ desc");
-			query.declareParameters("String ownerParam");		       
-			try {
-				@SuppressWarnings({ "unchecked" })
-				    List<Program> pl = (List<Program>) 
-				    query.execute(userSession.getName());
-				Element elt = new Element("ProgramDigests");
-				for( Program p : pl ){
-					if (! p.getIsDeleted())
-						elt.addContent(new ProgramDigest(p).toXML(pm));
-				}
-				XMLOutputter outputter = new XMLOutputter();
-				String outputString = outputter.outputString(elt); 			
-				return outputString;				
-			} finally {
-				query.closeAll();
+
+			List<Program> pl = (List<Program>) 
+			Queries.getUserPrograms(pm, userSession.getName());
+			Element elt = new Element("ProgramDigests");
+			for( Program p : pl ){
+				if (! p.getIsDeleted())
+					elt.addContent(new ProgramDigest(p).toXML(pm));
 			}
+			XMLOutputter outputter = new XMLOutputter();
+			String outputString = outputter.outputString(elt); 			
+			return outputString;				
 		} finally {
 			pm.close();
 		}
 	}
-
 }

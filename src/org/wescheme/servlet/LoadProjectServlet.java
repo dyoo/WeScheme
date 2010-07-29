@@ -1,7 +1,6 @@
 package org.wescheme.servlet;
 
 import java.io.IOException;
-import java.util.List;
 
 import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServlet;
@@ -13,6 +12,7 @@ import org.wescheme.project.Program;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.util.PMF;
+import org.wescheme.util.Queries;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
@@ -78,20 +78,7 @@ public class LoadProjectServlet extends HttpServlet {
 	}
 
 	
-	@SuppressWarnings("unchecked")
 	private Program getProgramByPublicId(PersistenceManager pm, String publicId) {
-		javax.jdo.Query query = pm.newQuery(Program.class);
-		query.setFilter("publicId_ == param");
-		query.declareParameters("String param");
-		try {
-			List<Program> programs = (List<Program>) query.execute(publicId.toLowerCase());
-			if (programs.size() == 1) {
-				return programs.get(0);
-			} else {
-				throw new RuntimeException("Could not find unique program with publicId=" + publicId);
-			}
-		} finally { 
-			query.closeAll();
-		}
+		return Queries.getProgramByPublicId(pm, publicId);
 	}	
 }

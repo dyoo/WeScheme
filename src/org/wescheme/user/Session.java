@@ -3,6 +3,7 @@ package org.wescheme.user;
 import java.io.IOException;
 import java.io.Serializable;
 
+
 import org.wescheme.util.Crypt;
 import org.wescheme.util.Crypt.Token;
 import org.wescheme.util.Base64;
@@ -41,6 +42,4 @@ public class Session implements Serializable {
 		Token stoken = new Token(s, k);
 		return t.equals(stoken);
 	}	
-	
-	
 }
