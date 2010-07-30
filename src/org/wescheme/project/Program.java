@@ -1,9 +1,9 @@
 package org.wescheme.project;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.cache.Cache;
 import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
@@ -18,7 +18,12 @@ import org.wescheme.util.XML;
 
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
-public class Program {
+public class Program implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8015242443391096978L;
 
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
@@ -81,9 +86,8 @@ public class Program {
 
 	// markOwnerProgramCacheDirty
 	private void markOwnerCacheDirty() {
-		Cache c = CacheHelpers.getCache();
-		if (c != null && this.owner_ != null)
-			c.remove(CacheHelpers.getUserProgramsCacheKey(this.owner_));
+		if (this.owner_ != null)
+			CacheHelpers.notifyUserProgramsDirtied(this.owner_);
 	}
 	
 	

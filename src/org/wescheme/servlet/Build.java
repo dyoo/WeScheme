@@ -12,6 +12,7 @@ import org.jdom.output.XMLOutputter;
 import org.wescheme.project.Program;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
+import org.wescheme.util.CacheHelpers;
 import org.wescheme.util.PMF;
 
 public class Build extends HttpServlet {
@@ -34,6 +35,8 @@ public class Build extends HttpServlet {
 			
 			userSession = sm.authenticate(req, resp);
 			if( null != userSession ) {
+				CacheHelpers.notifyUserProgramsDirtied(userSession.getName());
+
 				XMLOutputter outputter = new XMLOutputter();
 				Program prog = pm.getObjectById(Program.class,
 						Long.parseLong(req.getParameter("pid")));

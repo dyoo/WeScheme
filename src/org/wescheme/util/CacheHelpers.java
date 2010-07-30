@@ -1,6 +1,8 @@
 package org.wescheme.util;
 
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.cache.Cache;
 import javax.cache.CacheException;
@@ -14,7 +16,18 @@ import javax.cache.CacheManager;
  *
  */
 public class CacheHelpers {
+	private static Set<UserProgramsDirtiedListener> userProgramsDirtiedListeners;
 
+	static {
+		userProgramsDirtiedListeners = new HashSet<UserProgramsDirtiedListener>();
+	}
+	
+	public static interface UserProgramsDirtiedListener {
+		void onUserProgramsDirtied(String userName);
+	}
+	
+	
+	
 	/**
 	 * Returns an instance of the memcache, or null if we can't get at it.
 	 * @return cache
@@ -30,6 +43,18 @@ public class CacheHelpers {
 		return cache;
 	}
 
+	
+	
+	public static void addUserProgramsDirtiedListener(UserProgramsDirtiedListener l) {
+		userProgramsDirtiedListeners.add(l);
+	}
+	
+	public static void notifyUserProgramsDirtied(String userName) {
+		for (UserProgramsDirtiedListener l : userProgramsDirtiedListeners) {
+			l.onUserProgramsDirtied(userName);
+		}
+	}
+	
 	/**
 	 * Returns the cache key we're using to key into the set of programs
 	 * for a user.

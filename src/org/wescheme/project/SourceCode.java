@@ -1,5 +1,7 @@
 package org.wescheme.project;
 
+import java.io.Serializable;
+
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
@@ -12,7 +14,12 @@ import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Text;
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
-public class SourceCode {
+public class SourceCode implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -6657496787529704087L;
 
 	@SuppressWarnings("unused")
 	@PrimaryKey

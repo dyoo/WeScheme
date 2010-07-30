@@ -12,6 +12,7 @@ import org.wescheme.project.NameGenerator;
 import org.wescheme.project.Program;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
+import org.wescheme.util.CacheHelpers;
 import org.wescheme.util.PMF;
 
 
@@ -23,7 +24,7 @@ public class SaveProjectServlet extends HttpServlet{
 	{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		SessionManager sm = new SessionManager();
-		
+
 		if( !sm.isIntentional(req, resp) ){
 			resp.sendError(401);
 			return;
@@ -34,14 +35,15 @@ public class SaveProjectServlet extends HttpServlet{
 		try {
 			Session userSession = sm.authenticate(req, resp);
 			if( null != userSession ){			
+				CacheHelpers.notifyUserProgramsDirtied(userSession.getName());
 				if (pid == null) {
 					saveNewProgram(pm, userSession, resp, title, code);
 				} else {
 					saveExistingProgram(pm, userSession, resp, pid, title, code);
-					}
+				}
 			} else {
 				log.warning("User session can't be retrieved; user appears to be logged out.");
-//				log.warning("User does not own project " + req.getParameter("pid"));
+				//				log.warning("User does not own project " + req.getParameter("pid"));
 				resp.sendError(401);
 				return;
 			}
@@ -61,10 +63,10 @@ public class SaveProjectServlet extends HttpServlet{
 		resp.setContentType("text/plain"); 
 		resp.getWriter().println(prog.getId());					
 	}
-	
-	
 
-	
+
+
+
 
 
 	private void saveExistingProgram(PersistenceManager pm, Session userSession,
@@ -80,7 +82,7 @@ public class SaveProjectServlet extends HttpServlet{
 			if (prog.getPublicId() == null) {
 				prog.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueName(pm));
 			}
-		
+
 			resp.setContentType("text/plain");
 			resp.getWriter().println(prog.getId());					
 		} else {

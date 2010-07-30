@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.cache.Cache;
 import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,6 +18,7 @@ import org.wescheme.project.ProgramDigest;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.user.UnauthorizedUserException;
+import org.wescheme.util.CacheHelpers;
 import org.wescheme.util.PMF;
 import org.wescheme.util.Queries;
 
@@ -33,13 +35,28 @@ public class ListProjectsServlet extends HttpServlet {
 	private static final long serialVersionUID = 6291188410939739681L;
 	private static final Logger log = Logger.getLogger(ListProjectsServlet.class.getName());
 
+	/**
+	 * Caching mechanism.  We listen for user program dirty notices and clear the cache accordingly.
+	 */
+	static {
+		CacheHelpers.addUserProgramsDirtiedListener(new CacheHelpers.UserProgramsDirtiedListener() {
+			public void onUserProgramsDirtied(String userName) {
+				Cache c = CacheHelpers.getCache();
+				if (c != null) {
+					c.remove(CacheHelpers.getUserProgramsCacheKey(userName));
+				}
+			}
+		});
+	}
+	
+	
+	
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 		// Authentication
 	
 		try {
 			Session userSession = authenticate(req, resp);		
-
-			String outputString = getFromDatabase(userSession);			
+			String outputString = getOutputString(userSession);			
 			resp.setContentType("text/xml");
 			PrintWriter w = resp.getWriter();
 			w.write(outputString);
@@ -68,6 +85,23 @@ public class ListProjectsServlet extends HttpServlet {
 	}
 
 
+	@SuppressWarnings("unchecked")
+	private String getOutputString(Session userSession) throws IOException {
+		Cache c = CacheHelpers.getCache();
+		if (c != null) {
+			if (! c.containsKey(CacheHelpers.getUserProgramsCacheKey(userSession.getName()))) {
+				String outputString = getFromDatabase(userSession);
+				c.put(CacheHelpers.getUserProgramsCacheKey(userSession.getName()),
+						outputString);
+				return outputString;
+			} else {
+				return (String) c.get(CacheHelpers.getUserProgramsCacheKey(userSession.getName()));
+			}			
+		} else {
+			return getFromDatabase(userSession);
+		}
+	}
+	
 	/**
 	 * Gets the set of ProgramDigests for the user with the given session.
 	 * @param userSession

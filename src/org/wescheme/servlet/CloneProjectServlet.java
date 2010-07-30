@@ -11,6 +11,7 @@ import org.wescheme.project.NameGenerator;
 import org.wescheme.project.Program;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
+import org.wescheme.util.CacheHelpers;
 import org.wescheme.util.PMF;
 
 
@@ -41,7 +42,7 @@ public class CloneProjectServlet extends javax.servlet.http.HttpServlet {
 			if( null == userSession ){
 				resp.sendError(401);
 			}
-			
+			CacheHelpers.notifyUserProgramsDirtied(userSession.getName());
 			Program prog = pm.getObjectById(Program.class, Long.parseLong(req.getParameter("pid")));
 			if( !prog.getOwner().equals(userSession.getName()) && !prog.isPublished()){
 				log.info(req.getParameter("user") + " cannot clone " + prog.getPublicId());
