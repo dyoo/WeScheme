@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,6 +15,7 @@ import org.wescheme.dropbox.Dropbox;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
 import org.wescheme.util.PMF;
+import org.wescheme.util.Queries;
 
 public class ShowDropboxServlet extends HttpServlet {
 	
@@ -27,23 +27,18 @@ public class ShowDropboxServlet extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try {
-		Session userSession;
-		SessionManager sm = new SessionManager();
-		userSession = sm.authenticate(req, resp);
-				
-		if( userSession == null ){
-			log.info("Unauthenticated user attempting to view a dropbox.");
-			resp.sendError(401);
-			return;
-		}
-				
-		Query query = pm.newQuery(Dropbox.class);
-		query.setFilter("ownerName_ == ownerParam");
-		query.declareParameters("String ownerParam");
-				
-		try {
-			@SuppressWarnings({ "unchecked" })
-			List<Dropbox> dbl = (List<Dropbox>) query.execute(userSession.getName());
+			Session userSession;
+			SessionManager sm = new SessionManager();
+			userSession = sm.authenticate(req, resp);
+
+			if( userSession == null ){
+				log.info("Unauthenticated user attempting to view a dropbox.");
+				resp.sendError(401);
+				return;
+			}
+
+			List<Dropbox> dbl = Queries.getDropboxes(pm, userSession.getName());
+
 			XMLOutputter outputter = new XMLOutputter();
 			Element parent = new Element("Dropboxes");
 			for( Dropbox d : dbl ){	
@@ -52,13 +47,10 @@ public class ShowDropboxServlet extends HttpServlet {
 			resp.setContentType("text/xml");
 			resp.getWriter().print(outputter.outputString(parent)); 			
 		} finally {
-			query.closeAll();
-		}
-		} finally {
-		
+
 			pm.close();
 		}
-		}
+	}
 	}
 	
 
