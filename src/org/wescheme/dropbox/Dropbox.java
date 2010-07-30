@@ -9,9 +9,9 @@ import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
-import javax.jdo.Query;
 
 import org.jdom.Element;
+import org.wescheme.util.Queries;
 import org.wescheme.util.XML;
 
 @PersistenceCapable()
@@ -57,16 +57,12 @@ public class Dropbox extends XML {
 	}
 		
 	
-	@SuppressWarnings("unchecked")
 	public String getContents(PersistenceManager pm, String user){
 		String result = "";
 		
 		if( user.equals(ownerName_) ){
-			Query query = pm.newQuery(Entry.class);
-			query.setFilter("dbID_ == dbidParam");
-			query.declareParameters("Long dbidParam");
 			
-			List<Entry> results = (List<Entry>) query.execute(id);
+			List<Entry> results = Queries.getDropboxEntries(pm, id);
 			for (Entry e : results) {
 				result += " " + e;
 			}

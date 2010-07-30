@@ -2,6 +2,8 @@ package org.wescheme.project;
 import javax.jdo.PersistenceManager;
 import javax.servlet.ServletContext;
 
+import org.wescheme.util.Queries;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -37,21 +39,13 @@ public class NameGenerator {
 	}
 	
 	// Generates a new id that's unique from any other program's public id.
-	@SuppressWarnings({ "unchecked" })
 	public String generateUniqueName(PersistenceManager pm) throws IOException {
-		javax.jdo.Query query = pm.newQuery(Program.class);
-		query.setFilter("publicId_ == param");
-		query.declareParameters("String param");
-		try {
-			while (true) {
-				String aName = generateName();
-				List<Program> list = (List<Program>) query.execute(aName);
-				if (list.size() == 0) {
-					return aName;
-				}
+		while (true) {
+			String aName = generateName();
+			Program maybeExistingProgram = Queries.getProgramByPublicId(pm, aName);
+			if (maybeExistingProgram == null) {
+				return aName;
 			}
-		} finally {
-			query.closeAll();
 		}
 	}
 	

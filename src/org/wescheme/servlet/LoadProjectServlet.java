@@ -79,6 +79,10 @@ public class LoadProjectServlet extends HttpServlet {
 
 	
 	private Program getProgramByPublicId(PersistenceManager pm, String publicId) {
-		return Queries.getProgramByPublicId(pm, publicId);
+		Program program = Queries.getProgramByPublicId(pm, publicId);
+		if (program == null) {
+			throw new RuntimeException("Could not find unique program with publicId=" + publicId);
+		}
+		return program;
 	}	
 }

@@ -6,6 +6,7 @@ import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 	
 import org.wescheme.dropbox.Dropbox;
+import org.wescheme.dropbox.Entry;
 import org.wescheme.project.Program;
 	
 /**
@@ -29,6 +30,12 @@ public class Queries {
 		}
 	}
 	
+	/**
+	 * Returns the list of programs for a given user, ordered by modification time descending.
+	 * @param pm
+	 * @param userName
+	 * @return
+	 */
 	public static List<Program> getUserPrograms(PersistenceManager pm, String userName) {
 		Query query = pm.newQuery(Program.class);
 		query.setFilter("owner_ == ownerParam");
@@ -47,6 +54,9 @@ public class Queries {
 	
 	
 	@SuppressWarnings("unchecked")
+	/**
+	 * Returns the unique program with the given public id.  If no such unique program exists, returns null.
+	 */
 	public static Program getProgramByPublicId(PersistenceManager pm, String publicId) {
 		javax.jdo.Query query = pm.newQuery(Program.class);
 		query.setFilter("publicId_ == param");
@@ -56,7 +66,8 @@ public class Queries {
 			if (programs.size() == 1) {
 				return programs.get(0);
 			} else {
-				throw new RuntimeException("Could not find unique program with publicId=" + publicId);
+				return null;
+				// throw new RuntimeException("Could not find unique program with publicId=" + publicId);
 			}
 		} finally { 
 			query.closeAll();
@@ -74,6 +85,19 @@ public class Queries {
 			List<Dropbox> dbl = (List<Dropbox>) query.execute(userName);
 			return dbl;
 		} finally {
+			query.closeAll();
+		}
+	}
+	
+	
+	@SuppressWarnings("unchecked")
+	public static List<Entry> getDropboxEntries(PersistenceManager pm, Long dropboxId) {
+		Query query = pm.newQuery(Entry.class);
+		try {
+			query.setFilter("dbID_ == dbidParam");
+			query.declareParameters("Long dbidParam");
+			return ((List<Entry>) query.execute(dropboxId));
+		} finally { 
 			query.closeAll();
 		}
 	}
