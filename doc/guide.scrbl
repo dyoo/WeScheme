@@ -1,24 +1,26 @@
 #lang scribble/manual
 
 @title{WeScheme}
-
-WeScheme is an web-based programming environment.  All your programs 
-are stored ``in the cloud'', so you can edit and run them from any computer with a
-web browser.  You don't have to install any new tools, as the editor, compiler,
-and runtime environment are hosted on WeScheme.  Furthermore, WeScheme allows you
-to easily share your programs by creating share URLs; 
+@hyperlink["http://wescheme.org"]{WeScheme} is an web-based programming environment
+that allows you to write, run, and share
+programs on the web.  WeScheme tries to takes the web seriously: programs written
+in WeScheme should be available
+from any computer with a capable Javascript-enabled web browser.
+The editing environment, the compiler,
+and the associated runtime libraries are all hosted on WeScheme, eliminating installation hassles.
+WeScheme allows you to easily share your programs by creating share URLs; 
 these share URLs can be used to run a program or, if the author permits it,
 allow anyone to view the source to that program.
 
 Web programs are typically interactive, so WeScheme provides special support
-for World programs that can interact with timer ticks, keyboard, and images. 
-WeScheme should also natively support web services such
-as Google Maps and Twitter.  WeScheme will eventually provide libraries
-to connect to these services.  [fix this as soon as we integrate with ethan and scott's work.]
+for World programs that can interact with timer ticks, keyboard events, and images. 
+WeScheme will eventually support native web services such
+as Google Maps and Twitter, as well as a generic foreign-function interface
+to adapt to other web services.
 
 
-
-@section{Starting up...}
+@section{Starting up!}
+We will jump in and explore WeScheme by running a few programs.
 
 Open up your web browser to @url{http://wescheme.org}.  Press the @emph{Start Coding} button.
 The following
@@ -29,7 +31,7 @@ quotes and all:
 
 @schemeblock["hello world"]
 
-Press the Run button.  If all goes well, you should see a "hello world" appear on the bottom
+Press the Run button.  If all goes well, you should see a @scheme["hello world"] appear on the bottom
 window.
 
 
@@ -37,23 +39,51 @@ Next, change line 2 so it says:
 
 @schemeblock[(open-image-url "http://racket-lang.org/logo.png")]
 
+Press the Run button again.  You should now see an image in the @emph{Interactions} window.  Web images
+are values, as are strings, numbers, booleans, and structures.
+
+Now try changing the program to:
+@schemeblock[(define (key w ke)
+               (add1 w))
+             
+             (js-big-bang 0 (on-key key))]
+
+and press Run.  A new window should pop with a running tally that updates whenever a key is pressed.
+This is an example
+of a @emph{World} program that responds to key events.
+Press that window's close icon to break out of the program.
 
 
-We're currently running WeScheme without logging into the system; to take advantage of
-WeScheme's services, let's log into the system using your Google account: logging in will allow you to save and share
-programs.  Open up your web browser to @url{http://wescheme.org} and click the @emph{Log in} button.
-Once there, you'll be at the Console, which provides a listing of your programs.  
 
 
-@section{The interface}
 
-Console
-What is the console?
+@section{Logging in with the Console}
+
+We've been running WeScheme without logging into the system, which means that nothing that
+we do is being saved on WeScheme's servers.  To take advantage of
+WeScheme's services, let's log in.
+
+Open up your web browser to @url{http://wescheme.org} and click the @emph{Log in} button.
+Once there, you'll be at the Console, which provides a listing of your programs.  Since 
+this is the first time we're logging in, there are no programs in the listing.  Let's fix this.
+Click on the @emph{Start a new program} button, which should open up a new window with the editor.
 
 
-Editor
+The editor has several buttons on its toolbar:
+@itemlist[@item{Run the program in the @emph{Definitions} window.}
+           @item{Stop the currently running program.}
+           @item{Save the program using the given Project name.}
+           @item{Share the program with other people.}
+           ]
+
+Change the Project name and press Save.  The bottom of the editor should say @emph{Program is being saved}, followed by @emph{Program has been saved}.
+
+
+
+
+@section{Editing programs}
 What is the editor?
-Auto-indentation.
+Indentation with tabbing
 Running programs
 
 
@@ -68,10 +98,20 @@ Using the share link.
 
 @section{Troubleshooting}
 
-[The compiler occasionally needs access to port 8080.]
+Known issues:
+@itemlist[@item{The compiler needs access to port 8080.}
+           ]
 
 
 @section{API}
+
+strings
+
+numbers
+
+booleans
+
+structures
 
 special forms
 
