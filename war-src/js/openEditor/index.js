@@ -74,7 +74,7 @@ var editorSetup = function(attrs) {
 		    jQuery("#run").click(function()  { myEditor.run(); });
 		    jQuery("#stop").click(function()  { myEditor.requestBreak(); });
 		    jQuery("#share").click(function()  { myEditor.share(); });
-		    jQuery("#account").click(function()  { submitPost("/console"); });
+		    // jQuery("#account").click(function()  { submitPost("/console"); });
 		    jQuery("#logout").click(function() { submitPost("/logout"); });
 		    jQuery("#bespinMode").click(function() { defnSourceContainer.setMode("bespin")});
 

@@ -106,7 +106,7 @@
 	    <li class="save"><a id="save"><img src="/images/save.png" class="button-icon"/>Save<span></span></a></li>
 	    <li class="share"><a id="share"><img src="/images/share.png" class="button-icon"/>Share<span></span></a></li>
 	    <li class="logout"><a id="logout">Logout</a></li>
-	    <li class="account"><a id="account">Manage<span></span></a></li>
+	    <li class="account"><a id="account" href="/console" target="console">Manage<span></span></a></li>
 	    <% } %>
 	    <li class="docs">	<a id="docs" target="_blank" href="/openEditor/moby-user-api.txt">API</a></li>
 	    
