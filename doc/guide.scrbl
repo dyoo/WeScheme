@@ -2,13 +2,13 @@
 
 @title{WeScheme}
 @hyperlink["http://wescheme.org"]{WeScheme} is an web-based programming environment
-that allows you to write, run, and share
+that allows us to write, run, and share
 programs on the web.  WeScheme tries to takes the web seriously: programs written
 in WeScheme should be available
 from any computer with a capable Javascript-enabled web browser.
 The editing environment, the compiler,
 and the associated runtime libraries are all hosted on WeScheme, eliminating installation hassles.
-WeScheme allows you to easily share your programs by creating share URLs; 
+WeScheme allows us to easily share programs by creating share URLs; 
 these share URLs can be used to run a program or, if the author permits it,
 allow anyone to view the source to that program.
 
@@ -22,7 +22,7 @@ to adapt to other web services.
 @section{Starting up!}
 We will jump in and explore WeScheme by running a few programs.
 
-Open up your web browser to @url{http://wescheme.org}.  Press the @emph{Start Coding} button.
+Open up a web browser to @url{http://wescheme.org}.  Press the @emph{Start Coding} button.
 The following
 editor page should be divided into a top @emph{definitions} section, and a bottom @emph{interactions}
 section.
@@ -31,7 +31,7 @@ quotes and all:
 
 @schemeblock["hello world"]
 
-Press the Run button.  If all goes well, you should see a @scheme["hello world"] appear on the bottom
+Press the Run button.  If all goes well, we should see a @scheme["hello world"] appear on the bottom
 window.
 
 
@@ -39,7 +39,7 @@ Next, change line 2 so it says:
 
 @schemeblock[(open-image-url "http://racket-lang.org/logo.png")]
 
-Press the Run button again.  You should now see an image in the @emph{Interactions} window.  Web images
+Press the Run button again.  We should now see an image in the @emph{Interactions} window.  Web images
 are values, as are strings, numbers, booleans, and structures.
 
 Now try changing the program to:
@@ -63,8 +63,8 @@ We've been running WeScheme without logging into the system, which means that no
 we do is being saved on WeScheme's servers.  To take advantage of
 WeScheme's services, let's log in.
 
-Open up your web browser to @url{http://wescheme.org} and click the @emph{Log in} button.
-Once there, you'll be at the Console, which provides a listing of your programs.  Since 
+Open up a web browser to @url{http://wescheme.org} and click the @emph{Log in} button.
+Once there, we'll be at the Console, which provides a listing of our programs.  Since 
 this is the first time we're logging in, there are no programs in the listing.  Let's fix this.
 Click on the @emph{Start a new program} button, which should open up a new window with the editor.
 
@@ -76,8 +76,9 @@ The editor has several buttons on its toolbar:
            @item{Share the program with other people.}
            ]
 
-Change the Project name and press Save.  The bottom of the editor should say @emph{Program is being saved}, followed by @emph{Program has been saved}.
-
+Change the Project name and press Save.  The bottom of the editor should say
+@emph{Program is being saved}, followed by @emph{Program has been saved}.
+Revisit the Console window, which should now include the program that we've just saved.
 
 
 

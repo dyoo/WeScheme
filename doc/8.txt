@@ -1,0 +1,9 @@
+We're happy to announce a new version of WeScheme.
+
+New features:
+
+  Improved editor: supports indentation, line numbers, and paren
+  matching.
+  
+  Improved runtime: supports tail calls, bignums, stack traces on
+  runtime errors.
