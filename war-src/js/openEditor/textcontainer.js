@@ -188,8 +188,21 @@ var WeSchemeTextContainer;
 
 
     CodeMirrorImplementation.prototype.highlight = function(id, offset, line, column, span) {
-	var handle = this.editor.nthLine(line);
-	this.editor.selectLines(handle, column, handle, column+span);
+	var startHandle = this.editor.nthLine(line);
+	var endHandle = startHandle;
+	var endColumn = column;
+
+	while (span > 0) {
+	    if (this.editor.lineContent(endHandle).length >= span) {
+		endColumn += span;
+		span = 0;
+	    } else {
+		span = span - this.editor.lineContent(endHandle).substring(endColumn).length - 1;
+		endHandle = this.editor.nextLine(endHandle);
+		endColumn = 0;
+	    }
+	}
+	this.editor.selectLines(startHandle, column, endHandle, endColumn);
     };
 
 
