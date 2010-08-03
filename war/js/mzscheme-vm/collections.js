@@ -1721,8 +1721,8 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10576,204,19,25])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":6 ,"pos":93 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"constant" ,"value":types.float(0.1)
-} ,{"$":"localref" ,"unbox?":false ,"pos":9 ,"clear":false ,"other-clears?":false ,"flonum?":false
+} ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":9 ,"clear":false ,"other-clears?":false ,"flonum?":false
+} ,{"$":"constant" ,"value":types.float(0.1)
 }
 ]
 }
