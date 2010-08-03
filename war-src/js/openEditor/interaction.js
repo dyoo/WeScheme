@@ -46,6 +46,9 @@ WeSchemeInteractions = (function () {
 	    write: function(thing) {
 		that.addToInteractions(thing);
 	    },
+	    transformDom : function(dom) {
+		return that._transformDom(dom);
+	    },
 	    compilationServletUrl: "/compile",
 	    scriptCompilationServletUrl: "http://go.cs.brown.edu:8000/servlets/standalone.ss"
 	});
@@ -112,6 +115,7 @@ WeSchemeInteractions = (function () {
     }
 
 
+
     // addToInteractions: string | dom-node -> void
     // Adds a note to the interactions.
     WeSchemeInteractions.prototype.addToInteractions = function (interactionVal) {
@@ -125,6 +129,44 @@ WeSchemeInteractions = (function () {
 	}
 	this.interactionsDiv.attr("scrollTop", this.interactionsDiv.attr("scrollHeight"));
 	this.notifyBus("after-add-to-interactions", this);
+    };
+
+
+    WeSchemeInteractions.prototype._transformDom = function(dom) {
+	if (helpers.isLocationDom(dom)) {
+	    return this._rewriteLocationDom(dom);
+	} else {
+	    return dom;
+	}
+    };
+
+
+    WeSchemeInteractions.prototype._rewriteLocationDom = function(dom) {
+	var newDom = document.createElement("span");
+	var children = dom.children;
+	var offset, line, column, id, span;
+	for (var i = 0; i < children.length; i++) {
+	    if (children[i]['class'] === 'location-id') {
+		id = children[i].textContent;
+	    }
+	    if (children[i]['class'] === 'location-offset') {
+		offset = children[i].textContent;
+	    }
+	    if (children[i]['class'] === 'location-line') {
+		line = children[i].textContent;
+	    }
+	    if (children[i]['class'] === 'location-column') {
+		column = children[i].textContent;
+	    }
+	    if (children[i]['class'] === 'location-span') {
+		span = children[i].textContent;
+	    }
+	}
+	return this.createLocationHyperlink({ id: id,
+					      offset: parseInt(offset),
+					      line: parseInt(line),
+					      column: parseInt(column),
+					      span: parseInt(span) });
     };
 
 
@@ -178,13 +220,7 @@ WeSchemeInteractions = (function () {
 	var stacktraceDiv = document.createElement("div");
 	stacktraceDiv['className'] = 'error-stack-trace';
 	for (var i = 0; i < stacktrace.length; i++) {
-	    var anchor = document.createElement("a");
-	    anchor['href'] = "#";
-	    anchor['onclick'] = makeHighlighterLinkFunction(that, stacktrace[i]);
-	    anchor.appendChild(document.createTextNode(
-		"at: line " + stacktrace[i].line + 
-		    ", column " + stacktrace[i].column +
-		    ", in " + stacktrace[i].id));
+	    var anchor = this.createLocationHyperlink(stacktrace[i]);
 	    stacktraceDiv.appendChild(anchor);
 	    stacktraceDiv.appendChild(document.createElement("br"));
 	}
@@ -192,6 +228,20 @@ WeSchemeInteractions = (function () {
 
 	return dom;
     };
+
+
+    WeSchemeInteractions.prototype.createLocationHyperlink = function(aLocation) {
+	var anchor = document.createElement("a");
+	anchor['href'] = "#";
+	anchor['onclick'] = makeHighlighterLinkFunction(
+	    this, aLocation);
+	anchor.appendChild(document.createTextNode(
+	    "at: line " + aLocation.line + 
+		", column " + aLocation.column +
+		", in " + aLocation.id));
+	return anchor;
+    };
+
 
     var makeHighlighterLinkFunction = function(that, elt) {
 	return function() { 

@@ -105,6 +105,488 @@ assert.throws = function(f) {
 }
 
 
+/*
+    http://www.JSON.org/json2.js
+    2010-03-20
+
+    Public Domain.
+
+    NO WARRANTY EXPRESSED OR IMPLIED. USE AT YOUR OWN RISK.
+
+    See http://www.JSON.org/js.html
+
+
+    This code should be minified before deployment.
+    See http://javascript.crockford.com/jsmin.html
+
+    USE YOUR OWN COPY. IT IS EXTREMELY UNWISE TO LOAD CODE FROM SERVERS YOU DO
+    NOT CONTROL.
+
+
+    This file creates a global JSON object containing two methods: stringify
+    and parse.
+
+        JSON.stringify(value, replacer, space)
+            value       any JavaScript value, usually an object or array.
+
+            replacer    an optional parameter that determines how object
+                        values are stringified for objects. It can be a
+                        function or an array of strings.
+
+            space       an optional parameter that specifies the indentation
+                        of nested structures. If it is omitted, the text will
+                        be packed without extra whitespace. If it is a number,
+                        it will specify the number of spaces to indent at each
+                        level. If it is a string (such as '\t' or '&nbsp;'),
+                        it contains the characters used to indent at each level.
+
+            This method produces a JSON text from a JavaScript value.
+
+            When an object value is found, if the object contains a toJSON
+            method, its toJSON method will be called and the result will be
+            stringified. A toJSON method does not serialize: it returns the
+            value represented by the name/value pair that should be serialized,
+            or undefined if nothing should be serialized. The toJSON method
+            will be passed the key associated with the value, and this will be
+            bound to the value
+
+            For example, this would serialize Dates as ISO strings.
+
+                Date.prototype.toJSON = function (key) {
+                    function f(n) {
+                        // Format integers to have at least two digits.
+                        return n < 10 ? '0' + n : n;
+                    }
+
+                    return this.getUTCFullYear()   + '-' +
+                         f(this.getUTCMonth() + 1) + '-' +
+                         f(this.getUTCDate())      + 'T' +
+                         f(this.getUTCHours())     + ':' +
+                         f(this.getUTCMinutes())   + ':' +
+                         f(this.getUTCSeconds())   + 'Z';
+                };
+
+            You can provide an optional replacer method. It will be passed the
+            key and value of each member, with this bound to the containing
+            object. The value that is returned from your method will be
+            serialized. If your method returns undefined, then the member will
+            be excluded from the serialization.
+
+            If the replacer parameter is an array of strings, then it will be
+            used to select the members to be serialized. It filters the results
+            such that only members with keys listed in the replacer array are
+            stringified.
+
+            Values that do not have JSON representations, such as undefined or
+            functions, will not be serialized. Such values in objects will be
+            dropped; in arrays they will be replaced with null. You can use
+            a replacer function to replace those with JSON values.
+            JSON.stringify(undefined) returns undefined.
+
+            The optional space parameter produces a stringification of the
+            value that is filled with line breaks and indentation to make it
+            easier to read.
+
+            If the space parameter is a non-empty string, then that string will
+            be used for indentation. If the space parameter is a number, then
+            the indentation will be that many spaces.
+
+            Example:
+
+            text = JSON.stringify(['e', {pluribus: 'unum'}]);
+            // text is '["e",{"pluribus":"unum"}]'
+
+
+            text = JSON.stringify(['e', {pluribus: 'unum'}], null, '\t');
+            // text is '[\n\t"e",\n\t{\n\t\t"pluribus": "unum"\n\t}\n]'
+
+            text = JSON.stringify([new Date()], function (key, value) {
+                return this[key] instanceof Date ?
+                    'Date(' + this[key] + ')' : value;
+            });
+            // text is '["Date(---current time---)"]'
+
+
+        JSON.parse(text, reviver)
+            This method parses a JSON text to produce an object or array.
+            It can throw a SyntaxError exception.
+
+            The optional reviver parameter is a function that can filter and
+            transform the results. It receives each of the keys and values,
+            and its return value is used instead of the original value.
+            If it returns what it received, then the structure is not modified.
+            If it returns undefined then the member is deleted.
+
+            Example:
+
+            // Parse the text. Values that look like ISO date strings will
+            // be converted to Date objects.
+
+            myData = JSON.parse(text, function (key, value) {
+                var a;
+                if (typeof value === 'string') {
+                    a =
+/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2}(?:\.\d*)?)Z$/.exec(value);
+                    if (a) {
+                        return new Date(Date.UTC(+a[1], +a[2] - 1, +a[3], +a[4],
+                            +a[5], +a[6]));
+                    }
+                }
+                return value;
+            });
+
+            myData = JSON.parse('["Date(09/09/2001)"]', function (key, value) {
+                var d;
+                if (typeof value === 'string' &&
+                        value.slice(0, 5) === 'Date(' &&
+                        value.slice(-1) === ')') {
+                    d = new Date(value.slice(5, -1));
+                    if (d) {
+                        return d;
+                    }
+                }
+                return value;
+            });
+
+
+    This is a reference implementation. You are free to copy, modify, or
+    redistribute.
+*/
+
+/*jslint evil: true, strict: false */
+
+/*members "", "\b", "\t", "\n", "\f", "\r", "\"", JSON, "\\", apply,
+    call, charCodeAt, getUTCDate, getUTCFullYear, getUTCHours,
+    getUTCMinutes, getUTCMonth, getUTCSeconds, hasOwnProperty, join,
+    lastIndex, length, parse, prototype, push, replace, slice, stringify,
+    test, toJSON, toString, valueOf
+*/
+
+
+// Create a JSON object only if one does not already exist. We create the
+// methods in a closure to avoid creating global variables.
+
+if (!this.JSON) {
+    this.JSON = {};
+}
+
+(function () {
+
+    function f(n) {
+        // Format integers to have at least two digits.
+        return n < 10 ? '0' + n : n;
+    }
+
+    if (typeof Date.prototype.toJSON !== 'function') {
+
+        Date.prototype.toJSON = function (key) {
+
+            return isFinite(this.valueOf()) ?
+                   this.getUTCFullYear()   + '-' +
+                 f(this.getUTCMonth() + 1) + '-' +
+                 f(this.getUTCDate())      + 'T' +
+                 f(this.getUTCHours())     + ':' +
+                 f(this.getUTCMinutes())   + ':' +
+                 f(this.getUTCSeconds())   + 'Z' : null;
+        };
+
+        String.prototype.toJSON =
+        Number.prototype.toJSON =
+        Boolean.prototype.toJSON = function (key) {
+            return this.valueOf();
+        };
+    }
+
+    var cx = /[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+        escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,
+        gap,
+        indent,
+        meta = {    // table of character substitutions
+            '\b': '\\b',
+            '\t': '\\t',
+            '\n': '\\n',
+            '\f': '\\f',
+            '\r': '\\r',
+            '"' : '\\"',
+            '\\': '\\\\'
+        },
+        rep;
+
+
+    function quote(string) {
+
+// If the string contains no control characters, no quote characters, and no
+// backslash characters, then we can safely slap some quotes around it.
+// Otherwise we must also replace the offending characters with safe escape
+// sequences.
+
+        escapable.lastIndex = 0;
+        return escapable.test(string) ?
+            '"' + string.replace(escapable, function (a) {
+                var c = meta[a];
+                return typeof c === 'string' ? c :
+                    '\\u' + ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+            }) + '"' :
+            '"' + string + '"';
+    }
+
+
+    function str(key, holder) {
+
+// Produce a string from holder[key].
+
+        var i,          // The loop counter.
+            k,          // The member key.
+            v,          // The member value.
+            length,
+            mind = gap,
+            partial,
+            value = holder[key];
+
+// If the value has a toJSON method, call it to obtain a replacement value.
+
+        if (value && typeof value === 'object' &&
+                typeof value.toJSON === 'function') {
+            value = value.toJSON(key);
+        }
+
+// If we were called with a replacer function, then call the replacer to
+// obtain a replacement value.
+
+        if (typeof rep === 'function') {
+            value = rep.call(holder, key, value);
+        }
+
+// What happens next depends on the value's type.
+
+        switch (typeof value) {
+        case 'string':
+            return quote(value);
+
+        case 'number':
+
+// JSON numbers must be finite. Encode non-finite numbers as null.
+
+            return isFinite(value) ? String(value) : 'null';
+
+        case 'boolean':
+        case 'null':
+
+// If the value is a boolean or null, convert it to a string. Note:
+// typeof null does not produce 'null'. The case is included here in
+// the remote chance that this gets fixed someday.
+
+            return String(value);
+
+// If the type is 'object', we might be dealing with an object or an array or
+// null.
+
+        case 'object':
+
+// Due to a specification blunder in ECMAScript, typeof null is 'object',
+// so watch out for that case.
+
+            if (!value) {
+                return 'null';
+            }
+
+// Make an array to hold the partial results of stringifying this object value.
+
+            gap += indent;
+            partial = [];
+
+// Is the value an array?
+
+            if (Object.prototype.toString.apply(value) === '[object Array]') {
+
+// The value is an array. Stringify every element. Use null as a placeholder
+// for non-JSON values.
+
+                length = value.length;
+                for (i = 0; i < length; i += 1) {
+                    partial[i] = str(i, value) || 'null';
+                }
+
+// Join all of the elements together, separated with commas, and wrap them in
+// brackets.
+
+                v = partial.length === 0 ? '[]' :
+                    gap ? '[\n' + gap +
+                            partial.join(',\n' + gap) + '\n' +
+                                mind + ']' :
+                          '[' + partial.join(',') + ']';
+                gap = mind;
+                return v;
+            }
+
+// If the replacer is an array, use it to select the members to be stringified.
+
+            if (rep && typeof rep === 'object') {
+                length = rep.length;
+                for (i = 0; i < length; i += 1) {
+                    k = rep[i];
+                    if (typeof k === 'string') {
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
+                        }
+                    }
+                }
+            } else {
+
+// Otherwise, iterate through all of the keys in the object.
+
+                for (k in value) {
+                    if (Object.hasOwnProperty.call(value, k)) {
+                        v = str(k, value);
+                        if (v) {
+                            partial.push(quote(k) + (gap ? ': ' : ':') + v);
+                        }
+                    }
+                }
+            }
+
+// Join all of the member texts together, separated with commas,
+// and wrap them in braces.
+
+            v = partial.length === 0 ? '{}' :
+                gap ? '{\n' + gap + partial.join(',\n' + gap) + '\n' +
+                        mind + '}' : '{' + partial.join(',') + '}';
+            gap = mind;
+            return v;
+        }
+    }
+
+// If the JSON object does not yet have a stringify method, give it one.
+
+    if (typeof JSON.stringify !== 'function') {
+        JSON.stringify = function (value, replacer, space) {
+
+// The stringify method takes a value and an optional replacer, and an optional
+// space parameter, and returns a JSON text. The replacer can be a function
+// that can replace values, or an array of strings that will select the keys.
+// A default replacer method can be provided. Use of the space parameter can
+// produce text that is more easily readable.
+
+            var i;
+            gap = '';
+            indent = '';
+
+// If the space parameter is a number, make an indent string containing that
+// many spaces.
+
+            if (typeof space === 'number') {
+                for (i = 0; i < space; i += 1) {
+                    indent += ' ';
+                }
+
+// If the space parameter is a string, it will be used as the indent string.
+
+            } else if (typeof space === 'string') {
+                indent = space;
+            }
+
+// If there is a replacer, it must be a function or an array.
+// Otherwise, throw an error.
+
+            rep = replacer;
+            if (replacer && typeof replacer !== 'function' &&
+                    (typeof replacer !== 'object' ||
+                     typeof replacer.length !== 'number')) {
+                throw new Error('JSON.stringify');
+            }
+
+// Make a fake root object containing our value under the key of ''.
+// Return the result of stringifying the value.
+
+            return str('', {'': value});
+        };
+    }
+
+
+// If the JSON object does not yet have a parse method, give it one.
+
+    if (typeof JSON.parse !== 'function') {
+        JSON.parse = function (text, reviver) {
+
+// The parse method takes a text and an optional reviver function, and returns
+// a JavaScript value if the text is a valid JSON text.
+
+            var j;
+
+            function walk(holder, key) {
+
+// The walk method is used to recursively walk the resulting structure so
+// that modifications can be made.
+
+                var k, v, value = holder[key];
+                if (value && typeof value === 'object') {
+                    for (k in value) {
+                        if (Object.hasOwnProperty.call(value, k)) {
+                            v = walk(value, k);
+                            if (v !== undefined) {
+                                value[k] = v;
+                            } else {
+                                delete value[k];
+                            }
+                        }
+                    }
+                }
+                return reviver.call(holder, key, value);
+            }
+
+
+// Parsing happens in four stages. In the first stage, we replace certain
+// Unicode characters with escape sequences. JavaScript handles many characters
+// incorrectly, either silently deleting them, or treating them as line endings.
+
+            text = String(text);
+            cx.lastIndex = 0;
+            if (cx.test(text)) {
+                text = text.replace(cx, function (a) {
+                    return '\\u' +
+                        ('0000' + a.charCodeAt(0).toString(16)).slice(-4);
+                });
+            }
+
+// In the second stage, we run the text against regular expressions that look
+// for non-JSON patterns. We are especially concerned with '()' and 'new'
+// because they can cause invocation, and '=' because it can cause mutation.
+// But just to be safe, we want to reject all unexpected forms.
+
+// We split the second stage into 4 regexp operations in order to work around
+// crippling inefficiencies in IE's and Safari's regexp engines. First we
+// replace the JSON backslash pairs with '@' (a non-JSON character). Second, we
+// replace all simple value tokens with ']' characters. Third, we delete all
+// open brackets that follow a colon or comma or that begin the text. Finally,
+// we look to see that the remaining characters are only whitespace or ']' or
+// ',' or ':' or '{' or '}'. If that is so, then the text is safe for eval.
+
+            if (/^[\],:{}\s]*$/.
+test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g, '@').
+replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, ']').
+replace(/(?:^|:|,)(?:\s*\[)+/g, ''))) {
+
+// In the third stage we use the eval function to compile the text into a
+// JavaScript structure. The '{' operator is subject to a syntactic ambiguity
+// in JavaScript: it can begin a block or an object literal. We wrap the text
+// in parens to eliminate the ambiguity.
+
+                j = eval('(' + text + ')');
+
+// In the optional fourth stage, we recursively walk the new structure, passing
+// each name/value pair to a reviver function for possible transformation.
+
+                return typeof reviver === 'function' ?
+                    walk({'': j}, '') : j;
+            }
+
+// If the text is not JSON parseable, then a SyntaxError is thrown.
+
+            throw new SyntaxError('JSON.parse');
+        };
+    }
+}());
 
 //////////////////////////////////////////////////////////////
 
@@ -284,6 +766,24 @@ var helpers = {};
 		}
 	};
 
+	var isList = function(x) { return (( types.isPair(x) && isList(x.rest()) ) || x === types.EMPTY); };
+
+	var isListOf = function(x, f) {
+		return ( ( types.isPair(x) && f(x.first()) && isListOf(x.rest(), f) ) ||
+			 x === types.EMPTY );
+	};
+
+	var checkListOf = function(lst, f, functionName, typeName, position, args) {
+		if ( !isListOf(lst, f) ) {
+			helpers.throwCheckError([functionName,
+						 'list of ' + typeName,
+						 helpers.ordinalize(position),
+						 lst],
+						position,
+						args);
+		}
+	};
+
 
 //	// remove: array any -> array
 //	// removes the first instance of v in a
@@ -300,7 +800,7 @@ var helpers = {};
 	// map: array (any -> any) -> array
 	// applies f to each element of a and returns the result
 	// as a new array
-	var map = function(a, f) {
+	var map = function(f, a) {
 		var b = new Array(a.length);
 		for (var i = 0; i < a.length; i++) {
 			b[i] = f(a[i]);
@@ -308,6 +808,15 @@ var helpers = {};
 		return b;
 	};
 
+
+	var schemeListToArray = function(lst) {
+		var result = [];
+		while ( !lst.isEmpty() ) {
+			result.push(lst.first());
+			lst = lst.rest();
+		}
+		return result;
+	}
 
 	// deepListToArray: any -> any
 	// Converts list structure to array structure.
@@ -326,6 +835,20 @@ var helpers = {};
 			return x;
 		}
 	}
+
+
+	var flattenSchemeListToArray = function(x) {
+		if ( !isList(x) ) {
+			return [x];
+		}
+
+		var ret = [];
+		while ( !x.isEmpty() ) {
+			ret = ret.concat( flattenSchemeListToArray(x.first()) );
+			x = x.rest();
+		}
+		return ret;
+	};
 
 
 	// assocListToHash: (listof (list X Y)) -> (hashof X Y)
@@ -457,6 +980,58 @@ var helpers = {};
 
 
 
+
+
+
+    // makeLocationDom: location -> dom
+    // Dom type that has special support in the editor through the print hook.
+    // The print hook is expected to look at the printing of dom values with
+    // this particular structure.  In the context of WeScheme, the environment
+    // will rewrite these to be clickable links.
+    var makeLocationDom = function(aLocation) {
+	var locationSpan = document.createElement("span");
+	var idSpan = document.createElement("span");
+	var offsetSpan = document.createElement("span");
+	var lineSpan = document.createElement("span");
+	var columnSpan = document.createElement("span");
+	var spanSpan = document.createElement("span");
+
+	locationSpan['class'] = 'location-reference';
+	idSpan['class'] = 'location-id';
+	offsetSpan['class'] = 'location-offset';
+	lineSpan['class'] = 'location-line';
+	columnSpan['class'] = 'location-column';
+	spanSpan['class'] = 'location-span';
+
+	idSpan.appendChild(document.createTextNode(aLocation.id + ''));
+	offsetSpan.appendChild(document.createTextNode(aLocation.offset + ''));
+	lineSpan.appendChild(document.createTextNode(aLocation.line + ''));
+	columnSpan.appendChild(document.createTextNode(aLocation.column + ''));
+	spanSpan.appendChild(document.createTextNode(aLocation.span + ''));
+
+	locationSpan.appendChild(idSpan);
+	locationSpan.appendChild(offsetSpan);
+	locationSpan.appendChild(lineSpan);
+	locationSpan.appendChild(columnSpan);   
+	locationSpan.appendChild(spanSpan);
+
+	return locationSpan;
+    };
+
+
+    var isLocationDom = function(thing) {
+	return (thing
+		&&
+		(thing.nodeType === Node.TEXT_NODE ||
+		 thing.nodeType === Node.ELEMENT_NODE)
+		&&
+		thing['class'] === 'location-reference');
+    };
+
+
+
+
+
 	////////////////////////////////////////////////
 
 	helpers.format = format;
@@ -466,11 +1041,16 @@ var helpers = {};
 
 	helpers.procArityContains = procArityContains;
 	helpers.throwCheckError = throwCheckError;
+	helpers.isList = isList;
+	helpers.isListOf = isListOf;
 	helpers.check = check;
+	helpers.checkListOf = checkListOf;
 	
 //	helpers.remove = remove;
 	helpers.map = map;
+	helpers.schemeListToArray = schemeListToArray;
 	helpers.deepListToArray = deepListToArray;
+	helpers.flattenSchemeListToArray = flattenSchemeListToArray;
 	helpers.assocListToHash = assocListToHash;
 
 	helpers.ordinalize = ordinalize;
@@ -480,10 +1060,1493 @@ var helpers = {};
 
         helpers.maybeCallAfterAttach = maybeCallAfterAttach;
 
+        helpers.makeLocationDom = makeLocationDom;
+        helpers.isLocationDom = isLocationDom;
+
 })();
 
 /////////////////////////////////////////////////////////////////
 
+
+var jsworld = {};
+
+// Stuff here is copy-and-pasted from Chris's JSWorld.  We
+// namespace-protect it, and add the Javascript <-> Moby wrapper
+// functions here.
+
+(function() {
+
+    /* Type signature notation
+     * CPS(a b ... -> c) is used to denote
+     *    a b ... (c -> void) -> void
+     */
+
+    jsworld.Jsworld = {};
+    var Jsworld = jsworld.Jsworld;
+
+
+    var currentFocusedNode = false;
+
+    var doNothing = function() {};
+
+
+
+    //
+    // WORLD STUFFS
+    //
+
+    function InitialWorld() {}
+
+    var world = new InitialWorld();
+    var worldListeners = [];
+    var eventDetachers = [];
+    var runningBigBangs = [];
+
+
+
+    // Close all world computations.
+    Jsworld.shutdown = function() {
+	while(runningBigBangs.length > 0) {
+	    var currentRecord = runningBigBangs.pop();
+	    if (currentRecord) { currentRecord.pause(); }
+	}
+	clear_running_state();
+    }
+
+
+
+    function add_world_listener(listener) {
+	worldListeners.push(listener);
+    }
+
+
+    function remove_world_listener(listener) {
+	var index = worldListeners.indexOf(listener);
+	if (index != -1) {
+	    worldListeners.splice(index, 1);
+	}
+    }
+
+    function clear_running_state() {
+	world = new InitialWorld();
+	worldListeners = [];
+
+	for (var i = 0; i < eventDetachers.length; i++) {
+		eventDetachers[i]();
+	}
+	eventDetachers = [];
+    }
+
+
+
+    // change_world: CPS( CPS(world -> world) -> void )
+    // Adjust the world, and notify all listeners.
+    function change_world(updater, k) {
+	var originalWorld = world;
+
+	var changeWorldHelp = function() {
+		if (world instanceof WrappedWorldWithEffects) {
+			var effects = world.getEffects();
+			helpers.forEachK(effects,
+				 function(anEffect, k2) { anEffect.invokeEffect(change_world, k2); },
+				 function (e) { throw e; },
+				 function() {
+				 	world = world.getWorld();
+					changeWorldHelp2();
+				 });
+		} else {
+			changeWorldHelp2();
+		}
+	};
+	
+	var changeWorldHelp2 = function() {
+		helpers.forEachK(worldListeners,
+			 function(listener, k2) { listener(world, originalWorld, k2); },
+			 function(e) { world = originalWorld; throw e; },
+			 k);
+	};
+
+	try {
+		updater(world, function(newWorld) {
+				world = newWorld;
+				changeWorldHelp();
+			});
+	} catch(e) {
+		world = originalWorld;
+
+	    if (typeof(console) !== 'undefined' && console.log && e.stack) {
+			console.log(e.stack);
+		}
+		throw e;
+	}
+    }
+    Jsworld.change_world = change_world;
+
+
+
+
+    //
+    // STUFF THAT SHOULD REALLY BE IN ECMASCRIPT
+    //
+    Number.prototype.NaN0=function(){return isNaN(this)?0:this;}
+    function getPosition(e){
+	var left = 0;
+	var top  = 0;
+	while (e.offsetParent){
+	    left += e.offsetLeft + (e.currentStyle?(parseInt(e.currentStyle.borderLeftWidth)).NaN0():0);
+	    top  += e.offsetTop  + (e.currentStyle?(parseInt(e.currentStyle.borderTopWidth)).NaN0():0);
+	    e     = e.offsetParent;
+	}
+	left += e.offsetLeft + (e.currentStyle?(parseInt(e.currentStyle.borderLeftWidth)).NaN0():0);
+	top  += e.offsetTop  + (e.currentStyle?(parseInt(e.currentStyle.borderTopWidth)).NaN0():0);
+	return {x:left, y:top};	
+    }
+    Jsworld.getPosition = getPosition;
+
+
+    var gensym_counter = 0;
+    function gensym(){ return gensym_counter++;}
+    Jsworld.gensym = gensym;
+
+
+    function map(a, f) {
+	var b = new Array(a.length);
+	for (var i = 0; i < a.length; i++) {
+		b[i] = f(a[i]);
+	}
+	return b;
+    }
+    Jsworld.map = map;
+
+
+
+    function concat_map(a, f) {
+	var b = [];
+	for (var i = 0; i < a.length; i++) {
+		b = b.concat(f(a[i]));
+	}
+	return b;
+    }
+
+
+    function mapi(a, f) {
+	var b = new Array(a.length);
+	for (var i = 0; i < a.length; i++) {
+		b[i] = f(a[i], i);
+	}
+	return b;
+    }
+    Jsworld.mapi = mapi;
+
+
+    function fold(a, x, f) {
+	for (var i = 0; i < a.length; i++) {
+		x = f(a[i], x);
+	}
+	return x;
+    }
+    Jsworld.fold = fold;
+
+
+    function augment(o, a) {
+	var oo = {};
+	for (var e in o)
+	    oo[e] = o[e];
+	for (var e in a)
+	    oo[e] = a[e];
+	return oo;
+    }
+    Jsworld.augment = augment;
+
+
+    function assoc_cons(o, k, v) {
+	var oo = {};
+	for (var e in o)
+	    oo[e] = o[e];
+	oo[k] = v;
+	return oo;
+    }
+    Jsworld.assoc_cons = assoc_cons;
+
+
+    function cons(value, array) {
+	return [value].concat(array);
+    }
+    Jsworld.cons = cons;
+
+
+    function append(array1, array2){
+	return array1.concat(array2);
+    }
+    Jsworld.append = append;
+
+    function array_join(array1, array2){
+	var joined = [];
+	for (var i = 0; i < array1.length; i++)
+	    joined.push([array1[i], array2[i]]);
+	return joined;
+    }
+    Jsworld.array_join = array_join;
+
+
+    function removeq(a, value) {
+	for (var i = 0; i < a.length; i++)
+	    if (a[i] === value){
+		return a.slice(0, i).concat(a.slice(i+1));
+	    }			
+	return a;
+    }
+    Jsworld.removeq = removeq;
+
+    function removef(a, value) {
+	for (var i = 0; i < a.length; i++)
+	    if ( f(a[i]) ){
+		return a.slice(0, i).concat(a.slice(i+1));
+	    }			
+	return a;
+    }
+    Jsworld.removef = removef;
+
+
+    function filter(a, f) {
+	var b = [];
+	for (var i = 0; i < a.length; i++) {
+		if ( f(a[i]) ) {
+			b.push(a[i]);
+		}
+	}
+	return b;
+    }
+    Jsworld.filter = filter;
+
+
+    function without(obj, attrib) {
+	var o = {};
+	for (var a in obj)
+	    if (a != attrib)
+		o[a] = obj[a];
+	return o;
+    }
+    Jsworld.without = without;
+
+
+    function memberq(a, x) {
+	for (var i = 0; i < a.length; i++)
+	    if (a[i] === x) return true;
+	return false;
+    }
+    Jsworld.memberq = memberq;
+
+
+    function member(a, x) {
+	for (var i = 0; i < a.length; i++)
+	    if (a[i] == x) return true;
+	return false;
+    }
+    Jsworld.member = member;
+
+
+
+    function head(a){
+	return a[0];
+    }
+    Jsworld.head = head;
+
+
+    function tail(a){
+	return a.slice(1, a.length);
+    }
+    Jsworld.tail = tail;
+
+    //
+    // DOM UPDATING STUFFS
+    //
+
+    // tree(N): { node: N, children: [tree(N)] }
+    // relation(N): { relation: 'parent', parent: N, child: N } | { relation: 'neighbor', left: N, right: N }
+    // relations(N): [relation(N)]
+    // nodes(N): [N]
+    // css(N): [css_node(N)]
+    // css_node(N): { node: N, attribs: attribs } | { className: string, attribs: attribs }
+    // attrib: { attrib: string, values: [string] }
+    // attribs: [attrib]
+
+    // treeable(nodes(N), relations(N)) = bool
+    /*function treeable(nodes, relations) {
+    // for all neighbor relations between x and y
+    for (var i = 0; i < relations.length; i++)
+    if (relations[i].relation == 'neighbor') {
+    var x = relations[i].left, y = relations[i].right;
+ 
+    // there does not exist a neighbor relation between x and z!=y or z!=x and y
+    for (var j = 0; j < relations.length; j++)
+    if (relations[j].relation === 'neighbor')
+    if (relations[j].left === x && relations[j].right !== y ||
+    relations[j].left !== x && relations[j].right === y)
+    return false;
+    }
+ 
+    // for all parent relations between x and y
+    for (var i = 0; i < relations.length; i++)
+    if (relations[i].relation == 'parent') {
+    var x = relations[i].parent, y = relations[i].child;
+ 
+    // there does not exist a parent relation between z!=x and y
+    for (var j = 0; j < relations.length; j++)
+    if (relations[j].relation == 'parent')
+    if (relations[j].parent !== x && relations[j].child === y)
+    return false;
+    }
+ 
+    // for all neighbor relations between x and y
+    for (var i = 0; i < relations.length; i++)
+    if (relations[i].relation == 'neighbor') {
+    var x = relations[i].left, y = relations[i].right;
+ 
+    // all parent relations between z and x or y share the same z
+    for (var j = 0; j < relations.length; j++)
+    if (relations[j].relation == 'parent')
+    for (var k = 0; k < relations.length; k++)
+    if (relations[k].relation == 'parent')
+    if (relations[j].child === x && relations[k].child === y &&
+    relations[j].parent !== relations[k].parent)
+    return false;
+    }
+ 
+    return true;
+    }*/
+
+
+    // node_to_tree: dom -> dom-tree
+    // Given a native dom node, produces the appropriate tree.
+    function node_to_tree(domNode) {
+	var result = [domNode];
+	for (var c = domNode.firstChild; c != null; c = c.nextSibling) {
+	    result.push(node_to_tree(c));
+	}
+	return result;
+    }
+    Jsworld.node_to_tree = node_to_tree;
+
+
+
+    // nodes(tree(N)) = nodes(N)
+    function nodes(tree) {
+	var ret = [tree.node];
+	
+	if (tree.node.jsworldOpaque == true) {
+	    return ret;
+	}
+
+	for (var i = 0; i < tree.children.length; i++)
+	    ret = ret.concat(nodes(tree.children[i]));
+	
+	return ret;
+    }
+
+    // nodeEq: node node -> boolean
+    // Returns true if the two nodes should be the same.
+    function nodeEq(node1, node2) {
+	return (node1 && node2 && node1 === node2);
+    }
+
+    function nodeNotEq(node1, node2) {
+	return ! nodeEq(node1, node2);
+    }
+
+
+
+    // relations(tree(N)) = relations(N)
+    function relations(tree) {
+	var ret = [];
+	
+	if (tree.node.jsworldOpaque == true) { return []; }
+
+	for (var i = 0; i < tree.children.length; i++)
+	    ret.push({ relation: 'parent', parent: tree.node, child: tree.children[i].node });
+	
+	for (var i = 0; i < tree.children.length - 1; i++)
+	    ret.push({ relation: 'neighbor', left: tree.children[i].node, right: tree.children[i + 1].node });
+	
+	for (var i = 0; i < tree.children.length; i++)
+	    ret = ret.concat(relations(tree.children[i]));
+	
+	return ret;
+    }
+
+
+    function appendChild(parent, child) {
+	parent.appendChild(child);
+    }
+
+
+    // update_dom(nodes(Node), relations(Node)) = void
+    function update_dom(toplevelNode, nodes, relations) {
+
+	// TODO: rewrite this to move stuff all in one go... possible? necessary?
+	
+	// move all children to their proper parents
+	for (var i = 0; i < relations.length; i++) {
+	    if (relations[i].relation == 'parent') {
+		var parent = relations[i].parent, child = relations[i].child;
+		if (nodeNotEq(child.parentNode, parent)) {
+		    appendChild(parent, child);
+		} else {
+		}
+	    }
+	}
+	
+	// arrange siblings in proper order
+	// truly terrible... BUBBLE SORT
+	var unsorted = true;
+	while (unsorted) {
+	    unsorted = false;
+		
+	    for (var i = 0; i < relations.length; i++) {
+		if (relations[i].relation == 'neighbor') {
+		    var left = relations[i].left, right = relations[i].right;
+				
+		    if (nodeNotEq(left.nextSibling, right)) {
+			left.parentNode.insertBefore(left, right)
+			unsorted = true;
+		    }
+		}
+	    }
+		
+//	    if (!unsorted) break;
+	}
+
+	
+	// remove dead nodes
+	var live_nodes;
+	
+	// it is my hope that by sorting the nodes we get the worse of
+	// O(n*log n) or O(m) performance instead of O(n*m)
+	// for all I know Node.compareDocumentPosition is O(m)
+	// and now we get O(n*m*log n)
+	function positionComparator(a, b) {
+	    var rel = a.compareDocumentPosition(b);
+	    // children first
+	    if (rel & a.DOCUMENT_POSITION_CONTAINED_BY) return 1;
+	    if (rel & a.DOCUMENT_POSITION_CONTAINS) return -1;
+	    // otherwise use precedes/follows
+	    if (rel & a.DOCUMENT_POSITION_FOLLOWING) return -1;
+	    if (rel & a.DOCUMENT_POSITION_PRECEDING) return 1;
+	    // otherwise same node or don't care, we'll skip it anyway
+	    return 0;
+	}
+	
+	try {
+	    // don't take out concat, it doubles as a shallow copy
+	    // (as well as ensuring we keep document.body)
+	    live_nodes = nodes.concat(toplevelNode).sort(positionComparator);
+	}
+	catch (e) {
+	    // probably doesn't implement Node.compareDocumentPosition
+	    live_nodes = null;
+	}
+	
+	var node = toplevelNode, stop = toplevelNode.parentNode;
+	while (node != stop) {
+	    while ( !(node.firstChild == null || node.jsworldOpaque) ) {
+		// process first
+		// move down
+		node = node.firstChild;
+	    }
+		
+	    while (node != stop) {
+		var next = node.nextSibling, parent = node.parentNode;
+		
+		// process last
+		var found = false;
+		var foundNode = undefined;
+
+		if (live_nodes != null)
+		    while (live_nodes.length > 0 && positionComparator(node, live_nodes[0]) >= 0) {
+			var other_node = live_nodes.shift();
+			if (nodeEq(other_node, node)) {
+			    found = true;
+			    foundNode = other_node;
+			    break;
+			}
+			// need to think about this
+			//live_nodes.push(other_node);
+		    }
+		else
+		    for (var i = 0; i < nodes.length; i++)
+			if (nodeEq(nodes[i], node)) {
+			    found = true;
+			    foundNode = nodes[i];
+			    break;
+			}
+			
+		if (!found) {
+		    if (node.isJsworldOpaque) {
+		    } else {
+			// reparent children, remove node
+			while (node.firstChild != null) {
+			    appendChild(node.parentNode, node.firstChild);
+			}
+		    }
+				
+		    next = node.nextSibling; // HACKY
+		    node.parentNode.removeChild(node);
+		} else {
+		    mergeNodeValues(node, foundNode);
+		}
+
+		// move sideways
+		if (next == null) node = parent;
+		else { node = next; break; }
+	    }
+	}
+
+	
+	refresh_node_values(nodes);
+    }
+
+    function mergeNodeValues(node, foundNode) {
+//	for (attr in node) {
+//	    foundNode[attr] = node[attr];
+//	}
+    }
+
+
+
+    // camelCase: string -> string
+    function camelCase(name) {
+	return name.replace(/\-(.)/g, function(m, l){return l.toUpperCase()});
+    }
+
+
+    function set_css_attribs(node, attribs) {
+	for (var j = 0; j < attribs.length; j++){
+	    node.style[camelCase(attribs[j].attrib)] = attribs[j].values.join(" ");
+	}
+    }
+
+
+    // isMatchingCssSelector: node css -> boolean
+    // Returns true if the CSS selector matches.
+    function isMatchingCssSelector(node, css) {
+	if (css.id.match(/^\./)) {
+	    // Check to see if we match the class
+	    return ('class' in node && member(node['class'].split(/\s+/),
+					      css.id.substring(1)));
+	} else {
+	    return ('id' in node && node.id == css.id);
+	}
+    }
+
+
+    function update_css(nodes, css) {
+	// clear CSS
+	for (var i = 0; i < nodes.length; i++) {
+	    if ( !nodes[i].jsworldOpaque ) {
+		    clearCss(nodes[i]);
+	    }
+	}
+	
+	// set CSS
+	for (var i = 0; i < css.length; i++)
+	    if ('id' in css[i]) {
+		for (var j = 0; j < nodes.length; j++)
+		    if (isMatchingCssSelector(nodes[j], css[i])) {
+			set_css_attribs(nodes[j], css[i].attribs);
+		    }
+	    }
+	    else set_css_attribs(css[i].node, css[i].attribs);
+    }
+
+
+    var clearCss = function(node) {
+	// FIXME: we should not be clearing the css
+// 	if ('style' in node)
+// 	    node.style.cssText = "";
+    }
+
+
+
+    // If any node cares about the world, send it in.
+    function refresh_node_values(nodes) {
+	for (var i = 0; i < nodes.length; i++) {
+	    if (nodes[i].onWorldChange) {
+		nodes[i].onWorldChange(world);
+	    }
+	}
+    }
+
+
+
+    function do_redraw(world, oldWorld, toplevelNode, redraw_func, redraw_css_func, k) {
+	if (oldWorld instanceof InitialWorld) {
+	    // Simple path
+	    redraw_func(world,
+		function(drawn) {
+			var t = sexp2tree(drawn);
+			var ns = nodes(t);
+	    		// HACK: css before dom, due to excanvas hack.
+	    		redraw_css_func(world,
+				function(css) {
+					update_css(ns, sexp2css(css));
+					update_dom(toplevelNode, ns, relations(t));
+					k();
+				});
+		});
+	} else {
+	    maintainingSelection(
+		function(k2) {
+		    // For legibility, here is the non-CPS version of the same function:
+		    /*
+			var oldRedraw = redraw_func(oldWorld);
+ 			var newRedraw = redraw_func(world);	    
+ 			var oldRedrawCss = redraw_css_func(oldWorld);
+			var newRedrawCss = redraw_css_func(world);
+			var t = sexp2tree(newRedraw);
+ 			var ns = nodes(t);
+
+			// Try to save the current selection and preserve it across
+			// dom updates.
+
+ 			if(oldRedraw !== newRedraw) {
+				// Kludge: update the CSS styles first.
+				// This is a workaround an issue with excanvas: any style change
+				// clears the content of the canvas, so we do this first before
+				// attaching the dom element.
+				update_css(ns, sexp2css(newRedrawCss));
+				update_dom(toplevelNode, ns, relations(t));
+ 			} else {
+				if(oldRedrawCss !== newRedrawCss) {
+					update_css(ns, sexp2css(newRedrawCss));
+				}
+ 			}
+		    */
+
+		    // We try to avoid updating the dom if the value
+		    // hasn't changed.
+		    redraw_func(oldWorld,
+			function(oldRedraw) {
+			    redraw_func(world,
+				function(newRedraw) {
+				    redraw_css_func(oldWorld,
+					function(oldRedrawCss) {
+					    redraw_css_func(world,
+						function(newRedrawCss) {
+						    var t = sexp2tree(newRedraw);
+						    var ns = nodes(t);
+
+						    // Try to save the current selection and preserve it across
+						    // dom updates.
+
+ 						    if(oldRedraw !== newRedraw) {
+							// Kludge: update the CSS styles first.
+							// This is a workaround an issue with excanvas: any style change
+							// clears the content of the canvas, so we do this first before
+							// attaching the dom element.
+							update_css(ns, sexp2css(newRedrawCss));
+							update_dom(toplevelNode, ns, relations(t));
+						    } else {
+							if (oldRedrawCss !== newRedrawCss) {
+							    update_css(ns, sexp2css(newRedrawCss));
+							}
+						    }
+						    k2();
+						})
+					})
+				})
+			});
+		}, k);
+	}
+    }
+
+
+    // maintainingSelection: (-> void) -> void
+    // Calls the thunk f while trying to maintain the current focused selection.
+    function maintainingSelection(f, k) {
+	var currentFocusedSelection;
+	if (hasCurrentFocusedSelection()) {
+	    currentFocusedSelection = getCurrentFocusedSelection();
+	    f(function() {
+		currentFocusedSelection.restore();
+		k();
+	    });
+	} else {
+	    f(function() { k(); });
+	}
+    }
+
+
+
+    function FocusedSelection() {
+	this.focused = currentFocusedNode;
+	this.selectionStart = currentFocusedNode.selectionStart;
+	this.selectionEnd = currentFocusedNode.selectionEnd;
+    }
+
+    // Try to restore the focus.
+    FocusedSelection.prototype.restore = function() {
+	// FIXME: if we're scrolling through, what's visible
+	// isn't restored yet.
+	if (this.focused.parentNode) {
+	    this.focused.selectionStart = this.selectionStart;
+	    this.focused.selectionEnd = this.selectionEnd;
+	    this.focused.focus();
+	} else if (this.focused.id) {
+	    var matching = document.getElementById(this.focused.id);
+	    if (matching) {
+		matching.selectionStart = this.selectionStart;
+		matching.selectionEnd = this.selectionEnd;
+		matching.focus();
+	    }
+	}
+    };
+
+    function hasCurrentFocusedSelection() {
+	return currentFocusedNode != undefined;
+    }
+
+    function getCurrentFocusedSelection() {
+	return new FocusedSelection();
+    }
+
+
+
+    //////////////////////////////////////////////////////////////////////
+
+    function BigBangRecord(top, world, handlerCreators, handlers, attribs) {    
+	this.top = top;
+	this.world = world;
+	this.handlers = handlers;
+	this.handlerCreators = handlerCreators;
+	this.attribs = attribs;
+    }
+
+    BigBangRecord.prototype.restart = function() {
+	big_bang(this.top, this.world, this.handlerCreators, this.attribs);
+    }
+    
+    BigBangRecord.prototype.pause = function() {
+	for(var i = 0 ; i < this.handlers.length; i++) {
+	    if (this.handlers[i] instanceof StopWhenHandler) {
+		// Do nothing for now.
+	    } else {
+		this.handlers[i].onUnregister(top);
+	    }
+	}
+    };
+    //////////////////////////////////////////////////////////////////////
+
+    // Notes: big_bang maintains a stack of activation records; it should be possible
+    // to call big_bang re-entrantly.
+    function big_bang(top, init_world, handlerCreators, attribs, k) {
+	clear_running_state();
+
+	// Construct a fresh set of the handlers.
+	var handlers = map(handlerCreators, function(x) { return x();} );
+	if (runningBigBangs.length > 0) { 
+	    runningBigBangs[runningBigBangs.length - 1].pause();
+	}
+
+	// Create an activation record for this big-bang.
+	var activationRecord = 
+	    new BigBangRecord(top, init_world, handlerCreators, handlers, attribs);
+	runningBigBangs.push(activationRecord);
+	function keepRecordUpToDate(w, oldW, k2) {
+	    activationRecord.world = w;
+	    k2();
+	}
+	add_world_listener(keepRecordUpToDate);
+
+
+
+	// Monitor for termination and register the other handlers.
+	var stopWhen = new StopWhenHandler(function(w, k2) { k2(false); },
+					   function(w, k2) { k2(w); });
+	for(var i = 0 ; i < handlers.length; i++) {
+	    if (handlers[i] instanceof StopWhenHandler) {
+		stopWhen = handlers[i];
+	    } else {
+		handlers[i].onRegister(top);
+	    }
+	}
+	function watchForTermination(w, oldW, k2) {
+	    stopWhen.test(w,
+		function(stop) {
+		    if (stop) {
+			Jsworld.shutdown();
+		        k(w);
+	/*
+			stopWhen.receiver(world,
+			    function() {		    
+				var currentRecord = runningBigBangs.pop();
+				if (currentRecord) { currentRecord.pause(); }
+				if (runningBigBangs.length > 0) {
+				    var restartingBigBang = runningBigBangs.pop();
+				    restartingBigBang.restart();
+				}
+				k();
+			    });
+	*/
+		    }
+		    else { k2(); }
+		});
+	};
+	add_world_listener(watchForTermination);
+
+
+	// Finally, begin the big-bang.
+	copy_attribs(top, attribs);
+	change_world(function(w, k2) { k2(init_world); }, doNothing);
+
+
+    }
+    Jsworld.big_bang = big_bang;
+
+
+
+
+
+    // on_tick: number CPS(world -> world) -> handler
+    function on_tick(delay, tick) {
+	return function() {
+	    var ticker = {
+		watchId: -1,
+		onRegister: function (top) { 
+		    ticker.watchId = setInterval(function() { change_world(tick, doNothing); }, delay);
+		},
+
+		onUnregister: function (top) {
+		    clearInterval(ticker.watchId);
+		}
+	    };
+	    return ticker;
+	};
+    }
+    Jsworld.on_tick = on_tick;
+
+
+    function on_key(press) {
+	return function() {
+	    var wrappedPress = function(e) {
+		    preventDefault(e);
+		    stopPropagation(e);
+		    change_world(function(w, k) { press(w, e, k); }, doNothing);
+	    };
+	    return {
+		onRegister: function(top) { attachEvent(top, 'keydown', wrappedPress); },
+		onUnregister: function(top) { detachEvent(top, 'keydown', wrappedPress); }
+	    };
+	}
+    }
+    Jsworld.on_key = on_key;
+
+
+    
+    //  on_draw: CPS(world -> (sexpof node)) CPS(world -> (sexpof css-style)) -> handler
+    function on_draw(redraw, redraw_css) {
+	var wrappedRedraw = function(w, k) {
+	    redraw(w, function(newDomTree) {
+	    	checkDomSexp(newDomTree, newDomTree);
+	    	k(newDomTree);
+	    });
+	}
+
+	return function() {
+	    var drawer = {
+		_top: null,
+		_listener: function(w, oldW, k2) { 
+		    do_redraw(w, oldW, drawer._top, wrappedRedraw, redraw_css, k2); 
+		},
+		onRegister: function (top) { 
+		    drawer._top = top;
+		    add_world_listener(drawer._listener);
+		},
+
+		onUnregister: function (top) {
+		    remove_world_listener(drawer._listener);
+		}
+	    };
+	    return drawer;
+	};
+    }
+    Jsworld.on_draw = on_draw;
+
+
+
+    function StopWhenHandler(test, receiver) {
+	this.test = test;
+	this.receiver = receiver;
+    }
+    // stop_when: CPS(world -> boolean) CPS(world -> boolean) -> handler
+    function stop_when(test, receiver) {
+	return function() {
+	    if (receiver == undefined) {
+		receiver = function(w, k) { k(w); };
+	    }
+	    return new StopWhenHandler(test, receiver);
+	};
+    }
+    Jsworld.stop_when = stop_when;
+
+
+
+    function on_world_change(f) {
+	var listener = function(world, oldW, k) { f(world, k); };
+	return function() {
+	    return { 
+		onRegister: function (top) { 
+		    add_world_listener(listener); },
+		onUnregister: function (top) {
+		    remove_world_listener(listener)}
+	    };
+	};
+    }
+    Jsworld.on_world_change = on_world_change;
+
+
+
+
+
+    // Compatibility for attaching events to nodes.
+    function attachEvent(node, eventName, fn) {
+	if (node.addEventListener) {
+	    // Mozilla
+	    node.addEventListener(eventName, fn, false);
+	} else {
+	    // IE
+	    node.attachEvent('on' + eventName, fn, false);
+	}
+    }
+
+    var detachEvent = function(node, eventName, fn) {
+	if (node.addEventListener) {
+	    // Mozilla
+	    node.removeEventListener(eventName, fn, false);
+	} else {
+	    // IE
+	    node.detachEvent('on' + eventName, fn, false);
+	}
+    }
+
+    //
+    // DOM CREATION STUFFS
+    //
+
+    // add_ev: node string CPS(world event -> world) -> void
+    // Attaches a world-updating handler when the world is changed.
+    function add_ev(node, event, f) {
+	var eventHandler = function(e) { change_world(function(w, k) { f(w, e, k); },
+						       doNothing); };
+	attachEvent(node, event, eventHandler);
+	eventDetachers.push(function() { detachEvent(node, event, eventHandler); });
+    }
+
+    // add_ev_after: node string CPS(world event -> world) -> void
+    // Attaches a world-updating handler when the world is changed, but only
+    // after the fired event has finished.
+    function add_ev_after(node, event, f) {
+	var eventHandler = function(e) {
+		setTimeout(function() { change_world(function(w, k) { f(w, e, k); },
+						     doNothing); },
+			   0);
+	};
+	attachEvent(node, event, eventHandler);
+	eventDetachers.push(function() { detachEvent(node, event, eventHandler); });
+    }
+
+
+    function addFocusTracking(node) {
+	attachEvent(node, "focus", function(e) {
+	    currentFocusedNode = node; });
+	attachEvent(node, "blur", function(e) {
+	    currentFocusedNode = undefined;
+	});
+	return node;
+    }
+
+
+
+
+
+    //
+    // WORLD STUFFS
+    //
+
+
+    function sexp2tree(sexp) {
+	if (isPage(sexp)) {
+	    return sexp2tree(node_to_tree(sexp.toDomNode()));
+	} else {
+	    if(sexp.length == undefined) return { node: sexp, children: [] };
+	    else return { node: sexp[0], children: map(sexp.slice(1), sexp2tree) };
+	}
+    }
+
+    function sexp2attrib(sexp) {
+	return { attrib: sexp[0], values: sexp.slice(1) };
+    }
+
+    function sexp2css_node(sexp) {
+	var attribs = map(sexp.slice(1), sexp2attrib);
+	if (typeof sexp[0] == 'string'){
+	    return [{ id: sexp[0], attribs: attribs }];
+	} else if ('length' in sexp[0]){
+	    return map(sexp[0], function (id) { return { id: id, attribs: attribs } });
+	} else {
+	    return [{ node: sexp[0], attribs: attribs }];
+	}
+    }
+
+    function sexp2css(sexp) {
+	return concat_map(sexp, sexp2css_node);
+    }
+
+
+
+    function isTextNode(n) {
+	return (n.nodeType == Node.TEXT_NODE);
+    }
+
+
+    function isElementNode(n) {
+	return (n.nodeType == Node.ELEMENT_NODE);
+    }
+
+
+    var throwDomError = function(thing, topThing) {
+	throw new JsworldDomError(
+	    helpers.format(
+		"Expected a non-empty array, received ~s within ~s",
+		[thing, topThing]),
+	    thing);
+    };
+
+    // checkDomSexp: X X -> boolean
+    // Checks to see if thing is a DOM-sexp.  If not,
+    // throws an object that explains why not.
+    function checkDomSexp(thing, topThing) {
+	if (isPage(thing)) {
+	    return;
+	}
+
+	if (! thing instanceof Array) {
+	    throwDomError(thing, topThing);
+	}
+	if (thing.length == 0) {
+	    throwDomError(thing, topThing);
+	}
+
+	// Check that the first element is a Text or an element.
+	if (isTextNode(thing[0])) {
+	    if (thing.length > 1) {
+		throw new JsworldDomError(helpers.format("Text node ~s can not have children",
+							 [thing]),
+					  thing);
+	    }
+	} else if (isElementNode(thing[0])) {
+	    for (var i = 1; i < thing.length; i++) {
+		checkDomSexp(thing[i], thing);
+	    }
+	} else {
+	    throw new JsworldDomError(
+		helpers.format(
+		    "expected a Text or an Element, received ~s within ~s",
+		    [thing, topThing]),
+		thing[0]);
+	}
+    }
+
+    function JsworldDomError(msg, elt) {
+	this.msg = msg;
+	this.elt = elt;
+    }
+    JsworldDomError.prototype.toString = function() {
+	return "on-draw: " + this.msg;
+    }
+
+
+
+
+
+    //
+    // DOM CREATION STUFFS
+    //
+
+
+    function copy_attribs(node, attribs) {
+	if (attribs)
+	    for (a in attribs) {
+		if (attribs.hasOwnProperty(a)) {
+		    if (typeof attribs[a] == 'function')
+			add_ev(node, a, attribs[a]);
+		    else{
+			node[a] = attribs[a];//eval("node."+a+"='"+attribs[a]+"'");
+		    }
+		}
+	    }
+	return node;
+    }
+
+
+    //
+    // NODE TYPES
+    //
+
+    function p(attribs) {
+	return addFocusTracking(copy_attribs(document.createElement('p'), attribs));
+    }
+    Jsworld.p = p;
+
+    function div(attribs) {
+	return addFocusTracking(copy_attribs(document.createElement('div'), attribs));
+    }
+    Jsworld.div = div;
+
+    // Used To Be: (world event -> world) (hashof X Y) -> domElement
+    // Now: CPS(world event -> world) (hashof X Y) -> domElement
+    function button(f, attribs) {
+	var n = document.createElement('button');
+	add_ev(n, 'click', f);
+	return addFocusTracking(copy_attribs(n, attribs));
+    }
+    Jsworld.button = button;
+
+
+//     function bidirectional_input(type, toVal, updateVal, attribs) {
+// 	var n = document.createElement('input');
+// 	n.type = type;
+// 	function onKey(w, e) {
+// 	    return updateVal(w, n.value);
+// 	}
+// 	// This established the widget->world direction
+// 	add_ev_after(n, 'keypress', onKey);
+// 	// and this establishes the world->widget.
+// 	n.onWorldChange = function(w) {n.value = toVal(w)};
+// 	return addFocusTracking(copy_attribs(n, attribs));
+//     }
+//     Jsworld.bidirectional_input = bidirectional_input;
+
+
+    var preventDefault = function(event) {
+	if (event.preventDefault) {
+	    event.preventDefault();
+	} else {
+	    event.returnValue = false;
+	}
+    }
+
+    var stopPropagation = function(event) {
+	if (event.stopPropagation) {
+	    event.stopPropagation();
+	} else {
+	    event.cancelBubble = true;
+	}
+    }
+
+
+    var stopClickPropagation = function(node) {
+	attachEvent(node, "click",
+		    function(e) {
+			stopPropagation(e);
+		    });
+	return node;
+    }
+    
+
+    // input: string CPS(world -> world) 
+    function input(aType, updateF, attribs) {
+	aType = aType.toLowerCase();
+	var dispatchTable = { text : text_input,
+			      password: text_input,
+			      checkbox: checkbox_input
+			      //button: button_input,
+			      //radio: radio_input 
+	};
+
+	if (dispatchTable[aType]) {
+	    return (dispatchTable[aType])(aType, updateF, attribs);
+	}
+	else {
+	    throw new Error("js-input: does not currently support type " + aType);
+	}
+    }
+    Jsworld.input = input;
+
+
+    var text_input = function(type, updateF, attribs) {
+	var n = document.createElement('input');
+	n.type = type;
+	function onKey(w, e, k) {
+	    updateF(w, n.value, k);
+	}
+	// This established the widget->world direction
+	add_ev_after(n, 'keypress', onKey);
+
+	// Every second, do a manual polling of the object, just in case.
+	var delay = 1000;
+	var lastVal = n.value;
+	var intervalId = setInterval(function() {
+	    if (! n.parentNode) {
+		clearInterval(intervalId);
+		return;
+	    }
+	    if (lastVal != n.value) {
+		lastVal = n.value;
+		change_world(function (w, k) {
+		    updateF(w, n.value, k);
+		}, doNothing);
+	    }
+	},
+		    delay);
+	return stopClickPropagation(
+	    addFocusTracking(copy_attribs(n, attribs)));
+    };
+
+
+    var checkbox_input = function(type, updateF, attribs) {
+	var n = document.createElement('input');
+	n.type = type;
+
+	var onCheck = function(w, e, k) {
+	    updateF(w, n.checked, k);
+	};
+	// This established the widget->world direction
+	add_ev_after(n, 'change', onCheck);
+	
+	attachEvent(n, 'click', function(e) {
+		stopPropagation(e);
+	    });
+
+	return copy_attribs(n, attribs);
+    };
+
+
+    var button_input = function(type, updateF, attribs) {
+	var n = document.createElement('button');
+	add_ev(n, 'click', function(w, e, k) { updateF(w, n.value, k); });
+	return addFocusTracking(copy_attribs(n, attribs));
+    };
+
+
+
+    // worldToValF: CPS(world -> string)
+    // updateF: CPS(world string -> world)
+    function bidirectional_text_input(worldToValF, updateF, attribs) {
+	var n = document.createElement('input');
+	n.type = "text";
+	var lastValue = undefined;
+	function monitor(w, e, k) {
+	    updateF(w, n.value, k);
+	}
+	add_ev(n, 'keypress', monitor);
+	return stopClickPropagation(
+	    addFocusTracking(
+		copy_attribs(n, attribs)));
+    }
+    
+
+    function text(s, attribs) {
+//	var result = document.createTextNode(s);
+	var result = document.createElement("div");
+	result.appendChild(document.createTextNode(s));
+	result.style['white-space'] = 'pre';
+	result.jsworldOpaque = true;
+	return result;
+    }
+    Jsworld.text = text;
+
+    function select(attribs, opts, f){
+	var n = document.createElement('select');
+	for(var i = 0; i < opts.length; i++) {
+	    n.add(option({value: opts[i]}), null);
+	}
+	n.jsworldOpaque = true;
+	add_ev(n, 'change', f);
+	var result = addFocusTracking(copy_attribs(n, attribs));
+	return result;
+    }
+    Jsworld.select = select;
+
+    function option(attribs){
+	var node = document.createElement("option");
+        node.text = attribs.value;
+	node.value = attribs.value;
+ 	return node;
+    }
+
+
+
+    function textarea(attribs){
+	return addFocusTracking(copy_attribs(document.createElement('textarea'), attribs));
+    }
+    Jsworld.textarea = textarea;
+
+    function h1(attribs){
+	return addFocusTracking(copy_attribs(document.createElement('h1'), attribs));
+    }
+    Jsworld.h1 = h1;
+
+    function canvas(attribs){
+	return addFocusTracking(copy_attribs(document.createElement('canvas'), attribs));	
+    }
+    Jsworld.canvas = canvas;
+
+
+    function img(src, attribs) {
+	var n = document.createElement('img');
+	n.src = src;
+	return addFocusTracking(copy_attribs(n, attribs));
+    }
+    Jsworld.img = img;
+
+
+
+    function raw_node(node, attribs) {
+	return addFocusTracking(copy_attribs(node, attribs));
+    }
+    Jsworld.raw_node = raw_node;
+
+
+
+
+
+    //////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////
+    // Effects
+
+    // An effect is an object with an invokeEffect() method.
+    
+    var WrappedWorldWithEffects = function(w, effects) {
+	if (w instanceof WrappedWorldWithEffects) {
+	    this.w = w.w;
+	    this.e = w.e.concat(effects);
+	} else {
+	    this.w = w;
+	    this.e = effects;
+	}
+    };
+
+    WrappedWorldWithEffects.prototype.getWorld = function() {
+	return this.w;
+    };
+
+    WrappedWorldWithEffects.prototype.getEffects = function() {
+	return this.e;
+    };
+
+
+    //////////////////////////////////////////////////////////////////////
+
+    Jsworld.with_effect = function(w, e) {
+	return new WrappedWorldWithEffects(w, [e]);
+    };
+
+    Jsworld.with_multiple_effects = function(w, effects) {
+	return new WrappedWorldWithEffects(w, effects);
+    };
+
+    Jsworld.has_effects = function(w) {
+	return w instanceof WrappedWorldWithEffects;
+    };
+
+
+
+
+    //////////////////////////////////////////////////////////////////////
+    // Example effect: raise an alert.
+    Jsworld.alert_effect = function(msg) {
+	return new AlertEffect(msg);
+    };
+
+    var AlertEffect = function(msg) {
+	this.msg = msg;
+    };
+
+    AlertEffect.prototype.invokeEffect = function(k) {
+	alert(this.msg);
+	k();
+    };
+
+
+    //////////////////////////////////////////////////////////////////////
+
+
+    // Example effect: play a song, given its url
+    Jsworld.music_effect = function(musicUrl) {
+	return new MusicEffect(musicUrl);
+    };
+
+    var MusicEffect = function(musicUrl) {
+	this.musicUrl = musicUrl;
+    };
+
+    MusicEffect.prototype.invokeEffect = function(k) {
+	new Audio(url).play();
+	k();
+    };
+
+
+
+
+
+    //////////////////////////////////////////////////////////////////////
+    // Pages
+
+
+    var Page = function(elts, attribs) {
+	if (typeof(elts) === 'undefined') { 
+	    elts = [];
+	}
+	this.elts = elts;
+	this.attribs = attribs;
+    };
+
+    Page.prototype.add = function(elt, positionLeft, positionTop) {
+	return new Page(this.elts.concat([{elt: elt, 
+					   positionTop: positionTop,
+					   positionLeft: positionLeft}]),
+			this.attribs);
+    };
+
+    Page.prototype.toDomNode = function() {
+	var aDiv = div();
+	for (var i = 0 ; i < this.elts.length; i++) {
+	    var elt = this.elts[i].elt;
+	    if (! elt.style) {
+		elt.style = '';
+	    }
+
+	    elt.style.position = 'absolute';
+	    elt.style.left = this.elts[i].positionLeft + "px";
+	    elt.style.top = this.elts[i].positionTop + "px";	    
+	    aDiv.appendChild(elt);
+	};
+	copy_attribs(aDiv, this.attribs)
+	return aDiv;
+    };
+
+
+    isPage = function(x) {
+	return x instanceof Page;
+    };
+
+    Jsworld.isPage = isPage;
+
+    Jsworld.emptyPage = function(attribs) {
+	var result = new Page([], attribs);
+	return result;
+    };
+
+    Jsworld.placeOnPage = function(elt, positionLeft, positionTop, page) {
+	if (typeof(elt) === 'string') {
+	    elt = text(elt);
+	}
+	return page.add(elt, positionLeft, positionTop);
+    };
+
+
+
+})();
 // Scheme numbers.
 
 
@@ -5689,38 +7752,71 @@ Effect.type.prototype.invokeEffect = function(k) {
 			'effect type created without using make-effect-type',
 			[]));
 };
-Effect.handlerIndices = [];
+//Effect.handlerIndices = [];
 
 
-var wrapHandler = function(handler, caller, changeWorld) {
-	return types.jsObject('function', function() {
-		var externalArgs = arguments;
-		changeWorld(function(w, k) {
-			var args = helpers.map(externalArgs, helpers.wrapJsObject);
-			args.unshift(w);
-			caller(handler, args, k);
-		});
-	});
+//var wrapHandler = function(handler, caller, changeWorld) {
+//	return types.jsObject('function', function() {
+//		var externalArgs = arguments;
+//		changeWorld(function(w, k) {
+//			var args = helpers.map(helpers.wrapJsObject, externalArgs);
+//			args.unshift(w);
+//			caller(handler, args, k);
+//		});
+//	});
+//};
+
+
+var makeEffectType = function(name, superType, initFieldCnt, impl, guard, caller) {
+	if ( !superType ) {
+		superType = Effect;
+	}
+	
+	var newType = makeStructureType(name, superType, initFieldCnt, 0, false, guard);
+	var lastFieldIndex = newType.firstField + newType.numberOfFields;
+
+	newType.type.prototype.invokeEffect = function(changeWorld, k) {
+		var schemeChangeWorld = new PrimProc('update-world', 1, false, true,
+			function(aState, worldUpdater) {
+				helpers.check(worldUpdater, helpers.procArityContains(1),
+					      'update-world', 'procedure (arity 1)', 1);
+				
+				changeWorld(function(w, k2) { interpret.call(aState,
+									     worldUpdater, [w],
+									     k2,
+									     function(e) { throw e; }); },
+					    function() { aState.v = VOID_VALUE; });
+			});
+
+		var args = this._fields.slice(0, lastFieldIndex);
+		args.unshift(schemeChangeWorld);
+		caller(impl, args, k);
+	}
+
+	return newType;
 };
 
 
-var makeEffectType = function(name, parentType, initFieldCnt, impl, newHandlerIndices, guard, caller) {
-	if ( !parentType ) {
-		parentType = Effect;
+var RenderEffect = makeStructureType('render-effect', false, 0, 0, false, false);
+RenderEffect.type.prototype.callImplementation = function(caller, k) {
+	helpers.raise(types.incompleteExn(
+			types.exnFail,
+			'render effect created without using make-render-effect-type',
+			[]));
+};
+
+var makeRenderEffectType = function(name, superType, initFieldCnt, impl, guard) {
+	if ( !superType ) {
+		superType = RenderEffect;
 	}
 	
-	var newType = makeStructureType(name, parentType, initFieldCnt, 0, false, guard);
+	var newType = makeStructureType(name, superType, initFieldCnt, 0, false, guard);
 	var lastFieldIndex = newType.firstField + newType.numberOfFields;
-	var handlerIndices = parentType.handlerIndices.concat(
-			helpers.map(newHandlerIndices, function(x) { return x + newType.firstField; }) );
-	newType.type.prototype.invokeEffect = function(k, changeWorld) {
+
+	newType.type.prototype.callImplementation = function(caller, k) {
 		var args = this._fields.slice(0, lastFieldIndex);
-		for (var i = 0; i < handlerIndices.length; i++) {
-			args[ handlerIndices[i] ] = wrapHandler(args[ handlerIndices[i] ], caller, changeWorld);
-		}
 		caller(impl, args, k);
 	}
-	newType.handlerIndices = handlerIndices;
 
 	return newType;
 };
@@ -6008,7 +8104,7 @@ var ClosureValue = function(name, numParams, paramTypes, isRest, closureVals, bo
 
 
 ClosureValue.prototype.toString = function() {
-    if (this.name) {
+    if (this.name !== Empty.EMPTY) {
 	return helpers.format("#<procedure:~a>", [this.name]);
     } else {
 	return "#<procedure>";
@@ -6022,7 +8118,7 @@ var CaseLambdaValue = function(name, closures) {
 };
 
 CaseLambdaValue.prototype.toString = function() {
-    if (this.name) {
+    if (this.name !== Empty.EMPTY) {
 	return helpers.format("#<case-lambda-procedure:~a>", [this.name]);
     } else {
 	return "#<case-lambda-procedure>";
@@ -6038,7 +8134,7 @@ var ContinuationClosureValue = function(vstack, cstack) {
 };
 
 ContinuationClosureValue.prototype.toString = function() {
-    if (this.name) {
+    if (this.name !== Empty.EMPTY) {
 	return helpers.format("#<procedure:~a>", [this.name]);
     } else {
 	return "#<procedure>";
@@ -6526,6 +8622,25 @@ types.isEffect = Effect.predicate;
 //				       function(f, args, k) { f(k); });
 //types.effectDoNothing = EffectDoNothing.constructor;
 //types.isEffectDoNothing = EffectDoNothing.predicate;
+
+
+//RenderEffect = makeStructureType('render-effect', false, 2, 0, false,
+//		function(k, domNode, effects, name) {
+//			helpers.checkListOf(effects, helpers.procArityContains(0), name, 'procedure (arity 0)', 2);
+//			k( new ValuesWrapper([domNode, effects]) );
+//		});
+
+types.makeRenderEffectType = makeRenderEffectType;
+types.isRenderEffectType = function(x) {
+	return (x instanceof StructType && x.type.prototype.callImplementation) ? true : false;
+};
+
+//types.RenderEffect = RenderEffect;
+//types.makeRenderEffect = RenderEffect.constructor;
+types.isRenderEffect = RenderEffect.predicate;
+//types.renderEffectDomNode = function(x) { return RenderEffect.accessor(x, 0); };
+//types.renderEffectEffects = function(x) { return RenderEffect.accessor(x, 1); };
+//types.setRenderEffectEffects = function(x, v) { RenderEffect.mutator(x, 1, v); };
 
 
 })();
@@ -7235,7 +9350,7 @@ var world = {};
     StimuliHandler.prototype.onTilt = function(args, k) {
 	var onTilt = this.lookup("onTilt");
 	var onTiltEffect = this.lookup("onTiltEffect");
-	this.doStimuli(onTiltEffect, onTilt, helpers.map(args, flt), k);
+	this.doStimuli(onTiltEffect, onTilt, helpers.map(flt, args), k);
     };
 
 
@@ -7244,7 +9359,7 @@ var world = {};
     StimuliHandler.prototype.onAcceleration = function(args, k) {
 	var onAcceleration = this.lookup('onAcceleration');
 	var onAccelerationEffect = this.lookup('onAccelerationEffect');
-	this.doStimuli(onAccelerationEffect, onAcceleration, helpers.map(args, flt), k);
+	this.doStimuli(onAccelerationEffect, onAcceleration, helpers.map(flt, args), k);
     };
 
 
@@ -7273,7 +9388,7 @@ var world = {};
     StimuliHandler.prototype.onLocation = function(args, k) {
 	var onLocationChange = this.lookup('onLocationChange');
 	var onLocationChangeEffect = this.lookup('onLocationChangeEffect');
-	this.doStimuli(onLocationChangeEffect, onLocationChange, helpers.map(args, flt), k);
+	this.doStimuli(onLocationChangeEffect, onLocationChange, helpers.map(flt, args), k);
     };
 
 
@@ -7443,6 +9558,9 @@ var world = {};
 })();
 
 
+if (typeof(world) === 'undefined') {
+	world = {};
+}
 
 // Depends on kernel.js, world-config.js, effect-struct.js
 (function() {
@@ -7908,9 +10026,9 @@ var world = {};
 
     
     var imageCache = {};
-    FileImage.makeInstance = function(path) {
+    FileImage.makeInstance = function(path, rawImage) {
 	if (! (path in imageCache)) {
-	    imageCache[path] = new FileImage(path);
+	    imageCache[path] = new FileImage(path, rawImage);
 	} 
 	return imageCache[path];
     };
@@ -8724,8 +10842,8 @@ var world = {};
     world.Kernel.textImage = function(msg, size, color) {
 	    return new TextImage(msg, size, color);
     };
-    world.Kernel.fileImage = function(path) {
-	    return FileImage.makeInstance(path);
+    world.Kernel.fileImage = function(path, rawImage) {
+	return FileImage.makeInstance(path, rawImage);
     };
 
 
@@ -8741,1487 +10859,6 @@ var world = {};
     world.Kernel.isFileImage = function(x) { return x instanceof FileImage; };
 
 
-
-
-
-})();
-
-var jsworld = {};
-
-// Stuff here is copy-and-pasted from Chris's JSWorld.  We
-// namespace-protect it, and add the Javascript <-> Moby wrapper
-// functions here.
-
-(function() {
-
-    /* Type signature notation
-     * CPS(a b ... -> c) is used to denote
-     *    a b ... (c -> void) -> void
-     */
-
-    jsworld.Jsworld = {};
-    var Jsworld = jsworld.Jsworld;
-
-
-    var currentFocusedNode = false;
-
-    var doNothing = function() {};
-
-
-
-    //
-    // WORLD STUFFS
-    //
-
-    function InitialWorld() {}
-
-    var world = new InitialWorld();
-    var worldListeners = [];
-    var eventDetachers = [];
-    var runningBigBangs = [];
-
-
-
-    // Close all world computations.
-    Jsworld.shutdown = function() {
-	while(runningBigBangs.length > 0) {
-	    var currentRecord = runningBigBangs.pop();
-	    if (currentRecord) { currentRecord.pause(); }
-	}
-	clear_running_state();
-    }
-
-
-
-    function add_world_listener(listener) {
-	worldListeners.push(listener);
-    }
-
-
-    function remove_world_listener(listener) {
-	var index = worldListeners.indexOf(listener);
-	if (index != -1) {
-	    worldListeners.splice(index, 1);
-	}
-    }
-
-    function clear_running_state() {
-	world = new InitialWorld();
-	worldListeners = [];
-
-	for (var i = 0; i < eventDetachers.length; i++) {
-		eventDetachers[i]();
-	}
-	eventDetachers = [];
-    }
-
-
-
-    // change_world: CPS( CPS(world -> world) -> void )
-    // Adjust the world, and notify all listeners.
-    function change_world(updater, k) {
-	var originalWorld = world;
-
-	var changeWorldHelp = function() {
-		if (world instanceof WrappedWorldWithEffects) {
-			var effects = world.getEffects();
-			helpers.forEachK(effects,
-				 function(anEffect, k2) { anEffect.invokeEffect(k2, Jsworld.change_world); },
-				 function (e) { throw e; },
-				 function() {
-				 	world = world.getWorld();
-					changeWorldHelp2();
-				 });
-		} else {
-			changeWorldHelp2();
-		}
-	};
-	
-	var changeWorldHelp2 = function() {
-		helpers.forEachK(worldListeners,
-			 function(listener, k2) { listener(world, originalWorld, k2); },
-			 function(e) { world = originalWorld; throw e; },
-			 k);
-	};
-
-	try {
-		updater(world, function(newWorld) {
-				world = newWorld;
-				changeWorldHelp();
-			});
-	} catch(e) {
-		world = originalWorld;
-
-	    if (typeof(console) !== 'undefined' && console.log && e.stack) {
-			console.log(e.stack);
-		}
-		throw e;
-	}
-    }
-    Jsworld.change_world = change_world;
-
-
-
-
-    //
-    // STUFF THAT SHOULD REALLY BE IN ECMASCRIPT
-    //
-    Number.prototype.NaN0=function(){return isNaN(this)?0:this;}
-    function getPosition(e){
-	var left = 0;
-	var top  = 0;
-	while (e.offsetParent){
-	    left += e.offsetLeft + (e.currentStyle?(parseInt(e.currentStyle.borderLeftWidth)).NaN0():0);
-	    top  += e.offsetTop  + (e.currentStyle?(parseInt(e.currentStyle.borderTopWidth)).NaN0():0);
-	    e     = e.offsetParent;
-	}
-	left += e.offsetLeft + (e.currentStyle?(parseInt(e.currentStyle.borderLeftWidth)).NaN0():0);
-	top  += e.offsetTop  + (e.currentStyle?(parseInt(e.currentStyle.borderTopWidth)).NaN0():0);
-	return {x:left, y:top};	
-    }
-    Jsworld.getPosition = getPosition;
-
-
-    var gensym_counter = 0;
-    function gensym(){ return gensym_counter++;}
-    Jsworld.gensym = gensym;
-
-
-//    function map(a, f) {
-//	var b = new Array(a.length);
-//	for (var i = 0; i < a.length; i++) {
-//		b[i] = f(a[i]);
-//	}
-//	return b;
-//    }
-    var map = helpers.map;
-    Jsworld.map = map;
-
-
-
-    function concat_map(a, f) {
-	var b = [];
-	for (var i = 0; i < a.length; i++) {
-		b = b.concat(f(a[i]));
-	}
-	return b;
-    }
-
-
-    function mapi(a, f) {
-	var b = new Array(a.length);
-	for (var i = 0; i < a.length; i++) {
-		b[i] = f(a[i], i);
-	}
-	return b;
-    }
-    Jsworld.mapi = mapi;
-
-
-    function fold(a, x, f) {
-	for (var i = 0; i < a.length; i++) {
-		x = f(a[i], x);
-	}
-	return x;
-    }
-    Jsworld.fold = fold;
-
-
-    function augment(o, a) {
-	var oo = {};
-	for (var e in o)
-	    oo[e] = o[e];
-	for (var e in a)
-	    oo[e] = a[e];
-	return oo;
-    }
-    Jsworld.augment = augment;
-
-
-    function assoc_cons(o, k, v) {
-	var oo = {};
-	for (var e in o)
-	    oo[e] = o[e];
-	oo[k] = v;
-	return oo;
-    }
-    Jsworld.assoc_cons = assoc_cons;
-
-
-    function cons(value, array) {
-	return [value].concat(array);
-    }
-    Jsworld.cons = cons;
-
-
-    function append(array1, array2){
-	return array1.concat(array2);
-    }
-    Jsworld.append = append;
-
-    function array_join(array1, array2){
-	var joined = [];
-	for (var i = 0; i < array1.length; i++)
-	    joined.push([array1[i], array2[i]]);
-	return joined;
-    }
-    Jsworld.array_join = array_join;
-
-
-    function removeq(a, value) {
-	for (var i = 0; i < a.length; i++)
-	    if (a[i] === value){
-		return a.slice(0, i).concat(a.slice(i+1));
-	    }			
-	return a;
-    }
-    Jsworld.removeq = removeq;
-
-    function removef(a, value) {
-	for (var i = 0; i < a.length; i++)
-	    if ( f(a[i]) ){
-		return a.slice(0, i).concat(a.slice(i+1));
-	    }			
-	return a;
-    }
-    Jsworld.removef = removef;
-
-
-    function filter(a, f) {
-	var b = [];
-	for (var i = 0; i < a.length; i++) {
-		if ( f(a[i]) ) {
-			b.push(a[i]);
-		}
-	}
-	return b;
-    }
-    Jsworld.filter = filter;
-
-
-    function without(obj, attrib) {
-	var o = {};
-	for (var a in obj)
-	    if (a != attrib)
-		o[a] = obj[a];
-	return o;
-    }
-    Jsworld.without = without;
-
-
-    function memberq(a, x) {
-	for (var i = 0; i < a.length; i++)
-	    if (a[i] === x) return true;
-	return false;
-    }
-    Jsworld.memberq = memberq;
-
-
-    function member(a, x) {
-	for (var i = 0; i < a.length; i++)
-	    if (a[i] == x) return true;
-	return false;
-    }
-    Jsworld.member = member;
-
-
-
-    function head(a){
-	return a[0];
-    }
-    Jsworld.head = head;
-
-
-    function tail(a){
-	return a.slice(1, a.length);
-    }
-    Jsworld.tail = tail;
-
-    //
-    // DOM UPDATING STUFFS
-    //
-
-    // tree(N): { node: N, children: [tree(N)] }
-    // relation(N): { relation: 'parent', parent: N, child: N } | { relation: 'neighbor', left: N, right: N }
-    // relations(N): [relation(N)]
-    // nodes(N): [N]
-    // css(N): [css_node(N)]
-    // css_node(N): { node: N, attribs: attribs } | { className: string, attribs: attribs }
-    // attrib: { attrib: string, values: [string] }
-    // attribs: [attrib]
-
-    // treeable(nodes(N), relations(N)) = bool
-    /*function treeable(nodes, relations) {
-    // for all neighbor relations between x and y
-    for (var i = 0; i < relations.length; i++)
-    if (relations[i].relation == 'neighbor') {
-    var x = relations[i].left, y = relations[i].right;
- 
-    // there does not exist a neighbor relation between x and z!=y or z!=x and y
-    for (var j = 0; j < relations.length; j++)
-    if (relations[j].relation === 'neighbor')
-    if (relations[j].left === x && relations[j].right !== y ||
-    relations[j].left !== x && relations[j].right === y)
-    return false;
-    }
- 
-    // for all parent relations between x and y
-    for (var i = 0; i < relations.length; i++)
-    if (relations[i].relation == 'parent') {
-    var x = relations[i].parent, y = relations[i].child;
- 
-    // there does not exist a parent relation between z!=x and y
-    for (var j = 0; j < relations.length; j++)
-    if (relations[j].relation == 'parent')
-    if (relations[j].parent !== x && relations[j].child === y)
-    return false;
-    }
- 
-    // for all neighbor relations between x and y
-    for (var i = 0; i < relations.length; i++)
-    if (relations[i].relation == 'neighbor') {
-    var x = relations[i].left, y = relations[i].right;
- 
-    // all parent relations between z and x or y share the same z
-    for (var j = 0; j < relations.length; j++)
-    if (relations[j].relation == 'parent')
-    for (var k = 0; k < relations.length; k++)
-    if (relations[k].relation == 'parent')
-    if (relations[j].child === x && relations[k].child === y &&
-    relations[j].parent !== relations[k].parent)
-    return false;
-    }
- 
-    return true;
-    }*/
-
-
-    // node_to_tree: dom -> dom-tree
-    // Given a native dom node, produces the appropriate tree.
-    function node_to_tree(domNode) {
-	var result = [domNode];
-	for (var c = domNode.firstChild; c != null; c = c.nextSibling) {
-	    result.push(node_to_tree(c));
-	}
-	return result;
-    }
-    Jsworld.node_to_tree = node_to_tree;
-
-
-
-    // nodes(tree(N)) = nodes(N)
-    function nodes(tree) {
-	var ret = [tree.node];
-	
-	if (tree.node.jsworldOpaque == true) {
-	    return ret;
-	}
-
-	for (var i = 0; i < tree.children.length; i++)
-	    ret = ret.concat(nodes(tree.children[i]));
-	
-	return ret;
-    }
-
-    // nodeEq: node node -> boolean
-    // Returns true if the two nodes should be the same.
-    function nodeEq(node1, node2) {
-	return (node1 && node2 && node1 === node2);
-    }
-
-    function nodeNotEq(node1, node2) {
-	return ! nodeEq(node1, node2);
-    }
-
-
-
-    // relations(tree(N)) = relations(N)
-    function relations(tree) {
-	var ret = [];
-	
-	if (tree.node.jsworldOpaque == true) { return []; }
-
-	for (var i = 0; i < tree.children.length; i++)
-	    ret.push({ relation: 'parent', parent: tree.node, child: tree.children[i].node });
-	
-	for (var i = 0; i < tree.children.length - 1; i++)
-	    ret.push({ relation: 'neighbor', left: tree.children[i].node, right: tree.children[i + 1].node });
-	
-	for (var i = 0; i < tree.children.length; i++)
-	    ret = ret.concat(relations(tree.children[i]));
-	
-	return ret;
-    }
-
-
-    function appendChild(parent, child) {
-	parent.appendChild(child);
-    }
-
-
-    // update_dom(nodes(Node), relations(Node)) = void
-    function update_dom(toplevelNode, nodes, relations) {
-
-	// TODO: rewrite this to move stuff all in one go... possible? necessary?
-	
-	// move all children to their proper parents
-	for (var i = 0; i < relations.length; i++) {
-	    if (relations[i].relation == 'parent') {
-		var parent = relations[i].parent, child = relations[i].child;
-		if (nodeNotEq(child.parentNode, parent)) {
-		    appendChild(parent, child);
-		} else {
-		}
-	    }
-	}
-	
-	// arrange siblings in proper order
-	// truly terrible... BUBBLE SORT
-	var unsorted = true;
-	while (unsorted) {
-	    unsorted = false;
-		
-	    for (var i = 0; i < relations.length; i++) {
-		if (relations[i].relation == 'neighbor') {
-		    var left = relations[i].left, right = relations[i].right;
-				
-		    if (nodeNotEq(left.nextSibling, right)) {
-			left.parentNode.insertBefore(left, right)
-			unsorted = true;
-		    }
-		}
-	    }
-		
-//	    if (!unsorted) break;
-	}
-
-	
-	// remove dead nodes
-	var live_nodes;
-	
-	// it is my hope that by sorting the nodes we get the worse of
-	// O(n*log n) or O(m) performance instead of O(n*m)
-	// for all I know Node.compareDocumentPosition is O(m)
-	// and now we get O(n*m*log n)
-	function positionComparator(a, b) {
-	    var rel = a.compareDocumentPosition(b);
-	    // children first
-	    if (rel & a.DOCUMENT_POSITION_CONTAINED_BY) return 1;
-	    if (rel & a.DOCUMENT_POSITION_CONTAINS) return -1;
-	    // otherwise use precedes/follows
-	    if (rel & a.DOCUMENT_POSITION_FOLLOWING) return -1;
-	    if (rel & a.DOCUMENT_POSITION_PRECEDING) return 1;
-	    // otherwise same node or don't care, we'll skip it anyway
-	    return 0;
-	}
-	
-	try {
-	    // don't take out concat, it doubles as a shallow copy
-	    // (as well as ensuring we keep document.body)
-	    live_nodes = nodes.concat(toplevelNode).sort(positionComparator);
-	}
-	catch (e) {
-	    // probably doesn't implement Node.compareDocumentPosition
-	    live_nodes = null;
-	}
-	
-	var node = toplevelNode, stop = toplevelNode.parentNode;
-	while (node != stop) {
-	    while ( !(node.firstChild == null || node.jsworldOpaque) ) {
-		// process first
-		// move down
-		node = node.firstChild;
-	    }
-		
-	    while (node != stop) {
-		var next = node.nextSibling, parent = node.parentNode;
-		
-		// process last
-		var found = false;
-		var foundNode = undefined;
-
-		if (live_nodes != null)
-		    while (live_nodes.length > 0 && positionComparator(node, live_nodes[0]) >= 0) {
-			var other_node = live_nodes.shift();
-			if (nodeEq(other_node, node)) {
-			    found = true;
-			    foundNode = other_node;
-			    break;
-			}
-			// need to think about this
-			//live_nodes.push(other_node);
-		    }
-		else
-		    for (var i = 0; i < nodes.length; i++)
-			if (nodeEq(nodes[i], node)) {
-			    found = true;
-			    foundNode = nodes[i];
-			    break;
-			}
-			
-		if (!found) {
-		    if (node.isJsworldOpaque) {
-		    } else {
-			// reparent children, remove node
-			while (node.firstChild != null) {
-			    appendChild(node.parentNode, node.firstChild);
-			}
-		    }
-				
-		    next = node.nextSibling; // HACKY
-		    node.parentNode.removeChild(node);
-		} else {
-		    mergeNodeValues(node, foundNode);
-		}
-
-		// move sideways
-		if (next == null) node = parent;
-		else { node = next; break; }
-	    }
-	}
-
-	
-	refresh_node_values(nodes);
-    }
-
-    function mergeNodeValues(node, foundNode) {
-//	for (attr in node) {
-//	    foundNode[attr] = node[attr];
-//	}
-    }
-
-
-
-    // camelCase: string -> string
-    function camelCase(name) {
-	return name.replace(/\-(.)/g, function(m, l){return l.toUpperCase()});
-    }
-
-
-    function set_css_attribs(node, attribs) {
-	for (var j = 0; j < attribs.length; j++){
-	    node.style[camelCase(attribs[j].attrib)] = attribs[j].values.join(" ");
-	}
-    }
-
-
-    // isMatchingCssSelector: node css -> boolean
-    // Returns true if the CSS selector matches.
-    function isMatchingCssSelector(node, css) {
-	if (css.id.match(/^\./)) {
-	    // Check to see if we match the class
-	    return ('class' in node && member(node['class'].split(/\s+/),
-					      css.id.substring(1)));
-	} else {
-	    return ('id' in node && node.id == css.id);
-	}
-    }
-
-
-    function update_css(nodes, css) {
-	// clear CSS
-	for (var i = 0; i < nodes.length; i++) {
-	    if ( !nodes[i].jsworldOpaque ) {
-		    clearCss(nodes[i]);
-	    }
-	}
-	
-	// set CSS
-	for (var i = 0; i < css.length; i++)
-	    if ('id' in css[i]) {
-		for (var j = 0; j < nodes.length; j++)
-		    if (isMatchingCssSelector(nodes[j], css[i])) {
-			set_css_attribs(nodes[j], css[i].attribs);
-		    }
-	    }
-	    else set_css_attribs(css[i].node, css[i].attribs);
-    }
-
-
-    var clearCss = function(node) {
-	// FIXME: we should not be clearing the css
-// 	if ('style' in node)
-// 	    node.style.cssText = "";
-    }
-
-
-
-    // If any node cares about the world, send it in.
-    function refresh_node_values(nodes) {
-	for (var i = 0; i < nodes.length; i++) {
-	    if (nodes[i].onWorldChange) {
-		nodes[i].onWorldChange(world);
-	    }
-	}
-    }
-
-
-
-    function do_redraw(world, oldWorld, toplevelNode, redraw_func, redraw_css_func, k) {
-	if (oldWorld instanceof InitialWorld) {
-	    // Simple path
-	    redraw_func(world,
-		function(drawn) {
-			var t = sexp2tree(drawn);
-			var ns = nodes(t);
-	    		// HACK: css before dom, due to excanvas hack.
-	    		redraw_css_func(world,
-				function(css) {
-					update_css(ns, sexp2css(css));
-					update_dom(toplevelNode, ns, relations(t));
-					k();
-				});
-		});
-	} else {
-	    maintainingSelection(
-		function(k2) {
-		    // For legibility, here is the non-CPS version of the same function:
-		    /*
-			var oldRedraw = redraw_func(oldWorld);
- 			var newRedraw = redraw_func(world);	    
- 			var oldRedrawCss = redraw_css_func(oldWorld);
-			var newRedrawCss = redraw_css_func(world);
-			var t = sexp2tree(newRedraw);
- 			var ns = nodes(t);
-
-			// Try to save the current selection and preserve it across
-			// dom updates.
-
- 			if(oldRedraw !== newRedraw) {
-				// Kludge: update the CSS styles first.
-				// This is a workaround an issue with excanvas: any style change
-				// clears the content of the canvas, so we do this first before
-				// attaching the dom element.
-				update_css(ns, sexp2css(newRedrawCss));
-				update_dom(toplevelNode, ns, relations(t));
- 			} else {
-				if(oldRedrawCss !== newRedrawCss) {
-					update_css(ns, sexp2css(newRedrawCss));
-				}
- 			}
-		    */
-
-		    // We try to avoid updating the dom if the value
-		    // hasn't changed.
-		    redraw_func(oldWorld,
-			function(oldRedraw) {
-			    redraw_func(world,
-				function(newRedraw) {
-				    redraw_css_func(oldWorld,
-					function(oldRedrawCss) {
-					    redraw_css_func(world,
-						function(newRedrawCss) {
-						    var t = sexp2tree(newRedraw);
-						    var ns = nodes(t);
-
-						    // Try to save the current selection and preserve it across
-						    // dom updates.
-
- 						    if(oldRedraw !== newRedraw) {
-							// Kludge: update the CSS styles first.
-							// This is a workaround an issue with excanvas: any style change
-							// clears the content of the canvas, so we do this first before
-							// attaching the dom element.
-							update_css(ns, sexp2css(newRedrawCss));
-							update_dom(toplevelNode, ns, relations(t));
-						    } else {
-							if (oldRedrawCss !== newRedrawCss) {
-							    update_css(ns, sexp2css(newRedrawCss));
-							}
-						    }
-						    k2();
-						})
-					})
-				})
-			});
-		}, k);
-	}
-    }
-
-
-    // maintainingSelection: (-> void) -> void
-    // Calls the thunk f while trying to maintain the current focused selection.
-    function maintainingSelection(f, k) {
-	var currentFocusedSelection;
-	if (hasCurrentFocusedSelection()) {
-	    currentFocusedSelection = getCurrentFocusedSelection();
-	    f(function() {
-		currentFocusedSelection.restore();
-		k();
-	    });
-	} else {
-	    f(function() { k(); });
-	}
-    }
-
-
-
-    function FocusedSelection() {
-	this.focused = currentFocusedNode;
-	this.selectionStart = currentFocusedNode.selectionStart;
-	this.selectionEnd = currentFocusedNode.selectionEnd;
-    }
-
-    // Try to restore the focus.
-    FocusedSelection.prototype.restore = function() {
-	// FIXME: if we're scrolling through, what's visible
-	// isn't restored yet.
-	if (this.focused.parentNode) {
-	    this.focused.selectionStart = this.selectionStart;
-	    this.focused.selectionEnd = this.selectionEnd;
-	    this.focused.focus();
-	} else if (this.focused.id) {
-	    var matching = document.getElementById(this.focused.id);
-	    if (matching) {
-		matching.selectionStart = this.selectionStart;
-		matching.selectionEnd = this.selectionEnd;
-		matching.focus();
-	    }
-	}
-    };
-
-    function hasCurrentFocusedSelection() {
-	return currentFocusedNode != undefined;
-    }
-
-    function getCurrentFocusedSelection() {
-	return new FocusedSelection();
-    }
-
-
-
-    //////////////////////////////////////////////////////////////////////
-
-    function BigBangRecord(top, world, handlerCreators, handlers, attribs) {    
-	this.top = top;
-	this.world = world;
-	this.handlers = handlers;
-	this.handlerCreators = handlerCreators;
-	this.attribs = attribs;
-    }
-
-    BigBangRecord.prototype.restart = function() {
-	big_bang(this.top, this.world, this.handlerCreators, this.attribs);
-    }
-    
-    BigBangRecord.prototype.pause = function() {
-	for(var i = 0 ; i < this.handlers.length; i++) {
-	    if (this.handlers[i] instanceof StopWhenHandler) {
-		// Do nothing for now.
-	    } else {
-		this.handlers[i].onUnregister(top);
-	    }
-	}
-    };
-    //////////////////////////////////////////////////////////////////////
-
-    // Notes: big_bang maintains a stack of activation records; it should be possible
-    // to call big_bang re-entrantly.
-    function big_bang(top, init_world, handlerCreators, attribs, k) {
-	clear_running_state();
-
-	// Construct a fresh set of the handlers.
-	var handlers = map(handlerCreators, function(x) { return x();} );
-	if (runningBigBangs.length > 0) { 
-	    runningBigBangs[runningBigBangs.length - 1].pause();
-	}
-
-	// Create an activation record for this big-bang.
-	var activationRecord = 
-	    new BigBangRecord(top, init_world, handlerCreators, handlers, attribs);
-	runningBigBangs.push(activationRecord);
-	function keepRecordUpToDate(w, oldW, k2) {
-	    activationRecord.world = w;
-	    k2();
-	}
-	add_world_listener(keepRecordUpToDate);
-
-
-
-	// Monitor for termination and register the other handlers.
-	var stopWhen = new StopWhenHandler(function(w, k2) { k2(false); },
-					   function(w, k2) { k2(w); });
-	for(var i = 0 ; i < handlers.length; i++) {
-	    if (handlers[i] instanceof StopWhenHandler) {
-		stopWhen = handlers[i];
-	    } else {
-		handlers[i].onRegister(top);
-	    }
-	}
-	function watchForTermination(w, oldW, k2) {
-	    stopWhen.test(w,
-		function(stop) {
-		    if (stop) {
-			Jsworld.shutdown();
-		        k(w);
-	/*
-			stopWhen.receiver(world,
-			    function() {		    
-				var currentRecord = runningBigBangs.pop();
-				if (currentRecord) { currentRecord.pause(); }
-				if (runningBigBangs.length > 0) {
-				    var restartingBigBang = runningBigBangs.pop();
-				    restartingBigBang.restart();
-				}
-				k();
-			    });
-	*/
-		    }
-		    else { k2(); }
-		});
-	};
-	add_world_listener(watchForTermination);
-
-
-	// Finally, begin the big-bang.
-	copy_attribs(top, attribs);
-	change_world(function(w, k2) { k2(init_world); }, doNothing);
-
-
-    }
-    Jsworld.big_bang = big_bang;
-
-
-
-
-
-    // on_tick: number CPS(world -> world) -> handler
-    function on_tick(delay, tick) {
-	return function() {
-	    var ticker = {
-		watchId: -1,
-		onRegister: function (top) { 
-		    ticker.watchId = setInterval(function() { change_world(tick, doNothing); }, delay);
-		},
-
-		onUnregister: function (top) {
-		    clearInterval(ticker.watchId);
-		}
-	    };
-	    return ticker;
-	};
-    }
-    Jsworld.on_tick = on_tick;
-
-
-    function on_key(press) {
-	return function() {
-	    var wrappedPress = function(e) {
-		    preventDefault(e);
-		    stopPropagation(e);
-		    change_world(function(w, k) { press(w, e, k); }, doNothing);
-	    };
-	    return {
-		onRegister: function(top) { attachEvent(top, 'keydown', wrappedPress); },
-		onUnregister: function(top) { detachEvent(top, 'keydown', wrappedPress); }
-	    };
-	}
-    }
-    Jsworld.on_key = on_key;
-
-
-    
-    //  on_draw: CPS(world -> (sexpof node)) CPS(world -> (sexpof css-style)) -> handler
-    function on_draw(redraw, redraw_css) {
-	var wrappedRedraw = function(w, k) {
-	    redraw(w, function(newDomTree) {
-	    	checkDomSexp(newDomTree, newDomTree);
-	    	k(newDomTree);
-	    });
-	}
-
-	return function() {
-	    var drawer = {
-		_top: null,
-		_listener: function(w, oldW, k2) { 
-		    do_redraw(w, oldW, drawer._top, wrappedRedraw, redraw_css, k2); 
-		},
-		onRegister: function (top) { 
-		    drawer._top = top;
-		    add_world_listener(drawer._listener);
-		},
-
-		onUnregister: function (top) {
-		    remove_world_listener(drawer._listener);
-		}
-	    };
-	    return drawer;
-	};
-    }
-    Jsworld.on_draw = on_draw;
-
-
-
-    function StopWhenHandler(test, receiver) {
-	this.test = test;
-	this.receiver = receiver;
-    }
-    // stop_when: CPS(world -> boolean) CPS(world -> boolean) -> handler
-    function stop_when(test, receiver) {
-	return function() {
-	    if (receiver == undefined) {
-		receiver = function(w, k) { k(w); };
-	    }
-	    return new StopWhenHandler(test, receiver);
-	};
-    }
-    Jsworld.stop_when = stop_when;
-
-
-
-    function on_world_change(f) {
-	var listener = function(world, oldW, k) { f(world, k); };
-	return function() {
-	    return { 
-		onRegister: function (top) { 
-		    add_world_listener(listener); },
-		onUnregister: function (top) {
-		    remove_world_listener(listener)}
-	    };
-	};
-    }
-    Jsworld.on_world_change = on_world_change;
-
-
-
-
-
-    // Compatibility for attaching events to nodes.
-    function attachEvent(node, eventName, fn) {
-	if (node.addEventListener) {
-	    // Mozilla
-	    node.addEventListener(eventName, fn, false);
-	} else {
-	    // IE
-	    node.attachEvent('on' + eventName, fn, false);
-	}
-    }
-
-    var detachEvent = function(node, eventName, fn) {
-	if (node.addEventListener) {
-	    // Mozilla
-	    node.removeEventListener(eventName, fn, false);
-	} else {
-	    // IE
-	    node.detachEvent('on' + eventName, fn, false);
-	}
-    }
-
-    //
-    // DOM CREATION STUFFS
-    //
-
-    // add_ev: node string CPS(world event -> world) -> void
-    // Attaches a world-updating handler when the world is changed.
-    function add_ev(node, event, f) {
-	var eventHandler = function(e) { change_world(function(w, k) { f(w, e, k); },
-						       doNothing); };
-	attachEvent(node, event, eventHandler);
-	eventDetachers.push(function() { detachEvent(node, event, eventHandler); });
-    }
-
-    // add_ev_after: node string CPS(world event -> world) -> void
-    // Attaches a world-updating handler when the world is changed, but only
-    // after the fired event has finished.
-    function add_ev_after(node, event, f) {
-	var eventHandler = function(e) {
-		setTimeout(function() { change_world(function(w, k) { f(w, e, k); },
-						     doNothing); },
-			   0);
-	};
-	attachEvent(node, event, eventHandler);
-	eventDetachers.push(function() { detachEvent(node, event, eventHandler); });
-    }
-
-
-    function addFocusTracking(node) {
-	attachEvent(node, "focus", function(e) {
-	    currentFocusedNode = node; });
-	attachEvent(node, "blur", function(e) {
-	    currentFocusedNode = undefined;
-	});
-	return node;
-    }
-
-
-
-
-
-    //
-    // WORLD STUFFS
-    //
-
-
-    function sexp2tree(sexp) {
-	if (isPage(sexp)) {
-	    return sexp2tree(node_to_tree(sexp.toDomNode()));
-	} else {
-	    if(sexp.length == undefined) return { node: sexp, children: [] };
-	    else return { node: sexp[0], children: map(sexp.slice(1), sexp2tree) };
-	}
-    }
-
-    function sexp2attrib(sexp) {
-	return { attrib: sexp[0], values: sexp.slice(1) };
-    }
-
-    function sexp2css_node(sexp) {
-	var attribs = map(sexp.slice(1), sexp2attrib);
-	if (typeof sexp[0] == 'string'){
-	    return [{ id: sexp[0], attribs: attribs }];
-	} else if ('length' in sexp[0]){
-	    return map(sexp[0], function (id) { return { id: id, attribs: attribs } });
-	} else {
-	    return [{ node: sexp[0], attribs: attribs }];
-	}
-    }
-
-    function sexp2css(sexp) {
-	return concat_map(sexp, sexp2css_node);
-    }
-
-
-
-    function isTextNode(n) {
-	return (n.nodeType == Node.TEXT_NODE);
-    }
-
-
-    function isElementNode(n) {
-	return (n.nodeType == Node.ELEMENT_NODE);
-    }
-
-
-    var throwDomError = function(thing, topThing) {
-	throw new JsworldDomError(
-	    helpers.format(
-		"Expected a non-empty array, received ~s within ~s",
-		[thing, topThing]),
-	    thing);
-    };
-
-    // checkDomSexp: X X -> boolean
-    // Checks to see if thing is a DOM-sexp.  If not,
-    // throws an object that explains why not.
-    function checkDomSexp(thing, topThing) {
-	if (isPage(thing)) {
-	    return;
-	}
-
-	if (! thing instanceof Array) {
-	    throwDomError(thing, topThing);
-	}
-	if (thing.length == 0) {
-	    throwDomError(thing, topThing);
-	}
-
-	// Check that the first element is a Text or an element.
-	if (isTextNode(thing[0])) {
-	    if (thing.length > 1) {
-		throw new JsworldDomError(helpers.format("Text node ~s can not have children",
-							 [thing]),
-					  thing);
-	    }
-	} else if (isElementNode(thing[0])) {
-	    for (var i = 1; i < thing.length; i++) {
-		checkDomSexp(thing[i], thing);
-	    }
-	} else {
-	    throw new JsworldDomError(
-		helpers.format(
-		    "expected a Text or an Element, received ~s within ~s",
-		    [thing, topThing]),
-		thing[0]);
-	}
-    }
-
-    function JsworldDomError(msg, elt) {
-	this.msg = msg;
-	this.elt = elt;
-    }
-    JsworldDomError.prototype.toString = function() {
-	return "on-draw: " + this.msg;
-    }
-
-
-
-
-
-    //
-    // DOM CREATION STUFFS
-    //
-
-
-    function copy_attribs(node, attribs) {
-	if (attribs)
-	    for (a in attribs) {
-		if (attribs.hasOwnProperty(a)) {
-		    if (typeof attribs[a] == 'function')
-			add_ev(node, a, attribs[a]);
-		    else{
-			node[a] = attribs[a];//eval("node."+a+"='"+attribs[a]+"'");
-		    }
-		}
-	    }
-	return node;
-    }
-
-
-    //
-    // NODE TYPES
-    //
-
-    function p(attribs) {
-	return addFocusTracking(copy_attribs(document.createElement('p'), attribs));
-    }
-    Jsworld.p = p;
-
-    function div(attribs) {
-	return addFocusTracking(copy_attribs(document.createElement('div'), attribs));
-    }
-    Jsworld.div = div;
-
-    // Used To Be: (world event -> world) (hashof X Y) -> domElement
-    // Now: CPS(world event -> world) (hashof X Y) -> domElement
-    function button(f, attribs) {
-	var n = document.createElement('button');
-	add_ev(n, 'click', f);
-	return addFocusTracking(copy_attribs(n, attribs));
-    }
-    Jsworld.button = button;
-
-
-//     function bidirectional_input(type, toVal, updateVal, attribs) {
-// 	var n = document.createElement('input');
-// 	n.type = type;
-// 	function onKey(w, e) {
-// 	    return updateVal(w, n.value);
-// 	}
-// 	// This established the widget->world direction
-// 	add_ev_after(n, 'keypress', onKey);
-// 	// and this establishes the world->widget.
-// 	n.onWorldChange = function(w) {n.value = toVal(w)};
-// 	return addFocusTracking(copy_attribs(n, attribs));
-//     }
-//     Jsworld.bidirectional_input = bidirectional_input;
-
-
-    var preventDefault = function(event) {
-	if (event.preventDefault) {
-	    event.preventDefault();
-	} else {
-	    event.returnValue = false;
-	}
-    }
-
-    var stopPropagation = function(event) {
-	if (event.stopPropagation) {
-	    event.stopPropagation();
-	} else {
-	    event.cancelBubble = true;
-	}
-    }
-
-
-    var stopClickPropagation = function(node) {
-	attachEvent(node, "click",
-		    function(e) {
-			stopPropagation(e);
-		    });
-	return node;
-    }
-    
-
-    // input: string CPS(world -> world) 
-    function input(aType, updateF, attribs) {
-	aType = aType.toLowerCase();
-	var dispatchTable = { text : text_input,
-			      password: text_input,
-			      checkbox: checkbox_input
-			      //button: button_input,
-			      //radio: radio_input 
-	};
-
-	if (dispatchTable[aType]) {
-	    return (dispatchTable[aType])(aType, updateF, attribs);
-	}
-	else {
-	    throw new Error("js-input: does not currently support type " + aType);
-	}
-    }
-    Jsworld.input = input;
-
-
-    var text_input = function(type, updateF, attribs) {
-	var n = document.createElement('input');
-	n.type = type;
-	function onKey(w, e, k) {
-	    updateF(w, n.value, k);
-	}
-	// This established the widget->world direction
-	add_ev_after(n, 'keypress', onKey);
-
-	// Every second, do a manual polling of the object, just in case.
-	var delay = 1000;
-	var lastVal = n.value;
-	var intervalId = setInterval(function() {
-	    if (! n.parentNode) {
-		clearInterval(intervalId);
-		return;
-	    }
-	    if (lastVal != n.value) {
-		lastVal = n.value;
-		change_world(function (w, k) {
-		    updateF(w, n.value, k);
-		}, doNothing);
-	    }
-	},
-		    delay);
-	return stopClickPropagation(
-	    addFocusTracking(copy_attribs(n, attribs)));
-    };
-
-
-    var checkbox_input = function(type, updateF, attribs) {
-	var n = document.createElement('input');
-	n.type = type;
-
-	var onCheck = function(w, e, k) {
-	    updateF(w, n.checked, k);
-	};
-	// This established the widget->world direction
-	add_ev_after(n, 'change', onCheck);
-	
-	attachEvent(n, 'click', function(e) {
-		stopPropagation(e);
-	    });
-
-	return copy_attribs(n, attribs);
-    };
-
-
-    var button_input = function(type, updateF, attribs) {
-	var n = document.createElement('button');
-	add_ev(n, 'click', function(w, e, k) { updateF(w, n.value, k); });
-	return addFocusTracking(copy_attribs(n, attribs));
-    };
-
-
-
-    // worldToValF: CPS(world -> string)
-    // updateF: CPS(world string -> world)
-    function bidirectional_text_input(worldToValF, updateF, attribs) {
-	var n = document.createElement('input');
-	n.type = "text";
-	var lastValue = undefined;
-	function monitor(w, e, k) {
-	    updateF(w, n.value, k);
-	}
-	add_ev(n, 'keypress', monitor);
-	return stopClickPropagation(
-	    addFocusTracking(
-		copy_attribs(n, attribs)));
-    }
-    
-
-    function text(s, attribs) {
-//	var result = document.createTextNode(s);
-	var result = document.createElement("div");
-	result.appendChild(document.createTextNode(s));
-	result.style['white-space'] = 'pre';
-	result.jsworldOpaque = true;
-	return result;
-    }
-    Jsworld.text = text;
-
-    function select(attribs, opts, f){
-	var n = document.createElement('select');
-	for(var i = 0; i < opts.length; i++) {
-	    n.add(option({value: opts[i]}), null);
-	}
-	n.jsworldOpaque = true;
-	add_ev(n, 'change', f);
-	var result = addFocusTracking(copy_attribs(n, attribs));
-	return result;
-    }
-    Jsworld.select = select;
-
-    function option(attribs){
-	var node = document.createElement("option");
-        node.text = attribs.value;
-	node.value = attribs.value;
- 	return node;
-    }
-
-
-
-    function textarea(attribs){
-	return addFocusTracking(copy_attribs(document.createElement('textarea'), attribs));
-    }
-    Jsworld.textarea = textarea;
-
-    function h1(attribs){
-	return addFocusTracking(copy_attribs(document.createElement('h1'), attribs));
-    }
-    Jsworld.h1 = h1;
-
-    function canvas(attribs){
-	return addFocusTracking(copy_attribs(document.createElement('canvas'), attribs));	
-    }
-    Jsworld.canvas = canvas;
-
-
-    function img(src, attribs) {
-	var n = document.createElement('img');
-	n.src = src;
-	return addFocusTracking(copy_attribs(n, attribs));
-    }
-    Jsworld.img = img;
-
-
-
-    function raw_node(node, attribs) {
-	return addFocusTracking(copy_attribs(node, attribs));
-    }
-    Jsworld.raw_node = raw_node;
-
-
-
-
-
-    //////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////
-    // Effects
-
-    // An effect is an object with an invokeEffect() method.
-    
-    var WrappedWorldWithEffects = function(w, effects) {
-	if (w instanceof WrappedWorldWithEffects) {
-	    this.w = w.w;
-	    this.e = w.e.concat(effects);
-	} else {
-	    this.w = w;
-	    this.e = effects;
-	}
-    };
-
-    WrappedWorldWithEffects.prototype.getWorld = function() {
-	return this.w;
-    };
-
-    WrappedWorldWithEffects.prototype.getEffects = function() {
-	return this.e;
-    };
-
-
-    //////////////////////////////////////////////////////////////////////
-
-    Jsworld.with_effect = function(w, e) {
-	return new WrappedWorldWithEffects(w, [e]);
-    };
-
-    Jsworld.with_multiple_effects = function(w, effects) {
-	return new WrappedWorldWithEffects(w, effects);
-    };
-
-    Jsworld.has_effects = function(w) {
-	return w instanceof WrappedWorldWithEffects;
-    };
-
-
-
-
-    //////////////////////////////////////////////////////////////////////
-    // Example effect: raise an alert.
-    Jsworld.alert_effect = function(msg) {
-	return new AlertEffect(msg);
-    };
-
-    var AlertEffect = function(msg) {
-	this.msg = msg;
-    };
-
-    AlertEffect.prototype.invokeEffect = function(k) {
-	alert(this.msg);
-	k();
-    };
-
-
-    //////////////////////////////////////////////////////////////////////
-
-
-    // Example effect: play a song, given its url
-    Jsworld.music_effect = function(musicUrl) {
-	return new MusicEffect(musicUrl);
-    };
-
-    var MusicEffect = function(musicUrl) {
-	this.musicUrl = musicUrl;
-    };
-
-    MusicEffect.prototype.invokeEffect = function(k) {
-	new Audio(url).play();
-	k();
-    };
-
-
-
-
-
-    //////////////////////////////////////////////////////////////////////
-    // Pages
-
-
-    var Page = function(elts, attribs) {
-	if (typeof(elts) === 'undefined') { 
-	    elts = [];
-	}
-	this.elts = elts;
-	this.attribs = attribs;
-    };
-
-    Page.prototype.add = function(elt, positionLeft, positionTop) {
-	return new Page(this.elts.concat([{elt: elt, 
-					   positionTop: positionTop,
-					   positionLeft: positionLeft}]),
-			this.attribs);
-    };
-
-    Page.prototype.toDomNode = function() {
-	var aDiv = div();
-	for (var i = 0 ; i < this.elts.length; i++) {
-	    var elt = this.elts[i].elt;
-	    if (! elt.style) {
-		elt.style = '';
-	    }
-
-	    elt.style.position = 'absolute';
-	    elt.style.left = this.elts[i].positionLeft + "px";
-	    elt.style.top = this.elts[i].positionTop + "px";	    
-	    aDiv.appendChild(elt);
-	};
-	copy_attribs(aDiv, this.attribs)
-	return aDiv;
-    };
-
-
-    isPage = function(x) {
-	return x instanceof Page;
-    };
-
-    Jsworld.isPage = isPage;
-
-    Jsworld.emptyPage = function(attribs) {
-	var result = new Page([], attribs);
-	return result;
-    };
-
-    Jsworld.placeOnPage = function(elt, positionLeft, positionTop, page) {
-	if (typeof(elt) === 'string') {
-	    elt = text(elt);
-	}
-	return page.add(elt, positionLeft, positionTop);
-    };
 
 
 
@@ -10332,8 +10969,7 @@ var jsworld = {};
 //    var unwrapWorldEffects = function(w) {
 //	if ( _js.has_effects(w) ) {
 //		var unwrappedEffects =
-//			helpers.map(w.getEffects(),
-//				    function(e) {
+//			helpers.map(function(e) {
 //					if ( types.isEffect(e) ) {
 //						return types.makeJsworldEffect(function(k) {
 //								caller(types.effectThunk(e), [], k);
@@ -10342,7 +10978,8 @@ var jsworld = {};
 //					else {
 //						return e;
 //					}
-//				    });
+//				    },
+//				    w.getEffects());
 //		var returnVal = _js.with_multiple_effects(w.getWorld(), unwrappedEffects);
 //		return returnVal;
 //	}
@@ -10352,16 +10989,30 @@ var jsworld = {};
 //    };
 
 
-    var deepUnwrapJsObjects = function(x) {
+    var deepUnwrapJsObjects = function(x, k) {
 	    if ( types.isJsObject(x) ) {
-		    return x.obj;
+		    k(x.obj);
 	    }
+	    else if ( types.isRenderEffect(x) ) {
+		    x.callImplementation(caller, function(y) { deepUnwrapJsObjects(y, k); });
+	    }
+//		    var effects = helpers.schemeListToArray( types.renderEffectEffects(x) ).reverse();
+//		    types.setRenderEffectEffects(x, types.EMPTY);
+//
+//		    helpers.forEachK(effects,
+//				     function(ef, k2) { caller(ef, [], k2); },
+//				     handleError,
+//				     function() { deepUnwrapJsObjects(types.renderEffectDomNode(x), k); });
+//	    }
 	    else if ( types.isPair(x) ) {
-		    return types.cons(deepUnwrapJsObjects( x.first() ),
-				      deepUnwrapJsObjects( x.rest() ));
+		deepUnwrapJsObjects(x.first(), function(first) {
+			deepUnwrapJsObjects(x.rest(), function(rest) {
+				k( types.cons(first, rest) );
+			});
+		});
 	    }
 	    else {
-		    return x;
+		    k(x);
 	    }
     };
     
@@ -10609,7 +11260,7 @@ var jsworld = {};
 		config = handlers[i](config);
 	    }
 	    else if ( types.isWorldConfig(handlers[i]) ) {
-		    handlers[i].startupArgs = helpers.map(handlers[i].startupArgs, expandHandler);
+		    handlers[i].startupArgs = helpers.map(expandHandler, handlers[i].startupArgs);
 		    userConfigs.push(handlers[i]); 
 	    }
 	}
@@ -10628,11 +11279,12 @@ var jsworld = {};
 		    caller(config.lookup('onDraw'), [w],
 			    function(newDomTree) {
 //				plt.Kernel.setLastLoc(undefined);
-			    	var unwrappedTree = deepUnwrapJsObjects(newDomTree);
-				checkWellFormedDomTree(unwrappedTree, unwrappedTree, undefined);
-				var result = [toplevelNode, 
-					      helpers.deepListToArray(unwrappedTree)];
-				k(result);
+			    	deepUnwrapJsObjects(newDomTree, function(unwrappedTree) {
+					checkWellFormedDomTree(unwrappedTree, unwrappedTree, undefined);
+					var result = [toplevelNode, 
+						      helpers.deepListToArray(unwrappedTree)];
+					k(result);
+				});
 			    });
 		} catch (e) {
 		    handleError(e);
@@ -10640,18 +11292,23 @@ var jsworld = {};
 		}
 	    }
 
-	    wrappedRedrawCss = function(w, k) {
-		try {
-		    caller(config.lookup('onDrawCss'), [w],
-			    function(res) {
-				var result = helpers.deepListToArray(res);
-//				plt.Kernel.setLastLoc(undefined);
-				k(result);
-			    });
-		} catch (e) {
-		    handleError(e);
-//		    throw e;
-		}
+	    if (config.lookup('onDrawCss')) {
+		    wrappedRedrawCss = function(w, k) {
+			try {
+			    caller(config.lookup('onDrawCss'), [w],
+				    function(res) {
+					var result = helpers.deepListToArray(res);
+	//				plt.Kernel.setLastLoc(undefined);
+					k(result);
+				    });
+			} catch (e) {
+			    handleError(e);
+	//		    throw e;
+			}
+		    }
+	    }
+	    else {
+		    wrappedRedrawCss = function(w, k) { k([]); };
 	    }
 	    wrappedHandlers.push(_js.on_draw(wrappedRedraw, wrappedRedrawCss));
 	} else if (config.lookup('onRedraw')) {
@@ -11206,15 +11863,6 @@ var quicksort = function(functionName) {
 	};
 }
 
-var schemeListToArray = function(lst) {
-	var result = [];
-	while ( !lst.isEmpty() ) {
-		result.push(lst.first());
-		lst = lst.rest();
-	}
-	return result;
-}
-
 var compare = function(args, comp) {
 	var curArg = args[0];
 	for (var i = 1; i < args.length; i++) {
@@ -11302,10 +11950,7 @@ var isWorldConfigOption = function(x) { return x instanceof WorldConfigOption; }
 var onEvent = function(funName, inConfigName, numArgs) {
     return function(handler) {
 	return onEventBang(funName, inConfigName)(handler,
-						  new PrimProc('', numArgs, false, false,
-							       function() {
-								   return world.config.Kernel.getNoneEffect();
-							       }));
+						  new PrimProc('', numArgs, false, false, function() { return types.EMPTY; }));
     };
 };
 
@@ -11330,20 +11975,6 @@ var onEventBang = function(funName, inConfigName) {
 var assocListToHash = helpers.assocListToHash;
 
 var raise = helpers.raise;
-
-
-var flattenSchemeListToArray = function(x) {
-	if ( !isPair(x) ) {
-		return [x];
-	}
-
-	var ret = [];
-	while ( !x.isEmpty() ) {
-		ret = ret.concat( flattenSchemeListToArray(x.first()) );
-		x = x.rest();
-	}
-	return ret;
-};
 
 
 var makeCaller = function(aState) {
@@ -11478,12 +12109,8 @@ var isChar = types.isChar;
 var isString = types.isString;
 var isPair = types.isPair;
 var isEmpty = function(x) { return x === types.EMPTY; };
-var isList = function(x) { return (( isPair(x) && isList(x.rest()) ) || isEmpty(x)); };
-
-var isListOf = function(x, f) {
-	return ( ( isPair(x) && f(x.first()) && isListOf(x.rest(), f) ) ||
-		 isEmpty(x) );
-};
+var isList = helpers.isList;
+var isListOf = helpers.isListOf;
 
 var isVector = types.isVector;
 var isBox = types.isBox;
@@ -11566,28 +12193,7 @@ var checkList = function(x, functionName, position, args) {
 	}
 }
 
-var checkListOf = function(lst, f, functionName, typeName, position, args) {
-	if ( !isListOf(lst, f) ) {
-		helpers.throwCheckError([functionName,
-					 'list of ' + typeName,
-					 helpers.ordinalize(position),
-					 lst],
-					position,
-					args);
-	}
-//	else {
-//		while( !lst.isEmpty() ) {
-//			if ( !f(lst.first()) ) {
-//				throwCheckError([functionName,
-//						 'list of ' + typeName,
-//						 helpers.ordinalize(position),
-//						 x],
-//						otherArgs);
-//			}
-//			lst = lst.rest();
-//		}
-//	}
-}
+var checkListOf = helpers.checkListOf;
 
 var checkListOfLength = function(lst, n, functionName, position, args) {
 	if ( !isList(lst) || (length(lst) < n) ) {
@@ -11608,7 +12214,7 @@ var checkAllSameLength = function(lists, functionName, args) {
 	arrayEach(lists,
 		  function(lst, i) {
 			if (length(lst) != len) {
-				var argsStr = helpers.map(args, function(x) { return " ~s"; }).join('');
+				var argsStr = helpers.map(function(x) { return " ~s"; }, args).join('');
 				var msg = helpers.format(functionName + ': all lists must have the same size; arguments were:' + argStr,
 							 args);
 				raise( types.incompleteExn(types.exnFailContract, msg, []) );
@@ -11670,6 +12276,9 @@ PRIMITIVES['print-values'] =
 		 });
 
 
+
+
+
 PRIMITIVES['check-expect'] =
     new PrimProc('check-expect',
 		 2,
@@ -11682,15 +12291,11 @@ PRIMITIVES['check-expect'] =
 		 	if ( !isEqual(actual, expected) ) {
 				var msg = helpers.format('check-expect: actual value ~s differs from ~s, the expected value.\n',
 							 [actual, expected]);
-//				helpers.reportError(msg);
 			        aState.getDisplayHook()(msg);
-			    // HACK: we really need to design a mechanism
-			    // for displaying locations in a systematic way
-			    // outside of errors.
 			    var stackTrace = state.getStackTraceFromContinuationMarks(
 				state.captureCurrentContinuationMarks(aState));
 			    for (var i = 0; i < stackTrace.length; i++) {
-			        aState.getDisplayHook()("at line: " + stackTrace[i].line + "\n");
+			        aState.getPrintHook()(helpers.makeLocationDom(stackTrace[i]));
 			    }
 			}
 			aState.v = types.VOID;
@@ -11719,8 +12324,13 @@ PRIMITIVES['check-within'] =
 					 		range)) ) ) {
 				var msg = helpers.format('check-within: actual value ~s is not within ~s of expected value ~s.',
 							 [actual, range, expected]);
-//				helpers.reportError(msg);
+
 			        aState.getDisplayHook()(msg);
+			    var stackTrace = state.getStackTraceFromContinuationMarks(
+				state.captureCurrentContinuationMarks(aState));
+			    for (var i = 0; i < stackTrace.length; i++) {
+			        aState.getPrintHook()(helpers.makeLocationDom(stackTrace[i]));
+			    }
 			}
 			aState.v = types.VOID;
 		});
@@ -12053,7 +12663,7 @@ PRIMITIVES['apply'] =
 
 			var lastArg = args.pop();
 			checkList(lastArg, 'apply', args.length+2, allArgs);
-			var args = args.concat(schemeListToArray(lastArg));
+			var args = args.concat(helpers.schemeListToArray(lastArg));
 
 			return CALL(f, args, id);
 		 });
@@ -14919,7 +15529,7 @@ PRIMITIVES['list->vector'] =
 		 false, false,
 		 function(lst) {
 		 	checkList(lst, 'list->vector', 1);
-			return types.vector( schemeListToArray(lst) );
+			return types.vector( helpers.schemeListToArray(lst) );
 		 });
 
 
@@ -15744,13 +16354,28 @@ PRIMITIVES['on-redraw'] =
 
 
 PRIMITIVES['on-draw'] =
-    new PrimProc('on-draw',
-		 2,
-		 false, false,
-		 function(domHandler, styleHandler) {
-		 	check(domHandler, isFunction, 'on-draw', 'procedure', 1, arguments);
-			check(styleHandler, isFunction, 'on-draw', 'procedure', 2, arguments);
-			return new (WorldConfigOption.extend({
+    new CasePrimitive('on-draw',
+	[new PrimProc('on-draw',
+		      1,
+		      false, false,
+		      function(domHandler) {
+			  check(domHandler, isFunction, 'on-draw', 'procedure', 1);
+			  return new (WorldConfigOption.extend({
+				    init: function() {
+					this._super('on-draw');
+				    },
+				    configure: function(config) {
+					return config.updateAll({'onDraw': domHandler});
+				    }
+				}))();
+		      }),
+	 new PrimProc('on-draw',
+		      2,
+		      false, false,
+		      function(domHandler, styleHandler) {
+		 	  check(domHandler, isFunction, 'on-draw', 'procedure', 1, arguments);
+			  check(styleHandler, isFunction, 'on-draw', 'procedure', 2, arguments);
+			  return new (WorldConfigOption.extend({
 				    init: function() {
 					this._super('on-draw');
 				    },
@@ -15759,7 +16384,7 @@ PRIMITIVES['on-draw'] =
 								 'onDrawCss': styleHandler});
 				    }
 				}))();
-		 });
+		      }) ]);
 
 
 PRIMITIVES['initial-effect'] =
@@ -15795,7 +16420,7 @@ var jsp = function(attribList) {
 	return helpers.wrapJsObject(node);
 };
 PRIMITIVES['js-p'] =
-	new CasePrimitive('js-p',
+    new CasePrimitive('js-p',
 	[new PrimProc('js-p', 0, false, false, function() { return jsp(types.EMPTY); }),
 	 new PrimProc('js-p', 1, false, false, jsp)]);
 
@@ -15812,7 +16437,7 @@ var jsdiv = function(attribList) {
 	return helpers.wrapJsObject(node);
 };
 PRIMITIVES['js-div'] =
-	new CasePrimitive('js-div',
+    new CasePrimitive('js-div',
 	[new PrimProc('js-div', 0, false, false, function() { return jsdiv(types.EMPTY); }),
 	 new PrimProc('js-div', 1, false, false, jsdiv)]);
 
@@ -15823,7 +16448,7 @@ var jsButtonBang = function(funName) {
 		check(effectF, isFunction, funName, 'procedure', 2);
 		checkListOf(attribList, isAssocList, funName, '(listof X Y)', 3);
 
-		var attribs = assocListToHash(attribList);
+		var attribs = attribList ? assocListToHash(attribList) : {};
 		var node = jsworld.MobyJsworld.buttonBang(worldUpdateF, effectF, attribs);
 
 		node.toWrittenString = function(cache) { return '(' + funName + ' ...)'; };
@@ -15833,23 +16458,17 @@ var jsButtonBang = function(funName) {
 	}
 };
 var jsButton = function(updateWorldF, attribList) {
-	var noneF = new types.PrimProc('', 1, false, false,
-		function(w) {
-		    return world.config.Kernel.getNoneEffect();
-		});
+	var noneF = new types.PrimProc('', 1, false, false, function(w) { return types.EMPTY; });
 	return jsButtonBang('js-button')(updateWorldF, noneF, attribList);
 };
 PRIMITIVES['js-button'] =
-	new CasePrimitive('js-button',
-	[new PrimProc('js-button', 1, false, false, function(f) { return jsButton(f, types.EMPTY); }),
+    new CasePrimitive('js-button',
+	[new PrimProc('js-button', 1, false, false, jsButton),
 	 new PrimProc('js-button', 2, false, false, jsButton)]);
 
 PRIMITIVES['js-button!'] =
-	new CasePrimitive('js-button!',
-	[new PrimProc('js-button!', 2, false, false,
-		function(worldUpdateF, effectF) {
-			return jsButtonBang('js-button!')(worldUpdateF, effectF, types.EMPTY);
-		}),
+    new CasePrimitive('js-button!',
+	[new PrimProc('js-button!', 2, false, false, jsButtonBang('js-button!')),
 	 new PrimProc('js-button!', 3, false, false, jsButtonBang('js-button!'))]);
 
 
@@ -15859,7 +16478,7 @@ var jsInput = function(type, updateF, attribList) {
 	check(updateF, isFunction, 'js-input', 'procedure', 2);
 	checkListOf(attribList, isAssocList, 'js-input', '(listof X Y)', 3);
 
-	var attribs = assocListToHash(attribList);
+	var attribs = attribList ? assocListToHash(attribList) : {};
 	var node = jsworld.MobyJsworld.input(type, updateF, attribs);
 
 	node.toWrittenString = function(cache) { return "(js-input ...)"; }
@@ -15869,10 +16488,7 @@ var jsInput = function(type, updateF, attribList) {
 };
 PRIMITIVES['js-input'] =
 	new CasePrimitive('js-input', 
-	[new PrimProc('js-input', 2, false, false,
-		function(type, updateF) {
-			return jsInput(type, updateF, types.EMPTY);
-		}),
+	[new PrimProc('js-input', 2, false, false, jsInput),
 	 new PrimProc('js-input', 3, false, false, jsInput)]);
 
 
@@ -15890,7 +16506,7 @@ var jsImg = function(src, attribList) {
 	return helpers.wrapJsObject(node);
 };
 PRIMITIVES['js-img'] =
-	new CasePrimitive('js-img',
+    new CasePrimitive('js-img',
 	[new PrimProc('js-img', 1, false, false, function(src) { return jsImg(src, types.EMPTY); }),
 	 new PrimProc('js-img', 2, false, false, jsImg)]);
 
@@ -15916,7 +16532,7 @@ var jsSelect = function(optionList, updateF, attribList) {
 	check(updateF, isFunction, 'js-select', 'procedure', 2);
 	checkListOf(attribList, isAssocList, 'js-select', '(listof X Y)', 3);
 
-	var attribs = assocListToHash(attribList);
+	var attribs = attribList ? assocListToHash(attribList) : {};
 	var options = helpers.deepListToArray(optionList);
 	var node = jsworld.MobyJsworld.select(options, updateF, attribs);
 
@@ -15926,11 +16542,8 @@ var jsSelect = function(optionList, updateF, attribList) {
 	return helpers.wrapJsObject(node);
 };
 PRIMITIVES['js-select'] =
-	new CasePrimitive('js-select',
-	[new PrimProc('js-select', 2, false, false,
-		function(optionList, updateF) {
-			return jsSelect(optionList, updateF, types.EMPTY);
-		}),
+    new CasePrimitive('js-select',
+	[new PrimProc('js-select', 2, false, false, jsSelect),
 	 new PrimProc('js-select', 3, false, false, jsSelect)]);
 
 
@@ -15947,14 +16560,15 @@ PRIMITIVES['js-big-bang'] =
 					      'js-big-bang', 'handler or attribute list', i+2);
 				});
 		     var unwrappedConfigs = 
-			 helpers.map(handlers, function(x) {
-				 if ( isWorldConfigOption(x) ) {
-				 	return function(config) { return x.configure(config); };
-				 }
-				 else {
-					return x;
-				 }
-			 });
+			 helpers.map(function(x) {
+					if ( isWorldConfigOption(x) ) {
+						return function(config) { return x.configure(config); };
+					}
+					else {
+						return x;
+					}
+			 	     },
+				     handlers);
 		     return PAUSE(function(restarter, caller) {
 			 var bigBangController;
 			 var onBreak = function() {
@@ -16042,21 +16656,31 @@ PRIMITIVES['make-effect-type'] =
 	makeOptionPrimitive(
 	    'make-effect-type',
 	    4,
-	    [types.EMPTY,
-	     false],
+	    [false],
 	    true,
-	    function(userArgs, aState, name, parentType, fieldCnt, impl, handlerIndices, guard) {
+	    function(userArgs, aState, name, superType, fieldCnt, impl, guard) {
 		check(name, isSymbol, 'make-effect-type', 'string', 1, userArgs);
-		check(parentType, function(x) { return x === false || types.isEffectType(x) },
-		      'make-effect-type', 'effect type', 2, userArgs);
+		check(superType, function(x) { return x === false || types.isEffectType(x) },
+		      'make-effect-type', 'effect type or #f', 2, userArgs);
 		check(fieldCnt, isNatural, 'make-effect-type', 'exact non-negative integer', 3, userArgs);
 		check(impl, isFunction, 'make-effect-type', 'procedure', 4, userArgs);
-		checkListOf(handlerIndices, isNatural, 'make-effect-type', 'exact non-negative integer', 5);
-		check(guard, function(x) { return x === false || isFunction(x); }, 'make-effect-type', 'procedure or false', 6, userArgs);
+//		checkListOf(handlerIndices, isNatural, 'make-effect-type', 'exact non-negative integer', 5);
+		check(guard, function(x) { return x === false || isFunction(x); }, 'make-effect-type', 'procedure or #f', 6, userArgs);
+		// Check the number of arguments on the guard
+		var numberOfGuardArgs = fieldCnt + 1 + (superType ? superType.numberOfArgs : 0);
+		if ( guard && !procArityContains(numberOfGuardArgs)(guard) ) {
+			raise(types.incompleteExn(
+				types.exnFailContract,
+				helpers.format(
+					'make-effect-type: guard procedure does not accept ~a arguments '
+					+ '(one more than the number constructor arguments): ~s',
+					[numberOfGuardArgs, guard]),
+				[]));
+		}
 
 //		var jsImpl = schemeProcToJs(aState, impl);
 		var jsGuard = (guard ? schemeProcToJs(aState, guard) : false);
-		var handlerIndices_js = helpers.map(schemeListToArray(handlerIndices), jsnums.toFixnum);
+//		var handlerIndices_js = helpers.map(jsnums.toFixnum, helpers.schemeListToArray(handlerIndices));
 
 //		var caller = makeCaller(aState);
 //		var wrapHandler = function(handler, changeWorld) {
@@ -16073,21 +16697,60 @@ PRIMITIVES['make-effect-type'] =
 //		}
 
 		var anEffectType = types.makeEffectType(name.toString(),
-							parentType,
+							superType,
 							fieldCnt,
 							impl,
-							handlerIndices_js,
+//							handlerIndices_js,
 							jsGuard,
 							makeCaller(aState));
 		aState.v = getMakeStructTypeReturns(anEffectType);
 	    });
-    
+
 
 PRIMITIVES['effect-type?'] = new PrimProc('effect-type?', 1, false, false, types.isEffectType);
 PRIMITIVES['effect?'] = new PrimProc('effect?', 1, false, false, types.isEffect);
 
 //PRIMITIVES['make-effect:do-nothing'] = new PrimProc('make-effect:do-nothing', 0, false, false, types.EffectDoNothing.constructor);
 //PRIMITIVES['effect:do-nothing?'] = new PrimProc('effect:do-nothing?', 1, false, false, types.EffectDoNothing.predicate);
+
+
+PRIMITIVES['make-render-effect-type'] =
+	makeOptionPrimitive(
+	    'make-render-effect-type',
+	    4,
+	    [false],
+	    true,
+	    function(userArgs, aState, name, superType, fieldCnt, impl, guard) {
+		check(name, isSymbol, 'make-render-effect-type', 'string', 1, userArgs);
+		check(superType, function(x) { return x === false || types.isEffectType(x) },
+		      'make-render-effect-type', 'effect type or #f', 2, userArgs);
+		check(fieldCnt, isNatural, 'make-render-effect-type', 'exact non-negative integer', 3, userArgs);
+		check(impl, isFunction, 'make-render-effect-type', 'procedure', 4, userArgs);
+		check(guard, function(x) { return x === false || isFunction(x); }, 'make-render-effect-type', 'procedure or #f', 6, userArgs);
+		// Check the number of arguments on the guard
+		var numberOfGuardArgs = fieldCnt + 1 + (superType ? superType.numberOfArgs : 0);
+		if ( guard && !procArityContains(numberOfGuardArgs)(guard) ) {
+			raise(types.incompleteExn(
+				types.exnFailContract,
+				helpers.format(
+					'make-effect-type: guard procedure does not accept ~a arguments '
+					+ '(one more than the number constructor arguments): ~s',
+					[numberOfGuardArgs, guard]),
+				[]));
+		}
+		var jsGuard = (guard ? schemeProcToJs(aState, guard) : false);
+
+		var aRenderEffectType = types.makeRenderEffectType(name.toString(),
+								   superType,
+								   fieldCnt,
+								   impl,
+								   jsGuard);
+		aState.v = getMakeStructTypeReturns(aRenderEffectType);
+	    });
+
+
+PRIMITIVES['render-effect-type?'] = new PrimProc('render-effect-type?', 1, false, false, types.isRenderEffectType);
+PRIMITIVES['render-effect?'] = new PrimProc('render-effect?', 1, false, false, types.isRenderEffect);
 
 
 PRIMITIVES['world-with-effects'] =
@@ -16097,7 +16760,31 @@ PRIMITIVES['world-with-effects'] =
 		 function(effects, w) {
 		 	check(effects, isCompoundEffect, 'world-with-effects', 'compound effect', 1, arguments);
 
-			return jsworld.Jsworld.with_multiple_effects(w, flattenSchemeListToArray(effects));
+			return jsworld.Jsworld.with_multiple_effects(w, helpers.flattenSchemeListToArray(effects));
+		 });
+
+
+
+PRIMITIVES['make-render-effect'] = new PrimProc('make-render-effect', 2, false, false, types.makeRenderEffect);
+
+PRIMITIVES['render-effect?'] = new PrimProc('render-effect?', 1, false, false, types.isRenderEffect);
+
+PRIMITIVES['render-effect-dom-node'] =
+    new PrimProc('render-effect-dom-node',
+		 1,
+		 false, false,
+		 function(effect) {
+		 	check(effect, types.isRenderEffect, 'render-effect-dom-node', 'render-effect', 1);
+			return types.renderEffectDomNode(effect);
+		 });
+
+PRIMITIVES['render-effect-effects'] =
+    new PrimProc('render-effect-effects',
+		 1,
+		 false, false,
+		 function(effect) {
+		 	check(effect, types.isRenderEffect, 'render-effect-effects', 'render-effect', 1);
+			return types.renderEffectEffects(effect);
 		 });
 
 
@@ -16190,8 +16877,7 @@ PRIMITIVES['procedure->cps-js-fun'] =
 
 			var caller = makeCaller(aState);
 			aState.v = types.jsObject(proc.name + ' (cps)', function() {
-				var args = helpers.map(arguments,
-						       function(x) { return (isJsObject(x) ? x.obj : x); });
+				var args = helpers.map(helpers.wrapJsObject, arguments);
 				var k = (args.length == 0 ? function() {} : args.shift());
 
 				caller(proc, args, k);
@@ -16208,8 +16894,7 @@ PRIMITIVES['procedure->void-js-fun'] =
 
 			var caller = makeCaller(aState);
 			aState.v = types.jsObject(proc.name + ' (void)', function() {
-				var args = helpers.map(arguments,
-						       function(x) { return (isJsObject(x) ? x.obj : x); });
+				var args = helpers.map(helpers.wrapJsObject, arguments);
 				caller(proc, args, function() {});
 			});
 		 });
@@ -16317,7 +17002,7 @@ PRIMITIVES['js-call'] =
 							    (isJsObject(x) && typeof(x.obj) == 'object')); },
 			      'js-call', 'javascript object or false', 2, allArgs);
 			
-			var args = helpers.map(initArgs, function(x) { return (isJsObject(x) ? x.obj : x); });
+			var args = helpers.map(function(x) { return (isJsObject(x) ? x.obj : x); }, initArgs);
 			var thisArg = parent ? parent.obj : null;
 			var jsCallReturn = fun.obj.apply(thisArg, args);
 			if ( jsCallReturn === undefined ) {
@@ -16336,7 +17021,7 @@ PRIMITIVES['js-new'] =
 		 function(constructor, initArgs) {
 		 	check(constructor, isJsFunction, 'js-new', 'javascript function', 1);
 
-			var args = helpers.map(initArgs, function(x) { return (isJsObject(x) ? x.obj : x); });
+			var args = helpers.map(function(x) { return (isJsObject(x) ? x.obj : x); }, initArgs);
 			var proxy = function() {
 				constructor.obj.apply(this, args);
 			};
@@ -18254,9 +18939,9 @@ var call = function(state, operator, operands, k, onFail) {
     state.pushControl(
 	new control.ApplicationControl(
 	    new control.ConstantControl(operator), 
-	    helpers.map(operands, 
-			function(op) {
-			    return new control.ConstantControl(op)})));
+	    helpers.map(function(op) {
+			    return new control.ConstantControl(op)},
+			operands)));
     try {
 	run(state, 
 	    function(v) {
@@ -18268,10 +18953,14 @@ var call = function(state, operator, operands, k, onFail) {
 	    });
     } catch (e) {
 	state.restore(stateValues);
-	console.log(e);
-	if (typeof(console) !== 'undefined' && console.log && e.stack) {
-		console.log(e.stack);
-	}
+//	if (typeof(console) !== 'undefined' && console.log) {
+//		if ( e.stack ) {
+//			console.log(e.stack);
+//		}
+//		else {
+//			console.log(e);
+//		}
+//	}
 	throw e;
     }
 };
