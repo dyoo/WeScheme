@@ -297,3 +297,9 @@ div.error-stack-trace {
     max-height: 100px;
     overflow: auto;
 }
+
+
+p.location-paragraph {
+    margin-top: 0px;
+    margin-bottom: 0px;
+}

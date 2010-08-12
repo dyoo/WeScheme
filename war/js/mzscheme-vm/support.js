@@ -996,12 +996,12 @@ var helpers = {};
 	var columnSpan = document.createElement("span");
 	var spanSpan = document.createElement("span");
 
-	locationSpan['class'] = 'location-reference';
-	idSpan['class'] = 'location-id';
-	offsetSpan['class'] = 'location-offset';
-	lineSpan['class'] = 'location-line';
-	columnSpan['class'] = 'location-column';
-	spanSpan['class'] = 'location-span';
+	locationSpan['className'] = 'location-reference';
+	idSpan['className'] = 'location-id';
+	offsetSpan['className'] = 'location-offset';
+	lineSpan['className'] = 'location-line';
+	columnSpan['className'] = 'location-column';
+	spanSpan['className'] = 'location-span';
 
 	idSpan.appendChild(document.createTextNode(aLocation.id + ''));
 	offsetSpan.appendChild(document.createTextNode(aLocation.offset + ''));
@@ -1025,7 +1025,7 @@ var helpers = {};
 		(thing.nodeType === Node.TEXT_NODE ||
 		 thing.nodeType === Node.ELEMENT_NODE)
 		&&
-		thing['class'] === 'location-reference');
+		thing['className'] === 'location-reference');
     };
 
 

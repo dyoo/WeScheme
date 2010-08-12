@@ -47,7 +47,8 @@ WeSchemeInteractions = (function () {
 		that.addToInteractions(thing);
 	    },
 	    transformDom : function(dom) {
-		return that._transformDom(dom);
+		var result = that._transformDom(dom);
+		return result;
 	    },
 	    compilationServletUrl: "/compile",
 	    scriptCompilationServletUrl: "http://go.cs.brown.edu:8000/servlets/standalone.ss"
@@ -146,20 +147,21 @@ WeSchemeInteractions = (function () {
 	var children = dom.children;
 	var offset, line, column, id, span;
 	for (var i = 0; i < children.length; i++) {
-	    if (children[i]['class'] === 'location-id') {
-		id = children[i].textContent;
+	    var textBody = children[i].textContent || children[i].innerText;
+	    if (children[i]['className'] === 'location-id') {
+		id = textBody;
 	    }
-	    if (children[i]['class'] === 'location-offset') {
-		offset = children[i].textContent;
+	    if (children[i]['className'] === 'location-offset') {
+		offset = textBody;
 	    }
-	    if (children[i]['class'] === 'location-line') {
-		line = children[i].textContent;
+	    if (children[i]['className'] === 'location-line') {
+		line = textBody;
 	    }
-	    if (children[i]['class'] === 'location-column') {
-		column = children[i].textContent;
+	    if (children[i]['className'] === 'location-column') {
+		column = textBody;
 	    }
-	    if (children[i]['class'] === 'location-span') {
-		span = children[i].textContent;
+	    if (children[i]['className'] === 'location-span') {
+		span = textBody;
 	    }
 	}
 	return this.createLocationHyperlink({ id: id,
@@ -211,10 +213,14 @@ WeSchemeInteractions = (function () {
 	var dom = document.createElement('div');
 	dom['className'] = 'moby-error';
 
-	var msgDom = document.createElement('div');
-	msgDom['className'] = 'moby-error:message';
-	msgDom.appendChild(document.createTextNode(msg));
-	dom.appendChild(msgDom);
+	if (err.domMessage) {
+	    dom.appendChild(err.domMessage);
+	} else {
+	    var msgDom = document.createElement('div');
+	    msgDom['className'] = 'moby-error:message';
+	    msgDom.appendChild(document.createTextNode(msg));
+	    dom.appendChild(msgDom);
+	}
 
 	var stacktrace = this.evaluator.getTraceFromExn(err);
 	var stacktraceDiv = document.createElement("div");
@@ -222,7 +228,6 @@ WeSchemeInteractions = (function () {
 	for (var i = 0; i < stacktrace.length; i++) {
 	    var anchor = this.createLocationHyperlink(stacktrace[i]);
 	    stacktraceDiv.appendChild(anchor);
-	    stacktraceDiv.appendChild(document.createElement("br"));
 	}
 	dom.appendChild(stacktraceDiv);
 
@@ -231,6 +236,8 @@ WeSchemeInteractions = (function () {
 
 
     WeSchemeInteractions.prototype.createLocationHyperlink = function(aLocation) {
+	var para = document.createElement('p');
+	para.className = 'location-paragraph';
 	var anchor = document.createElement("a");
 	anchor['href'] = "#";
 	anchor['onclick'] = makeHighlighterLinkFunction(
@@ -239,7 +246,8 @@ WeSchemeInteractions = (function () {
 	    "at: line " + aLocation.line + 
 		", column " + aLocation.column +
 		", in " + aLocation.id));
-	return anchor;
+	para.appendChild(anchor);
+	return para;
     };
 
 

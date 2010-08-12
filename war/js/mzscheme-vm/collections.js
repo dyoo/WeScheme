@@ -742,7 +742,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",2548,65,41,23])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":10 ,"pos":123 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"constant" ,"value":types.float(1.5)
+} ,"rands":[{"$":"constant" ,"value":types.rational(3, 2)
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",2555,65,48,15])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":11 ,"pos":36 ,"const?":false ,"ready?":false
@@ -756,7 +756,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",2572,65,65,23])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":10 ,"pos":123 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"constant" ,"value":types.float(0.25)
+} ,"rands":[{"$":"constant" ,"value":types.rational(1, 4)
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",2579,65,72,15])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":11 ,"pos":36 ,"const?":false ,"ready?":false
@@ -1722,7 +1722,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10576,204,19,25])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":6 ,"pos":93 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":9 ,"clear":false ,"other-clears?":false ,"flonum?":false
-} ,{"$":"constant" ,"value":types.float(0.1)
+} ,{"$":"constant" ,"value":types.rational(1, 10)
 }
 ]
 }
