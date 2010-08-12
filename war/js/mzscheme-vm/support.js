@@ -2206,6 +2206,7 @@ var jsworld = {};
     // Now: CPS(world event -> world) (hashof X Y) -> domElement
     function button(f, attribs) {
 	var n = document.createElement('button');
+	n.onclick = function(e) {return false;};
 	add_ev(n, 'click', f);
 	return addFocusTracking(copy_attribs(n, attribs));
     }
@@ -8293,6 +8294,14 @@ ContinuationMarkSet.prototype.ref = function(key) {
 };
 
 
+//////////////////////////////////////////////////////////////////////
+
+var ContinuationPrompt = function() {
+};
+
+var defaultContinuationPrompt = new ContinuationPrompt();
+
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -8499,6 +8508,8 @@ types.EOF = EOF_VALUE;
 
 types.ValuesWrapper = ValuesWrapper;
 types.ClosureValue = ClosureValue;
+types.ContinuationPrompt = ContinuationPrompt;
+types.defaultContinuationPrompt = defaultContinuationPrompt;
 types.ContinuationClosureValue = ContinuationClosureValue;
 types.CaseLambdaValue = CaseLambdaValue;
 types.PrimProc = PrimProc;
@@ -8760,7 +8771,8 @@ State.prototype.restore = function(params) {
     this.heap = params.heap;
     this.globals = params.globals;
     this.hooks = params.hooks;
-    this.breakRequested = params.breakRequested;
+    // DELIBERATE: don't restore breakRequested
+    // this.breakRequested = params.breakRequested;
     this.breakRequestListeners = params.breakRequestListeners;
     this.invokedModules = params.invokedModules;
 };
@@ -18899,7 +18911,11 @@ var run = function(aState, onSuccessK, onFailK) {
 			       captureContinuationClosure(aState))));
 	    return;
 	} else if (gas <= 0) {
-	    setTimeout(function(){ run(aState, onSuccessK, onFailK); },
+	    var stateValues = aState.save();
+	    setTimeout(function(){ 
+		aState.restore(stateValues);
+		run(aState, onSuccessK, onFailK); 
+	    },
 		       0);
 	} else {
 	    onSuccessK(aState.v);
