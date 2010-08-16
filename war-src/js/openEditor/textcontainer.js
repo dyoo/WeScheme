@@ -95,7 +95,7 @@ var WeSchemeTextContainer;
 
     //////////////////////////////////////////////////////////////////////
 
-    function TextareaImplementation(rawContainer, onSuccess) {
+    var TextareaImplementation = function(rawContainer, onSuccess) {
 	this.container = new FlapjaxValueHandler(
 	    jQuery(rawContainer).find("#defn").get(0));
 	onSuccess.call(this, this);
@@ -125,8 +125,35 @@ var WeSchemeTextContainer;
     };
 
 
+
+
+    var hasClass = function(element, className){
+	var classes = element.className;
+	return classes && new RegExp("(^| )" + className + "($| )").test(classes);
+    };
+
+
+    var addClass = function(element, className) {
+	if (!hasClass(element, className)) {
+	    element.className = ((element.className.split(" ")).concat([className])).join(" ");
+	}
+    };
+
+    var removeClass = function(element, className) {
+	if (hasClass(element, className)) {
+	    var classes = element.className.split(" ");
+	    for (var i = classes.length - 1 ; i >= 0; i--) {
+		if (classes[i] === className) {
+		    classes.splice(i, 1);
+		}
+	    }
+	    element.className = classes.join(" ");
+	}
+    };
+
+
     //////////////////////////////////////////////////////////////////////
-    function CodeMirrorImplementation(div, onSuccess) {
+    var CodeMirrorImplementation = function(div, onSuccess) {
 	var that = this;
 	this.behaviorE = receiverE();
 	this.behavior = startsWith(this.behaviorE, "");
@@ -145,6 +172,11 @@ var WeSchemeTextContainer;
 		textWrapping: true,
 		width: "100%",
 		height: "100%",
+
+		markParen: function(span, good) {addClass(span, good ? "good-matching-paren" : "bad-matching-paren");},
+
+		unmarkParen: function(span) {removeClass(span, "good-matching-paren"); removeClass(span, "bad-matching-paren");},
+
 
 		onChange: function() {
 		    that.behaviorE.sendEvent(that.editor.getCode());

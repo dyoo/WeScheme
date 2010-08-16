@@ -41,26 +41,6 @@ function hasClass(element, className){
   return classes && new RegExp("(^| )" + className + "($| )").test(classes);
 }
 
-function addClass(element, className) {
-  if (! hasClass(element, className)) {
-    element.className = ((element.className.split(" ")).concat([className])).join(" ");
-  }
-}
-
-function removeClass(element, className) {
-  if (hasClass(element, className)) {
-    var classes = element.className.split(" ");
-    for (var i = classes.length - 1 ; i >= 0; i--) {
-      if (classes[i] === className) {
-          classes.splice(i, 1);
-      }
-    }
-    element.className = classes.join(" ");
-  }
-
-}
-
-
 // Insert a DOM node after another node.
 function insertAfter(newNode, oldNode) {
   var parent = oldNode.parentNode;

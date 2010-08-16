@@ -23,47 +23,61 @@ var SchemeParser = Editor.Parser = (function() {
     // sequence tokens.
     // The context is the token sequence of the enclosing s-expression,
     // augmented with column information.
-    var getIndentationContext = function(tokens) {
-	var pendingParens = [], i, j, line, column, context;
+    var getIndentationContext = function(tokenStack) {
+	var EMPTY_CONTEXT = [];
 
-	// Scan for the start of the indentation context.
-	for (i = tokens.length-1; i >= 0; i--) {
-	    if (isLparen(tokens[i].type)) {
+	var pendingParens = [], i = 0, j, line, column, context;
+	var tokens = [];
+
+	// Scan for the start of the indentation context, accumulating tokens.
+	while (! isEmptyPair(tokenStack)) {
+	    i++;
+	    tokens.push(pairFirst(tokenStack));
+	    if (isLparen(pairFirst(tokenStack).type)) {
 		if (pendingParens.length === 0) {
 		    break;
 		} else {
-		    if (isMatchingParens(tokens[i].value,
+		    if (isMatchingParens(pairFirst(tokenStack).value,
 					 pendingParens[pendingParens.length - 1])) {
 			pendingParens.pop();
 		    } else {
 			// Error condition: we see mismatching parens,
 			// so we exit with no known indentation context.
-			return [];
+			return EMPTY_CONTEXT;
 		    }
 		}
-	    } else if (isRparen(tokens[i].type))  {
-		pendingParens.push(tokens[i].type);
+	    } else if (isRparen(pairFirst(tokenStack).type))  {
+		pendingParens.push(pairFirst(tokenStack).type);
 	    }
+	    tokenStack = pairRest(tokenStack);
 	}
+
 	// If we scanned backward too far, we couldn't find a context.  Just
 	// return the empty context.
-	if (i === -1) { return []; }
+	if (isEmptyPair(tokenStack)) { 
+	    return EMPTY_CONTEXT; 
+	}
 
-	// Scan backwards to closest newline to figure out the column
+	// Position tokenStack to the next token beyond.
+	tokenStack = pairRest(tokenStack);
+
+	// We now scan backwards to closest newline to figure out the column
 	// number:
-	for (j = i; j >= 0; j--) {
-	    if(tokens[j].type === 'whitespace' && 
-	       tokens[j].value === '\n') {
+	while (! isEmptyPair(tokenStack)) {
+	    if(pairFirst(tokenStack).type === 'whitespace' && 
+	       pairFirst(tokenStack).value === '\n') {
 		break;
 	    }
+	    tokens.push(pairFirst(tokenStack));
+	    tokenStack = pairRest(tokenStack);
 	}
-	j++;
+
 	line = 0;
 	column = 0;
 	context = [];
 	// Start generating the context, walking forward.
-	for (; j < tokens.length; j++) {
-	    if (j >= i) {
+	for (j = tokens.length-1; j >= 0; j--) {
+	    if (j < i) {
 		context.push({ type: tokens[j].type,
 			       value: tokens[j].value,
 			       line: line,
@@ -84,16 +98,6 @@ var SchemeParser = Editor.Parser = (function() {
     };
 
 
-
-    // printTokens: (arrayof tokens) -> void
-    // debug function to show what the set of tokens look like.
-    var printTokens = function(tokens) {
-	var text = [];
-	for (var i = 0; i < tokens.length; i++) {
-	    text.push(tokens[i].value);
-	}
-	console.log(text.join(''));
-    };
 
 
 
@@ -354,21 +358,39 @@ var SchemeParser = Editor.Parser = (function() {
 
     //////////////////////////////////////////////////////////////////////
 
+    var pair = function(x, y) {
+	return [x,y];
+    };
+    var EMPTY_PAIR = [];
+    var pairFirst = function(p) { return p[0]; }
+    var pairRest = function(p) { return p[1]; }
+    var isEmptyPair = function(p) { return p === EMPTY_PAIR; }
+    var pairLength = function(p) {
+	var l = 0;
+	while (! isEmptyPair(p)) {
+	    p = pairRest(p);
+	}
+	return l;
+    };
+
+    //////////////////////////////////////////////////////////////////////
 
 
 
-    var indentTo = function(previousTokens) {
+
+    var indentTo = function(tokenStack) {
 	return function(tokenText, currentIndentation, direction) {
 
 	    // If we're in the middle of an unclosed token,
 	    // do not change indentation.
-	    if (previousTokens.length >= 2 && 
-		previousTokens[previousTokens.length-2].isUnclosed) {
+	    if ((! isEmptyPair(tokenStack)) &&
+		(! isEmptyPair(pairRest(tokenStack))) &&
+		(pairFirst(pairRest(tokenStack)).isUnclosed)) {
 		return currentIndentation;
 	    }
 
 	    var indentationContext = 
-		getIndentationContext(previousTokens);
+		getIndentationContext(tokenStack);
 	    return calculateIndentationFromContext(indentationContext,
 						   currentIndentation);		
 	};
@@ -377,24 +399,24 @@ var SchemeParser = Editor.Parser = (function() {
 
     var startParse = function(source) {
 	source = tokenizeScheme(source);	
-	var tokenStack = [];
+	var tokenStack = EMPTY_PAIR;
 	var iter = {
 	    next: function() {
 		var tok = source.next();
-		tokenStack.push(tok);
+		tokenStack = pair(tok, tokenStack);
 		if (tok.type === "whitespace") {
 		    if (tok.value === "\n") {
-			tok.indentation = indentTo(tokenStack.concat([]));
+			tok.indentation = indentTo(tokenStack);
 		    }
 		}
 		return tok;
 	    },
 
 	    copy: function() {
-		var _tokenStack = tokenStack.concat([]);
+		var _tokenStack = tokenStack;
 		var _tokenState = source.state;
 		return function(_source) {
-		    tokenStack = _tokenStack.concat([]);
+		    tokenStack = _tokenStack;
 		    source = tokenizeScheme(_source, _tokenState);
 		    return iter;
 		};

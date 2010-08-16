@@ -44,7 +44,7 @@ var interactionsSetup = function() {
     });
 
     
-    jQuery("body").keydown(plt.wescheme.topKeymap);
+    jQuery(document.body).keydown(plt.wescheme.topKeymap);
 };
 
 
