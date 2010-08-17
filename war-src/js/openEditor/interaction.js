@@ -208,10 +208,16 @@ WeSchemeInteractions = (function () {
     // Given an exception, produces error dom node to be displayed.
     WeSchemeInteractions.prototype.renderErrorAsDomNode = function(err) {
 	var that = this;
-	var msg = this.evaluator.getMessageFromExn(err);
-
+	var msg;
 	var dom = document.createElement('div');
-	dom['className'] = 'moby-error';
+	if (types.isSchemeError(err) && types.isExnBreak(err.val)) {
+	    dom['className'] = 'moby-break-error';
+	    msg = "Program stopped by user (user break)";
+	} else {
+	    dom['className'] = 'moby-error';
+	    msg = this.evaluator.getMessageFromExn(err);
+	}
+
 
 	if (err.domMessage) {
 	    dom.appendChild(err.domMessage);
@@ -235,17 +241,24 @@ WeSchemeInteractions = (function () {
     };
 
 
-    WeSchemeInteractions.prototype.createLocationHyperlink = function(aLocation) {
+    // createLocationHyperlink: location (or dom undefined) -> paragraph-anchor-element
+    // Produce a hyperlink that, when clicked, will jump to the given location on the editor.
+    // FIXME: should this really wrap a paragraph around a link?  The client
+    // really should be responsible for layout issues instead....
+    WeSchemeInteractions.prototype.createLocationHyperlink = function(aLocation, anchorBodyDom) {
+	if (! anchorBodyDom) {
+	    anchorBodyDom = document.createTextNode(
+		"at: line " + aLocation.line + 
+		    ", column " + aLocation.column +
+		    ", in " + aLocation.id);
+	}
 	var para = document.createElement('p');
 	para.className = 'location-paragraph';
 	var anchor = document.createElement("a");
 	anchor['href'] = "#";
 	anchor['onclick'] = makeHighlighterLinkFunction(
 	    this, aLocation);
-	anchor.appendChild(document.createTextNode(
-	    "at: line " + aLocation.line + 
-		", column " + aLocation.column +
-		", in " + aLocation.id));
+	anchor.appendChild(anchorBodyDom);
 	para.appendChild(anchor);
 	return para;
     };

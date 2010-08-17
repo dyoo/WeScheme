@@ -293,6 +293,14 @@ div.moby-error {
     width: 100%;
 }
 
+
+/* Break errors will not show up in red, to avoid scaring students away */
+div.moby-break-error {
+    border-width: 1px 0px;
+    width: 100%;
+}
+
+
 div.error-stack-trace {
     max-height: 100px;
     overflow: auto;
