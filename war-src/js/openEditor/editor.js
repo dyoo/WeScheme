@@ -58,7 +58,7 @@ var WeSchemeEditor;
 
 
 
-    WeSchemeEditor = function(attrs) {
+    WeSchemeEditor = function(attrs, afterInit) {
 	var that = this;
 
 	this.userName = attrs.userName; // string
@@ -70,138 +70,147 @@ var WeSchemeEditor;
 	this.defn = attrs.defn;  // TextAreaContainer
 	this.isOwner = false;
 
-	this.interactions = new plt.wescheme.WeSchemeInteractions(attrs.interactions);
-	this.interactions.reset();
 
-	this.interactions.setSourceHighlighter(function(id, offset, line, column, span) {
-	    that.highlight(id, offset, line, column, span);
-	});
-
-
-	this.filenameEntry = new FlapjaxValueHandler(
-	    attrs.filenameInput.get(0));
-
-	this.filenameEntry.node.type = "text";
-	this.filenameEntry.setValue("Unknown");
-	this.filenameEntry.behavior.changes().mapE(function(v) {
-	    plt.wescheme.WeSchemeIntentBus.notify("filename-changed", that);
-	});
+	new plt.wescheme.WeSchemeInteractions(
+	    attrs.interactions,
+	    function(interactions) {
+		that.interactions = interactions;
+		    
+		that.interactions.setSourceHighlighter(function(id, offset, line, column, span) {
+		    that.highlight(id, offset, line, column, span);
+		});
 
 
-	// pid: (or false number)
-	this.pid = false;
+		that.filenameEntry = new FlapjaxValueHandler(
+		    attrs.filenameInput.get(0));
 
-	this.defn.getSourceB().changes().mapE(function() {
-	    plt.wescheme.WeSchemeIntentBus.notify("definitions-changed", that);
-	});
-
-
-
-
-	//////////////////////////////////////////////////////////////////////
-
-	// Flapjax stuff.
-	
-	//////////////////////////////////////////////////////////////////////
-	// EVENTS
-	//////////////////////////////////////////////////////////////////////
-
-	// savedE is a boolean eventStream which receives true
-	// when a save has happened.
-	this.savedE = receiverE();	
-
-	// loadedE is a boolean eventStream that receives true whenever
-	// a load has happened.
-	this.loadedE = receiverE();
-
-	// publishedE is a boolean eventStream that receives true whenever
-	// a program has been published;
-	this.isPublishedE = receiverE();
+		that.filenameEntry.node.type = "text";
+		that.filenameEntry.setValue("Unknown");
+		that.filenameEntry.behavior.changes().mapE(function(v) {
+		    plt.wescheme.WeSchemeIntentBus.notify("filename-changed", that);
+		});
 
 
-	// contentChangedE event fires true if the source or filename
-	// changes.
-	this.contentChangedE = mergeE(
-	    constantE(changes(this.defn.getSourceB()), true),
-	    constantE(changes(this.filenameEntry.behavior), true));
-	
+		// pid: (or false number)
+		that.pid = false;
 
-	this.isOwnerE = receiverE();
-
-
-
-	// loggedInB is a boolean behavior that's true when the user has
-	// logged in.
-	this.isLoggedInB = constantB(this._getIsLoggedIn());
-	
-	
-	// A number or false behavior.
-	this.pidB = startsWith(
-	    this.loadedE.mapE(function(v) {
-		return that.pid; }),
-	    that.pid);
-	
-	
-	// Returns true if the file is new.
-	this.isNewFileB = startsWith(
- 	    changes(this.pidB).mapE(function(v) {
- 		return that.pid == false; }),
- 	    that.pid == false);
-	
-	
-	this.isPublishedB = startsWith(this.isPublishedE,
-				       false);
-
-	
-	// isOwnerB is a boolean behavior that's true if we own the file,
-	// and false otherwise.  It changes on load.
-	this.isOwnerB = startsWith(this.isOwnerE, this.isOwner);
-    
-	
-	// isDirtyB is initially false, and changes when
-	// saves or changes to the source occur.
-	this.isDirtyB = startsWith(
-	    mergeE(// false if we loaded a file
-		constantE(this.loadedE, false),
-		// false when the file becomes saved.
-		constantE(this.savedE, false),
-		// true if the content has changed.
-		constantE(this.contentChangedE, true)),
-	    false);
-
-
-
-	// isAutosaveEnabledB: enabled only when the definitions area is dirty
-	//             and it hasn't been published yet
-	//             and you own the file
-	//             and you are logged in (non-"null" name)
-	this.isAutosaveEnabledB = andB(this.isDirtyB,
-				       notB(this.isPublishedB),
-				       this.isOwnerB,
-				       this.isLoggedInB);
+		that.defn.getSourceB().changes().mapE(function() {
+		    plt.wescheme.WeSchemeIntentBus.notify("definitions-changed", that);
+		});
 
 
 
 
-	// We'll fire off an autosave if the content has changed and
-	// saving is enabled, and it's not a new file.
-	this.autosaveRequestedE = 
-	    calmE(andE(this.contentChangedE,
-		       changes(this.isAutosaveEnabledB)),
-		  constantB(AUTOSAVE_TIMEOUT));
-		  
-	
+		//////////////////////////////////////////////////////////////////////
 
-	//////////////////////////////////////////////////////////////////////
-	//////////////////////////////////////////////////////////////////////
-	// HOOKS
+		// Flapjax stuff.
+		
+		//////////////////////////////////////////////////////////////////////
+		// EVENTS
+		//////////////////////////////////////////////////////////////////////
 
-	// Autosave
-	this.autosaveRequestedE.mapE(function(v) { 
-	    if (v) {
-		that._autosave();
-	    }
-	});
+		// savedE is a boolean eventStream which receives true
+		// when a save has happened.
+		that.savedE = receiverE();	
+
+		// loadedE is a boolean eventStream that receives true whenever
+		// a load has happened.
+		that.loadedE = receiverE();
+
+		// publishedE is a boolean eventStream that receives true whenever
+		// a program has been published;
+		that.isPublishedE = receiverE();
+
+
+		// contentChangedE event fires true if the source or filename
+		// changes.
+		that.contentChangedE = mergeE(
+		    constantE(changes(that.defn.getSourceB()), true),
+		    constantE(changes(that.filenameEntry.behavior), true));
+		
+
+		that.isOwnerE = receiverE();
+
+
+
+		// loggedInB is a boolean behavior that's true when the user has
+		// logged in.
+		that.isLoggedInB = constantB(that._getIsLoggedIn());
+		
+		
+		// A number or false behavior.
+		that.pidB = startsWith(
+		    that.loadedE.mapE(function(v) {
+			return that.pid; }),
+		    that.pid);
+		
+		
+		// Returns true if the file is new.
+		that.isNewFileB = startsWith(
+ 		    changes(that.pidB).mapE(function(v) {
+ 			return that.pid == false; }),
+ 		    that.pid == false);
+		
+		
+		that.isPublishedB = startsWith(that.isPublishedE,
+					       false);
+
+		
+		// isOwnerB is a boolean behavior that's true if we own the file,
+		// and false otherwise.  It changes on load.
+		that.isOwnerB = startsWith(that.isOwnerE, that.isOwner);
+		
+		
+		// isDirtyB is initially false, and changes when
+		// saves or changes to the source occur.
+		that.isDirtyB = startsWith(
+		    mergeE(// false if we loaded a file
+			constantE(that.loadedE, false),
+			// false when the file becomes saved.
+			constantE(that.savedE, false),
+			// true if the content has changed.
+			constantE(that.contentChangedE, true)),
+		    false);
+
+
+
+		// isAutosaveEnabledB: enabled only when the definitions area is dirty
+		//             and it hasn't been published yet
+		//             and you own the file
+		//             and you are logged in (non-"null" name)
+		that.isAutosaveEnabledB = andB(that.isDirtyB,
+					       notB(that.isPublishedB),
+					       that.isOwnerB,
+					       that.isLoggedInB);
+
+
+
+
+		// We'll fire off an autosave if the content has changed and
+		// saving is enabled, and it's not a new file.
+		that.autosaveRequestedE = 
+		    calmE(andE(that.contentChangedE,
+			       changes(that.isAutosaveEnabledB)),
+			  constantB(AUTOSAVE_TIMEOUT));
+		
+		
+
+		//////////////////////////////////////////////////////////////////////
+		//////////////////////////////////////////////////////////////////////
+		// HOOKS
+
+		// Autosave
+		that.autosaveRequestedE.mapE(function(v) { 
+		    if (v) {
+			that._autosave();
+		    }
+		});
+
+
+		if (afterInit) {
+		    afterInit(that);
+		}
+	    });
 
     };
 
@@ -228,9 +237,8 @@ var WeSchemeEditor;
     WeSchemeEditor.prototype.highlight = function(id, offset, line, column, span) {
 	if (id === '<definitions>') {
 	    this.defn.highlight(id, offset, line, column, span);
-	} else {
-	    // FIXME: we need to make interaction divs also codemirror divs so we can
-	    // do the source highlighting.
+	} else if (this.interactions.previousInteractionsTextContainers[id]) {
+	    this.interactions.previousInteractionsTextContainers[id].highlight(id, offset, line, column, span);
 	}
     };
 

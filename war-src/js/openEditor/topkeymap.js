@@ -14,6 +14,7 @@ plt.wescheme.topKeymap = function(e) {
 	myEditor.run();
 	e.stopPropagation();
 	e.preventDefault();
+	return false;
     }
 
     // Special case: we want to intercept all backspaces that hit the
@@ -22,6 +23,12 @@ plt.wescheme.topKeymap = function(e) {
 	if (e.keyCode === BACKSPACE_KEYCODE) {
 	    e.stopPropagation();
 	    e.preventDefault();
+	    return false;
 	}
     }
+
+    return true;
 }
+
+
+

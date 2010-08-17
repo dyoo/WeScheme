@@ -9,34 +9,202 @@
 goog.provide("plt.wescheme.WeSchemeInteractions");
 
 
+goog.require("plt.wescheme.topKeymap");
+goog.require("plt.wescheme.WeSchemeTextContainer");
+goog.require('plt.wescheme.tokenizer');
+
 
 var WeSchemeInteractions;
 
 WeSchemeInteractions = (function () {
 
-    
 
-    // WeSchemeInteractions: div -> WeScheme
-    function WeSchemeInteractions(interactionsDiv) { 
+
+    // WeSchemeInteractions: div (WeSchemeInteractions -> void) -> WeScheme
+    function WeSchemeInteractions(interactionsDiv,
+				  afterInit) { 
 	var that = this;
-
 	this.interactionsDiv = jQuery(interactionsDiv);
-	this.prompt = makePrompt();
-	this.interactionsDiv.append(this.prompt);
+	this.interactionsDiv.empty();
 
-	this.evaluator = this.makeFreshEvaluator();
+	this.previousInteractionsDiv = document.createElement("div");
+	this.previousInteractionsTextContainers = {};
+	this.interactionsDiv.append(this.previousInteractionsDiv);
 	
-	this.highlighter = function(id, offset, line, column, span) {
-	    // default highlighter does nothing.
-	};
-
-	// history: (listof string)
-	this.history = [];
+	new Prompt(
+	    this,
+	    this.interactionsDiv,
+	    function(prompt) {
+		that.prompt = prompt;
+		that.evaluator = that.makeFreshEvaluator();
+		that.highlighter = function(id, offset, line, column, span) {
+		    // default highlighter does nothing.  Subclasses will specialize that.
+		};
+		if (afterInit) { 
+		    afterInit(that);
+		}
+	    }
+	);
     };
 
-    var makePrompt = function() {
-	return jQuery("<div><span>&gt;&nbsp;<input type='text' id='inputBox'></span></div>");
+
+    // reset: -> void
+    // Clears out the interactions.
+    WeSchemeInteractions.prototype.reset = function() {
+	var that = this;
+	this.notifyBus("before-reset", this);
+	this.evaluator = that.makeFreshEvaluator();
+	jQuery(this.previousInteractionsDiv).empty();
+	this.notifyBus("after-reset", that);
+	this.prompt.clear();
+
+// 	// this.interactionsDiv.empty();
+// 	new Prompt(this, this.interactionsDiv, function(prompt) {
+// 	    that.prompt = prompt;
+// 	    that.interactionsDiv.append(that.prompt.getDiv());   
+	    
+// 	});
     };
+
+
+
+
+    //////////////////////////////////////////////////////////////////////
+    var Prompt = function(interactions, parentDiv, K) {
+	var that = this;
+	this.interactions = interactions;
+	this.div = jQuery("<div><span>&gt;&nbsp;<div/></span></div>");
+	parentDiv.append(this.div);
+
+	var innerDivElt = this.div.find("div").get(0);
+	new plt.wescheme.WeSchemeTextContainer(
+	    innerDivElt,
+	    { height: 'dynamic',
+	      width: '100%',
+	      minHeight: 15,
+	      lineNumbers: false,
+	      inInteractions: true },
+	    function(container) {
+		that.textContainer = container;
+		container.addKeymap(
+		    function(event) {
+			// handle F5 especially
+			if (that.isRunEvent(event)) {
+			    return true;
+			}
+			// Also, handle enter if what's in the text is ready for
+			// evaluation.
+			if (that.isExpressionToEvaluateEvent(event)) {
+			    return true;
+			}
+			return false;
+		    },
+		    function(event) {
+			if (that.isExpressionToEvaluateEvent(event)) {
+			    that.onEvaluation();
+			    return false;
+			} else {
+			    return plt.wescheme.topKeymap(event);
+			}
+		    });
+		
+		if (K) {
+		    K(that);
+		}
+	    });
+    };
+
+    Prompt.prototype.onEvaluation = function() {
+	var that = this;
+	var nextCode = that.textContainer.getCode();
+	
+	var freshSpan = document.createElement('span');
+	var freshDiv = document.createElement("div");
+	freshSpan.appendChild(document.createTextNode("> "));
+	freshSpan.appendChild(freshDiv);
+	that.interactions.addToInteractions(freshSpan);
+
+	// FIXME: figure out how to get the line height
+	// dynamically, because I have no idea how to do
+	// this correctly at the moment.
+	new plt.wescheme.WeSchemeTextContainer(
+	    freshDiv,
+	    { height: 'dynamic',
+	      width: '100%',
+	      minHeight: 15,
+	      lineNumbers: false,
+	      inInteractions: true,
+	      content: nextCode,
+	      readOnly: true },
+	    function(container) {
+		var newId = makeFreshId();
+		that.interactions.previousInteractionsTextContainers[newId] = container;
+		that.textContainer.setCode("");
+		that.interactions.runCode(nextCode, newId,
+					  function() { 
+					      that.focus();
+					  });
+	    });
+    };
+
+    // isRunEvent: key-event -> boolean
+    Prompt.prototype.isRunEvent = function(event) {
+	return (event.type === 'keydown' && event.keyCode === 116);
+    };
+    
+    // isExpressionToEvaluateEvent: key-event -> boolean
+    Prompt.prototype.isExpressionToEvaluateEvent = function(event) {
+	return (event.type === 'keydown' && event.keyCode === 13 &&
+		this.hasCompleteExpression());
+    };
+
+    // hasExpressionToEvaluate: -> boolean
+    // Return true if the prompt contains a complete expression
+    Prompt.prototype.hasCompleteExpression = function() {
+	var codePastCursor = this.textContainer.getCode(this.textContainer.getCursorStartPosition());
+	if (codePastCursor.match(new RegExp("[^\\s]"))) {
+	    return false;
+	}
+	var codeUpToCursor = this.textContainer.getCode(0, this.textContainer.getCursorStartPosition());
+	var tokens = plt.wescheme.tokenizer.tokenize(codeUpToCursor);
+	var nestingLevel = 0;
+
+	for (var i = 0; i < tokens.length; i++) {
+	    if (tokens[i].type === '(') {
+		nestingLevel++;
+	    } else if (tokens[i].type === ')') {
+		nestingLevel--;
+	    }
+	    if (nestingLevel < 0) { return false; }
+	}
+	return nestingLevel === 0;
+    };
+
+    Prompt.prototype.clear = function() {
+	this.textContainer.setCode("");
+    };
+
+
+    Prompt.prototype.getDiv = function() {
+	return this.div;
+    };
+
+    Prompt.prototype.hide = function() {
+	this.div.hide();
+    };
+
+
+    Prompt.prototype.show = function() {
+	this.div.show();
+    };
+
+    Prompt.prototype.focus = function() {
+	this.textContainer.focus();
+	this.interactions._scrollToBottom();
+    };
+    //////////////////////////////////////////////////////////////////////
+
+
 
 
 
@@ -77,6 +245,10 @@ WeSchemeInteractions = (function () {
     };
 
     
+    WeSchemeInteractions.prototype.focusOnPrompt = function() {
+	this.prompt.focus();
+    };
+
 
 
     WeSchemeInteractions.prototype.notifyBus = function(action, data) {
@@ -94,21 +266,6 @@ WeSchemeInteractions = (function () {
 
 
 
-    // reset: -> void
-    // Clears out the interactions.
-    WeSchemeInteractions.prototype.reset = function() {
-	this.notifyBus("before-reset", this);
-	var that = this;
-	this.interactionsDiv.empty();
-	this.prompt = makePrompt();
-	this.interactionsDiv.append(this.prompt);
-
-	this.prompt.contents().keydown(function(e) { that._maybeRunPrompt(e) });
-	this.evaluator = this.makeFreshEvaluator();
-
-	this.notifyBus("after-reset", this);
-    }
-
 
     // Returns if x is a dom node.
     function isDomNode(x) {
@@ -120,17 +277,27 @@ WeSchemeInteractions = (function () {
     // addToInteractions: string | dom-node -> void
     // Adds a note to the interactions.
     WeSchemeInteractions.prototype.addToInteractions = function (interactionVal) {
+	var that = this;
 	this.notifyBus("before-add-to-interactions", this);
 	if (isDomNode(interactionVal)) {
-	    this.prompt.before(interactionVal);
+	    this.previousInteractionsDiv.appendChild(interactionVal);
 	} else {
 	    var newArea = jQuery("<div style='width: 100%'></div>");
 	    newArea.text(interactionVal);
-	    this.prompt.before(newArea);
+	    this.previousInteractionsDiv.appendChild(newArea.get(0));
 	}
-	this.interactionsDiv.attr("scrollTop", this.interactionsDiv.attr("scrollHeight"));
+	this._scrollToBottom();
 	this.notifyBus("after-add-to-interactions", this);
     };
+    
+    
+    
+    WeSchemeInteractions.prototype._scrollToBottom = function() {
+	this.interactionsDiv.attr(
+	    "scrollTop", 
+	    this.interactionsDiv.attr("scrollHeight"));
+    };
+
 
 
     WeSchemeInteractions.prototype._transformDom = function(dom) {
@@ -183,15 +350,13 @@ WeSchemeInteractions = (function () {
 				      aSource,
 				      function() { 
 					  that.enableInput();
-					  document.getElementById('inputBox').focus();
-					  document.getElementById('inputBox').select();
+					  that.focusOnPrompt();
 					  contK();
 				      },
 				      function(err) { 
 					  that.handleError(err); 
 					  that.enableInput();
-					  document.getElementById('inputBox').focus();
-					  document.getElementById('inputBox').select();
+					  that.focusOnPrompt();
 					  contK();
 				      });
     };
@@ -200,6 +365,7 @@ WeSchemeInteractions = (function () {
 	this.addToInteractions(this.renderErrorAsDomNode(err));
 	this.addToInteractions("\n");
     };
+
 
 
 
@@ -272,32 +438,6 @@ WeSchemeInteractions = (function () {
 
 
 
-
-    WeSchemeInteractions.prototype._maybeRunPrompt = function(keyEvent) {
-	var that = this;
- 	if (keyEvent.keyCode == 13) {
-	    var nextCode = this.prompt.find("input").attr("value");
-	    this.addToInteractions("> " + nextCode + "\n");
-	    that.history.push(nextCode);
-	    that.prompt.find("input").attr("value", "");
-	    this.runCode(nextCode, 
-			 "<interactions>", 
-			 function() {
-			 });
-	    return false;
- 	} else if (keyEvent.keyCode == 38) {
-	    this.history.unshift(this.prompt.find("input").attr("value"));
-	    this.prompt.find("input").attr("value", this.history.pop());
-	    return false;
- 	} else if (keyEvent.keyCode == 40) {
-	    this.history.push(this.prompt.find("input").attr("value"));
-	    this.prompt.find("input").attr("value", this.history.shift());
-	    return false;
-	} else {
-	    return true;
-	}
-    }
-
     WeSchemeInteractions.prototype.disableInput = function() {
 	this.prompt.hide();
     };
@@ -314,6 +454,22 @@ WeSchemeInteractions = (function () {
 
 
     WeSchemeInteractions.prototype.toString = function() { return "WeSchemeInteractions()"; };
+
+
+
+
+
+
+
+    //////////////////////////////////////////////////////////////////////
+    var _idNum = 0;
+    var makeFreshId = function() {
+	return ("<interactions" + (_idNum++) + ">");
+    }
+    //////////////////////////////////////////////////////////////////////
+
+
+
 
     return WeSchemeInteractions;
 })();

@@ -23,29 +23,11 @@ var defnSourceContainer;
 var initializeEditor = function(attrs) {
 
     splitPaneSetup();
-
     // Set up the heartbeat.
-
-
-    interactionsSetup();
-    
-
     editorSetup(attrs);
 };
 
 
-
-var interactionsSetup = function() {
-    jQuery("#interactions").click(function(e) {
-        document.getElementById('inputBox').focus();
-	e.stopPropagation();
-	e.preventDefault();
-	return false;
-    });
-
-    
-    jQuery(document.body).keydown(plt.wescheme.topKeymap);
-};
 
 
 var editorSetup = function(attrs) {
@@ -57,24 +39,27 @@ var editorSetup = function(attrs) {
     // Fixme: trigger file load if the pid has been provided.
 
     var statusBar = new plt.wescheme.WeSchemeStatusBar(jQuery("#statusbar"));
+
+    var textContainerOptions = { width: "100%", 
+				 lineNumbers: true };
     new plt.wescheme.WeSchemeTextContainer(
 	jQuery("#definitions").get(0),
+	textContainerOptions,
 	function(container) {
 	    defnSourceContainer = container;
-	    defnSourceContainer.setMode(
-		"codemirror",
-		function() {
-		    myEditor = new plt.wescheme.WeSchemeEditor(
-			{ userName: "<%= userSession != null? userSession.getName() : null %>",
-			  defn: defnSourceContainer,
-			  interactions: jQuery("#inter").get(0),
-			  filenameInput: jQuery("#filename")});
-		    
+	    myEditor = new plt.wescheme.WeSchemeEditor(
+		{ userName: "<%= userSession != null? userSession.getName() : null %>",
+		  defn: defnSourceContainer,
+		  interactions: jQuery("#inter").get(0),
+		  filenameInput: jQuery("#filename")},
+		function(_myEditor) {
+		    myEditor = _myEditor;
+
+
 		    jQuery("#run").click(function()  { myEditor.run(); });
 		    jQuery("#stop").click(function()  { myEditor.requestBreak(); });
 		    jQuery("#save").click(function() { myEditor.save(); });
 		    jQuery("#share").click(function()  { myEditor.share(); });
-		    // jQuery("#account").click(function()  { submitPost("/console"); });
 		    jQuery("#logout").click(function() { submitPost("/logout"); });
 		    jQuery("#bespinMode").click(function() { defnSourceContainer.setMode("bespin")});
 
@@ -85,7 +70,31 @@ var editorSetup = function(attrs) {
 		    } else {
 			// otherwise, dont load.
 		    }
-		});
+
+
+		    // Set up the the keymap for the definitions editor so it
+		    // pays attentions to f5.
+		    defnSourceContainer.addKeymap(
+			function(event) {
+			    // handle F5 especially
+			    return (event.type == 'keydown' && event.keyCode === 116);
+			},
+			function(event) {
+			    return plt.wescheme.topKeymap(event);
+			});
+
+
+		    // Set up interactions afterwards.
+		    jQuery("#interactions").click(function(e) {
+			myEditor.interactions.focusOnPrompt();
+			e.stopPropagation();
+			e.preventDefault();
+			return false;
+		    });
+		    jQuery(document.body).keydown(plt.wescheme.topKeymap);
+
+		}
+	    );
 	});
 };
 
