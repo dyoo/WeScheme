@@ -67,20 +67,27 @@ WeSchemeInteractions = (function () {
     };
 
 
+    // clearLine: -> void
+    // Make sure we're on a line that's clear of any floats.
+    WeSchemeInteractions.prototype.clearLine = function() {
+	var clearDiv = document.createElement("div");
+	clearDiv.style.clear = 'left';
+	this.addToInteractions(clearDiv);
+    };
+
 
 
     //////////////////////////////////////////////////////////////////////
     var Prompt = function(interactions, parentDiv, K) {
 	var that = this;
 	this.interactions = interactions;
-	this.div = jQuery("<div><span>&gt;&nbsp;<div/></span></div>");
+	this.div = jQuery("<div style='clear: left'><span style='float: left; width: 20px;'>&gt;&nbsp;</span><span style='float: left; width: 90%'/></div>");
 	parentDiv.append(this.div);
 
-	var innerDivElt = this.div.find("div").get(0);
+	var innerDivElt = this.div.find("span").get(1);
 	new plt.wescheme.WeSchemeTextContainer(
 	    innerDivElt,
 	    { height: 'dynamic',
-	      width: '100%',
 	      minHeight: 15,
 	      lineNumbers: false,
 	      inInteractions: true },
@@ -117,20 +124,34 @@ WeSchemeInteractions = (function () {
     Prompt.prototype.onEvaluation = function() {
 	var that = this;
 	var nextCode = that.textContainer.getCode();
+	that.textContainer.setCode("");
 	
-	var freshSpan = document.createElement('span');
-	var freshDiv = document.createElement("div");
-	freshSpan.appendChild(document.createTextNode("> "));
-	freshSpan.appendChild(freshDiv);
-	that.interactions.addToInteractions(freshSpan);
+	var parentDiv = document.createElement('div');
+	parentDiv.style.clear = "left";
+
+	var promptSpan = document.createElement('span');
+	promptSpan.style['float'] = 'left';
+	promptSpan.style.width = "20px";
+	promptSpan.appendChild(document.createTextNode("> "));
+
+	var textareaSpan = document.createElement("span");
+	textareaSpan.style['float'] = 'left';
+	textareaSpan.style['width'] = '90%';
+
+	
+	parentDiv.appendChild(promptSpan);
+	parentDiv.appendChild(textareaSpan);
+	that.interactions.addToInteractions(parentDiv);
+
+	that.interactions.clearLine();
+
 
 	// FIXME: figure out how to get the line height
 	// dynamically, because I have no idea how to do
 	// this correctly at the moment.
 	new plt.wescheme.WeSchemeTextContainer(
-	    freshDiv,
+	    textareaSpan,
 	    { height: 'dynamic',
-	      width: '100%',
 	      minHeight: 15,
 	      lineNumbers: false,
 	      inInteractions: true,
@@ -139,7 +160,6 @@ WeSchemeInteractions = (function () {
 	    function(container) {
 		var newId = makeFreshId();
 		that.interactions.previousInteractionsTextContainers[newId] = container;
-		that.textContainer.setCode("");
 		that.interactions.runCode(nextCode, newId,
 					  function() { 
 					      that.focus();
