@@ -30,6 +30,13 @@ goog.provide("plt.wescheme.helpers");
     };
 
 
+    plt.wescheme.helpers.trimWhitespace = function(s) {
+	s = s.replace(new RegExp("^\\s+"), "");
+	s = s.replace(new RegExp("\\s+$"), "");
+	return s;
+    };
+
+
 
     // generateSocialBookmarks: string string -> span-element
     // Makes a social bookmarks span, given a title and a URL to link to.

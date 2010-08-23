@@ -13,7 +13,7 @@ goog.require('plt.wescheme.AjaxActions');
 goog.require('plt.wescheme.WeSchemeIntentBus');
 goog.require('plt.wescheme.SharingDialog');
 goog.require('plt.wescheme.WeSchemeInteractions');
-
+goog.require('plt.wescheme.helpers');
 
 
 var WeSchemeEditor;
@@ -85,7 +85,7 @@ var WeSchemeEditor;
 		    attrs.filenameInput.get(0));
 
 		that.filenameEntry.node.type = "text";
-		that.filenameEntry.setValue("Unknown");
+		that.filenameEntry.setValue("");
 		that.filenameEntry.behavior.changes().mapE(function(v) {
 		    plt.wescheme.WeSchemeIntentBus.notify("filename-changed", that);
 		});
@@ -295,27 +295,82 @@ var WeSchemeEditor;
 		 whenSaveBreaks);
 	};
 
-	plt.wescheme.WeSchemeIntentBus.notify("before-save", this);
-	if (this.pid == false) {
-	    onFirstSave();
-	} else {
-	    if (valueNow(this.isPublishedB)) {
-		that.actions.makeAClone(that.pid,
-			   that.defn.getCode(),
-			   function(x) {
-			       afterSave(x);
-			       window.location = (
-				   "/openEditor?pid=" + encodeURIComponent(that.pid)
-			       );
-			   }
-			   ,
-			   whenSaveBreaks);
+
+	var afterFileNameChosen = function() {
+	    plt.wescheme.WeSchemeIntentBus.notify("before-save", that);
+	    if (that.pid == false) {
+		onFirstSave();
 	    } else {
-		onUpdate();
+		if (valueNow(that.isPublishedB)) {
+		    that.actions.makeAClone(that.pid,
+					    that.defn.getCode(),
+					    function(x) {
+						afterSave(x);
+						window.location = (
+						    "/openEditor?pid=" + encodeURIComponent(that.pid)
+						);
+					    }
+					    ,
+					    whenSaveBreaks);
+		} else {
+		    onUpdate();
+		}
 	    }
-	}
+	};
+	
+
+	that.filenameEntry.attr("value", 
+				plt.wescheme.helpers.trimWhitespace(
+				    that.filenameEntry.attr("value")));
+	that._enforceNonemptyName(afterFileNameChosen,
+				  function() {
+				      // on abort
+				  },
+				  true);
     };
 
+
+
+    WeSchemeEditor.prototype._enforceNonemptyName = function(afterK, abortK, isFirstEntry) {
+	var that = this;
+	var title = plt.wescheme.helpers.trimWhitespace(that.filenameEntry.attr("value"));
+	if (title === "") {
+	    var dialogWindow = (jQuery("<div/>"));
+
+	    var onSaveButton = function() {		
+		dialogWindow.dialog("close");
+		that.filenameEntry.attr("value", 
+					plt.wescheme.helpers.trimWhitespace(
+					    inputField.attr("value")));
+		that._enforceNonemptyName(afterK, abortK, false);
+	    };
+
+	    var onCancelButton = function() {
+		dialogWindow.dialog("close");
+		abortK();
+	    };
+
+	    var inputField = jQuery("<input type='text' style='border: solid'/>");
+	    dialogWindow.append(jQuery("<p/>").text(
+		"Please provide a name for your program: "));
+	    if (! isFirstEntry) {
+		dialogWindow.append(jQuery("<p/>").text(
+		    "The name should be non-empty."));
+	    }
+	    dialogWindow.append(inputField);
+	    dialogWindow.dialog({title: 'Saving your program',
+				 bgiframe : true,
+				 modal : true,
+				 overlay : {opacity: 0.5,
+					    background: 'black'},
+				 buttons : { "Save" : onSaveButton,
+					     "Don't Save" : onCancelButton }
+				});
+	    dialogWindow.dialog("open");
+	} else {
+	    afterK();
+	}
+    };
 
 
 
