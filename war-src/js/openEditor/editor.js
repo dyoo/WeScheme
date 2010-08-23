@@ -21,7 +21,7 @@ var WeSchemeEditor;
 (function() {
 
     // The timeout between autosaving.
-    var AUTOSAVE_TIMEOUT = 5000;
+    var AUTOSAVE_TIMEOUT = 10000;
 
 
 
@@ -387,7 +387,7 @@ var WeSchemeEditor;
  		    encodeURIComponent(aProgram.getPublicId()));
  	    that.filenameEntry.attr("value", aProgram.getTitle());
  	    that.defn.setCode(aProgram.getSourceCode());
-			      
+	    
 	    if (that.userName === aProgram.getOwner()) {
 		that._setIsOwner(true);
 	    } else {

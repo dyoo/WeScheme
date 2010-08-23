@@ -53,7 +53,7 @@ var editorSetup = function(attrs) {
 	function(container) {
 	    defnSourceContainer = container;
 	    myEditor = new plt.wescheme.WeSchemeEditor(
-		{ userName: "<%= userSession != null? userSession.getName() : null %>",
+		{ userName: userName,
 		  defn: defnSourceContainer,
 		  interactions: jQuery("#inter").get(0),
 		  filenameInput: jQuery("#filename")},
