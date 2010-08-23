@@ -1,0 +1,47 @@
+When the user creates a new program, the project name field is empty.
+
+---
+
+When the user presses Save,  if the field is empty, a dialog box opens
+up with the following note:
+
+   You need to provide a name for your new program.  Please give one here:
+   [INPUT_BOX]  [OK]  [CANCEL]
+
+where INPUT_BOX is a text field.
+
+* If the user presses CANCEL, the dialog disappears and the save is aborted.
+
+* If the user tries to press OK without entering anything in the
+INPUT_BOX, the save is also aborted and a dialog says:
+
+  You haven't yet provided a name for your program.  You need to
+provide a name for your new program.  Please give one here:
+   [INPUT_BOX]  [OK]  [CANCEL]
+
+to allow the user another attempt to provide a program name.
+
+
+Once a non-empty, non-whitespace name is provided and the user presses
+OK, then WeScheme will normalize the name by trimming whitespace.  No
+other normalization is applied to the program's name, and program
+names are not meant to be uniquely identifying.
+
+Once this is done, the program will be saved, and the name field in
+the editor will be filled in.
+
+---
+
+If the name field is ever changed back to the empty string, no warning
+shows up until the user tries to save the program, after which we
+begin the name-getting interaction again.
+
+---
+
+
+
+Interaction with autosaving: Autosaving will still be active, even if
+the name field is empty.  Programs can be autosaved without a title.
+
+In the console, the program's name will display as "(No name)" so that
+the user can still see that they've got a program without a name.

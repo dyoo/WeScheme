@@ -75,7 +75,7 @@ var addProgramEntry = function(digest, aProgramDigest, programListUl) {
     // The program entry
     var programEntry = (jQuery("<li/>").addClass("ProgramEntry"));
 
-    var title = aProgramDigest.getTitle();
+    var title = aProgramDigest.getTitle() || "(No name)";
     var id = aProgramDigest.getId();
     var anchor = jQuery("<span/>")
 	.addClass("ProgramTitle")
