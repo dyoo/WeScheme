@@ -7,7 +7,7 @@ goog.require('plt.wescheme.SharingDialog');
 goog.require('plt.wescheme.DeleteDialog');
 goog.require("plt.wescheme.ProgramDigest");
 goog.require("plt.wescheme.helpers");
-
+goog.require("plt.wescheme.browserCheck");
 
 
 
@@ -128,5 +128,6 @@ var continueRefreshingProgramList = function() {
 
 
 jQuery(document).ready(function() {
+    plt.wescheme.browserCheck();
     loadProgramList(continueRefreshingProgramList);    
 });

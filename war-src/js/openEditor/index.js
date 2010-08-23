@@ -13,14 +13,19 @@ goog.require('goog.math.Size');
 
 
 goog.require('plt.wescheme.topKeymap');
+goog.require('plt.wescheme.browserCheck');
 
 
+
+// FIXME: these should NOT be global variables, but at the moment, they're exposed
+// as such, and the topKeymap refers to myEditor.
 var myEditor;
 var defnSourceContainer;
 
 
 
 var initializeEditor = function(attrs) {
+    plt.wescheme.browserCheck();
 
     splitPaneSetup();
     // Set up the heartbeat.
