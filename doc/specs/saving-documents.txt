@@ -5,8 +5,8 @@ When the user creates a new program, the project name field is empty.
 When the user presses Save,  if the field is empty, a dialog box opens
 up with the following note:
 
-   You need to provide a name for your new program.  Please give one here:
-   [INPUT_BOX]  [OK]  [CANCEL]
+   Please provide a name for your program:
+   [INPUT_BOX]  [Don't Save]  [Save]
 
 where INPUT_BOX is a text field.
 
@@ -15,9 +15,9 @@ where INPUT_BOX is a text field.
 * If the user tries to press OK without entering anything in the
 INPUT_BOX, the save is also aborted and a dialog says:
 
-  You haven't yet provided a name for your program.  You need to
-provide a name for your new program.  Please give one here:
-   [INPUT_BOX]  [OK]  [CANCEL]
+   Please provide a name for your program:
+   (The name cannot be left blank.)
+   [INPUT_BOX]  [Don't save]  [Save]
 
 to allow the user another attempt to provide a program name.
 

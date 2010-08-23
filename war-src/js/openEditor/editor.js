@@ -355,7 +355,7 @@ var WeSchemeEditor;
 		"Please provide a name for your program: "));
 	    if (! isFirstEntry) {
 		dialogWindow.append(jQuery("<p/>").text(
-		    "The name should be non-empty."));
+		    "(The name cannot be left blank.)"));
 	    }
 	    dialogWindow.append(inputField);
 	    dialogWindow.dialog({title: 'Saving your program',
