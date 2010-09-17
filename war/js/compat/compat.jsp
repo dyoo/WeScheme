@@ -5,10 +5,16 @@
   <meta http-equiv="X-UA-Compatible" content="IE=7" />
 <![endif]-->
 
-<!--[if lt IE 8]>
-    <script src="/js/compat/IE8.js" type="text/javascript"></script>
+
+<!--[if lt IE 9]>
+<script src="/js/compat/IE9.js"></script>
+<![endif]-->
+
+
+<!--[if lt IE 7]>
     <script src="/js/compat/ie7-squish.js" type="text/javascript"></script>
 <![endif]-->
+
 
 <!--[if IE]>
     <script src="/js/compat/excanvas.js" type="text/javascript"></script>
