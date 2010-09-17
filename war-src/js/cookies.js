@@ -33,7 +33,7 @@ goog.provide("plt.wescheme.cookies");
 		c_start=c_start + c_name.length+1;
 		// According to http://tools.ietf.org/html/rfc2965,
 		// the cookie value may be a quoted string.
-		if (document.cookie[c_start] === '"') {
+		if (document.cookie.charAt(c_start) === '"') {
 		    c_start++;
 		    c_end = document.cookie.indexOf('"', c_start);
 		} else {

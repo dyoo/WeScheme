@@ -1,0 +1,6 @@
+Magic argument to let other systems see the server running in
+development:
+
+    --address=0.0.0.0
+
+Add it to the program arguments.
