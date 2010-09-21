@@ -45,7 +45,6 @@
     <script src="/js/mzscheme-vm/collections.js"></script>
 
 
-
     <script src="/js/openEditor/openEditor-calc.js"></script>
 
 
@@ -71,6 +70,7 @@
 	  <% } else { %>
 	  <% } %>
 
+          alert("about to initialize");
           initializeEditor({userName: userName,
                             pid : pid, 
                             publicId: publicId});

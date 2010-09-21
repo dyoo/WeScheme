@@ -59,11 +59,11 @@ goog.require('plt.wescheme.cookies');
 		minimumVersion + ".  WeScheme may still continue to work on your browser, but we " +
 		"have not tested it."
 	));
-	dialogWindow.dialog({title: 'Browser version check',
-			     bgiframe : true,
-			     modal : true,
-			     overlay : {opacity: 0.5,
-					background: 'black'},
+	dialogWindow.dialog({'title': 'Browser version check',
+			     'bgiframe' : true,
+			     'modal' : true,
+			     'overlay' : {'opacity': 0.5,
+					  'background': 'black'}
 			    });
 	dialogWindow.dialog("open");
     };
@@ -77,11 +77,11 @@ goog.require('plt.wescheme.cookies');
 		"and Firefox >= 3.6.  WeScheme may still continue to work on your browser, but we " +
 		"have not tested it."
 	));
-	dialogWindow.dialog({title: 'Browser version check',
-			     bgiframe : true,
-			     modal : true,
-			     overlay : {opacity: 0.5,
-					background: 'black'},
+	dialogWindow.dialog({'title': 'Browser version check',
+			     'bgiframe' : true,
+			     'modal' : true,
+			     'overlay' : {'opacity': 0.5,
+					  'background': 'black'}
 			    });
 	dialogWindow.dialog("open");
     };
