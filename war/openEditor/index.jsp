@@ -70,7 +70,6 @@
 	  <% } else { %>
 	  <% } %>
 
-          alert("about to initialize");
           initializeEditor({userName: userName,
                             pid : pid, 
                             publicId: publicId});
