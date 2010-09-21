@@ -2556,7 +2556,7 @@ var jsworld = {};
 //     __PLTNUMBERS_TOP__ = exports;
 // } else {
 //     if (! this['jsnums']) {
-// 	this['jsnums'] = {};
+//  	this['jsnums'] = {};
 //     }
 //     __PLTNUMBERS_TOP__  = this['jsnums'];
 // }
@@ -2589,7 +2589,7 @@ var jsnums = {};
     // Abbreviation
     //var Numbers = __PLTNUMBERS_TOP__;
     var Numbers = jsnums;
-
+    
 
     // makeNumericBinop: (fixnum fixnum -> any) (scheme-number scheme-number -> any) -> (scheme-number scheme-number) X
     // Creates a binary function that works either on fixnums or boxnums.
@@ -2653,7 +2653,7 @@ var jsnums = {};
 	case 3: // Complex
 	    return new Complex(x, 0);
 	default:
-	    return throwRuntimeError("IMPOSSIBLE: cannot lift fixnum integer to " + other.toString(), x, other);
+	    throwRuntimeError("IMPOSSIBLE: cannot lift fixnum integer to " + other.toString(), x, other);
 	}
     };
     
@@ -3549,7 +3549,7 @@ var jsnums = {};
     //_integerQuotient: integer-scheme-number integer-scheme-number -> integer-scheme-number
     var _integerQuotient = makeIntegerBinop(
 	function(m, n) {
-	    return ((m / n) - ((m % n) / n));
+	    return ((m - (m % n))/ n);
 	},
 	function(m, n) {
             return bnDivide.call(m, n);
@@ -3820,7 +3820,7 @@ var jsnums = {};
     };
 
     Rational.prototype.negate = function() { 
-	return Rational.makeInstance(-this.n, d) 
+	return Rational.makeInstance(-this.n, this.d) 
     };
 
     Rational.prototype.multiply = function(other) {
@@ -6387,6 +6387,88 @@ var jsnums = {};
 
 
 
+    //////////////////////////////////////////////////////////////////////
+    // toRepeatingDecimal: jsnum jsnum -> [string, string, string]
+    //
+    // Given the numerator and denominator parts of a rational,
+    // produces the repeating-decimal representation, where the first
+    // part are the digits before the decimal, the second are the
+    // non-repeating digits after the decimal, and the third are the
+    // remaining repeating decimals.
+    var toRepeatingDecimal = (function() {
+	var getResidue = function(r, d) {
+	    var digits = [];
+	    var seenRemainders = {};
+	    seenRemainders[r] = true;
+	    while(true) {	
+		var nextDigit = quotient(
+		    multiply(r, 10), d);
+		var nextRemainder = remainder(
+		    multiply(r, 10),
+		    d);
+		digits.push(nextDigit.toString());
+		if (seenRemainders[nextRemainder]) {
+		    r = nextRemainder;
+		    break;
+		} else {
+		    seenRemainders[nextRemainder] = true;
+		    r = nextRemainder;
+		}
+	    }
+	    
+	    var firstRepeatingRemainder = r;
+	    var repeatingDigits = [];
+	    while (true) {
+		var nextDigit = quotient(multiply(r, 10), d);
+		var nextRemainder = remainder(
+		    multiply(r, 10),
+		    d);
+		repeatingDigits.push(nextDigit.toString());
+		if (equals(nextRemainder, firstRepeatingRemainder)) {
+		    break;
+		} else {
+		    r = nextRemainder;
+		}
+	    };
+
+	    var digitString = digits.join('');
+	    var repeatingDigitString = repeatingDigits.join('');
+
+	    while (digitString.length >= repeatingDigitString.length &&
+		   (digitString.substring(
+		       digitString.length - repeatingDigitString.length)
+		    === repeatingDigitString)) {
+		digitString = digitString.substring(
+		    0, digitString.length - repeatingDigitString.length);
+	    }
+
+	    return [digitString, repeatingDigitString];
+
+	};
+
+	return function(n, d) {
+	    if (! isInteger(n)) {
+		throwRuntimeError('toRepeatingDecimal: n ' + n.toString() +
+				  " is not an integer.");
+	    }
+	    if (! isInteger(d)) {
+		throwRuntimeError('toRepeatingDecimal: d ' + d.toString() +
+				  " is not an integer.");
+	    }
+	    if (equals(d, 0)) {
+		throwRuntimeError('toRepeatingDecimal: d equals 0');
+	    }
+	    if (lessThan(d, 0)) {
+		throwRuntimeError('toRepeatingDecimal: d < 0');
+	    }
+ 	    var sign = (lessThan(n, 0) ? "-" : "");
+ 	    n = abs(n);
+ 	    var beforeDecimalPoint = sign + quotient(n, d);
+ 	    var afterDecimals = getResidue(remainder(n, d), d);
+ 	    return [beforeDecimalPoint].concat(afterDecimals);
+	};
+    })();
+    //////////////////////////////////////////////////////////////////////
 
 
 
@@ -6467,6 +6549,7 @@ var jsnums = {};
     Numbers['gcd'] = gcd;
     Numbers['lcm'] = lcm;
 
+    Numbers['toRepeatingDecimal'] = toRepeatingDecimal;
 
 })();
 
