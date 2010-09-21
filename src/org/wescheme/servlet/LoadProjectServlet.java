@@ -60,7 +60,10 @@ public class LoadProjectServlet extends HttpServlet {
 						resp.setContentType("text/xml");
 						resp.getWriter().print(outputter.outputString(prog.toXML(pm)));
 					} else {
-						throw new RuntimeException("The owner has not chosen to share the source of this program.");
+						// Show the record, but without source.
+						XMLOutputter outputter = new XMLOutputter();
+						resp.setContentType("text/xml");
+						resp.getWriter().print(outputter.outputString(prog.toXML(false, pm)));
 					}
 				} else {
 						throw new RuntimeException("pid or publicId parameter missing");
