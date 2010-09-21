@@ -11431,10 +11431,14 @@ if (typeof(world) === 'undefined') {
 						reusableCanvasNode = _js.node_to_tree(reusableCanvas);
 					}
 
-					reusableCanvas.width = width;
-					reusableCanvas.height = height;			
-					var ctx = reusableCanvas.getContext("2d");
-					aScene.render(ctx, 0, 0);
+				    setTimeout(
+					function() {
+					    reusableCanvas.width = width;
+					    reusableCanvas.height = height;			
+					    var ctx = reusableCanvas.getContext("2d");
+					    aScene.render(ctx, 0, 0);
+					},
+					0);
 
 					k([toplevelNode, reusableCanvasNode]);
 				} else {
