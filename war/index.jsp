@@ -8,6 +8,9 @@
 <html>
 <head><title>WeScheme</title>
 
+<!-- Add compatibility libraries for IE. -->
+<jsp:include page="/js/compat/compat.jsp"/>
+
 <script src="/editor/jquery.js"></script>
 
 <link rel="stylesheet" type="text/css" href="css/splash.css" id="style" />
