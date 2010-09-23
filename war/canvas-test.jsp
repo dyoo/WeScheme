@@ -5,12 +5,13 @@
 <script src="/js/openEditor/openEditor-calc.js"></script>
 <script src="/js/codemirror/js/codemirror.js"></script>
 <link rel="stylesheet" type="text/css" href="/css/codemirror.css" id="style" />
-</head>
+
+
+
 
 
 
 <script>
-
 var makeCanvas = function() {
     var canvas = document.createElement("canvas");
     if (window && typeof window.G_vmlCanvasManager != 'undefined') {
@@ -26,10 +27,13 @@ var addCircleCanvas = function() {
 	document.createTextNode("foo"));
     setTimeout(
 	function() {
+	    canvas.width = 300;
+	    canvas.height = 300;
 	    canvas.style.border = "1px solid black";
 	    canvas.style.width = '300px';
 	    canvas.style.height = '300px';
-	    var ctx = canvas.getContext();
+	    var ctx = canvas.getContext('2d');
+	    ctx.beginPath();
 	    ctx.arc(100 + 50,
 		    100 + 50,
 		    100,
@@ -37,6 +41,7 @@ var addCircleCanvas = function() {
 		    2*Math.PI,
 		    false);
 	    ctx.fillStyle = "black";
+	    ctx.closePath();
 	    ctx.fill();
 	}, 
 	0);
@@ -58,14 +63,9 @@ var addTextContainer = function() {
 		lineNumbers: true,
 		textWrapping: true,
 		content: "hello world",
-		width: "300px",
+		width: "100%",
 		height: "300px",
 		readOnly: false,
-
-		markParen: function(span, good) {addClass(span, good ? "good-matching-paren" : "bad-matching-paren");},
-
-		unmarkParen: function(span) {removeClass(span, "good-matching-paren"); removeClass(span, "bad-matching-paren");},
-
 		initCallback: function(editor) {
 		}});
 };
@@ -73,12 +73,19 @@ var addTextContainer = function() {
 
 </script>
 
+
+</head>
+
+
+
+
 <body>
 
 <h1>Canvas test</h1>
 <input type="button" value="Add a circle" onclick="addCircleCanvas()">
 <input type="button" value="Add a text area" onclick="addTextContainer()">
 <div id="container"
-     style="width: 100%; height: 500px; border: 1px solid red; overflow: auto"/>
+     style="width: 100%; height: 500px; border: 1px solid red; overflow: auto">
+</div>
 </body>
 </html>
