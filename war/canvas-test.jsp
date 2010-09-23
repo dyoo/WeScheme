@@ -6,24 +6,22 @@
 
 
 <script>
-var makeCanvas = function(width, height) {
+var makeCanvas = function() {
     var canvas = document.createElement("canvas");
     if (window && typeof window.G_vmlCanvasManager != 'undefined') {
         canvas = window.G_vmlCanvasManager.initElement(canvas);
     }
-    canvas.style.width = canvas.width + "px";
-    canvas.style.height = canvas.height + "px";
-    canvas.style.border = "1px solid black";
     return canvas;
 }
 
 var addCircleCanvas = function() {
-    var canvas = makeCanvas(300, 300);
+    var canvas = makeCanvas();
     document.getElementById('container').appendChild(canvas);    
     document.getElementById('container').appendChild(
 	document.createTextNode("foo"));
     setTimeout(
 	function() {
+	    canvas.style.border = "1px solid black";
 	    canvas.style.width = '300px';
 	    canvas.style.height = '300px';
 	    var ctx = canvas.getContext();
@@ -45,7 +43,7 @@ var addCircleCanvas = function() {
 <body>
 
 <h1>Canvas test</h1>
-<input type="button" value="Add a button" onclick="addCircleCanvas()">
+<input type="button" value="Add a circle" onclick="addCircleCanvas()">
 <div id="container"
      style="width: 100%; height: 500px; border: 1px solid red; overflow: auto"/>
 </body>
