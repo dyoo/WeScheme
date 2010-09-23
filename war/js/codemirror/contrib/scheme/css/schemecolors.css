@@ -49,10 +49,10 @@ span.scheme-comment     { color: orange; }
 span.good-matching-paren { 
     font-weight: bold;
     color: #3399FF;  
-    background: lightgray;
+    background: #d3d3d3;
 }
 span.bad-matching-paren {
     font-weight: bold;
     color: red;
-    background: lightgray;
+    background: #d3d3d3;
 }
