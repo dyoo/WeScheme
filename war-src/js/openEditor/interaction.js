@@ -90,7 +90,8 @@ WeSchemeInteractions = (function () {
 	    { height: 'dynamic',
 	      minHeight: 15,
 	      lineNumbers: false,
-	      inInteractions: true },
+	      stylesheet: "/js/codemirror/contrib/scheme/css/schemecolors-interactive.css",
+	      makeTransparentIframe: true },
 	    function(container) {
 		that.textContainer = container;
 		container.addKeymap(
@@ -154,8 +155,9 @@ WeSchemeInteractions = (function () {
 	    { height: 'dynamic',
 	      minHeight: 15,
 	      lineNumbers: false,
-	      inInteractions: true,
+	      stylesheet: "/js/codemirror/contrib/scheme/css/schemecolors-interactive.css",
 	      content: nextCode,
+	      makeTransparentIframe: true,
 	      readOnly: true },
 	    function(container) {
 		var newId = makeFreshId();
