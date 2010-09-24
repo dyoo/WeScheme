@@ -140,7 +140,7 @@ WeSchemeInteractions = (function () {
 	textareaSpan.style['display'] = 'inline-block';
 	textareaSpan.style['vertical-align'] = 'top';
 	textareaSpan.style['width'] = '90%';
-	
+
 	that.interactions.addToInteractions(parentDiv);
 	parentDiv.appendChild(promptSpan);
 	parentDiv.appendChild(textareaSpan);
