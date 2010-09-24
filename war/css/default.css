@@ -311,3 +311,13 @@ p.location-paragraph {
     margin-top: 0px;
     margin-bottom: 0px;
 }
+
+
+
+a.socialBookmarklet {
+    border: 0px solid black;
+}
+
+img.socialBookmarklet {
+    border: 0px solid black;
+}
