@@ -141,9 +141,9 @@ WeSchemeInteractions = (function () {
 	textareaSpan.style['vertical-align'] = 'top';
 	textareaSpan.style['width'] = '90%';
 
-	that.interactions.addToInteractions(parentDiv);
 	parentDiv.appendChild(promptSpan);
 	parentDiv.appendChild(textareaSpan);
+	that.interactions.addToInteractions(parentDiv);
 
 	that.interactions.clearLine();
 

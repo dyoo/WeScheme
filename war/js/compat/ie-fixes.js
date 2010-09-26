@@ -28,3 +28,12 @@ if(!Array.indexOf){
 	return -1;
     }
 }
+
+
+
+// Try to avoid image flicker on hover.
+// See:
+// http://www.telerik.com/help/aspnet/tabstrip/tabstrip_imageflicker.html
+try {
+    document.execCommand("BackgroundImageCache", false, true);
+} catch(err) {}
