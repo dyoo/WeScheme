@@ -51,6 +51,7 @@ goog.provide("plt.wescheme.helpers");
 	    a.title = "Post to " + name;
 	    img.src = imgSrc;
 	    img.alt = "Post to " + name;
+	    img.className = "socialBookmarklet";
 	    a.appendChild(img);
 	    a.href = url;
 	    span.appendChild(a);

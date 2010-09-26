@@ -153,8 +153,7 @@ var WeSchemeTextContainer;
 		path: "/js/codemirror/js/",
 		parserfile: ["../contrib/scheme/js/tokenizescheme.js",
 			     "../contrib/scheme/js/parsescheme.js"],
-		stylesheet: (options.inInteractions ? 
-			     "/js/codemirror/contrib/scheme/css/schemecolors-interactive.css" :
+		stylesheet: (options.stylesheet ||
 			     "/js/codemirror/contrib/scheme/css/schemecolors.css"),
 		autoMatchParens: true,
 		disableSpellcheck: true,
@@ -177,6 +176,12 @@ var WeSchemeTextContainer;
 
 		initCallback: function(editor) {
 		    that.editor = editor;
+		    
+		    if (options.makeTransparentIframe) {
+			// IE compatibility.
+			// See: http://blogs.msdn.com/b/tl/archive/2008/10/28/9020354.aspx
+			that.editor.frame.allowTransparency = true;
+		    }
 
 		    var keyFilter = function(keycode, event) {
 			return parent.getKeymap().keyFilter(event);

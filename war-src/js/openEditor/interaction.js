@@ -81,7 +81,7 @@ WeSchemeInteractions = (function () {
     var Prompt = function(interactions, parentDiv, K) {
 	var that = this;
 	this.interactions = interactions;
-	this.div = jQuery("<div style='clear: left'><span style='float: left; width: 20px;'>&gt;&nbsp;</span><span style='float: left; width: 90%'/></div>");
+	this.div = jQuery("<div><span style='display: inline-block; vertical-align: top;'>&gt;&nbsp;</span><span style='display: inline-block; vertical-align: top; width: 90%'/></div>");
 	parentDiv.append(this.div);
 
 	var innerDivElt = this.div.find("span").get(1);
@@ -90,7 +90,8 @@ WeSchemeInteractions = (function () {
 	    { height: 'dynamic',
 	      minHeight: 15,
 	      lineNumbers: false,
-	      inInteractions: true },
+	      stylesheet: "/js/codemirror/contrib/scheme/css/schemecolors-interactive.css",
+	      makeTransparentIframe: true },
 	    function(container) {
 		that.textContainer = container;
 		container.addKeymap(
@@ -127,21 +128,22 @@ WeSchemeInteractions = (function () {
 	that.textContainer.setCode("");
 	
 	var parentDiv = document.createElement('div');
-	parentDiv.style.clear = "left";
+	//parentDiv.style.clear = "left";
+
 
 	var promptSpan = document.createElement('span');
-	promptSpan.style['float'] = 'left';
-	promptSpan.style.width = "20px";
+	promptSpan.style['display'] = 'inline-block';
+	promptSpan.style['vertical-align'] = 'top';
 	promptSpan.appendChild(document.createTextNode("> "));
 
 	var textareaSpan = document.createElement("span");
-	textareaSpan.style['float'] = 'left';
+	textareaSpan.style['display'] = 'inline-block';
+	textareaSpan.style['vertical-align'] = 'top';
 	textareaSpan.style['width'] = '90%';
 
-	
+	that.interactions.addToInteractions(parentDiv);
 	parentDiv.appendChild(promptSpan);
 	parentDiv.appendChild(textareaSpan);
-	that.interactions.addToInteractions(parentDiv);
 
 	that.interactions.clearLine();
 
@@ -154,8 +156,9 @@ WeSchemeInteractions = (function () {
 	    { height: 'dynamic',
 	      minHeight: 15,
 	      lineNumbers: false,
-	      inInteractions: true,
+	      stylesheet: "/js/codemirror/contrib/scheme/css/schemecolors-interactive.css",
 	      content: nextCode,
+	      makeTransparentIframe: true,
 	      readOnly: true },
 	    function(container) {
 		var newId = makeFreshId();

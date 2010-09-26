@@ -81,3 +81,13 @@ a:hover{
 .linkbutton:hover{
 	background: gray;
 }
+
+
+
+a.socialBookmarklet {
+    border: 0px solid black;
+}
+
+img.socialBookmarklet {
+    border: 0px solid black;
+}
