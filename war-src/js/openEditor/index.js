@@ -26,16 +26,13 @@ var defnSourceContainer;
 
 var initializeEditor = function(attrs) {
     plt.wescheme.browserCheck();
-
-    splitPaneSetup();
-    // Set up the heartbeat.
-    editorSetup(attrs);
+    editorSetup(attrs, splitPaneSetup);
 };
 
 
 
 
-var editorSetup = function(attrs) {
+var editorSetup = function(attrs, after) {
     var userName = attrs['userName'];
     var pid = attrs['pid'];
     var publicId = attrs['publicId'];
@@ -97,7 +94,10 @@ var editorSetup = function(attrs) {
 			return false;
 		    });
 		    jQuery(document.body).keydown(plt.wescheme.topKeymap);
+		    
 
+		    // Call the after continuation at the end.
+		    after();
 		}
 	    );
 	});
@@ -106,6 +106,15 @@ var editorSetup = function(attrs) {
 
 
 var splitPaneSetup = function() {
+
+    var getDefn = function() {
+	return goog.dom.getElementsByTagNameAndClass(
+	    'div', 'CodeMirror-wrapping',
+	    document.getElementById("definitions"))[0];
+    }
+
+
+
     var top = document.getElementById("top");
     var bottom = document.getElementById("bottom");
     var middle = document.getElementById('middle');
@@ -113,7 +122,8 @@ var splitPaneSetup = function() {
 
     var splitpaneDiv = document.getElementById('splitpane');
     var definitions = document.getElementById("definitions");
-    var defn = document.getElementById("defn");
+    var defn = getDefn();
+
     var interactions = document.getElementById("interactions");
 
 
@@ -133,6 +143,7 @@ var splitPaneSetup = function() {
     // The display should consist of the top, the middle, and the bottom.
     // The middle should expand to the size of the viewport minus the top and bottom.
     var onResize = function(e) {
+
 	var viewportSize = vsm.getSize();
 	var desiredWidth = viewportSize.width;
 	var desiredHeight = (viewportSize.height - 

@@ -20,8 +20,16 @@ body{background: url(images/bootBG.png) no-repeat fixed #f5deb3; background-posi
 	background:		url(images/icon-trans.png) no-repeat #f5deb3;
 	z-index:		5;
 }
-h1{ font-size:	38px;	margin-left:	65px;}
-h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
+h1{ 
+    font-size: 38px;	
+    padding-left: 65px;
+}
+
+h2{
+    font-size: 14px;
+    font-style: italic;
+    padding-left: 65px;
+}
 
 /* 20px: TOOLBAR, BUTTONS, ETC */
 #toolbar{
