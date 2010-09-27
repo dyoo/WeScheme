@@ -81,7 +81,7 @@ WeSchemeInteractions = (function () {
     var Prompt = function(interactions, parentDiv, K) {
 	var that = this;
 	this.interactions = interactions;
-	this.div = jQuery("<div><span style='display: inline-block; vertical-align: top;'>&gt;&nbsp;</span><span style='display: inline-block; vertical-align: top; width: 90%'/></div>");
+	this.div = jQuery("<div><span class='top-aligned-inline-block'>&gt;&nbsp;</span><span class='top-aligned-inline-block' style='width: 90%'/></div>");
 	parentDiv.append(this.div);
 
 	var innerDivElt = this.div.find("span").get(1);
@@ -128,27 +128,23 @@ WeSchemeInteractions = (function () {
 	that.textContainer.setCode("");
 	
 	var parentDiv = document.createElement('div');
-	//parentDiv.style.clear = "left";
-
 
 	var promptSpan = document.createElement('span');
-	promptSpan.style['display'] = 'inline-block';
-	promptSpan.style['vertical-align'] = 'top';
-	promptSpan.appendChild(document.createTextNode("> "));
+	promptSpan.className = 'top-aligned-inline-block';
+	promptSpan.appendChild(document.createTextNode(">"));
 
 	var textareaSpan = document.createElement("span");
-	textareaSpan.style['display'] = 'inline-block';
-	textareaSpan.style['vertical-align'] = 'top';
+	textareaSpan.className = 'top-aligned-inline-block';
 	textareaSpan.style['width'] = '90%';
 
 	parentDiv.appendChild(promptSpan);
+	parentDiv.appendChild(document.createTextNode(" "));
 	parentDiv.appendChild(textareaSpan);
 	that.interactions.addToInteractions(parentDiv);
 
 	that.interactions.clearLine();
 
-
-	// FIXME: figure out how to get the line height
+	// // FIXME: figure out how to get the line height
 	// dynamically, because I have no idea how to do
 	// this correctly at the moment.
 	new plt.wescheme.WeSchemeTextContainer(
@@ -168,6 +164,7 @@ WeSchemeInteractions = (function () {
 					      that.focus();
 					  });
 	    });
+	
     };
 
     // isRunEvent: key-event -> boolean

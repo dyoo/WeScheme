@@ -322,3 +322,14 @@ a.socialBookmarklet {
 img.socialBookmarklet {
     border: 0px solid black;
 }
+
+
+/* To make spans as top-aligned inlined blocks, as used in the REPL */
+span.top-aligned-inline-block {
+    display: inline-block;
+    vertical-align: top;
+
+    /* For IE 7 */
+    zoom: 1;
+    *display: inline;
+}
