@@ -10018,7 +10018,7 @@ if (typeof(world) === 'undefined') {
 	BaseImage.call(this, 0, 0);
 	this.width = width;
 	this.height = height;
-	this.children = children;
+	this.children = children; // arrayof [image, number, number]
 	this.withBorder = withBorder;
     }
     SceneImage.prototype = heir(BaseImage.prototype);
@@ -10067,21 +10067,30 @@ if (typeof(world) === 'undefined') {
     };
 
     SceneImage.prototype.isEqual = function(other, aUnionFind) {
-	    if (!(other instanceof SceneImage) &&
-		this.pinholeX != other.pinholeX &&
-		this.pinholeY != other.pinholeY &&
-		this.width != other.width ||
-		this.height != other.height ||
-		this.children.length != other.children.length) {
-		    return false;
-	    }
+	if (!(other instanceof SceneImage)) {
+	    return false;
+	} 
+	
+	if (this.pinholeX != other.pinholeX ||
+	    this.pinholeY != other.pinholeY ||
+	    this.width != other.width ||
+	    this.height != other.height ||
+	    this.children.length != other.children.length) {
+	    return false;
+	}
 
-	    for (var i = 0; i < this.children.length; i++) {
-		    if ( !types.isEqual(this.children[i], other.children[i], aUnionFind) ) {
-			    return false;
-		    }
+	for (var i = 0; i < this.children.length; i++) {
+	    var rec1 = this.children[i];
+	    var rec2 = other.children[i];
+	    if (rec1[1] !== rec2[1] ||
+		rec1[2] !== rec2[2] ||
+		!types.isEqual(rec1[0], 
+			       rec2[0],
+			       aUnionFind)) {
+		return false;
 	    }
-	    return true;
+	}
+	return true;
     };
 
 
@@ -10350,9 +10359,9 @@ if (typeof(world) === 'undefined') {
 
     var CircleImage = function(radius, style, color) {
 	BaseImage.call(this, radius, radius);
-	this.radius = radius;
-	this.style = style;
-	this.color = color;
+	this.radius = radius;   // javascript number
+	this.style = style;     // string
+	this.color = color;     // color structure
     }
     CircleImage.prototype = heir(BaseImage.prototype);
 
@@ -10363,7 +10372,7 @@ if (typeof(world) === 'undefined') {
 		y + this.radius,
 		this.radius, 0, 2*Math.PI, false);
 	ctx.closePath();
-	if (this.style.toString().toLowerCase() == "outline") {
+	if (this.style.toLowerCase() == "outline") {
 	    ctx.strokeStyle = colorString(this.color);
 	    ctx.stroke();
 	} else {
@@ -10383,12 +10392,12 @@ if (typeof(world) === 'undefined') {
     };
 
     CircleImage.prototype.isEqual = function(other, aUnionFind) {
-	    return (other instanceof CircleImage &&
-		    this.pinholeX == other.pinholeX &&
-		    this.pinholeY == other.pinholeY &&
-		    this.radius == other.radius &&
-		    this.style == other.style &&
-		    types.isEqual(this.color, other.color, aUnionFind));
+	return (other instanceof CircleImage &&
+		this.pinholeX === other.pinholeX &&
+		this.pinholeY === other.pinholeY &&
+		this.radius === other.radius &&
+		this.style === other.style &&
+		types.isEqual(this.color, other.color, aUnionFind));
     };
 
 
@@ -16062,7 +16071,7 @@ PRIMITIVES['circle'] =
 			if (colorDb.get(aColor)) {
 				aColor = colorDb.get(aColor);
 			}
-			return world.Kernel.circleImage(jsnums.toFixnum(aRadius), aStyle, aColor);
+		     return world.Kernel.circleImage(jsnums.toFixnum(aRadius), aStyle.toString(), aColor);
 		 });
 
 
