@@ -324,7 +324,7 @@ var WeSchemeEditor;
 				    that.filenameEntry.attr("value")));
 	that._enforceNonemptyName(afterFileNameChosen,
 				  function() {
-				      // on abort
+				      // on abort, don't do anything.
 				  },
 				  true);
     };
@@ -353,11 +353,11 @@ var WeSchemeEditor;
 	    var inputField = jQuery("<input type='text' style='border: solid'/>");
 	    dialogWindow.append(jQuery("<p/>").text(
 		"Please provide a name for your program: "));
-	    if (! isFirstEntry) {
-		dialogWindow.append(jQuery("<p/>").text(
-		    "(The name cannot be left blank.)"));
-	    }
+	    dialogWindow.append(jQuery("<p/>").text(
+		"(The name cannot be left blank.)"));
 	    dialogWindow.append(inputField);
+
+
 	    dialogWindow.dialog({title: 'Saving your program',
 				 bgiframe : true,
 				 modal : true,
@@ -366,7 +366,38 @@ var WeSchemeEditor;
 				 buttons : { "Save" : onSaveButton,
 					     "Don't Save" : onCancelButton }
 				});
-	    dialogWindow.dialog("open");
+
+	    // Really stupid hacky code.  I have no idea how to
+	    // cleanly grab at the buttons in a dialog constructed by
+	    // jQuery-UI, so the following code does it by manually
+	    // walking the dom tree.
+	    var saveButton;
+	    dialogWindow.dialog("widget").parent().find(":button")
+		.each(function(index) {
+		    if (jQuery(this).text() === "Save") {
+			saveButton = this;
+		    }
+		});
+	    var maintainSaveButtonStatus = function() {
+		// Disable the save button if its content doesn't validate.
+		setTimeout(
+		    function() {
+			var name =
+			    plt.wescheme.helpers.trimWhitespace(inputField.val());
+			if (name === "") {
+			    saveButton.disabled = true;
+			} else {
+			    saveButton.disabled = false;
+			}
+		    },
+		    0);
+	    };
+	    maintainSaveButtonStatus();
+	    inputField.keydown(maintainSaveButtonStatus);
+	    inputField.change(maintainSaveButtonStatus);
+
+
+	    //dialogWindow.dialog("open");
 	} else {
 	    afterK();
 	}
