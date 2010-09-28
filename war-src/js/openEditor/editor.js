@@ -386,8 +386,10 @@ var WeSchemeEditor;
 			    plt.wescheme.helpers.trimWhitespace(inputField.val());
 			if (name === "") {
 			    saveButton.disabled = true;
+			    jQuery(saveButton).hide('fast');
 			} else {
 			    saveButton.disabled = false;
+			    jQuery(saveButton).show('fast');
 			}
 		    },
 		    0);
