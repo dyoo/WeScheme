@@ -9,11 +9,11 @@
 <head><title>WeScheme :: Contact</title>
 
 <script src="/editor/jquery.js"></script>
-<link rel="stylesheet" type="text/css" href="css/splash.css" id="style" />
+<link rel="stylesheet" type="text/css" href="/css/splash.css" id="style" />
 
 </head>
 <body>
-<h1>WeScheme</h1><img src="css/images/BigLogo.png" width="20%">
+<h1>WeScheme</h1><img src="/css/images/BigLogo.png" width="20%">
 <h2>Talk to us!</h2>
 <div id="text">
 What would you like to do?
@@ -25,10 +25,7 @@ What would you like to do?
 </ul>
 </div>
 
-<div id="footer">
-<a href="/about.jsp">About</a>
-<a href="/contact.jsp">Contact</a>
-<a href="/copyright.jsp">Copyright</a>
-</div>
+
+<jsp:include page="/footer.jsp"/>
 
 </body></html>

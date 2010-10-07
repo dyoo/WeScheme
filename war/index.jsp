@@ -48,11 +48,5 @@
 
 
 
-<div id="footer">
-<a href="/about.jsp">About</a>
-
-<a href="/contact.jsp">Contact</a>
-<a href="/copyright.jsp">Copyright</a>
-</div>
-
+<jsp:include page="/footer.jsp"/>
 </body></html>

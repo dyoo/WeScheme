@@ -9,20 +9,18 @@
 <head><title>WeScheme :: Copyright</title>
 
 <script src="/editor/jquery.js"></script>
-<link rel="stylesheet" type="text/css" href="css/splash.css" id="style" />
+<link rel="stylesheet" type="text/css" href="/css/splash.css" id="style" />
 
 </head>
 <body>
-<h1>WeScheme</h1><img src="css/images/BigLogo.png" width="20%">
+<h1>WeScheme</h1><img src="/css/images/BigLogo.png" width="20%">
 <h2>is available under the GNU LGPL (Copyleft) License</h2>
 <div id="text">
 	More information can be found at the <a href="http://www.gnu.org/copyleft/">GNU LGPL page</a>.
 </div>
 
-<div id="footer">
-<a href="/about.jsp">About</a>
-<a href="/contact.jsp">Contact</a>
-<a href="/copyright.jsp">Copyright</a>
-</div>
+
+<jsp:include page="/footer.jsp"/>
+
 
 </body></html>
