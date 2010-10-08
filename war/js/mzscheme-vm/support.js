@@ -16281,7 +16281,7 @@ PRIMITIVES['text'] =
 			if (colorDb.get(aColor)) {
 				aColor = colorDb.get(aColor);
 			}
-			return world.Kernel.textImage(aString, jsnums.toFixnum(aSize), aColor);
+		     return world.Kernel.textImage(aString.toString(), jsnums.toFixnum(aSize), aColor);
 		 });
 
 
