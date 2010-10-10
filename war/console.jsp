@@ -49,7 +49,7 @@
 
 <div class="header" style="position: fixed;">
 	<h1 class="title">Your Programs</h1>
-	<h2>Welcome <%= s.getName() %></h2>
+	<h2>Welcome <%= s.getNickname() %></h2>
 </div>
 
 
