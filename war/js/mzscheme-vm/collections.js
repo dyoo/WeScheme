@@ -6,7 +6,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 } ,{"$":"global-bucket" ,"value":"update-target*"
 } ,{"$":"global-bucket" ,"value":"update-projectile*"
 } ,{"$":"global-bucket" ,"value":"update-player*"
-} ,{"$":"global-bucket" ,"value":"offscreen?*?"
+} ,{"$":"global-bucket" ,"value":"offscreen*?"
 } ,{"$":"global-bucket" ,"value":"collide*?"
 } ,{"$":"global-bucket" ,"value":"update-player"
 } ,{"$":"global-bucket" ,"value":"update-object"
@@ -1628,98 +1628,98 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",6769,152,11,68])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
-] ,"rest?":false ,"closure-map":[1 ,2 ,4 ,5 ,6 ,10 ,11 ,12 ,13 ,14
-] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
+] ,"rest?":false ,"closure-map":[1 ,2 ,4 ,5 ,6 ,10 ,11 ,12 ,13 ,14 ,15
+] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",6849,153,11,65])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
-] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,6 ,7 ,8 ,9 ,10 ,11
-] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
+] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,6 ,7 ,8 ,9 ,10 ,11 ,12
+] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",6926,154,11,65])
-} ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
-] ,"num-params":1 ,"param-types":[types.symbol("val")
-] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,5 ,6 ,7 ,8 ,9 ,10 ,11
-] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
-] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",7003,155,11,98])
-} ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
-] ,"num-params":1 ,"param-types":[types.symbol("val")
-] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,11
-] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
-] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",7113,156,11,98])
-} ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
-] ,"num-params":1 ,"param-types":[types.symbol("val")
-] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,11
-] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
-] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",7223,157,11,19])
-} ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
-] ,"num-params":1 ,"param-types":[types.symbol("val")
-] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10 ,11
-] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
-] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",7254,158,11,44])
-} ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
-] ,"num-params":1 ,"param-types":[types.symbol("val")
-] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,5 ,7 ,8 ,9 ,10 ,11 ,12
-] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
-] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",7310,159,11,44])
-} ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
-] ,"num-params":1 ,"param-types":[types.symbol("val")
-] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,6 ,7 ,8 ,9 ,10 ,11 ,12
-] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
-] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",7366,160,11,52])
-} ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
-] ,"num-params":1 ,"param-types":[types.symbol("val")
-] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,6 ,7 ,8 ,9 ,10 ,11 ,12
-] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
-] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",7430,161,11,824])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,5 ,6 ,7 ,8 ,9 ,10 ,11 ,12
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8266,170,11,99])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",7003,155,11,98])
+} ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
+] ,"num-params":1 ,"param-types":[types.symbol("val")
+] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10 ,12
+] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
+] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",7113,156,11,98])
+} ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
+] ,"num-params":1 ,"param-types":[types.symbol("val")
+] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10 ,12
+] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
+] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",7223,157,11,19])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9 ,10 ,11 ,12
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8377,171,11,91])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",7254,158,11,44])
+} ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
+] ,"num-params":1 ,"param-types":[types.symbol("val")
+] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,5 ,7 ,8 ,9 ,10 ,11 ,12 ,13
+] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
+] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",7310,159,11,44])
+} ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
+] ,"num-params":1 ,"param-types":[types.symbol("val")
+] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,6 ,7 ,8 ,9 ,10 ,11 ,12 ,13
+] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
+] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",7366,160,11,52])
+} ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
+] ,"num-params":1 ,"param-types":[types.symbol("val")
+] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,6 ,7 ,8 ,9 ,10 ,11 ,12 ,13
+] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
+] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",7430,161,11,824])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,5 ,6 ,7 ,8 ,9 ,10 ,11 ,12 ,13
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8480,172,11,214])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8266,170,11,96])
+} ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
+] ,"num-params":1 ,"param-types":[types.symbol("val")
+] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,6 ,7 ,8 ,9 ,10 ,11 ,12 ,13
+] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
+] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8374,171,11,91])
+} ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
+] ,"num-params":1 ,"param-types":[types.symbol("val")
+] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,5 ,6 ,7 ,8 ,9 ,10 ,11 ,12 ,13
+] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
+] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8477,172,11,214])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,8 ,9 ,10 ,11 ,12 ,13
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8706,177,11,55])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8703,177,11,55])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,6 ,7 ,8
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8773,178,11,1760])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8770,178,11,1760])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,7 ,8
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10541,203,6,144])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10538,203,6,144])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":4 ,"pos":108 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":5 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10579,204,19,25])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10576,204,19,25])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":6 ,"pos":93 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":9 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"constant" ,"value":types.rational(1, 10)
@@ -1727,14 +1727,14 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ]
 }
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10624,205,19,22])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10621,205,19,22])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":98 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"toplevel" ,"depth":5 ,"pos":53 ,"const?":false ,"ready?":false
 }
 ]
 }
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10666,206,19,18])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10663,206,19,18])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":97 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":7 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
@@ -1749,11 +1749,11 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,5 ,6
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"seq" ,"forms":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8864,180,29,32])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8861,180,29,32])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":87 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"toplevel" ,"depth":2 ,"pos":44 ,"const?":false ,"ready?":false
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8880,180,45,15])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8877,180,45,15])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":3 ,"pos":39 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":9 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
@@ -1763,55 +1763,55 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ]
 }
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8933,181,36,167])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8930,181,36,167])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,3 ,4 ,5 ,6 ,7
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9137,183,36,63])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9134,183,36,63])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,3 ,4 ,5 ,6 ,7
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9237,184,36,75])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9234,184,36,75])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,4 ,5 ,6 ,7
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9349,185,36,23])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9346,185,36,23])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,5 ,6
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9409,186,36,25])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9406,186,36,25])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,5 ,6 ,7
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9471,187,36,17])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9468,187,36,17])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,5 ,6 ,7 ,8
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9525,188,36,23])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9522,188,36,23])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,5 ,6 ,7 ,8 ,9
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9585,189,36,23])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9582,189,36,23])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,2 ,4 ,5 ,6 ,7 ,8 ,9 ,10
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"branch" ,"test":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9681,191,34,11])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9678,191,34,11])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":120 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":11 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"constant" ,"value":0
@@ -1819,7 +1819,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ]
 }
 } ,"then":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9727,192,34,75])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9724,192,34,75])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":8 ,"pos":43 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":10 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":11 ,"clear":false ,"other-clears?":false ,"flonum?":false
@@ -1829,7 +1829,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 } ,{"$":"localref" ,"unbox?":false ,"pos":13 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":16 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9789,192,96,12])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9786,192,96,12])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":10 ,"pos":118 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":19 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"constant" ,"value":10
@@ -1840,7 +1840,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ]
 }
 } ,"else":{"$":"branch" ,"test":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9838,193,34,38])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9835,193,34,38])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":3 ,"pos":68 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":4 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":9 ,"clear":false ,"other-clears?":false ,"flonum?":false
@@ -1849,7 +1849,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ]
 }
 } ,"then":{"$":"seq" ,"forms":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10020,196,36,73])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10017,196,36,73])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":8 ,"pos":43 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":10 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":11 ,"clear":false ,"other-clears?":false ,"flonum?":false
@@ -1857,7 +1857,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 } ,{"$":"localref" ,"unbox?":false ,"pos":12 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":15 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10070,196,86,12])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10067,196,86,12])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":10 ,"pos":118 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":15 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"constant" ,"value":50
@@ -1872,7 +1872,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 ]
 } ,"else":{"$":"branch" ,"test":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10130,197,34,38])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10127,197,34,38])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":3 ,"pos":68 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":4 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":9 ,"clear":false ,"other-clears?":false ,"flonum?":false
@@ -1881,7 +1881,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ]
 }
 } ,"then":{"$":"seq" ,"forms":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10314,200,36,73])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10311,200,36,73])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":8 ,"pos":43 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":10 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":11 ,"clear":false ,"other-clears?":false ,"flonum?":false
@@ -1889,7 +1889,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 } ,{"$":"localref" ,"unbox?":false ,"pos":12 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":15 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10364,200,86,12])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10361,200,86,12])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":10 ,"pos":122 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":15 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"constant" ,"value":20
@@ -1905,7 +1905,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ]
 } ,"else":{"$":"branch" ,"test":{"$":"toplevel" ,"depth":0 ,"pos":77 ,"const?":false ,"ready?":false
 } ,"then":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10429,201,39,68])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10426,201,39,68])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":8 ,"pos":43 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":10 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":11 ,"clear":false ,"other-clears?":false ,"flonum?":false
@@ -1919,9 +1919,9 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ]
 }
 } ,"else":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9641,190,31,858])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9638,190,31,858])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":1 ,"pos":79 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"constant" ,"value":types.list([types.symbol("make-Loc"),9641,190,31,858,"bootstrap/bootstrap-teachpack"])
+} ,"rands":[{"$":"constant" ,"value":types.list([types.symbol("make-Loc"),9638,190,31,858,"bootstrap/bootstrap-teachpack"])
 }
 ]
 }
@@ -1931,7 +1931,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9592,189,43,15])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9589,189,43,15])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":36 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":4 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
@@ -1942,7 +1942,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9532,188,43,15])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9529,188,43,15])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":32 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":4 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
@@ -1953,7 +1953,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9475,187,40,12])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9472,187,40,12])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":42 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":4 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
@@ -1964,7 +1964,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9417,186,44,16])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9414,186,44,16])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":37 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":4 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
@@ -1975,7 +1975,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9356,185,43,15])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9353,185,43,15])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":39 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":4 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
@@ -1986,10 +1986,10 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9250,184,49,61])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9247,184,49,61])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":4 ,"pos":52 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9260,184,59,21])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9257,184,59,21])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":40 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":9 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
@@ -2005,10 +2005,10 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9146,183,45,53])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9143,183,45,53])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":4 ,"pos":52 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9156,183,55,17])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",9153,183,55,17])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":35 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":10 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
@@ -2024,20 +2024,20 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8942,181,45,157])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8939,181,45,157])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":4 ,"pos":52 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8952,181,55,66])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8949,181,55,66])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":7 ,"pos":58 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8969,181,72,17])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8966,181,72,17])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":8 ,"pos":41 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":14 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
 ]
 }
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8987,181,90,21])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8984,181,90,21])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":8 ,"pos":40 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":14 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
@@ -2067,7 +2067,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ] ,"rest?":false ,"closure-map":[1 ,5
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8731,177,36,28])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8728,177,36,28])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":3 ,"pos":55 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":5 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":6 ,"clear":false ,"other-clears?":false ,"flonum?":false
@@ -2081,14 +2081,14 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8487,172,18,206])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8484,172,18,206])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":9 ,"pos":43 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":14 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":13 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":12 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":15 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8564,173,30,28])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8561,173,30,28])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":12 ,"pos":85 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":14 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"constant" ,"value":0
@@ -2111,31 +2111,31 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ] ,"rest?":false ,"closure-map":[1 ,4
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8403,171,37,63])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8400,171,37,63])
 } ,"body":{"$":"application" ,"rator":{"$":"localref" ,"unbox?":false ,"pos":5 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8414,171,48,12])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8411,171,48,12])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":62 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":7 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
 ]
 }
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8427,171,61,12])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8424,171,61,12])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":63 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":7 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
 ]
 }
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8440,171,74,12])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8437,171,74,12])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":62 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":8 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
 ]
 }
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8453,171,87,12])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8450,171,87,12])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":63 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":8 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
@@ -2150,12 +2150,12 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"branch" ,"test":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8282,170,27,36])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8282,170,27,35])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":3 ,"pos":119 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8285,170,30,30])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8285,170,30,29])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":4 ,"pos":91 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"toplevel" ,"depth":4 ,"pos":8 ,"const?":false ,"ready?":false
+} ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":8 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
 ]
 }
@@ -2165,17 +2165,17 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 } ,"then":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":2 ,"param-types":[types.symbol("val") ,types.symbol("val")
-] ,"rest?":false ,"closure-map":[1
+] ,"rest?":false ,"closure-map":[5
 ] ,"closure-types":[types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8333,170,78,16])
-} ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":1 ,"pos":8 ,"const?":false ,"ready?":false
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",8332,170,77,15])
+} ,"body":{"$":"application" ,"rator":{"$":"localref" ,"unbox?":false ,"pos":1 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":2 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
 ]
 }
 }
-} ,"else":{"$":"toplevel" ,"depth":1 ,"pos":8 ,"const?":false ,"ready?":false
+} ,"else":{"$":"localref" ,"unbox?":false ,"pos":5 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
 }
 ]
@@ -2478,7 +2478,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ]
 }
 }
-} ,{"$":"localref" ,"unbox?":false ,"pos":12 ,"clear":false ,"other-clears?":false ,"flonum?":false
+} ,{"$":"localref" ,"unbox?":false ,"pos":13 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
 ]
 }
@@ -2527,7 +2527,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ]
 }
 }
-} ,{"$":"localref" ,"unbox?":false ,"pos":12 ,"clear":false ,"other-clears?":false ,"flonum?":false
+} ,{"$":"localref" ,"unbox?":false ,"pos":13 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
 ]
 }
@@ -2618,49 +2618,49 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ] ,"rest?":false ,"closure-map":[0
 ] ,"closure-types":[types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10885,211,9,65])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10882,211,9,65])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,6
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10960,212,9,65])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10957,212,9,65])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,5 ,6
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11035,213,9,51])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11032,213,9,51])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,5 ,6
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11096,214,9,92])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11093,214,9,92])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,5 ,6
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11198,215,9,92])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11195,215,9,92])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,5 ,6
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11300,216,9,75])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11297,216,9,75])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1 ,2 ,3 ,4 ,5 ,6
 ] ,"closure-types":[types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref") ,types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11385,217,9,200])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11382,217,9,200])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[1
 ] ,"closure-types":[types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11591,222,4,18])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11588,222,4,18])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":1 ,"pos":53 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":2 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
@@ -2668,14 +2668,14 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11392,217,16,192])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11389,217,16,192])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":9 ,"pos":43 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":14 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":13 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":12 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":15 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11467,218,28,20])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11464,218,28,20])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":12 ,"pos":85 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":14 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"constant" ,"value":0
@@ -2694,13 +2694,13 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11313,216,22,61])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11310,216,22,61])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":75 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11319,216,28,54])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11316,216,28,54])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":4 ,"pos":54 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11331,216,40,18])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11328,216,40,18])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":6 ,"pos":103 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"constant" ,"value":-200
 } ,{"$":"constant" ,"value":0
@@ -2708,7 +2708,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ]
 }
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11350,216,59,22])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11347,216,59,22])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":78 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"toplevel" ,"depth":5 ,"pos":70 ,"const?":false ,"ready?":false
 }
@@ -2725,27 +2725,27 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11207,215,18,82])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11204,215,18,82])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":3 ,"pos":100 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[3
 ] ,"closure-types":[types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11224,215,35,52])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11221,215,35,52])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":54 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11236,215,47,37])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11233,215,47,37])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":4 ,"pos":103 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11247,215,58,12])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11244,215,58,12])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":90 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"constant" ,"value":640
 }
 ]
 }
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11260,215,71,12])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11257,215,71,12])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":90 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"constant" ,"value":480
 }
@@ -2768,27 +2768,27 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11105,214,18,82])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11102,214,18,82])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":3 ,"pos":100 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
 ] ,"rest?":false ,"closure-map":[3
 ] ,"closure-types":[types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11122,214,35,52])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11119,214,35,52])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":54 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11134,214,47,37])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11131,214,47,37])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":4 ,"pos":103 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11145,214,58,12])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11142,214,58,12])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":90 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"constant" ,"value":640
 }
 ]
 }
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11158,214,71,12])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11155,214,71,12])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":90 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"constant" ,"value":480
 }
@@ -2811,10 +2811,10 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11043,213,17,42])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11040,213,17,42])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":3 ,"pos":54 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11055,213,29,19])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11052,213,29,19])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":103 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"constant" ,"value":320
 } ,{"$":"constant" ,"value":400
@@ -2830,7 +2830,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"branch" ,"test":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10976,212,25,18])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10973,212,25,18])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":105 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":5 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
@@ -2838,7 +2838,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 } ,"then":{"$":"localref" ,"unbox?":false ,"pos":4 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,"else":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11006,212,55,17])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11003,212,55,17])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":75 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":5 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
@@ -2850,7 +2850,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 }
 } ,"rands":[{"$":"branch" ,"test":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10901,211,25,18])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10898,211,25,18])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":105 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":6 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
@@ -2858,7 +2858,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 }
 } ,"then":{"$":"localref" ,"unbox?":false ,"pos":5 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,"else":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10931,211,55,17])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",10928,211,55,17])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":75 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":6 ,"clear":false ,"other-clears?":false ,"flonum?":false
 }
@@ -2877,7 +2877,7 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ] ,"rest?":false ,"closure-map":[0
 ] ,"closure-types":[types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11653,226,15,7])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11650,226,15,7])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":123 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":3 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"localref" ,"unbox?":false ,"pos":3 ,"clear":false ,"other-clears?":false ,"flonum?":false
@@ -2893,14 +2893,14 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ] ,"rest?":false ,"closure-map":[0
 ] ,"closure-types":[types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11706,228,17,22])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11703,228,17,22])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":1 ,"pos":88 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11711,228,22,16])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11708,228,22,16])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":3 ,"pos":123 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":4 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11716,228,27,10])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11713,228,27,10])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":121 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"toplevel" ,"depth":5 ,"pos":95 ,"const?":false ,"ready?":false
 } ,{"$":"constant" ,"value":180
@@ -2922,14 +2922,14 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ] ,"rest?":false ,"closure-map":[0
 ] ,"closure-types":[types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11778,230,19,22])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11775,230,19,22])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":1 ,"pos":115 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11783,230,24,16])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11780,230,24,16])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":3 ,"pos":123 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":4 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11788,230,29,10])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11785,230,29,10])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":121 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"toplevel" ,"depth":5 ,"pos":95 ,"const?":false ,"ready?":false
 } ,{"$":"constant" ,"value":180
@@ -2951,14 +2951,14 @@ COLLECTIONS["bootstrap/bootstrap-teachpack"] = { 'name': "bootstrap/bootstrap-te
 ] ,"rest?":false ,"closure-map":[0
 ] ,"closure-types":[types.symbol("val/ref")
 ] ,"max-let-depth":0 ,"body":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11852,232,20,22])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11849,232,20,22])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":1 ,"pos":81 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11857,232,25,16])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11854,232,25,16])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":3 ,"pos":123 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":4 ,"clear":false ,"other-clears?":false ,"flonum?":false
 } ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11862,232,30,10])
+} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap/bootstrap-teachpack",11859,232,30,10])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":5 ,"pos":121 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"toplevel" ,"depth":5 ,"pos":95 ,"const?":false ,"ready?":false
 } ,{"$":"constant" ,"value":180
