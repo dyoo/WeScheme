@@ -6,6 +6,10 @@
     <!-- Add compatibility libraries for IE. -->
     <jsp:include page="/js/compat/compat.jsp"/>
 
+    <!-- Google analytics support -->
+    <jsp:include page="/google-analytics.jsp"/>
+
+
     <link rel="stylesheet" type="text/css" href="/css/default.css"
 	  id="style" />
 

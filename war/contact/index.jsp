@@ -11,6 +11,10 @@
 <script src="/editor/jquery.js"></script>
 <link rel="stylesheet" type="text/css" href="/css/splash.css" id="style" />
 
+<!-- Google analytics support -->
+<jsp:include page="/google-analytics.jsp"/>
+
+
 </head>
 <body>
 <h1>WeScheme</h1><img src="/css/images/BigLogo.png" width="20%">

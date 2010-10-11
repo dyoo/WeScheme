@@ -8,6 +8,11 @@
 <html>
 <head><title>WeScheme</title>
 
+
+<!-- Google analytics support -->
+<jsp:include page="/google-analytics.jsp"/>
+
+
 <!-- Add compatibility libraries for IE. -->
 <jsp:include page="/js/compat/compat.jsp"/>
 

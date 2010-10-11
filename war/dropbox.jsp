@@ -13,6 +13,10 @@
 <head>
 <title>Dropbox</title>
 <link rel="stylesheet" href="/demo.css"/>
+
+<!-- Google analytics support -->
+<jsp:include page="/google-analytics.jsp"/>
+
 </head>
 
 <body onload="loader()">

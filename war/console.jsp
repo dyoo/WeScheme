@@ -22,6 +22,10 @@
 <title>WeScheme</title>
 
 
+<!-- Google analytics support -->
+<jsp:include page="/google-analytics.jsp"/>
+
+
 <jsp:include page="/js/compat/compat.jsp"/>
 
 

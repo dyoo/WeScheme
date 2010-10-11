@@ -13,9 +13,12 @@
 <head><title>WeScheme</title>
 <link rel="stylesheet" type="text/css" href="css/view.css" id="style" />
 
+<!-- Google analytics support -->
+<jsp:include page="/google-analytics.jsp"/>
+
+
 <script src="/editor/jquery.js"></script>
 <script src="/js/submitpost.js"></script>
-
 <script src="/js/view-calc.js"></script>
 </head>
 

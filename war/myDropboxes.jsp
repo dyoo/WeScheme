@@ -10,6 +10,10 @@
 <head>
 
 
+<!-- Google analytics support -->
+<jsp:include page="/google-analytics.jsp"/>
+
+
 <script src="safeSubmit.js"></script>
 
 </head>

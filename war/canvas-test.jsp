@@ -2,6 +2,10 @@
 <head>
 <!-- Add compatibility libraries for IE. -->
 <jsp:include page="/js/compat/compat.jsp"/>
+
+<!-- Google analytics support -->
+<jsp:include page="/google-analytics.jsp"/>
+
 <script src="/js/openEditor/openEditor-calc.js"></script>
 <script src="/js/codemirror/js/codemirror.js"></script>
 <link rel="stylesheet" type="text/css" href="/css/codemirror.css" id="style" />

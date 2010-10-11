@@ -5,6 +5,10 @@
 
     <script src="splitframe-calc.js"></script>    
 
+<!-- Google analytics support -->
+<jsp:include page="/google-analytics.jsp"/>
+
+
     <style>
       html {
       width: 100%;

@@ -8,6 +8,10 @@
 <html>
 <head><title>WeScheme</title>
 
+<!-- Google analytics support -->
+<jsp:include page="/google-analytics.jsp"/>
+
+
 </head>
   <body>
 
