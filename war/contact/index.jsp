@@ -20,12 +20,9 @@
 <h1>WeScheme</h1><img src="/css/images/BigLogo.png" width="20%">
 <h2>Talk to us!</h2>
 <div id="text">
-What would you like to do?
 <ul>
 	<li><a href="mailto:dyoo@cs.wpi.edu">Report a bug</a> : Contact Danny Yoo, lead WeScheme and moby developer.</li>
-	<li><a href="http://www.bootstrapworld.org/">Teach with it</a> : Contact Emmanuel Schanzer, developer of the <a href="http://www.bootstrapworld.org">Bootstrap</a> curriculum</li>
-	<li><a href="http://github.com/dyoo/WeScheme">Get the source</a> : Check it out on <a href="https://github.com/dyoo/WeScheme">Github</a></li>
-	<li>Suggest a feature : TBD</li>
+	<li><a href="http://www.bootstrapworld.org/">Teach with it</a> : Contact Emmanuel Schanzer, developer of the <a href="http://www.bootstrapworld.org">Bootstrap</a> curriculum.</li>
 </ul>
 </div>
 
