@@ -25,7 +25,7 @@
 
 <body onload='update(decodeURIComponent("<%= encodedId %>"))'>
 <h1>WeScheme</h1>
-<h2 id="programTitle">&nbsp;</h2>
+<h2 id="programTitle">Loading... please wait...</h2>
 
 <a id="runIt" class="linkbutton">Run it!</a>
 <a id="viewSource" class="linkbutton">View source</a>
