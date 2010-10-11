@@ -16,6 +16,8 @@
 <![endif]-->
 
 
+
+<!-- excanvas supports HTML5 canvas.  -->
 <!--[if IE]>
     <script src="/js/compat/excanvas.js" type="text/javascript"></script>
     <script src="/js/compat/ie-fixes.js" type="text/javascript"></script>
@@ -25,10 +27,10 @@
 
 
 <!-- Add bindings for the canvas-text compatibility library. -->
-<!--[if IE]>
-    <script src="/js/compat/canvas-text/canvas.text.js"></script>
-    <script src="/js/compat/canvas-text/faces/optimer-normal-normal.js"></script>
-<![endif]-->
+
+<script src="/js/compat/canvas-text/canvas.text.js"></script>
+<script src="/js/compat/canvas-text/faces/optimer-normal-normal.js"></script>
+
 
 
 
