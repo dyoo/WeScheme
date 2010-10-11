@@ -22,9 +22,14 @@
 <![endif]-->
 
 
+
+
 <!-- Add bindings for the canvas-text compatibility library. -->
-<script src="/js/compat/canvas-text/canvas.text.js"></script>
-<script src="/js/compat/canvas-text/faces/optimer-normal-normal.js"></script>
+<!--[if IE]>
+    <script src="/js/compat/canvas-text/canvas.text.js"></script>
+    <script src="/js/compat/canvas-text/faces/optimer-normal-normal.js"></script>
+<![endif]-->
+
 
 
 <!-- Compatibility for XMLHttpRequest -->
