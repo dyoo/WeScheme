@@ -47,10 +47,10 @@ public class KeyScheduleList implements Serializable {
 	public KeyScheduleList() {
 		this.schedules = new ArrayList<Schedule>();
 	
-		schedules.add(new Schedule("freshKey", "staleKey", 8, 1));
-		schedules.add(new Schedule("dailyKey", "staleDailyKey", 8, 24));
-		schedules.add(new Schedule(null, "freshKey", 8, 1));
-		schedules.add(new Schedule(null, "dailyKey", 8, 24));
+		schedules.add(new Schedule("freshKey", "staleKey", KeyManager.DEFAULT_KEY_SIZE, 1));
+		schedules.add(new Schedule("dailyKey", "staleDailyKey", KeyManager.DEFAULT_KEY_SIZE, 24));
+		schedules.add(new Schedule(null, "freshKey", KeyManager.DEFAULT_KEY_SIZE, 1));
+		schedules.add(new Schedule(null, "dailyKey", KeyManager.DEFAULT_KEY_SIZE, 24));
 	}
 	
 	/*

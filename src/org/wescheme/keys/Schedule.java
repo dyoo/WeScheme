@@ -74,7 +74,7 @@ public class Schedule implements Serializable {
 	private void performKeyRotation(Cache cache, PersistenceManager pm) {
 		logger.info("Rotating <" + from + "> to <" + to + ">" );
 		if( null == from ){
-			Crypt.Key key = generateNewKey(to);
+			Crypt.Key key = KeyManager.generateNewKey(to, size);
 			KeyManager.storeKey(pm, cache, key);
 		} else {
 			try {
@@ -86,11 +86,11 @@ public class Schedule implements Serializable {
 					KeyManager.storeKey(pm, cache, toKey);
 				} else {
 					logger.info("fromKey's value was null.  Generating fresh value.");
-					Crypt.Key key = generateNewKey(to);
+					Crypt.Key key = KeyManager.generateNewKey(to, size);
 					KeyManager.storeKey(pm, cache, key);
 				}
 			} catch (KeyNotFoundException e) {
-				Crypt.Key key = generateNewKey(to);
+				Crypt.Key key = KeyManager.generateNewKey(to, size);
 				KeyManager.storeKey(pm, cache, key);
 			}
 		}
@@ -101,10 +101,5 @@ public class Schedule implements Serializable {
 	}
 
 
-	private Crypt.Key generateNewKey(String keyName) {
-		Crypt.Key key;
-		logger.info("Generating a " + (size * 8) + " bit key named " + keyName + ".");
-		key = new Crypt.Key(keyName, Crypt.getBytes(size));
-		return key;
-	}
+
 }

@@ -9,15 +9,35 @@ import javax.cache.CacheFactory;
 import javax.cache.CacheManager;
 import javax.jdo.PersistenceManager;
 
+import org.wescheme.util.CacheHelpers;
 import org.wescheme.util.Crypt;
 import org.wescheme.util.PMF;
 import org.wescheme.util.Crypt.KeyNotFoundException;
 
 
 public class KeyManager {
+	
 	static Logger logger = Logger.getLogger(KeyManager.class.getName());
 
 
+	public static int DEFAULT_KEY_SIZE = 8;
+	
+	static {
+		// ensure that freshKey and staleKey keys exist, even in a clean database.
+		String[] keyNames = {"freshKey", "staleKey"};
+
+		for (int i = 0; i < keyNames.length; i++){
+			PersistenceManager pm = PMF.get().getPersistenceManager();
+			Cache cache = CacheHelpers.getCache();
+			try { 
+				retrieveKey(pm, cache, keyNames[i]); 
+			} catch (KeyNotFoundException e) {
+				storeKey(pm, cache, generateNewKey(keyNames[i], DEFAULT_KEY_SIZE));
+			}
+		}
+		
+	}
+	
 	public static void rotateKeys() throws KeyNotFoundException, CacheException{
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try {
@@ -98,4 +118,12 @@ public class KeyManager {
 		return new Crypt.Token(text, k);
 	}
 
+	
+	
+	public static Crypt.Key generateNewKey(String keyName, int size) {
+		Crypt.Key key;
+		logger.info("Generating a " + (size * 8) + " bit key named " + keyName + ".");
+		key = new Crypt.Key(keyName, Crypt.getBytes(size));
+		return key;
+	}
 }
