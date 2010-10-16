@@ -62,10 +62,31 @@
 
     <script>
       jQuery(document).ready(function() {
-          var userName, pid, publicId;
+          var userName, pid, publicId, hideHeader, hideFooter, warnOnExit;
           userName = pid = publicId = null;
+          hideHeader = false;
+          hideFooter = false;
+          warnOnExit = true;
       
           userName = "<%= userSession != null? userSession.getName() : null %>";
+
+          <% if (request.getParameter("hideHeader") != null &&
+                 request.getParameter("hideHeader").equals("true")) { %>
+	     hideHeader = true;
+          <% } %>
+
+
+          <% if (request.getParameter("hideFooter") != null &&
+                 request.getParameter("hideFooter").equals("true")) { %>
+	     hideFooter = true;
+          <% } %>
+
+          <% if (request.getParameter("warnOnExit") != null &&
+                 request.getParameter("warnOnExit").equals("false")) { %>
+	     warnOnExit = false;
+          <% } %>
+
+
 
           <% if (request.getParameter("pid") != null) { %>
 	      pid = decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("pid"), "utf-8") %>');
@@ -76,7 +97,10 @@
 
           initializeEditor({userName: userName,
                             pid : pid, 
-                            publicId: publicId});
+                            publicId: publicId,
+	                    hideHeader: hideHeader,
+	                    hideFooter: hideFooter,
+	                    warnOnExit: warnOnExit });
       });
     </script>
 

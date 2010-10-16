@@ -29,20 +29,32 @@ var initializeEditor;
 (function() {
     initializeEditor = function(attrs) {
 	plt.wescheme.browserCheck();
-	unloadSetup();
+	maybeWarnOnExit(attrs.warnOnExit);
+	maybeHideHeaderAndFooter(attrs.hideHeader, attrs.hideFooter);
 	editorSetup(attrs, splitPaneSetup);
     };
 
 
 
-    var unloadSetup = function() {
+    var maybeWarnOnExit = function(warnOnExit) {
 	var doubleCheck = function(){
 	    return "Are you sure you want to leave the Editor? (all unsaved changes will be lost)";
 	}
-	document.body.onbeforeunload = doubleCheck;
+	if (warnOnExit) {
+	    document.body.onbeforeunload = doubleCheck;
+	}
     };
 
 
+
+    var maybeHideHeaderAndFooter = function(hideHeader, hideFooter) {
+	if (hideHeader) {
+	    document.getElementById("top").style.display = 'none';
+	}
+	if (hideFooter) {
+	    document.getElementById("bottom").style.display = 'none';
+	}
+    };
 
 
     var editorSetup = function(attrs, after) {
