@@ -31,7 +31,8 @@ var initializeEditor;
 	plt.wescheme.browserCheck();
 	maybeWarnOnExit(attrs.warnOnExit);
 	maybeHideHeaderAndFooter(attrs.hideHeader, attrs.hideFooter);
-	editorSetup(attrs, splitPaneSetup);
+	editorSetup(attrs, 
+		    function() { splitPaneSetup(attrs) });
     };
 
 
@@ -134,7 +135,7 @@ var initializeEditor;
 
 
 
-    var splitPaneSetup = function() {
+    var splitPaneSetup = function(attrs) {
 
 	var getDefn = function() {
 	    return goog.dom.getElementsByTagNameAndClass(

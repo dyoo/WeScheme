@@ -62,8 +62,9 @@
 
     <script>
       jQuery(document).ready(function() {
-          var userName, pid, publicId, hideHeader, hideFooter, warnOnExit, interactionsText;
+          var userName, pid, publicId, hideHeader, hideFooter, hideDefinitions, warnOnExit, interactionsText;
           userName = pid = publicId = interactionsText = null;
+          hideDefinitions = false;
           hideHeader = false;
           hideFooter = false;
           warnOnExit = true;
@@ -82,6 +83,11 @@
 	     hideFooter = true;
           <% } %>
 
+          <% if (request.getParameter("hideDefinitions") != null &&
+                 request.getParameter("hideDefinitions").equals("true")) { %>
+	     hideDefinitions = true;
+          <% } %>
+
           <% if (request.getParameter("warnOnExit") != null &&
                  request.getParameter("warnOnExit").equals("false")) { %>
 	     warnOnExit = false;
@@ -90,7 +96,7 @@
           <% if (request.getParameter("interactionsText") != null) { %>
 	     interactionsText = 
 	         decodeURIComponent("<%= java.net.URLEncoder.encode(
-					 request.getParameter("interactionsText"), "utf-8") %>");
+					 request.getParameter("interactionsText"), "utf-8").replaceAll("\\+", "%20") %>");
           <% } %>
 
 
@@ -108,6 +114,7 @@
                             publicId: publicId,
 	                    hideHeader: hideHeader,
 	                    hideFooter: hideFooter,
+	                    hideDefinitions: hideDefinitions,
 	                    warnOnExit: warnOnExit,
 	                    initialInteractionsText: interactionsText});
       });
