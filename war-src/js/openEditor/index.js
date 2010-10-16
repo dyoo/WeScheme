@@ -136,6 +136,11 @@ var initializeEditor;
 
 
     var splitPaneSetup = function(attrs) {
+	if (attrs.hideDefinitions) {
+	    document.getElementById("interactions").style.height = "100%"
+	    return;
+	}
+
 
 	var getDefn = function() {
 	    return goog.dom.getElementsByTagNameAndClass(
