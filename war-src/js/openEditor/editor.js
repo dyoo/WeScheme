@@ -409,7 +409,7 @@ var WeSchemeEditor;
 
 
 
-    WeSchemeEditor.prototype.load = function(attrs) {
+    WeSchemeEditor.prototype.load = function(attrs, onSuccess, onFail) {
 	var that = this;
 
 	
@@ -429,12 +429,15 @@ var WeSchemeEditor;
 	    that.loadedE.sendEvent(true);
 	    that.isPublishedE.sendEvent(aProgram.isPublished());
 	    plt.wescheme.WeSchemeIntentBus.notify("after-load", that);
+	    if (onSuccess) { onSuccess(aProgram.getSourceCode()); }
 	};
 
 	var whenLoadFails = function() { 
 	    // FIXME
 	    alert("The load failed.");
-	}
+	    if (onFail) { onFail(); }
+	};
+
 	if (attrs.pid) {
 	    plt.wescheme.WeSchemeIntentBus.notify("before-load", this);
 	    that.actions.loadAProject(attrs.pid,

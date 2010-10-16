@@ -62,11 +62,12 @@
 
     <script>
       jQuery(document).ready(function() {
-          var userName, pid, publicId, hideHeader, hideFooter, warnOnExit;
-          userName = pid = publicId = null;
+          var userName, pid, publicId, hideHeader, hideFooter, warnOnExit, interactionsText;
+          userName = pid = publicId = interactionsText = null;
           hideHeader = false;
           hideFooter = false;
           warnOnExit = true;
+      
       
           userName = "<%= userSession != null? userSession.getName() : null %>";
 
@@ -86,6 +87,13 @@
 	     warnOnExit = false;
           <% } %>
 
+          <% if (request.getParameter("interactionsText") != null) { %>
+	     interactionsText = 
+	         decodeURIComponent("<%= java.net.URLEncoder.encode(
+					 request.getParameter("interactionsText"), "utf-8") %>");
+          <% } %>
+
+
 
 
           <% if (request.getParameter("pid") != null) { %>
@@ -100,7 +108,8 @@
                             publicId: publicId,
 	                    hideHeader: hideHeader,
 	                    hideFooter: hideFooter,
-	                    warnOnExit: warnOnExit });
+	                    warnOnExit: warnOnExit,
+	                    initialInteractionsText: interactionsText});
       });
     </script>
 

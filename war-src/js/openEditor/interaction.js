@@ -76,6 +76,12 @@ WeSchemeInteractions = (function () {
     };
 
 
+    // Sets the text in the prompt.
+    WeSchemeInteractions.prototype.setPromptText = function(t) {
+	this.prompt.setText(t);
+    };
+
+
 
     //////////////////////////////////////////////////////////////////////
     var Prompt = function(interactions, parentDiv, K) {
@@ -198,6 +204,10 @@ WeSchemeInteractions = (function () {
 	    if (nestingLevel < 0) { return false; }
 	}
 	return nestingLevel === 0;
+    };
+
+    Prompt.prototype.setText = function(t) {
+	this.textContainer.setCode(t);
     };
 
     Prompt.prototype.clear = function() {

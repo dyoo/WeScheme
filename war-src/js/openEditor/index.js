@@ -98,6 +98,10 @@ var initializeEditor;
 			    // otherwise, dont load.
 			}
 
+			if (attrs.initialInteractionsText) {
+			    myEditor.interactions.setPromptText(attrs.initialInteractionsText + '');
+			}
+
 
 			// Set up the the keymap for the definitions editor so it
 			// pays attentions to f5.
