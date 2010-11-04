@@ -131,10 +131,12 @@
 	<!-- The dialog div here will be used by jquery -->
 	<div id="dialog" style="display:none;"></div>
 	
-	<div id="header">
-	  <h1>WeScheme</h1>
-	  <h2>Sometimes YouTube.  Perhaps iPhone.  Together, WeScheme!</h2>
-	</div>
+	<a href="/" class="headerlink">
+	  <div id="header">
+	    <h1>WeScheme</h1>
+	    <h2>Sometimes YouTube.  Perhaps iPhone.  Together, WeScheme!</h2>
+	  </div>
+	</a>
 
 	
 	<div id="toolbar">

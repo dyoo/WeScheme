@@ -281,7 +281,10 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 
 
 
-
+a.headerlink {
+    color: black;
+    text-decoration:none;    
+}
 
 
 div#publicId, div#publicIdLabel{ display: none; }
