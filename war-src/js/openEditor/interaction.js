@@ -263,7 +263,8 @@ WeSchemeInteractions = (function () {
 		modal : true,
 		width: "auto",
 		height: "auto",
-	        beforeclose: handleClose
+	        beforeclose: handleClose,
+		resizable: false
 	    });
 
 	    var innerArea = jQuery("<div></div>");
