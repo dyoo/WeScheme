@@ -62,9 +62,11 @@
 
     <script>
       jQuery(document).ready(function() {
-          var userName, pid, publicId, hideHeader, hideFooter, hideDefinitions, warnOnExit, interactionsText;
+          var userName, pid, publicId, hideHeader, hideFooter, hideDefinitions,
+              warnOnExit, interactionsText, autorunDefinitions;
           userName = pid = publicId = interactionsText = null;
           hideDefinitions = false;
+          autorunDefinitions = false;
           hideHeader = false;
           hideFooter = false;
           warnOnExit = true;
@@ -93,6 +95,11 @@
 	     warnOnExit = false;
           <% } %>
 
+          <% if (request.getParameter("autorun") != null &&
+                 request.getParameter("autorun").equals("true")) { %>
+	     autorunDefinitions = true;
+          <% } %>
+
           <% if (request.getParameter("interactionsText") != null) { %>
 	     interactionsText = 
 	         decodeURIComponent("<%= java.net.URLEncoder.encode(
@@ -116,7 +123,8 @@
 	                    hideFooter: hideFooter,
 	                    hideDefinitions: hideDefinitions,
 	                    warnOnExit: warnOnExit,
-	                    initialInteractionsText: interactionsText});
+	                    initialInteractionsText: interactionsText,
+	                    autorunDefinitions: autorunDefinitions });
       });
     </script>
 

@@ -91,43 +91,57 @@ var initializeEditor;
 			jQuery("#logout").click(function() { submitPost("/logout"); });
 			jQuery("#bespinMode").click(function() { defnSourceContainer.setMode("bespin")});
 
+
+			var afterLoad1 = function() {
+			    if (attrs.autorunDefinitions) {
+				myEditor.run(afterLoad2);
+			    } else {
+				afterLoad2();
+			    }
+			}
+
+			var afterLoad2 = function() {
+			    if (attrs.initialInteractionsText) {
+				myEditor.interactions.setPromptText(attrs.initialInteractionsText + '');
+			    }
+
+
+			    // Set up the the keymap for the definitions editor so it
+			    // pays attentions to f5.
+			    defnSourceContainer.addKeymap(
+				function(event) {
+				    // handle F5 especially
+				    return (event.type == 'keydown' && event.keyCode === 116);
+				},
+				function(event) {
+				    return plt.wescheme.topKeymap(event);
+				});
+
+
+			    // Set up interactions afterwards.
+			    jQuery("#interactions").click(function(e) {
+				myEditor.interactions.focusOnPrompt();
+				e.stopPropagation();
+				e.preventDefault();
+				return false;
+			    });
+			    jQuery(document.body).keydown(plt.wescheme.topKeymap);
+			    
+
+			    // Call the after continuation at the end.
+			    after();
+			};
+
 			if (pid !== null) {
-			    myEditor.load({pid : parseInt(pid) });
+			    myEditor.load({pid : parseInt(pid) }, afterLoad1, afterLoad1);
 			} else if (publicId != null) {
-			    myEditor.load({publicId : publicId});
+			    myEditor.load({publicId : publicId}, afterLoad1, afterLoad1);
 			} else {
 			    // otherwise, dont load.
+			    afterLoad1();
 			}
 
-			if (attrs.initialInteractionsText) {
-			    myEditor.interactions.setPromptText(attrs.initialInteractionsText + '');
-			}
-
-
-			// Set up the the keymap for the definitions editor so it
-			// pays attentions to f5.
-			defnSourceContainer.addKeymap(
-			    function(event) {
-				// handle F5 especially
-				return (event.type == 'keydown' && event.keyCode === 116);
-			    },
-			    function(event) {
-				return plt.wescheme.topKeymap(event);
-			    });
-
-
-			// Set up interactions afterwards.
-			jQuery("#interactions").click(function(e) {
-			    myEditor.interactions.focusOnPrompt();
-			    e.stopPropagation();
-			    e.preventDefault();
-			    return false;
-			});
-			jQuery(document.body).keydown(plt.wescheme.topKeymap);
 			
-
-			// Call the after continuation at the end.
-			after();
 		    }
 		);
 	    });

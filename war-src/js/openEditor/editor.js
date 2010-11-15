@@ -474,7 +474,7 @@ var WeSchemeEditor;
 
 
 
-    WeSchemeEditor.prototype.run = function() {
+    WeSchemeEditor.prototype.run = function(after) {
 	var that = this;
 	plt.wescheme.WeSchemeIntentBus.notify("before-run", this);
 	this.interactions.reset();
@@ -483,6 +483,7 @@ var WeSchemeEditor;
 	    "<definitions>",
 	    function() {
 		plt.wescheme.WeSchemeIntentBus.notify("after-run", that);
+		if (after) { after(); }
 	    });
     };
 
