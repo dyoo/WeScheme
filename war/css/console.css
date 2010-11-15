@@ -181,3 +181,9 @@ a.socialBookmarklet {
 img.socialBookmarklet {
     border: 0px solid black;
 }
+
+
+a.headerlink {
+    color: black;
+    text-decoration:none;    
+}
