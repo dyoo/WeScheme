@@ -2587,9 +2587,9 @@ var jsnums = {};
 
 (function() {
     // Abbreviation
-    //var Numbers = __PLTNUMBERS_TOP__;
+//     var Numbers = __PLTNUMBERS_TOP__;
     var Numbers = jsnums;
-    
+
 
     // makeNumericBinop: (fixnum fixnum -> any) (scheme-number scheme-number -> any) -> (scheme-number scheme-number) X
     // Creates a binary function that works either on fixnums or boxnums.
@@ -2841,7 +2841,7 @@ var jsnums = {};
     var divide = makeNumericBinop(
 	function(x, y) {
 	    if (_integerIsZero(y))
-		throwRuntimeError("division by zero", x, y);
+		throwRuntimeError("/: division by zero", x, y);
 	    var div = x / y;
 	    if (isOverflow(div)) {
 		return (makeBignum(x)).divide(makeBignum(y));
@@ -2853,6 +2853,40 @@ var jsnums = {};
 	},
 	function(x, y) {
 	    return x.divide(y);
+	},
+	{ isYSpecialCase: function(y) { 
+	    return (eqv(y, INEXACT_ZERO) || eqv(y, NEGATIVE_ZERO))},
+	  onYSpecialCase: function(x, y) {
+	      var pos = (y !== NEGATIVE_ZERO);
+
+
+	      if (isReal(x)) {
+		  if (isExact(x)) {
+		      if (greaterThan(x, 0)) {
+			  return pos ? inf : neginf;
+		      } else if (lessThan(x, 0)) {
+			  return pos ? neginf : inf;
+		      } else {
+			  return 0;
+		      }
+		  } else {
+		      // both x and y are inexact
+		      if (isNaN(toFixnum(x))) {
+			  return NaN;
+		      } else if (greaterThan(x, 0)) {
+			  return pos ? inf : neginf;
+		      } else if (lessThan(x, 0)) {
+			  return pos ? neginf : inf;
+		      } else {
+			  return NaN;
+		      }
+		  }
+	      } else {
+		  if (x.level < y.level) x = x.liftTo(y);
+		  if (y.level < x.level) y = y.liftTo(x);
+		  return x.divide(y);
+	      }
+	  }
 	});
     
     
@@ -2896,7 +2930,7 @@ var jsnums = {};
 	function(x, y) {
 	    if (!(isReal(x) && isReal(y)))
 		throwRuntimeError(
-		    "greaterThanOrEqual: couldn't be applied to complex number", x, y);
+		    ">=: couldn't be applied to complex number", x, y);
 	    return x.greaterThanOrEqual(y);
 	});
 
@@ -2909,7 +2943,7 @@ var jsnums = {};
 	},
 	function(x, y) {
 	    if (!(isReal(x) && isReal(y)))
-		throwRuntimeError("lessThanOrEqual: couldn't be applied to complex number", x, y);
+		throwRuntimeError("<=: couldn't be applied to complex number", x, y);
 	    return x.lessThanOrEqual(y);
 	});
 
@@ -2921,7 +2955,7 @@ var jsnums = {};
 	},
 	function(x, y) {
 	    if (!(isReal(x) && isReal(y)))
-		throwRuntimeError("greaterThan: couldn't be applied to complex number", x, y);
+		throwRuntimeError(">: couldn't be applied to complex number", x, y);
 	    return x.greaterThan(y);
 	});
 
@@ -2934,7 +2968,7 @@ var jsnums = {};
 	},
 	function(x, y) {
 	    if (!(isReal(x) && isReal(y)))
-		throwRuntimeError("lessThan: couldn't be applied to complex number", x, y);
+		throwRuntimeError("<: couldn't be applied to complex number", x, y);
 	    return x.lessThan(y);
 	});
 
@@ -3133,6 +3167,7 @@ var jsnums = {};
 
     // cos: scheme-number -> scheme-number
     var cos = function(n) {
+	if (eqv(n, 0)) { return 1; }
 	if (typeof(n) === 'number') {
 	    return FloatPoint.makeInstance(Math.cos(n));
 	}
@@ -3141,6 +3176,7 @@ var jsnums = {};
 
     // sin: scheme-number -> scheme-number
     var sin = function(n) {
+	if (eqv(n, 0)) { return 0; }
 	if (typeof(n) === 'number') {
 	    return FloatPoint.makeInstance(Math.sin(n));
 	}
@@ -3149,6 +3185,7 @@ var jsnums = {};
 
     // acos: scheme-number -> scheme-number
     var acos = function(n) {
+	if (eqv(n, 1)) { return 0; }
 	if (typeof(n) === 'number') {
 	    return FloatPoint.makeInstance(Math.acos(n));
 	}
@@ -3284,6 +3321,9 @@ var jsnums = {};
     // Implementation of the hyperbolic functions
     // http://en.wikipedia.org/wiki/Hyperbolic_cosine
     var cosh = function(x) {
+	if (eqv(x, 0)) {
+	    return FloatPoint.makeInstance(1.0);
+	}
 	return divide(add(exp(x), exp(negate(x))),
 		      2);
     };
@@ -3830,7 +3870,7 @@ var jsnums = {};
 
     Rational.prototype.divide = function(other) {
 	if (_integerIsZero(this.d) || _integerIsZero(other.n)) {
-	    throwRuntimeError("division by zero", this, other);
+	    throwRuntimeError("/: division by zero", this, other);
 	}
 	return Rational.makeInstance(_integerMultiply(this.n, other.d),
 				     _integerMultiply(this.d, other.n));
@@ -4082,6 +4122,7 @@ var jsnums = {};
     // Negative zero is a distinguished value representing -0.0.
     // There should only be one instance for -0.0.
     var NEGATIVE_ZERO = new FloatPoint(0);
+    var INEXACT_ZERO = new FloatPoint(0.0);
 
     FloatPoint.pi = new FloatPoint(Math.PI);
     FloatPoint.e = new FloatPoint(Math.E);
@@ -4284,7 +4325,7 @@ var jsnums = {};
     FloatPoint.prototype.divide = function(other) {
 	if (this.isFinite() && other.isFinite()) {
 	    if (other.n === 0) {
-		return throwRuntimeError("division by zero", this, other);
+		return throwRuntimeError("/: division by zero", this, other);
 	    }
             return FloatPoint.makeInstance(this.n / other.n);
 	} else if (isNaN(this.n) || isNaN(other.n)) {
@@ -4336,15 +4377,19 @@ var jsnums = {};
     FloatPoint.prototype.floor = function() {
 	if (! isFinite(this.n)) {
 	    return this;
+	} else if (this === NEGATIVE_ZERO) {
+	    return this;
+	} else {
+	    return FloatPoint.makeInstance(Math.floor(this.n));
 	}
-	return fromFixnum(Math.floor(this.n));
     };
 
     FloatPoint.prototype.ceiling = function() {
 	if (! isFinite(this.n)) {
 	    return this;
-	}
-	return fromFixnum(Math.ceil(this.n));
+	} else if (this === NEGATIVE_ZERO) {
+	    return this;
+	} return FloatPoint.makeInstance(Math.ceil(this.n));
     };
 
 
@@ -4466,12 +4511,15 @@ var jsnums = {};
 
     FloatPoint.prototype.round = function(){
 	if (isFinite(this.n)) {
+	    if (this === NEGATIVE_ZERO) {
+		return this;
+	    }
 	    if (Math.abs(Math.floor(this.n) - this.n) === 0.5) {
 		if (Math.floor(this.n) % 2 === 0)
-		    return fromFixnum(Math.floor(this.n));
-		return fromFixnum(Math.ceil(this.n));
+		    return FloatPoint.makeInstance(Math.floor(this.n));
+		return FloatPoint.makeInstance(Math.ceil(this.n));
 	    } else {
-		return fromFixnum(Math.round(this.n));
+		return FloatPoint.makeInstance(Math.round(this.n));
 	    }
 	} else {
 	    return this;
@@ -4528,12 +4576,12 @@ var jsnums = {};
 
 
     Complex.prototype.isRational = function() {
-	return isRational(this.r) && equals(this.i, 0);
+	return isRational(this.r) && eqv(this.i, 0);
     };
 
     Complex.prototype.isInteger = function() {
 	return (isInteger(this.r) &&
-		equals(this.i, 0));
+		eqv(this.i, 0));
     };
 
     Complex.prototype.toExact = function() {
@@ -4673,7 +4721,7 @@ var jsnums = {};
 	var up = multiply(this, con);
 
 	// Down is guaranteed to be real by this point.
-	var down = multiply(other, con);
+	var down = realPart(multiply(other, con));
 
 	var result = Complex.makeInstance(
 	    divide(realPart(up), down),
@@ -4698,7 +4746,7 @@ var jsnums = {};
     };
 
     Complex.prototype.isReal = function(){
-	return equals(this.i, 0);
+	return eqv(this.i, 0);
     };
 
     Complex.prototype.integerSqrt = function() {
@@ -4868,6 +4916,7 @@ var jsnums = {};
     var bignumScientificPattern = new RegExp("^([+-]?\\d*)\\.?(\\d*)[Ee](\\+?\\d+)$");
     var complexRegexp = new RegExp("^([+-]?[\\d\\w/\\.]*)([+-])([\\d\\w/\\.]*)i$");
     var flonumRegexp = new RegExp("^([+-]?\\d*)\\.?(\\d*)$");
+    var digitRegexp = new RegExp("\\d");
 
     // fromString: string -> (scheme-number | false)
     var fromString = function(x) {
@@ -4892,7 +4941,8 @@ var jsnums = {};
 	if (x === "-0.0") {
 	    return NEGATIVE_ZERO;
 	}
-	if (x.match(flonumRegexp) || x.match(bignumScientificPattern)) {
+	if (x.match(digitRegexp) &&
+	    (x.match(flonumRegexp) || x.match(bignumScientificPattern))) {
 	    var n = Number(x);
 	    if (isOverflow(n)) {
 		return makeBignum(x);
@@ -8000,6 +8050,10 @@ var toDomNode = function(x, cache) {
     	cache = makeLowLevelEqHash();
     }
     
+    if (isNumber(x)) {
+	return numberToDomNode(x);
+    }
+
     if (typeof(x) == 'object') {
 	    if (cache.containsKey(x)) {
 		var node = document.createElement("span");
@@ -8049,6 +8103,81 @@ var toDomNode = function(x, cache) {
     cache.remove(x);
     return returnVal;
 };
+
+
+
+// numberToDomNode: jsnum -> dom
+// Given a jsnum, produces a dom-node representation.
+var numberToDomNode = function(n) {
+    var node;
+    if (jsnums.isExact(n)) {
+	if (jsnums.isInteger(n)) {
+	    node = document.createElement("span");
+	    node.appendChild(document.createTextNode(n.toString()));
+	    return node;
+	} else if (jsnums.isRational(n)) {
+	    return rationalToDomNode(n);
+	} else if (jsnums.isComplex(n)) {
+	    node = document.createElement("span");
+	    node.appendChild(document.createTextNode(n.toString()));
+	    return node;
+	} else {
+	    node = document.createElement("span");
+	    node.appendChild(document.createTextNode(n.toString()));
+	    return node;
+	}
+    } else {
+	node = document.createElement("span");
+	node.appendChild(document.createTextNode(n.toString()));
+	return node;
+    }
+};
+
+// rationalToDomNode: rational -> dom-node
+var rationalToDomNode = function(n) {
+    var repeatingDecimalNode = document.createElement("span");
+    var chunks = jsnums.toRepeatingDecimal(jsnums.numerator(n),
+					   jsnums.denominator(n));
+    repeatingDecimalNode.appendChild(document.createTextNode(chunks[0] + '.'))
+    repeatingDecimalNode.appendChild(document.createTextNode(chunks[1]));
+    if (chunks[2] !== '0') {
+	var overlineSpan = document.createElement("span");
+	overlineSpan.style.textDecoration = 'overline';
+	overlineSpan.appendChild(document.createTextNode(chunks[2]));
+	repeatingDecimalNode.appendChild(overlineSpan);
+    }
+
+
+    var fractionalNode = document.createElement("span");
+    var numeratorNode = document.createElement("sup");
+    numeratorNode.appendChild(document.createTextNode(String(jsnums.numerator(n))));
+    var denominatorNode = document.createElement("sub");
+    denominatorNode.appendChild(document.createTextNode(String(jsnums.denominator(n))));
+    fractionalNode.appendChild(numeratorNode);
+    fractionalNode.appendChild(document.createTextNode("/"));
+    fractionalNode.appendChild(denominatorNode);
+
+    
+    var numberNode = document.createElement("span");
+    numberNode.appendChild(repeatingDecimalNode);
+    numberNode.appendChild(fractionalNode);
+    fractionalNode.style['display'] = 'none';
+
+    var showingRepeating = true;
+
+    numberNode.onclick = function(e) {
+	showingRepeating = !showingRepeating;
+	repeatingDecimalNode.style['display'] = 
+	    (showingRepeating ? 'inline' : 'none')
+	fractionalNode.style['display'] = 
+	    (!showingRepeating ? 'inline' : 'none')
+    };
+    return numberNode;
+
+};
+
+    // Alternative: use <sup> and <sub> tags
+
 
 
 
