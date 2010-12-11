@@ -3234,6 +3234,10 @@ var jsnums = {};
 
     // integerSqrt: scheme-number -> scheme-number
     var integerSqrt = function(x) {
+	if (! isInteger(x)) {
+	    throwRuntimeError('integer-sqrt: the argument ' + x.toString() +
+			      " is not an integer.", x);
+	}
 	if (typeof (x) === 'number') {
 	    if(x < 0) {
 	        return Complex.makeInstance(0,
@@ -3242,7 +3246,6 @@ var jsnums = {};
 		return Math.floor(Math.sqrt(x));
 	    }
 	}
-
 	return x.integerSqrt();
     };
 
@@ -4272,10 +4275,10 @@ var jsnums = {};
 	if (this.isFinite() && other.isFinite()) {
 	    var result = this.n - other.n;
 	    if (result === 0.0) {
-		if (other.n === NEGATIVE_ZERO) {
+		if (other === NEGATIVE_ZERO) {
 		    return FloatPoint.makeInstance(result);
 		}
-		else if (this.n === NEGATIVE_ZERO) {
+		else if (this === NEGATIVE_ZERO) {
 		    return NEGATIVE_ZERO;
 		}
 	    }
@@ -4293,8 +4296,8 @@ var jsnums = {};
 	} else {  // other.isFinite()
 	    return this;
 	}
-
     };
+
 
     FloatPoint.prototype.negate = function() {
 	if (this === NEGATIVE_ZERO) {
@@ -4306,7 +4309,14 @@ var jsnums = {};
     };
 
     FloatPoint.prototype.multiply = function(other) {
-	if (this.n === 0 || other.n === 0) { return FloatPoint.makeInstance(0.0); }
+	if (this.n === 0 || other.n === 0) { 
+	    if (this === NEGATIVE_ZERO && other === NEGATIVE_ZERO) {
+		return INEXACT_ZERO;
+	    } else if (this === NEGATIVE_ZERO || other === NEGATIVE_ZERO) {
+		return NEGATIVE_ZERO;
+	    }
+	    return INEXACT_ZERO;
+	}
 
 	if (this.isFinite() && other.isFinite()) {
 	    var product = this.n * other.n;
@@ -4412,14 +4422,15 @@ var jsnums = {};
 
 
     FloatPoint.prototype.integerSqrt = function() {
+	if (this === NEGATIVE_ZERO) { return this; }
 	if (isInteger(this)) {
 	    if(this.n >= 0) {
-	        return FloatPoint.makeInstance(floor(sqrt(this.n)));
-	    }else {
-	        return Complex.makeInstance(0,
-	               FloatPoint.makeInstance(floor(sqrt(-this.n))))
+	        return FloatPoint.makeInstance(Math.floor(Math.sqrt(this.n)));
+	    } else {
+	        return Complex.makeInstance(
+		    INEXACT_ZERO,
+		    FloatPoint.makeInstance(Math.floor(Math.sqrt(-this.n))));
 	    }
-	    
 	} else {
 	    throwRuntimeError("integerSqrt: can only be applied to an integer", this);
 	}
@@ -4708,7 +4719,12 @@ var jsnums = {};
 	return Complex.makeInstance(r, i);
     };
 
+
+
+
+
     Complex.prototype.divide = function(other){
+	var a, b, c, d, r, x, y;
 	// If the other value is real, just do primitive division
 	if (other.isReal()) {
 	    return Complex.makeInstance(
@@ -4716,24 +4732,46 @@ var jsnums = {};
 		divide(this.i, other.r));
 	}
 
+	if (this.isInexact() || other.isInexact()) {
+	    // http://portal.acm.org/citation.cfm?id=1039814
+	    // We currently use Smith's method, though we should
+	    // probably switch over to Priest's method.
+	    a = this.r;
+	    b = this.i;
+	    c = other.r;
+	    d = other.i;
+	    if (lessThanOrEqual(abs(d), abs(c))) {
+		r = divide(d, c);
+		x = divide(add(a, multiply(b, r)),
+			   add(c, multiply(d, r)));
+		y = divide(subtract(b, multiply(a, r)),
+			   add(c, multiply(d, r)));
+	    } else {
+		r = divide(c, d);
+		x = divide(add(multiply(a, r), b),
+			   add(multiply(c, r), d));
+		y = divide(subtract(multiply(b, r), a),
+			   add(multiply(c, r), d));
+	    }
+	    return Complex.makeInstance(x, y);
+	} else {
+	    var con = conjugate(other);
+	    var up = multiply(this, con);
 
-	var con = conjugate(other);
-	var up = multiply(this, con);
+	    // Down is guaranteed to be real by this point.
+	    var down = realPart(multiply(other, con));
 
-	// Down is guaranteed to be real by this point.
-	var down = realPart(multiply(other, con));
-
-	var result = Complex.makeInstance(
-	    divide(realPart(up), down),
-	    divide(imaginaryPart(up), down));
-	return result;
+	    var result = Complex.makeInstance(
+		divide(realPart(up), down),
+		divide(imaginaryPart(up), down));
+	    return result;
+	}
     };
 
     Complex.prototype.conjugate = function(){
 	var result = Complex.makeInstance(
 	    this.r,
-	    subtract(0,
-		     this.i));
+	    subtract(0, this.i));
 
 	return result;
     };
@@ -6338,7 +6376,8 @@ var jsnums = {};
 	// http://en.wikipedia.org/wiki/Newton's_method#Square_root_of_a_number
 	    var searchIter = function(n, guess) {
 		while(!(goodEnough(n, guess))) {
-		    guess = average(guess, floor(divide(n, guess)));
+		    guess = average(guess, 
+				    floor(divide(n, guess)));
 		}
 		return guess;
 	    };
@@ -6362,6 +6401,20 @@ var jsnums = {};
 						searchIter(tmpThis, tmpThis));
 		}
 	    };
+    })();
+
+
+    (function() {
+	// Get an approximation using integerSqrt, 
+	BigInteger.prototype.sqrt = function() {
+	    var approx = this.integerSqrt();
+	    if (eqv(sqr(approx), this)) {
+		return approx;
+	    }
+	    // TODO: get closer to the result by Newton's method if
+	    // we can do so by floating-point
+	    return approx;
+	}
     })();
 
 
@@ -6438,19 +6491,28 @@ var jsnums = {};
 
 
     //////////////////////////////////////////////////////////////////////
-    // toRepeatingDecimal: jsnum jsnum -> [string, string, string]
+    // toRepeatingDecimal: jsnum jsnum {limit: number}? -> [string, string, string]
     //
     // Given the numerator and denominator parts of a rational,
     // produces the repeating-decimal representation, where the first
     // part are the digits before the decimal, the second are the
     // non-repeating digits after the decimal, and the third are the
     // remaining repeating decimals.
+    // 
+    // An optional limit on the decimal expansion can be provided, in which
+    // case the search cuts off if we go past the limit.
+    // If this happens, the third argument returned becomes '...' to indicate
+    // that the search was prematurely cut off.
     var toRepeatingDecimal = (function() {
-	var getResidue = function(r, d) {
+	var getResidue = function(r, d, limit) {
 	    var digits = [];
 	    var seenRemainders = {};
 	    seenRemainders[r] = true;
 	    while(true) {	
+		if (limit-- <= 0) {
+		    return [digits.join(''), '...']
+		}
+
 		var nextDigit = quotient(
 		    multiply(r, 10), d);
 		var nextRemainder = remainder(
@@ -6496,7 +6558,12 @@ var jsnums = {};
 
 	};
 
-	return function(n, d) {
+	return function(n, d, options) {
+	    // default limit on decimal expansion; can be overridden
+	    var limit = 512;
+	    if (options && typeof(options.limit) !== 'undefined') {
+		limit = options.limit;
+	    }
 	    if (! isInteger(n)) {
 		throwRuntimeError('toRepeatingDecimal: n ' + n.toString() +
 				  " is not an integer.");
@@ -6514,7 +6581,7 @@ var jsnums = {};
  	    var sign = (lessThan(n, 0) ? "-" : "");
  	    n = abs(n);
  	    var beforeDecimalPoint = sign + quotient(n, d);
- 	    var afterDecimals = getResidue(remainder(n, d), d);
+ 	    var afterDecimals = getResidue(remainder(n, d), d, limit);
  	    return [beforeDecimalPoint].concat(afterDecimals);
 	};
     })();
@@ -8139,10 +8206,14 @@ var numberToDomNode = function(n) {
 var rationalToDomNode = function(n) {
     var repeatingDecimalNode = document.createElement("span");
     var chunks = jsnums.toRepeatingDecimal(jsnums.numerator(n),
-					   jsnums.denominator(n));
+					   jsnums.denominator(n),
+					   {limit: 25});
     repeatingDecimalNode.appendChild(document.createTextNode(chunks[0] + '.'))
     repeatingDecimalNode.appendChild(document.createTextNode(chunks[1]));
-    if (chunks[2] !== '0') {
+    if (chunks[2] === '...') {
+	repeatingDecimalNode.appendChild(
+	    document.createTextNode(chunks[2]));
+    } else if (chunks[2] !== '0') {
 	var overlineSpan = document.createElement("span");
 	overlineSpan.style.textDecoration = 'overline';
 	overlineSpan.appendChild(document.createTextNode(chunks[2]));
