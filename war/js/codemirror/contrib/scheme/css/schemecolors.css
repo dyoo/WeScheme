@@ -12,6 +12,11 @@ html:hover{
        background:     white url(/css/images/fadeWords.png) no-repeat right bottom fixed;
 }
 
+@media only screen 
+and (min-device-width : 320px) 
+and (max-device-width : 480px) {
+	html, html:hover{background: white;}
+}
 
 .editbox {
   width: 100%;
