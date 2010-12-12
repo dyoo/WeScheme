@@ -10,8 +10,10 @@
     <jsp:include page="/google-analytics.jsp"/>
 
 
-    <link rel="stylesheet" type="text/css" href="/css/default.css"
-	  id="style" />
+    <link rel="stylesheet" type="text/css" href="/css/default.css" 
+		media="only screen and (min-width : 640px)" />
+	<link rel="stylesheet" type="text/css" href="/css/phone.css" 
+		media="only screen and (min-device-width : 320px) and (max-device-width : 480px)" >
 
     <link rel="stylesheet" type="text/css" href="/css/codemirror.css"
 	  id="style" />
