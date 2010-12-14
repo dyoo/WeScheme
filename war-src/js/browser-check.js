@@ -56,8 +56,8 @@ goog.require('plt.wescheme.cookies');
 	dialogWindow.append(jQuery("<p/>").text(
 	    "You're using " + BrowserDetect.browser + " " + BrowserDetect.version + 
 		", but WeScheme needs " + browser + " >= " + minimumVersion + 
-		".  WeScheme <u>may</u> work for you, but we have not tested it!" + 
-		"For the best experience, please download <a href=\"http://www.google.com/chrome\">Google Chrome</a>."
+		".  WeScheme <u>may</u> work for you, but for the best experience, " + 
+		"please download <a href=\"http://www.google.com/chrome\">Google Chrome</a>."
 	));
 	dialogWindow.dialog({'title': 'Browser version check',
 			     'bgiframe' : true,
@@ -74,8 +74,8 @@ goog.require('plt.wescheme.cookies');
 	dialogWindow.append(jQuery("<p/>").text(
 		 "You're using " + BrowserDetect.browser + " " + BrowserDetect.version + 
 		 ", but WeScheme needs " + browser + " >= " + minimumVersion + 
-		 ".  WeScheme <u>may</u> work for you, but we have not tested it!" + 
-		 "For the best experience, please download <a href=\"http://www.google.com/chrome\">Google Chrome</a>."
+		".  WeScheme <u>may</u> work for you, but for the best experience, " + 
+		"please download <a href=\"http://www.google.com/chrome\">Google Chrome</a>."
 		 ));
 	dialogWindow.dialog({'title': 'Browser version check',
 			     'bgiframe' : true,
