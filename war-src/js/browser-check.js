@@ -54,10 +54,10 @@ goog.require('plt.wescheme.cookies');
     var warnBrowserMightBeOlderThanExpected = function(browser, minimumVersion) {
 	var dialogWindow = (jQuery("<div/>"));
 	dialogWindow.append(jQuery("<p/>").text(
-	    "WeScheme detects that you're using " + BrowserDetect.browser + " " + 
-		BrowserDetect.version + ", but WeScheme needs " + browser + " >= " +
-		minimumVersion + ".  WeScheme may still continue to work on your browser, but we " +
-		"have not tested it."
+	    "You're using " + BrowserDetect.browser + " " + BrowserDetect.version + 
+		", but WeScheme needs " + browser + " >= " + minimumVersion + 
+		".  WeScheme <u>may</u> work for you, but we have not tested it!" + 
+		"For the best experience, please download <a href=\"http://www.google.com/chrome\">Google Chrome</a>."
 	));
 	dialogWindow.dialog({'title': 'Browser version check',
 			     'bgiframe' : true,
@@ -72,11 +72,11 @@ goog.require('plt.wescheme.cookies');
     var warnBrowserMightNotWork = function() {
 	var dialogWindow = (jQuery("<div/>"));
 	dialogWindow.append(jQuery("<p/>").text(
-	    "WeScheme detects that you're using " + BrowserDetect.browser + " " + 
-		BrowserDetect.version + " but WeScheme has only been tested on Chrome >=5 " +
-		"and Firefox >= 3.6.  WeScheme may still continue to work on your browser, but we " +
-		"have not tested it."
-	));
+		 "You're using " + BrowserDetect.browser + " " + BrowserDetect.version + 
+		 ", but WeScheme needs " + browser + " >= " + minimumVersion + 
+		 ".  WeScheme <u>may</u> work for you, but we have not tested it!" + 
+		 "For the best experience, please download <a href=\"http://www.google.com/chrome\">Google Chrome</a>."
+		 ));
 	dialogWindow.dialog({'title': 'Browser version check',
 			     'bgiframe' : true,
 			     'modal' : true,
