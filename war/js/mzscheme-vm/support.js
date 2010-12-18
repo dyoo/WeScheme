@@ -8245,6 +8245,7 @@ var rationalToDomNode = function(n) {
 	fractionalNode.style['display'] = 
 	    (!showingRepeating ? 'inline' : 'none')
     };
+    numberNode.style['cursor'] = 'hand';
     return numberNode;
 
 };
