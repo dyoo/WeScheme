@@ -16701,7 +16701,13 @@ PRIMITIVES['key=?'] =
 		 2,
 		 false, false,
 		 function(key1, key2) {
-		 	return (key1.toString().toLowerCase() === key2.toString().toLowerCase());
+		     if (types.isChar(key1)) {
+			 key1 = key1.getValue();
+		     }
+		     if (types.isChar(key2)) {
+			 key2 = key2.getValue();
+		     }
+		     return (key1.toString().toLowerCase() === key2.toString().toLowerCase());
 		 });
 
 
@@ -17524,7 +17530,7 @@ new PrimProc('text/font',
 										   aWeight.toString(), aUnderline);
 			 });
 
-
+PRIMITIVES['bitmap'] = 
 PRIMITIVES['image-url'] =
     new PrimProc('image-url',
 		 1,
@@ -18373,7 +18379,7 @@ PRIMITIVES['js-select'] =
 
 
 
-
+PRIMITIVES['big-bang'] =
 PRIMITIVES['js-big-bang'] =
     new PrimProc('js-big-bang',
 		 1,
