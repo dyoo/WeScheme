@@ -10373,37 +10373,50 @@ VideoImage.prototype.isEqual = function(other, aUnionFind) {
 // OverlayImage: image image placeX placeY -> image
 // Creates an image that overlays img1 on top of the
 // other image. 
-var OverlayImage = function(img1, img2, placeX, placeY) {
+    var OverlayImage = function(img1, img2, placeX, placeY) {
 	// calculate centers using width/height, so we are scene/image agnostic
 	var c1x = img1.getWidth()/2;
 	var c1y = img1.getHeight()/2; 
 	var c2x = img2.getWidth()/2;
 	var c2y = img2.getHeight()/2;
+	var X, Y;
+
 
 	// keep absolute X and Y values
 	// convert relative X,Y to absolute amounts
 	// we also handle "beside" and "above"
-	if		(placeX == "left"  )  var X = (c1x>c2x)? img2.getWidth()-(c1x+c2x) : img1.getWidth()-(c1x+c2x);
-	else if (placeX == "right" )  var X = (c1x>c2x)? img1.getWidth()-(c1x+c2x) : img2.getWidth()-(c1x+c2x);
-	else if (placeX == "beside")  var X = c1x+c2x;
+	if (placeX == "right")
+	    X = (c1x>c2x)? img2.getWidth()-(c1x+c2x) : img1.getWidth()-(c1x+c2x);
+	else if (placeX == "left") 
+	    X = (c1x>c2x)? img1.getWidth()-(c1x+c2x) : img2.getWidth()-(c1x+c2x);
+	else if (placeX == "beside")
+	    X = c1x+c2x;
 	else if (placeX == "middle" || 
-			 placeX == "center")  var X = 0;
-	else						  var X = placeX;
+		 placeX == "center")
+	    X = 0;
+	else
+	    X = placeX;
 	
-	if		(placeY == "top"   )  var Y = (c1y>c2y)? img2.getHeight()-(c1y+c2y) : img1.getHeight()-(c1y+c2y);
-	else if (placeY == "bottom")  var Y = (c1y>c2y)? img1.getHeight()-(c1y+c2y) : img2.getHeight()-(c1y+c2y);
-	else if (placeY == "above" )  var Y = c1y+c2y;
-	else if (placeY == "baseline") var Y= img1.getBaseline()-img2.getBaseline();
-	else if (placeY == "middle" || 
-			 placeY == "center")  var Y = 0;
-	else						  var Y = placeY;
+	if (placeY == "bottom")
+	    Y = (c1y>c2y)? img2.getHeight()-(c1y+c2y) : img1.getHeight()-(c1y+c2y);
+	else if (placeY == "top")
+	    Y = (c1y>c2y)? img1.getHeight()-(c1y+c2y) : img2.getHeight()-(c1y+c2y);
+	else if (placeY == "above")
+	    Y = c1y+c2y;
+	else if (placeY == "baseline")
+	    Y = img1.getBaseline()-img2.getBaseline();
+	else if (placeY == "middle" || placeY == "center")
+	    Y = 0;
+	else
+	    Y = placeY;
 	
+
 	// correct offsets when dealing with Scenes instead of images
 	if(isScene(img1)){
-		X = X + c1x; Y = Y + c1x;
+	    X = X + c1x; Y = Y + c1x;
 	}
 	if(isScene(img2)){
-		X = X - c2x; Y = Y - c2x;
+	    X = X - c2x; Y = Y - c2x;
 	}
 	
 	var deltaX	= img1.pinholeX - img2.pinholeX + X;
@@ -10413,18 +10426,18 @@ var OverlayImage = function(img1, img2, placeX, placeY) {
 	var top		= Math.min(0, deltaY);
 	var right	= Math.max(deltaX + img2.getWidth(), img1.getWidth());
 	var bottom	= Math.max(deltaY + img2.getHeight(), img1.getHeight());	
-    BaseImage.call(this, 
-		   Math.floor((right-left) / 2),
-		   Math.floor((bottom-top) / 2));
-    this.img1 = img1;
-    this.img2 = img2;
-    this.width = right - left;
-    this.height = bottom - top;
+	BaseImage.call(this, 
+		       Math.floor((right-left) / 2),
+		       Math.floor((bottom-top) / 2));
+	this.img1 = img1;
+	this.img2 = img2;
+	this.width = right - left;
+	this.height = bottom - top;
 
-    this.img1Dx = -left;
-    this.img1Dy = -top;
-    this.img2Dx = deltaX - left;	
-    this.img2Dy = deltaY - top;
+	this.img1Dx = -left;
+	this.img1Dy = -top;
+	this.img2Dx = deltaX - left;	
+	this.img2Dy = deltaY - top;
 };
 
 OverlayImage.prototype = heir(BaseImage.prototype);
@@ -11242,11 +11255,11 @@ var LineImage = function(x, y, color, normalPinhole) {
     this.width = Math.abs(x) + 1;
     this.height = Math.abs(y) + 1;
 	
-	// put the pinhle in the center of the image
-	if(normalPinhole){
-		this.pinholeX = this.width/2;
-		this.pinholeY = this.height/2;
-	}
+    // put the pinhle in the center of the image
+    if(normalPinhole){
+ 	this.pinholeX = this.width/2;
+ 	this.pinholeY = this.height/2;
+    }
 }
 
 LineImage.prototype = heir(BaseImage.prototype);
@@ -11254,7 +11267,8 @@ LineImage.prototype = heir(BaseImage.prototype);
 
 LineImage.prototype.render = function(ctx, xstart, ystart) {
     ctx.save();
-
+    ctx.beginPath();
+    ctx.strokeStyle = colorString(this.color);
     if (this.x >= 0) {
 	if (this.y >= 0) {
 	    ctx.moveTo(xstart, ystart);
@@ -11274,7 +11288,7 @@ LineImage.prototype.render = function(ctx, xstart, ystart) {
 	    ctx.lineTo(xstart, ystart);
 	}
     }
-    ctx.strokeStyle = colorString(this.color);
+    ctx.closePath();
     ctx.stroke();
     ctx.restore();
 };
@@ -17166,7 +17180,8 @@ PRIMITIVES['line'] =
 			}
 			var line = world.Kernel.lineImage(jsnums.toFixnum(x),
 							  jsnums.toFixnum(y),
-							  c);
+							  c,
+							  true);
 		        return line;
 		 });
 
@@ -17530,7 +17545,7 @@ new PrimProc('text/font',
 										   aWeight.toString(), aUnderline);
 			 });
 
-PRIMITIVES['bitmap'] = 
+PRIMITIVES['bitmap/url'] = 
 PRIMITIVES['image-url'] =
     new PrimProc('image-url',
 		 1,
