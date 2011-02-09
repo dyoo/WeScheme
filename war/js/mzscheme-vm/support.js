@@ -10961,6 +10961,8 @@ var maybeQuote = function(s) {
 
 //////////////////////////////////////////////////////////////////////
 // TextImage: String Number Color String String String String any/c -> Image
+//////////////////////////////////////////////////////////////////////
+// TextImage: String Number Color String String String String any/c -> Image
 var TextImage = function(msg, size, color, face, family, style, weight, underline) {	
     this.msg	= msg;
     this.size	= size;
@@ -10972,29 +10974,54 @@ var TextImage = function(msg, size, color, face, family, style, weight, underlin
 	this.underline	= underline;
 	// example: "bold italic 20px 'Times', sans-serif". 
 	// Default weight is "normal", face is "Optimer"
-    this.font	= this.weight + " " + this.style + " " + this.size + "px "+ maybeQuote(this.face) + " " +
-	maybeQuote(this.family);
-
     var canvas	= world.Kernel.makeCanvas(0, 0);
     var ctx		= canvas.getContext("2d");
-    ctx.font	= this.font;
+    this.font	= this.weight + " " + this.style + " " + this.size + "px "+ maybeQuote(this.face) + " " +
+	maybeQuote(this.family);
+    try {
+	ctx.font	= this.font;
+    } catch (e) {
+	this.fallbackOnFont();
+	ctx.font	= this.font;
+    }
     var metrics	= ctx.measureText(msg);
 	
     this.width	= metrics.width;
-    this.height	= ctx.measureText("m").width + 20;    // KLUDGE: I don't know how to get at the height.
+    this.height	= Number(this.size); //ctx.measureText("m").width + 20;    // KLUDGE: I don't know how to get at the height.
     BaseImage.call(this, Math.round(this.width/2), 0);// weird pinhole settings needed for "baseline" alignment
-	
 }
+
 
 TextImage.prototype = heir(BaseImage.prototype);
 
+TextImage.prototype.fallbackOnFont = function() {
+    // Defensive: if the browser doesn't support certain features, we
+    // reduce to a smaller feature set and try again.
+    this.font	= this.size + "px " + maybeQuote(this.family);    
+    var canvas	= world.Kernel.makeCanvas(0, 0);
+    var ctx	= canvas.getContext("2d");
+    ctx.font	= this.font;
+    var metrics	= ctx.measureText(this.msg);
+    this.width	= metrics.width;
+    // KLUDGE: I don't know how to get at the height.
+    this.height	= Number(this.size);//ctx.measureText("m").width + 20;
+};
+
+
 TextImage.prototype.render = function(ctx, x, y) {
     ctx.save();
-    ctx.font		= this.font;
+
     ctx.textAlign	= 'left';
     ctx.textBaseline= 'top';
     ctx.fillStyle	= colorString(this.color);
-    ctx.fillText(this.msg, x, y);
+    ctx.font		= this.font;
+    try { 
+	ctx.fillText(this.msg, x, y); 
+    } catch (e) {
+	this.fallbackOnFont();
+	ctx.font		= this.font;	
+	ctx.fillText(this.msg, x, y); 
+    }
 	if(this.underline){
 		ctx.beginPath();
 		ctx.moveTo(x, y+this.size);
@@ -11006,6 +11033,7 @@ TextImage.prototype.render = function(ctx, x, y) {
 	}
     ctx.restore();
 };
+
 
 TextImage.prototype.getBaseline = function() {
     return this.size;
