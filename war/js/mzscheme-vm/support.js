@@ -10952,6 +10952,13 @@ PolygonImage.prototype.isEqual = function(other, aUnionFind) {
 };
 
 
+var maybeQuote = function(s) {
+    if (/ /.test(s)) {
+	return "\"" + s + "\"";
+    }
+    return s;
+}
+
 //////////////////////////////////////////////////////////////////////
 // TextImage: String Number Color String String String String any/c -> Image
 var TextImage = function(msg, size, color, face, family, style, weight, underline) {	
@@ -10965,7 +10972,8 @@ var TextImage = function(msg, size, color, face, family, style, weight, underlin
 	this.underline	= underline;
 	// example: "bold italic 20px 'Times', sans-serif". 
 	// Default weight is "normal", face is "Optimer"
-    this.font	= this.weight + " " + this.style + " " + this.size + "px '"+ this.face + "' " + this.family;
+    this.font	= this.weight + " " + this.style + " " + this.size + "px "+ maybeQuote(this.face) + " " +
+	maybeQuote(this.family);
 
     var canvas	= world.Kernel.makeCanvas(0, 0);
     var ctx		= canvas.getContext("2d");
