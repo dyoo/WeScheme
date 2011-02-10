@@ -10997,8 +10997,6 @@ var TextImage = function(msg, size, color, face, family, style, weight, underlin
 	this.height	= Number(this.size); 
     } catch(e) {
 	this.fallbackOnFont();
-	ctx.font = this.font;
-	metrics	= ctx.measureText(msg);
     }
     BaseImage.call(this, Math.round(this.width/2), 0);// weird pinhole settings needed for "baseline" alignment
 }
