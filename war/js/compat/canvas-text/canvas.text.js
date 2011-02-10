@@ -199,6 +199,7 @@ window.Canvas.Text = {
     for (i = 0; i < families.length; i++) {
       // The iPhone adds "-webkit-" at the beginning
       if (face = this.getFace(families[i].toLowerCase().replace(/^-webkit-/, ""), weight, style.style)) {
+
         return face;
       }
     }

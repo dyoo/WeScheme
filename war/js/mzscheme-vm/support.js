@@ -10964,36 +10964,48 @@ var maybeQuote = function(s) {
 //////////////////////////////////////////////////////////////////////
 // TextImage: String Number Color String String String String any/c -> Image
 var TextImage = function(msg, size, color, face, family, style, weight, underline) {	
+    var metrics;
     this.msg	= msg;
     this.size	= size;
     this.color	= color;
-	this.face	= face;
-	this.family = family;
-	this.style	= (style == "slant")? "oblique" : style;  // Racket's "slant" -> CSS's "oblique"
-	this.weight	= (weight== "light")? "lighter" : weight; // Racket's "light" -> CSS's "lighter"
-	this.underline	= underline;
-	// example: "bold italic 20px 'Times', sans-serif". 
-	// Default weight is "normal", face is "Optimer"
+    this.face	= face;
+    this.family = family;
+    this.style	= (style == "slant")? "oblique" : style;  // Racket's "slant" -> CSS's "oblique"
+    this.weight	= (weight== "light")? "lighter" : weight; // Racket's "light" -> CSS's "lighter"
+    this.underline	= underline;
+    // example: "bold italic 20px 'Times', sans-serif". 
+    // Default weight is "normal", face is "Optimer"
     var canvas	= world.Kernel.makeCanvas(0, 0);
     var ctx		= canvas.getContext("2d");
-    this.font	= this.weight + " " + this.style + " " + this.size + "px "+ maybeQuote(this.face) + " " +
-	maybeQuote(this.family);
+    
+    this.font = (this.weight + " " +
+		 this.style + " " +
+		 this.size + "px " +
+		 maybeQuote(this.face) + " " +
+		 maybeQuote(this.family));
     try {
 	ctx.font	= this.font;
     } catch (e) {
 	this.fallbackOnFont();
 	ctx.font	= this.font;
     }
-    var metrics	= ctx.measureText(msg);
-	
-    this.width	= metrics.width;
-    this.height	= Number(this.size); //ctx.measureText("m").width + 20;    // KLUDGE: I don't know how to get at the height.
+    
+    // Defensive: on IE, this can break.
+    try {
+	metrics	= ctx.measureText(msg);
+	this.width	= metrics.width;
+	this.height	= Number(this.size); 
+    } catch(e) {
+	this.fallbackOnFont();
+	ctx.font = this.font;
+	metrics	= ctx.measureText(msg);
+    }
     BaseImage.call(this, Math.round(this.width/2), 0);// weird pinhole settings needed for "baseline" alignment
 }
-
+    
 
 TextImage.prototype = heir(BaseImage.prototype);
-
+    
 TextImage.prototype.fallbackOnFont = function() {
     // Defensive: if the browser doesn't support certain features, we
     // reduce to a smaller feature set and try again.
