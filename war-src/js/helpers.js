@@ -103,7 +103,14 @@ goog.provide("plt.wescheme.helpers");
 		       "http://www.facebook.com/sharer.php" + "?" + 
 		       encodeKeyPairs({u: url,
 				       t: title}));
-	return span;
+ 
+	// http://qrcode.kaywa.com/img.php
+	addBookmarklet("Barcode",
+				"/images/icon_qrcode.png",
+				"http://qrcode.kaywa.com/img.php" + "?" + 
+				   encodeKeyPairs({s: 8, u: url}));
+ 
+ return span;
     };
 
 

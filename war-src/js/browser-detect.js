@@ -17,7 +17,7 @@ plt.wescheme.BrowserDetect = {
 		this.browser = this.searchString(this.dataBrowser) || "An unknown browser";
 		this.version = this.searchVersion(navigator.userAgent)
 			|| this.searchVersion(navigator.appVersion)
-			|| "an unknown version";
+			|| "(version unknown)";
 		this.OS = this.searchString(this.dataOS) || "an unknown OS";
 	},
 	searchString: function (data) {
