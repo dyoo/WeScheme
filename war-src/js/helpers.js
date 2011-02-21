@@ -108,7 +108,7 @@ goog.provide("plt.wescheme.helpers");
 	addBookmarklet("Barcode",
 				"/images/icon_qrcode.png",
 				"http://qrcode.kaywa.com/img.php" + "?" + 
-				   encodeKeyPairs({s: 8, u: url}));
+				   encodeKeyPairs({s: 8, d: url}));
  
  return span;
     };
