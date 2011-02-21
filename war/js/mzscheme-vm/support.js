@@ -10560,7 +10560,7 @@ ScaleImage.prototype = heir(BaseImage.prototype);
 ScaleImage.prototype.render = function(ctx, x, y) {
     ctx.save();
     ctx.scale(this.xFactor, this.yFactor);
-    this.img.render(ctx, x, y);
+    this.img.render(ctx, x / this.xFactor, y / this.yFactor);
     ctx.restore();
 };
 
@@ -10619,12 +10619,12 @@ CropImage.prototype.isEqual = function(other, aUnionFind) {
 var FrameImage = function(img) {
     
     BaseImage.call(this, 
-				   Math.floor(img.getWidth()/ 2),
-				   Math.floor(img.getHeight()/ 2));
+		   Math.floor(img.getWidth()/ 2),
+		   Math.floor(img.getHeight()/ 2));
     
     this.img	= img;
-	this.width	= img.getWidth();
-	this.height = img.getHeight();
+    this.width	= img.getWidth();
+    this.height = img.getHeight();
 };
 
 FrameImage.prototype = heir(BaseImage.prototype);
@@ -11003,7 +11003,7 @@ var TextImage = function(msg, size, color, face, family, style, weight, underlin
     
 
 TextImage.prototype = heir(BaseImage.prototype);
-    
+
 TextImage.prototype.fallbackOnFont = function() {
     // Defensive: if the browser doesn't support certain features, we
     // reduce to a smaller feature set and try again.
