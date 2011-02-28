@@ -28,6 +28,8 @@
 	<li><a href="http://code.google.com/closure/">Closure</a> : Google's javascript compiler, library and template system.</li>
 	<li><a href="http://codemirror.net/">CodeMirror</a> : Marijn Haverbeke's fantastic library for in-browser editing.</li>
 </ul>
+<p/>
+The source to WeScheme itself is <a href="https://github.com/dyoo/WeScheme">available</> for download, under the <a href="http://www.gnu.org/copyleft/">GNU LGPL</a> license. 
 </div>
 
 
