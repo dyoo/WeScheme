@@ -48,17 +48,19 @@ goog.require('plt.wescheme.cookies');
 	Cookies.createCookie(COOKIE_NAME, COOKIE_VALUE);
     };
 
-
+	var linkText = "We recommend "+
+ 
     // warnBrowserMightBeOlderThanExpected: string number -> void
     // Bring up a modal dialog that warns the user if the browser has 
     var warnBrowserMightBeOlderThanExpected = function(browser, minimumVersion) {
 	var dialogWindow = (jQuery("<div/>"));
-	dialogWindow.append(jQuery("<p/>").text(
-	    "WeScheme detects that you're using " + BrowserDetect.browser + " " + 
+	dialogWindow.append(
+	    "<p>WeScheme detects that you're using " + BrowserDetect.browser + " " + 
 		BrowserDetect.version + ", but WeScheme needs " + browser + " >= " +
 		minimumVersion + ".  WeScheme may still continue to work on your browser, but we " +
-		"have not tested it."
-	));
+		"have not tested it. We recommend installing <a href=\"http://www.getfirefox.com\">Firefox</a> "+
+		"or <a href="\"http://www.google.com/chrome\">Chrome</a>."
+	);
 	dialogWindow.dialog({'title': 'Browser version check',
 			     'bgiframe' : true,
 			     'modal' : true,
@@ -71,11 +73,12 @@ goog.require('plt.wescheme.cookies');
 
     var warnBrowserMightNotWork = function() {
 	var dialogWindow = (jQuery("<div/>"));
-	dialogWindow.append(jQuery("<p/>").text(
+	dialogWindow.append(
 	    "WeScheme detects that you're using " + BrowserDetect.browser + " " + 
-		BrowserDetect.version + " but WeScheme has only been tested on Chrome >=5 " +
-		"and Firefox >= 3.6.  WeScheme may still continue to work on your browser, but we " +
-		"have not tested it."
+		BrowserDetect.version + " but WeScheme has only been tested on modern versions of " +
+		"<a href=\"http://www.getfirefox.com\">Firefox</a> or "+
+		"<a href="\"http://www.google.com/chrome\">Chrome</a>.  WeScheme may still continue "+
+		"to work on your browser, but we have not tested it."
 	));
 	dialogWindow.dialog({'title': 'Browser version check',
 			     'bgiframe' : true,
