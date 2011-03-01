@@ -95,6 +95,12 @@ var WeSchemeTextContainer;
 	return this.impl.setCode(normalizeString(code));
     };
 
+	 // reindent: void -> void
+	 WeSchemeTextContainer.prototype.reindent = function() {
+	 return this.impl.reindent();
+	 };
+ 
+ 
     WeSchemeTextContainer.prototype.highlight = function(id, offset, line, column, span) {
 	return this.impl.highlight(id, offset, line, column, span);
     };

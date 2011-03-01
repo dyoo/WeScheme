@@ -118,7 +118,18 @@ var initializeEditor;
 				});
 
 
-			    // Set up interactions afterwards.
+												   
+			   // Set up the the keymap for the definitions editor so it
+			   // pays attentions to ctrl-I.
+			   defnSourceContainer.addKeymap(
+				 function(event) {
+				 return (event.type == 'keydown' && event.keyCode === 73 && event.ctrl);
+				 },
+				 function(event) {
+				 defnSourceContainer.reindent();
+				 });
+			   
+												   // Set up interactions afterwards.
 			    jQuery("#interactions").click(function(e) {
 				myEditor.interactions.focusOnPrompt();
 				e.stopPropagation();
