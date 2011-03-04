@@ -48,7 +48,6 @@ goog.require('plt.wescheme.cookies');
 	Cookies.createCookie(COOKIE_NAME, COOKIE_VALUE);
     };
 
-	var linkText = "We recommend "+
 	
     // warnBrowserMightBeOlderThanExpected: string number -> void
     // Bring up a modal dialog that warns the user if the browser has 
@@ -78,8 +77,7 @@ goog.require('plt.wescheme.cookies');
 		BrowserDetect.version + " but WeScheme has only been tested on modern versions of " +
 		"<a href=\"http://www.getfirefox.com\">Firefox</a> or "+
 		"<a href='http://www.google.com/chrome'>Chrome</a>.  WeScheme may still continue "+
-		"to work on your browser, but we have not tested it."
-	));
+		"to work on your browser, but we have not tested it.");
     dialogWindow.dialog({'title': 'Browser version check',
 			 'bgiframe' : true,
 			 'modal' : true,
@@ -90,7 +88,8 @@ goog.require('plt.wescheme.cookies');
 };
 
  
-    // for debugging
+    // Debugging hooks.  These are not going to be normally used, but
+    // are at least accessible from a debugging console.
     BrowserDetect.debug = {};
     BrowserDetect.debug.warn1 = warnBrowserMightBeOlderThanExpected;
     BrowserDetect.debug.warn2 = warnBrowserMightNotWork;
