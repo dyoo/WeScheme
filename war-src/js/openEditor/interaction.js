@@ -249,7 +249,7 @@ WeSchemeInteractions = (function () {
 		return result;
 	    },
 	    compilationServletUrl: "/compile",
-	    scriptCompilationServletUrl: "http://go.cs.brown.edu:8000/servlets/standalone.ss"
+	    scriptCompilationServletUrl: "http://moby-compiler.cs.brown.edu/servlets/standalone.ss"
 	});
 	evaluator.makeToplevelNode = function() {
 	    var dialog = jQuery("<div/>");
