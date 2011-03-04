@@ -17,7 +17,7 @@
 
 </head>
 <body>
-<h1>WeScheme</h1><img src="/css/images/BigLogo.png" width="20%">
+<h1>WeScheme</h1><a href="/" class="headerlink"><img src="/css/images/BigLogo.png" width="20%"></a>
 <h2>Talk to us!</h2>
 <div id="text">
 <ul>

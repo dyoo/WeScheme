@@ -17,7 +17,7 @@
 
 </head>
 <body>
-<h1>WeScheme</h1><img src="/css/images/BigLogo.png" width="20%">
+<h1>WeScheme</h1><a href="/" class="headerlink"><img src="/css/images/BigLogo.png" width="20%"></a>
 <h2>is available under the GNU LGPL (Copyleft) License</h2>
 <div id="text">
 	More information can be found at the <a href="http://www.gnu.org/copyleft/">GNU LGPL page</a>.

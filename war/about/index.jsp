@@ -17,7 +17,7 @@
 
 </head>
 <body>
-<h1>WeScheme</h1><img src="/css/images/BigLogo.png" width="20%">
+<h1>WeScheme</h1><a href="/" class="headerlink"><img src="/css/images/BigLogo.png" width="20%"></a>
 <h2>makes use of...</h2>
 <div id="text">
 <ul>
@@ -26,7 +26,10 @@
 	<li><a href="http://code.google.com/p/ie7-js/">ie7-js</a> : Dean Edwards' excellent javascript library, which allows us to ignore many of the cross-browser issues associated with supporting IE6 and 7. </li>
 	<li><a href="http://excanvas.sourceforge.net/">ExCanvas</a> : Google's javascript library that provides a Canvas implementation on browsers which do not support it (IE). </li>
 	<li><a href="http://code.google.com/closure/">Closure</a> : Google's javascript compiler, library and template system.</li>
+	<li><a href="http://codemirror.net/">CodeMirror</a> : Marijn Haverbeke's fantastic library for in-browser editing.</li>
 </ul>
+<p/>
+The source to WeScheme itself is <a href="https://github.com/dyoo/WeScheme">available</> for download, under the <a href="http://www.gnu.org/copyleft/">GNU LGPL</a> license. 
 </div>
 
 
