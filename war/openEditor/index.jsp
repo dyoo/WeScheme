@@ -10,6 +10,7 @@
     <jsp:include page="/google-analytics.jsp"/>
 
 
+    <!-- Stylesheets for Non-IE Browsers which follow @media queries -->
     <link rel="stylesheet" type="text/css" href="/css/default.css" 
 		media="only screen and (min-width : 640px)" />
 	<link rel="stylesheet" type="text/css" href="/css/phone.css" 

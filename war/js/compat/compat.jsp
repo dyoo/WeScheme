@@ -38,3 +38,7 @@
 <script src="/js/compat/XMLHttpRequest.js"></script>
 
 
+
+<!--[if IE]>
+	<link rel="stylesheet" type="text/css" href="/css/default" >
+<![endif]-->
