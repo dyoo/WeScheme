@@ -7446,43 +7446,48 @@ Cons.prototype.append = function(b){
 
 Cons.prototype.toWrittenString = function(cache) {
     //    cache.put(this, true);
-    var texts = [];
+    var texts = ["list"];
     var p = this;
     while ( p instanceof Cons ) {
 	texts.push(toWrittenString(p.first(), cache));
 	p = p.rest();
     }
     if ( p !== Empty.EMPTY ) {
-	texts.push('.');
-	texts.push(toWrittenString(p, cache));
+	// If not a list, we've got to switch over to cons pair
+	// representation.
+	return explicitConsString(this, cache, toWrittenString);
     }
-//    while (true) {
-//	if ((!(p instanceof Cons)) && (!(p instanceof Empty))) {
-//	    texts.push(".");
-//	    texts.push(toWrittenString(p, cache));
-//	    break;
-//	}
-//	if (p.isEmpty())
-//	    break;
-//	texts.push(toWrittenString(p.first(), cache));
-//	p = p.rest();
-//    }
     return "(" + texts.join(" ") + ")";
 };
+
+var explicitConsString = function(p, cache, f) {
+    var texts = [];
+    var tails = []
+    while ( p instanceof Cons ) {
+	texts.push("(cons ");
+	texts.push(f(p.first(), cache));
+	texts.push(" ");
+
+	tails.push(")");
+	p = p.rest();
+    }
+    texts.push(f(p, cache));
+    return (texts.join("") + tails.join(""));
+};
+
 
 Cons.prototype.toString = Cons.prototype.toWrittenString;
 
 Cons.prototype.toDisplayedString = function(cache) {
     //    cache.put(this, true);
-    var texts = [];
+    var texts = ["list"];
     var p = this;
     while ( p instanceof Cons ) {
 	texts.push(toDisplayedString(p.first(), cache));
 	p = p.rest();
     }
     if ( p !== Empty.EMPTY ) {
-	texts.push('.');
-	texts.push(toDisplayedString(p, cache));
+	return explicitConsString(this, cache, toDisplayedString);
     }
 //    while (true) {
 //	if ((!(p instanceof Cons)) && (!(p instanceof Empty))) {
@@ -7504,6 +7509,8 @@ Cons.prototype.toDomNode = function(cache) {
     //    cache.put(this, true);
     var node = document.createElement("span");
     node.appendChild(document.createTextNode("("));
+    node.appendChild(document.createTextNode("list"));
+    node.appendChild(document.createTextNode(" "));
     var p = this;
     while ( p instanceof Cons ) {
 	appendChild(node, toDomNode(p.first(), cache));
@@ -7513,28 +7520,30 @@ Cons.prototype.toDomNode = function(cache) {
 	}
     }
     if ( p !== Empty.EMPTY ) {
-	appendChild(node, document.createTextNode("."));
-	appendChild(node, document.createTextNode(" "));
-	appendChild(node, toDomNode(p, cache));
+	return explicitConsDomNode(this, cache);
     }
-//    while (true) {
-//	if ((!(p instanceof Cons)) && (!(p instanceof Empty))) {
-//	    appendChild(node, document.createTextNode(" "));
-//	    appendChild(node, document.createTextNode("."));
-//	    appendChild(node, document.createTextNode(" "));
-//	    appendChild(node, toDomNode(p, cache));
-//	    break;
-//	}
-//	if (p.isEmpty())
-//	    break;
-//	appendChild(node, toDomNode(p.first(), cache));
-//	p = p.rest();
-//	if (! p.isEmpty()) {
-//	    appendChild(node, document.createTextNode(" "));
-//	}
-//    }
     node.appendChild(document.createTextNode(")"));
     return node;
+};
+
+var explicitConsDomNode = function(p, cache) {
+    var topNode = document.createElement("span");
+    var node = topNode;
+    while ( p instanceof Cons ) {
+	node.appendChild(document.createTextNode("("));
+	node.appendChild(document.createTextNode("cons"));
+	node.appendChild(document.createTextNode(" "));
+	appendChild(node, toDomNode(p.first(), cache));
+	node.appendChild(document.createTextNode(" "));
+
+	var restSpan = document.createElement("span");
+	node.appendChild(restSpan);
+	node.appendChild(document.createTextNode(")"));
+	node = restSpan;
+	p = p.rest();
+    }
+    appendChild(node, toDomNode(p, cache));
+    return topNode;
 };
 
 
@@ -13342,7 +13351,7 @@ PRIMITIVES['for-each'] =
 		 2, 
 		 true, false,
 		 function(f, firstArg, arglists) {
-		 	var allArgs = [f, firstArg].concat(argList);
+		 	var allArgs = [f, firstArg].concat(arglists);
 		 	arglists.unshift(firstArg);
 			check(f, isFunction, 'for-each', 'procedure', 1, allArgs);
 			arrayEach(arglists, function(lst, i) {checkList(lst, 'for-each', i+2, allArgs);});
