@@ -42,7 +42,7 @@ var initializeEditor;
 	    return "Are you sure you want to leave the Editor? (all unsaved changes will be lost)";
 	}
 	if (warnOnExit) {
-	    document.body.onbeforeunload = doubleCheck;
+	    window.onbeforeunload = doubleCheck;
 	}
     };
 
