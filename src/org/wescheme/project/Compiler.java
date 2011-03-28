@@ -17,7 +17,7 @@ public class Compiler extends HttpServlet
 {
 	private static final long serialVersionUID = 6867416066840862239L;
 	
-	private static final String compilationServletURL = "http://go.cs.brown.edu:8000/servlets/standalone.ss";
+	private static final String compilationServletURL = "http://moby-compiler.cs.brown.edu/servlets/standalone.ss";
 	
 	public interface CompilationResult {	
 		boolean isBad();
