@@ -5,20 +5,15 @@
 //     this.plt.wescheme = {};
 // }
 
-
 goog.provide("plt.wescheme.WeSchemeInteractions");
-
 
 goog.require("plt.wescheme.topKeymap");
 goog.require("plt.wescheme.WeSchemeTextContainer");
 goog.require('plt.wescheme.tokenizer');
 
-
 var WeSchemeInteractions;
 
 WeSchemeInteractions = (function () {
-
-
 
     // WeSchemeInteractions: div (WeSchemeInteractions -> void) -> WeScheme
     function WeSchemeInteractions(interactionsDiv,
@@ -40,13 +35,24 @@ WeSchemeInteractions = (function () {
 		that.highlighter = function(id, offset, line, column, span) {
 		    // default highlighter does nothing.  Subclasses will specialize that.
 		};
+                
+                // Note: When starting a new prompt, the last element of
+                // "historyArray" is always an empty string, and "historyIndex"
+                // is the index of the last element in "historyArray".
+                // When recalling history, the last element of "historyArray"
+                // can be set to the line being edited (if different from the
+                // history it recalls), so that a user can back out of the
+                // history recall to return to the edited line.
+                prompt.historyArray = [""];
+                prompt.historyIndex = 0;
+                prompt.maxSavedHistory = 100;
+                
 		if (afterInit) { 
 		    afterInit(that);
 		}
 	    }
 	);
     };
-
 
     // reset: -> void
     // Clears out the interactions.
@@ -66,7 +72,6 @@ WeSchemeInteractions = (function () {
 // 	});
     };
 
-
     // clearLine: -> void
     // Make sure we're on a line that's clear of any floats.
     WeSchemeInteractions.prototype.clearLine = function() {
@@ -75,13 +80,10 @@ WeSchemeInteractions = (function () {
 	this.addToInteractions(clearDiv);
     };
 
-
     // Sets the text in the prompt.
     WeSchemeInteractions.prototype.setPromptText = function(t) {
 	this.prompt.setText(t);
     };
-
-
 
     //////////////////////////////////////////////////////////////////////
     var Prompt = function(interactions, parentDiv, K) {
@@ -102,6 +104,7 @@ WeSchemeInteractions = (function () {
 		that.textContainer = container;
 		container.addKeymap(
 		    function(event) {
+
 			// handle F5 especially
 			if (that.isRunEvent(event)) {
 			    return true;
@@ -111,12 +114,25 @@ WeSchemeInteractions = (function () {
 			if (that.isExpressionToEvaluateEvent(event)) {
 			    return true;
 			}
+
+                        if (that.isHistoryPreviousEvent(event)) {
+                            return true;
+                        }
+                        if (that.isHistoryNextEvent(event)) {
+                            return true;
+                        }
 			return false;
 		    },
 		    function(event) {
 			if (that.isExpressionToEvaluateEvent(event)) {
 			    that.onEvaluation();
 			    return false;
+                        } else if (that.isHistoryPreviousEvent(event)) {
+                            that.onHistoryPrevious();
+                            return false;
+                        } else if (that.isHistoryNextEvent(event)) {
+                            that.onHistoryNext();
+                            return false;
 			} else {
 			    return plt.wescheme.topKeymap(event);
 			}
@@ -129,6 +145,7 @@ WeSchemeInteractions = (function () {
     };
 
     Prompt.prototype.onEvaluation = function() {
+    	this.saveHistoryWithCleanup();
 	var that = this;
 	var nextCode = that.textContainer.getCode();
 	that.textContainer.setCode("");
@@ -170,7 +187,77 @@ WeSchemeInteractions = (function () {
 					      that.focus();
 					  });
 	    });
+    };
+
+    // TODO: historyPreviousIsOk and historyNextIsOk don't have to be methods.
+    
+    Prompt.prototype.historyPreviousIsOk = function(index, length) {
+    	return (index > 0);
+    };
+    
+    Prompt.prototype.historyNextIsOk = function(index, length) {
+    	return ((length - index) > 1);
+    }
+    
+    Prompt.prototype.onHistoryPrevious = function() {
+       	this.doHistory(-1, this.historyPreviousIsOk);
+    };
+
+    Prompt.prototype.onHistoryNext = function() {
+        this.doHistory(1, this.historyNextIsOk);
+    };
 	
+    Prompt.prototype.doHistory = function(increment, incrementIsOk) {
+        if (this.historyArray.length > 1) {
+        	var code = jQuery.trim(this.textContainer.getCode());
+        	if (code == this.historyArray[this.historyIndex]) {
+        		// The code *is* the same as the history slot, so do the increment if OK.
+        		if (incrementIsOk(this.historyIndex, this.historyArray.length)) {
+        			this.doHistoryPart2(increment);
+        		}
+        	} else {
+        		// The code is *not* the same as the history slot, so,
+        		// if increment will be OK if we update the last slot
+        		// with the current code, then update the last slot and
+        		// then do the increment.
+        		var tentativeIndex = (this.historyArray.length - 1);
+        		if (incrementIsOk(tentativeIndex, this.historyArray.length)) {
+                	this.historyIndex = tentativeIndex;
+            		this.historyArray[this.historyIndex] = code;
+	        		this.doHistoryPart2(increment);
+        		}
+        	}
+        }
+    };
+
+    Prompt.prototype.doHistoryPart2 = function(increment) {
+        this.historyIndex += increment;
+        this.textContainer.setCode(this.historyArray[this.historyIndex]);
+        // TODO: Put the cursor at the end instead.
+        this.textContainer.setCursorToBeginning();
+    };
+   
+    Prompt.prototype.saveHistoryWithCleanup = function() {
+    	var newEntry = jQuery.trim(this.textContainer.getCode());
+    	var lastIndex = (this.historyArray.length - 1);
+		this.historyArray[lastIndex] = newEntry;
+    	var prevEntry = ((lastIndex < 1) ? null : this.historyArray[lastIndex - 1]);
+    	if (prevEntry && (prevEntry == newEntry)) {
+    		// The new entry is the same as the previous, so fall through and let the new entry be reset to a blank.
+    	} else if (newEntry == "") {
+    		// New entry is already blank, so don't need to add a new one.
+    	} else {
+    		// Need to add a blank to historyArray, so shrink historyArray if necessary, and then add blank.
+			var shiftCount = Math.max(0, (this.historyArray.length - this.maxSavedHistory));
+    		while (shiftCount > 0) {
+    			this.historyArray.shift();
+    			shiftCount--;
+    		}
+    		// Note: We are setting lastIndex to one greater than the current last index, so that our use of it in as an array index in lhs of assignment below will result in appending to the array. 
+    		lastIndex = this.historyArray.length;
+		}
+		this.historyArray[lastIndex] = "";
+		this.historyIndex = lastIndex;
     };
 
     // isRunEvent: key-event -> boolean
@@ -182,6 +269,16 @@ WeSchemeInteractions = (function () {
     Prompt.prototype.isExpressionToEvaluateEvent = function(event) {
 	return (event.type === 'keydown' && event.keyCode === 13 &&
 		this.hasCompleteExpression());
+    };
+
+    // isHistoryPreviousEvent: key-event -> boolean
+    Prompt.prototype.isHistoryPreviousEvent = function(event) {
+      return (event.type == 'keydown' && event.keyCode == 80 && (event.altKey || event.ctrlKey));
+    };
+
+    // isHistoryNextEvent: key-event -> boolean
+    Prompt.prototype.isHistoryNextEvent = function(event) {
+      return (event.type == 'keydown' && event.keyCode == 78 && (event.altKey || event.ctrlKey));
     };
 
     // hasExpressionToEvaluate: -> boolean
@@ -214,7 +311,6 @@ WeSchemeInteractions = (function () {
 	this.textContainer.setCode("");
     };
 
-
     Prompt.prototype.getDiv = function() {
 	return this.div;
     };
@@ -222,7 +318,6 @@ WeSchemeInteractions = (function () {
     Prompt.prototype.hide = function() {
 	this.div.hide();
     };
-
 
     Prompt.prototype.show = function() {
 	this.div.show();
@@ -232,11 +327,8 @@ WeSchemeInteractions = (function () {
 	this.textContainer.focus();
 	this.interactions._scrollToBottom();
     };
+
     //////////////////////////////////////////////////////////////////////
-
-
-
-
 
     WeSchemeInteractions.prototype.makeFreshEvaluator = function() {
 	var that = this;
@@ -271,7 +363,7 @@ WeSchemeInteractions = (function () {
 	    dialog.append(innerArea);
 	    dialog.dialog("open");
 	    return innerArea.get(0);
-	}
+        };
 	return evaluator;
     };
 
@@ -280,30 +372,20 @@ WeSchemeInteractions = (function () {
 	this.prompt.focus();
     };
 
-
-
     WeSchemeInteractions.prototype.notifyBus = function(action, data) {
 	if (typeof plt.wescheme.WeSchemeIntentBus != 'undefined') {
 	    plt.wescheme.WeSchemeIntentBus.notify("after-reset", this);
 	}
     };
 
-
     WeSchemeInteractions.prototype.setSourceHighlighter = function(highlighter) {
 	this.highlighter = highlighter;
     };
-
-
-
-
-
 
     // Returns if x is a dom node.
     function isDomNode(x) {
 	return (x.nodeType != undefined);
     }
-
-
 
     // addToInteractions: string | dom-node -> void
     // Adds a note to the interactions.
@@ -329,8 +411,6 @@ WeSchemeInteractions = (function () {
 	    this.interactionsDiv.attr("scrollHeight"));
     };
 
-
-
     WeSchemeInteractions.prototype._transformDom = function(dom) {
 	if (helpers.isLocationDom(dom)) {
 	    return this._rewriteLocationDom(dom);
@@ -338,7 +418,6 @@ WeSchemeInteractions = (function () {
 	    return dom;
 	}
     };
-
 
     WeSchemeInteractions.prototype._rewriteLocationDom = function(dom) {
 	var newDom = document.createElement("span");
@@ -369,9 +448,6 @@ WeSchemeInteractions = (function () {
 					      span: parseInt(span) });
     };
 
-
-
-
     // Evaluate the source code and accumulate its effects.
     WeSchemeInteractions.prototype.runCode = function(aSource, sourceName, contK) {
 	this.notifyBus("before-run", this);
@@ -397,10 +473,6 @@ WeSchemeInteractions = (function () {
 	this.addToInteractions("\n");
     };
 
-
-
-
-
     // renderErrorAsDomNode: exception -> element
     // Given an exception, produces error dom node to be displayed.
     WeSchemeInteractions.prototype.renderErrorAsDomNode = function(err) {
@@ -414,7 +486,6 @@ WeSchemeInteractions = (function () {
 	    dom['className'] = 'moby-error';
 	    msg = this.evaluator.getMessageFromExn(err);
 	}
-
 
 	if (err.domMessage) {
 	    dom.appendChild(err.domMessage);
@@ -436,7 +507,6 @@ WeSchemeInteractions = (function () {
 
 	return dom;
     };
-
 
     // createLocationHyperlink: location (or dom undefined) -> paragraph-anchor-element
     // Produce a hyperlink that, when clicked, will jump to the given location on the editor.
@@ -460,37 +530,25 @@ WeSchemeInteractions = (function () {
 	return para;
     };
 
-
     var makeHighlighterLinkFunction = function(that, elt) {
 	return function() { 
 	    that.highlighter(elt.id, elt.offset, elt.line, elt.column, elt.span);
 	};
     };
 
-
-
     WeSchemeInteractions.prototype.disableInput = function() {
 	this.prompt.hide();
     };
-
 
     WeSchemeInteractions.prototype.enableInput = function() {
  	this.prompt.show();
     };
 
-
     WeSchemeInteractions.prototype.requestBreak = function() {
 	this.evaluator.requestBreak();
     };
 
-
     WeSchemeInteractions.prototype.toString = function() { return "WeSchemeInteractions()"; };
-
-
-
-
-
-
 
     //////////////////////////////////////////////////////////////////////
     var _idNum = 0;
@@ -498,9 +556,6 @@ WeSchemeInteractions = (function () {
 	return ("<interactions" + (_idNum++) + ">");
     }
     //////////////////////////////////////////////////////////////////////
-
-
-
 
     return WeSchemeInteractions;
 })();

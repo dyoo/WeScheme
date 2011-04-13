@@ -123,7 +123,7 @@ var WeSchemeTextContainer;
 		}
 	    }
 	    return true;
-	}
+	};
 	return { keyFilter: keyFilter,
 		 keyHandler: keyHandler };
     };
@@ -139,7 +139,9 @@ var WeSchemeTextContainer;
 	return this.impl.getCursorStartPosition();
     };
 
-
+     WeSchemeTextContainer.prototype.setCursorToBeginning = function() {
+         this.impl.setCursorToBeginning();
+     };
 
     //////////////////////////////////////////////////////////////////////
     var CodeMirrorImplementation = function(parent, options, onSuccess) {
@@ -276,6 +278,14 @@ var WeSchemeTextContainer;
 						 pos.character);
     };
 
+     CodeMirrorImplementation.prototype.setCursorToBeginning = function() {
+         // TODO: Is there a better way to do this?
+	var startHandleAndColumn = this.findHandleAndColumn(0);
+	this.editor.selectLines(startHandleAndColumn.handle,
+                                startHandleAndColumn.column,
+				startHandleAndColumn.handle,
+                                startHandleAndColumn.column);
+     };
 
     CodeMirrorImplementation.prototype.shutdown = function() {
     };
