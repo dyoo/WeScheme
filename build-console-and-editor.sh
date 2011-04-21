@@ -3,13 +3,19 @@
 ## Assumes closure-library is under $HOME/work/closure-library.
 ## We may want to include closure-library as one of the external
 ## submodules of WeScheme.
+# ClosureDir="${HOME}/work/closure-library"
+
+ClosureDir="$(dirname $(cd $(dirname $0) && pwd))/closure-library"
 
 build() {
     mkdir -p `dirname war/$2`
-    $HOME/work/closure-library/closure/bin/calcdeps.py  -i war-src/$1 -p $HOME/work/closure-library -p war-src -o script > war/$2    
+    "${ClosureDir}/closure/bin/calcdeps.py" \
+        -i war-src/$1 \
+        -p "$ClosureDir" \
+        -p war-src \
+        -o script \
+        > war/$2    
 }
-
-
 
 echo "Building test hello application: if this fails, something's wrong, and closure-library hasn't been installed"
 build js/hello.js js/hello-calc.js

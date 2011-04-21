@@ -223,7 +223,7 @@ var WeSchemeEditor;
     function insertEnabledB(aBooleanBehavior, jQueryNode) {
 	function f(v) {
 	    if (v) {
-		jQueryNode.removeAttr("disabled")
+		jQueryNode.removeAttr("disabled");
 	    } else {
 		jQueryNode.attr("disabled", "true");
 	    }
@@ -248,7 +248,7 @@ var WeSchemeEditor;
     // Returns true if the user has been logged in.
     WeSchemeEditor.prototype._getIsLoggedIn = function() {
 	return (this.userName && this.userName != 'null');
-    }
+    };
 
 
 
@@ -269,11 +269,11 @@ var WeSchemeEditor;
 
 	    that.savedE.sendEvent(true);
 	    plt.wescheme.WeSchemeIntentBus.notify("after-save", that);
-	}
+	};
 	var whenSaveBreaks = function() {
 	    alert("Unable to save");
 	    // FIXME
-	}
+	};
 
 	var onFirstSave = function() {
 	    that.actions.save(false, 
@@ -286,7 +286,7 @@ var WeSchemeEditor;
 //					"/openEditor?pid=" + encodeURIComponent(that.pid));
 				  },
 		 whenSaveBreaks);
-	}
+	};
 	var onUpdate = function() {
 	    that.actions.save(that.pid,
 		 that.filenameEntry.attr("value"),
@@ -497,7 +497,7 @@ var WeSchemeEditor;
     WeSchemeEditor.prototype._setIsOwner = function(v) {
 	this.isOwner = v;
 	this.isOwnerE.sendEvent(v);
-    }
+    };
 
 
     WeSchemeEditor.prototype.toString = function() { return "WeSchemeEditor()"; };
@@ -509,6 +509,7 @@ var WeSchemeEditor;
     // makeShareUrl: string -> string
     // Produces the sharing url
     function makeShareUrl(publicId) {
+      // TODO: This does not always explicitly return a value.
 	if (publicId != "") {
 	    var a = document.createElement("a");
 	    a.href = "/view?publicId=" + encodeURIComponent(publicId);
