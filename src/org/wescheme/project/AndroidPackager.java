@@ -1,68 +1,23 @@
 package org.wescheme.project;
 
-import javax.servlet.http.HttpServlet;
-
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
+import java.io.InputStream;
+import java.io.BufferedInputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.Set;
-import java.util.HashSet;
 
-public class Compiler extends HttpServlet
-{
-	private static final long serialVersionUID = 6867416066840862239L;
+import org.wescheme.project.Compiler.BadCompilationResult;
+import org.wescheme.project.Compiler.CompilationResult;
+import org.wescheme.project.Compiler.GoodCompilationResult;
+
+public class AndroidPackager {
 	
 	private static final String compilationServletURL = "http://moby-compiler.cs.brown.edu/servlets/standalone.ss";
-	
-	public interface CompilationResult {	
-		boolean isBad();
-		String getCompiledCode();
-		Set<String> getPermissions();
-		String getErrorMessage();
-	}
-	
-	public static class GoodCompilationResult implements CompilationResult {
-		private String compiledCode;
-		public GoodCompilationResult(String compiledCode) {
-			this.compiledCode = compiledCode;
-		}
-		public boolean isBad() { return false; }
-		public String getCompiledCode() { return this.compiledCode; }
-		public String getErrorMessage() { return null; }
-		public Set<String> getPermissions() { return new HashSet<String>(); }
-	}
-	
-	public static class BadCompilationResult implements CompilationResult {
-		private String errorMessage;
-		public BadCompilationResult(String errorMessage) {
-			this.errorMessage = errorMessage;
-		}
-		public boolean isBad() { return true; }
-		public String getCompiledCode() { throw new UnsupportedOperationException(); }
-		public String getErrorMessage() { return this.errorMessage; }
-		public Set<String> getPermissions() { throw new UnsupportedOperationException(); }
-	}
-	
-	
-	
-	public static ObjectCode compile(SourceCode src) {
-		CompilationResult result = Compiler.compile(src.getName(), src.toString());
-		if (result.isBad()) {
-			throw new RuntimeException(result.getErrorMessage());
-		} else {
-			return new ObjectCode(
-					result.getCompiledCode(),
-					result.getPermissions(),
-					false);
-		}
-	}
-	
+
 	/*
 	 * compile: SourceCode -> ObjectCode
 	 * Compiles the source code, using an external compilation server, and returns the compiled code.
@@ -73,7 +28,8 @@ public class Compiler extends HttpServlet
 			URL url = new URL(compilationServletURL);
 					
 			String data = "name=" + URLEncoder.encode(programName, "UTF-8") +
-					"&program=" + URLEncoder.encode(programSource, "UTF-8");
+			"&format=json"+
+			"&program=" + URLEncoder.encode(programSource, "UTF-8");
 					
 			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 			conn.setDoOutput(true);
@@ -82,8 +38,8 @@ public class Compiler extends HttpServlet
 			wr.flush();
 				
 			if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+				// FIXME: the content here is json and we need to parse it.
 				String compiledCode = readStream(conn.getInputStream());
-				// FIXME: use format json, grab the set of permissions too!
 				return new GoodCompilationResult(compiledCode);		
 			} else {
 				String errorMessage = readStream(conn.getErrorStream());
@@ -97,7 +53,6 @@ public class Compiler extends HttpServlet
 			throw new RuntimeException(e);
 		}
 	}
-
 	
 	private static String readStream(InputStream stream) {
 		BufferedInputStream bs = new BufferedInputStream(stream);
@@ -112,5 +67,6 @@ public class Compiler extends HttpServlet
 			throw new RuntimeException(e);
 		}
 	}
+	
 	
 }
