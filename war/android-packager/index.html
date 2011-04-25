@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html>
+<head>
+
+  <!-- war/js/mzscheme-vm/support.js -->
+  <script type="text/javascript" charset="utf-8" src="support.js"></script>
+  <!-- war/js/mzscheme-vm/evaluator.js -->
+  <script type="text/javascript" charset="utf-8" src="evaluator.js"></script>
+  <!-- war/js/mzscheme-vm/collections.js -->
+  <script type="text/javascript" charset="utf-8" src="collections.js"></script>
+
+  <!-- The program's bytecode will be written here, under the variable program.bytecode -->
+  <script type="text/javascript" charset="utf-8" src="program.js"></script>
+
+  <!-- war/android-packager/main.js -->
+  <script type="text/javascript" charset="utf-8" src="main.js"></script>
+</head>
+
+<body id="body" onload="main.onload();"
+                onunload="main.onunload();">
+
+<div id="loading">
+  Loading; please wait.
+</div>
+
+<div style="border-style: solid; border-width: thin">
+  <div id="jsworld-div"></div>
+</div>
+
+</body>
+</html>
