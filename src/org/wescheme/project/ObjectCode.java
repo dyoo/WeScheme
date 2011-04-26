@@ -14,6 +14,7 @@ import javax.servlet.ServletContext;
 import org.jdom.Element;
 import org.wescheme.util.XML;
 
+import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Key;
 
@@ -78,6 +79,7 @@ public class ObjectCode implements Serializable {
 
 	public void setObj(String obj) {
 		this.obj_ = new Text(obj);
+		this.androidPackage = null;
 	}
 
 	public void setPermissions(Set<String> perms) {
@@ -90,13 +92,14 @@ public class ObjectCode implements Serializable {
 
 	public AndroidPackage getAndroidPackage(ServletContext ctx, String name) {
 		if (this.androidPackage == null) {
+			// I want to do the build first, before assigning to this.androidPackage.
+			Blob newContent = AndroidPackager.createAndroidPackage(ctx,
+					name,
+					this.getObj(),
+					this.getPermissions());
 			this.androidPackage = new AndroidPackage();
 			this.androidPackage.setName(name);
-			this.androidPackage.setContent(
-					AndroidPackager.createAndroidPackage(ctx,
-							name,
-							this.getObj(),
-							this.getPermissions()));		
+			this.androidPackage.setContent(newContent);
 		}
 		return this.androidPackage;
 	}
