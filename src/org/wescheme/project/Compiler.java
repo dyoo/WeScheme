@@ -78,7 +78,6 @@ public class Compiler extends HttpServlet
      * Compiles the source code, using an external compilation server, and returns the compiled code.
      */
     public static CompilationResult compile(String programName, String programSource){
-        System.out.println("compile");
         try {
             URL url = new URL(compilationServletURL);
 					
