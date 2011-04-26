@@ -1,9 +1,6 @@
-
 goog.provide('plt.wescheme.WeSchemeTextContainer');
 
 goog.require('plt.wescheme.topKeymap');
-
-
 
 var WeSchemeTextContainer;
 
@@ -12,10 +9,8 @@ var WeSchemeTextContainer;
 // onchange attribute: called whenever the text changes, with this bound to the container.
 // 
 
-
-
 (function() {
-
+     
     // container: DIV
     // WARNING WARNING. 
     // There's a non-obvious assumption of the textarea implementation:
@@ -123,26 +118,37 @@ var WeSchemeTextContainer;
 		}
 	    }
 	    return true;
-	}
+	};
 	return { keyFilter: keyFilter,
 		 keyHandler: keyHandler };
     };
-
-
 
     WeSchemeTextContainer.prototype.focus = function() {
  	this.impl.focus();
     };
 
-
     WeSchemeTextContainer.prototype.getCursorStartPosition = function() {
 	return this.impl.getCursorStartPosition();
     };
 
+    WeSchemeTextContainer.prototype.setCursorToBeginning = function() {
+        this.impl.setCursorToBeginning();
+    };
 
+    WeSchemeTextContainer.prototype.setCursorToEnd = function() {
+        this.impl.setCursorToEnd();
+    };
 
     //////////////////////////////////////////////////////////////////////
+
     var CodeMirrorImplementation = function(parent, options, onSuccess) {
+
+        // Note: "parent" seems to be a "WeSchemeTextContainer".
+        //
+        // Note: "CodeMirrorImplementation.editor" is set by the "initCallback"
+        // of the "CodeMirror" created here, to the argument of the
+        // "initCallback".
+
 	var that = this;
 	this.behaviorE = receiverE();
 	this.behavior = startsWith(this.behaviorE, "");
@@ -276,7 +282,21 @@ var WeSchemeTextContainer;
 						 pos.character);
     };
 
+     CodeMirrorImplementation.prototype.setCursorToBeginning = function() {
+         // TODO: Is there a better way to do this?
+	var startHandleAndColumn = this.findHandleAndColumn(0);
+	this.editor.selectLines(startHandleAndColumn.handle,
+                                startHandleAndColumn.column,
+				startHandleAndColumn.handle,
+                                startHandleAndColumn.column);
+     };
 
+     CodeMirrorImplementation.prototype.setCursorToEnd = function() {
+         var editor = this.editor;
+         editor.selectLines(editor.lastLine(),
+                            editor.lineContent(editor.lastLine()).length);
+     };
+     
     CodeMirrorImplementation.prototype.shutdown = function() {
     };
 
@@ -326,7 +346,5 @@ var WeSchemeTextContainer;
 
 
 })();
-
-
 
 plt.wescheme.WeSchemeTextContainer = WeSchemeTextContainer;

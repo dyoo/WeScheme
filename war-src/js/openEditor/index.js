@@ -32,7 +32,7 @@ var initializeEditor;
 	maybeWarnOnExit(attrs.warnOnExit);
 	maybeHideHeaderAndFooter(attrs.hideHeader, attrs.hideFooter);
 	editorSetup(attrs, 
-		    function() { splitPaneSetup(attrs) });
+		    function() { splitPaneSetup(attrs); });
     };
 
 
@@ -40,7 +40,7 @@ var initializeEditor;
     var maybeWarnOnExit = function(warnOnExit) {
 	var doubleCheck = function(){
 	    return "Are you sure you want to leave the Editor? (all unsaved changes will be lost)";
-	}
+	};
 	if (warnOnExit) {
 	    document.body.onbeforeunload = doubleCheck;
 	}
@@ -89,7 +89,7 @@ var initializeEditor;
 			jQuery("#save").click(function() { myEditor.save(); });
 			jQuery("#share").click(function()  { myEditor.share(); });
 			jQuery("#logout").click(function() { submitPost("/logout"); });
-			jQuery("#bespinMode").click(function() { defnSourceContainer.setMode("bespin")});
+			jQuery("#bespinMode").click(function() { defnSourceContainer.setMode("bespin"); });
 
 
 			var afterLoad1 = function() {
@@ -98,7 +98,7 @@ var initializeEditor;
 			    } else {
 				afterLoad2();
 			    }
-			}
+			};
 
 			var afterLoad2 = function() {
 			    if (attrs.initialInteractionsText) {
@@ -151,7 +151,7 @@ var initializeEditor;
 
     var splitPaneSetup = function(attrs) {
 	if (attrs.hideDefinitions) {
-	    document.getElementById("interactions").style.height = "100%"
+	    document.getElementById("interactions").style.height = "100%";
 	    return;
 	}
 
@@ -160,7 +160,7 @@ var initializeEditor;
 	    return goog.dom.getElementsByTagNameAndClass(
 		'div', 'CodeMirror-wrapping',
 		document.getElementById("definitions"))[0];
-	}
+	};
 
 
 
