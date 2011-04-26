@@ -10,7 +10,7 @@ var WeSchemeTextContainer;
 // 
 
 (function() {
-     
+    
     // container: DIV
     // WARNING WARNING. 
     // There's a non-obvious assumption of the textarea implementation:
@@ -34,39 +34,6 @@ var WeSchemeTextContainer;
 	    });
 
     };
-
-//     // setMode: string (-> void) -> void
-//     WeSchemeTextContainer.prototype.setMode = function(mode,
-// 						       afterModeSwitch) {
-// 	var that = this;
-// 	if (mode == this.mode) {
-// 	    return;
-// 	} else {
-// 	    var code = this.getCode();
-// 	    this.impl.shutdown();
-// 	    jQuery(this.div).empty();
-	    
-// 	    var implementations = { textarea: TextareaImplementation,
-// 				    codemirror: CodeMirrorImplementation };
-
-// 	    var afterConstruction = function(impl) {
-// 		that.impl = impl;
-// 		that.mode = mode;
-// 		that.impl.setCode(code);
-
-// 		if (afterModeSwitch) { 
-// 		    afterModeSwitch(); 
-// 		}
-// 	    };
-
-// 	    if (implementations.hasOwnProperty(mode)) {
-// 		new implementations[mode](this, this.options, afterConstruction);
-// 	    } else {
-// 		throw new Error("Unknown mode " + mode);
-// 	    }
-
-// 	}
-//     }
 
 
     // Returns a behavior of the source code
@@ -282,21 +249,21 @@ var WeSchemeTextContainer;
 						 pos.character);
     };
 
-     CodeMirrorImplementation.prototype.setCursorToBeginning = function() {
-         // TODO: Is there a better way to do this?
+    CodeMirrorImplementation.prototype.setCursorToBeginning = function() {
+        // TODO: Is there a better way to do this?
 	var startHandleAndColumn = this.findHandleAndColumn(0);
 	this.editor.selectLines(startHandleAndColumn.handle,
                                 startHandleAndColumn.column,
 				startHandleAndColumn.handle,
                                 startHandleAndColumn.column);
-     };
+    };
 
-     CodeMirrorImplementation.prototype.setCursorToEnd = function() {
-         var editor = this.editor;
-         editor.selectLines(editor.lastLine(),
-                            editor.lineContent(editor.lastLine()).length);
-     };
-     
+    CodeMirrorImplementation.prototype.setCursorToEnd = function() {
+        var editor = this.editor;
+        editor.selectLines(editor.lastLine(),
+                           editor.lineContent(editor.lastLine()).length);
+    };
+    
     CodeMirrorImplementation.prototype.shutdown = function() {
     };
 
