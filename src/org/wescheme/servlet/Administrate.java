@@ -73,7 +73,7 @@ public class Administrate extends HttpServlet {
 
 			// First, build the program if it's already been built.
 			if (prog.hasBeenBuilt()) {
-				prog.build();
+				prog.build(this.getServletContext());
 			}
 
 		} finally {

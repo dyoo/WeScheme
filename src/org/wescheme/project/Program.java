@@ -10,6 +10,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PrimaryKey;
+import javax.servlet.ServletContext;
 
 import org.jdom.Element;
 import org.wescheme.util.CacheHelpers;
@@ -37,9 +38,11 @@ public class Program implements Serializable {
 	@Persistent
 	protected ObjectCode obj_;
 
+	protected AndroidPackage androidPackage;
+	
 	@Persistent
 	protected Boolean isSourcePublic;
-
+	
 	@Persistent
 	protected Boolean isDeleted;
 
@@ -136,12 +139,22 @@ public class Program implements Serializable {
 		updateTime();
 	}
 
-	public void build() {
+	public void build(ServletContext ctx) {
+		if (this.obj_ == null) { this.obj_ = new ObjectCode(); }
+		if (this.androidPackage == null) { this.androidPackage = new AndroidPackage(); }
 		ObjectCode newCode = 
 			org.wescheme.project.Compiler.compile(this.getSource());
-		if (this.obj_ == null) { this.obj_ = new ObjectCode(); }
+		
+		
 		this.obj_.setObj(newCode.getObj());
 		this.obj_.setPermissions(newCode.getPermissions());
+
+		this.androidPackage.setName(this.title_);
+		this.androidPackage.setContent(
+				AndroidPackager.createAndroidPackage(ctx,
+						this.title_,
+						newCode.getObj(),
+						newCode.getPermissions()));		
 		this.updateTime();
 	}
 

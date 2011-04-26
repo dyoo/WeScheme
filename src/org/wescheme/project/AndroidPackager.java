@@ -24,18 +24,23 @@ public class AndroidPackager {
 	
 	private static String packagingServletURL = "http://go.cs.brown.edu";
 	
-	/*
-	 * compile: SourceCode -> ObjectCode
-	 * Compiles the source code, using an external compilation server, and returns the compiled code.
+	/**
+	 * Creates an android package.
+	 * @param ctx ServletContext
+	 * @param programName String
+	 * @param programSource String
+	 * @param permissions Set<String> The list of android permissions this program needs.
+	 * @return
 	 */
-	public static Blob compile(ServletContext ctx, String programName, String programSource, Set<String> permissions){
+	public static Blob createAndroidPackage(ServletContext ctx, String programName, String programSource, Set<String> permissions){
 		try {
 			URL url = new URL(packagingServletURL);
 
 			String data = 
 				("n=" + URLEncoder.encode(programName, "UTF-8") + 
 						"&t=moby3" + 
-						"&" + makeResourceChunk("program.js", programSource) +
+						"&" + makeResourceChunk("program.js", 
+								"var program = {};\nprogram.bytecode=" + programSource + ";") +
 						"&" + makeResourceChunk("index.html", readStream(ctx.getResourceAsStream("/android-packager/index.html")))+
 						"&" + makeResourceChunk("main.js", readStream(ctx.getResourceAsStream("/android-packager/main.js")))+
 						"&" + makeResourceChunk("phonegap.js", readStream(ctx.getResourceAsStream("/android-packager/phonegap.js")))+
