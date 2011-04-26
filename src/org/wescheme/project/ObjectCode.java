@@ -9,6 +9,7 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
+import javax.servlet.ServletContext;
 
 import org.jdom.Element;
 import org.wescheme.util.XML;
@@ -27,9 +28,8 @@ public class ObjectCode implements Serializable {
 	@PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
     private Key key;
-
-	@Persistent
 	
+	@Persistent
 	private Text obj_;
 
 	@Persistent
@@ -37,6 +37,10 @@ public class ObjectCode implements Serializable {
 	
 	@Persistent
 	private boolean trusted_;
+
+	@Persistent
+	private AndroidPackage androidPackage;
+	
 	
 	public ObjectCode() {
 		this("", new HashSet<String>(), false);
@@ -84,6 +88,19 @@ public class ObjectCode implements Serializable {
 		return obj_.getValue();
 	}
 
+	public AndroidPackage getAndroidPackage(ServletContext ctx, String name) {
+		if (this.androidPackage == null) {
+			this.androidPackage = new AndroidPackage();
+			this.androidPackage.setName(name);
+			this.androidPackage.setContent(
+					AndroidPackager.createAndroidPackage(ctx,
+							name,
+							this.getObj(),
+							this.getPermissions()));		
+		}
+		return this.androidPackage;
+	}
+	
 	public Element toXML() {		
 		Element root = new Element("ObjectCode");
 		root.addContent(XML.makeElement("obj", obj_.getValue()));

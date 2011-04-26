@@ -37,8 +37,6 @@ public class Program implements Serializable {
 	protected String title_;
 	@Persistent
 	protected ObjectCode obj_;
-
-	protected AndroidPackage androidPackage;
 	
 	@Persistent
 	protected Boolean isSourcePublic;
@@ -140,21 +138,12 @@ public class Program implements Serializable {
 	}
 
 	public void build(ServletContext ctx) {
-		if (this.obj_ == null) { this.obj_ = new ObjectCode(); }
-		if (this.androidPackage == null) { this.androidPackage = new AndroidPackage(); }
+		ObjectCode obj = this.getObject();
 		ObjectCode newCode = 
 			org.wescheme.project.Compiler.compile(this.getSource());
 		
-		
-		this.obj_.setObj(newCode.getObj());
-		this.obj_.setPermissions(newCode.getPermissions());
-
-		this.androidPackage.setName(this.title_);
-		this.androidPackage.setContent(
-				AndroidPackager.createAndroidPackage(ctx,
-						this.title_,
-						newCode.getObj(),
-						newCode.getPermissions()));		
+		obj.setObj(newCode.getObj());
+		obj.setPermissions(newCode.getPermissions());
 		this.updateTime();
 	}
 
@@ -190,6 +179,9 @@ public class Program implements Serializable {
 	}
 
 	public ObjectCode getObject(){
+		if (this.obj_ == null) {
+			this.obj_ = new ObjectCode();
+		}
 		return obj_;
 	}
 
