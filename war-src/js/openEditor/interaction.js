@@ -57,32 +57,32 @@ WeSchemeInteractions = (function () {
     // reset: -> void
     // Clears out the interactions.
     WeSchemeInteractions.prototype.reset = function() {
-	var that = this;
-	this.notifyBus("before-reset", this);
-	this.evaluator = that.makeFreshEvaluator();
-	jQuery(this.previousInteractionsDiv).empty();
-	this.notifyBus("after-reset", that);
-	this.prompt.clear();
+        var that = this;
+        this.notifyBus("before-reset", this);
+        this.evaluator = that.makeFreshEvaluator();
+        jQuery(this.previousInteractionsDiv).empty();
+        this.notifyBus("after-reset", that);
+        this.prompt.clear();
 
-// 	// this.interactionsDiv.empty();
-// 	new Prompt(this, this.interactionsDiv, function(prompt) {
-// 	    that.prompt = prompt;
-// 	    that.interactionsDiv.append(that.prompt.getDiv());   
-	    
-// 	});
+//      // this.interactionsDiv.empty();
+//      new Prompt(this, this.interactionsDiv, function(prompt) {
+//          that.prompt = prompt;
+//          that.interactionsDiv.append(that.prompt.getDiv());   
+            
+//      });
     };
 
     // clearLine: -> void
     // Make sure we're on a line that's clear of any floats.
     WeSchemeInteractions.prototype.clearLine = function() {
-	var clearDiv = document.createElement("div");
-	clearDiv.style.clear = 'left';
-	this.addToInteractions(clearDiv);
+        var clearDiv = document.createElement("div");
+        clearDiv.style.clear = 'left';
+        this.addToInteractions(clearDiv);
     };
 
     // Sets the text in the prompt.
     WeSchemeInteractions.prototype.setPromptText = function(t) {
-	this.prompt.setText(t);
+        this.prompt.setText(t);
     };
 
     //////////////////////////////////////////////////////////////////////
@@ -206,69 +206,85 @@ WeSchemeInteractions = (function () {
     Prompt.prototype.onHistoryNext = function() {
         this.doHistory(1, this.historyNextIsOk);
     };
-	
+
     Prompt.prototype.doHistory = function(increment, incrementIsOk) {
         if (this.historyArray.length > 1) {
-        	var code = jQuery.trim(this.textContainer.getCode());
-        	if (code == this.historyArray[this.historyIndex]) {
-        		// The code *is* the same as the history slot, so do the increment if OK.
-        		if (incrementIsOk(this.historyIndex, this.historyArray.length)) {
-        			this.doHistoryPart2(increment);
-        		}
-        	} else {
-        		// The code is *not* the same as the history slot, so,
-        		// if increment will be OK if we update the last slot
-        		// with the current code, then update the last slot and
-        		// then do the increment.
-        		var tentativeIndex = (this.historyArray.length - 1);
-        		if (incrementIsOk(tentativeIndex, this.historyArray.length)) {
-                	this.historyIndex = tentativeIndex;
-            		this.historyArray[this.historyIndex] = code;
-	        		this.doHistoryPart2(increment);
-        		}
+            var code = jQuery.trim(this.textContainer.getCode());
+            if (code == this.historyArray[this.historyIndex]) {
+        	// The code *is* the same as the history slot, so do the increment if OK.
+        	if (incrementIsOk(this.historyIndex, this.historyArray.length)) {
+        	    this.doHistoryPart2(increment);
         	}
+            } else {
+        	// The code is *not* the same as the history slot, so,
+        	// if increment will be OK if we update the last slot
+        	// with the current code, then update the last slot and
+        	// then do the increment.
+        	var tentativeIndex = (this.historyArray.length - 1);
+        	if (incrementIsOk(tentativeIndex, this.historyArray.length)) {
+                    this.historyIndex = tentativeIndex;
+            	    this.historyArray[this.historyIndex] = code;
+	            this.doHistoryPart2(increment);
+        	}
+            }
         }
+
     };
 
     Prompt.prototype.doHistoryPart2 = function(increment) {
         this.historyIndex += increment;
         this.textContainer.setCode(this.historyArray[this.historyIndex]);
-        // TODO: Put the cursor at the end instead.
-        this.textContainer.setCursorToBeginning();
+        // TODO: !!! setCursorToEnd doesn't yet work.
+        this.textContainer.setCursorToEnd();
     };
    
     Prompt.prototype.saveHistoryWithCleanup = function() {
     	var newEntry = jQuery.trim(this.textContainer.getCode());
     	var lastIndex = (this.historyArray.length - 1);
-		this.historyArray[lastIndex] = newEntry;
+	this.historyArray[lastIndex] = newEntry;
     	var prevEntry = ((lastIndex < 1) ? null : this.historyArray[lastIndex - 1]);
     	if (prevEntry && (prevEntry == newEntry)) {
-    		// The new entry is the same as the previous, so fall through and let the new entry be reset to a blank.
+    	    // The new entry is the same as the previous, so fall through and
+    	    // let the new entry be reset to a blank.
     	} else if (newEntry == "") {
-    		// New entry is already blank, so don't need to add a new one.
+    	    // New entry is already blank, so don't need to add a new one.
     	} else {
-    		// Need to add a blank to historyArray, so shrink historyArray if necessary, and then add blank.
-			var shiftCount = Math.max(0, (this.historyArray.length - this.maxSavedHistory));
-    		while (shiftCount > 0) {
-    			this.historyArray.shift();
-    			shiftCount--;
-    		}
-    		// Note: We are setting lastIndex to one greater than the current last index, so that our use of it in as an array index in lhs of assignment below will result in appending to the array. 
-    		lastIndex = this.historyArray.length;
-		}
-		this.historyArray[lastIndex] = "";
-		this.historyIndex = lastIndex;
+    	    // Need to add a blank to historyArray, so shrink historyArray
+    	    // if necessary, and then add blank.
+	    var shiftCount = Math.max(0, (this.historyArray.length - this.maxSavedHistory));
+    	    while (shiftCount > 0) {
+    		this.historyArray.shift();
+    		shiftCount--;
+    	    }
+    	    // Note: We are setting lastIndex to one greater than the
+    	    // current last index, so that our use of it in as an array
+    	    // index in lhs of assignment below will result in appending to
+    	    // the array.
+    	    lastIndex = this.historyArray.length;
+	}
+	this.historyArray[lastIndex] = "";
+	this.historyIndex = lastIndex;
     };
-
+    
     // isRunEvent: key-event -> boolean
     Prompt.prototype.isRunEvent = function(event) {
-	return (event.type === 'keydown' && event.keyCode === 116);
+        return (event.type === 'keydown' && event.keyCode === 116);
     };
     
     // isExpressionToEvaluateEvent: key-event -> boolean
     Prompt.prototype.isExpressionToEvaluateEvent = function(event) {
-	return (event.type === 'keydown' && event.keyCode === 13 &&
-		this.hasCompleteExpression());
+        return (event.type === 'keydown' && event.keyCode === 13 &&
+                this.hasCompleteExpression());
+    };
+
+    // isHistoryPreviousEvent: key-event -> boolean
+    Prompt.prototype.isHistoryPreviousEvent = function(event) {
+      return (event.type == 'keydown' && event.keyCode == 80 && (event.altKey || event.ctrlKey));
+    };
+
+    // isHistoryNextEvent: key-event -> boolean
+    Prompt.prototype.isHistoryNextEvent = function(event) {
+      return (event.type == 'keydown' && event.keyCode == 78 && (event.altKey || event.ctrlKey));
     };
 
     // isHistoryPreviousEvent: key-event -> boolean
@@ -284,48 +300,48 @@ WeSchemeInteractions = (function () {
     // hasExpressionToEvaluate: -> boolean
     // Return true if the prompt contains a complete expression
     Prompt.prototype.hasCompleteExpression = function() {
-	var codePastCursor = this.textContainer.getCode(this.textContainer.getCursorStartPosition());
-	if (codePastCursor.match(new RegExp("[^\\s]"))) {
-	    return false;
-	}
-	var codeUpToCursor = this.textContainer.getCode(0, this.textContainer.getCursorStartPosition());
-	var tokens = plt.wescheme.tokenizer.tokenize(codeUpToCursor);
-	var nestingLevel = 0;
+        var codePastCursor = this.textContainer.getCode(this.textContainer.getCursorStartPosition());
+        if (codePastCursor.match(new RegExp("[^\\s]"))) {
+            return false;
+        }
+        var codeUpToCursor = this.textContainer.getCode(0, this.textContainer.getCursorStartPosition());
+        var tokens = plt.wescheme.tokenizer.tokenize(codeUpToCursor);
+        var nestingLevel = 0;
 
-	for (var i = 0; i < tokens.length; i++) {
-	    if (tokens[i].type === '(') {
-		nestingLevel++;
-	    } else if (tokens[i].type === ')') {
-		nestingLevel--;
-	    }
-	    if (nestingLevel < 0) { return false; }
-	}
-	return nestingLevel === 0;
+        for (var i = 0; i < tokens.length; i++) {
+            if (tokens[i].type === '(') {
+                nestingLevel++;
+            } else if (tokens[i].type === ')') {
+                nestingLevel--;
+            }
+            if (nestingLevel < 0) { return false; }
+        }
+        return nestingLevel === 0;
     };
 
     Prompt.prototype.setText = function(t) {
-	this.textContainer.setCode(t);
+        this.textContainer.setCode(t);
     };
 
     Prompt.prototype.clear = function() {
-	this.textContainer.setCode("");
+        this.textContainer.setCode("");
     };
 
     Prompt.prototype.getDiv = function() {
-	return this.div;
+        return this.div;
     };
 
     Prompt.prototype.hide = function() {
-	this.div.hide();
+        this.div.hide();
     };
 
     Prompt.prototype.show = function() {
-	this.div.show();
+        this.div.show();
     };
 
     Prompt.prototype.focus = function() {
-	this.textContainer.focus();
-	this.interactions._scrollToBottom();
+        this.textContainer.focus();
+        this.interactions._scrollToBottom();
     };
 
     //////////////////////////////////////////////////////////////////////
@@ -369,108 +385,108 @@ WeSchemeInteractions = (function () {
 
     
     WeSchemeInteractions.prototype.focusOnPrompt = function() {
-	this.prompt.focus();
+        this.prompt.focus();
     };
 
     WeSchemeInteractions.prototype.notifyBus = function(action, data) {
-	if (typeof plt.wescheme.WeSchemeIntentBus != 'undefined') {
-	    plt.wescheme.WeSchemeIntentBus.notify("after-reset", this);
-	}
+        if (typeof plt.wescheme.WeSchemeIntentBus != 'undefined') {
+            plt.wescheme.WeSchemeIntentBus.notify("after-reset", this);
+        }
     };
 
     WeSchemeInteractions.prototype.setSourceHighlighter = function(highlighter) {
-	this.highlighter = highlighter;
+        this.highlighter = highlighter;
     };
 
     // Returns if x is a dom node.
     function isDomNode(x) {
-	return (x.nodeType != undefined);
+        return (x.nodeType != undefined);
     }
 
     // addToInteractions: string | dom-node -> void
     // Adds a note to the interactions.
     WeSchemeInteractions.prototype.addToInteractions = function (interactionVal) {
-	var that = this;
-	this.notifyBus("before-add-to-interactions", this);
-	if (isDomNode(interactionVal)) {
-	    this.previousInteractionsDiv.appendChild(interactionVal);
-	} else {
-	    var newArea = jQuery("<div style='width: 100%'></div>");
-	    newArea.text(interactionVal);
-	    this.previousInteractionsDiv.appendChild(newArea.get(0));
-	}
-	this._scrollToBottom();
-	this.notifyBus("after-add-to-interactions", this);
+        var that = this;
+        this.notifyBus("before-add-to-interactions", this);
+        if (isDomNode(interactionVal)) {
+            this.previousInteractionsDiv.appendChild(interactionVal);
+        } else {
+            var newArea = jQuery("<div style='width: 100%'></div>");
+            newArea.text(interactionVal);
+            this.previousInteractionsDiv.appendChild(newArea.get(0));
+        }
+        this._scrollToBottom();
+        this.notifyBus("after-add-to-interactions", this);
     };
     
     
     
     WeSchemeInteractions.prototype._scrollToBottom = function() {
-	this.interactionsDiv.attr(
-	    "scrollTop", 
-	    this.interactionsDiv.attr("scrollHeight"));
+        this.interactionsDiv.attr(
+            "scrollTop", 
+            this.interactionsDiv.attr("scrollHeight"));
     };
 
     WeSchemeInteractions.prototype._transformDom = function(dom) {
-	if (helpers.isLocationDom(dom)) {
-	    return this._rewriteLocationDom(dom);
-	} else {
-	    return dom;
-	}
+        if (helpers.isLocationDom(dom)) {
+            return this._rewriteLocationDom(dom);
+        } else {
+            return dom;
+        }
     };
 
     WeSchemeInteractions.prototype._rewriteLocationDom = function(dom) {
-	var newDom = document.createElement("span");
-	var children = dom.children;
-	var offset, line, column, id, span;
-	for (var i = 0; i < children.length; i++) {
-	    var textBody = children[i].textContent || children[i].innerText;
-	    if (children[i]['className'] === 'location-id') {
-		id = textBody;
-	    }
-	    if (children[i]['className'] === 'location-offset') {
-		offset = textBody;
-	    }
-	    if (children[i]['className'] === 'location-line') {
-		line = textBody;
-	    }
-	    if (children[i]['className'] === 'location-column') {
-		column = textBody;
-	    }
-	    if (children[i]['className'] === 'location-span') {
-		span = textBody;
-	    }
-	}
-	return this.createLocationHyperlink({ id: id,
-					      offset: parseInt(offset),
-					      line: parseInt(line),
-					      column: parseInt(column),
-					      span: parseInt(span) });
+        var newDom = document.createElement("span");
+        var children = dom.children;
+        var offset, line, column, id, span;
+        for (var i = 0; i < children.length; i++) {
+            var textBody = children[i].textContent || children[i].innerText;
+            if (children[i]['className'] === 'location-id') {
+                id = textBody;
+            }
+            if (children[i]['className'] === 'location-offset') {
+                offset = textBody;
+            }
+            if (children[i]['className'] === 'location-line') {
+                line = textBody;
+            }
+            if (children[i]['className'] === 'location-column') {
+                column = textBody;
+            }
+            if (children[i]['className'] === 'location-span') {
+                span = textBody;
+            }
+        }
+        return this.createLocationHyperlink({ id: id,
+                                              offset: parseInt(offset),
+                                              line: parseInt(line),
+                                              column: parseInt(column),
+                                              span: parseInt(span) });
     };
 
     // Evaluate the source code and accumulate its effects.
     WeSchemeInteractions.prototype.runCode = function(aSource, sourceName, contK) {
-	this.notifyBus("before-run", this);
-	var that = this;
-	this.disableInput();
-	this.evaluator.executeProgram(sourceName,
-				      aSource,
-				      function() { 
-					  that.enableInput();
-					  that.focusOnPrompt();
-					  contK();
-				      },
-				      function(err) { 
-					  that.handleError(err); 
-					  that.enableInput();
-					  that.focusOnPrompt();
-					  contK();
-				      });
+        this.notifyBus("before-run", this);
+        var that = this;
+        this.disableInput();
+        this.evaluator.executeProgram(sourceName,
+                                      aSource,
+                                      function() { 
+                                          that.enableInput();
+                                          that.focusOnPrompt();
+                                          contK();
+                                      },
+                                      function(err) { 
+                                          that.handleError(err); 
+                                          that.enableInput();
+                                          that.focusOnPrompt();
+                                          contK();
+                                      });
     };
     
     WeSchemeInteractions.prototype.handleError = function(err) {
-	this.addToInteractions(this.renderErrorAsDomNode(err));
-	this.addToInteractions("\n");
+        this.addToInteractions(this.renderErrorAsDomNode(err));
+        this.addToInteractions("\n");
     };
 
     // renderErrorAsDomNode: exception -> element
@@ -513,39 +529,39 @@ WeSchemeInteractions = (function () {
     // FIXME: should this really wrap a paragraph around a link?  The client
     // really should be responsible for layout issues instead....
     WeSchemeInteractions.prototype.createLocationHyperlink = function(aLocation, anchorBodyDom) {
-	if (! anchorBodyDom) {
-	    anchorBodyDom = document.createTextNode(
-		"at: line " + aLocation.line + 
-		    ", column " + aLocation.column +
-		    ", in " + aLocation.id);
-	}
-	var para = document.createElement('p');
-	para.className = 'location-paragraph';
-	var anchor = document.createElement("a");
-	anchor['href'] = "#";
-	anchor['onclick'] = makeHighlighterLinkFunction(
-	    this, aLocation);
-	anchor.appendChild(anchorBodyDom);
-	para.appendChild(anchor);
-	return para;
+        if (! anchorBodyDom) {
+            anchorBodyDom = document.createTextNode(
+                "at: line " + aLocation.line + 
+                    ", column " + aLocation.column +
+                    ", in " + aLocation.id);
+        }
+        var para = document.createElement('p');
+        para.className = 'location-paragraph';
+        var anchor = document.createElement("a");
+        anchor['href'] = "#";
+        anchor['onclick'] = makeHighlighterLinkFunction(
+            this, aLocation);
+        anchor.appendChild(anchorBodyDom);
+        para.appendChild(anchor);
+        return para;
     };
 
     var makeHighlighterLinkFunction = function(that, elt) {
-	return function() { 
-	    that.highlighter(elt.id, elt.offset, elt.line, elt.column, elt.span);
-	};
+        return function() { 
+            that.highlighter(elt.id, elt.offset, elt.line, elt.column, elt.span);
+        };
     };
 
     WeSchemeInteractions.prototype.disableInput = function() {
-	this.prompt.hide();
+        this.prompt.hide();
     };
 
     WeSchemeInteractions.prototype.enableInput = function() {
- 	this.prompt.show();
+        this.prompt.show();
     };
 
     WeSchemeInteractions.prototype.requestBreak = function() {
-	this.evaluator.requestBreak();
+        this.evaluator.requestBreak();
     };
 
     WeSchemeInteractions.prototype.toString = function() { return "WeSchemeInteractions()"; };
@@ -553,7 +569,7 @@ WeSchemeInteractions = (function () {
     //////////////////////////////////////////////////////////////////////
     var _idNum = 0;
     var makeFreshId = function() {
-	return ("<interactions" + (_idNum++) + ">");
+        return ("<interactions" + (_idNum++) + ">");
     }
     //////////////////////////////////////////////////////////////////////
 

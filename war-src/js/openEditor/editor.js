@@ -5,9 +5,7 @@
 //     this.plt.wescheme = {};
 // }
 
-
 goog.provide('plt.wescheme.WeSchemeEditor');
-
 
 goog.require('plt.wescheme.AjaxActions');
 goog.require('plt.wescheme.WeSchemeIntentBus');
@@ -15,15 +13,12 @@ goog.require('plt.wescheme.SharingDialog');
 goog.require('plt.wescheme.WeSchemeInteractions');
 goog.require('plt.wescheme.helpers');
 
-
 var WeSchemeEditor;
 
 (function() {
 
     // The timeout between autosaving.
     var AUTOSAVE_TIMEOUT = 10000;
-
-
 
     // 
     // These are the dependencies we're trying to maintain.
@@ -44,19 +39,10 @@ var WeSchemeEditor;
     // 
     // runButton: enabled all the time
 
-
     // the definitions and filename areas: readonly if you don't own the file,
-
 
     
     //////////////////////////////////////////////////////////////////////
-
-    
-    
-
-
-
-
 
     WeSchemeEditor = function(attrs, afterInit) {
 	var that = this;
@@ -64,12 +50,10 @@ var WeSchemeEditor;
 	this.userName = attrs.userName; // string
 	this.actions = new plt.wescheme.AjaxActions();
 
-
 	// defn is assumed to be Containers.
 	// The only container we've got so far are TextContainers.
 	this.defn = attrs.defn;  // TextAreaContainer
 	this.isOwner = false;
-
 
 	new plt.wescheme.WeSchemeInteractions(
 	    attrs.interactions,
@@ -80,7 +64,6 @@ var WeSchemeEditor;
 		    that.highlight(id, offset, line, column, span);
 		});
 
-
 		that.filenameEntry = new FlapjaxValueHandler(
 		    attrs.filenameInput.get(0));
 
@@ -90,16 +73,12 @@ var WeSchemeEditor;
 		    plt.wescheme.WeSchemeIntentBus.notify("filename-changed", that);
 		});
 
-
 		// pid: (or false number)
 		that.pid = false;
 
 		that.defn.getSourceB().changes().mapE(function() {
 		    plt.wescheme.WeSchemeIntentBus.notify("definitions-changed", that);
 		});
-
-
-
 
 		//////////////////////////////////////////////////////////////////////
 
@@ -121,7 +100,6 @@ var WeSchemeEditor;
 		// a program has been published;
 		that.isPublishedE = receiverE();
 
-
 		// contentChangedE event fires true if the source or filename
 		// changes.
 		that.contentChangedE = mergeE(
@@ -130,8 +108,6 @@ var WeSchemeEditor;
 		
 
 		that.isOwnerE = receiverE();
-
-
 
 		// loggedInB is a boolean behavior that's true when the user has
 		// logged in.
@@ -172,8 +148,6 @@ var WeSchemeEditor;
 			constantE(that.contentChangedE, true)),
 		    false);
 
-
-
 		// isAutosaveEnabledB: enabled only when the definitions area is dirty
 		//             and it hasn't been published yet
 		//             and you own the file
@@ -182,9 +156,6 @@ var WeSchemeEditor;
 					       notB(that.isPublishedB),
 					       that.isOwnerB,
 					       that.isLoggedInB);
-
-
-
 
 		// We'll fire off an autosave if the content has changed and
 		// saving is enabled, and it's not a new file.
@@ -206,17 +177,12 @@ var WeSchemeEditor;
 		    }
 		});
 
-
 		if (afterInit) {
 		    afterInit(that);
 		}
 	    });
 
     };
-
-
-
-
 
     // Inserting the value of a boolean behavior into the enabled
     // attribute of a node.
@@ -233,7 +199,6 @@ var WeSchemeEditor;
 	aBooleanBehavior.changes().mapE(f);
     }
 
-
     WeSchemeEditor.prototype.highlight = function(id, offset, line, column, span) {
 	if (id === '<definitions>') {
 	    this.defn.highlight(id, offset, line, column, span);
@@ -242,25 +207,17 @@ var WeSchemeEditor;
 	}
     };
 
-
-
     // WeSchemeEditor._getIsLoggedIn: -> boolean
     // Returns true if the user has been logged in.
     WeSchemeEditor.prototype._getIsLoggedIn = function() {
 	return (this.userName && this.userName != 'null');
     };
 
-
-
-
     // WeSchemeEditor._autosave: -> void
     WeSchemeEditor.prototype._autosave = function() {
 	plt.wescheme.WeSchemeIntentBus.notify("autosave", this);
 	this.save();
     };
-
-
-
 
     WeSchemeEditor.prototype.save = function() {
 	var that = this;
@@ -295,7 +252,6 @@ var WeSchemeEditor;
 		 whenSaveBreaks);
 	};
 
-
 	var afterFileNameChosen = function() {
 	    plt.wescheme.WeSchemeIntentBus.notify("before-save", that);
 	    if (that.pid == false) {
@@ -329,8 +285,6 @@ var WeSchemeEditor;
 				  true);
     };
 
-
-
     WeSchemeEditor.prototype._enforceNonemptyName = function(afterK, abortK, isFirstEntry) {
 	var that = this;
 	var title = plt.wescheme.helpers.trimWhitespace(that.filenameEntry.attr("value"));
@@ -356,7 +310,6 @@ var WeSchemeEditor;
 	    dialogWindow.append(jQuery("<p/>").text(
 		"(The name cannot be left blank.)"));
 	    dialogWindow.append(inputField);
-
 
 	    dialogWindow.dialog({title: 'Saving your program',
 				 bgiframe : true,
@@ -398,16 +351,11 @@ var WeSchemeEditor;
 	    inputField.keydown(maintainSaveButtonStatus);
 	    inputField.change(maintainSaveButtonStatus);
 
-
 	    //dialogWindow.dialog("open");
 	} else {
 	    afterK();
 	}
     };
-
-
-
-
 
     WeSchemeEditor.prototype.load = function(attrs, onSuccess, onFail) {
 	var that = this;
@@ -455,9 +403,6 @@ var WeSchemeEditor;
 	}
     };
 
-
-
-
     function getAbsoluteUrl(relativeUrl) {
 	var anchor = document.createElement("a");
 	anchor.href = relativeUrl;
@@ -465,14 +410,10 @@ var WeSchemeEditor;
     }
 	
 
-
-
     WeSchemeEditor.prototype.share = function() {
 	var dialog = new plt.wescheme.SharingDialog(this.pid, this.defn.getCode());
 	dialog.show();
     };
-
-
 
     WeSchemeEditor.prototype.run = function(after) {
 	var that = this;
@@ -487,23 +428,16 @@ var WeSchemeEditor;
 	    });
     };
 
-
     WeSchemeEditor.prototype.requestBreak = function() {
 	this.interactions.requestBreak();
     };
-
-
 
     WeSchemeEditor.prototype._setIsOwner = function(v) {
 	this.isOwner = v;
 	this.isOwnerE.sendEvent(v);
     };
 
-
     WeSchemeEditor.prototype.toString = function() { return "WeSchemeEditor()"; };
-
-
-
 
     // FIXME: copy and paste from console.js
     // makeShareUrl: string -> string
@@ -518,11 +452,6 @@ var WeSchemeEditor;
 	}
     }
 
-
-
-
-
 })();
-
 
 plt.wescheme.WeSchemeEditor = WeSchemeEditor;
