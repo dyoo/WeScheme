@@ -147,6 +147,19 @@
 
 
   <servlet>
+    <servlet-name>GetAndroidPackage</servlet-name>
+    <servlet-class>org.wescheme.servlet.GetAndroidPackage</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>GetAndroidPackage</servlet-name>
+    <url-pattern>/android</url-pattern>
+  </servlet-mapping>
+
+
+
+
+
+  <servlet>
     <servlet-name>run</servlet-name>
     <jsp-file>/run.jsp</jsp-file>
   </servlet>

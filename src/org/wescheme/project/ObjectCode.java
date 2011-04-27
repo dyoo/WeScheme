@@ -41,7 +41,8 @@ public class ObjectCode implements Serializable {
 
 	@Persistent
 	private AndroidPackage androidPackage;
-	
+	@Persistent
+	private Boolean androidPackageQueuedForBuild = false;
 	
 	public ObjectCode() {
 		this("", new HashSet<String>(), false);
@@ -55,6 +56,7 @@ public class ObjectCode implements Serializable {
 		obj_ = new Text(obj);
 		this.permissions = permissions;
 		trusted_ = trust;
+		androidPackageQueuedForBuild = false;
 	}
 	
 	public boolean isTrusted(){
@@ -92,14 +94,18 @@ public class ObjectCode implements Serializable {
 
 	public AndroidPackage getAndroidPackage(ServletContext ctx, String name) {
 		if (this.androidPackage == null) {
-			// I want to do the build first, before assigning to this.androidPackage.
-			Blob newContent = AndroidPackager.createAndroidPackage(ctx,
-					name,
-					this.getObj(),
-					this.getPermissions());
-			this.androidPackage = new AndroidPackage();
-			this.androidPackage.setName(name);
-			this.androidPackage.setContent(newContent);
+			if (this.androidPackageQueuedForBuild == null ||
+				this.androidPackageQueuedForBuild == false) {
+				// I want to do the build first, before assigning to this.androidPackage.
+				AndroidPackager.queueAndroidPackageBuild(ctx,
+						name,
+						this.getObj(),
+						this.getPermissions(),
+						"http://fixme");
+			}
+			//			this.androidPackage = new AndroidPackage();
+			//			this.androidPackage.setName(name);
+			//			this.androidPackage.setContent(newContent);
 		}
 		return this.androidPackage;
 	}

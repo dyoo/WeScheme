@@ -45,13 +45,18 @@ public class GetAndroidPackage extends HttpServlet {
 		ObjectCode objectCode = program.getObject();
 		AndroidPackage pkg = 
 			objectCode.getAndroidPackage(this.getServletContext(), program.getTitle());
-		response.setContentType("application/vnd.android.package-archive");
-		response.addHeader("content-disposition",
-				"attachment; filename=" + makeFilename(program)
-				);
-		BufferedOutputStream out = new BufferedOutputStream(response.getOutputStream());
-		out.write(pkg.getContent().getBytes());
-		out.close();
+		if (pkg == null) {
+			System.err.println("package hasn't been built yet");
+			response.sendError(403);
+		} else {
+			response.setContentType("application/vnd.android.package-archive");
+			response.addHeader("content-disposition",
+					"attachment; filename=" + makeFilename(program)
+			);
+			BufferedOutputStream out = new BufferedOutputStream(response.getOutputStream());
+			out.write(pkg.getContent().getBytes());
+			out.close();
+		}
 	}
 	
 	private String makeFilename(Program program) {

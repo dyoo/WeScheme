@@ -1,65 +1,71 @@
 package org.wescheme.project;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Properties;
 import java.util.Set;
+import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.ServletContext;
 
-
+import org.json.simple.JSONValue;
 
 import com.google.appengine.api.datastore.Blob;
+import com.google.appengine.api.urlfetch.HTTPMethod;
+import com.google.appengine.api.urlfetch.HTTPRequest;
+import com.google.appengine.api.urlfetch.HTTPResponse;
+import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
+import com.google.appengine.api.urlfetch.URLFetchService;
+
+import static com.google.appengine.api.urlfetch.FetchOptions.Builder.*;
 
 public class AndroidPackager {
-	// TODO: centralize all of the remote urls.  We need this to support offline mode for Shriram's demo.
+
+	/**
+	 * Deadline before we timeout
+	 */
+	private static Double DEADLINE = 10.0;
 	
-	private static String packagingServletURL = "http://go.cs.brown.edu";
+	private static String ANDROID_PACKAGER_SERVER_URL = 
+		"ANDROID_PACKAGER_SERVER_URL";
+
+		
 	
 	/**
 	 * Creates an android package.
 	 * @param ctx ServletContext
 	 * @param programName String
-	 * @param programSource String
+	 * @param programBytecode String
 	 * @param permissions Set<String> The list of android permissions this program needs.
 	 * @return
 	 */
-	public static Blob createAndroidPackage(ServletContext ctx, String programName, String programSource, Set<String> permissions){
+	public static void queueAndroidPackageBuild(ServletContext ctx, String programName, String programBytecode, Set<String> permissions,
+			String callbackUrl){
 		try {
-			URL url = new URL(packagingServletURL);
+			Properties properties = new Properties();
+			properties.load(ctx.getResourceAsStream("/web-services.properties"));			
+			URL url = new URL(properties.getProperty(ANDROID_PACKAGER_SERVER_URL));
 
-			String data = 
-				("n=" + URLEncoder.encode(programName, "UTF-8") + 
-						"&t=moby3" + 
-						"&" + makeResourceChunk("program.js", 
-								"var program = {};\nprogram.bytecode=" + programSource + ";") +
-						"&" + makeResourceChunk("index.html", readStream(ctx.getResourceAsStream("/android-packager/index.html")))+
-						"&" + makeResourceChunk("main.js", readStream(ctx.getResourceAsStream("/android-packager/main.js")))+
-						"&" + makeResourceChunk("phonegap.js", readStream(ctx.getResourceAsStream("/android-packager/phonegap.js")))+
-						"&" + makeResourceChunk("collections.js", readStream(ctx.getResourceAsStream("/js/mzscheme-vm/collections.js"))) +
-						"&" + makeResourceChunk("support.js", readStream(ctx.getResourceAsStream("/js/mzscheme-vm/support.js"))) +
-						"&" + makeResourceChunk("evaluator.js", readStream(ctx.getResourceAsStream("/js/mzscheme-vm/evaluator.js")))) +
-						getPermissionChunks(permissions);
-
-			HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-			conn.setDoOutput(true);
-			OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-			wr.write(data);
-			wr.flush();
-
-			if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				return readStreamAsBlob(conn.getInputStream());
-			} else {
-				throw new RuntimeException("Unable to create contact package server.");
-			}
+			ByteArrayOutputStream bout = getCompressedData(ctx, programName,
+					programBytecode, permissions, callbackUrl);
+						
+			// We have to use the lower-level fetch service API because of the
+			// potential for timeouts.
+			HTTPRequest request = new HTTPRequest(url,
+						HTTPMethod.POST,
+						disallowTruncate().setDeadline(DEADLINE));
+			request.setPayload(bout.toByteArray());
+			URLFetchService fetchService = URLFetchServiceFactory.getURLFetchService();
+			fetchService.fetch(request);
+			return;
         } catch (MalformedURLException e) {
             throw new RuntimeException(e);
         } catch (UnsupportedEncodingException e) {
@@ -68,6 +74,31 @@ public class AndroidPackager {
             throw new RuntimeException(e);
         }
     }
+
+
+	private static ByteArrayOutputStream getCompressedData(ServletContext ctx,
+			String programName, String programSource, Set<String> permissions, String callbackUrl)
+			throws UnsupportedEncodingException, IOException {
+		String data = 
+			("n=" + URLEncoder.encode(programName, "UTF-8") + 
+					"&t=moby3" + 
+					"&cb=" + URLEncoder.encode(callbackUrl, "UTF-8") +
+					"&" + makeResourceChunk("program.js", 
+							"var program = {};\nprogram.bytecode=" + programSource + ";") +
+					"&" + makeResourceChunk("mindex.html", readStream(ctx.getResourceAsStream("/android-packager/index.html")))+
+					"&" + makeResourceChunk("main.js", readStream(ctx.getResourceAsStream("/android-packager/main.js")))+
+					"&" + makeResourceChunk("phonegap.js", readStream(ctx.getResourceAsStream("/android-packager/phonegap.js")))+
+					"&" + makeResourceChunk("collections.js", readStream(ctx.getResourceAsStream("/js/mzscheme-vm/collections.js"))) +
+					"&" + makeResourceChunk("support.js", readStream(ctx.getResourceAsStream("/js/mzscheme-vm/support.js"))) +
+					"&" + makeResourceChunk("evaluator.js", readStream(ctx.getResourceAsStream("/js/mzscheme-vm/evaluator.js")))) +
+					getPermissionChunks(permissions);
+		ByteArrayOutputStream bout  = new ByteArrayOutputStream();
+		GZIPOutputStream out = new GZIPOutputStream(bout);
+		out.write(data.getBytes());
+		out.close();
+		System.out.println("size of compressed data: " + bout.size());
+		return bout;
+	}
 
 	
 	private static String getPermissionChunks(Set<String> permissions) throws UnsupportedEncodingException{
@@ -79,9 +110,17 @@ public class AndroidPackager {
 	}
 	
     private static String makeResourceChunk(String path, String content) throws UnsupportedEncodingException {
-    	return "r=" + URLEncoder.encode("(resource " + path + " " + content + ")", "UTF-8");
+    	return "r=" + URLEncoder.encode("(resource " + 
+    			quoteString(path) + " " +
+    			quoteString(content) + ")", 
+    	"UTF-8");
     }
     
+    
+    private static String quoteString(String s) {
+    	return JSONValue.toJSONString(s);
+    }
+
 	
     private static String readStream(InputStream stream) {
         BufferedInputStream bs = new BufferedInputStream(stream);
