@@ -16,12 +16,12 @@ import java.util.zip.GZIPOutputStream;
 
 import javax.servlet.ServletContext;
 
+import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
 import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.urlfetch.HTTPMethod;
 import com.google.appengine.api.urlfetch.HTTPRequest;
-import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 import com.google.appengine.api.urlfetch.URLFetchService;
 
@@ -109,11 +109,12 @@ public class AndroidPackager {
 		return b.toString();
 	}
 	
-    private static String makeResourceChunk(String path, String content) throws UnsupportedEncodingException {
-    	return "r=" + URLEncoder.encode("(resource " + 
-    			quoteString(path) + " " +
-    			quoteString(content) + ")", 
-    	"UTF-8");
+    @SuppressWarnings("unchecked")
+	private static String makeResourceChunk(String path, String content) throws UnsupportedEncodingException {
+    	JSONObject object = new JSONObject();
+    	object.put("path", path);
+    	object.put("bytes", content);
+    	return "r=" + URLEncoder.encode(object.toJSONString(),"UTF-8");
     }
     
     
