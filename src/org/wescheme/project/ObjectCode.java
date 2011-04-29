@@ -95,14 +95,10 @@ public class ObjectCode implements Serializable {
 	public AndroidPackage getAndroidPackage(ServletContext ctx, String name) {
 		if (this.androidPackage == null) {
 			if (this.androidPackageQueuedForBuild == null ||
-				this.androidPackageQueuedForBuild == false) {
-				// I want to do the build first, before assigning to this.androidPackage.
-				AndroidPackager.queueAndroidPackageBuild(ctx,
-						name,
-						this.getObj(),
-						this.getPermissions(),
-						"http://fixme");
-			}
+					this.androidPackageQueuedForBuild == false) {
+					// I want to do the build first, before assigning to this.androidPackage.
+					AndroidPackager.queueAndroidPackageBuild(ctx, name, this);
+				}
 			//			this.androidPackage = new AndroidPackage();
 			//			this.androidPackage.setName(name);
 			//			this.androidPackage.setContent(newContent);

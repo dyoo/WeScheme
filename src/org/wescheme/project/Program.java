@@ -141,10 +141,11 @@ public class Program implements Serializable {
 		ObjectCode obj = this.getObject();
 		ObjectCode newCode = 
 			org.wescheme.project.Compiler.compile(this.getSource());
-		
 		obj.setObj(newCode.getObj());
 		obj.setPermissions(newCode.getPermissions());
 		this.updateTime();
+		// TODO: add this via task queue?
+		AndroidPackager.queueAndroidPackageBuild(ctx, getTitle(), newCode);
 	}
 
 	public void updateTitle(String newTitle) {

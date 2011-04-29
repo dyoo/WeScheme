@@ -14,10 +14,12 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
+import javax.jdo.PersistenceManager;
 import javax.servlet.ServletContext;
 
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.wescheme.util.PMF;
 
 import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.urlfetch.HTTPMethod;
@@ -34,11 +36,7 @@ public class AndroidPackager {
 	 */
 	private static Double DEADLINE = 10.0;
 	
-	private static String ANDROID_PACKAGER_SERVER_URL = 
-		"ANDROID_PACKAGER_SERVER_URL";
-
-		
-	
+			
 	/**
 	 * Creates an android package.
 	 * @param ctx ServletContext
@@ -47,15 +45,15 @@ public class AndroidPackager {
 	 * @param permissions Set<String> The list of android permissions this program needs.
 	 * @return
 	 */
-	public static void queueAndroidPackageBuild(ServletContext ctx, String programName, String programBytecode, Set<String> permissions,
-			String callbackUrl){
+	public static void queueAndroidPackageBuild(ServletContext ctx, String programName, ObjectCode obj) {
 		try {
-			Properties properties = new Properties();
-			properties.load(ctx.getResourceAsStream("/web-services.properties"));			
-			URL url = new URL(properties.getProperty(ANDROID_PACKAGER_SERVER_URL));
+			WeSchemeProperties properties = new WeSchemeProperties(ctx);
+			URL url = new URL(properties.getAndroidPackagerUrl());
 
 			ByteArrayOutputStream bout = getCompressedData(ctx, programName,
-					programBytecode, permissions, callbackUrl);
+					obj.getObj(), 
+					obj.getPermissions(),
+					makeCallbackURL(ctx, obj));
 						
 			// We have to use the lower-level fetch service API because of the
 			// potential for timeouts.
@@ -74,7 +72,26 @@ public class AndroidPackager {
             throw new RuntimeException(e);
         }
     }
-
+	
+	
+	/**
+	 * Create a callback url that we can use to come back.
+	 * @param obj
+	 * @return
+	 * @throws IOException 
+	 */
+	private static String makeCallbackURL(ServletContext ctx, ObjectCode obj) throws IOException {
+		PersistenceManager pm = PMF.get().getPersistenceManager();
+		try {
+			WeSchemeProperties properties = new WeSchemeProperties(ctx);			
+			AndroidPackageJob job = new AndroidPackageJob(pm, obj);
+			pm.makePersistent(job);
+			return properties.getServerBaseUrl() + "/store_android/" + job.getNonce();
+		} finally {
+			pm.close();
+		}
+	}
+	
 
 	private static ByteArrayOutputStream getCompressedData(ServletContext ctx,
 			String programName, String programSource, Set<String> permissions, String callbackUrl)

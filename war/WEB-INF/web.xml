@@ -146,6 +146,8 @@
   </servlet-mapping>
 
 
+
+
   <servlet>
     <servlet-name>GetAndroidPackage</servlet-name>
     <servlet-class>org.wescheme.servlet.GetAndroidPackage</servlet-class>
@@ -154,6 +156,18 @@
     <servlet-name>GetAndroidPackage</servlet-name>
     <url-pattern>/android</url-pattern>
   </servlet-mapping>
+
+  <servlet>
+    <servlet-name>StoreAndroidPackage</servlet-name>
+    <servlet-class>org.wescheme.servlet.StoreAndroidPackage</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>StoreAndroidPackage</servlet-name>
+    <url-pattern>/store_android/*</url-pattern>
+  </servlet-mapping>
+
+
+
 
 
 
