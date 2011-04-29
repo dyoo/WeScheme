@@ -8,9 +8,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Properties;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
@@ -18,10 +15,8 @@ import javax.jdo.PersistenceManager;
 import javax.servlet.ServletContext;
 
 import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 import org.wescheme.util.PMF;
 
-import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.urlfetch.HTTPMethod;
 import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
@@ -53,7 +48,7 @@ public class AndroidPackager {
 			ByteArrayOutputStream bout = getCompressedData(ctx, programName,
 					obj.getObj(), 
 					obj.getPermissions(),
-					makeCallbackURL(ctx, obj));
+					makeCallbackURL(ctx, programName, obj));
 						
 			// We have to use the lower-level fetch service API because of the
 			// potential for timeouts.
@@ -80,11 +75,11 @@ public class AndroidPackager {
 	 * @return
 	 * @throws IOException 
 	 */
-	private static String makeCallbackURL(ServletContext ctx, ObjectCode obj) throws IOException {
+	private static String makeCallbackURL(ServletContext ctx, String name, ObjectCode obj) throws IOException {
 		PersistenceManager pm = PMF.get().getPersistenceManager();
 		try {
 			WeSchemeProperties properties = new WeSchemeProperties(ctx);			
-			AndroidPackageJob job = new AndroidPackageJob(pm, obj);
+			AndroidPackageJob job = new AndroidPackageJob(pm, name, obj);
 			pm.makePersistent(job);
 			return properties.getServerBaseUrl() + "/store_android/" + job.getNonce();
 		} finally {
@@ -134,11 +129,6 @@ public class AndroidPackager {
     	return "r=" + URLEncoder.encode(object.toJSONString(),"UTF-8");
     }
     
-    
-    private static String quoteString(String s) {
-    	return JSONValue.toJSONString(s);
-    }
-
 	
     private static String readStream(InputStream stream) {
         BufferedInputStream bs = new BufferedInputStream(stream);
@@ -149,26 +139,6 @@ public class AndroidPackager {
                 builder.append((char) nextChar);
             }
             return builder.toString();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private static Blob readStreamAsBlob(InputStream stream) {
-        BufferedInputStream bs = new BufferedInputStream(stream);
-        int nextChar;
-        List<Byte> bytes = new ArrayList<Byte>();
-        try {
-            while ((nextChar = bs.read()) != -1) {
-                bytes.add((byte) nextChar);
-            }
-            // There has to be a more direct way to construct a Blob from
-            // a stream of data...
-            byte[] barray = new byte[bytes.size()];
-            for(int i = 0; i < bytes.size(); i++) {
-            	barray[i] = bytes.get(i);
-            }
-            return new Blob(barray);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

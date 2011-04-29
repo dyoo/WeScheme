@@ -9,12 +9,10 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
-import javax.servlet.ServletContext;
 
 import org.jdom.Element;
 import org.wescheme.util.XML;
 
-import com.google.appengine.api.datastore.Blob;
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Key;
 
@@ -42,7 +40,7 @@ public class ObjectCode implements Serializable {
 	@Persistent
 	private AndroidPackage androidPackage;
 	@Persistent
-	private Boolean androidPackageQueuedForBuild = false;
+	private Boolean androidPackageBuilt = false;
 	
 	public ObjectCode() {
 		this("", new HashSet<String>(), false);
@@ -56,7 +54,7 @@ public class ObjectCode implements Serializable {
 		obj_ = new Text(obj);
 		this.permissions = permissions;
 		trusted_ = trust;
-		androidPackageQueuedForBuild = false;
+		androidPackageBuilt = false;
 	}
 	
 	public boolean isTrusted(){
@@ -92,19 +90,22 @@ public class ObjectCode implements Serializable {
 		return obj_.getValue();
 	}
 
-	public AndroidPackage getAndroidPackage(ServletContext ctx, String name) {
+	public AndroidPackage getAndroidPackage() {
 		if (this.androidPackage == null) {
-			if (this.androidPackageQueuedForBuild == null ||
-					this.androidPackageQueuedForBuild == false) {
-					// I want to do the build first, before assigning to this.androidPackage.
-					AndroidPackager.queueAndroidPackageBuild(ctx, name, this);
-				}
-			//			this.androidPackage = new AndroidPackage();
-			//			this.androidPackage.setName(name);
-			//			this.androidPackage.setContent(newContent);
+			this.androidPackage = new AndroidPackage();
 		}
 		return this.androidPackage;
 	}
+	
+	public boolean isAndroidPackageBuilt() {
+		if (this.androidPackageBuilt == null) { return false; }
+		return this.androidPackageBuilt;
+	}
+	
+	public void setAndroidPackageBuilt(boolean b) {
+		this.androidPackageBuilt = b;
+	}
+	
 	
 	public Element toXML() {		
 		Element root = new Element("ObjectCode");

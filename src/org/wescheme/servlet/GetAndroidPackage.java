@@ -43,8 +43,7 @@ public class GetAndroidPackage extends HttpServlet {
 
 	private void writeAndroidPackageResponse(Program program, HttpServletResponse response)  throws IOException {
 		ObjectCode objectCode = program.getObject();
-		AndroidPackage pkg = 
-			objectCode.getAndroidPackage(this.getServletContext(), program.getTitle());
+		AndroidPackage pkg = objectCode.getAndroidPackage();
 		if (pkg == null) {
 			System.err.println("package hasn't been built yet");
 			response.sendError(403);

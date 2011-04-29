@@ -34,14 +34,19 @@ public class AndroidPackageJob implements Serializable{
 	private ObjectCode obj;
 
 	@Persistent
+	private String name;
+	
+	@Persistent
 	private String nonce;
 	
 	
-	public AndroidPackageJob(PersistenceManager pm, ObjectCode obj) {
+	public AndroidPackageJob(PersistenceManager pm, String name, ObjectCode obj) {
 		this.obj = obj;
+		this.name = name;
 		this.nonce = makeNonce(pm);
 	}
 
+	public String getName() { return this.name; }
 	public ObjectCode getObject() { return this.obj; }
 	public String getNonce() { return this.nonce; }
 	
