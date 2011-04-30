@@ -25,9 +25,12 @@ public class AndroidPackage implements Serializable {
 	protected Long id;
 
 	
-	
+	@Persistent
 	private String name;
+
+	@Persistent
 	private Blob content;
+
 	public AndroidPackage() {
 		this.name = null;
 		this.content = null;
@@ -36,5 +39,7 @@ public class AndroidPackage implements Serializable {
 	public String getName() { return this.name; }
 	public Blob getContent() { return this.content; }
 	public void setName(String name) { this.name = name; }
-	public void setContent(Blob content) { this.content = content; }
+	public void setContent(Blob content) { 
+		this.content = content; 
+	}
 }

@@ -12,13 +12,17 @@ import javax.jdo.annotations.PrimaryKey;
 
 import com.google.appengine.api.datastore.Key;
 
+import javax.jdo.annotations.PersistenceCapable;
+import javax.jdo.annotations.IdentityType;
+
 /**
  * Represents a packaging job that is expected to finish.
  * @author dyoo
  *
  */
 
-public class AndroidPackageJob implements Serializable{
+@PersistenceCapable(identityType = IdentityType.APPLICATION)
+public class AndroidPackageJob implements Serializable {
 
 	/**
 	 * 
@@ -53,7 +57,7 @@ public class AndroidPackageJob implements Serializable{
 
 	@SuppressWarnings("unchecked")
 	public static AndroidPackageJob findByNonce(PersistenceManager pm, String nonce) {
-		javax.jdo.Query query = pm.newQuery(Program.class);
+		javax.jdo.Query query = pm.newQuery(AndroidPackageJob.class);
 		query.setFilter("nonce == param");
 		query.declareParameters("String param");
 		try {
@@ -67,6 +71,11 @@ public class AndroidPackageJob implements Serializable{
 			query.closeAll();
 		}		
 	}
+	
+	public void delete(PersistenceManager pm) {
+		pm.deletePersistent(this);
+	}
+	
 
 
 	private Random rng = new Random();

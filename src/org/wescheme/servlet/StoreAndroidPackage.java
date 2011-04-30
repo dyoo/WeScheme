@@ -47,17 +47,21 @@ public class StoreAndroidPackage extends HttpServlet {
 				sendErrorResponseUnexpected(res);
 				return;
 			}
-			
-			ObjectCode obj = androidPackageJob.getObject();
-			InputStream is = req.getInputStream();
-			Blob b = readStreamAsBlob(is);
+			try {
+				System.out.println("Android package received.");
+				ObjectCode obj = androidPackageJob.getObject();
+				InputStream is = req.getInputStream();
+				Blob b = readStreamAsBlob(is);
 
-			obj.getAndroidPackage().setName(androidPackageJob.getName());
-			obj.getAndroidPackage().setContent(b);
-			obj.setAndroidPackageBuilt(true);
-			pm.makePersistent(obj);
-			// Exit				
-			sendFinalResponse(res);
+				obj.getAndroidPackage().setName(androidPackageJob.getName());
+				obj.getAndroidPackage().setContent(b);
+				obj.setAndroidPackageBuilt(true);
+				pm.makePersistent(obj);
+				// Exit				
+				sendFinalResponse(res);
+			} finally {
+				androidPackageJob.delete(pm);
+			}
 		} finally { pm.close(); }
 	}		
 	
