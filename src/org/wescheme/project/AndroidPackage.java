@@ -12,6 +12,7 @@ import javax.jdo.annotations.PrimaryKey;
 import java.io.Serializable;
 import javax.jdo.annotations.IdentityType;
 
+import com.google.appengine.api.datastore.Key;
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class AndroidPackage implements Serializable {
@@ -20,10 +21,10 @@ public class AndroidPackage implements Serializable {
 	 */
 	private static final long serialVersionUID = 1636299813888198554L;
 
+	@SuppressWarnings("unused")
 	@PrimaryKey
-	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-	protected Long id;
-
+    @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
+    private Key key;
 	
 	@Persistent
 	private String name;

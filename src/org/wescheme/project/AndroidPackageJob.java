@@ -1,8 +1,10 @@
 package org.wescheme.project;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.IdGeneratorStrategy;
@@ -10,10 +12,10 @@ import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import com.google.appengine.api.datastore.Key;
-
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.IdentityType;
+
+import com.google.appengine.api.datastore.Key;
 
 /**
  * Represents a packaging job that is expected to finish.
@@ -32,10 +34,10 @@ public class AndroidPackageJob implements Serializable {
 	@SuppressWarnings("unused")
 	@PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-    private Key key;
+    private Long id;
 
 	@Persistent
-	private ObjectCode obj;
+	private Key objKey;
 
 	@Persistent
 	private String name;
@@ -45,13 +47,15 @@ public class AndroidPackageJob implements Serializable {
 	
 	
 	public AndroidPackageJob(PersistenceManager pm, String name, ObjectCode obj) {
-		this.obj = obj;
+		this.objKey = obj.getKey();
 		this.name = name;
 		this.nonce = makeNonce(pm);
 	}
 
 	public String getName() { return this.name; }
-	public ObjectCode getObject() { return this.obj; }
+	public ObjectCode getObject(PersistenceManager pm) { 
+		return pm.getObjectById(ObjectCode.class, objKey);
+	}
 	public String getNonce() { return this.nonce; }
 	
 

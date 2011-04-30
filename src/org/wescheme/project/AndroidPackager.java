@@ -8,14 +8,15 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.List;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 import javax.jdo.PersistenceManager;
+import javax.jdo.Query;
 import javax.servlet.ServletContext;
 
 import org.json.simple.JSONObject;
-import org.wescheme.util.PMF;
 
 import com.google.appengine.api.urlfetch.HTTPMethod;
 import com.google.appengine.api.urlfetch.HTTPRequest;
@@ -38,11 +39,12 @@ public class AndroidPackager {
 	 * Creates an android package.
 	 * @param ctx ServletContext
 	 * @param programName String
+	 * @param pm 
 	 * @param programBytecode String
 	 * @param permissions Set<String> The list of android permissions this program needs.
 	 * @return
 	 */
-	public static void queueAndroidPackageBuild(ServletContext ctx, String programName, ObjectCode obj) {
+	public static void queueAndroidPackageBuild(ServletContext ctx, String programName, ObjectCode obj, PersistenceManager pm) {
 		try {
 			WeSchemeProperties properties = new WeSchemeProperties(ctx);
 			URL url = new URL(properties.getAndroidPackagerUrl());
@@ -50,7 +52,7 @@ public class AndroidPackager {
 			ByteArrayOutputStream bout = getCompressedData(ctx, programName,
 					obj.getObj(), 
 					obj.getPermissions(),
-					makeCallbackURL(ctx, programName, obj));
+					makeCallbackURL(ctx, programName, obj, pm));
 
 			
 			// We have to use the lower-level fetch service API because of the
@@ -78,16 +80,12 @@ public class AndroidPackager {
 	 * @return
 	 * @throws IOException 
 	 */
-	private static String makeCallbackURL(ServletContext ctx, String name, ObjectCode obj) throws IOException {
-		PersistenceManager pm = PMF.get().getPersistenceManager();
-		try {
-			WeSchemeProperties properties = new WeSchemeProperties(ctx);			
-			AndroidPackageJob job = new AndroidPackageJob(pm, name, obj);
-			pm.makePersistent(job);
-			return properties.getServerBaseUrl() + "/store_android/" + job.getNonce();
-		} finally {
-			pm.close();
-		}
+	private static String makeCallbackURL(ServletContext ctx, String name, ObjectCode obj, PersistenceManager pm) throws IOException {
+		WeSchemeProperties properties = new WeSchemeProperties(ctx);	
+		AndroidPackageJob job = new AndroidPackageJob(pm, name, obj);
+		System.out.println("trying to make the job persistent" + job);
+		pm.makePersistent(job);
+		return properties.getServerBaseUrl() + "/store_android/" + job.getNonce();
 	}
 	
 

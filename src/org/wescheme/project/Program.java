@@ -137,15 +137,14 @@ public class Program implements Serializable {
 		updateTime();
 	}
 
-	public void build(ServletContext ctx) {
+	public void build(ServletContext ctx, PersistenceManager pm) {
 		ObjectCode obj = this.getObject();
 		ObjectCode newCode = 
 			org.wescheme.project.Compiler.compile(this.getSource());
 		obj.setObj(newCode.getObj());
 		obj.setPermissions(newCode.getPermissions());
 		this.updateTime();
-		// TODO: add this via task queue?
-		AndroidPackager.queueAndroidPackageBuild(ctx, getTitle(), newCode);
+		AndroidPackager.queueAndroidPackageBuild(ctx, getTitle(), obj, pm);
 	}
 
 	public void updateTitle(String newTitle) {

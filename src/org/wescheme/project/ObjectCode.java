@@ -26,7 +26,7 @@ public class ObjectCode implements Serializable {
 	@SuppressWarnings("unused")
 	@PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
-    private Key key;
+    protected Key key;
 	
 	@Persistent
 	private Text obj_;
@@ -56,6 +56,8 @@ public class ObjectCode implements Serializable {
 		trusted_ = trust;
 		androidPackageBuilt = false;
 	}
+	
+	public Key getKey() { return this.key; }
 	
 	public boolean isTrusted(){
 		return trusted_;
@@ -92,6 +94,7 @@ public class ObjectCode implements Serializable {
 
 	public AndroidPackage getAndroidPackage() {
 		if (this.androidPackage == null) {
+			System.out.println("fresh android package");
 			this.androidPackage = new AndroidPackage();
 		}
 		return this.androidPackage;

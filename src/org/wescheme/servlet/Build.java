@@ -41,7 +41,7 @@ public class Build extends HttpServlet {
 				Program prog = pm.getObjectById(Program.class,
 						Long.parseLong(req.getParameter("pid")));
 				if (prog.getOwner().equals(userSession.getName())) {
-					prog.build(this.getServletContext());
+					prog.build(this.getServletContext(), pm);
 					resp.setContentType("text/xml");
 					resp.getWriter().print(outputter.outputString(prog.toXML(pm)));
 				} else {

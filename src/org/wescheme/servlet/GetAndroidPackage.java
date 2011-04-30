@@ -44,10 +44,14 @@ public class GetAndroidPackage extends HttpServlet {
 	private void writeAndroidPackageResponse(Program program, HttpServletResponse response)  throws IOException {
 		ObjectCode objectCode = program.getObject();
 		AndroidPackage pkg = objectCode.getAndroidPackage();
-		if (pkg == null) {
+		if (! objectCode.isAndroidPackageBuilt()) {
 			System.err.println("package hasn't been built yet");
 			response.sendError(403);
 		} else {
+			
+			System.out.println(pkg.getName());
+			System.out.println(pkg.getContent());			
+			
 			response.setContentType("application/vnd.android.package-archive");
 			response.addHeader("content-disposition",
 					"attachment; filename=" + makeFilename(program)
@@ -64,10 +68,11 @@ public class GetAndroidPackage extends HttpServlet {
 		StringBuilder builder = new StringBuilder();
 		for(int i = 0; i < chunks.length; i++) {
 			if (chunks[i].length() > 0) {
-				builder.append(Character.toUpperCase(chunks[i].charAt(i)));
+				builder.append(Character.toUpperCase(chunks[i].charAt(0)));
 				builder.append(chunks[i].substring(1));
 			}
 		}
+		builder.append(".apk");
 		return builder.toString();
 	}
 	
