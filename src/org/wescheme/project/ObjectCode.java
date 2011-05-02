@@ -93,7 +93,6 @@ public class ObjectCode implements Serializable {
 
 	public AndroidPackage getAndroidPackage() {
 		if (this.androidPackage == null) {
-			System.out.println("fresh android package");
 			this.androidPackage = new AndroidPackage();
 		}
 		return this.androidPackage;

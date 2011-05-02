@@ -35,7 +35,6 @@ public class StoreAndroidPackage extends HttpServlet {
 	public void doPost(HttpServletRequest req,
 				HttpServletResponse res) throws IOException {
 		// Look at the url to see if this is a program
-		System.out.println("StoreAndroidPackage");
 		String uri = req.getRequestURI();
 		String[] chunks = uri.split("/");
 		String id = chunks[chunks.length-1];
@@ -45,12 +44,10 @@ public class StoreAndroidPackage extends HttpServlet {
 
 			AndroidPackageJob androidPackageJob = AndroidPackageJob.findByNonce(pm, id);
 			if (androidPackageJob == null) {
-				System.out.println("Unable to find job with nonce " + id);
 				sendErrorResponseUnexpected(res);
 				return;
 			}
 			try {
-				System.out.println("Android package received.");
 				ObjectCode obj = androidPackageJob.getObject(pm);
 				InputStream is = req.getInputStream();
 				Blob b = readStreamAsBlob(is);

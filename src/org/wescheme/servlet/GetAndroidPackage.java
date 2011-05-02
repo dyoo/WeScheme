@@ -47,11 +47,7 @@ public class GetAndroidPackage extends HttpServlet {
 		if (! objectCode.isAndroidPackageBuilt()) {
 			System.err.println("package hasn't been built yet");
 			response.sendError(403);
-		} else {
-			
-			System.out.println(pkg.getName());
-			System.out.println(pkg.getContent());			
-			
+		} else {			
 			response.setContentType("application/vnd.android.package-archive");
 			response.addHeader("content-disposition",
 					"attachment; filename=" + makeFilename(program)

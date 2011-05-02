@@ -81,7 +81,6 @@ public class AndroidPackager {
 	private static String makeCallbackURL(ServletContext ctx, String name, ObjectCode obj, PersistenceManager pm) throws IOException {
 		WeSchemeProperties properties = new WeSchemeProperties(ctx);	
 		AndroidPackageJob job = new AndroidPackageJob(pm, name, obj);
-		System.out.println("trying to make the job persistent" + job);
 		pm.makePersistent(job);
 		return properties.getServerBaseUrl() + "/store_android/" + job.getNonce();
 	}
@@ -107,7 +106,6 @@ public class AndroidPackager {
 		GZIPOutputStream out = new GZIPOutputStream(bout);
 		out.write(data.getBytes());
 		out.close();
-		System.out.println("size of compressed data: " + bout.size());
 		return bout;
 	}
 
