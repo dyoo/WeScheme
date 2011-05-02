@@ -8,12 +8,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.List;
 import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
 import javax.servlet.ServletContext;
 
 import org.json.simple.JSONObject;

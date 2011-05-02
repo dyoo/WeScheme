@@ -1,10 +1,8 @@
 package org.wescheme.project;
 
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 import javax.jdo.PersistenceManager;
 import javax.jdo.annotations.IdGeneratorStrategy;

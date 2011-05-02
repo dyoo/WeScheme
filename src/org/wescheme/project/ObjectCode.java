@@ -23,7 +23,6 @@ public class ObjectCode implements Serializable {
 	 */
 	private static final long serialVersionUID = 4451726170952980480L;
 
-	@SuppressWarnings("unused")
 	@PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
     protected Key key;
