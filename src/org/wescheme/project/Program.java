@@ -140,7 +140,7 @@ public class Program implements Serializable {
 	public void build(ServletContext ctx, PersistenceManager pm) {
 		ObjectCode obj = this.getObject();
 		ObjectCode newCode = 
-			org.wescheme.project.Compiler.compile(this.getSource());
+			org.wescheme.project.Compiler.compile(ctx, this.getSource());
 		obj.setObj(newCode.getObj());
 		obj.setPermissions(newCode.getPermissions());
 		this.updateTime();

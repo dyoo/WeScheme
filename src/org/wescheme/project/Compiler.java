@@ -1,5 +1,6 @@
 package org.wescheme.project;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 
 import org.json.simple.JSONArray;
@@ -24,10 +25,9 @@ public class Compiler extends HttpServlet
     private static final long serialVersionUID = 6867416066840862239L;
 	
 	
-    private static JSONParser jsonParser = new JSONParser();
-	
-    private static final String compilationServletURL = "http://moby-compiler.cs.brown.edu/servlets/standalone.ss";
-	
+    private static JSONParser jsonParser = new JSONParser();    
+    
+    
     public interface CompilationResult {	
         boolean isBad();
         String getCompiledCode();
@@ -61,13 +61,12 @@ public class Compiler extends HttpServlet
 	
 	
 	
-    public static ObjectCode compile(SourceCode src) {
-        CompilationResult result = Compiler.compile(src.getName(), src.toString());
+    public static ObjectCode compile(ServletContext ctx, SourceCode src) {
+        CompilationResult result = Compiler.compile(ctx, src.getName(), src.toString());
         if (result.isBad()) {
             throw new RuntimeException(result.getErrorMessage());
         } else {
-            return new ObjectCode(
-                                  result.getCompiledCode(),
+            return new ObjectCode(result.getCompiledCode(),
                                   result.getPermissions(),
                                   false);
         }
@@ -77,10 +76,9 @@ public class Compiler extends HttpServlet
      * compile: SourceCode -> ObjectCode
      * Compiles the source code, using an external compilation server, and returns the compiled code.
      */
-    public static CompilationResult compile(String programName, String programSource){
+    public static CompilationResult compile(ServletContext ctx, String programName, String programSource){
         try {
-            URL url = new URL(compilationServletURL);
-					
+        	URL url = new URL(new WeSchemeProperties(ctx).getCompilationServerUrl());					
             String data = "name=" + URLEncoder.encode(programName, "UTF-8") +
                 "&format=json" + 
                 "&program=" + URLEncoder.encode(programSource, "UTF-8");

@@ -39,7 +39,7 @@ public class Compile extends HttpServlet {
 			return;
 		}
 		org.wescheme.project.Compiler.CompilationResult result = 
-			org.wescheme.project.Compiler.compile(programName, programSource);
+			org.wescheme.project.Compiler.compile(this.getServletContext(), programName, programSource);
 		if (result.isBad()) {
 			writeErrorResponse(response, result.getErrorMessage());
 		} else {
