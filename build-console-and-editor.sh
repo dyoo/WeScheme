@@ -17,6 +17,13 @@ build() {
         > war/$2    
 }
 
+
+echo "Building properties file for JS"
+## fill me in
+python bin/make-properties.py <war/wescheme.properties >war-src/js/wescheme-properties.js
+
+
+
 echo "Building test hello application: if this fails, something's wrong, and closure-library hasn't been installed"
 build js/hello.js js/hello-calc.js
 

@@ -9,7 +9,9 @@ goog.provide("plt.wescheme.WeSchemeInteractions");
 
 goog.require("plt.wescheme.topKeymap");
 goog.require("plt.wescheme.WeSchemeTextContainer");
-goog.require('plt.wescheme.tokenizer');
+goog.require("plt.wescheme.tokenizer");
+goog.require("plt.wescheme.WeSchemeProperties");
+
 
 var WeSchemeInteractions;
 
@@ -357,7 +359,7 @@ WeSchemeInteractions = (function () {
 		return result;
 	    },
 	    compilationServletUrl: "/compile",
-	    scriptCompilationServletUrl: "http://moby-compiler.cs.brown.edu/servlets/standalone.ss"
+	    scriptCompilationServletUrl: plt.wescheme.WeSchemeProperties.compilation_server_url
 	});
 	evaluator.makeToplevelNode = function() {
 	    var dialog = jQuery("<div/>");

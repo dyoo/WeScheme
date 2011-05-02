@@ -11,6 +11,8 @@ and add it as a project within Eclipse.
 
 
 
+
+
 WeScheme uses the Google Closure library:
 
    http://code.google.com/closure/library/docs/gettingstarted.html
@@ -22,3 +24,9 @@ majority of these are located in:
 
 The script "build-console-and-editor.sh" should be executed after any
 changes are made to the javascript source files in war-src/js.
+
+
+
+
+You may also need to change war/wescheme.properties if you are doing
+any development on the android packager or compilation server.

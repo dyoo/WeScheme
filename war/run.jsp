@@ -6,6 +6,8 @@
 
 <%
     String publicId = request.getParameter("publicId");
+
+    String compilationServerUrl = (new org.wescheme.project.WeSchemeProperties(getServletContext())).getCompilationServerUrl();
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
@@ -38,7 +40,7 @@ var Runner = function(interactionsDiv) {
 	    write: function(thing) {
 		that.addToInteractions(thing);
 	    },
-	    compilationServletUrl: "http://moby-compiler.cs.brown.edu/servlets/standalone.ss"
+	    compilationServletUrl: "<%= compilationServletUrl %>"
 	});
 };
 
