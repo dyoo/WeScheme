@@ -53,7 +53,10 @@ var CodeMirror = (function(){
     width: "",
     height: "300px",
     minHeight: 100,
+    onDynamicHeightChange: null,
     autoMatchParens: false,
+    markParen: null,
+    unmarkParen: null,
     parserConfig: null,
     tabMode: "indent", // or "spaces", "default", "shift"
     enterMode: "indent", // or "keep", "flat"
@@ -66,7 +69,8 @@ var CodeMirror = (function(){
     onLineNumberClick: null,
     indentUnit: 2,
     domain: null,
-    noScriptCaching: false
+    noScriptCaching: false,
+    incrementalLoading: false
   });
 
   function addLineNumberDiv(container, firstNum) {
@@ -96,7 +100,8 @@ var CodeMirror = (function(){
     if (typeof options.stylesheet == "string")
       options.stylesheet = [options.stylesheet];
 
-    var html = ["<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\"><html><head>"];
+    var sp = " spellcheck=\"" + (options.disableSpellcheck ? "false" : "true") + "\"";
+    var html = ["<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\"><html" + sp + "><head>"];
     // Hack to work around a bunch of IE8-specific problems.
     html.push("<meta http-equiv=\"X-UA-Compatible\" content=\"IE=EmulateIE7\"/>");
     var queryStr = options.noScriptCaching ? "?nocache=" + new Date().getTime().toString(16) : "";
@@ -107,8 +112,7 @@ var CodeMirror = (function(){
       if (!/^https?:/.test(file)) file = options.path + file;
       html.push("<script type=\"text/javascript\" src=\"" + file + queryStr + "\"><" + "/script>");
     });
-    html.push("</head><body style=\"border-width: 0;\" class=\"editbox\" spellcheck=\"" +
-              (options.disableSpellcheck ? "false" : "true") + "\"></body></html>");
+    html.push("</head><body style=\"border-width: 0;\" class=\"editbox\"" + sp + "></body></html>");
     return html.join("");
   }
 
@@ -413,7 +417,11 @@ var CodeMirror = (function(){
             setNum(next++, node.previousSibling);
             for (; node && !win.isBR(node); node = node.nextSibling) {
               var bott = node.offsetTop + node.offsetHeight;
-              while (scroller.offsetHeight && bott - 3 > pos) setNum("&nbsp;");
+              while (scroller.offsetHeight && bott - 3 > pos) {
+                var oldPos = pos;
+                setNum("&nbsp;");
+                if (pos <= oldPos) break;
+              }
             }
             if (node) node = node.nextSibling;
             if (new Date().getTime() > endTime) {
@@ -476,8 +484,12 @@ var CodeMirror = (function(){
         else if (lineHeight) {
           computedHeight = trailingLines * lineHeight;
         }
-        if (computedHeight)
-          self.wrapping.style.height = Math.max(vmargin + computedHeight, self.options.minHeight) + "px";
+        if (computedHeight) {
+          if (self.options.onDynamicHeightChange)
+            computedHeight = self.options.onDynamicHeightChange(computedHeight);
+          if (computedHeight)
+            self.wrapping.style.height = Math.max(vmargin + computedHeight, self.options.minHeight) + "px";
+        }
       }
       setTimeout(updateHeight, 300);
       self.options.onCursorActivity = function(x) {
@@ -517,15 +529,17 @@ var CodeMirror = (function(){
         area.form.addEventListener("submit", updateField, false);
       else
         area.form.attachEvent("onsubmit", updateField);
-      var realSubmit = area.form.submit;
-      function wrapSubmit() {
-        updateField();
-        // Can't use realSubmit.apply because IE6 is too stupid
-        area.form.submit = realSubmit;
-        area.form.submit();
+      if (typeof area.form.submit == "function") {
+        var realSubmit = area.form.submit;
+        function wrapSubmit() {
+          updateField();
+          // Can't use realSubmit.apply because IE6 is too stupid
+          area.form.submit = realSubmit;
+          area.form.submit();
+          area.form.submit = wrapSubmit;
+        }
         area.form.submit = wrapSubmit;
       }
-      area.form.submit = wrapSubmit;
     }
 
     function insert(frame) {
@@ -537,12 +551,14 @@ var CodeMirror = (function(){
 
     area.style.display = "none";
     var mirror = new CodeMirror(insert, options);
+    mirror.save = updateField;
     mirror.toTextArea = function() {
       updateField();
       area.parentNode.removeChild(mirror.wrapping);
       area.style.display = "";
       if (area.form) {
-        area.form.submit = realSubmit;
+        if (typeof area.form.submit == "function")
+          area.form.submit = realSubmit;
         if (typeof area.form.removeEventListener == "function")
           area.form.removeEventListener("submit", updateField, false);
         else
