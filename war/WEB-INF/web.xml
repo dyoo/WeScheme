@@ -38,35 +38,7 @@
     <url-pattern>/remote_api</url-pattern>
   </servlet-mapping>
 
-  
-  <servlet>
-    <servlet-name>addDropbox</servlet-name>
-    <servlet-class>org.wescheme.servlet.AddDropboxServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>addDropbox</servlet-name>
-    <url-pattern>/addDropbox</url-pattern>
-  </servlet-mapping>
-  
-  <servlet>
-    <servlet-name>addBin</servlet-name>
-    <servlet-class>org.wescheme.servlet.AddBinServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>addBin</servlet-name>
-    <url-pattern>/addBin</url-pattern>
-  </servlet-mapping>
-
-  <servlet>
-    <servlet-name>addProject</servlet-name>
-    <servlet-class>org.wescheme.servlet.AddProjectServlet</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>addProject</servlet-name>
-    <url-pattern>/addProject</url-pattern>
-  </servlet-mapping>
-  
-  
+    
   <servlet>
     <servlet-name>createUser</servlet-name>
     <servlet-class>org.wescheme.servlet.CreateUserServlet</servlet-class>

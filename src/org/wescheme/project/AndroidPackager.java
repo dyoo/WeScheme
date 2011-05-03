@@ -95,7 +95,7 @@ public class AndroidPackager {
 					"&cb=" + URLEncoder.encode(callbackUrl, "UTF-8") +
 					"&" + makeResourceChunk("program.js", 
 							"var program = {};\nprogram.bytecode=" + programSource + ";") +
-					"&" + makeResourceChunk("mindex.html", readStream(ctx.getResourceAsStream("/android-packager/index.html")))+
+					"&" + makeResourceChunk("index.html", readStream(ctx.getResourceAsStream("/android-packager/index.html")))+
 					"&" + makeResourceChunk("main.js", readStream(ctx.getResourceAsStream("/android-packager/main.js")))+
 					"&" + makeResourceChunk("phonegap.js", readStream(ctx.getResourceAsStream("/android-packager/phonegap.js")))+
 					"&" + makeResourceChunk("collections.js", readStream(ctx.getResourceAsStream("/js/mzscheme-vm/collections.js"))) +

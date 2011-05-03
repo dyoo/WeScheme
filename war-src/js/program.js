@@ -88,9 +88,18 @@ goog.require("plt.wescheme.WeSchemeProperties");
 
     // getAndroidPackageUrl: -> string
     plt.wescheme.Program.prototype.getAndroidPackageUrl = function() {
-	return this.dom.find("ObjectCode isAndroidPackageBuilt").text() === "true";
+        return (plt.wescheme.WeSchemeProperties.wescheme_server_base + 
+                "/android?publicId=" + encodeURIComponent(this.getPublicId()));
     };
 
+
+    // getPublicEditingUrl: -> string
+    // Returns a url that, when visited, opens up the editor.
+    plt.wescheme.Program.prototype.getPublicEditingUrl = function() {
+        return (plt.wescheme.WeSchemeProperties.wescheme_server_base + 
+                "/openEditor?publicId="+ encodeURIComponent(this.getPublicId()));
+
+    };
 
 
 

@@ -35,6 +35,17 @@ function update(publicId) {
 	}
 
 
+        if (myProgram.isAndroidPackageBuilt()) {
+	    jQuery("#androidApk").attr(
+		"href",
+		myProgram.getAndroidPackageUrl());
+
+        } else {
+	    jQuery("#androidApk").hide();
+	}
+
+
+
 	// Add the social bookmarks, too.
 	jQuery("#socialBookmarks").append(
 	    jQuery(
