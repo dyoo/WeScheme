@@ -2,7 +2,7 @@ goog.provide("plt.wescheme.Program");
 
 
 goog.require("plt.wescheme.SharedAs");
-
+goog.require("plt.wescheme.WeSchemeProperties");
 
 
 
@@ -79,6 +79,28 @@ goog.require("plt.wescheme.SharedAs");
     plt.wescheme.Program.prototype.getObjectCode = function() {
 	return this.dom.find("ObjectCode obj").text();
     };
+
+
+    // isAndroidPackageBuilt: -> boolean
+    plt.wescheme.Program.prototype.isAndroidPackageBuilt = function() {
+	return this.dom.find("ObjectCode isAndroidPackageBuilt").text() === "true";
+    };
+
+    // getAndroidPackageUrl: -> string
+    plt.wescheme.Program.prototype.getAndroidPackageUrl = function() {
+        return (plt.wescheme.WeSchemeProperties.wescheme_server_base + 
+                "/android?publicId=" + encodeURIComponent(this.getPublicId()));
+    };
+
+
+    // getPublicEditingUrl: -> string
+    // Returns a url that, when visited, opens up the editor.
+    plt.wescheme.Program.prototype.getPublicEditingUrl = function() {
+        return (plt.wescheme.WeSchemeProperties.wescheme_server_base + 
+                "/openEditor?publicId="+ encodeURIComponent(this.getPublicId()));
+
+    };
+
 
 
 }());

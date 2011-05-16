@@ -117,6 +117,8 @@ public class ObjectCode implements Serializable {
 			permElt.addContent(XML.makeElement("permission", perm));
 		}
 		root.addContent(XML.makeElement("trusted", this.trusted_));
+		root.addContent(XML.makeElement("isAndroidPackageBuilt",
+				isAndroidPackageBuilt()));
 		return root;
 	}	
 }

@@ -5,8 +5,6 @@ import java.util.List;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
 	
-import org.wescheme.dropbox.Dropbox;
-import org.wescheme.dropbox.Entry;
 import org.wescheme.project.Program;
 	
 /**
@@ -73,32 +71,5 @@ public class Queries {
 			query.closeAll();
 		}		
 	}
-	
-	
-	
-	public static List<Dropbox> getDropboxes(PersistenceManager pm, String userName) {
-		Query query = pm.newQuery(Dropbox.class);
-		query.setFilter("ownerName_ == ownerParam");
-		query.declareParameters("String ownerParam");			
-		try {
-			@SuppressWarnings({ "unchecked" })
-			List<Dropbox> dbl = (List<Dropbox>) query.execute(userName);
-			return dbl;
-		} finally {
-			query.closeAll();
-		}
-	}
-	
-	
-	@SuppressWarnings("unchecked")
-	public static List<Entry> getDropboxEntries(PersistenceManager pm, Long dropboxId) {
-		Query query = pm.newQuery(Entry.class);
-		try {
-			query.setFilter("dbID_ == dbidParam");
-			query.declareParameters("Long dbidParam");
-			return ((List<Entry>) query.execute(dropboxId));
-		} finally { 
-			query.closeAll();
-		}
-	}
+
 }

@@ -29,6 +29,7 @@
 
 <a id="runIt" class="linkbutton">Run it!</a>
 <a id="viewSource" class="linkbutton">View source</a>
+<a id="androidApk" class="linkbutton">Download Android APK</a>
 
 
 <h2><div id="socialBookmarks"></div></h2>	
