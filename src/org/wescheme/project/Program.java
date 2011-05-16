@@ -1,6 +1,7 @@
 package org.wescheme.project;
 
 import java.io.Serializable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -137,14 +138,18 @@ public class Program implements Serializable {
 		updateTime();
 	}
 
-	public void build(ServletContext ctx, PersistenceManager pm) {
+	public void build(ServletContext ctx, PersistenceManager pm) throws IOException {
 		ObjectCode obj = this.getObject();
 		ObjectCode newCode = 
 			org.wescheme.project.Compiler.compile(ctx, this.getSource());
 		obj.setObj(newCode.getObj());
 		obj.setPermissions(newCode.getPermissions());
 		this.updateTime();
-		AndroidPackager.queueAndroidPackageBuild(ctx, getTitle(), obj, pm);
+		if ((new WeSchemeProperties(ctx))
+		    .getAndroidPackagerUrl() != null) {
+		    AndroidPackager.queueAndroidPackageBuild
+			(ctx, getTitle(), obj, pm);
+		}
 	}
 
 	public void updateTitle(String newTitle) {
