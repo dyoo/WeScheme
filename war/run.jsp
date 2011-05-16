@@ -40,7 +40,7 @@ var Runner = function(interactionsDiv) {
 	    write: function(thing) {
 		that.addToInteractions(thing);
 	    },
-	    compilationServletUrl: "<%= compilationServletUrl %>"
+	    compilationServletUrl: "<%= compilationServerUrl %>"
 	});
 };
 

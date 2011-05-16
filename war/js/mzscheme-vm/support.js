@@ -12250,7 +12250,7 @@ world.Kernel.isFileVideo	= function(x) { return x instanceof FileVideo; };
 	if (config.lookup('onKey')) {
 
 	    // TODO: add virtual key bindings
-	    var removeVirtualKeys = addVirtualKeys(stimuli);
+	    var removeVirtualKeys = addVirtualKeys(stimuli, toplevelNode);
 	    shutdownListeners.push(function() { removeVirtualKeys(); });
 		
 
@@ -12295,15 +12295,13 @@ world.Kernel.isFileVideo	= function(x) { return x instanceof FileVideo; };
 
 
 
-    var addVirtualKeys = function(stimuli) {
+    var addVirtualKeys = function(stimuli, toplevelNode) {
 	var makeVirtualButton = function(className, label, keyCode) {
 	    var button = document.createElement("input");
 	    button.type = "button";
 	    button.value = label;
-	    button.style['text-align'] = 'center';
 	    button.style.width = "20px";
 	    button.style.height = "20px";
-	    button.style.border = "1px solid black";
 	    button.onclick = function(e) {
 		stimuli.onKey([{keyCode: keyCode}], function() {});
 		preventDefault(e);
@@ -12312,45 +12310,45 @@ world.Kernel.isFileVideo	= function(x) { return x instanceof FileVideo; };
 	    return button;
 	};
 
-	var up = makeVirtualButton('up-virtual-button', "U", 38);
-	var down = makeVirtualButton('down-virtual-button', "D", 40);
-	var left = makeVirtualButton('left-virtual-button', "L", 37);
-	var right = makeVirtualButton('right-virtual-button', "R", 39);
-	var fire = makeVirtualButton('space-virtual-button', " ", 32);
+	var upButton = makeVirtualButton('up-virtual-button', "U", 38);
+	var downButton = makeVirtualButton('down-virtual-button', "D", 40);
+	var leftButton = makeVirtualButton('left-virtual-button', "L", 37);
+	var rightButton = makeVirtualButton('right-virtual-button', "R", 39);
+	var fireButton = makeVirtualButton('space-virtual-button', " ", 32);
 
-	up.style['position'] = 'fixed';
-	up.style['bottom'] = '60px';
-	up.style['right'] = '50px';
+	upButton.style['position'] = 'fixed';
+	upButton.style['bottom'] = '60px';
+	upButton.style['right'] = '50px';
 
-	down.style['position'] = 'fixed';
-	down.style['bottom'] = '0px';
-	down.style['right'] = '50px';
+	downButton.style['position'] = 'fixed';
+	downButton.style['bottom'] = '0px';
+	downButton.style['right'] = '50px';
 
-	left.style['position'] = 'fixed';
-	left.style['bottom'] = '30px';
-	left.style['right'] = '80px';
+	leftButton.style['position'] = 'fixed';
+	leftButton.style['bottom'] = '30px';
+	leftButton.style['right'] = '80px';
 
-	right.style['position'] = 'fixed';
-	right.style['bottom'] = '30px';
-	right.style['right'] = '20px';
+	rightButton.style['position'] = 'fixed';
+	rightButton.style['bottom'] = '30px';
+	rightButton.style['right'] = '20px';
 
-	fire.style['position'] = 'fixed';
-	fire.style['bottom'] = '30px';
-	fire.style['right'] = '50px';
+	fireButton.style['position'] = 'fixed';
+	fireButton.style['bottom'] = '30px';
+	fireButton.style['right'] = '50px';
 
 
-	document.body.appendChild(up);
-	document.body.appendChild(down);
-	document.body.appendChild(left);
-	document.body.appendChild(right);
-	document.body.appendChild(fire);
+	toplevelNode.appendChild(upButton);
+	toplevelNode.appendChild(downButton);
+	toplevelNode.appendChild(leftButton);
+	toplevelNode.appendChild(rightButton);
+	toplevelNode.appendChild(fireButton);
 
 	return function() {
-	    document.body.removeChild(up);
-	    document.body.removeChild(down);
-	    document.body.removeChild(left);
-	    document.body.removeChild(right);
-	    document.body.removeChild(fire);
+	    toplevelNode.removeChild(upButton);
+	    toplevelNode.removeChild(downButton);
+	    toplevelNode.removeChild(leftButton);
+	    toplevelNode.removeChild(rightButton);
+	    toplevelNode.removeChild(fireButton);
 	};
     };
 
