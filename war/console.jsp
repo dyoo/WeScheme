@@ -29,14 +29,13 @@
 <jsp:include page="/js/compat/compat.jsp"/>
 
 
-<script src="http://www.google.com/jsapi"></script>
-<script>
-  google.load("jquery", "1.3.2");
-  google.load("jqueryui", "1.7.2");
-</script>
+    <!-- JQuery -->
+    <script src="/editor/jquery.js"></script>
+    <script src="/js/jquery/jquery-ui-1.7.3.custom.min.js"></script>
+
 
 <!-- JQuery UI style sheet -->
-<link rel="stylesheet" type="text/css" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css"/>
+<link rel="stylesheet" type="text/css" href="/css/jquery-ui.css"/>
 
 
 <script src="editor/jquery.createdomnodes.js"></script>
