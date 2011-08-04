@@ -124,7 +124,7 @@ goog.require('plt.wescheme.cookies');
 	var i = 0;
 	while (true) {
 	    if (i < l1.length && i < l2.length) {
-		if (parseFloat(l1[i]) >= parseFloat(l2[i])) {
+		if (parseFloat(l1[i]) > parseFloat(l2[i])) {
 		    return true;
 		} if (parseFloat(l1[i]) < parseFloat(l2[i])) {
 		    return false;

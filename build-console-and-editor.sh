@@ -25,8 +25,8 @@ python bin/make-properties.py <wescheme.properties >war-src/js/wescheme-properti
 
 
 
-echo "Building test hello application: if this fails, something's wrong, and closure-library hasn't been installed"
-build js/hello.js js/hello-calc.js
+echo "Building test application: if this fails, something's wrong, and closure-library hasn't been installed"
+build test/test.js test/test-calc.js
 
 echo "Building console"
 build js/console.js js/console-calc.js
