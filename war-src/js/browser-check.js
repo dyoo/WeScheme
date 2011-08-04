@@ -193,8 +193,8 @@ goog.require('plt.wescheme.cookies');
 		"<a href='http://www.google.com/chrome'>Chrome</a>,  "+
 		"<a href='http://www.getfirefox.com'>Firefox</a>, or "+
 		"<a href='http://www.apple.com/safari'>Safari</a>."+
-		"Unfortunately, WeScheme is known to break under your browser.  Please update "+
-		"your browser.");
+		"<hr/>  Unfortunately, WeScheme is known to break under your "+
+		"current browser.  Please update your browser.");
 	dialogWindow.dialog({'title': 'Browser version check',
 			     'bgiframe' : true,
 			     'modal' : true,
@@ -213,7 +213,7 @@ goog.require('plt.wescheme.cookies');
 	dialogWindow.append(
 	    "<p>WeScheme detects that you're using " + BrowserDetect.browser + " " + 
 		BrowserDetect.version + ", but WeScheme needs " + browser + " >= " +
-		minimumVersion + ".  WeScheme may still continue to work on your browser,"+
+		minimumVersion + ".<hr/>  WeScheme may still continue to work on your browser,"+
 		" but we have not tested it. We recommend installing "+
 		"<a href='http://www.google.com/chrome'>Chrome</a>,  "+
 		"<a href='http://www.getfirefox.com'>Firefox</a>, or "+
@@ -237,8 +237,8 @@ goog.require('plt.wescheme.cookies');
 		" but WeScheme has only been tested on modern versions of " +
 		"<a href='http://www.google.com/chrome'>Chrome</a>,  "+
 		"<a href='http://www.getfirefox.com'>Firefox</a>, or "+
-		"<a href='http://www.apple.com/safari'>Safari</a>."
-		"  WeScheme may still continue "+
+		"<a href='http://www.apple.com/safari'>Safari</a>." +
+		"<hr/>  WeScheme may still continue "+
 		"to work on your browser, but we have not tested it.");
 	dialogWindow.dialog({'title': 'Browser version check',
 			     'bgiframe' : true,
@@ -256,4 +256,7 @@ goog.require('plt.wescheme.cookies');
     BrowserDetect.debug.warn1 = warnBrowserPartiallySupported;
     BrowserDetect.debug.warn2 = warnBrowserMightNotWork;
     BrowserDetect.debug.warn3 = warnBrowserUnsupported;
+
+    BrowserDetect.debug.versionLessThan = versionLessThan;
+    BrowserDetect.debug.versionGreaterThanOrEqual = versionGreaterThanOrEqual;
 })();
