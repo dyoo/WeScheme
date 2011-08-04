@@ -61,7 +61,7 @@ public class Administrate extends HttpServlet {
 
 	// refreshProgram: force the building of the binary of the given program if it exists,
 	// and repair broken invariants of the data model.
-	private void refreshProgram(HttpServletRequest req, HttpServletResponse res) {
+	private void refreshProgram(HttpServletRequest req, HttpServletResponse res) throws IOException {
 		String programId = req.getParameter("pid");
 		if (programId == null) {
 			throw new RuntimeException("pid missing");
