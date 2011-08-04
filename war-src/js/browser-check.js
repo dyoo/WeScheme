@@ -131,11 +131,11 @@ goog.require('plt.wescheme.cookies');
 		    i++;
 		    continue;
 		}		
-	    } else if (i > l1.length && i > l2.length) {
+	    } else if (i >= l1.length && i >= l2.length) {
 		return true;
-	    } else if (i > l1.length) {
+	    } else if (i >= l1.length) {
 		return false;
-	    } else if (i > l2.length) {
+	    } else if (i >= l2.length) {
 		return true;
 	    }
 	}
@@ -155,11 +155,11 @@ goog.require('plt.wescheme.cookies');
 		    i++;
 		    continue;
 		}		
-	    } else if (i > l1.length && i > l2.length) {
+	    } else if (i >= l1.length && i >= l2.length) {
 		return false;
-	    } else if (i > l1.length) {
+	    } else if (i >= l1.length) {
 		return true;
-	    } else if (i > l2.length) {
+	    } else if (i >= l2.length) {
 		return false;
 	    }
 	}
