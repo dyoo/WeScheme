@@ -115,3 +115,54 @@ var testVersionGreaterThanOrEqual = function() {
 		 versionGreaterThanOrEqual('4.1.3', '4.1.4'),
 		 false);
 }
+
+
+
+
+var testBrowserAcceptance = function() {
+    var isFullySupported = plt.wescheme.BrowserDetect.debug.isFullySupported;
+    var isPartiallySupported = plt.wescheme.BrowserDetect.debug.isPartiallySupported;
+    var isUnsupported = plt.wescheme.BrowserDetect.debug.isUnsupported;
+
+    assertEquals('ie 5', false, isFullySupported('Explorer', '5'));
+    assertEquals('ie 5', false, isPartiallySupported('Explorer', '5'));
+    assertEquals('ie 5', true, isUnsupported('Explorer', '5'));
+
+    assertEquals('ie 6', false, isFullySupported('Explorer', '6'));
+    assertEquals('ie 6', false, isPartiallySupported('Explorer', '6'));
+    assertEquals('ie 6', true, isUnsupported('Explorer', '6'));
+    
+    assertEquals('ie 7', false, isFullySupported('Explorer', '7'));
+    assertEquals('ie 7', false, isPartiallySupported('Explorer', '7'));
+    assertEquals('ie 7', false, isUnsupported('Explorer', '7'));
+
+    assertEquals('ie 8', false, isFullySupported('Explorer', '8'));
+    assertEquals('ie 8', false, isPartiallySupported('Explorer', '8'));
+    assertEquals('ie 8', false, isUnsupported('Explorer', '8'));
+
+    assertEquals('safari 3', false, isFullySupported('Safari', '3'));
+    assertEquals('safari 3', false, isPartiallySupported('Safari', '3'));
+    assertEquals('safari 3', true, isUnsupported('Safari', '3'));
+
+    assertEquals('safari 4', false, isFullySupported('Safari', '4'));
+    assertEquals('safari 4', true, isPartiallySupported('Safari', '4'));
+    assertEquals('safari 4', false, isUnsupported('Safari', '4'));
+
+    assertEquals('safari 5', true, isFullySupported('Safari', '5'));
+    assertEquals('safari 5', false, isPartiallySupported('Safari', '5'));
+    assertEquals('safari 5', false, isUnsupported('Safari', '5'));
+
+    assertEquals('firefox 3.5.1', true, isFullySupported('Firefox', '3.5.1'));
+
+    assertEquals('firefox 3.5', false, isFullySupported('Firefox', '3.5'));
+    assertEquals('firefox 3.5', true, isUnsupported('Firefox', '3.5'));
+
+    assertEquals('chrome 3', false, isFullySupported('Chrome', '3'));
+    assertEquals('chrome 3', true, isPartiallySupported('Chrome', '3'));
+    assertEquals('chrome 3', false, isUnsupported('Chrome', '3'));
+
+    assertEquals('chrome 11', true, isFullySupported('Chrome', '11'));
+    assertEquals('chrome 11', false, isPartiallySupported('Chrome', '11'));
+    assertEquals('chrome 11', false, isUnsupported('Chrome', '11'));
+
+};

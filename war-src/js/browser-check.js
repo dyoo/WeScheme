@@ -29,7 +29,7 @@ goog.require('plt.wescheme.cookies');
 
     var fullySupportedVersions = [ {browser: 'Safari', minimumVersion: '5'},
 				   {browser: 'Chrome', minimumVersion: '5'},
-				   {browser: 'Firefox', minimumVersion: '3.6'} ];
+				   {browser: 'Firefox', minimumVersion: '3.5.1'} ];
 
     var knownBadBrowsers = [ {browser: 'Explorer', lessThan: '7'},
 			     {browser: 'Safari', lessThan: '4'},
@@ -103,8 +103,8 @@ goog.require('plt.wescheme.cookies');
 
     // isPartiallySupported: -> boolean
     var isPartiallySupported = function(browser, versionString) {
-	if (isUnsupported()) { return false; }
-	if (isFullySupported()) { return false; }
+	if (isUnsupported(browser, versionString)) { return false; }
+	if (isFullySupported(browser, versionString)) { return false; }
     	for (var i = 0; i < fullySupportedVersions.length; i++) {
     	    if (browser === fullySupportedVersions[i].browser) {
 		return true;
