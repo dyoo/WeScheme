@@ -20,7 +20,8 @@ build() {
 
 echo "Building properties file for JS"
 ## fill me in
-python bin/make-properties.py <war/wescheme.properties >war-src/js/wescheme-properties.js
+cp wescheme.properties war/wescheme.properties
+python bin/make-properties.py <wescheme.properties >war-src/js/wescheme-properties.js
 
 
 
