@@ -44,16 +44,17 @@ goog.require('plt.wescheme.cookies');
     // If not, bring up a warning dialog saying that we haven't tested
     // on the other platforms.
     plt.wescheme.browserCheck = function() {
+	var browser = BrowserDetect.browser;
+	var versionString = BrowserDetect.versionString;
 	
-	if (isFullySupported()) {
+	if (isFullySupported(browser, versionString)) {
 	    return;
-	} else if (isUnsupported()) {
+	} else if (isUnsupported(browser, versionString)) {
 	    warnBrowserUnsupported();
-	} else if (isPartiallySupported()) {
+	} else if (isPartiallySupported(browser, versionString)) {
 	    if (browserAlreadyChecked()) {
 		return;
 	    }
-	    var browser = BrowserDetect.browser;
 	    var minimumVersion;
 	    for (var i = 0 ; i < fullySupportedVersions; i++) {
 		if (browser === fullySupportedVersions[i].browser) {
@@ -75,10 +76,10 @@ goog.require('plt.wescheme.cookies');
     
     // // isFullySupported: -> boolean
     // // Returns true if the currently running browser is fully supported.
-    var isFullySupported = function() {
+    var isFullySupported = function(browser, versionString) {
     	for (var i = 0; i < fullySupportedVersions.length; i++) {
-    	    if (BrowserDetect.browser === fullySupportedVersions[i].browser) {
-    		if (versionGreaterThanOrEqual(BrowserDetect.versionString,
+    	    if (browser === fullySupportedVersions[i].browser) {
+    		if (versionGreaterThanOrEqual(versionString,
 					      fullySupportedVersions[i].minimumVersion)) {
     		    return true;
     		}
@@ -88,11 +89,11 @@ goog.require('plt.wescheme.cookies');
     };
     
     // isUnsupported: -> boolean
-    var isUnsupported = function() {
+    var isUnsupported = function(browser, versionString) {
     	for (var i = 0; i < knownBadBrowsers.length; i++) {
-    	    if (BrowserDetect.browser === knownBadBrowsers[i].browser) {
-    		if (versionLessThan(BrowserDetect.versionString,
-				    knownBadBrowsers[i].minimumVersion)) {
+    	    if (browser === knownBadBrowsers[i].browser) {
+    		if (versionLessThan(versionString,
+				    knownBadBrowsers[i].lessThan)) {
     		    return true;
     		}
     	    }
@@ -101,11 +102,11 @@ goog.require('plt.wescheme.cookies');
     };
 
     // isPartiallySupported: -> boolean
-    var isPartiallySupported = function() {
+    var isPartiallySupported = function(browser, versionString) {
 	if (isUnsupported()) { return false; }
 	if (isFullySupported()) { return false; }
     	for (var i = 0; i < fullySupportedVersions.length; i++) {
-    	    if (BrowserDetect.browser === fullySupportedVersions[i].browser) {
+    	    if (browser === fullySupportedVersions[i].browser) {
 		return true;
 	    }
 	}
@@ -259,4 +260,8 @@ goog.require('plt.wescheme.cookies');
 
     BrowserDetect.debug.versionLessThan = versionLessThan;
     BrowserDetect.debug.versionGreaterThanOrEqual = versionGreaterThanOrEqual;
+
+    BrowserDetect.debug.isFullySupported = isFullySupported;
+    BrowserDetect.debug.isPartiallySupported = isPartiallySupported;
+    BrowserDetect.debug.isUnsupported = isUnsupported;
 })();
