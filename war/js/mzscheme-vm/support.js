@@ -10240,6 +10240,10 @@ var FileImage = function(src, rawImage) {
     var self = this;
     this.src = src;
     this.isLoaded = false;
+
+    // animationHack: see installHackToSupportAnimatedGifs() for details.
+    this.animationHackImg = undefined;
+
     if (rawImage && rawImage.complete) { 
 	this.img = rawImage;
 	this.isLoaded = true;
@@ -10264,7 +10268,6 @@ var FileImage = function(src, rawImage) {
     }
 }
 FileImage.prototype = heir(BaseImage.prototype);
-//    world.Kernel.FileImage = FileImage;
 
 
 var imageCache = {};
@@ -10287,8 +10290,22 @@ FileImage.installBrokenImage = function(path) {
 
 
 FileImage.prototype.render = function(ctx, x, y) {
-    ctx.drawImage(this.img, x, y);
+    this.installHackToSupportAnimatedGifs();
+    
+    ctx.drawImage(this.animationHackImg, x, y);
 };
+
+
+// The following is a hack that we use to allow animated gifs to show
+// as animating on the canvas.
+FileImage.prototype.installHackToSupportAnimatedGifs = function() {
+    if (this.animationHackImg) { return; }
+    this.animationHackImg = this.img.cloneNode(true);
+    document.body.appendChild(this.animationHackImg);
+    this.animationHackImg.width = 0;
+    this.animationHackImg.height = 0;
+};
+
 
 
 FileImage.prototype.getWidth = function() {
@@ -10300,7 +10317,9 @@ FileImage.prototype.getHeight = function() {
     return this.img.height;
 };
 
-// Override toDomNode: we don't need a full-fledged canvas here.
+// Override toDomNode: we don't need a full-fledged canvas here, and
+// we want to clone the image so that we can have multiple instances
+// of the image attached to a document.
 FileImage.prototype.toDomNode = function(cache) {
     return this.img.cloneNode(true);
 };
@@ -12351,7 +12370,6 @@ world.Kernel.isFileVideo	= function(x) { return x instanceof FileVideo; };
 	    toplevelNode.removeChild(fireButton);
 	};
     };
-
 
 
     var handleError = function(e) {
