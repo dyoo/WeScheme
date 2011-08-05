@@ -18002,11 +18002,11 @@ COLLECTIONS["bootstrap2011/cage-teachpack"] = { 'name': "bootstrap2011/cage-teac
 } ,"compiled-indirects":[
 ] ,"code":{"$":"seq" ,"forms":[{"$":"def-values" ,"ids":[{"$":"toplevel" ,"depth":0 ,"pos":28 ,"const?":false ,"ready?":false
 }
-] ,"body":{"$":"constant" ,"value":400
+] ,"body":{"$":"constant" ,"value":640
 }
 } ,{"$":"def-values" ,"ids":[{"$":"toplevel" ,"depth":0 ,"pos":29 ,"const?":false ,"ready?":false
 }
-] ,"body":{"$":"constant" ,"value":200
+] ,"body":{"$":"constant" ,"value":480
 }
 } ,{"$":"def-values" ,"ids":[{"$":"toplevel" ,"depth":0 ,"pos":23 ,"const?":false ,"ready?":false
 }
