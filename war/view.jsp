@@ -47,9 +47,11 @@
 </head>
 
 
-<body onload='update(decodeURIComponent("<%= encodedId %>"))'>
+<body>
 <h1 id="programTitle"><c:out escapeXml="true" value="<%= title %>" /></h1>
 
+<div id="publicId"
+     style="display: none"><c:out escapeXml="true" value="<%= publicId %>" /></div>
 
 
 <% if (aProgram == null) { %>
@@ -81,8 +83,9 @@ WeScheme is unable to find your program.
    style="display: none">Download Android APK</a>
 <% } %>
 
+
 <h2><div id="socialBookmarks"></div></h2>	
-<h2>Sometimes YouTube. Perhaps iPhone. Together, WeScheme!</h2>
+<h2 id="bottomMessage" style="display: none">Sometimes YouTube. Perhaps iPhone. Together, WeScheme!</h2>
 
 
 

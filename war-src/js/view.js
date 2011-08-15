@@ -8,13 +8,13 @@ goog.require('plt.wescheme.AjaxActions');
 
 $(document).ready(
     function() {    
+        var title = $("title").text();
+        var publicId = $("#publicId").text();
+
         // Add the social bookmarks, too.
-        jQuery("#socialBookmarks").append(
-	    jQuery(
-	        plt.wescheme.helpers.generateSocialBookmarks(
-		    myProgram.getTitle(), 
-		    plt.wescheme.helpers.makeShareUrl(publicId))))
+        $("#socialBookmarks").append(
+	    $(plt.wescheme.helpers.generateSocialBookmarks(
+		title, 
+		plt.wescheme.helpers.makeShareUrl(publicId))))
+        $("#bottomMessage").show();
     });
-    
-
-
