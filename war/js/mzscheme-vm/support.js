@@ -10497,60 +10497,61 @@ OverlayImage.prototype.isEqual = function(other, aUnionFind) {
 // rotate: angle image -> image
 // Rotates image by angle degrees in a counter-clockwise direction.
 // based on http://stackoverflow.com/questions/3276467/adjusting-div-width-and-height-after-rotated
-var RotateImage = function(angle, img) {
-    var sin   = Math.sin(angle * Math.PI / 180),
-		cos   = Math.cos(angle * Math.PI / 180);
+    var RotateImage = function(angle, img) {
+        var sin   = Math.sin(angle * Math.PI / 180),
+	cos   = Math.cos(angle * Math.PI / 180);
 	
 	// (w,0) rotation
 	var x1 = Math.floor(cos * img.getWidth()),
-		y1 = Math.floor(sin * img.getWidth());
+	y1 = Math.floor(sin * img.getWidth());
 	
 	// (0,h) rotation
 	var x2 = Math.floor(-sin * img.getHeight()),
-		y2 = Math.floor( cos * img.getHeight());
+	y2 = Math.floor( cos * img.getHeight());
 	
 	// (w,h) rotation
 	var x3 = Math.floor(cos * img.getWidth() - sin * img.getHeight()),
-		y3 = Math.floor(sin * img.getWidth() + cos * img.getHeight());
+	y3 = Math.floor(sin * img.getWidth() + cos * img.getHeight());
 	
 	var minX = Math.min(0, x1, x2, x3),
-		maxX = Math.max(0, x1, x2, x3),
-		minY = Math.min(0, y1, y2, y3),
-		maxY = Math.max(0, y1, y2, y3);
+	maxX = Math.max(0, x1, x2, x3),
+	minY = Math.min(0, y1, y2, y3),
+	maxY = Math.max(0, y1, y2, y3);
 	
 	var rotatedWidth  = maxX - minX,
-		rotatedHeight = maxY - minY;
+	rotatedHeight = maxY - minY;
 	
 	// resize the image
-    BaseImage.call(this, 
-				   Math.floor(rotatedWidth / 2),
-				   Math.floor(rotatedHeight / 2));
-		
+        BaseImage.call(this, 
+		       Math.floor(rotatedWidth / 2),
+		       Math.floor(rotatedHeight / 2));
+	
 	this.img	= img;
 	this.width	= rotatedWidth;
 	this.height = rotatedHeight;
-    this.angle	= angle;
+        this.angle	= angle;
 	this.translateX = -minX;
 	this.translateY = -minY;
-};
+    };
 
 RotateImage.prototype = heir(BaseImage.prototype);
 
 
 // translate the canvas using the calculated values, then draw at the rotated (x,y) offset.
-RotateImage.prototype.render = function(ctx, x, y) {
+    RotateImage.prototype.render = function(ctx, x, y) {
 	// calculate the new x and y offsets, by rotating the radius formed by the hypoteneuse
-    var sin	= Math.sin(this.angle * Math.PI / 180),
-		cos	= Math.cos(this.angle * Math.PI / 180),
-		r	= Math.sqrt(x*x + y*y);
-	x = Math.ceil(cos * r);
-	y = -Math.floor(sin * r);
+        var sin	= Math.sin(this.angle * Math.PI / 180),
+	cos	= Math.cos(this.angle * Math.PI / 180),
+	r	= Math.sqrt(x*x + y*y);
 	ctx.save();
-	ctx.translate(this.translateX, this.translateY);
+        ctx.translate(x + this.translateX, y + this.translateY);
+	// x = Math.ceil(cos * r);
+	// y = -Math.floor(sin * r);
+	// ctx.translate(this.translateX, this.translateY);
 	ctx.rotate(this.angle * Math.PI / 180);
-    this.img.render(ctx, x, y);
+        this.img.render(ctx, 0, 0);
 	ctx.restore();
-};
+    };
 
 RotateImage.prototype.isEqual = function(other, aUnionFind) {
     return ( other instanceof RotateImage &&
