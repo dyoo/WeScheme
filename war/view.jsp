@@ -9,6 +9,9 @@
 <%@ page import="javax.jdo.PersistenceManager" %>
 <%@ page import="org.wescheme.util.PMF" %>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+
 <%
     Program aProgram;
     String publicId = request.getParameter("publicId");
@@ -31,7 +34,7 @@
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
-<head><title><%= title %></title>
+<head><title><c:out escapeXml="true" value="<%= title %>" /></title>
 <link rel="stylesheet" type="text/css" href="css/view.css" id="style" />
 
 <!-- Google analytics support -->
@@ -45,7 +48,7 @@
 
 
 <body onload='update(decodeURIComponent("<%= encodedId %>"))'>
-<h1 id="programTitle"><%= title %></h1>
+<h1 id="programTitle"><c:out escapeXml="true" value="<%= title %>" /></h1>
 
 
 
