@@ -120,8 +120,8 @@ var WeSchemeTextContainer;
 		this.behaviorE = receiverE();
 		this.behavior = startsWith(this.behaviorE, "");
 
-		parent.getDiv().width = options.width || "100%";
-		parent.getDiv().height = options.height || "100%";
+		//parent.getDiv().width = options.width || "100%";
+		//parent.getDiv().height = options.height || "100%";
 
 		this.editor = CodeMirror(
 				parent.getDiv(), 
@@ -242,7 +242,7 @@ var WeSchemeTextContainer;
 	CodeMirrorImplementation.prototype.getCursorStartPosition = function() {
 		var pos = this.editor.getCursor(true);
 		return this.getOffsetFromHandleAndColumn(pos.line,
-				pos.character);
+				pos.ch);
 	};
 
 	CodeMirrorImplementation.prototype.setCursorToBeginning = function() {
