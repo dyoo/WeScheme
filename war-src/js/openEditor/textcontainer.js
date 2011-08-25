@@ -131,8 +131,11 @@ var WeSchemeTextContainer;
 			     "/js/codemirror/contrib/scheme/css/schemecolors.css"),
 		autoMatchParens: true,
 		disableSpellcheck: true,*/
+					theme: (options.theme || "scheme"),
+					mode: "scheme2",
 					lineNumbers: (typeof (options.lineNumbers) !== 'undefined'? options.lineNumbers :  true),
 					//textWrapping: true,
+					matchBrackets: true,
 					value: options.content || "",
 					//width: options.width || "100%",
 					//height: options.height || "100%",
@@ -163,11 +166,13 @@ var WeSchemeTextContainer;
 		}*/
 
 		//console.log(this.editor.getScrollerElement())
-		this.editor.getWrapperElement().style.height = options.width || "100%";
+		this.editor.getWrapperElement().style.width = options.width || "100%";
 		this.editor.getWrapperElement().style.height = options.height || "100%";
 
-		this.editor.getScrollerElement().style.height = options.width || "100%";
-		this.editor.getScrollerElement().style.height = options.height || "100%";
+		this.editor.getScrollerElement().style.width = "100%";
+		this.editor.getScrollerElement().style.height = "100%";
+		
+		this.editor.refresh();
 
 		onSuccess.call(that, that);
 	};

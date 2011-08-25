@@ -46,8 +46,9 @@
     
     <script src="/js/codemirror2/lib/codemirror.js"></script>
 	<link rel="stylesheet" type="text/css" href="/js/codemirror2/lib/codemirror.css"></link>
-	<script src="/js/codemirror2/mode/scheme/scheme.js"></script>
-	<link rel="stylesheet" type="text/css" href="/js/codemirror2/theme/default.css"></link>
+	<script src="/js/codemirror2-contrib/scheme2/scheme2.js"></script>
+	<link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors.css"></link>
+	<link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors-interactive.css"></link>
 
     <script src="/js/submitpost.js"></script>
 
