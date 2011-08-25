@@ -120,8 +120,6 @@ var WeSchemeTextContainer;
 		this.behaviorE = receiverE();
 		this.behavior = startsWith(this.behaviorE, "");
 
-		//parent.getDiv().width = options.width || "100%";
-		//parent.getDiv().height = options.height || "100%";
 
 		this.editor = CodeMirror(
 				parent.getDiv(), 
@@ -163,6 +161,13 @@ var WeSchemeTextContainer;
 			// See: http://blogs.msdn.com/b/tl/archive/2008/10/28/9020354.aspx
 			that.editor.frame.allowTransparency = true;
 		}*/
+
+		//console.log(this.editor.getScrollerElement())
+		this.editor.getWrapperElement().style.height = options.width || "100%";
+		this.editor.getWrapperElement().style.height = options.height || "100%";
+
+		this.editor.getScrollerElement().style.height = options.width || "100%";
+		this.editor.getScrollerElement().style.height = options.height || "100%";
 
 		onSuccess.call(that, that);
 	};
