@@ -27,7 +27,7 @@
 }
 
 .cm-s-scheme-interactive .CodeMirror-lines {
-	padding: 0.25em;
+	padding: 0.1em;
 }
 
 .cm-s-scheme-interactive span.cm-scheme-string	{color: green;}

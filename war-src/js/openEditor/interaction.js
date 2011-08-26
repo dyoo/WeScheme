@@ -177,7 +177,7 @@ WeSchemeInteractions = (function () {
 				{ height: 'dynamic',
 					minHeight: 15,
 					lineNumbers: false,
-					theme: "scheme",
+					theme: "scheme-interactive",
 					//stylesheet: "/js/codemirror/contrib/scheme/css/schemecolors-interactive.css",
 					content: nextCode,
 					makeTransparentIframe: true,
