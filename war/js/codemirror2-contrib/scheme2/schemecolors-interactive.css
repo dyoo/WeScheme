@@ -14,7 +14,6 @@
   font-family: monospace;
   font-size: 10pt;
   color: #666666;
-  background: white;
 }
 
 
@@ -25,6 +24,10 @@
 
 .cm-s-scheme-interactive p {
   margin: 0;
+}
+
+.cm-s-scheme-interactive .CodeMirror-lines {
+	padding: 0.25em;
 }
 
 .cm-s-scheme-interactive span.cm-scheme-string	{color: green;}
@@ -40,11 +43,11 @@
 
 .cm-s-scheme-interactive span.cm-scheme-punctuation.CodeMirror-matchingbracket { 
     font-weight: bold;
-    color: #3399FF;  
+    color: #3399FF !important;  
     background-color: #d3d3d3;
 }
 .cm-s-scheme-interactive span.cm-scheme-punctuation.CodeMirror-nonmatchingbracket {
     font-weight: bold;
-    color: red;
+    color: red !important;
     background: #d3d3d3;
 }

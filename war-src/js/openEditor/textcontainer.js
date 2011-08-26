@@ -133,6 +133,7 @@ var WeSchemeTextContainer;
 		disableSpellcheck: true,*/
 					theme: (options.theme || "scheme"),
 					mode: "scheme2",
+					tabMode: "indent",
 					lineNumbers: (typeof (options.lineNumbers) !== 'undefined'? options.lineNumbers :  true),
 					//textWrapping: true,
 					matchBrackets: true,
@@ -156,6 +157,7 @@ var WeSchemeTextContainer;
 						var keymap = parent.getKeymap();
 						if (keymap.keyFilter(event)) {
 							keymap.keyHandler(event);
+							event.stopPropagation();
 							return true;
 						}
 					}});
@@ -207,6 +209,12 @@ var WeSchemeTextContainer;
 		this.behaviorE.sendEvent(code);
 	};
 
+	CodeMirrorImplementation.prototype.handleAndColumnToPos = function (handle) {
+		return {
+			line: handle.handle,
+			ch: handle.column
+		}
+	}
 
 	CodeMirrorImplementation.prototype.highlight = function(id, offset, line, column, span) {
 		offset--;
@@ -214,8 +222,9 @@ var WeSchemeTextContainer;
 		// as 1-offset, rather than 0-offset.
 		var startHandleAndColumn = this.findHandleAndColumn(offset);
 		var endHandleAndColumn = this.findHandleAndColumn(offset+span);
-		this.editor.selectLines(startHandleAndColumn.handle, startHandleAndColumn.column,
-				endHandleAndColumn.handle, endHandleAndColumn.column);
+		this.editor.setSelection(
+				this.handleAndColumnToPos(startHandleAndColumn),
+				this.handleAndColumnToPos(endHandleAndColumn))
 	};
 
 

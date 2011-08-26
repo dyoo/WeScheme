@@ -50,6 +50,8 @@
 	<link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors.css"></link>
 	<link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors-interactive.css"></link>
 
+	<link rel="stylesheet" type="text/css" href="/css/definitions.css"></link>
+
     <script src="/js/submitpost.js"></script>
 
 
