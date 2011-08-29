@@ -311,12 +311,11 @@ var WeSchemeTextContainer;
 
 	CodeMirrorImplementation.prototype.focus = function() {
 		this.editor.focus();
-		console.log("focusing")
-		//TODO what is this code?
+		/*
 		var start = this.editor.getCursor(true);
 		var end = this.editor.getCursor(false);
 		this.editor.setSelection(start,end);
-		//fireEvent(this.editor.getInputField(),"click");
+		*/
 	};
 
 

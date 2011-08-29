@@ -191,8 +191,6 @@ var initializeEditor;
 		// The middle should expand to the size of the viewport minus the top and bottom.
 		var onResize = function(e) {
 
-			console.log(e)
-			
 			var viewportSize = vsm.getSize();
 			var desiredWidth = viewportSize.width;
 			var desiredHeight = (viewportSize.height - 
