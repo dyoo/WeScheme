@@ -54,6 +54,9 @@ var WeSchemeTextContainer;
 
 	};
 
+	WeSchemeTextContainer.prototype.refresh = function() {
+		this.impl.refresh();
+	};
 
 	// Returns a behavior of the source code
 	WeSchemeTextContainer.prototype.getSourceB = function() {
@@ -316,6 +319,10 @@ var WeSchemeTextContainer;
 		var end = this.editor.getCursor(false);
 		this.editor.setSelection(start,end);
 		*/
+	};
+	
+	CodeMirrorImplementation.prototype.refresh = function() {
+		this.editor.refresh();
 	};
 
 

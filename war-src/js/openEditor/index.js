@@ -215,13 +215,6 @@ var initializeEditor;
 			synchronizeCodeMirror();
 		};
 
-		var splitPaneSynchronize = function () {
-			synchronize();
-			//codeMirror seems to ignore events fired through jQuery or goog.events.dispatchEvent
-			plt.wescheme.fireEvent(window,"resize");
-		};
-		
-
 		var synchronizeTopSize = function() {
 			goog.style.setBorderBoxSize(
 					defn,
@@ -260,12 +253,15 @@ var initializeEditor;
 					}
 				}
 			};
+			//fix the height of the definitions gutter
+			myEditor.defn.refresh();
+			
 		};
 
 
 		goog.events.listen(splitpane1,
 				goog.events.EventType.CHANGE,
-				splitPaneSynchronize);
+				synchronize);
 
 		goog.events.listen(vsm,
 				goog.events.EventType.RESIZE,
