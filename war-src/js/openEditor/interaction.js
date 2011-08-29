@@ -12,7 +12,6 @@ goog.require("plt.wescheme.WeSchemeTextContainer");
 goog.require("plt.wescheme.tokenizer");
 goog.require("plt.wescheme.WeSchemeProperties");
 
-
 var WeSchemeInteractions;
 
 WeSchemeInteractions = (function () {
@@ -185,8 +184,7 @@ WeSchemeInteractions = (function () {
 					function(container) {
 						var newId = makeFreshId();
 						that.interactions.previousInteractionsTextContainers[newId] = container;
-						that.interactions.runCode(nextCode, newId,
-								function() { 
+						that.interactions.runCode(nextCode, newId, function() { 
 							that.focus();
 						});
 					});
@@ -343,8 +341,8 @@ WeSchemeInteractions = (function () {
 	};
 
 	Prompt.prototype.focus = function() {
-		this.textContainer.focus();
 		this.interactions._scrollToBottom();
+		this.textContainer.focus();
 	};
 
 	//////////////////////////////////////////////////////////////////////

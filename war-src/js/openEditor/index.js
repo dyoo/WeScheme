@@ -15,8 +15,6 @@ goog.require('goog.math.Size');
 goog.require('plt.wescheme.topKeymap');
 goog.require('plt.wescheme.browserCheck');
 
-
-
 //FIXME: these should NOT be global variables, but at the moment, they're exposed
 //as such, and the topKeymap refers to myEditor.
 
@@ -193,6 +191,8 @@ var initializeEditor;
 		// The middle should expand to the size of the viewport minus the top and bottom.
 		var onResize = function(e) {
 
+			console.log(e)
+			
 			var viewportSize = vsm.getSize();
 			var desiredWidth = viewportSize.width;
 			var desiredHeight = (viewportSize.height - 
@@ -212,13 +212,17 @@ var initializeEditor;
 			synchronize();
 		};
 
-
-
 		var synchronize = function() {
 			synchronizeTopSize();
 			synchronizeCodeMirror();
 		};
 
+		var splitPaneSynchronize = function () {
+			synchronize();
+			//codeMirror seems to ignore events fired through jQuery or goog.events.dispatchEvent
+			plt.wescheme.fireEvent(window,"resize");
+		};
+		
 
 		var synchronizeTopSize = function() {
 			goog.style.setBorderBoxSize(
@@ -263,7 +267,7 @@ var initializeEditor;
 
 		goog.events.listen(splitpane1,
 				goog.events.EventType.CHANGE,
-				synchronize);
+				splitPaneSynchronize);
 
 		goog.events.listen(vsm,
 				goog.events.EventType.RESIZE,

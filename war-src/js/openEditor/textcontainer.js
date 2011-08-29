@@ -1,13 +1,32 @@
 goog.provide('plt.wescheme.WeSchemeTextContainer');
 
+goog.provide('plt.wescheme.fireEvent')
+
 goog.require('plt.wescheme.topKeymap');
+
+//hack to fire events that CodeMirror will pick up
+
+var fireEvent = function (element,event){
+    if (document.createEventObject){
+    // dispatch for IE
+    var evt = document.createEventObject();
+    return element.fireEvent('on'+event,evt)
+    }
+    else{
+    // dispatch for firefox + others
+    var evt = document.createEvent("HTMLEvents");
+    evt.initEvent(event, true, true ); // event type,bubbling,cancelable
+    return !element.dispatchEvent(evt);
+    }
+}
+
+plt.wescheme.fireEvent = fireEvent;
 
 var WeSchemeTextContainer;
 
 //TextContainers should support the following:
 
 //onchange attribute: called whenever the text changes, with this bound to the container.
-
 
 (function() {
 
@@ -157,7 +176,7 @@ var WeSchemeTextContainer;
 						var keymap = parent.getKeymap();
 						if (keymap.keyFilter(event)) {
 							keymap.keyHandler(event);
-							event.stopPropagation();
+							event.stop();
 							return true;
 						}
 					}});
@@ -207,6 +226,7 @@ var WeSchemeTextContainer;
 	CodeMirrorImplementation.prototype.setCode = function(code) {
 		this.editor.setValue(code);
 		this.behaviorE.sendEvent(code);
+		this.editor.refresh();
 	};
 
 	CodeMirrorImplementation.prototype.handleAndColumnToPos = function (handle) {
@@ -291,10 +311,12 @@ var WeSchemeTextContainer;
 
 	CodeMirrorImplementation.prototype.focus = function() {
 		this.editor.focus();
+		console.log("focusing")
 		//TODO what is this code?
 		var start = this.editor.getCursor(true);
 		var end = this.editor.getCursor(false);
 		this.editor.setSelection(start,end);
+		//fireEvent(this.editor.getInputField(),"click");
 	};
 
 
