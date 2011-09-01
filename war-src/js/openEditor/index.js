@@ -15,8 +15,6 @@ goog.require('goog.math.Size');
 goog.require('plt.wescheme.topKeymap');
 goog.require('plt.wescheme.browserCheck');
 
-
-
 //FIXME: these should NOT be global variables, but at the moment, they're exposed
 //as such, and the topKeymap refers to myEditor.
 
@@ -212,13 +210,10 @@ var initializeEditor;
 			synchronize();
 		};
 
-
-
 		var synchronize = function() {
 			synchronizeTopSize();
 			synchronizeCodeMirror();
 		};
-
 
 		var synchronizeTopSize = function() {
 			goog.style.setBorderBoxSize(
@@ -258,6 +253,9 @@ var initializeEditor;
 					}
 				}
 			};
+			//fix the height of the definitions gutter
+			myEditor.defn.refresh();
+			
 		};
 
 

@@ -12,7 +12,6 @@ goog.require("plt.wescheme.WeSchemeTextContainer");
 goog.require("plt.wescheme.tokenizer");
 goog.require("plt.wescheme.WeSchemeProperties");
 
-
 var WeSchemeInteractions;
 
 WeSchemeInteractions = (function () {
@@ -172,12 +171,12 @@ WeSchemeInteractions = (function () {
 		// // FIXME: figure out how to get the line height
 		// dynamically, because I have no idea how to do
 		// this correctly at the moment.
-		new plt.wescheme.WeSchemeTextContainer(
+		var n = new plt.wescheme.WeSchemeTextContainer(
 				textareaSpan,
 				{ height: 'dynamic',
 					minHeight: 15,
 					lineNumbers: false,
-					theme: "scheme",
+					theme: "scheme-interactive",
 					//stylesheet: "/js/codemirror/contrib/scheme/css/schemecolors-interactive.css",
 					content: nextCode,
 					makeTransparentIframe: true,
@@ -185,11 +184,12 @@ WeSchemeInteractions = (function () {
 					function(container) {
 						var newId = makeFreshId();
 						that.interactions.previousInteractionsTextContainers[newId] = container;
-						that.interactions.runCode(nextCode, newId,
-								function() { 
-							that.focus();
-						});
+						that.interactions.runCode(nextCode, newId, function() {});
 					});
+		//calling that.focus() doesn't work - the codeMirror box looks focused, but you can't type into it
+		//if I focus on something else first, everything works fine
+		n.focus();
+		that.focus();
 	};
 
 	// TODO: historyPreviousIsOk and historyNextIsOk don't have to be methods.
@@ -343,8 +343,8 @@ WeSchemeInteractions = (function () {
 	};
 
 	Prompt.prototype.focus = function() {
-		this.textContainer.focus();
 		this.interactions._scrollToBottom();
+		this.textContainer.focus();
 	};
 
 	//////////////////////////////////////////////////////////////////////

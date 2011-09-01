@@ -1,0 +1,8 @@
+#definitions {
+       background:     white url(/css/images/fadeIcon.png) no-repeat right bottom;
+
+}
+
+#definitions:hover{
+       background:     white url(/css/images/fadeWords.png) no-repeat right bottom;
+}

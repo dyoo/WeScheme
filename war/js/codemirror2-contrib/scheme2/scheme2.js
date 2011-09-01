@@ -14,7 +14,7 @@ var nextToken = (function() {
 	var scanUntilUnescaped = function(source, end) {
 		var escaped = false;
 		while (true) {
-			if (source.endOfLine()) {
+			if (source.eol()) {
 				return true;
 			}
 			var next = source.next();
@@ -28,7 +28,7 @@ var nextToken = (function() {
 
 	// Advance the stream until endline.
 	var scanUntilEndline = function(source, end) {
-		while (!source.endOfLine()) {
+		while (!source.eol()) {
 			source.next();
 		}
 	}
@@ -595,8 +595,6 @@ var nextToken = (function() {
 
 
 	var indentTo = function(tokenStack) {
-		console.log("tokenStack")
-		console.log(tokenStack)
 		var indentationContext = 
 			getIndentationContext(tokenStack);
 		return calculateIndentationFromContext(indentationContext);		
@@ -607,7 +605,6 @@ var nextToken = (function() {
 	};
 	
 	var token = function(source, state) {
-		console.log(source.peek())
 		var tok = nextToken(source);
 		state.tokenStack = pair(tok,state.tokenStack);
 		return tok.style;
@@ -623,9 +620,7 @@ var nextToken = (function() {
 	
 	var blankLine = function(state) {
 		var tok = { type:'whitespace', style:'whitespace', content: "\n" };
-		console.log("blank")
 		state.tokenStack = pair(tok, state.tokenStack);
-		console.log(state)
 	};
 	
 	/*var startParse = function(source) {

@@ -1,13 +1,32 @@
 goog.provide('plt.wescheme.WeSchemeTextContainer');
 
+goog.provide('plt.wescheme.fireEvent')
+
 goog.require('plt.wescheme.topKeymap');
+
+//hack to fire events that CodeMirror will pick up
+
+var fireEvent = function (element,event){
+    if (document.createEventObject){
+    // dispatch for IE
+    var evt = document.createEventObject();
+    return element.fireEvent('on'+event,evt)
+    }
+    else{
+    // dispatch for firefox + others
+    var evt = document.createEvent("HTMLEvents");
+    evt.initEvent(event, true, true ); // event type,bubbling,cancelable
+    return !element.dispatchEvent(evt);
+    }
+}
+
+plt.wescheme.fireEvent = fireEvent;
 
 var WeSchemeTextContainer;
 
 //TextContainers should support the following:
 
 //onchange attribute: called whenever the text changes, with this bound to the container.
-
 
 (function() {
 
@@ -35,6 +54,9 @@ var WeSchemeTextContainer;
 
 	};
 
+	WeSchemeTextContainer.prototype.refresh = function() {
+		this.impl.refresh();
+	};
 
 	// Returns a behavior of the source code
 	WeSchemeTextContainer.prototype.getSourceB = function() {
@@ -133,6 +155,7 @@ var WeSchemeTextContainer;
 		disableSpellcheck: true,*/
 					theme: (options.theme || "scheme"),
 					mode: "scheme2",
+					tabMode: "indent",
 					lineNumbers: (typeof (options.lineNumbers) !== 'undefined'? options.lineNumbers :  true),
 					//textWrapping: true,
 					matchBrackets: true,
@@ -156,6 +179,7 @@ var WeSchemeTextContainer;
 						var keymap = parent.getKeymap();
 						if (keymap.keyFilter(event)) {
 							keymap.keyHandler(event);
+							event.stop();
 							return true;
 						}
 					}});
@@ -205,8 +229,15 @@ var WeSchemeTextContainer;
 	CodeMirrorImplementation.prototype.setCode = function(code) {
 		this.editor.setValue(code);
 		this.behaviorE.sendEvent(code);
+		this.editor.refresh();
 	};
 
+	CodeMirrorImplementation.prototype.handleAndColumnToPos = function (handle) {
+		return {
+			line: handle.handle,
+			ch: handle.column
+		}
+	}
 
 	CodeMirrorImplementation.prototype.highlight = function(id, offset, line, column, span) {
 		offset--;
@@ -214,8 +245,9 @@ var WeSchemeTextContainer;
 		// as 1-offset, rather than 0-offset.
 		var startHandleAndColumn = this.findHandleAndColumn(offset);
 		var endHandleAndColumn = this.findHandleAndColumn(offset+span);
-		this.editor.selectLines(startHandleAndColumn.handle, startHandleAndColumn.column,
-				endHandleAndColumn.handle, endHandleAndColumn.column);
+		this.editor.setSelection(
+				this.handleAndColumnToPos(startHandleAndColumn),
+				this.handleAndColumnToPos(endHandleAndColumn))
 	};
 
 
@@ -282,10 +314,15 @@ var WeSchemeTextContainer;
 
 	CodeMirrorImplementation.prototype.focus = function() {
 		this.editor.focus();
-		//TODO what is this code?
+		/*
 		var start = this.editor.getCursor(true);
 		var end = this.editor.getCursor(false);
 		this.editor.setSelection(start,end);
+		*/
+	};
+	
+	CodeMirrorImplementation.prototype.refresh = function() {
+		this.editor.refresh();
 	};
 
 
