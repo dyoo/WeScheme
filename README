@@ -6,6 +6,13 @@ The source to WeScheme can be found at github:
 
 Check out the WeScheme repository from Github.
 
+Don't forget: we're using git submodules, so also make sure to:
+
+   $ git submodule init
+   $ git submodule update
+
+to grab dependendies.
+
 
 Build dependencies:
 
