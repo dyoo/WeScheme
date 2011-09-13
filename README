@@ -16,10 +16,18 @@ to grab dependendies.
 
 Build dependencies:
 
-1.  WeScheme runs on Google AppEngine 1.4.2.  You'll probably need to add
-the plugins into eclipse.
+
+
+1.  WeScheme runs on Google AppEngine 1.4.2 or later.  You'll probably
+need to add the plugins into eclipse.
 
     http://code.google.com/appengine/downloads.html#Download_the_Google_Plugin_for_Eclipse
+
+To verify that the installation went ok, you may want to walk through the first few steps of:
+
+   http://code.google.com/appengine/docs/java/gettingstarted/
+
+and make sure you can run Appengine apps locally.
 
 
 
