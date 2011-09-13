@@ -261,7 +261,7 @@ var WeSchemeTextContainer;
 				endColumn += offset;
 				offset = 0;
 			} else {
-				offset = offset - this.editor.getLine(endHandle) - 1;
+				offset = offset - this.editor.getLine(endHandle).length - 1;
 				endHandle += 1;
 			}
 		}
