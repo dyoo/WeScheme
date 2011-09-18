@@ -8,3 +8,7 @@
     font-family: monospace;
 /*     padding-top: .4em; */
 }
+
+.CodeMirror {
+	text-align: left;
+}

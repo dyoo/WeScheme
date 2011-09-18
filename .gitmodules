@@ -1,0 +1,3 @@
+[submodule "war/js/codemirror2"]
+	path = war/js/codemirror2
+	url = http://marijnhaverbeke.nl/git/codemirror2

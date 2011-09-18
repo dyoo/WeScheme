@@ -19,7 +19,6 @@ html:hover{
 /* } */
 
 .cm-s-scheme {
-	background: white;
   width: 100%;
   height: 100%;
   margin: 0pt;
@@ -43,23 +42,23 @@ html:hover{
   margin: 0;
 }
 
-.cm-s-scheme span.scheme-string	{color: green;}
-.cm-s-scheme span.scheme-number	{color: blue;}
-.cm-s-scheme span.scheme-boolean     {color: darkred;}
-.cm-s-scheme span.scheme-character	{color: orange;}
-.cm-s-scheme span.scheme-symbol	{color: steelblue;}
-.cm-s-scheme span.scheme-punctuation {color: black;}
-.cm-s-scheme span.scheme-rparen      {color: black;}
-.cm-s-scheme span.scheme-comment     { color: orange; }
+.cm-s-scheme span.cm-scheme-string	{color: green;}
+.cm-s-scheme span.cm-scheme-number	{color: blue;}
+.cm-s-scheme span.cm-scheme-boolean     {color: darkred;}
+.cm-s-scheme span.cm-scheme-character	{color: orange;}
+.cm-s-scheme span.cm-scheme-symbol	{color: steelblue;}
+.cm-s-scheme span.cm-scheme-punctuation {color: black;}
+.cm-s-scheme span.cm-scheme-rparen      {color: black;}
+.cm-s-scheme span.cm-scheme-comment     { color: orange; }
 
 
-.cm-s-scheme span.good-matching-paren { 
+.cm-s-scheme span.cm-scheme-punctuation.CodeMirror-matchingbracket { 
     font-weight: bold;
-    color: #3399FF;  
+    color: #3399FF !important;  
     background-color: #d3d3d3;
 }
-.cm-s-scheme span.bad-matching-paren {
+.cm-s-scheme span.cm-scheme-punctuation.CodeMirror-nonmatchingbracket {
     font-weight: bold;
-    color: red;
+    color: red !important;
     background-color: #d3d3d3;
 }
