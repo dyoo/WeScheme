@@ -308,17 +308,26 @@ WeSchemeInteractions = (function () {
         }
         var codeUpToCursor = this.textContainer.getCode(0, this.textContainer.getCursorStartPosition());
         var tokens = plt.wescheme.tokenizer.tokenize(codeUpToCursor);
-        var nestingLevel = 0, i;
-
+        var waitingOpenParens = [], i;
+        var openParens = { '(' : true,
+                           '[' : true,
+                           '{' : true };
+        var closeParens = { ')' : '(',
+                            ']' : '[',
+                            '}' : '{' };
         for (i = 0; i < tokens.length; i++) {
-            if (tokens[i].type === '(') {
-                nestingLevel++;
-            } else if (tokens[i].type === ')') {
-                nestingLevel--;
+            if (openParens[tokens[i].type]) {
+                waitingOpenParens.push(tokens[i].type);
+            } else if (closeParens[tokens[i].type]) {
+                if (waitingOpenParens.length === 0) { 
+                    return false; 
+                }
+                if (waitingOpenParens.pop() !== closeParens[tokens[i].type]) {
+                    return false;
+                }
             }
-            if (nestingLevel < 0) { return false; }
         }
-        return nestingLevel === 0;
+        return waitingOpenParens.length === 0;
     };
 
     Prompt.prototype.setText = function(t) {
