@@ -118,6 +118,10 @@ function init() {
 	    find("permission").
 	    each(function() { 
 		permissions.push(jQuery(this).text()); });
+
+        // Change the title of the document to that of the program.
+        jQuery(document.head).find("title").text(title);
+
 	runner.runCompiledCode(title, programCode, permissions);
     };
     jQuery.get("/loadProject", data, callback, type);
