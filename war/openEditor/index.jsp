@@ -168,10 +168,8 @@
 
         <div id="design-recipe-form" style="position: absolute; left: -1000px; z-index: 10;">
 	  <div class="toolbar">
-	    <input type="button" id="design-recipe-insertCode" value="Insert on this Line" style="float: left; color: black;"
-		   onclick="injectCode(); hideWidget();"/> 
-	    <input type="button" value="Cancel" style="float: right;" 
-		   onclick="hideWidget();"/> 
+	    <input type="button" id="design-recipe-insertCode" value="Insert on this Line" style="float: left; color: black;"/>
+	    <input type="button" id="design-recipe-cancel" value="Cancel" style="float: right;" />
 	  </div>
 
 	  <div class="section" id="contract">
@@ -246,6 +244,7 @@
 	    <li class="logout"><a id="logout">Logout</a></li>
 	    <li class="account"><a id="account" href="/console" target="console">Programs<span></span></a></li>
 	    <% } %>
+            <li class="designrecipe"><a id="designrecipebutton">Design Recipe</a></li>
 	    <li class="docs">	<a id="docs" target="_blank" href="/openEditor/moby-user-api.txt">API</a></li>
 	    
 	  </ul>
@@ -310,4 +309,16 @@
     </div> <!-- end editor -->
 
   </body>
+
+  <script>
+    var widget;
+    jQuery(document).ready(function() {
+    widget = initializeWidget(myEditor.defn.impl.editor)
+
+    jQuery("#designrecipebutton").bind("click", function(e) { e.preventDefault(); e.stopPropagation(); widget.showWidget(); });
+    });
+    
+</script>
+
+
 </html>
