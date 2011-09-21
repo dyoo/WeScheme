@@ -45,13 +45,20 @@
     <script src="/js/jquery/jquery.center-in-client.js"></script>
     
     <script src="/js/codemirror2/lib/codemirror.js"></script>
-	<link rel="stylesheet" type="text/css" href="/js/codemirror2/lib/codemirror.css"></link>
-	<script src="/js/codemirror2-contrib/scheme2/scheme2.js"></script>
-	<link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors.css"></link>
-	<link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors-interactive.css"></link>
+    <link rel="stylesheet" type="text/css" href="/js/codemirror2/lib/codemirror.css"></link>
+    <script src="/js/codemirror2-contrib/scheme2/scheme2.js"></script>
+    <link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors.css"></link>
+    <link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors-interactive.css"></link>
+    <link rel="stylesheet" type="text/css" href="/css/definitions.css"></link>
+        
 
-	<link rel="stylesheet" type="text/css" href="/css/definitions.css"></link>
 
+    <!-- Design recipe widget stuff -->
+    <script src="/widget/js/DRwidget.js"></script>
+    <link rel="stylesheet" type="text/css" href="/widget/css/editor.css"></link>
+
+
+    
     <script src="/js/submitpost.js"></script>
 
 
@@ -150,6 +157,72 @@
 	
 	<!-- The dialog div here will be used by jquery -->
 	<div id="dialog" style="display:none;"></div>
+
+
+
+
+
+
+
+
+
+        <div id="design-recipe-form" style="position: absolute; left: -1000px; z-index: 10;">
+	  <div class="toolbar">
+	    <input type="button" id="design-recipe-insertCode" value="Insert on this Line" style="float: left; color: black;"
+		   onclick="injectCode(); hideWidget();"/> 
+	    <input type="button" value="Cancel" style="float: right;" 
+		   onclick="hideWidget();"/> 
+	  </div>
+
+	  <div class="section" id="contract">
+            <div id="design-recipe-contract_wrapper">
+              <span class="spacer" style="width: 15px;">;</span>
+              <textarea id="design-recipe-name"></textarea>
+              <span>:</span>
+              <textarea id="design-recipe-domain"></textarea>
+              <span>-></span>
+              <textarea id="design-recipe-range"></textarea>
+            </div>
+            <span class="error" id="design-recipe-contract_error"></span>
+	  </div>
+
+          <div class="section" id="design-recipe-examples">
+            <div id="design-recipe-example1_wrapper">
+              <span class="spacer">(EXAMPLE </span> 
+              <textarea id="design-recipe-example1_header"></textarea>
+              <textarea id="design-recipe-example1_body"></textarea>
+              <span class="spacer">)</span>
+            </div>
+            <span class="error" id="design-recipe-example1_error"></span>
+            <hr/>
+            <div id="design-recipe-example2_wrapper">
+              <span class="spacer">(EXAMPLE </span>
+              <textarea id="design-recipe-example2_header"></textarea>
+              <textarea id="design-recipe-example2_body"></textarea>
+              <span class="spacer">)</span>
+            </div>
+            <span class="error" id="design-recipe-example2_error"></span>
+          </div>
+
+          
+          <div class="section" id="design-recipe-definition">
+            <div id="design-recipe-definition_wrapper">
+              <span class="spacer">(define </span>
+              <textarea id="design-recipe-definition_header"></textarea>
+              <textarea id="design-recipe-definition_body"></textarea>
+              <span class="spacer">)</span>
+            </div>
+            <span class="error" id="design-recipe-definition_error"></span>
+          </div>
+        </div>
+
+
+
+
+
+
+
+
 	
 	<a href="/" class="headerlink">
 	  <div id="header">

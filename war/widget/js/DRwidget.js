@@ -1,37 +1,42 @@
-  (function () {
+var initializeWidget = (function () {
+
+
+    var initializeWidget = function(editor) {
+
+
    /////////////////////////////////// SETUP /////////////////////////////////////////
    // Create CM instances for code, and all fields of DR Form
-   editor = CodeMirror.fromTextArea(document.getElementById("code"), 
-                                        {tabMode:"indent"
-                                        ,enterMode:"indent"
-                                        ,lineNumbers: true
-                                        ,matchBrackets: true
-                                        ,onKeyEvent: function(i, e) { // ctrl-space for autocomplete
-                                                if (e.keyCode == 32 && (e.ctrlKey || e.metaKey) && !e.altKey) {
-                                                    e.stop();
-                                                    return startComplete();
-                                                }
-                                            }
-                                        });
+   // editor = CodeMirror.fromTextArea(document.getElementById("design-recipe-code"), 
+   //                                      {tabMode:"indent"
+   //                                      ,enterMode:"indent"
+   //                                      ,lineNumbers: true
+   //                                      ,matchBrackets: true
+   //                                      ,onKeyEvent: function(i, e) { // ctrl-space for autocomplete
+   //                                              if (e.keyCode == 32 && (e.ctrlKey || e.metaKey) && !e.altKey) {
+   //                                                  e.stop();
+   //                                                  return startComplete();
+   //                                              }
+   //                                          }
+   //                                      });
 
    
-   var contract_name     = CodeMirror.fromTextArea(document.getElementById("name")
+   var contract_name     = CodeMirror.fromTextArea(document.getElementById("design-recipe-name")
                                                    ,{matchBrackets: true, tabMode: "default", onBlur: checkContract, onFocus: checkContract});
-   var contract_domain   = CodeMirror.fromTextArea(document.getElementById("domain")
+   var contract_domain   = CodeMirror.fromTextArea(document.getElementById("design-recipe-domain")
                                                    ,{matchBrackets: true, tabMode: "default", onBlur: checkContract, onFocus: checkContract});
-   var contract_range    = CodeMirror.fromTextArea(document.getElementById("range")
+   var contract_range    = CodeMirror.fromTextArea(document.getElementById("design-recipe-range")
                                                    ,{matchBrackets: true, tabMode: "default", onBlur: checkContract, onFocus: checkContract});
-   var example1_header   = CodeMirror.fromTextArea(document.getElementById("example1_header")
+   var example1_header   = CodeMirror.fromTextArea(document.getElementById("design-recipe-example1_header")
                                                    ,{matchBrackets: true, tabMode: "default", onChange: checkExamples, onFocus: checkExamples});
-   var example1_body     = CodeMirror.fromTextArea(document.getElementById("example1_body")
+   var example1_body     = CodeMirror.fromTextArea(document.getElementById("design-recipe-example1_body")
                                                    ,{matchBrackets: true, tabMode: "default", onChange: checkExamples, onFocus: checkExamples});
-   var example2_header   = CodeMirror.fromTextArea(document.getElementById("example2_header")
+   var example2_header   = CodeMirror.fromTextArea(document.getElementById("design-recipe-example2_header")
                                                    ,{matchBrackets: true, tabMode: "default", onChange: checkExamples, onFocus: checkExamples});
-   var example2_body     = CodeMirror.fromTextArea(document.getElementById("example2_body")
+   var example2_body     = CodeMirror.fromTextArea(document.getElementById("design-recipe-example2_body")
                                                    ,{matchBrackets: true, tabMode: "default", onChange: checkExamples, onFocus: checkExamples});
-   var definition_header = CodeMirror.fromTextArea(document.getElementById("definition_header")
+   var definition_header = CodeMirror.fromTextArea(document.getElementById("design-recipe-definition_header")
                                                    ,{matchBrackets: true, tabMode: "default", onChange: checkDefinition, onFocus: checkDefinition});
-   var definition_body   = CodeMirror.fromTextArea(document.getElementById("definition_body")
+   var definition_body   = CodeMirror.fromTextArea(document.getElementById("design-recipe-definition_body")
                                                    ,{matchBrackets: true, tabMode: "default", onChange: checkDefinition, onFocus: checkDefinition});
    
    
@@ -66,7 +71,7 @@
         // TODO: compare to height of actual CM dom node, not the contract wrapper
         var ws = function(elt){ 
             return (document.getElementById(elt).offsetHeight > 
-                    (document.getElementById('contract_wrapper').offsetHeight+10))? "\n" : " ";
+                    (document.getElementById('design-recipe-contract_wrapper').offsetHeight+10))? "\n" : " ";
         }
         var values = formValues();
         var sxampleValues = function(examples){
@@ -89,12 +94,12 @@
        return { name:       contract_name.getValue()
                ,domain:     contract_domain.getValue()
                ,range:      contract_range.getValue()
-               ,contract_error: document.getElementById('contract_error')
+               ,contract_error: document.getElementById('design-recipe-contract_error')
                ,examples:  [{header: example1_header.getValue(), body: example1_body.getValue(), errorDOM: example1_error},
                             {header: example2_header.getValue(), body: example2_body.getValue(), errorDOM: example2_error}]
                ,def_header: definition_header.getValue()
                ,def_body:   definition_body.getValue()
-               ,definition_error: document.getElementById('definition_error')
+               ,definition_error: document.getElementById('design-recipe-definition_error')
         };
    }
    
@@ -166,9 +171,12 @@
    function checkExamples(){
         var values = formValues();
         var correctExamples = false;
-        if(!checkContract()){
-            values.example1_error.innerHTML = "<b>Fix your contract first!</b>";
-            values.example2_error.innerHTML = "<b>Fix your contract first!</b>";
+       var i;
+       if(!checkContract()){
+           for (i = 0; i < examples.length; i++) {
+               values.examples[i].errorDOM.innerHTML = "<b>Fix your contract first!</b>";
+           }
+
             return false;
         }
     
@@ -219,7 +227,7 @@
             correctExamples = false;
         } else {
             values.definition_error.innerHTML = ""; 
-            document.getElementById('insertCode').disabled = false;
+            document.getElementById('design-recipe-insertCode').disabled = false;
             return true;
         }
    }
@@ -235,10 +243,10 @@
    
    // add a demo DR widget at cursor location
    showWidget = function(){
-        document.getElementById('insertCode').disabled = true;
+        document.getElementById('design-recipe-insertCode').disabled = true;
         pos = editor.getCursor(true);		// get the current cursor location
         pos.ch = 0;							// force the character to 0
-        var node= document.getElementById('form');
+        var node= document.getElementById('design-recipe-form');
         connect(node, "click", function(event){event.target.focus(); event.stop(); return false;})
         editor.addWidget(pos, node, true);	// display the DR widget just below the line, and scroll so it's visible
         hlLine = editor.setLineClass(editor.getCursor().line, "activeline");
@@ -257,7 +265,7 @@
    }
    
    hideWidget = function (widget){
-        document.getElementById('form').style.left = '-1000px'
+        document.getElementById('design-recipe-form').style.left = '-1000px'
         editor.setLineClass(hlLine, "");
         editor.focus();
         clearForm();
@@ -376,5 +384,13 @@
             return found;
        }
    
+        
+        return { showWidget: showWidget,
+                 injectCode: injectCode,
+                 hideWidget: hideWidget, 
+                 clearForm: clearForm};
 
-})();
+    };
+
+    return initializeWidget;
+}());

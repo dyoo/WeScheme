@@ -1,9 +1,7 @@
-.CodeMirror {background: white; border: solid 1px black;}
-.CodeMirror-scroll {height: 300px;}
 .activeline{background:	wheat !important;}
 
-div#form .CodeMirror{border: none;}
-div#form .CodeMirror-scroll{
+div#design-recipe-form .CodeMirror{border: none;}
+div#design-recipe-form .CodeMirror-scroll{
     height: auto;
     overflow-y: hidden;
     overflow-x: auto;
@@ -14,16 +12,16 @@ div#form .CodeMirror-scroll{
     max-width: 450px;
 }
 
-div#form .CodeMirror{
+div#design-recipe-form .CodeMirror{
     display: inline-block;
     margin: 5px 0px;   
     vertical-align: top;}
 
-div#form .CodeMirror-lines {
+div#design-recipe-form .CodeMirror-lines {
     padding: .1em;
 }
 
-div#form {
+div#design-recipe-form {
 	border:			solid 1px black;
 	min-height:		160px;
 	min-width:		350px;
@@ -48,13 +46,13 @@ div.section{
 	background:		left top no-repeat;
 }
 
-div.section#contract{background-image: url('contract.png')}
-div.section#examples{background-image: url('examples.png')}
-div.section#definition{background-image: url('code.png'); border-bottom: 0px;}
+div.section#design-recipe-contract{background-image: url('contract.png')}
+div.section#design-recipe-examples{background-image: url('examples.png')}
+div.section#design-recipe-definition{background-image: url('code.png'); border-bottom: 0px;}
 div.section>span{vertical-align: middle;}
 
 
-div#example1_wrapper, div#example2_wrapper, div#definition_wrapper, div#contract_wrapper{
+div#design-recipe-example1_wrapper, div#design-recipe-example2_wrapper, div#design-recipe-definition_wrapper, div#design-recipe-contract_wrapper{
     max-width:      500px; 
     display:        inline-block; 
     vertical-align: top;
