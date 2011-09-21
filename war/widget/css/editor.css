@@ -1,0 +1,96 @@
+.CodeMirror {background: white; border: solid 1px black;}
+.CodeMirror-scroll {height: 300px;}
+.activeline{background:	wheat !important;}
+
+div#form .CodeMirror{border: none;}
+div#form .CodeMirror-scroll{
+    height: auto;
+    overflow-y: hidden;
+    overflow-x: auto;
+    width: auto;
+    border: 1px inset;
+    font-weight: normal;
+    min-width: 100px;
+    max-width: 450px;
+}
+
+div#form .CodeMirror{
+    display: inline-block;
+    margin: 5px 0px;   
+    vertical-align: top;}
+
+div#form .CodeMirror-lines {
+    padding: .1em;
+}
+
+div#form {
+	border:			solid 1px black;
+	min-height:		160px;
+	min-width:		350px;
+	padding:		0px; 
+	margin-left:	10px;
+	font-size:		14px;
+	font-weight:	bold;
+	background:		white;
+	-moz-box-shadow: 10px 10px 5px #888;
+	-webkit-box-shadow: 10px 10px 5px #888;
+	box-shadow: 10px 10px 5px #888;
+}
+div.section{
+	min-width:		400px; 
+	font-family:	courier, monaco, serif; 
+	background:		white;
+	font-weight:	bold;
+	border-bottom:	solid 1px black;
+	font-size:		14px;
+	margin:			0px;
+	padding-left:	120px;
+	background:		left top no-repeat;
+}
+
+div.section#contract{background-image: url('contract.png')}
+div.section#examples{background-image: url('examples.png')}
+div.section#definition{background-image: url('code.png'); border-bottom: 0px;}
+div.section>span{vertical-align: middle;}
+
+
+div#example1_wrapper, div#example2_wrapper, div#definition_wrapper, div#contract_wrapper{
+    max-width:      500px; 
+    display:        inline-block; 
+    vertical-align: top;
+    margin-right:   20px;
+}
+
+span.spacer{
+    display: inline-block; 
+    width: 75px;
+    margin-top: 7px;
+}
+
+div.toolbar{
+	display:		inline-block; 
+	width:			100%; 
+	background:		black; 
+	color:			white; 
+	font-size:		20px;
+}
+
+span.error{font-family: helvetica, arial; font-weight: normal; font-size: 10px; clear: both; display: block; color: red; margin: 0px; padding-bottom: 5px;}
+
+
+.completions {
+    position: absolute;
+    z-index: 10;
+    overflow: hidden;
+    -webkit-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+    -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+    box-shadow: 2px 3px 5px rgba(0,0,0,.2);
+}
+.completions select {
+    background: #fafafa;
+    outline: none;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font-family: monospace;
+}
