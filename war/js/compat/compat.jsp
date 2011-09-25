@@ -2,7 +2,7 @@
      mode.  Argh. -->
 
 <!--[if IE]>
-  <meta http-equiv="X-UA-Compatible" content="IE=7" />
+  <meta http-equiv="X-UA-Compatible" content="IE=7,chrome=1">
 <![endif]-->
 
 
