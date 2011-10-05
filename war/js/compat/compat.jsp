@@ -1,7 +1,10 @@
-<meta http-equiv="X-UA-Compatible" content="IE=7,chrome=1">
+
 
 <!-- Under IE8, excanvas doesn't work unless we get into IE7 standards
      mode. -->
+<!--[if IE]>
+  <meta http-equiv="X-UA-Compatible" content="IE=7" />
+<![endif]-->
 
 
 
