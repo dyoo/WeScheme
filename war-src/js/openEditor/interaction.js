@@ -96,7 +96,7 @@ WeSchemeInteractions = (function () {
 		var innerDivElt = this.div.find("span").get(1);
 		new plt.wescheme.WeSchemeTextContainer(
 				innerDivElt,
-				{ height: 'dynamic',
+				{ //height: 'dynamic',
 					minHeight: 15,
 					lineNumbers: false,
 					theme: "scheme-interactive",
@@ -173,7 +173,7 @@ WeSchemeInteractions = (function () {
 		// this correctly at the moment.
 		var n = new plt.wescheme.WeSchemeTextContainer(
 				textareaSpan,
-				{ height: 'dynamic',
+				{ //height: 'dynamic',
 					minHeight: 15,
 					lineNumbers: false,
 					theme: "scheme-interactive",
