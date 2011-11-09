@@ -63,7 +63,7 @@ var clearConsoleListing = function() {
     programListUl.append(
 	jQuery("<li/>").addClass("EntryHeader")
 	    .append(jQuery("<span/>").addClass("ProgramTitle").text("Program Title"))
-	    .append(jQuery("<span/>").addClass("ProgramModified").text("Last Modified"))
+	    .append(jQuery("<span/>").addClass("ProgramModified").text("Last Modified (D/M/YYYY)"))
 	    .append(jQuery("<span/>").addClass("ProgramPublished").text("Share"))
 	    .append(jQuery("<span/>").addClass("ProgramDelete").text("Delete")));
     return programListUl
