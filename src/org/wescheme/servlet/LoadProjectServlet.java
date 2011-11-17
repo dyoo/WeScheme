@@ -47,7 +47,8 @@ public class LoadProjectServlet extends HttpServlet {
                         resp.getWriter().print(outputter.outputString(prog.toXML(pm)));
                     } else {
                         log.warning(userSession.getName() + " does not own " + req.getParameter("pid"));
-                        throw new RuntimeException("Not owner");
+                        resp.sendError(401, "Not owner");
+                        return;
                     }
                 } else {
                     resp.sendError(403);
@@ -65,7 +66,8 @@ public class LoadProjectServlet extends HttpServlet {
                     resp.getWriter().print(outputter.outputString(prog.toXML(false, pm)));
                 }
             } else {
-                throw new RuntimeException("pid or publicId parameter missing");
+                resp.sendError(400, "pid or publicId parameter missing");
+                return;
             }
         } finally {
             pm.close();
