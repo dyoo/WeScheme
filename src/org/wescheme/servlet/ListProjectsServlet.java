@@ -32,99 +32,98 @@ import org.wescheme.util.Queries;
  */
 public class ListProjectsServlet extends HttpServlet {
 	
-	private static final long serialVersionUID = 6291188410939739681L;
-	private static final Logger log = Logger.getLogger(ListProjectsServlet.class.getName());
+    private static final long serialVersionUID = 6291188410939739681L;
+    private static final Logger log = Logger.getLogger(ListProjectsServlet.class.getName());
 
-	/**
-	 * Caching mechanism.  We listen for user program dirty notices and clear the cache accordingly.
-	 */
-	static {
-		CacheHelpers.addUserProgramsDirtiedListener(new CacheHelpers.UserProgramsDirtiedListener() {
-			public void onUserProgramsDirtied(String userName) {
-				Cache c = CacheHelpers.getCache();
-				if (c != null) {
-					c.remove(CacheHelpers.getUserProgramsCacheKey(userName));
-				}
-			}
-		});
-	}
+    /**
+     * Caching mechanism.  We listen for user program dirty notices and clear the cache accordingly.
+     */
+    static {
+        CacheHelpers.addUserProgramsDirtiedListener(new CacheHelpers.UserProgramsDirtiedListener() {
+                public void onUserProgramsDirtied(String userName) {
+                    Cache c = CacheHelpers.getCache();
+                    if (c != null) {
+                        c.remove(CacheHelpers.getUserProgramsCacheKey(userName));
+                    }
+                }
+            });
+    }
+		
 	
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        // Authentication
 	
-	
-	public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-		// Authentication
-	
-		try {
-			Session userSession = authenticate(req, resp);		
-			String outputString = getOutputString(userSession);			
-			resp.setContentType("text/xml");
-			PrintWriter w = resp.getWriter();
-			w.write(outputString);
-			w.close();
-		} catch (IOException e) {
-			log.severe("IO expection in ListProjectsServlet!");
-			e.printStackTrace();
-			resp.sendError(500);
-		} catch (UnauthorizedUserException e) {
-			log.warning("UnauthorizedUserException: user appears to be logged out");
-			e.printStackTrace();
-			resp.sendError(401);
-		}
-	}
+        try {
+            Session userSession = authenticate(req, resp);		
+            String outputString = getOutputString(userSession);			
+            resp.setContentType("text/xml");
+            PrintWriter w = resp.getWriter();
+            w.write(outputString);
+            w.close();
+        } catch (IOException e) {
+            log.severe("IO expection in ListProjectsServlet!");
+            e.printStackTrace();
+            resp.sendError(500);
+        } catch (UnauthorizedUserException e) {
+            log.warning("UnauthorizedUserException: user appears to be logged out");
+            e.printStackTrace();
+            resp.sendError(401);
+        }
+    }
 
-	// authenticate: -> Session
-	// Returns the Session of the currently logged-in user.
-	// If the user isn't logged in, throws UnauthorizedUserException
-	public Session authenticate(HttpServletRequest req, HttpServletResponse resp) throws UnauthorizedUserException {
-		SessionManager sm = new SessionManager();
-		Session userSession = sm.authenticate(req, resp);
-		if( userSession == null ){
-			throw new UnauthorizedUserException();
-		}
-		return userSession;
-	}
+    // authenticate: -> Session
+    // Returns the Session of the currently logged-in user.
+    // If the user isn't logged in, throws UnauthorizedUserException
+    public Session authenticate(HttpServletRequest req, HttpServletResponse resp) throws UnauthorizedUserException {
+        SessionManager sm = new SessionManager();
+        Session userSession = sm.authenticate(req, resp);
+        if( userSession == null ){
+            throw new UnauthorizedUserException();
+        }
+        return userSession;
+    }
 
 
-	@SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
 	private String getOutputString(Session userSession) throws IOException {
-		Cache c = CacheHelpers.getCache();
-		if (c != null) {
-			if (! c.containsKey(CacheHelpers.getUserProgramsCacheKey(userSession.getName()))) {
-				String outputString = getFromDatabase(userSession);
-				c.put(CacheHelpers.getUserProgramsCacheKey(userSession.getName()),
-						outputString);
-				return outputString;
-			} else {
-				return (String) c.get(CacheHelpers.getUserProgramsCacheKey(userSession.getName()));
-			}			
-		} else {
-			return getFromDatabase(userSession);
-		}
-	}
+        Cache c = CacheHelpers.getCache();
+        if (c != null) {
+            if (! c.containsKey(CacheHelpers.getUserProgramsCacheKey(userSession.getName()))) {
+                String outputString = getFromDatabase(userSession);
+                c.put(CacheHelpers.getUserProgramsCacheKey(userSession.getName()),
+                      outputString);
+                return outputString;
+            } else {
+                return (String) c.get(CacheHelpers.getUserProgramsCacheKey(userSession.getName()));
+            }			
+        } else {
+            return getFromDatabase(userSession);
+        }
+    }
 	
-	/**
-	 * Gets the set of ProgramDigests for the user with the given session.
-	 * @param userSession
-	 * @return
-	 * @throws IOException
-	 */
-	private String getFromDatabase(Session userSession) throws IOException {
-		PersistenceManager pm = PMF.get().getPersistenceManager();
+    /**
+     * Gets the set of ProgramDigests for the user with the given session.
+     * @param userSession
+     * @return
+     * @throws IOException
+     */
+    private String getFromDatabase(Session userSession) throws IOException {
+        PersistenceManager pm = PMF.get().getPersistenceManager();
 
-		try {
+        try {
 
-			List<Program> pl = (List<Program>) 
-			Queries.getUserPrograms(pm, userSession.getName());
-			Element elt = new Element("ProgramDigests");
-			for( Program p : pl ){
-				if (! p.getIsDeleted())
-					elt.addContent(new ProgramDigest(p).toXML(pm));
-			}
-			XMLOutputter outputter = new XMLOutputter();
-			String outputString = outputter.outputString(elt); 			
-			return outputString;				
-		} finally {
-			pm.close();
-		}
-	}
+            List<Program> pl = (List<Program>) 
+                Queries.getUserPrograms(pm, userSession.getName());
+            Element elt = new Element("ProgramDigests");
+            for( Program p : pl ){
+                if (! p.getIsDeleted())
+                    elt.addContent(new ProgramDigest(p).toXML(pm));
+            }
+            XMLOutputter outputter = new XMLOutputter();
+            String outputString = outputter.outputString(elt); 			
+            return outputString;				
+        } finally {
+            pm.close();
+        }
+    }
 }
