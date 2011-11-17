@@ -119,15 +119,17 @@ var addProgramEntry = function(digest, aProgramDigest, programListUl) {
 
 
 
-var continueRefreshingProgramList = function() {
-    // Every 30 seconds, refresh the program list.
-    var DELAY_BETWEEN_RELOADS = 30000;
-    setTimeout(function() { loadProgramList(continueRefreshingProgramList); },
-	       DELAY_BETWEEN_RELOADS);
-};
+// Automatic refreshing has been turned off: too much traffic.
+
+// var continueRefreshingProgramList = function() {
+//     // Every 30 seconds, refresh the program list.
+//     var DELAY_BETWEEN_RELOADS = 30000;
+//     setTimeout(function() { loadProgramList(continueRefreshingProgramList); },
+// 	       DELAY_BETWEEN_RELOADS);
+// };
 
 
 jQuery(document).ready(function() {
     plt.wescheme.browserCheck();
-    loadProgramList(continueRefreshingProgramList);    
+    loadProgramList(function() {});
 });
