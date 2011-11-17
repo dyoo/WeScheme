@@ -94,11 +94,14 @@ public class ListProjectsServlet extends HttpServlet {
                       outputString);
                 return outputString;
             } else {
-                return (String) c.get(CacheHelpers.getUserProgramsCacheKey(userSession.getName()));
+                String result = (String) c.get(CacheHelpers.getUserProgramsCacheKey(userSession.getName()));
+                if (result != null) {
+                    return result;
+                }
             }			
-        } else {
-            return getFromDatabase(userSession);
         }
+
+        return getFromDatabase(userSession);
     }
 	
     /**
