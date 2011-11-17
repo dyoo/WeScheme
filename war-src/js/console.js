@@ -34,9 +34,9 @@ var loadProgramList = function(k) {
 		}
 	    });
 	    
-	    k();
+	    if (typeof(k) === 'function') { k(); }
 	},
-
+        
 	// Otherwise, fail by raising an alert.
 	function() {
 	    alert("Could not load list of projects")
