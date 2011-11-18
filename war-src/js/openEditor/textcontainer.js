@@ -191,10 +191,16 @@ var WeSchemeTextContainer;
 
 		//console.log(this.editor.getScrollerElement())
 		this.editor.getWrapperElement().style.width = options.width || "100%";
+            // Under IE 7, this appears to die.
+            try {
 		this.editor.getWrapperElement().style.height = options.height || "100%";
+            } catch (e) {}
 
 		this.editor.getScrollerElement().style.width = "100%";
+            // Under IE 7, this appears to die.
+            try {
 		this.editor.getScrollerElement().style.height = "100%";
+            } catch (e) {}
 		
 		this.editor.refresh();
 
