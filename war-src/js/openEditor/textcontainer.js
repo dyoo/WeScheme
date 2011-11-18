@@ -190,14 +190,17 @@ var WeSchemeTextContainer;
 		}*/
 
 		//console.log(this.editor.getScrollerElement())
+
+            // Under IE 7, some of these style settings appear to die.
+            try {
 		this.editor.getWrapperElement().style.width = options.width || "100%";
-            // Under IE 7, this appears to die.
+            } catch (e) {}
             try {
 		this.editor.getWrapperElement().style.height = options.height || "100%";
             } catch (e) {}
-
+            try {
 		this.editor.getScrollerElement().style.width = "100%";
-            // Under IE 7, this appears to die.
+            } catch (e) {}
             try {
 		this.editor.getScrollerElement().style.height = "100%";
             } catch (e) {}
