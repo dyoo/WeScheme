@@ -120,7 +120,7 @@ function init() {
 		permissions.push(jQuery(this).text()); });
 
         // Change the title of the document to that of the program.
-        jQuery(document.head).find("title").text(title);
+        // jQuery(document.head).find("title").text(title);
 
 	runner.runCompiledCode(title, programCode, permissions);
     };

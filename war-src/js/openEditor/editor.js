@@ -367,7 +367,7 @@ var WeSchemeEditor;
  		"/openEditor?publicId=" +
  		    encodeURIComponent(aProgram.getPublicId()));
  	    that.filenameEntry.attr("value", aProgram.getTitle());
-            jQuery(document.head).find("title").text(aProgram.getTitle());
+            // jQuery(document.head).find("title").text(aProgram.getTitle());
  	    that.defn.setCode(aProgram.getSourceCode());
 	    
 	    if (that.userName === aProgram.getOwner()) {
