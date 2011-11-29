@@ -12,7 +12,8 @@ plt.wescheme.topKeymap = function(e) {
  
     if (e.keyCode === F5_KEYCODE) {
 	myEditor.run();
-	e.stopPropagation();
+        e.cancelBubble = true;
+	if (e.stopPropagation) { e.stopPropagation(); }
 	e.preventDefault();
 	return false;
     }
@@ -21,7 +22,8 @@ plt.wescheme.topKeymap = function(e) {
     // document body, and prevent us from going back in history.
     if (e.target === document.body) {
 	if (e.keyCode === BACKSPACE_KEYCODE) {
-	    e.stopPropagation();
+            e.cancelBubble = true;
+	    if (e.stopPropagation) { e.stopPropagation(); }
 	    e.preventDefault();
 	    return false;
 	}
