@@ -14,7 +14,8 @@ plt.wescheme.topKeymap = function(e) {
 	myEditor.run();
         e.cancelBubble = true;
 	if (e.stopPropagation) { e.stopPropagation(); }
-	e.preventDefault();
+        e.returnValue = false;
+	if (e.preventDefault) { e.preventDefault(); }
 	return false;
     }
 
@@ -24,7 +25,8 @@ plt.wescheme.topKeymap = function(e) {
 	if (e.keyCode === BACKSPACE_KEYCODE) {
             e.cancelBubble = true;
 	    if (e.stopPropagation) { e.stopPropagation(); }
-	    e.preventDefault();
+            e.returnValue = false;
+	    if (e.preventDefault) { e.preventDefault(); }
 	    return false;
 	}
     }
