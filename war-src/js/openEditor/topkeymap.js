@@ -16,6 +16,10 @@ plt.wescheme.topKeymap = function(e) {
 	if (e.stopPropagation) { e.stopPropagation(); }
         e.returnValue = false;
 	if (e.preventDefault) { e.preventDefault(); }
+        if (! e.preventDefault) {
+            // IE-specific hack.
+            e.keyCode = 0;
+        }
 	return false;
     }
 
