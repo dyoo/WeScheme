@@ -132,4 +132,13 @@ var addProgramEntry = function(digest, aProgramDigest, programListUl) {
 jQuery(document).ready(function() {
     plt.wescheme.browserCheck();
     loadProgramList(function() {});
+
+    $('#logoutForm').bind(
+        "submit",
+        function(e) {
+            if(!(confirm("You will be logged out of WeScheme and other Google services."))) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+        });
 });

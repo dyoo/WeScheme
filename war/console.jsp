@@ -46,6 +46,7 @@
 
 <script src="/js/console-calc.js"></script>
 
+
 </head>
 <body>
 
@@ -67,7 +68,7 @@
 		</li>
 
 		<li class="logout">
-			<form method="POST" action="/logout">
+			<form id="logoutForm" method="POST" action="/logout">
 			<input name="logout" value="Logout" type="submit">
 			</form>
 		</li>

@@ -39,7 +39,9 @@ var onLogin = function() {
 };
 
 var onLogout = function() {
-    window.location='/logout';
+    if(confirm("You will be logged out of WeScheme and other Google services.")) {
+       window.location='/logout';
+    }
 };
 
 $(document).ready(function() {
