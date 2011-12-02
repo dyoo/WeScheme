@@ -53,7 +53,7 @@
 
 
 <div class="header" style="position: fixed;">
-    <h1 class="title">Your Programs</h1>
+    <h1 class="title">My Programs</h1>
     <h2>Welcome <%= s.getNickname() %></h2>
 </div>
 
@@ -77,7 +77,7 @@
 
 </div>
 
-<h1>Your programs</h1>
+<h1>My programs</h1>
 <div id="programList">
 The program list is being loaded.  Please wait.
 </div>	
