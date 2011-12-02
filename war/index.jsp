@@ -34,6 +34,10 @@ var onOpenEditor = function() {
     window.location='/openEditor';
 };
 
+var onMyPrograms = function() {
+    window.location='/console';
+};
+
 var onLogin = function() {
     window.location = '<%= us.createLoginURL("/login.jsp") %>';
 };
@@ -48,11 +52,16 @@ $(document).ready(function() {
     $("#startCoding").click(onOpenEditor);
     $("#loginButton").click(onLogin);
     $("#logoutButton").click(onLogout);
+    $("#myPrograms").click(onMyPrograms);
 });
 </script>
 <body>
 <h1>WeScheme</h1>
-<input id="startCoding" value="Start Coding" type="button">
+<% if (s == null) { %>
+    <input id="startCoding" value="Start Coding" type="button">
+<% } else { %>
+    <input id="myPrograms" value="My Programs" type="button">
+<% } %>
 
 <img src="css/images/BigLogo.png">
 	
