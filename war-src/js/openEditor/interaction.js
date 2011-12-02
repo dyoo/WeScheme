@@ -1,4 +1,5 @@
 /*global goog,jQuery,plt*/
+/*jslint browser: true, vars: true, white: true, plusplus: true, maxerr: 50, indent: 4 */
 //if (typeof (plt) === 'undefined') {
 //this.plt = {};
 //}
@@ -14,6 +15,7 @@ goog.require("plt.wescheme.tokenizer");
 goog.require("plt.wescheme.WeSchemeProperties");
 
 var WeSchemeInteractions;
+
 
 
 WeSchemeInteractions = (function () {
@@ -172,14 +174,14 @@ WeSchemeInteractions = (function () {
         // this correctly at the moment.
         var n = new plt.wescheme.WeSchemeTextContainer(
             textareaSpan,
-            { height: 'dynamic',
-              minHeight: 15,
-              lineNumbers: false,
-              theme: "scheme-interactive",
-              //stylesheet: "/js/codemirror/contrib/scheme/css/schemecolors-interactive.css",
-              content: nextCode,
-              makeTransparentIframe: true,
-              readOnly: true },
+            { // height: 'dynamic',
+                minHeight: 15,
+                lineNumbers: false,
+                theme: "scheme-interactive",
+                //stylesheet: "/js/codemirror/contrib/scheme/css/schemecolors-interactive.css",
+                content: nextCode,
+                makeTransparentIframe: true,
+                readOnly: true },
             function(container) {
                 var newId = makeFreshId();
                 that.interactions.previousInteractionsTextContainers[newId] = container;

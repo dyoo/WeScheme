@@ -222,12 +222,10 @@
 
 
 	
-	<a href="/" class="headerlink">
-	  <div id="header">
-	    <h1>WeScheme</h1>
-	    <h2>Sometimes YouTube.  Perhaps iPhone.  Together, WeScheme!</h2>
-	  </div>
-	</a>
+	<div id="header">
+	  <h1>WeScheme</h1>
+	  <h2>Sometimes YouTube.  Perhaps iPhone.  Together, WeScheme!</h2>
+	</div>
 
 	
 	<div id="toolbar">

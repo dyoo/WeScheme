@@ -34,9 +34,9 @@ var loadProgramList = function(k) {
 		}
 	    });
 	    
-	    k();
+	    if (typeof(k) === 'function') { k(); }
 	},
-
+        
 	// Otherwise, fail by raising an alert.
 	function() {
 	    alert("Could not load list of projects")
@@ -63,7 +63,7 @@ var clearConsoleListing = function() {
     programListUl.append(
 	jQuery("<li/>").addClass("EntryHeader")
 	    .append(jQuery("<span/>").addClass("ProgramTitle").text("Program Title"))
-	    .append(jQuery("<span/>").addClass("ProgramModified").text("Last Modified"))
+	    .append(jQuery("<span/>").addClass("ProgramModified").text("Last Modified (D/M/YYYY)"))
 	    .append(jQuery("<span/>").addClass("ProgramPublished").text("Share"))
 	    .append(jQuery("<span/>").addClass("ProgramDelete").text("Delete")));
     return programListUl
@@ -119,15 +119,26 @@ var addProgramEntry = function(digest, aProgramDigest, programListUl) {
 
 
 
-var continueRefreshingProgramList = function() {
-    // Every 30 seconds, refresh the program list.
-    var DELAY_BETWEEN_RELOADS = 30000;
-    setTimeout(function() { loadProgramList(continueRefreshingProgramList); },
-	       DELAY_BETWEEN_RELOADS);
-};
+// Automatic refreshing has been turned off: too much traffic.
+
+// var continueRefreshingProgramList = function() {
+//     // Every 30 seconds, refresh the program list.
+//     var DELAY_BETWEEN_RELOADS = 30000;
+//     setTimeout(function() { loadProgramList(continueRefreshingProgramList); },
+// 	       DELAY_BETWEEN_RELOADS);
+// };
 
 
 jQuery(document).ready(function() {
     plt.wescheme.browserCheck();
-    loadProgramList(continueRefreshingProgramList);    
+    loadProgramList(function() {});
+
+    $('#logoutForm').bind(
+        "submit",
+        function(e) {
+            if(!(confirm("You will be logged out of WeScheme and other Google services."))) {
+                e.stopPropagation();
+                e.preventDefault();
+            }
+        });
 });

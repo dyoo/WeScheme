@@ -64,26 +64,31 @@ var WeSchemeEditor;
 		    that.highlight(id, offset, line, column, span);
 		});
 
+		// pid: (or false number)
+		that.pid = false;
+
+
+		//////////////////////////////////////////////////////////////////////
+		// Flapjax stuff.
+		
 		that.filenameEntry = new FlapjaxValueHandler(
 		    attrs.filenameInput.get(0));
 
 		that.filenameEntry.node.type = "text";
 		that.filenameEntry.setValue("");
+
+                // Any time the filenameEntry changes, adjust the
+                // document's title to match it.
 		that.filenameEntry.behavior.changes().mapE(function(v) {
+	            document.title = (plt.wescheme.helpers.trimWhitespace(v) ||
+                                      "<< Unnamed Program >>");
 		    plt.wescheme.WeSchemeIntentBus.notify("filename-changed", that);
 		});
-
-		// pid: (or false number)
-		that.pid = false;
 
 		that.defn.getSourceB().changes().mapE(function() {
 		    plt.wescheme.WeSchemeIntentBus.notify("definitions-changed", that);
 		});
 
-		//////////////////////////////////////////////////////////////////////
-
-		// Flapjax stuff.
-		
 		//////////////////////////////////////////////////////////////////////
 		// EVENTS
 		//////////////////////////////////////////////////////////////////////
@@ -367,7 +372,6 @@ var WeSchemeEditor;
  		"/openEditor?publicId=" +
  		    encodeURIComponent(aProgram.getPublicId()));
  	    that.filenameEntry.attr("value", aProgram.getTitle());
-            jQuery(document.head).find("title").text(aProgram.getTitle());
  	    that.defn.setCode(aProgram.getSourceCode());
 	    
 	    if (that.userName === aProgram.getOwner()) {

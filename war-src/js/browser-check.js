@@ -29,7 +29,8 @@ goog.require('plt.wescheme.cookies');
 
     var fullySupportedVersions = [ {browser: 'Safari', minimumVersion: '5'},
 				   {browser: 'Chrome', minimumVersion: '5'},
-				   {browser: 'Firefox', minimumVersion: '3.5.1'} ];
+				   {browser: 'Firefox', minimumVersion: '3.5.1'},
+                                   {browser: 'Explorer', minimumVersion: '7'}];
 
     var knownBadBrowsers = [ {browser: 'Explorer', lessThan: '7'},
 			     {browser: 'Safari', lessThan: '4'},

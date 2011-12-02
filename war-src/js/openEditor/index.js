@@ -27,10 +27,14 @@ var initializeEditor;
 (function() {
 	initializeEditor = function(attrs) {
 		plt.wescheme.browserCheck();
-		maybeWarnOnExit(attrs.warnOnExit);
 		maybeHideHeaderAndFooter(attrs.hideHeader, attrs.hideFooter);
 		editorSetup(attrs, 
-				function() { splitPaneSetup(attrs); });
+			    function() { 
+                                // At this point, we know the editor has been
+                                // initialized.
+		                maybeWarnOnExit(attrs.warnOnExit);
+                                splitPaneSetup(attrs); 
+                            });
 	};
 
 
@@ -40,7 +44,14 @@ var initializeEditor;
 			return "Are you sure you want to leave the Editor? (all unsaved changes will be lost)";
 		};
 		if (warnOnExit) {
-			window.onbeforeunload = doubleCheck;
+		    window.onbeforeunload = doubleCheck;
+
+                    // // If the editor is dirty
+                    // changes(myEditor.isDirtyB).mapE(function(v) {
+                    //     if (v) {
+                    //     } else {
+                    //     }
+                    // });
 		}
 	};
 
@@ -86,7 +97,11 @@ var initializeEditor;
 									jQuery("#stop").click(function()  { myEditor.requestBreak(); });
 									jQuery("#save").click(function() { myEditor.save(); });
 									jQuery("#share").click(function()  { myEditor.share(); });
-									jQuery("#logout").click(function() { submitPost("/logout"); });
+									jQuery("#logout").click(function() { 
+                                                                            if(confirm("You will be logged out of WeScheme and other Google services.")) {
+                                                                                submitPost("/logout"); 
+                                                                            }
+                                                                        });
 									jQuery("#bespinMode").click(function() { defnSourceContainer.setMode("bespin"); });
 
 

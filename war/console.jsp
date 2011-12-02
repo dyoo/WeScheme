@@ -46,16 +46,17 @@
 
 <script src="/js/console-calc.js"></script>
 
+
 </head>
 <body>
 
 
-<a href="/" class="headerlink">
+
 <div class="header" style="position: fixed;">
-	<h1 class="title">Your Programs</h1>
-	<h2>Welcome <%= s.getNickname() %></h2>
+    <h1 class="title">Your Programs</h1>
+    <h2>Welcome <%= s.getNickname() %></h2>
 </div>
-</a>
+
 
 
 <div id="toolbar">
@@ -67,7 +68,7 @@
 		</li>
 
 		<li class="logout">
-			<form method="POST" action="/logout">
+			<form id="logoutForm" method="POST" action="/logout">
 			<input name="logout" value="Logout" type="submit">
 			</form>
 		</li>

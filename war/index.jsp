@@ -4,6 +4,14 @@
 <%@ page import="com.google.appengine.api.users.UserServiceFactory" %>
 <%@ page import="org.wescheme.user.SessionManager" %>
 <%@ page import="org.wescheme.user.Session" %>
+
+<%
+SessionManager sm = new SessionManager();
+Session s = sm.authenticate(request, response);
+UserService us = UserServiceFactory.getUserService();
+%>
+
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head><title>WeScheme</title>
@@ -21,26 +29,38 @@
 <link rel="stylesheet" type="text/css" href="css/splash.css" id="style" />
 
 </head>
+<script>
+var onOpenEditor = function() {
+    window.location='/openEditor';
+};
+
+var onLogin = function() {
+    window.location = '<%= us.createLoginURL("/login.jsp") %>';
+};
+
+var onLogout = function() {
+    if(confirm("You will be logged out of WeScheme and other Google services.")) {
+       window.location='/logout';
+    }
+};
+
+$(document).ready(function() {
+    $("#startCoding").click(onOpenEditor);
+    $("#loginButton").click(onLogin);
+    $("#logoutButton").click(onLogout);
+});
+</script>
 <body>
 <h1>WeScheme</h1>
-<input id="newProgram" value="Start Coding" type="button" onclick="javascript:window.location='/openEditor'" />
-	<img src="css/images/BigLogo.png">
+<input id="startCoding" value="Start Coding" type="button">
+
+<img src="css/images/BigLogo.png">
 	
 
-<%
-		// Are we logged in?
-		SessionManager sm = new SessionManager();
-		Session s = sm.authenticate(request, response);
-		UserService us = UserServiceFactory.getUserService();
-		if( s == null ) {
-%>
-
- <input id="newProgram" value="Log In" type="button" onclick="javascript:window.location='<%= us.createLoginURL("/login.jsp") %>'" />
- 
+<% if( s == null ) { %>
+    <input id="loginButton" value="Log In" type="button">
 <%  } else { %>
-
-<input id="newProgram" value="Log Out" type="button" onclick="javascript:window.location='/logout'" %>
-
+    <input id="logoutButton" value="Log Out" type="button">
 <% } %>	
 	
 	
@@ -50,7 +70,6 @@
 <div id="links">
      <a href="http://www.vidiowiki.com/watch/cydr9yk/#">What is WeScheme? [video]</a>
 </div>
-
 
 
 <jsp:include page="/footer.jsp"/>

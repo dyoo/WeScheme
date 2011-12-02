@@ -17653,9 +17653,14 @@ new PrimProc('text/font',
 			 if (colorDb.get(aColor)) {
 			 aColor = colorDb.get(aColor);
 			 }
+                             try {
 			 return world.Kernel.textImage(aString.toString(), jsnums.toFixnum(aSize), aColor,
 										   aFace.toString(), aFamily.toString(), aStyle.toString(),
 										   aWeight.toString(), aUnderline);
+                             } catch(e) {
+		                 return world.Kernel.textImage(aString.toString(), jsnums.toFixnum(aSize), aColor,
+							       "normal", "Optimer","","",false);
+                             }
 			 });
 
 PRIMITIVES['bitmap/url'] = 

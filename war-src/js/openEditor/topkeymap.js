@@ -12,8 +12,14 @@ plt.wescheme.topKeymap = function(e) {
  
     if (e.keyCode === F5_KEYCODE) {
 	myEditor.run();
-	e.stopPropagation();
-	e.preventDefault();
+        e.cancelBubble = true;
+	if (e.stopPropagation) { e.stopPropagation(); }
+        e.returnValue = false;
+	if (e.preventDefault) { e.preventDefault(); }
+        if (! e.preventDefault) {
+            // IE-specific hack.
+            e.keyCode = 0;
+        }
 	return false;
     }
 
@@ -21,8 +27,10 @@ plt.wescheme.topKeymap = function(e) {
     // document body, and prevent us from going back in history.
     if (e.target === document.body) {
 	if (e.keyCode === BACKSPACE_KEYCODE) {
-	    e.stopPropagation();
-	    e.preventDefault();
+            e.cancelBubble = true;
+	    if (e.stopPropagation) { e.stopPropagation(); }
+            e.returnValue = false;
+	    if (e.preventDefault) { e.preventDefault(); }
 	    return false;
 	}
     }
