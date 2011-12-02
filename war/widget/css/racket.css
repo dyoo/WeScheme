@@ -1,0 +1,64 @@
+/*.cm-s-scheme {
+ cursor: text;
+ width: 100%;
+ height: 100%;
+ }
+ html {
+ background:     white url(/css/images/fadeIcon.png) no-repeat right bottom fixed;
+ 
+ }
+ 
+ html:hover{
+ background:     white url(/css/images/fadeWords.png) no-repeat right bottom fixed;
+ }*/
+
+/* @media only screen  */
+/* and (min-device-width : 320px)  */
+/* and (max-device-width : 480px) { */
+/*  html, html:hover{background: white;} */
+/* } */
+
+.cm-s-default {
+    width: 100%;
+    height: 100%;
+    margin: 0pt;
+    padding: 0;
+    font-family: monospace;
+    font-size: 10pt;
+    color: #666666;
+}
+
+
+
+
+
+
+
+.cm-s-default pre.code {
+    color: #666666;
+}
+
+.cm-s-default p {
+    margin: 0;
+}
+
+.cm-s-default span.cm-scheme-string  {color: green;}
+.cm-s-default span.cm-scheme-number  {color: blue;}
+.cm-s-default span.cm-scheme-boolean     {color: darkred;}
+.cm-s-default span.cm-scheme-character   {color: orange;}
+.cm-s-default span.cm-scheme-symbol  {color: steelblue;}
+.cm-s-default span.cm-scheme-punctuation {color: black;}
+.cm-s-default span.cm-scheme-rparen      {color: black;}
+.cm-s-default span.cm-scheme-comment     { color: orange; }
+
+
+.cm-s-default span.cm-scheme-punctuation.CodeMirror-matchingbracket { 
+    font-weight: bold;
+    color: #3399FF !important;  
+    background-color: #d3d3d3;
+}
+.cm-s-default span.cm-scheme-punctuation.CodeMirror-nonmatchingbracket {
+    font-weight: bold;
+    color: red !important;
+    background-color: #d3d3d3;
+}

@@ -1,10 +1,12 @@
+.CodeMirror {background: white; border: solid 1px black;}
+.CodeMirror-scroll {height: 300px;}
 .activeline{background:	wheat !important;}
 
-div#design-recipe-form .CodeMirror{border: none;}
+div#form .CodeMirror{border: none;}
 div#design-recipe-form .CodeMirror-scroll{
     height: auto;
     overflow-y: hidden;
-    overflow-x: auto;
+    overflow-x: hidden;
     width: auto;
     border: 1px inset;
     font-weight: normal;

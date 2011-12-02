@@ -1,32 +1,19 @@
 /*global CodeMirror*/
 var initializeWidget = (function () {
     'use strict';
-
-
+    
+    
     var initializeWidget = function(editor) {
-
-                       
-
+        
+        
         /////////////////////////////////// SETUP /////////////////////////////////////////
         // Create CM instances for code, and all fields of DR Form
-        // editor = CodeMirror.fromTextArea(document.getElementById("design-recipe-code"), 
-        //                                      {tabMode:"indent"
-        //                                      ,enterMode:"indent"
-        //                                      ,lineNumbers: true
-        //                                      ,matchBrackets: true
-        //                                      ,onKeyEvent: function(i, e) { // ctrl-space for autocomplete
-        //                                              if (e.keyCode == 32 && (e.ctrlKey || e.metaKey) && !e.altKey) {
-        //                                                  e.stop();
-        //                                                  return startComplete();
-        //                                              }
-        //                                          }
-        //                                      });
-
+        
         var contract_name     = CodeMirror.fromTextArea(document.getElementById("design-recipe-name")
-                                                        ,{matchBrackets: true,
-                                                          tabMode: "default", 
-                                                          onBlur: checkContract,
-                                                          onFocus: checkContract});
+                                                        ,{matchBrackets: true
+                                                          , tabMode: "default"
+                                                          , onBlur: checkContract
+                                                          , onFocus: checkContract});
         var contract_domain   = CodeMirror.fromTextArea(document.getElementById("design-recipe-domain")
                                                         ,{matchBrackets: true,
                                                           tabMode: "default", 
@@ -38,17 +25,36 @@ var initializeWidget = (function () {
                                                           onBlur: checkContract, 
                                                           onFocus: checkContract});
         var example1_header   = CodeMirror.fromTextArea(document.getElementById("design-recipe-example1_header")
-                                                        ,{matchBrackets: true, tabMode: "default", onChange: checkExamples, onFocus: checkExamples});
+                                                        ,{matchBrackets: true
+                                                          , tabMode: "default"
+                                                          , onChange: checkExamples
+                                                          , onFocus: checkExamples});
         var example1_body     = CodeMirror.fromTextArea(document.getElementById("design-recipe-example1_body")
-                                                        ,{matchBrackets: true, tabMode: "default", onChange: checkExamples, onFocus: checkExamples});
+                                                        ,{matchBrackets: true
+                                                          , tabMode: "default"
+                                                          , onChange: checkExamples
+                                                          , onFocus: checkExamples});
         var example2_header   = CodeMirror.fromTextArea(document.getElementById("design-recipe-example2_header")
-                                                        ,{matchBrackets: true, tabMode: "default", onChange: checkExamples, onFocus: checkExamples});
+                                                        ,{matchBrackets: true
+                                                          , tabMode: "default"
+                                                          , onChange: checkExamples
+                                                          , onFocus: checkExamples});
         var example2_body     = CodeMirror.fromTextArea(document.getElementById("design-recipe-example2_body")
-                                                        ,{matchBrackets: true, tabMode: "default", onChange: checkExamples, onFocus: checkExamples});
+                                                        ,{matchBrackets: true
+                                                          , tabMode: "default"
+                                                          , onChange: checkExamples
+                                                          , onFocus: checkExamples});
         var definition_header = CodeMirror.fromTextArea(document.getElementById("design-recipe-definition_header")
-                                                        ,{matchBrackets: true, tabMode: "default", onChange: checkDefinition, onFocus: checkDefinition});
+                                                        ,{matchBrackets: true
+                                                          , tabMode: "default"
+                                                          , onChange: checkDefinition
+                                                          , onFocus: checkDefinition});
         var definition_body   = CodeMirror.fromTextArea(document.getElementById("design-recipe-definition_body")
-                                                        ,{matchBrackets: true, tabMode: "default", onChange: checkDefinition, onFocus: checkDefinition});
+                                                        ,{matchBrackets: true
+                                                          , tabMode: "default"
+                                                          , onChange: checkDefinition
+                                                          , onFocus: checkDefinition
+                                                          , onBlur: contract_name.focus});
         
         var example1_error = document.getElementById("design-recipe-example1_error");
         var example2_error = document.getElementById("design-recipe-example2_error");
@@ -87,12 +93,12 @@ var initializeWidget = (function () {
                         (document.getElementById('design-recipe-contract_wrapper').offsetHeight+10))? "\n" : " ";
             }
             var values = formValues();
-            var sxampleValues = function(examples){
+            var exampleValues = function(examples){
                 var exampleText = "";
                 for(var i=0; i<examples.length; i++)
                     exampleText += "(EXAMPLE "+ values.examples[i].header + ws('design-recipe-example1_wrapper') + values.examples[i].body  + ")\n"; 
             }
-
+            
             var contract= "; "+values.name+" : "+values.domain+" -> "+values.range;
             var example1     = "(EXAMPLE "+ values.examples[1].header + ws('design-recipe-example1_wrapper') + values.examples[1].body  + ")";   
             var example2     = "(EXAMPLE "+ values.examples[1].header + ws('design-recipe-example2_wrapper') + values.examples[1].body  + ")";   
@@ -144,13 +150,13 @@ var initializeWidget = (function () {
                 return true;
             }
         }
-
+        
         
         /*********************************************
          * Check a single example for well-formedness
          */
         function checkExample(name, header, body, errorDOM){
-            var nameRegExp = new RegExp("\\(\\s*"+name+"\\s");
+            var nameRegExp = new RegExp("\\(\\s*"+name);
             // make sure the header begins with "(name", accounting for whitespace
             if(!header.match(nameRegExp)) {
                 errorDOM.innerHTML = "An example header looks like \"(<i>name</i> ...<i>inputs</i>...)\"";
@@ -189,7 +195,7 @@ var initializeWidget = (function () {
                 for (i = 0; i < values.examples.length; i++) {
                     values.examples[i].errorDOM.innerHTML = "<b>Fix your contract first!</b>";
                 }
-
+                
                 return false;
             }
             
@@ -220,7 +226,7 @@ var initializeWidget = (function () {
                 values.definition_error.innerHTML = "<b>Fix your examples first!</b>";
                 return false;
             }
-
+            
             var nameRegExp = new RegExp("\\(\\s*"+values.name);
             // make sure the header begins with "(name", accounting for whitespace
             if(!values.def_header.match(nameRegExp)) {
@@ -253,7 +259,7 @@ var initializeWidget = (function () {
         //////////////////////////////////////////////////////////////////////////////////// 
         /////////////////////////////////// PUBLIC /////////////////////////////////////////
         //////////////////////////////////////////////////////////////////////////////////// 
-
+        
         var hlLine;
         
         // add a demo DR widget at cursor location
@@ -303,9 +309,9 @@ var initializeWidget = (function () {
             example2_body.setValue('');
             definition_header.setValue('');
             definition_body.setValue('');
-
+            
         }
-
+        
         
         ///////////////// AUTOCOMPLETE //////////////////////////
         
@@ -401,17 +407,15 @@ var initializeWidget = (function () {
             return found;
         }
         
-     
-
-        jQuery(document.getElementById('design-recipe-insertCode')).bind("click", function(e) { injectCode(); hideWidget(); });
-        jQuery(document.getElementById('design-recipe-cancel')).bind("click", hideWidget);
-   
+        document.getElementById('design-recipe-insertCode').onclick=function(e) { injectCode(); hideWidget(); };
+        document.getElementById('design-recipe-cancel').onclick=hideWidget;
+        
         return { showWidget: showWidget,
                  injectCode: injectCode,
                  hideWidget: hideWidget, 
                  clearForm: clearForm};
-
+        
     };
-
+    
     return initializeWidget;
 }());
