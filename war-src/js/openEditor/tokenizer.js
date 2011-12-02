@@ -447,4 +447,35 @@ boundaries.
     };
 
 
+    // hasCompleteExpression: string -> boolean
+    plt.wescheme.tokenizer.hasCompleteExpression = function(text) {
+        var tokens = plt.wescheme.tokenizer.tokenize(text);
+        var waitingOpenParens = [], i;
+        var openParens = { '(' : true,
+                           '[' : true,
+                           '{' : true };
+        var closeParens = { ')' : '(',
+                            ']' : '[',
+                            '}' : '{' };
+        for (i = 0; i < tokens.length; i++) {
+            if (openParens[tokens[i].type]) {
+                waitingOpenParens.push(tokens[i].type);
+            } else if (closeParens[tokens[i].type]) {
+                if (waitingOpenParens.length === 0) { 
+                    return false; 
+                }
+                if (waitingOpenParens.pop() !== closeParens[tokens[i].type]) {
+                    return false;
+                }
+            }
+        }
+        return waitingOpenParens.length === 0;
+    };
+
+
+
+
+
+
+
 })();
