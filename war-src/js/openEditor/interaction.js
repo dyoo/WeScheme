@@ -309,28 +309,10 @@ WeSchemeInteractions = (function () {
             return false;
         }
         var codeUpToCursor = this.textContainer.getCode(0, this.textContainer.getCursorStartPosition());
-        var tokens = plt.wescheme.tokenizer.tokenize(codeUpToCursor);
-        var waitingOpenParens = [], i;
-        var openParens = { '(' : true,
-                           '[' : true,
-                           '{' : true };
-        var closeParens = { ')' : '(',
-                            ']' : '[',
-                            '}' : '{' };
-        for (i = 0; i < tokens.length; i++) {
-            if (openParens[tokens[i].type]) {
-                waitingOpenParens.push(tokens[i].type);
-            } else if (closeParens[tokens[i].type]) {
-                if (waitingOpenParens.length === 0) { 
-                    return false; 
-                }
-                if (waitingOpenParens.pop() !== closeParens[tokens[i].type]) {
-                    return false;
-                }
-            }
-        }
-        return waitingOpenParens.length === 0;
+        return plt.wescheme.tokenizer.hasCompleteExpression(codeUpToCursor);
     };
+
+
 
     Prompt.prototype.setText = function(t) {
         this.textContainer.setCode(t);
