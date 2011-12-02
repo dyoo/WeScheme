@@ -1,8 +1,8 @@
-.CodeMirror {background: white; border: solid 1px black;}
-.CodeMirror-scroll {height: 300px;}
-.activeline{background:	wheat !important;}
+div#design-recipe-form .CodeMirror {background: white; border: solid 1px black;}
+div#design-recipe-form .CodeMirror-scroll {height: 300px;}
+div#design-recipe-form .activeline{background:	wheat !important;}
 
-div#form .CodeMirror{border: none;}
+div#design-recipe-form div#form .CodeMirror{border: none;}
 div#design-recipe-form .CodeMirror-scroll{
     height: auto;
     overflow-y: hidden;
@@ -36,7 +36,7 @@ div#design-recipe-form {
 	-webkit-box-shadow: 10px 10px 5px #888;
 	box-shadow: 10px 10px 5px #888;
 }
-div.section{
+div#design-recipe-form div.section{
 	min-width:		400px; 
 	font-family:	courier, monaco, serif; 
 	background:		white;
@@ -48,26 +48,26 @@ div.section{
 	background:		left top no-repeat;
 }
 
-div.section#design-recipe-contract{background-image: url('contract.png')}
-div.section#design-recipe-examples{background-image: url('examples.png')}
-div.section#design-recipe-definition{background-image: url('code.png'); border-bottom: 0px;}
-div.section>span{vertical-align: middle;}
+div#design-recipe-form div.section#design-recipe-contract{background-image: url('contract.png')}
+div#design-recipe-form div.section#design-recipe-examples{background-image: url('examples.png')}
+div#design-recipe-form div.section#design-recipe-definition{background-image: url('code.png'); border-bottom: 0px;}
+div#design-recipe-form div.section>span{vertical-align: middle;}
 
 
-div#design-recipe-example1_wrapper, div#design-recipe-example2_wrapper, div#design-recipe-definition_wrapper, div#design-recipe-contract_wrapper{
+div#design-recipe-form div#design-recipe-example1_wrapper, div#design-recipe-example2_wrapper, div#design-recipe-definition_wrapper, div#design-recipe-contract_wrapper{
     max-width:      500px; 
     display:        inline-block; 
     vertical-align: top;
     margin-right:   20px;
 }
 
-span.spacer{
+div#design-recipe-form span.spacer{
     display: inline-block; 
     width: 75px;
     margin-top: 7px;
 }
 
-div.toolbar{
+div#design-recipe-form div.toolbar{
 	display:		inline-block; 
 	width:			100%; 
 	background:		black; 
@@ -75,10 +75,10 @@ div.toolbar{
 	font-size:		20px;
 }
 
-span.error{font-family: helvetica, arial; font-weight: normal; font-size: 10px; clear: both; display: block; color: red; margin: 0px; padding-bottom: 5px;}
+div#design-recipe-form span.error{font-family: helvetica, arial; font-weight: normal; font-size: 10px; clear: both; display: block; color: red; margin: 0px; padding-bottom: 5px;}
 
 
-.completions {
+div#design-recipe-form .completions {
     position: absolute;
     z-index: 10;
     overflow: hidden;
@@ -86,7 +86,7 @@ span.error{font-family: helvetica, arial; font-weight: normal; font-size: 10px; 
     -moz-box-shadow: 2px 3px 5px rgba(0,0,0,.2);
     box-shadow: 2px 3px 5px rgba(0,0,0,.2);
 }
-.completions select {
+div#design-recipe-form .completions select {
     background: #fafafa;
     outline: none;
     border: none;
