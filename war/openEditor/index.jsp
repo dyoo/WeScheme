@@ -160,12 +160,6 @@
 
 
 
-
-
-
-
-
-
         <div id="design-recipe-form" style="position: absolute; left: -1000px; z-index: 10;">
 	  <div class="toolbar">
 	    <input type="button" id="design-recipe-insertCode" value="Insert on this Line" style="float: left; color: black;"/>

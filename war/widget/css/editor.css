@@ -75,7 +75,15 @@ div#design-recipe-form div.toolbar{
 	font-size:		20px;
 }
 
-div#design-recipe-form span.error{font-family: helvetica, arial; font-weight: normal; font-size: 10px; clear: both; display: block; color: red; margin: 0px; padding-bottom: 5px;}
+div#design-recipe-form span.error{
+    font-family: helvetica, arial;
+    font-weight: normal; 
+    font-size: 15px; 
+    clear: both; 
+    display: block;
+    color: red; 
+    margin: 0px; 
+    padding-bottom: 5px;}
 
 
 div#design-recipe-form .completions {

@@ -16,30 +16,142 @@ var initializeWidget = (function () {
         example1_error, example2_error;
 
 
+
+        // A ValidatedTextInputElement is a combination of an text
+        // element, a function for determining erroneous content, and
+        // an element for reporting errors.
+        //
+        // A ValidatedTextInputElement has several event streams:
+        //
+        // textValueE: the content of the text field.
+        // isGoodB: if the text field satisfies all its tests
+        //
+        // This injects a span into the errorElement that will report
+        // errors.
+        var ValidatedTextInputElement = function(textElement,
+                                                 isError,
+                                                 errorElement) {
+            var that = this;
+            var textValueE = receiverE();
+            var setValue = function() {
+                textValueE.sendEvent(that.codeMirrorElement.getValue());
+            };
+            
+
+            this.codeMirrorElement = 
+                CodeMirror.fromTextArea(textElement,
+                                        { matchBrackets: true,
+                                          tabMode: "default",
+                                          onChange: setValue,
+                                          onBlur: setValue,
+                                          onFocus: setValue });
+
+            var calmedTextValueE = textValueE.calmE(500);
+            var errorE = calmedTextValueE.mapE(isError);
+
+            this.isGoodB = startsWith(notE(errorE), false);
+
+            // On errors, the content of the errorElement will change.
+            var parentElt = document.createElement('span');
+            errorElement.appendChild(parentElt);
+            insertDomE(
+                errorE.mapE(
+                    function(msg) {
+                        var elt = document.createElement('span');
+                        elt.className = "error";
+                        if (msg) {
+                            that.codeMirrorElement.getWrapperElement().style.border = '1px solid red';
+                            elt.appendChild(document.createTextNode(msg));
+                        } else {
+                            that.codeMirrorElement.getWrapperElement().style.border = '1px solid black';
+                        }
+                        return elt;
+                    }),
+                parentElt);
+        };
+
+        ValidatedTextInputElement.prototype.getValue = function() {
+            return this.codeMirrorElement.getValue();
+        };
+
+        ValidatedTextInputElement.prototype.focus = function() {
+            this.codeMirrorElement.focus();
+        };
+
+        ValidatedTextInputElement.prototype.clear = function() {
+            this.codeMirrorElement.setValue('');
+        };
+        
+
+
+        // isNameError: string -> (U #f string)
+        // If there's a problem with the name of the function, return a string.
+        var isNameError = function(s) {
+            if (collectIdentifiers(s).length === 0){
+                return "What is the name of your function?";
+            }
+            if (hasNonIdentifiers(s)) {
+                return "The name of your function appears to contains a non-word: " +
+                    hasNonIdentifiers(s);
+            }
+            if (collectIdentifiers(s).length > 1){
+                return "The name of your function can only be one word long.";
+            }
+            return false;
+        };
+
+ 
+        // isDomainError: string -> (U #f string)
+        // Returns a string if there's a problem with the domain's value.
+        // Returns false otherwise.
+        var isDomainError = function(s) {
+            if(collectIdentifiers(s).length === 0) {
+                return "What is the domain of your function?";
+            }
+            if (hasNonIdentifiers(s)) {
+                return "The domain of your function appears to contains a non-word: " +
+                    hasNonIdentifiers(s);
+            }
+            return false;
+        };
+
+        var isRangeError = function(s) {
+            if(collectIdentifiers(s).length !== 1){
+                return "The range of a function must contain exactly one type";
+            }
+            if (hasNonIdentifiers(s)) {
+                return "The range of your function appears to contains a non-word: " +
+                    hasNonIdentifiers(s);
+            }
+            return false;
+        };
+
+
+
         // Forward references
         var checkContract, checkExamples, checkDefinition;
-
-
     
         /////////////////////////////////// SETUP /////////////////////////////////////////
         // Create CM instances for code, and all fields of DR Form
 
         var setupFieldBindings = function() {
-            contract_name     = CodeMirror.fromTextArea(document.getElementById("design-recipe-name")
-                                                        ,{matchBrackets: true
-                                                          , tabMode: "default"
-                                                          , onBlur: checkContract
-                                                          , onFocus: checkContract});
-            contract_domain   = CodeMirror.fromTextArea(document.getElementById("design-recipe-domain")
-                                                        ,{matchBrackets: true,
-                                                          tabMode: "default", 
-                                                          onBlur: checkContract, 
-                                                          onFocus: checkContract});
-            contract_range    = CodeMirror.fromTextArea(document.getElementById("design-recipe-range")
-                                                        ,{matchBrackets: true, 
-                                                          tabMode: "default", 
-                                                          onBlur: checkContract, 
-                                                          onFocus: checkContract});
+            var errorElt = document.getElementById('design-recipe-contract_error');
+
+            contract_name = new ValidatedTextInputElement(
+                document.getElementById("design-recipe-name"),
+                isNameError,
+                errorElt);
+
+            contract_domain = new ValidatedTextInputElement(
+                document.getElementById("design-recipe-domain"),
+                isDomainError,
+                errorElt);
+            
+            contract_range = new ValidatedTextInputElement(
+                document.getElementById("design-recipe-range"),
+                isRangeError,
+                errorElt);
+
             example1_header   = CodeMirror.fromTextArea(document.getElementById("design-recipe-example1_header")
                                                         ,{matchBrackets: true
                                                           , tabMode: "default"
@@ -65,12 +177,12 @@ var initializeWidget = (function () {
                                                           , tabMode: "default"
                                                           , onChange: checkDefinition
                                                           , onFocus: checkDefinition});
-            definition_body   = CodeMirror.fromTextArea(document.getElementById("design-recipe-definition_body")
-                                                        ,{matchBrackets: true
-                                                          , tabMode: "default"
-                                                          , onChange: checkDefinition
-                                                          , onFocus: checkDefinition
-                                                          , onBlur: contract_name.focus});
+            definition_body  = CodeMirror.fromTextArea(document.getElementById("design-recipe-definition_body"),
+                                                       { matchBrackets: true,
+                                                         tabMode: "default",
+                                                         onChange: checkDefinition,
+                                                         onFocus: checkDefinition,
+                                                         onBlur: function() { contract_name.focus(); }});
             
             example1_error = document.getElementById("design-recipe-example1_error");
             example2_error = document.getElementById("design-recipe-example2_error");
@@ -108,8 +220,8 @@ var initializeWidget = (function () {
         // put example items in a list, for variable # of examples
         // formValues: -> object
         var formValues = function(){
-            return { name:       contract_name.getValue()
-                     ,domain:     contract_domain.getValue()
+            return { name:       contract_name.getValue(),
+                     domain:     contract_domain.getValue()
                      ,range:      contract_range.getValue()
                      ,contract_error: document.getElementById('design-recipe-contract_error')
                      ,examples:  [{header: example1_header.getValue(),
@@ -162,29 +274,43 @@ var initializeWidget = (function () {
             }
             return result;
         };
+
+        // hasNonIdentifiers: string -> (U #f string)
+        var hasNonIdentifiers = function(str) {
+            var tokens = tokenizer.tokenize(str);
+            var i;
+            for (i = 0; i < tokens.length; i++) {
+                if (tokens[i].type !== 'variable' && tokens[i].type !== 'whitespace') {
+                    return tokens[i].content;
+                }
+            }
+            return false;
+        };
+                                            
         
 
         /*********************************************
          * Check the name, domain and range
          */
         checkContract = function(){
-            var values = formValues();
-            if(collectIdentifiers(values.name).length === 0){
-                values.contract_error.innerHTML = "What is the name of your function?";
-                return false;
-            } else if(collectIdentifiers(values.name).length > 1){
-                values.contract_error.innerHTML = "The name of your function can only be one word long";
-                return false;
-            } else if(collectIdentifiers(values.domain).length === 0){
-                values.contract_error.innerHTML = "What is the domain of your function?";
-                return false;
-            } else if(collectIdentifiers(values.range).length !== 1){
-                values.contract_error.innerHTML = "The range of a function must contain exactly one type";
-                return false; 
-            } else {
-                values.contract_error.innerHTML = "";
-                return true;
-            }
+            //var values = formValues();
+            // if(collectIdentifiers(values.name).length === 0){
+            //     values.contract_error.innerHTML = "What is the name of your function?";
+            //     return false;
+            // } else if(collectIdentifiers(values.name).length > 1){
+            //     values.contract_error.innerHTML = "The name of your function can only be one word long";
+            //     return false;
+            // } 
+            // if(collectIdentifiers(values.range).length !== 1){
+            //     values.contract_error.innerHTML = "The range of a function must contain exactly one type";
+            //     return false; 
+            // } else {
+            //     values.contract_error.innerHTML = "";
+            //     return true;
+            // }
+            return (contract_name.isGoodB.valueNow() && 
+                    contract_domain.isGoodB.valueNow() && 
+                    contract_range.isGoodB.valueNow());
         };
         
         
@@ -333,8 +459,8 @@ var initializeWidget = (function () {
                 values.examples[i].errorDOM.innerHTML = "";
             }
             values.definition_error.innerHTML = "";
-            contract_name.setValue('');
-            contract_domain.setValue('');
+            contract_name.clear();
+            contract_domain.clear();
             contract_range.setValue('');
             example1_header.setValue('');
             example1_body.setValue('');
