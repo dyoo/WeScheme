@@ -461,7 +461,7 @@ var WeSchemeEditor;
 
 
     WeSchemeEditor.prototype.getTokenizer = function() {
-        reutrn plt.wescheme.tokenizer;
+        return plt.wescheme.tokenizer;
     };
 
 })();

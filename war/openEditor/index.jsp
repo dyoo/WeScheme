@@ -318,12 +318,13 @@
   <script>
     var widget;
     jQuery(document).ready(function() {
-    widget = initializeWidget(myEditor.defn.impl.editor)
+    widget = initializeWidget(myEditor.defn.impl.editor,
+                              myEditor.getTokenizer());
 
     jQuery("#designrecipebutton").bind("click", function(e) { e.preventDefault(); e.stopPropagation(); widget.showWidget(); });
     });
     
-</script>
+  </script>
 
 
 </html>

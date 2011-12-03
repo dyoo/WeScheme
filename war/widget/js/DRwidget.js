@@ -3,8 +3,11 @@
 var initializeWidget = (function () {
     'use strict';
     
-    
-    var initializeWidget = function(editor) {
+
+
+
+    // editor: CodeMirror2 editor
+    var initializeWidget = function(editor, tokenizer) {
         
         var contract_name, contract_domain, contract_range,
         example1_header, example1_body,
@@ -103,13 +106,18 @@ var initializeWidget = (function () {
 
         // Scrape the form and return an object, containing all strings
         // put example items in a list, for variable # of examples
+        // formValues: -> object
         var formValues = function(){
             return { name:       contract_name.getValue()
                      ,domain:     contract_domain.getValue()
                      ,range:      contract_range.getValue()
                      ,contract_error: document.getElementById('design-recipe-contract_error')
-                     ,examples:  [{header: example1_header.getValue(), body: example1_body.getValue(), errorDOM: example1_error},
-                                  {header: example2_header.getValue(), body: example2_body.getValue(), errorDOM: example2_error}]
+                     ,examples:  [{header: example1_header.getValue(),
+                                   body: example1_body.getValue(), 
+                                   errorDOM: example1_error},
+                                  {header: example2_header.getValue(),
+                                   body: example2_body.getValue(), 
+                                   errorDOM: example2_error}]
                      ,def_header: definition_header.getValue()
                      ,def_body:   definition_body.getValue()
                      ,definition_error: document.getElementById('design-recipe-definition_error')
@@ -118,6 +126,7 @@ var initializeWidget = (function () {
 
 
         // get the code out of the DR form, and compile into a single string 
+        // getDRCode -> string
         var getDRCode = function(){
 
             // if the code for an editor wrapper fits on one line, return a space. otherwise, a line break
@@ -126,34 +135,32 @@ var initializeWidget = (function () {
                 return (document.getElementById(elt).offsetHeight > 
                         (document.getElementById('design-recipe-contract_wrapper').offsetHeight+10))? "\n" : " ";
             };
-            var values = formValues();
-            // var i;
-            // var exampleValues = function(examples){
-            //     var exampleText = "";
-            //     for(i=0; i<examples.length; i++) {
-            //         exampleText += "(EXAMPLE "+ values.examples[i].header + ws('design-recipe-example1_wrapper') + values.examples[i].body  + ")\n"; 
-            //     }
-            // };
-            
-            var contract= "; "+values.name+" : "+values.domain+" -> "+values.range;
-            var example1     = "(EXAMPLE "+ values.examples[1].header + ws('design-recipe-example1_wrapper') + values.examples[1].body  + ")";   
+            var values = formValues();            
+            var contract = "; "+values.name+" : "+values.domain+" -> "+values.range;
+            var example1     = "(EXAMPLE "+ values.examples[0].header + ws('design-recipe-example1_wrapper') + values.examples[0].body  + ")";   
             var example2     = "(EXAMPLE "+ values.examples[1].header + ws('design-recipe-example2_wrapper') + values.examples[1].body  + ")";   
             var definition   = "(define  "+ values.def_header + ws('design-recipe-definition_wrapper')+values.def_header+ ")";
             
             return contract + "\n" + example1 + "\n" + example2 + "\n"+ definition + "\n\n";
         };
         
-        
+        // wellFormed: string -> boolean
         var wellFormed = function(str){
-            if (editor.getTokenizer) {
-                return editor.getTokenizer().hasCompleteExpression(str);
-            }
-            return true;
+            return tokenizer.hasCompleteExpression(str);
         };
-        
-        var countIdentifiers = function(str){
-            var ids = str.trim().replace(/\s+/g,",").split(",");
-            return (ids[0].length>0)? ids.length : 0;
+       
+
+        // collectIdentifiers: string -> (listof string)
+        var collectIdentifiers = function(str){
+            var tokens = tokenizer.tokenize(str);
+            var result = [];
+            var i;
+            for (i = 0; i < tokens.length; i++) {
+                if (tokens[i].type === 'variable') {
+                    result.push(tokens[i].content);;
+                }
+            }
+            return result;
         };
         
 
@@ -162,13 +169,16 @@ var initializeWidget = (function () {
          */
         checkContract = function(){
             var values = formValues();
-            if(values.name.replace(/\s+/g,"").length < 1){
+            if(collectIdentifiers(values.name).length === 0){
                 values.contract_error.innerHTML = "What is the name of your function?";
                 return false;
-            } else if(countIdentifiers(values.domain) < 1){
+            } else if(collectIdentifiers(values.name).length > 1){
+                values.contract_error.innerHTML = "The name of your function can only be one word long";
+                return false;
+            } else if(collectIdentifiers(values.domain).length === 0){
                 values.contract_error.innerHTML = "What is the domain of your function?";
                 return false;
-            } else if(countIdentifiers(values.range) !== 1){
+            } else if(collectIdentifiers(values.range).length !== 1){
                 values.contract_error.innerHTML = "The range of a function must contain exactly one type";
                 return false; 
             } else {
@@ -345,35 +355,39 @@ var initializeWidget = (function () {
         
         ///////////////// AUTOCOMPLETE //////////////////////////
         
-        var forEach = function(arr, f) {
-            var i, e;
-            for (i = 0, e = arr.length; i < e; i++) { f(arr[i]); }
-        };
 
+        // Compare strings case-insensitively.
+        // stringCmp: string string -> (U -1 0 1)
+        var stringCmp = function(x, y) { 
+            var xn = x.toUpperCase(), yn = y.toUpperCase();
+            if (xn < yn) { return -1; }
+            if (xn > yn) { return 1; }
+            if (x < y) { return -1; }
+            if (x > y) { return 1; }
+            return 0;
+        };
 
         var functions = "define cond else abs acos add1 andmap angle append asin atan boolean=? boolean? build-list caaar caadr caar cadar cadddr caddr cadr car cdaar cdadr cdar cddar cdddr cddr cdr ceiling char->integer char-alphabetic? char-ci<=? char-ci<? char-ci=? char-ci>=? char-ci>? char-downcase char-lower-case? char-numeric? char-upcase char-upper-case? char-whitespace? char<=? char<? char=? char>=? char>? char? complex? conjugate cons cons? cos cosh current-seconds denominator e eighth empty empty? eof eof-object? eq? equal? equal~? eqv? error even? exact->inexact exp expt false false? fifth first floor foldl format fourth gcd identity imag-part inexact->exact inexact? integer->char integer? lcm length list list* list->string list-ref log magnitude make-posn make-string map max member memq memv min modulo negative? not null null? number->string number? numerator odd? pair? pi positive? posn-x posn-y posn? quotient random rational? real-part real? remainder rest reverse round second seventh sgn sin sinh sixth sqr sqrt string string->list string->number string->symbol string-append string-ci<=? string-ci<? string-ci=? string-ci>=? string-ci>? string-copy string-length string-ref string<=? string<? string=? string>=? string>? string? struct? sub1 substring symbol->string symbol=? symbol? tan third true zero? circle triangle star rectangle radial-star rotate flip-vertical flip-horizontal bitmap/url scale scale/xy place-image put-image line overlay overlay/align underlay underlay/align";
 
-        // TODO - ignoring capitalization when sorting
+        // Given any of the identifiers in the program or any of the
+        // hardcoded functions that we know, and a token, return the
+        // identifiers that can complete the token.
         var getCompletions = function(token) {
             var i;
             // append all strings from the editor, then alphabetize and remove duplicates
             var strings = (functions + editor.getValue()).replace(/[\(\)]/g, "").replace(/\s+/g, " ");
-            strings = strings.split(/[\s+]/).sort();
-            var unique=[];
-            for(i=0; i<strings.length;i++){
-                if(unique[unique.length-1]!==strings[i]) {
-                    unique.push(strings[i]);
+            strings = strings.split(/[\s+]/);
+
+            var found = {}, result = [];
+            for (i = 0; i < strings.length; i++) {
+                if (strings[i].indexOf(token.string) === 0) { 
+                    if (! found[strings[i]]) {
+                        result.push(strings[i]);
+                        found[strings[i]] = true;
+                    }
                 }
             }
-            var found = [], start = token.string;
-            var maybeAdd = function(str) {
-                if (str.indexOf(start) === 0) { found.push(str); }
-            };
-            
-            if(!token.state.mode) {
-                forEach(unique, maybeAdd);
-            }
-            return found;
+            return result.sort(stringCmp);
         };
         
         
@@ -464,8 +478,10 @@ var initializeWidget = (function () {
 
         // initialization time:
         setupFieldBindings();
-        document.getElementById('design-recipe-insertCode').onclick=function(e) { injectCode(); hideWidget(); };
-        document.getElementById('design-recipe-cancel').onclick=hideWidget;
+        document.getElementById('design-recipe-insertCode').onclick = function(e) { 
+            injectCode(); hideWidget();
+        };
+        document.getElementById('design-recipe-cancel').onclick = hideWidget;
         
         return { showWidget: showWidget,
                  injectCode: injectCode,
