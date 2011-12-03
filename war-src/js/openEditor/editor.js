@@ -12,6 +12,7 @@ goog.require('plt.wescheme.WeSchemeIntentBus');
 goog.require('plt.wescheme.SharingDialog');
 goog.require('plt.wescheme.WeSchemeInteractions');
 goog.require('plt.wescheme.helpers');
+goog.require('plt.wescheme.tokenizer');
 
 var WeSchemeEditor;
 
@@ -456,6 +457,12 @@ var WeSchemeEditor;
 	    return jQuery(a); 
 	}
     }
+
+
+
+    WeSchemeEditor.prototype.getTokenizer = function() {
+        reutrn plt.wescheme.tokenizer;
+    };
 
 })();
 
