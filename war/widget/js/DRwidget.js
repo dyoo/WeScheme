@@ -217,6 +217,9 @@ var initializeWidget = (function () {
         };
 
         var isRangeError = function(s) {
+            if(collectIdentifiers(s).length === 0) {
+                return "What is the range of your function?";
+            }
             if(collectIdentifiers(s).length !== 1){
                 return "The range of a function must contain exactly one type";
             }
@@ -352,7 +355,7 @@ var initializeWidget = (function () {
             var contract = "; "+values.name+" : "+values.domain+" -> "+values.range;
             var example1     = "(EXAMPLE "+ values.examples[0].header + ws('design-recipe-example1_wrapper') + values.examples[0].body  + ")";   
             var example2     = "(EXAMPLE "+ values.examples[1].header + ws('design-recipe-example2_wrapper') + values.examples[1].body  + ")";   
-            var definition   = "(define  "+ values.def_header + ws('design-recipe-definition_wrapper')+values.def_header+ ")";
+            var definition   = "(define  "+ values.def_header + ws('design-recipe-definition_wrapper')+values.def_body+ ")";
             
             return contract + "\n" + example1 + "\n" + example2 + "\n"+ definition + "\n\n";
         };
