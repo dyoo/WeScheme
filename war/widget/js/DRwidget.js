@@ -110,7 +110,10 @@ var initializeWidget = (function () {
                 // Check dependencies
                 err = isViolatingDependencies.call(that);
                 if (err) {
-                    // ...
+                    jQuery(errorElement).empty();
+                    jQuery(errorElement).append(jQuery('<span/>').addClass("error").append(err.message));
+                    blinkTwice(err.target);
+                    jQuery(that.codeMirrorElement.getWrapperElement()).addClass("stillErroneous");
                     return;
                 }
 
@@ -118,7 +121,7 @@ var initializeWidget = (function () {
                 err = isError.call(that, newValue);
                 if (err) {
                     jQuery(errorElement).empty();
-                    jQuery(errorElement).append(jQuery('<span/>').addClass("error").text(isError(newValue)));
+                    jQuery(errorElement).append(jQuery('<span/>').addClass("error").append(err));
                     jQuery(that.codeMirrorElement.getWrapperElement()).addClass("stillErroneous");
                     return;
                 }
@@ -184,6 +187,37 @@ var initializeWidget = (function () {
         example1_error, example2_error;
 
 
+        var getFunctionNameFromContract = function() {
+            var identifiers = collectIdentifiers(contract_name.getValue());
+            return identifiers[0];
+        };
+
+        // Returns true if str appears to contain a leading application of a function
+        // named with 'name'.
+        var looksLikeApplicationOf = function(name, str) {
+            var tokens = tokenizer.tokenize(str);
+            var i = 0;
+            for (; i < tokens.length; i++) {
+                if (tokens[i].type === 'whitespace') {
+                    // skip whitespace
+                } else if (tokens[i].type == '(') {
+                    break;
+                }
+            }
+            i++;
+
+            for (; i < tokens.length; i++) {
+                if (tokens[i].type === 'whitespace') {
+                    // skip whitespace
+                } else if (tokens[i].type == 'variable') {
+                    return tokens[i].content === name;
+                } else {
+                    break;
+                }
+            }
+            return false;
+        };
+
 
         // isNameError: string -> (U #f string)
         // If there's a problem with the name of the function, return a string.
@@ -231,6 +265,24 @@ var initializeWidget = (function () {
         };
 
 
+        var isExampleHeaderError = function(header) {
+            var name = getFunctionNameFromContract();
+
+            console.log(name);
+            // make sure the header begins with "(name", accounting for whitespace
+            if (! looksLikeApplicationOf(name, header)) {
+                return "An example header looks like \"(<i>name</i> ...<i>inputs</i>...)\"";
+            }
+            
+            // make sure the header is well-formed
+            if(!wellFormed(header)) {
+                return "The header might have mis-matched parentheses, or an unclosed string.";
+            }
+
+            return false;
+        };
+
+
 
         // Forward references
         var checkContract, checkExamples, checkDefinition;
@@ -239,33 +291,55 @@ var initializeWidget = (function () {
         // Create CM instances for code, and all fields of DR Form
 
         var setupFieldBindings = function() {
-            var errorElt = document.getElementById('design-recipe-contract_error');
+            var contractErrorElt = document.getElementById('design-recipe-contract_error');
 
             contract_name = new ValidatedTextInputElement(
                 document.getElementById("design-recipe-name"),
                 isNameError,
-                errorElt);
+                contractErrorElt);
 
             contract_domain = new ValidatedTextInputElement(
                 document.getElementById("design-recipe-domain"),
                 isDomainError,
-                errorElt);
+                contractErrorElt);
             
             contract_range = new ValidatedTextInputElement(
                 document.getElementById("design-recipe-range"),
                 isRangeError,
-                errorElt);
+                contractErrorElt);
 
-            example1_header   = CodeMirror.fromTextArea(document.getElementById("design-recipe-example1_header")
-                                                        ,{matchBrackets: true
-                                                          , tabMode: "default"
-                                                          , onChange: checkExamples
-                                                          , onFocus: checkExamples});
-            example1_body     = CodeMirror.fromTextArea(document.getElementById("design-recipe-example1_body")
-                                                        ,{matchBrackets: true
-                                                          , tabMode: "default"
-                                                          , onChange: checkExamples
-                                                          , onFocus: checkExamples});
+
+            var example1ErrorElt = document.getElementById("design-recipe-example1_error");
+
+            example1_header = new ValidatedTextInputElement(
+                document.getElementById("design-recipe-example1_header"),
+                isExampleHeaderError,
+                example1ErrorElt,
+                function() {
+                    // needs to depend on the contract
+                    return false;
+                });
+
+            // example1_body = new ValidatedTextInputElement(
+            //     document.getElementById("design-recipe-example1_body"),
+            //     isExampleBodyError,
+            //     example1ErrorElt,
+            //     function() {
+            //         return false;
+            //     });
+
+            // example1_header   = CodeMirror.fromTextArea(document.getElementById("design-recipe-example1_header")
+            //                                             ,{matchBrackets: true
+            //                                               , tabMode: "default"
+            //                                               , onChange: checkExamples
+            //                                               , onFocus: checkExamples});
+             example1_body     = CodeMirror.fromTextArea(document.getElementById("design-recipe-example1_body")
+                                                         ,{matchBrackets: true
+                                                           , tabMode: "default"
+                                                           , onChange: checkExamples
+                                                           , onFocus: checkExamples});
+
+
             example2_header   = CodeMirror.fromTextArea(document.getElementById("design-recipe-example2_header")
                                                         ,{matchBrackets: true
                                                           , tabMode: "default"
@@ -551,7 +625,7 @@ var initializeWidget = (function () {
             contract_name.clear();
             contract_domain.clear();
             contract_range.clear();
-            example1_header.setValue('');
+            example1_header.clear();
             example1_body.setValue('');
             example2_header.setValue('');
             example2_body.setValue('');
