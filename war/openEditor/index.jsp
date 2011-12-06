@@ -166,7 +166,7 @@
 	    <input type="button" id="design-recipe-cancel" value="Cancel" style="float: right;" />
 	  </div>
 
-	  <div class="section" id="contract">
+	  <div class="section" id="design-recipe-contract">
             <div id="design-recipe-contract_wrapper">
               <span class="spacer" style="width: 15px;">;</span>
               <textarea id="design-recipe-name"></textarea>

@@ -4,6 +4,174 @@ var initializeWidget = (function () {
     'use strict';
     
 
+    //////////////////////////////////////////////////////////////////////
+
+    // Requirement, in order of priority:
+    //
+    // 1.  If a field are modified out-of-order, that is, without
+    // filling the prerequisite, the element should report that one of
+    // its dependencies has not been satisfied.
+    //
+    // 2.  Each field should be guarded so that, if its constraints
+    // are violated, the element reports its failure with an error
+    // message.
+    //
+    //
+    // 3.  If a field passes validation, it should notify the user
+    // that the field is fine.
+    //
+    // Also, as a goal:
+    //
+    //     * Guide the user to make it easy to see what to fill in next.
+    //
+    //     * Don't overwhelm the user.
+    //
+    // There are three events we can trigger on:
+    //
+    //    1) focus   2) blur   3) change
+    //
+    //
+    // What techniques can we use to accomplish these goals?  Color,
+    // animation, messages.
+    //
+    // * Automatically place focus on the first element?
+    //
+    // * Focused elements can use features such as border color to let
+    // the user know when a field is being edited, and whether it's good or bad.
+    //
+    // * Only the focused field should be saying things to the user.
+    //
+    // * As content changes, the field should do on-line validation.
+    //
+    // * If a field's dependencies aren't satisifed, when focused or
+    // changed, the field should cause the missing dependencies to
+    // animate in such a way to draw the eye (such as blinking), and
+    // the error message should say an error message with respect to
+    // the dependencies.
+    //
+    //////////////////////////////////////////////////////////////////////
+
+
+    // Animate a DOM element and its contents by causing it to blink
+    // in and out twice.
+    var blinkTwice = function(x) { doBlink(x, 1, 2); };
+    var doBlink = function(obj,start,finish) {
+        jQuery(obj).fadeOut(300).fadeIn(300);
+        if(start!=finish) { 
+            start=start+1; 
+            doBlink(obj,start,finish); 
+        }
+    }
+
+
+    //////////////////////////////////////////////////////////////////////
+    var CalmedEvent = function(delay) {
+        this.delay = delay || 100;
+        this.id = undefined;
+    };
+    CalmedEvent.prototype.trigger = function(f) {
+        if (this.id) {
+            clearTimeout(this.id);
+        }
+        this.id = setTimeout(f, this.delay);
+    };
+
+    //////////////////////////////////////////////////////////////////////
+
+
+
+
+    // A ValidatedTextInputElement is a combination of an text
+    // element, a function for determining erroneous content, and
+    // an element for which errors should be reported.
+    var ValidatedTextInputElement = function(textElement,
+                                             isError,
+                                             errorElement,
+                                             isViolatingDependencies) {
+        var that = this;
+
+        isViolatingDependencies = isViolatingDependencies || function() { return false; };
+
+
+        this.textElement = textElement;
+        this.isError = isError;
+        this.errorElement = errorElement;
+        this.isViolatingDependencies = isViolatingDependencies;
+
+        var calmedChange = new CalmedEvent();
+
+        var lastValue; // Records the last value
+        var onChange = function() {
+            calmedChange.trigger(function() {
+                var err;
+                var newValue = that.codeMirrorElement.getValue();
+                lastValue = newValue;
+                
+                // Check dependencies
+                err = isViolatingDependencies.call(that);
+                if (err) {
+                    // ...
+                    return;
+                }
+
+                // Check validation errors.
+                err = isError.call(that, newValue);
+                if (err) {
+                    jQuery(errorElement).empty();
+                    jQuery(errorElement).append(jQuery('<span/>').addClass("error").text(isError(newValue)));
+                    jQuery(that.codeMirrorElement.getWrapperElement()).addClass("stillErroneous");
+                    return;
+                }
+
+                // Otherwise, validation passes.
+                jQuery(errorElement).empty();
+                jQuery(errorElement).append(jQuery('<span/>').text(" "));
+                jQuery(that.codeMirrorElement.getWrapperElement()).removeClass("stillErroneous");
+            });
+        };
+
+        var onFocus = function() {
+            onChange();
+        };
+
+        var onBlur = function() {
+            jQuery(errorElement).empty();
+            // if (! that.isOk() && that.getValue() !== "") {
+            //     jQuery(that.codeMirrorElement.getWrapperElement()).addClass("stillErroneous");
+            // } else {
+            //     jQuery(that.codeMirrorElement.getWrapperElement()).removeClass("stillErroneous");
+            // }
+        };
+
+        this.codeMirrorElement = 
+            CodeMirror.fromTextArea(textElement,
+                                    { matchBrackets: true,
+                                      tabMode: "default",
+                                      onChange: onChange,
+                                      onBlur: onBlur,
+                                      onFocus: onFocus });
+    };
+
+    ValidatedTextInputElement.prototype.isOk = function() {
+        if (this.isViolatingDependencies.call(this)) { return false; }
+        if (this.isError.call(this, this.getValue())) { return false; }
+        return true;
+    };
+
+    ValidatedTextInputElement.prototype.getValue = function() {
+        return this.codeMirrorElement.getValue();
+    };
+
+    ValidatedTextInputElement.prototype.focus = function() {
+        this.codeMirrorElement.focus();
+    };
+
+    ValidatedTextInputElement.prototype.clear = function() {
+        this.codeMirrorElement.setValue('');
+    };
+
+
+
 
 
     // editor: CodeMirror2 editor
@@ -15,73 +183,6 @@ var initializeWidget = (function () {
         definition_header, definition_body,
         example1_error, example2_error;
 
-
-
-        // A ValidatedTextInputElement is a combination of an text
-        // element, a function for determining erroneous content, and
-        // an element for reporting errors.
-        //
-        // A ValidatedTextInputElement has several event streams:
-        //
-        // textValueE: the content of the text field.
-        // isGoodB: if the text field satisfies all its tests
-        //
-        // This injects a span into the errorElement that will report
-        // errors.
-        var ValidatedTextInputElement = function(textElement,
-                                                 isError,
-                                                 errorElement) {
-            var that = this;
-            var textValueE = receiverE();
-            var setValue = function() {
-                textValueE.sendEvent(that.codeMirrorElement.getValue());
-            };
-            
-
-            this.codeMirrorElement = 
-                CodeMirror.fromTextArea(textElement,
-                                        { matchBrackets: true,
-                                          tabMode: "default",
-                                          onChange: setValue,
-                                          onBlur: setValue,
-                                          onFocus: setValue });
-
-            var calmedTextValueE = textValueE.calmE(500);
-            var errorE = calmedTextValueE.mapE(isError);
-
-            this.isGoodB = startsWith(notE(errorE), false);
-
-            // On errors, the content of the errorElement will change.
-            var parentElt = document.createElement('span');
-            errorElement.appendChild(parentElt);
-            insertDomE(
-                errorE.mapE(
-                    function(msg) {
-                        var elt = document.createElement('span');
-                        elt.className = "error";
-                        if (msg) {
-                            that.codeMirrorElement.getWrapperElement().style.border = '1px solid red';
-                            elt.appendChild(document.createTextNode(msg));
-                        } else {
-                            that.codeMirrorElement.getWrapperElement().style.border = '1px solid black';
-                        }
-                        return elt;
-                    }),
-                parentElt);
-        };
-
-        ValidatedTextInputElement.prototype.getValue = function() {
-            return this.codeMirrorElement.getValue();
-        };
-
-        ValidatedTextInputElement.prototype.focus = function() {
-            this.codeMirrorElement.focus();
-        };
-
-        ValidatedTextInputElement.prototype.clear = function() {
-            this.codeMirrorElement.setValue('');
-        };
-        
 
 
         // isNameError: string -> (U #f string)
@@ -293,24 +394,9 @@ var initializeWidget = (function () {
          * Check the name, domain and range
          */
         checkContract = function(){
-            //var values = formValues();
-            // if(collectIdentifiers(values.name).length === 0){
-            //     values.contract_error.innerHTML = "What is the name of your function?";
-            //     return false;
-            // } else if(collectIdentifiers(values.name).length > 1){
-            //     values.contract_error.innerHTML = "The name of your function can only be one word long";
-            //     return false;
-            // } 
-            // if(collectIdentifiers(values.range).length !== 1){
-            //     values.contract_error.innerHTML = "The range of a function must contain exactly one type";
-            //     return false; 
-            // } else {
-            //     values.contract_error.innerHTML = "";
-            //     return true;
-            // }
-            return (contract_name.isGoodB.valueNow() && 
-                    contract_domain.isGoodB.valueNow() && 
-                    contract_range.isGoodB.valueNow());
+            return (contract_name.isOk() && 
+                    contract_domain.isOk() && 
+                    contract_range.isOk());
         };
         
         
@@ -461,7 +547,7 @@ var initializeWidget = (function () {
             values.definition_error.innerHTML = "";
             contract_name.clear();
             contract_domain.clear();
-            contract_range.setValue('');
+            contract_range.clear();
             example1_header.setValue('');
             example1_body.setValue('');
             example2_header.setValue('');

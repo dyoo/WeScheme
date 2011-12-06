@@ -75,6 +75,10 @@ div#design-recipe-form div.toolbar{
 	font-size:		20px;
 }
 
+div#design-recipe-form .stillErroneous{
+    border: 1px solid red;
+}
+
 div#design-recipe-form span.error{
     font-family: helvetica, arial;
     font-weight: normal; 
