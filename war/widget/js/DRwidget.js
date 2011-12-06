@@ -66,7 +66,7 @@ var initializeWidget = (function () {
 
     //////////////////////////////////////////////////////////////////////
     var CalmedEvent = function(delay) {
-        this.delay = delay || 100;
+        this.delay = delay || 300;
         this.id = undefined;
     };
     CalmedEvent.prototype.trigger = function(f) {
@@ -99,6 +99,7 @@ var initializeWidget = (function () {
         this.isViolatingDependencies = isViolatingDependencies;
 
         var calmedChange = new CalmedEvent();
+        var calmedBlink = new CalmedEvent(600);
 
         var lastValue; // Records the last value
         var onChange = function() {
@@ -112,7 +113,7 @@ var initializeWidget = (function () {
                 if (err) {
                     jQuery(errorElement).empty();
                     jQuery(errorElement).append(jQuery('<span/>').addClass("error").append(err.message));
-                    blinkTwice(err.target);
+                    calmedBlink.trigger(function() { blinkTwice(err.target); });
                     jQuery(that.codeMirrorElement.getWrapperElement()).addClass("stillErroneous");
                     return;
                 }
@@ -139,11 +140,6 @@ var initializeWidget = (function () {
 
         var onBlur = function() {
             jQuery(errorElement).empty();
-            // if (! that.isOk() && that.getValue() !== "") {
-            //     jQuery(that.codeMirrorElement.getWrapperElement()).addClass("stillErroneous");
-            // } else {
-            //     jQuery(that.codeMirrorElement.getWrapperElement()).removeClass("stillErroneous");
-            // }
         };
 
         this.codeMirrorElement = 
@@ -240,26 +236,26 @@ var initializeWidget = (function () {
         // Returns a string if there's a problem with the domain's value.
         // Returns false otherwise.
         var isDomainError = function(s) {
-            if(collectIdentifiers(s).length === 0) {
-                return "What is the domain of your function?";
-            }
             if (hasNonIdentifiers(s)) {
                 return "The domain of your function appears to contains a non-word: " +
                     hasNonIdentifiers(s);
+            }
+            if(collectIdentifiers(s).length === 0) {
+                return "What is the domain of your function?";
             }
             return false;
         };
 
         var isRangeError = function(s) {
+            if (hasNonIdentifiers(s)) {
+                return "The range of your function appears to contains a non-word: " +
+                    hasNonIdentifiers(s);
+            }
             if(collectIdentifiers(s).length === 0) {
                 return "What is the range of your function?";
             }
             if(collectIdentifiers(s).length !== 1){
                 return "The range of a function must contain exactly one type";
-            }
-            if (hasNonIdentifiers(s)) {
-                return "The range of your function appears to contains a non-word: " +
-                    hasNonIdentifiers(s);
             }
             return false;
         };
@@ -267,20 +263,56 @@ var initializeWidget = (function () {
 
         var isExampleHeaderError = function(header) {
             var name = getFunctionNameFromContract();
-
-            console.log(name);
+            var result = jQuery("<span/>")
+                .append("An example header looks like:")
+                .append(jQuery("<br/>"))
+                .append(jQuery("<span/>")
+                        .append("(")
+                        .append(jQuery("<i/>").text(name))
+                        .append("...")
+                        .append(jQuery("<i>inputs</i>"))
+                        .append("...)")
+                        .css("padding-left", "10px"));
+                
             // make sure the header begins with "(name", accounting for whitespace
             if (! looksLikeApplicationOf(name, header)) {
-                return "An example header looks like \"(<i>name</i> ...<i>inputs</i>...)\"";
+                return result;
             }
             
             // make sure the header is well-formed
             if(!wellFormed(header)) {
-                return "The header might have mis-matched parentheses, or an unclosed string.";
+                result.append(jQuery("<br/>"));
+                result.append("The header isn't finished yet.")
+                result.append(jQuery("<br/>"));
+                result.append("It may have mis-matched parentheses or an unclosed string.");
+                return result;
             }
 
             return false;
         };
+
+        var isExampleBodyError = function(body) {
+            if(body.length===0){
+                return "Fill in the body for this example";
+            }
+            // make sure the body is well-formed
+            if(!wellFormed(body)) {
+                return "The body might have mis-matched parentheses, or an unclosed string.";
+            }
+            return false;
+        };
+
+        var isContractDependencyError = function() {
+            // needs to depend on the okness contract
+            // {message: ..., target: ...}
+            if (! checkContract()) {
+                return { message: "Fix your contract first!",
+                         target : document.getElementById("design-recipe-contract") };
+            }
+            return false;
+        };
+
+
 
 
 
@@ -309,16 +341,30 @@ var initializeWidget = (function () {
                 contractErrorElt);
 
 
-            var example1ErrorElt = document.getElementById("design-recipe-example1_error");
-
             example1_header = new ValidatedTextInputElement(
                 document.getElementById("design-recipe-example1_header"),
                 isExampleHeaderError,
-                example1ErrorElt,
-                function() {
-                    // needs to depend on the contract
-                    return false;
-                });
+                document.getElementById("design-recipe-example1_error"),
+                isContractDependencyError);
+            
+            example1_body = new ValidatedTextInputElement(
+                document.getElementById("design-recipe-example1_body"),
+                isExampleBodyError,
+                document.getElementById("design-recipe-example1_error"),
+                isContractDependencyError);
+
+            example2_header = new ValidatedTextInputElement(
+                document.getElementById("design-recipe-example2_header"),
+                isExampleHeaderError,
+                document.getElementById("design-recipe-example2_error"),
+                isContractDependencyError);
+            
+            example2_body = new ValidatedTextInputElement(
+                document.getElementById("design-recipe-example2_body"),
+                isExampleBodyError,
+                document.getElementById("design-recipe-example2_error"),
+                isContractDependencyError);
+
 
             // example1_body = new ValidatedTextInputElement(
             //     document.getElementById("design-recipe-example1_body"),
@@ -333,23 +379,22 @@ var initializeWidget = (function () {
             //                                               , tabMode: "default"
             //                                               , onChange: checkExamples
             //                                               , onFocus: checkExamples});
-             example1_body     = CodeMirror.fromTextArea(document.getElementById("design-recipe-example1_body")
-                                                         ,{matchBrackets: true
-                                                           , tabMode: "default"
-                                                           , onChange: checkExamples
-                                                           , onFocus: checkExamples});
+            // example1_body     = CodeMirror.fromTextArea(document.getElementById("design-recipe-example1_body")
+            //                                             ,{matchBrackets: true
+            //                                               , tabMode: "default"
+            //                                               , onChange: checkExamples
+            //                                               , onFocus: checkExamples});
 
-
-            example2_header   = CodeMirror.fromTextArea(document.getElementById("design-recipe-example2_header")
-                                                        ,{matchBrackets: true
-                                                          , tabMode: "default"
-                                                          , onChange: checkExamples
-                                                          , onFocus: checkExamples});
-            example2_body     = CodeMirror.fromTextArea(document.getElementById("design-recipe-example2_body")
-                                                        ,{matchBrackets: true
-                                                          , tabMode: "default"
-                                                          , onChange: checkExamples
-                                                          , onFocus: checkExamples});
+            // example2_header   = CodeMirror.fromTextArea(document.getElementById("design-recipe-example2_header")
+            //                                             ,{matchBrackets: true
+            //                                               , tabMode: "default"
+            //                                               , onChange: checkExamples
+            //                                               , onFocus: checkExamples});
+            // example2_body     = CodeMirror.fromTextArea(document.getElementById("design-recipe-example2_body")
+            //                                             ,{matchBrackets: true
+            //                                               , tabMode: "default"
+            //                                               , onChange: checkExamples
+            //                                               , onFocus: checkExamples});
             definition_header = CodeMirror.fromTextArea(document.getElementById("design-recipe-definition_header")
                                                         ,{matchBrackets: true
                                                           , tabMode: "default"
@@ -577,10 +622,6 @@ var initializeWidget = (function () {
             }
         };
         
-        // // are all of the Forms parts correct?
-        // var checkForm = function(){
-        //     return checkContract() && checkExamples && checkDefinition;
-        // };
         
         //////////////////////////////////////////////////////////////////////////////////// 
         /////////////////////////////////// PUBLIC /////////////////////////////////////////
@@ -626,9 +667,9 @@ var initializeWidget = (function () {
             contract_domain.clear();
             contract_range.clear();
             example1_header.clear();
-            example1_body.setValue('');
-            example2_header.setValue('');
-            example2_body.setValue('');
+            example1_body.clear();
+            example2_header.clear();
+            example2_body.clear();
             definition_header.setValue('');
             definition_body.setValue('');
         };
@@ -645,121 +686,121 @@ var initializeWidget = (function () {
         ///////////////// AUTOCOMPLETE //////////////////////////
         
 
-        // Compare strings case-insensitively.
-        // stringCmp: string string -> (U -1 0 1)
-        var stringCmp = function(x, y) { 
-            var xn = x.toUpperCase(), yn = y.toUpperCase();
-            if (xn < yn) { return -1; }
-            if (xn > yn) { return 1; }
-            if (x < y) { return -1; }
-            if (x > y) { return 1; }
-            return 0;
-        };
+        // // Compare strings case-insensitively.
+        // // stringCmp: string string -> (U -1 0 1)
+        // var stringCmp = function(x, y) { 
+        //     var xn = x.toUpperCase(), yn = y.toUpperCase();
+        //     if (xn < yn) { return -1; }
+        //     if (xn > yn) { return 1; }
+        //     if (x < y) { return -1; }
+        //     if (x > y) { return 1; }
+        //     return 0;
+        // };
 
-        var functions = "define cond else abs acos add1 andmap angle append asin atan boolean=? boolean? build-list caaar caadr caar cadar cadddr caddr cadr car cdaar cdadr cdar cddar cdddr cddr cdr ceiling char->integer char-alphabetic? char-ci<=? char-ci<? char-ci=? char-ci>=? char-ci>? char-downcase char-lower-case? char-numeric? char-upcase char-upper-case? char-whitespace? char<=? char<? char=? char>=? char>? char? complex? conjugate cons cons? cos cosh current-seconds denominator e eighth empty empty? eof eof-object? eq? equal? equal~? eqv? error even? exact->inexact exp expt false false? fifth first floor foldl format fourth gcd identity imag-part inexact->exact inexact? integer->char integer? lcm length list list* list->string list-ref log magnitude make-posn make-string map max member memq memv min modulo negative? not null null? number->string number? numerator odd? pair? pi positive? posn-x posn-y posn? quotient random rational? real-part real? remainder rest reverse round second seventh sgn sin sinh sixth sqr sqrt string string->list string->number string->symbol string-append string-ci<=? string-ci<? string-ci=? string-ci>=? string-ci>? string-copy string-length string-ref string<=? string<? string=? string>=? string>? string? struct? sub1 substring symbol->string symbol=? symbol? tan third true zero? circle triangle star rectangle radial-star rotate flip-vertical flip-horizontal bitmap/url scale scale/xy place-image put-image line overlay overlay/align underlay underlay/align";
+        // var functions = "define cond else abs acos add1 andmap angle append asin atan boolean=? boolean? build-list caaar caadr caar cadar cadddr caddr cadr car cdaar cdadr cdar cddar cdddr cddr cdr ceiling char->integer char-alphabetic? char-ci<=? char-ci<? char-ci=? char-ci>=? char-ci>? char-downcase char-lower-case? char-numeric? char-upcase char-upper-case? char-whitespace? char<=? char<? char=? char>=? char>? char? complex? conjugate cons cons? cos cosh current-seconds denominator e eighth empty empty? eof eof-object? eq? equal? equal~? eqv? error even? exact->inexact exp expt false false? fifth first floor foldl format fourth gcd identity imag-part inexact->exact inexact? integer->char integer? lcm length list list* list->string list-ref log magnitude make-posn make-string map max member memq memv min modulo negative? not null null? number->string number? numerator odd? pair? pi positive? posn-x posn-y posn? quotient random rational? real-part real? remainder rest reverse round second seventh sgn sin sinh sixth sqr sqrt string string->list string->number string->symbol string-append string-ci<=? string-ci<? string-ci=? string-ci>=? string-ci>? string-copy string-length string-ref string<=? string<? string=? string>=? string>? string? struct? sub1 substring symbol->string symbol=? symbol? tan third true zero? circle triangle star rectangle radial-star rotate flip-vertical flip-horizontal bitmap/url scale scale/xy place-image put-image line overlay overlay/align underlay underlay/align";
 
-        // Given any of the identifiers in the program or any of the
-        // hardcoded functions that we know, and a token, return the
-        // identifiers that can complete the token.
-        var getCompletions = function(token) {
-            var i;
-            // append all strings from the editor, then alphabetize and remove duplicates
-            var strings = (functions + editor.getValue()).replace(/[\(\)]/g, "").replace(/\s+/g, " ");
-            strings = strings.split(/[\s+]/);
+        // // Given any of the identifiers in the program or any of the
+        // // hardcoded functions that we know, and a token, return the
+        // // identifiers that can complete the token.
+        // var getCompletions = function(token) {
+        //     var i;
+        //     // append all strings from the editor, then alphabetize and remove duplicates
+        //     var strings = (functions + editor.getValue()).replace(/[\(\)]/g, "").replace(/\s+/g, " ");
+        //     strings = strings.split(/[\s+]/);
 
-            var found = {}, result = [];
-            for (i = 0; i < strings.length; i++) {
-                if (strings[i].indexOf(token.string) === 0) { 
-                    if (! found[strings[i]]) {
-                        result.push(strings[i]);
-                        found[strings[i]] = true;
-                    }
-                }
-            }
-            return result.sort(stringCmp);
-        };
+        //     var found = {}, result = [];
+        //     for (i = 0; i < strings.length; i++) {
+        //         if (strings[i].indexOf(token.string) === 0) { 
+        //             if (! found[strings[i]]) {
+        //                 result.push(strings[i]);
+        //                 found[strings[i]] = true;
+        //             }
+        //         }
+        //     }
+        //     return result.sort(stringCmp);
+        // };
         
         
-        var startComplete = function() {
-            var i;
-            // We want a single cursor position.
-            if (editor.somethingSelected()) {
-                return;
-            }
-            // Find the token at the cursor
-            var cur = editor.getCursor(false), token = editor.getTokenAt(cur), tprop = token;
-            // If it's not a 'word-style' token, ignore the token.
-            if (!/^[\w$_]*$/.test(token.string)) {
-                token = tprop = {start: cur.ch, end: cur.ch, string: "", state: token.state,
-                                 className: token.string === "." ? "js-property" : null};
-            }
+        // var startComplete = function() {
+        //     var i;
+        //     // We want a single cursor position.
+        //     if (editor.somethingSelected()) {
+        //         return;
+        //     }
+        //     // Find the token at the cursor
+        //     var cur = editor.getCursor(false), token = editor.getTokenAt(cur), tprop = token;
+        //     // If it's not a 'word-style' token, ignore the token.
+        //     if (!/^[\w$_]*$/.test(token.string)) {
+        //         token = tprop = {start: cur.ch, end: cur.ch, string: "", state: token.state,
+        //                          className: token.string === "." ? "js-property" : null};
+        //     }
             
-            var completions = getCompletions(token);
-            if (!completions.length) {
-                return;
-            }
+        //     var completions = getCompletions(token);
+        //     if (!completions.length) {
+        //         return;
+        //     }
             
-            function insert(str) {
-                editor.replaceRange(str, {line: cur.line, ch: token.start}, {line: cur.line, ch: token.end});
-            }
-            // When there is only one completion, use it directly.
-            if (completions.length === 1) {insert(completions[0]); return true;}
+        //     function insert(str) {
+        //         editor.replaceRange(str, {line: cur.line, ch: token.start}, {line: cur.line, ch: token.end});
+        //     }
+        //     // When there is only one completion, use it directly.
+        //     if (completions.length === 1) {insert(completions[0]); return true;}
             
-            // Build the select widget
-            var complete = document.createElement("div");
-            complete.className = "completions";
-            var sel = complete.appendChild(document.createElement("select"));
-            sel.multiple = true;
-            for (i = 0; i < completions.length; i++) {
-                var opt = sel.appendChild(document.createElement("option"));
-                opt.appendChild(document.createTextNode(completions[i]));
-            }
-            sel.firstChild.selected = true;
-            sel.size = Math.min(10, completions.length);
-            var pos = editor.cursorCoords();
-            complete.style.left = pos.x + "px";
-            complete.style.top = pos.yBot + "px";
-            document.body.appendChild(complete);
-            // Hack to hide the scrollbar.
-            if (completions.length <= 10) { 
-                complete.style.width = (sel.clientWidth - 1) + "px";
-            }
+        //     // Build the select widget
+        //     var complete = document.createElement("div");
+        //     complete.className = "completions";
+        //     var sel = complete.appendChild(document.createElement("select"));
+        //     sel.multiple = true;
+        //     for (i = 0; i < completions.length; i++) {
+        //         var opt = sel.appendChild(document.createElement("option"));
+        //         opt.appendChild(document.createTextNode(completions[i]));
+        //     }
+        //     sel.firstChild.selected = true;
+        //     sel.size = Math.min(10, completions.length);
+        //     var pos = editor.cursorCoords();
+        //     complete.style.left = pos.x + "px";
+        //     complete.style.top = pos.yBot + "px";
+        //     document.body.appendChild(complete);
+        //     // Hack to hide the scrollbar.
+        //     if (completions.length <= 10) { 
+        //         complete.style.width = (sel.clientWidth - 1) + "px";
+        //     }
             
-            var done = false;
-            var close = function() {
-                if (done) {
-                    return;
-                }
-                done = true;
-                complete.parentNode.removeChild(complete);
-            };
-            var pick = function() {
-                insert(sel.options[sel.selectedIndex].value);
-                close();
-                setTimeout(function(){editor.focus();}, 50);
-            };
-            connect(sel, "blur", close);
-            connect(sel, "keydown", function(event) {
-                var code = event.keyCode;
-                // Enter and space
-                if (code === 13 || code === 32) {event.stop(); pick();}
-                // Escape
-                else if (code === 27) {event.stop(); close(); editor.focus();}
-                else if (code !== 38 && code !== 40) {close(); editor.focus(); setTimeout(startComplete, 50);}
-            });
-            connect(sel, "dblclick", pick);
+        //     var done = false;
+        //     var close = function() {
+        //         if (done) {
+        //             return;
+        //         }
+        //         done = true;
+        //         complete.parentNode.removeChild(complete);
+        //     };
+        //     var pick = function() {
+        //         insert(sel.options[sel.selectedIndex].value);
+        //         close();
+        //         setTimeout(function(){editor.focus();}, 50);
+        //     };
+        //     connect(sel, "blur", close);
+        //     connect(sel, "keydown", function(event) {
+        //         var code = event.keyCode;
+        //         // Enter and space
+        //         if (code === 13 || code === 32) {event.stop(); pick();}
+        //         // Escape
+        //         else if (code === 27) {event.stop(); close(); editor.focus();}
+        //         else if (code !== 38 && code !== 40) {close(); editor.focus(); setTimeout(startComplete, 50);}
+        //     });
+        //     connect(sel, "dblclick", pick);
             
-            sel.focus();
-            // Opera sometimes ignores focusing a freshly created node
-            if (window.opera) {
-                setTimeout(
-                    function(){
-                        if (!done) { sel.focus(); }
-                    },
-                    100);
-            }
-            return true;
-        };
+        //     sel.focus();
+        //     // Opera sometimes ignores focusing a freshly created node
+        //     if (window.opera) {
+        //         setTimeout(
+        //             function(){
+        //                 if (!done) { sel.focus(); }
+        //             },
+        //             100);
+        //     }
+        //     return true;
+        // };
         
 
                 
