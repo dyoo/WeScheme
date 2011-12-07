@@ -70,9 +70,9 @@ div#design-recipe-form span.spacer{
 div#design-recipe-form div.toolbar{
 	display:		inline-block; 
 	width:			100%; 
-	background:		black; 
-	color:			white; 
-	font-size:		20px;
+	/* background:		black;  */
+	/* color:			white;  */
+	/* font-size:		20px; */
 }
 
 div#design-recipe-form .stillErroneous{
@@ -109,6 +109,8 @@ div#design-recipe-form .completions select {
 
 
 div#design-recipe-form .button {
-    width: 50px;
+    width: 60px;
     height: 50px;
+    margin: 5px;
+    border: 1px solid black;
 }

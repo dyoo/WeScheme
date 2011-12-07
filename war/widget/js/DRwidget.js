@@ -106,7 +106,7 @@ var initializeWidget = (function () {
             if (!that.disabled) {
                 calmedChange.trigger(function() {
                     var err;
-                    var newValue = that.codeMirrorElement.getValue();
+                    var newValue = that.getValue();
                     lastValue = newValue;
                     
                     // Check dependencies
@@ -301,11 +301,13 @@ var initializeWidget = (function () {
 
         var isExampleBodyError = function(body) {
             if(body.length===0){
-                return "Fill in the body for this example";
+                return jQuery("<span/>").text("Complete the expected value for this example.");
             }
             // make sure the body is well-formed
             if(!wellFormed(body)) {
-                return "The body might have mis-matched parentheses, or an unclosed string.";
+                return jQuery("<span/>").text("Complete the expected value for this example.")
+                    .append(jQuery("<br/>"))
+                    .append("The expected value might have mis-matched parentheses, or an unclosed string.");
             }
             return false;
         };
@@ -343,12 +345,13 @@ var initializeWidget = (function () {
                         .append("...")
                         .append(jQuery("<i>variables</i>"))
                         .append("...)")
-                        .css("padding-left", "10px"));
+                        .css("padding-left", "10px")
+                        .append(jQuery("<br/>")))
+                .append("HINT: Look at your examples if you get stuck. What changes from example to example?");
+
                 
             // make sure the header begins with "(name", accounting for whitespace
             if (! looksLikeApplicationOf(name, header)) {
-                result.append(jQuery("<br/>"))
-                    .append("HINT: Look at your examples if you get stuck. What changes from example to example?");
                 return result;
             }
             
