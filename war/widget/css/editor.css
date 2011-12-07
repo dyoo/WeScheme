@@ -106,3 +106,9 @@ div#design-recipe-form .completions select {
     margin: 0;
     font-family: monospace;
 }
+
+
+div#design-recipe-form .button {
+    width: 50px;
+    height: 50px;
+}

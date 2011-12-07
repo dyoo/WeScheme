@@ -161,11 +161,6 @@
 
 
         <div id="design-recipe-form" style="position: absolute; left: -1000px; z-index: 10;">
-	  <div class="toolbar">
-	    <input type="button" id="design-recipe-insertCode" value="Insert on this Line" style="float: left; color: black;"/>
-	    <input type="button" id="design-recipe-cancel" value="Cancel" style="float: right;" />
-	  </div>
-
 	  <div class="section" id="design-recipe-contract">
             <div id="design-recipe-contract_wrapper">
               <span class="spacer" style="width: 15px;">;</span>
@@ -206,6 +201,12 @@
             </div>
             <span class="error" id="design-recipe-definition_error"></span>
           </div>
+
+	  <div class="toolbar">
+	    <input type="button" id="design-recipe-insertCode" class="button" value="Insert" style="float: right; color: black;"/>
+	    <input type="button" id="design-recipe-cancel" class="button" value="Cancel" style="float: left;" />
+	  </div>
+
         </div>
 
 
