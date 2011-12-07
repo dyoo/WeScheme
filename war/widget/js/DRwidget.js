@@ -97,41 +97,45 @@ var initializeWidget = (function () {
         this.isError = isError;
         this.errorElement = errorElement;
         this.isViolatingDependencies = isViolatingDependencies;
+        this.disabled = false;
 
         var calmedChange = new CalmedEvent();
-        var calmedBlink = new CalmedEvent(600);
 
         var lastValue; // Records the last value
         var onChange = function() {
-            calmedChange.trigger(function() {
-                var err;
-                var newValue = that.codeMirrorElement.getValue();
-                lastValue = newValue;
-                
-                // Check dependencies
-                err = isViolatingDependencies.call(that);
-                if (err) {
-                    jQuery(errorElement).empty();
-                    jQuery(errorElement).append(jQuery('<span/>').addClass("error").append(err.message));
-                    calmedBlink.trigger(function() { blinkTwice(err.target); });
-                    jQuery(that.codeMirrorElement.getWrapperElement()).addClass("stillErroneous");
-                    return;
-                }
+            if (!that.disabled) {
+                calmedChange.trigger(function() {
+                    var err;
+                    var newValue = that.codeMirrorElement.getValue();
+                    lastValue = newValue;
+                    
+                    // Check dependencies
+                    err = isViolatingDependencies.call(that);
+                    if (err) {
+                        jQuery(errorElement).empty();
+                        jQuery(errorElement).append(jQuery('<span/>').addClass("error").append(err.message));
 
-                // Check validation errors.
-                err = isError.call(that, newValue);
-                if (err) {
-                    jQuery(errorElement).empty();
-                    jQuery(errorElement).append(jQuery('<span/>').addClass("error").append(err));
-                    jQuery(that.codeMirrorElement.getWrapperElement()).addClass("stillErroneous");
-                    return;
-                }
+                        if (!err.target.calmedBlink) { err.target.calmedBlink = new CalmedEvent(600); }
+                        err.target.calmedBlink.trigger(function() { blinkTwice(err.target); });
+                        jQuery(that.codeMirrorElement.getWrapperElement()).addClass("stillErroneous");
+                        return;
+                    }
 
-                // Otherwise, validation passes.
-                jQuery(errorElement).empty();
-                jQuery(errorElement).append(jQuery('<span/>').text(" "));
-                jQuery(that.codeMirrorElement.getWrapperElement()).removeClass("stillErroneous");
-            });
+                    // Check validation errors.
+                    err = isError.call(that, newValue);
+                    if (err) {
+                        jQuery(errorElement).empty();
+                        jQuery(errorElement).append(jQuery('<span/>').addClass("error").append(err));
+                        jQuery(that.codeMirrorElement.getWrapperElement()).addClass("stillErroneous");
+                        return;
+                    }
+
+                    // Otherwise, validation passes.
+                    jQuery(errorElement).empty();
+                    jQuery(errorElement).append(jQuery('<span/>').text(" "));
+                    jQuery(that.codeMirrorElement.getWrapperElement()).removeClass("stillErroneous");
+                });
+            }
         };
 
         var onFocus = function() {
@@ -166,7 +170,12 @@ var initializeWidget = (function () {
     };
 
     ValidatedTextInputElement.prototype.clear = function() {
+        this.disabled = true;
         this.codeMirrorElement.setValue('');
+        this.disabled = false;
+        jQuery(this.errorElement).empty();
+        jQuery(this.errorElement).append(jQuery('<span/>').text(" "));
+        jQuery(this.codeMirrorElement.getWrapperElement()).removeClass("stillErroneous");
     };
 
 
@@ -287,7 +296,6 @@ var initializeWidget = (function () {
                 result.append("It may have mis-matched parentheses or an unclosed string.");
                 return result;
             }
-
             return false;
         };
 
@@ -312,8 +320,57 @@ var initializeWidget = (function () {
             return false;
         };
 
+        var isExampleDependencyError = function() {
+            // needs to depend on the okness contract
+            // {message: ..., target: ...}
+            if (! checkExamples()) {
+                return { message: "Complete your examples first!",
+                         target : document.getElementById("design-recipe-examples") };
+            }
+            return false;
+        };
 
 
+
+        var isDefinitionHeaderError = function(header) {
+            var name = getFunctionNameFromContract();
+            var result = jQuery("<span/>")
+                .append("An function header looks like:")
+                .append(jQuery("<br/>"))
+                .append(jQuery("<span/>")
+                        .append("(")
+                        .append(jQuery("<i/>").text(name))
+                        .append("...")
+                        .append(jQuery("<i>variables</i>"))
+                        .append("...)")
+                        .css("padding-left", "10px"));
+                
+            // make sure the header begins with "(name", accounting for whitespace
+            if (! looksLikeApplicationOf(name, header)) {
+                result.append(jQuery("<br/>"))
+                    .append("HINT: Look at your examples if you get stuck. What changes from example to example?");
+                return result;
+            }
+            
+            // make sure the header is well-formed
+            if(!wellFormed(header)) {
+                result.append(jQuery("<br/>"));
+                result.append("The function header isn't finished yet.")
+                result.append(jQuery("<br/>"));
+                result.append("It may have mis-matched parentheses or an unclosed string.");
+                return result;
+            }
+            return false;
+        };
+
+        var isDefinitionBodyError = function(body) {
+            if(body.length===0){
+                return "Fill in the body for this function";
+            } else if(!wellFormed(body)) {
+                return "The function body might have mis-matched parentheses, or an unclosed string.";
+            }
+            return false;
+        };
 
 
         // Forward references
@@ -365,48 +422,20 @@ var initializeWidget = (function () {
                 document.getElementById("design-recipe-example2_error"),
                 isContractDependencyError);
 
+            definition_header = new ValidatedTextInputElement(
+                document.getElementById("design-recipe-definition_header"),
+                isDefinitionHeaderError,
+                document.getElementById("design-recipe-definition_error"),
+                function() { return isContractDependencyError() || 
+                             isExampleDependencyError(); });
 
-            // example1_body = new ValidatedTextInputElement(
-            //     document.getElementById("design-recipe-example1_body"),
-            //     isExampleBodyError,
-            //     example1ErrorElt,
-            //     function() {
-            //         return false;
-            //     });
+            definition_body = new ValidatedTextInputElement(
+                document.getElementById("design-recipe-definition_body"),
+                isDefinitionBodyError,
+                document.getElementById("design-recipe-definition_error"),
+                function() { return isContractDependencyError() || 
+                             isExampleDependencyError(); });
 
-            // example1_header   = CodeMirror.fromTextArea(document.getElementById("design-recipe-example1_header")
-            //                                             ,{matchBrackets: true
-            //                                               , tabMode: "default"
-            //                                               , onChange: checkExamples
-            //                                               , onFocus: checkExamples});
-            // example1_body     = CodeMirror.fromTextArea(document.getElementById("design-recipe-example1_body")
-            //                                             ,{matchBrackets: true
-            //                                               , tabMode: "default"
-            //                                               , onChange: checkExamples
-            //                                               , onFocus: checkExamples});
-
-            // example2_header   = CodeMirror.fromTextArea(document.getElementById("design-recipe-example2_header")
-            //                                             ,{matchBrackets: true
-            //                                               , tabMode: "default"
-            //                                               , onChange: checkExamples
-            //                                               , onFocus: checkExamples});
-            // example2_body     = CodeMirror.fromTextArea(document.getElementById("design-recipe-example2_body")
-            //                                             ,{matchBrackets: true
-            //                                               , tabMode: "default"
-            //                                               , onChange: checkExamples
-            //                                               , onFocus: checkExamples});
-            definition_header = CodeMirror.fromTextArea(document.getElementById("design-recipe-definition_header")
-                                                        ,{matchBrackets: true
-                                                          , tabMode: "default"
-                                                          , onChange: checkDefinition
-                                                          , onFocus: checkDefinition});
-            definition_body  = CodeMirror.fromTextArea(document.getElementById("design-recipe-definition_body"),
-                                                       { matchBrackets: true,
-                                                         tabMode: "default",
-                                                         onChange: checkDefinition,
-                                                         onFocus: checkDefinition,
-                                                         onBlur: function() { contract_name.focus(); }});
-            
             example1_error = document.getElementById("design-recipe-example1_error");
             example2_error = document.getElementById("design-recipe-example2_error");
         };
@@ -520,107 +549,53 @@ var initializeWidget = (function () {
                     contract_domain.isOk() && 
                     contract_range.isOk());
         };
-        
-        
-        /*********************************************
-         * Check a single example for well-formedness
-         */
-        var checkExample = function(name, header, body, errorDOM){
-            var nameRegExp = new RegExp("\\(\\s*"+name);
-            // make sure the header begins with "(name", accounting for whitespace
-            if(!header.match(nameRegExp)) {
-                errorDOM.innerHTML = "An example header looks like \"(<i>name</i> ...<i>inputs</i>...)\"";
-                return false;
-            }
-            // make sure the header is well-formed
-            if(!wellFormed(header)) {
-                errorDOM.innerHTML = "The header might have mis-matched parentheses, or an unclosed string.";
-                return false;
-            }
-            
-            // TODO: count inputs, if possible
-            // make sure the body is non-null
-            if(body.length===0){
-                errorDOM.innerHTML = "Fill in the body for this example";
-                return false;
-            }
-            // make sure the body is well-formed
-            if(!wellFormed(body)) {
-                errorDOM.innerHTML = "The header might have mis-matched parentheses, or an unclosed string.";
-                return false;
-            }
-            
-            errorDOM.innerHTML = "";
-            return true;
-        };
-        
-        /*********************************************
-         * Check all examples
-         */
-        checkExamples = function(){
-            var values = formValues();
-            //            var correctExamples = false;
-            var i;
-            if(!checkContract()){
-                for (i = 0; i < values.examples.length; i++) {
-                    values.examples[i].errorDOM.innerHTML = "<b>Fix your contract first!</b>";
-                }
-                
-                return false;
-            }
-            
-            var all_valid = true;
-            for(i=0; i<values.examples.length; i++){
-                var example = values.examples[i];
-                if(all_valid){ 
-                    all_valid = all_valid && checkExample(values.name, example.header, example.body, example.errorDOM);
-                } else {
-                    example.errorDOM.innerHTML = "<b>Finish your previous example before starting this one</b>";
-                }
-            }
-            
-            return all_valid;
+
+        checkExamples = function() {
+            return (example1_header.isOk() &&
+                    example1_body.isOk() &&
+                    example2_header.isOk() &&
+                    example2_body.isOk());
         };
         
         /*********************************************
          * Check the function definition
          */
-        checkDefinition = function(){
-            var values = formValues();
-            //            var correctExamples;
+        // checkDefinition = function(){
+        //     var values = formValues();
+        //     //            var correctExamples;
 
-            if(!checkContract()){
-                values.definition_error.innerHTML = "<b>Fix your contract first!</b>";
-                return false;
-            }
-            if(!checkExamples()){
-                values.definition_error.innerHTML = "<b>Fix your examples first!</b>";
-                return false;
-            }
+        //     if(!checkContract()){
+        //         values.definition_error.innerHTML = "<b>Fix your contract first!</b>";
+        //         return false;
+        //     }
+        //     if(!checkExamples()){
+        //         values.definition_error.innerHTML = "<b>Fix your examples first!</b>";
+        //         return false;
+        //     }
             
-            var nameRegExp = new RegExp("\\(\\s*"+values.name);
-            // make sure the header begins with "(name", accounting for whitespace
-            if(!values.def_header.match(nameRegExp)) {
-                values.definition_error.innerHTML = "A function header looks like \"(<i>name</i> ...<i>variables</i>...)\". <br/>HINT: Look at your examples if you get stuck. What changes from example to example?";
-                return false;
-            } else if(!wellFormed(values.def_header)){
-                values.definition_error.innerHTML = "The function header might have mis-matched parentheses, or an unclosed string.";
-                return false;
-            }
+        //     var nameRegExp = new RegExp("\\(\\s*"+values.name);
+        //     // make sure the header begins with "(name", accounting for whitespace
+        //     if(!values.def_header.match(nameRegExp)) {
+        //         values.definition_error.innerHTML = "A function header looks like \"(<i>name</i> ...<i>variables</i>...)\". <br/>HINT: Look at your examples if you get stuck. What changes from example to example?";
+        //         return false;
+        //     } else if(!wellFormed(values.def_header)){
+        //         values.definition_error.innerHTML = "The function header might have mis-matched parentheses, or an unclosed string.";
+        //         return false;
+        //     }
             
-            // TODO: count inputs, if possible
-            // make sure the header and body are non-null
-            else if(values.def_body.length===0){
-                values.definition_error.innerHTML = "Fill in the body for this function";
-            } else if(!wellFormed(values.def_body)) {
-                values.example1_error.innerHTML = "The function body might have mis-matched parentheses, or an unclosed string.";
-                //correctExamples = false;
-            } else {
-                values.definition_error.innerHTML = ""; 
-                document.getElementById('design-recipe-insertCode').disabled = false;
-                return true;
-            }
-        };
+        //     // TODO: count inputs, if possible
+        //     // make sure the header and body are non-null
+        //     else if(values.def_body.length===0){
+        //         values.definition_error.innerHTML = "Fill in the body for this function";
+        //     } else if(!wellFormed(values.def_body)) {
+        //         values.example1_error.innerHTML = "The function body might have mis-matched parentheses, or an unclosed string.";
+        //         //correctExamples = false;
+        //     } else {
+        //         values.definition_error.innerHTML = ""; 
+        //         document.getElementById('design-recipe-insertCode').disabled = false;
+        //         return true;
+        //     }
+        // };
         
         
         //////////////////////////////////////////////////////////////////////////////////// 
@@ -631,7 +606,7 @@ var initializeWidget = (function () {
         
         // add a demo DR widget at cursor location
         var showWidget = function(){
-            document.getElementById('design-recipe-insertCode').disabled = true;
+            // document.getElementById('design-recipe-insertCode').disabled = true;
             pos = editor.getCursor(true);		// get the current cursor location
             pos.ch = 0;							// force the character to 0
             var node= document.getElementById('design-recipe-form');
@@ -656,13 +631,12 @@ var initializeWidget = (function () {
         };
         
         var clearForm = function (){
-            var i;
-            var values = formValues();
-            values.contract_error.firstChild = "";
-            for (i = 0; i< values.examples.length; i++) {
-                values.examples[i].errorDOM.innerHTML = "";
-            }
-            values.definition_error.innerHTML = "";
+            // var i;
+            // var values = formValues();
+            // values.contract_error.firstChild = "";
+            // for (i = 0; i< values.examples.length; i++) {
+            //     values.examples[i].errorDOM.innerHTML = "";
+            // }
             contract_name.clear();
             contract_domain.clear();
             contract_range.clear();
@@ -670,8 +644,8 @@ var initializeWidget = (function () {
             example1_body.clear();
             example2_header.clear();
             example2_body.clear();
-            definition_header.setValue('');
-            definition_body.setValue('');
+            definition_header.clear();
+            definition_body.clear();
         };
  
        var hideWidget = function (widget){
