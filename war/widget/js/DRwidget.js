@@ -98,16 +98,17 @@ var initializeWidget = (function () {
         this.errorElement = errorElement;
         this.isViolatingDependencies = isViolatingDependencies;
         this.disabled = false;
+        this.listeners = [];
 
         var calmedChange = new CalmedEvent();
 
-        var lastValue; // Records the last value
         var onChange = function() {
             if (!that.disabled) {
                 calmedChange.trigger(function() {
+                    that.scheduleNotification();
+                    
                     var err;
                     var newValue = that.getValue();
-                    lastValue = newValue;
                     
                     // Check dependencies
                     err = isViolatingDependencies.call(that);
@@ -177,6 +178,17 @@ var initializeWidget = (function () {
         jQuery(this.errorElement).empty();
         jQuery(this.errorElement).append(jQuery('<span/>').text(" "));
         jQuery(this.codeMirrorElement.getWrapperElement()).removeClass("stillErroneous");
+    };
+
+    ValidatedTextInputElement.prototype.addChangeListener = function(f) {
+        this.listeners.push(f);
+    };
+
+    ValidatedTextInputElement.prototype.scheduleNotification = function() {
+        var i;
+        for (i = 0; i < this.listeners.length; i++) {
+            this.listeners[i](this.isOk());
+        }
     };
 
 
@@ -426,6 +438,25 @@ var initializeWidget = (function () {
         /////////////////////////////////// SETUP /////////////////////////////////////////
         // Create CM instances for code, and all fields of DR Form
 
+
+        var addBlockingConstraint = function(id, elts, okToUnblock) {
+            var currentlyBlocked = true;
+            var onChange = function(isOk) {
+                if (okToUnblock() && currentlyBlocked) {
+                    jQuery(id).unblock();
+                    currentlyBlocked = false;
+                } else if ((!okToUnblock()) && (!currentlyBlocked)) {
+                    jQuery(id).block({message : null});
+                    currentlyBlocked = true;
+                }
+            };
+            var i;
+            for (i = 0; i < elts.length; i++) { 
+                elts[i].addChangeListener(onChange);
+            }
+            jQuery(id).block({message : null});
+        }
+
         var setupFieldBindings = function() {
             var contractErrorElt = document.getElementById('design-recipe-contract_error');
 
@@ -443,6 +474,10 @@ var initializeWidget = (function () {
                 document.getElementById("design-recipe-range"),
                 isRangeError,
                 contractErrorElt);
+
+            addBlockingConstraint('#design-recipe-examples',
+                                  [contract_name, contract_domain, contract_range],
+                                  checkContract);
 
 
             example1_header = new ValidatedTextInputElement(
@@ -469,6 +504,12 @@ var initializeWidget = (function () {
                 document.getElementById("design-recipe-example2_error"),
                 isContractDependencyError);
 
+            addBlockingConstraint('#design-recipe-definition',
+                                  [example1_header, example1_body, 
+                                   example2_header, example2_body],
+                                  checkExamples);
+
+
             definition_header = new ValidatedTextInputElement(
                 document.getElementById("design-recipe-definition_header"),
                 isDefinitionHeaderError,
@@ -485,6 +526,9 @@ var initializeWidget = (function () {
 
             example1_error = document.getElementById("design-recipe-example1_error");
             example2_error = document.getElementById("design-recipe-example2_error");
+
+
+            
         };
 
 

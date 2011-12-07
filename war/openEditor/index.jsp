@@ -43,6 +43,7 @@
     <script src="/js/flapjax-helpers.js"></script>
     <script src="/js/jquery/jquery.createdomnodes.js"></script>
     <script src="/js/jquery/jquery.center-in-client.js"></script>
+    <script src="/js/jquery/jquery.blockUI.js"></script>
     
     <script src="/js/codemirror2/lib/codemirror.js"></script>
     <link rel="stylesheet" type="text/css" href="/js/codemirror2/lib/codemirror.css"></link>
