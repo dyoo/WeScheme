@@ -152,7 +152,8 @@ var initializeWidget = (function () {
                                       tabMode: "default",
                                       onChange: onChange,
                                       onBlur: onBlur,
-                                      onFocus: onFocus });
+                                      onFocus: onFocus
+                                    });
     };
 
     ValidatedTextInputElement.prototype.isOk = function() {
@@ -197,7 +198,8 @@ var initializeWidget = (function () {
             return identifiers[0];
         };
 
-        // Returns true if str appears to contain a leading application of a function
+        // Returns a true value (the remaining tokens)
+        // if str appears to contain a leading application of a function
         // named with 'name'.
         var looksLikeApplicationOf = function(name, str) {
             var tokens = tokenizer.tokenize(str);
@@ -215,7 +217,9 @@ var initializeWidget = (function () {
                 if (tokens[i].type === 'whitespace') {
                     // skip whitespace
                 } else if (tokens[i].type == 'variable') {
-                    return tokens[i].content === name;
+                    if (tokens[i].content === name) {
+                        return tokens.slice(i+1);
+                    }
                 } else {
                     break;
                 }
@@ -354,6 +358,46 @@ var initializeWidget = (function () {
             if (! looksLikeApplicationOf(name, header)) {
                 return result;
             }
+
+
+            var restOfTheHeader = looksLikeApplicationOf(name, header);
+            var extraContent;
+            var i, j;
+            for (i = 0; i < restOfTheHeader.length; i++) {
+                if (restOfTheHeader[i].type === 'whitespace') {
+                    // skip
+                } else if (restOfTheHeader[i].type === ')') {
+                    for (j = i+1; j < restOfTheHeader.length; j++) {
+                        if (restOfTheHeader[j].type === 'whitespace') {
+                            // skip
+                        } else {
+                            result.append(jQuery("<br/>"));
+                            result.append("The header should only have the function's name and it's variables.");
+                            result.append(jQuery("<br/>"));
+                            result.append("but it appears to have extra content after the header: ");
+                            result.append(jQuery("<br/>"));
+                            extraContent = jQuery('<tt/>');
+                            for (; j < restOfTheHeader.length; j++) {
+                                extraContent.append(restOfTheHeader[j].content)
+                            }
+                            extraContent.css('padding-left', '10px');
+                            result.append(extraContent);
+                            return result;
+                        }
+                    }
+                } else if (restOfTheHeader[i].type === 'variable') {
+                    // skip
+                } else {
+                    result.append(jQuery("<br/>"));
+                    result.append("The header's variables should only have words, but");
+                    result.append(jQuery("<br/>"));
+                    result.append(jQuery("<tt/>").text(restOfTheHeader[i].content).css('padding-left', '10px'));
+                    result.append(jQuery("<br/>"));
+                    result.append("looks like a non-word");
+                    return result;
+                }
+            }
+
             
             // make sure the header is well-formed
             if(!wellFormed(header)) {
