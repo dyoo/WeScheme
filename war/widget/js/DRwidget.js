@@ -439,23 +439,56 @@ var initializeWidget = (function () {
         // Create CM instances for code, and all fields of DR Form
 
 
-        var addBlockingConstraint = function(id, elts, okToUnblock) {
-            var currentlyBlocked = true;
+        var BlockingConstraint = function(id, elts, okToUnblock, extraParams) {
+            this.listeners = [];
+            if (! extraParams) { extraParams = {}; }
+
+            var that = this;
+
+            var currentlyBlocked;
             var onChange = function(isOk) {
                 if (okToUnblock() && currentlyBlocked) {
-                    jQuery(id).unblock();
+                    if (extraParams.toUnblock) {
+                        extraParams.toUnblock.call(jQuery(id));
+                    } else {
+                        jQuery(id).unblock();
+                    }
                     currentlyBlocked = false;
+                    that.scheduleNotification();
                 } else if ((!okToUnblock()) && (!currentlyBlocked)) {
-                    jQuery(id).block({message : null});
+                    if (extraParams.toBlock) {
+                        extraParams.toBlock.call(jQuery(id));
+                    } else {
+                        jQuery(id).block({message : null});
+                    }
                     currentlyBlocked = true;
+                    that.scheduleNotification();
                 }
             };
             var i;
             for (i = 0; i < elts.length; i++) { 
                 elts[i].addChangeListener(onChange);
             }
-            jQuery(id).block({message : null});
+            if (extraParams.toBlock) {
+                extraParams.toBlock.call(jQuery(id));
+            } else {
+                jQuery(id).block({message : null});
+            }
+            currentlyBlocked = true;
+            this.scheduleNotification();
         }
+        BlockingConstraint.prototype.addChangeListener = function(f) {
+            this.listeners.push(f);
+        };
+        BlockingConstraint.prototype.scheduleNotification = function() {
+            var i;
+            for (i = 0; i < this.listeners.length; i++) {
+                this.listeners[i]();
+            }
+        };
+      
+
+
 
         var setupFieldBindings = function() {
             var contractErrorElt = document.getElementById('design-recipe-contract_error');
@@ -475,10 +508,10 @@ var initializeWidget = (function () {
                 isRangeError,
                 contractErrorElt);
 
-            addBlockingConstraint('#design-recipe-examples',
-                                  [contract_name, contract_domain, contract_range],
-                                  checkContract);
-
+            var bc1 = new BlockingConstraint('#design-recipe-examples',
+                                             [contract_name, contract_domain, contract_range],
+                                             checkContract);
+            
 
             example1_header = new ValidatedTextInputElement(
                 document.getElementById("design-recipe-example1_header"),
@@ -503,11 +536,12 @@ var initializeWidget = (function () {
                 isExampleBodyError,
                 document.getElementById("design-recipe-example2_error"),
                 isContractDependencyError);
-
-            addBlockingConstraint('#design-recipe-definition',
-                                  [example1_header, example1_body, 
-                                   example2_header, example2_body],
-                                  checkExamples);
+            
+            var bc2 = new BlockingConstraint('#design-recipe-definition',
+                                             [example1_header, example1_body, 
+                                              example2_header, example2_body,
+                                              bc1],
+                                             checkExamples);
 
 
             definition_header = new ValidatedTextInputElement(
@@ -523,6 +557,19 @@ var initializeWidget = (function () {
                 document.getElementById("design-recipe-definition_error"),
                 function() { return isContractDependencyError() || 
                              isExampleDependencyError(); });
+
+            
+            var bc3 = new BlockingConstraint('#design-recipe-insertCode',
+                                             [definition_header, definition_body, bc2],
+                                             checkDefinition,
+                                             {
+                                                 toBlock: function() {
+                                                     this.attr('disabled', 'disabled');
+                                                 },
+                                                 toUnblock: function(x) {
+                                                     this.removeAttr('disabled');
+                                                 }
+                                             });
 
             example1_error = document.getElementById("design-recipe-example1_error");
             example2_error = document.getElementById("design-recipe-example2_error");
@@ -647,46 +694,11 @@ var initializeWidget = (function () {
                     example2_header.isOk() &&
                     example2_body.isOk());
         };
-        
-        /*********************************************
-         * Check the function definition
-         */
-        // checkDefinition = function(){
-        //     var values = formValues();
-        //     //            var correctExamples;
 
-        //     if(!checkContract()){
-        //         values.definition_error.innerHTML = "<b>Fix your contract first!</b>";
-        //         return false;
-        //     }
-        //     if(!checkExamples()){
-        //         values.definition_error.innerHTML = "<b>Fix your examples first!</b>";
-        //         return false;
-        //     }
-            
-        //     var nameRegExp = new RegExp("\\(\\s*"+values.name);
-        //     // make sure the header begins with "(name", accounting for whitespace
-        //     if(!values.def_header.match(nameRegExp)) {
-        //         values.definition_error.innerHTML = "A function header looks like \"(<i>name</i> ...<i>variables</i>...)\". <br/>HINT: Look at your examples if you get stuck. What changes from example to example?";
-        //         return false;
-        //     } else if(!wellFormed(values.def_header)){
-        //         values.definition_error.innerHTML = "The function header might have mis-matched parentheses, or an unclosed string.";
-        //         return false;
-        //     }
-            
-        //     // TODO: count inputs, if possible
-        //     // make sure the header and body are non-null
-        //     else if(values.def_body.length===0){
-        //         values.definition_error.innerHTML = "Fill in the body for this function";
-        //     } else if(!wellFormed(values.def_body)) {
-        //         values.example1_error.innerHTML = "The function body might have mis-matched parentheses, or an unclosed string.";
-        //         //correctExamples = false;
-        //     } else {
-        //         values.definition_error.innerHTML = ""; 
-        //         document.getElementById('design-recipe-insertCode').disabled = false;
-        //         return true;
-        //     }
-        // };
+        checkDefinition = function() {
+            return (definition_header.isOk() && definition_body.isOk());
+        };
+        
         
         
         //////////////////////////////////////////////////////////////////////////////////// 

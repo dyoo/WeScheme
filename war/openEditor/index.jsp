@@ -204,7 +204,11 @@
           </div>
 
 	  <div class="toolbar">
-	    <input type="button" id="design-recipe-insertCode" class="button" value="Insert" style="float: right; color: black;"/>
+            <input type="button" 
+                   id="design-recipe-insertCode"
+                   class="button" 
+                   value="Insert" 
+                   style="float: right; color: black;"/>
 	    <input type="button" id="design-recipe-cancel" class="button" value="Cancel" style="float: left;" />
 	  </div>
 

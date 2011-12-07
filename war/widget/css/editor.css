@@ -115,3 +115,7 @@ div#design-recipe-form .button {
     margin: 5px;
     border: 1px solid black;
 }
+
+div#design-recipe-form .button[disabled] {
+    background-color: gray;
+}
