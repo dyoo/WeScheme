@@ -17317,7 +17317,7 @@ new PrimProc('add-line',
 										   jsnums.toFixnum(y2-y1),
 										   c,
 										   true);
-			 return world.Kernel.overlayImage(line, img, "middle", "middle");
+			 return world.Kernel.overlayImage(line, img, x1, y1);
 			 });
 
 
@@ -17658,8 +17658,9 @@ new PrimProc('text/font',
 										   aFace.toString(), aFamily.toString(), aStyle.toString(),
 										   aWeight.toString(), aUnderline);
                              } catch(e) {
-		                 return world.Kernel.textImage(aString.toString(), jsnums.toFixnum(aSize), aColor,
-							       "normal", "Optimer","","",false);
+                                 // Under IE 8, something breaks.  I don't know yet what it is.
+		        return world.Kernel.textImage(aString.toString(), jsnums.toFixnum(aSize), aColor,
+											  "normal", "Optimer","","",false);
                              }
 			 });
 
