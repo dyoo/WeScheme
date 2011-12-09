@@ -77,7 +77,7 @@ div#design-recipe-form div.toolbar{
 }
 
 div#design-recipe-form .stillErroneous{
-    border: 1px solid red;
+    border: 1px solid blue;
 }
 
 div#design-recipe-form span.error{
@@ -86,7 +86,7 @@ div#design-recipe-form span.error{
     font-size: 15px; 
     clear: both; 
     display: block;
-    color: red; 
+    color: blue; 
     margin: 0px; 
     padding-bottom: 5px;}
 
