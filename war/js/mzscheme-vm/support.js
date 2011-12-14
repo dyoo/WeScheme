@@ -18318,6 +18318,26 @@ PRIMITIVES['on-redraw'] =
 		 });
 
 
+PRIMITIVES['to-draw'] =
+    new PrimProc('to-draw',
+		 1,
+		 false, false,
+		 function(f) {
+		     check(f, isFunction, 'to-draw', 'procedure', 1);
+		     return new (WorldConfigOption.extend({
+				 init: function() {
+				     this._super('on-redraw');
+				 },
+
+				 configure: function(config) {
+				     return config.updateAll({'onRedraw': f});
+				 }}))();
+
+		 });
+
+
+
+
 PRIMITIVES['on-draw'] =
     new CasePrimitive('on-draw',
 	[new PrimProc('on-draw',
