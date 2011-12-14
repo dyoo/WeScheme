@@ -89,7 +89,7 @@ $.blockUI.defaults = {
 		textAlign:	'center',
 		color:		'#000',
 		border:		'3px solid #aaa',
-		backgroundColor:'#fff',
+		backgroundColor:'#fff'
 //		cursor:		'wait'
 	},
 	
@@ -103,7 +103,7 @@ $.blockUI.defaults = {
 	// styles for the overlay
 	overlayCSS:  {
 		backgroundColor: '#000',
-		opacity:	  	 0.6,
+		opacity:	  	 0.6
 //		cursor:		  	 'wait'
 	},
 
