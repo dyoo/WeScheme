@@ -143,7 +143,7 @@ var WeSchemeTextContainer;
 		this.behavior = startsWith(this.behaviorE, "");
 
 
-		console.log("hello");
+
 		this.editor = CodeMirror(
 				parent.getDiv(), 
 				{ 
