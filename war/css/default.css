@@ -133,7 +133,7 @@ h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
 /* 20px: TOOLBAR, BUTTONS, ETC */
 #toolbar{
     width:			100%;
-    height:			19px;	/* leave room for the border */
+    /* height:			19px;	/\* leave room for the border *\/ */
     padding-top:                0px;
     padding-bottom:             0px;
     border-bottom:	solid 1px black;
@@ -182,7 +182,7 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 #toolbar li.logout{float: right; clear: none;}
 #toolbar li.account{float: right; clear: none;}
 #toolbar li.docs{float: right; clear: none;}
-#toolbar li.docs a:hover{float: right; clear: none;background: #B3411C}
+#toolbar li.designrecipe{float: right; clear: none;}
 
 
 

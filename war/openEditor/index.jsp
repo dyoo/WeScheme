@@ -43,15 +43,21 @@
     <script src="/js/flapjax-helpers.js"></script>
     <script src="/js/jquery/jquery.createdomnodes.js"></script>
     <script src="/js/jquery/jquery.center-in-client.js"></script>
+    <script src="/js/jquery/jquery.blockUI.js"></script>
     
     <script src="/js/codemirror22/lib/codemirror.js"></script>
-	<link rel="stylesheet" type="text/css" href="/js/codemirror2/lib/codemirror.css"></link>
-	<script src="/js/codemirror2-contrib/scheme2/scheme2.js"></script>
-	<link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors.css"></link>
-	<link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors-interactive.css"></link>
+    <link rel="stylesheet" type="text/css" href="/js/codemirror2/lib/codemirror.css"></link>
+    <script src="/js/codemirror2-contrib/scheme2/scheme2.js"></script>
+    <link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors.css"></link>
+    <link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors-interactive.css"></link>
+    <link rel="stylesheet" type="text/css" href="/css/definitions.css"></link>
 
-	<link rel="stylesheet" type="text/css" href="/css/definitions.css"></link>
+    <!-- Design recipe widget stuff -->
+    <script src="/widget/js/DRwidget.js"></script>
+    <link rel="stylesheet" type="text/css" href="/widget/css/editor.css"></link>
 
+
+    
     <script src="/js/submitpost.js"></script>
 
 
@@ -150,6 +156,69 @@
 	
 	<!-- The dialog div here will be used by jquery -->
 	<div id="dialog" style="display:none;"></div>
+
+
+
+        <div id="design-recipe-form" style="position: absolute; left: -1000px; z-index: 10;">
+	  <div class="section" id="design-recipe-contract">
+            <div id="design-recipe-contract_wrapper">
+              <span class="spacer" style="width: 15px;">;</span>
+              <textarea id="design-recipe-name"></textarea>
+              <span>:</span>
+              <textarea id="design-recipe-domain"></textarea>
+              <span>-></span>
+              <textarea id="design-recipe-range"></textarea>
+            </div>
+            <span class="error" id="design-recipe-contract_error"></span>
+	  </div>
+
+          <div class="section" id="design-recipe-examples">
+            <div id="design-recipe-example1_wrapper">
+              <span class="spacer">(EXAMPLE </span> 
+              <textarea id="design-recipe-example1_header"></textarea>
+              <textarea id="design-recipe-example1_body"></textarea>
+              <span class="spacer">)</span>
+            </div>
+            <span class="error" id="design-recipe-example1_error"></span>
+            <hr/>
+            <div id="design-recipe-example2_wrapper">
+              <span class="spacer">(EXAMPLE </span>
+              <textarea id="design-recipe-example2_header"></textarea>
+              <textarea id="design-recipe-example2_body"></textarea>
+              <span class="spacer">)</span>
+            </div>
+            <span class="error" id="design-recipe-example2_error"></span>
+          </div>
+
+          
+          <div class="section" id="design-recipe-definition">
+            <div id="design-recipe-definition_wrapper">
+              <span class="spacer">(define </span>
+              <textarea id="design-recipe-definition_header"></textarea>
+              <textarea id="design-recipe-definition_body"></textarea>
+              <span class="spacer">)</span>
+            </div>
+            <span class="error" id="design-recipe-definition_error"></span>
+          </div>
+
+	  <div class="toolbar">
+            <input type="button" 
+                   id="design-recipe-insertCode"
+                   class="button" 
+                   value="Insert" 
+                   style="float: right; color: black;"/>
+	    <input type="button" id="design-recipe-cancel" class="button" value="Cancel" style="float: left;" />
+	  </div>
+
+        </div>
+
+
+
+
+
+
+
+
 	
 	<div id="header">
 	  <h1>WeScheme</h1>
@@ -172,9 +241,17 @@
 	    <li class="account"><a id="account" href="/console" target="console">Programs<span></span></a></li>
 	    <% } %>
 	    <li class="docs">	<a id="docs" target="_blank" href="/openEditor/moby-user-api.txt">API</a></li>
-	    
+
+            <li class="designrecipe"><a id="designrecipebutton">Design Recipe</a></li>
 	  </ul>
+          <ul></ul>
+          <!-- This is here to force the div height.  This may be unnecessary
+               as soon as we figure out what's going on with the css/html
+               weirdness. -->
 	</div>
+
+
+
 
 	<div id="fileInfo">
 	  <label id="filenamelabel" for="filename">Project name:</label>
@@ -235,4 +312,17 @@
     </div> <!-- end editor -->
 
   </body>
+
+  <script>
+    var widget;
+    jQuery(document).ready(function() {
+    widget = initializeWidget(myEditor.defn.impl.editor,
+                              myEditor.getTokenizer());
+
+    jQuery("#designrecipebutton").bind("click", function(e) { e.preventDefault(); e.stopPropagation(); widget.showWidget(); });
+    });
+    
+  </script>
+
+
 </html>

@@ -388,7 +388,8 @@ WeSchemeInteractions = (function () {
                 width: "auto",
                 height: "auto",
                 beforeclose: handleClose,
-                resizable: false
+                resizable: false,
+                closeOnEscape: true
             });
 
             var innerArea = jQuery("<div></div>");
