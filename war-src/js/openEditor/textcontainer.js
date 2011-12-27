@@ -84,7 +84,7 @@ var WeSchemeTextContainer;
 	};
 
 
-	WeSchemeTextContainer.prototype.addKeymap = function(keyFilter, keyHandler) {
+	/*WeSchemeTextContainer.prototype.addKeymap = function(keyFilter, keyHandler) {
 		this.keymaps.push({keyFilter: keyFilter,
 			keyHandler: keyHandler});
 	};
@@ -110,7 +110,7 @@ var WeSchemeTextContainer;
 		};
 		return { keyFilter: keyFilter,
 			keyHandler: keyHandler };
-	};
+	};*/
 
 	WeSchemeTextContainer.prototype.focus = function() {
 		this.impl.focus();
@@ -142,7 +142,9 @@ var WeSchemeTextContainer;
 		this.behaviorE = receiverE();
 		this.behavior = startsWith(this.behaviorE, "");
 
-
+		var km = {};
+		jQuery.extend(km,options.extraKeys);
+		km["Tab"] = "indentAuto";
 
 		this.editor = CodeMirror(
 				parent.getDiv(), 
@@ -156,7 +158,7 @@ var WeSchemeTextContainer;
 		disableSpellcheck: true,*/
 					theme: (options.theme || "scheme"),
 					mode: "scheme2",
-					extraKeys: {"Tab":"indentAuto"},
+					extraKeys: km,
 					lineNumbers: (typeof (options.lineNumbers) !== 'undefined'? options.lineNumbers :  true),
 					//textWrapping: true,
 					matchBrackets: true,
@@ -176,14 +178,14 @@ var WeSchemeTextContainer;
 					},
 					//TODO what does this do?
 					
-					onKeyEvent: function(editor,event) {
+					/*onKeyEvent: function(editor,event) {
 						var keymap = parent.getKeymap();
 						if (keymap.keyFilter(event)) {
 							keymap.keyHandler(event);
 							event.stop();
 							return true;
 						}
-					}});
+					}*/});
 		/*if (options.makeTransparentIframe) {
 			// IE compatibility.
 			// See: http://blogs.msdn.com/b/tl/archive/2008/10/28/9020354.aspx

@@ -102,10 +102,31 @@ WeSchemeInteractions = (function () {
               lineNumbers: false,
               theme: "scheme-interactive",
               //stylesheet: "/js/codemirror/contrib/scheme/css/schemecolors-interactive.css",
-              makeTransparentIframe: true },
+              makeTransparentIframe: true,
+              extraKeys: {
+            	  "Enter":function (ed) {
+            		  if (that.hasCompleteExpression()) {
+            			  that.onEvaluation();
+            		  } else {
+            			  CodeMirror.commands.newlineAndIndent(ed);
+            		  }
+            	  },
+            	  "Ctrl-N":function (ed) {
+            		  that.onHistoryNext();
+            	  },
+            	  "Ctrl-P":function (ed) {
+            		  that.onHistoryPrevious();
+            	  },
+            	  "Alt-N":function (ed) {
+            		  that.onHistoryNext();
+            	  },
+            	  "Alt-P":function (ed) {
+            		  that.onHistoryPrevious();
+            	  }
+              }},
             function(container) {
                 that.textContainer = container;
-                container.addKeymap(
+                /*container.addKeymap(
                     function(event) {
                         // handle F5 especially
                         if (that.isRunEvent(event)) {
@@ -138,7 +159,7 @@ WeSchemeInteractions = (function () {
                         } else {
                             return plt.wescheme.topKeymap(event);
                         }
-                    });
+                    });*/
 
                 if (K) {
                     K(that);
