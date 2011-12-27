@@ -143,6 +143,7 @@ var WeSchemeTextContainer;
 		this.behavior = startsWith(this.behaviorE, "");
 
 
+		console.log("hello");
 		this.editor = CodeMirror(
 				parent.getDiv(), 
 				{ 
@@ -155,7 +156,7 @@ var WeSchemeTextContainer;
 		disableSpellcheck: true,*/
 					theme: (options.theme || "scheme"),
 					mode: "scheme2",
-					tabMode: "indent",
+					extraKeys: {"Tab":"indentAuto"},
 					lineNumbers: (typeof (options.lineNumbers) !== 'undefined'? options.lineNumbers :  true),
 					//textWrapping: true,
 					matchBrackets: true,

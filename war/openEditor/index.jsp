@@ -44,7 +44,7 @@
     <script src="/js/jquery/jquery.createdomnodes.js"></script>
     <script src="/js/jquery/jquery.center-in-client.js"></script>
     
-    <script src="/js/codemirror2/lib/codemirror.js"></script>
+    <script src="/js/codemirror22/lib/codemirror.js"></script>
 	<link rel="stylesheet" type="text/css" href="/js/codemirror2/lib/codemirror.css"></link>
 	<script src="/js/codemirror2-contrib/scheme2/scheme2.js"></script>
 	<link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors.css"></link>
