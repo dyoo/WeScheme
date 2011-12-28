@@ -126,40 +126,6 @@ WeSchemeInteractions = (function () {
               }},
             function(container) {
                 that.textContainer = container;
-                /*container.addKeymap(
-                    function(event) {
-                        // handle F5 especially
-                        if (that.isRunEvent(event)) {
-                            return true;
-                        }
-                        // Also, handle enter if what's in the text is ready for
-                        // evaluation.
-                        if (that.isExpressionToEvaluateEvent(event)) {
-                            return true;
-                        }
-
-                        if (that.isHistoryPreviousEvent(event)) {
-                            return true;
-                        }
-                        if (that.isHistoryNextEvent(event)) {
-                            return true;
-                        }
-                        return false;
-                    },
-                    function(event) {
-                        if (that.isExpressionToEvaluateEvent(event)) {
-                            that.onEvaluation();
-                            return false;
-                        } else if (that.isHistoryPreviousEvent(event)) {
-                            that.onHistoryPrevious();
-                            return false;
-                        } else if (that.isHistoryNextEvent(event)) {
-                            that.onHistoryNext();
-                            return false;
-                        } else {
-                            return plt.wescheme.topKeymap(event);
-                        }
-                    });*/
 
                 if (K) {
                     K(that);

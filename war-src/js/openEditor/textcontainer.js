@@ -83,35 +83,6 @@ var WeSchemeTextContainer;
 		return this.impl.highlight(id, offset, line, column, span);
 	};
 
-
-	/*WeSchemeTextContainer.prototype.addKeymap = function(keyFilter, keyHandler) {
-		this.keymaps.push({keyFilter: keyFilter,
-			keyHandler: keyHandler});
-	};
-
-	WeSchemeTextContainer.prototype.getKeymap = function() {
-		// Creates a composite keymap out of all the keymaps we've received.
-		var keymaps = this.keymaps;
-		var keyFilter = function(evt) {
-			for (var i = 0 ; i < keymaps.length; i++) {
-				if (keymaps[i].keyFilter(evt)) {
-					return true;
-				}
-			}
-			return false;
-		};
-		var keyHandler = function(evt) {
-			for (var i = 0 ; i < keymaps.length; i++) {
-				if (keymaps[i].keyFilter(evt)) {
-					return keymaps[i].keyHandler(evt);
-				}
-			}
-			return true;
-		};
-		return { keyFilter: keyFilter,
-			keyHandler: keyHandler };
-	};*/
-
 	WeSchemeTextContainer.prototype.focus = function() {
 		this.impl.focus();
 	};
@@ -149,13 +120,6 @@ var WeSchemeTextContainer;
 		this.editor = CodeMirror(
 				parent.getDiv(), 
 				{ 
-					/*path: "/js/codemirror/js/",
-		parserfile: ["../contrib/scheme/js/tokenizescheme.js",
-			     "../contrib/scheme/js/parsescheme.js"],
-		stylesheet: (options.stylesheet ||
-			     "/js/codemirror/contrib/scheme/css/schemecolors.css"),
-		autoMatchParens: true,
-		disableSpellcheck: true,*/
 					theme: (options.theme || "scheme"),
 					mode: "scheme2",
 					extraKeys: km,
@@ -163,37 +127,11 @@ var WeSchemeTextContainer;
 					//textWrapping: true,
 					matchBrackets: true,
 					value: options.content || "",
-					//width: options.width || "100%",
-					//height: options.height || "100%",
-					//minHeight: options.minHeight,
 					readOnly: (typeof (options.readOnly) !== 'undefined'? options.readOnly : false),
-
-					//markParen: function(span, good) {addClass(span, good ? "good-matching-paren" : "bad-matching-paren");},
-
-					//unmarkParen: function(span) {removeClass(span, "good-matching-paren"); removeClass(span, "bad-matching-paren");},
-
 
 					onChange: function() {
 						that.behaviorE.sendEvent(that.editor.getValue());
-					},
-					//TODO what does this do?
-					
-					/*onKeyEvent: function(editor,event) {
-						var keymap = parent.getKeymap();
-						if (keymap.keyFilter(event)) {
-							keymap.keyHandler(event);
-							event.stop();
-							return true;
-						}
-					}*/});
-		/*if (options.makeTransparentIframe) {
-			// IE compatibility.
-			// See: http://blogs.msdn.com/b/tl/archive/2008/10/28/9020354.aspx
-			that.editor.frame.allowTransparency = true;
-		}*/
-
-		//console.log(this.editor.getScrollerElement())
-
+					}});
             // Under IE 7, some of these style settings appear to die.
             try {
 		this.editor.getWrapperElement().style.width = options.width || "100%";
