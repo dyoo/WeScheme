@@ -766,11 +766,21 @@ var helpers = {};
 		}
 	};
 
-	var isList = function(x) { return (( types.isPair(x) && isList(x.rest()) ) || x === types.EMPTY); };
+        var isList = function(x) {
+	    if (x === types.EMPTY) { return true; }
+	    while (types.isPair(x)) {
+		x = x.rest();
+	    }
+	    return (x === types.EMPTY);
+	};
 
 	var isListOf = function(x, f) {
-		return ( ( types.isPair(x) && f(x.first()) && isListOf(x.rest(), f) ) ||
-			 x === types.EMPTY );
+	    if (x === types.EMPTY) { return true; }
+	    while (types.isPair(x)) {
+		if (! f(x.first())) { return false; }
+		x = x.rest();
+	    }
+	    return (x === types.EMPTY);
 	};
 
 	var checkListOf = function(lst, f, functionName, typeName, position, args) {
@@ -10235,7 +10245,7 @@ SceneImage.prototype.isEqual = function(other, aUnionFind) {
 
 //////////////////////////////////////////////////////////////////////
 // FileImage: string node -> Image
-var FileImage = function(src, rawImage) {
+var FileImage = function(src, rawImage, afterInit) {
     BaseImage.call(this, 0, 0);
     var self = this;
     this.src = src;
@@ -10266,20 +10276,24 @@ var FileImage = function(src, rawImage) {
 	}
 	this.img.src = src;
     }
+    this.installHackToSupportAnimatedGifs(afterInit);
 }
 FileImage.prototype = heir(BaseImage.prototype);
 
 
 var imageCache = {};
-FileImage.makeInstance = function(path, rawImage) {
+FileImage.makeInstance = function(path, rawImage, afterInit) {
     if (! (path in imageCache)) {
-	imageCache[path] = new FileImage(path, rawImage);
-    } 
-    return imageCache[path];
+	imageCache[path] = new FileImage(path, rawImage, afterInit);
+	return imageCache[path];
+    } else {
+	afterInit(imageCache[path]);
+	return imageCache[path];
+    }
 };
 
-FileImage.installInstance = function(path, rawImage) {
-    imageCache[path] = new FileImage(path, rawImage);
+FileImage.installInstance = function(path, rawImage, afterInit) {
+    imageCache[path] = new FileImage(path, rawImage, afterInit);
 };
 
 FileImage.installBrokenImage = function(path) {
@@ -10290,20 +10304,25 @@ FileImage.installBrokenImage = function(path) {
 
 
 FileImage.prototype.render = function(ctx, x, y) {
-    this.installHackToSupportAnimatedGifs();
-    
     ctx.drawImage(this.animationHackImg, x, y);
 };
 
 
 // The following is a hack that we use to allow animated gifs to show
 // as animating on the canvas.
-FileImage.prototype.installHackToSupportAnimatedGifs = function() {
-    if (this.animationHackImg) { return; }
+FileImage.prototype.installHackToSupportAnimatedGifs = function(afterInit) {
+    var that = this;
     this.animationHackImg = this.img.cloneNode(true);
     document.body.appendChild(this.animationHackImg);
     this.animationHackImg.width = 0;
     this.animationHackImg.height = 0;
+    if (this.animationHackImg.complete) {
+	afterInit(that);
+    } else {
+	this.animationHackImg.onload = function() {
+	    afterInit(that);
+	};
+    }
 };
 
 
@@ -11709,8 +11728,8 @@ world.Kernel.textImage = function(msg, size, color, face, family, style, weight,
 world.Kernel.imageDataImage = function(imageData) {
     return new ImageDataImage(imageData);
 };
-world.Kernel.fileImage = function(path, rawImage) {
-    return FileImage.makeInstance(path, rawImage);
+world.Kernel.fileImage = function(path, rawImage, afterInit) {
+    return FileImage.makeInstance(path, rawImage, afterInit);
 };
 world.Kernel.videoImage = function(path, rawVideo) {
     return VideoImage.makeInstance(path, rawVideo);
@@ -17674,9 +17693,10 @@ PRIMITIVES['image-url'] =
 		     return PAUSE(function(restarter, caller) {
 			 var rawImage = new Image();
 			 rawImage.onload = function() {
-			     restarter(world.Kernel.fileImage(
+			     world.Kernel.fileImage(
 				 path.toString(),
-				 rawImage));
+				 rawImage,
+				 restarter);
 			 };
 			 rawImage.onerror = function(e) {
 			     restarter(types.schemeError(types.incompleteExn(
