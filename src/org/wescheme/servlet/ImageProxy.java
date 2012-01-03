@@ -15,7 +15,7 @@ import java.net.URLConnection;
  * read images from the network and re-produce it.
  * @author dyoo
  *
- * TODO: should it cache images?
+ * TODO: should it cache images using memcache, potentially?
  *
  * It only responds to POSTs with the following parameter
  * url: the URL of the image.
@@ -31,6 +31,7 @@ public class ImageProxy extends HttpServlet {
 	 */
 	private static final long serialVersionUID = 5607899786759828420L;
 
+	// Currently, we cap image size to ten megabytes.
 	private static long MAX_IMAGE_FILE_SIZE = 10000000;
 
 
@@ -52,7 +53,7 @@ public class ImageProxy extends HttpServlet {
 
 
 		// The content type must be of type 'image', or we also error out here.
-		if (contentType == null || (!contentType.startsWith("image/"))) {
+		if (contentType == null || (!(contentType.startsWith("image/")))) {
 			res.sendError(HttpServletResponse.SC_BAD_REQUEST, "non-image content type " + contentType);
 			return;
 		}
