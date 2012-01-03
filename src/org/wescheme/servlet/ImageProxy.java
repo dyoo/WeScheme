@@ -17,7 +17,7 @@ import java.net.URLConnection;
  *
  * TODO: should it cache images using memcache, potentially?
  *
- * It only responds to POSTs with the following parameter
+ * It only responds to GETs with the following parameter
  * url: the URL of the image.
  * 
  * TODO: since the potential for abuse exists, we'll try to limit the
@@ -35,7 +35,7 @@ public class ImageProxy extends HttpServlet {
 	private static long MAX_IMAGE_FILE_SIZE = 10000000;
 
 
-	public void doPost(HttpServletRequest req, HttpServletResponse res) throws IOException {
+	public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
 		String urlString = req.getParameter("url");
 		if (urlString == null) {
 			res.sendError(HttpServletResponse.SC_BAD_REQUEST, "url parameter required");
