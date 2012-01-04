@@ -1,5 +1,6 @@
 package org.wescheme.servlet;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -9,7 +10,6 @@ import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.memcache.MemcacheService;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -57,14 +57,12 @@ public class ImageProxy extends HttpServlet {
 				record = createImageRecordFromNetwork(urlString);
 				saveImageRecordToCache(record);
 			}
-
+			
 			res.setContentType(record.contentType);
-			BufferedOutputStream os = new BufferedOutputStream(res.getOutputStream());
-			try {
-				os.write(record.bytes, 0, record.bytes.length);
-			} finally {
-				os.close();
-			} 
+			res.setHeader("Cache-Control", "public, max-age=300"); // 5 minutes on the browser
+			res.setHeader("Pragma", "public");
+			// res.setContentLength(record.bytes.length);
+			res.getOutputStream().write(record.bytes);
 		} catch(ImageProxyException e) {
 			res.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
 		}
