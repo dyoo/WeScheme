@@ -4,9 +4,17 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
+import com.google.appengine.api.memcache.MemcacheService;
+import java.io.ByteArrayInputStream;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -14,8 +22,6 @@ import java.net.URLConnection;
 /** The ImageProxy servlet's specialized to
  * read images from the network and re-produce it.
  * @author dyoo
- *
- * TODO: should it cache images using memcache, potentially?
  *
  * It only responds to GETs with the following parameter
  * url: the URL of the image.
@@ -35,47 +41,136 @@ public class ImageProxy extends HttpServlet {
 	private static long MAX_IMAGE_FILE_SIZE = 10000000;
 
 
+	// Keys stored in the cache will have this prefix in front to disambiguate.
+	private static String KEY_PREFIX = "imageProxy:";
+
+
 	public void doGet(HttpServletRequest req, HttpServletResponse res) throws IOException {
-		String urlString = req.getParameter("url");
-		if (urlString == null) {
-			res.sendError(HttpServletResponse.SC_BAD_REQUEST, "url parameter required");
-			return;
-		}
-		// Validation: the URL must be an absolute http or https.
-		if ((!urlString.startsWith("http://")) && (!urlString.startsWith("https://"))) {
-			res.sendError(HttpServletResponse.SC_BAD_REQUEST, "Absolute url required");
-			return;
-		}
+		try {
+			String urlString = parseUrlString(req);
 
-		URL url = new URL(urlString);
-		URLConnection conn = url.openConnection();
-		String contentType = conn.getContentType();
+			ImageRecord record = getImageRecordFromCache(urlString);
+			if (record == null) {
+				record = createImageRecordFromNetwork(urlString);
+				saveImageRecordToCache(record);
+			}
 
+			res.setContentType(record.contentType);
+			InputStream is = new ByteArrayInputStream(record.bytes);
+			BufferedOutputStream os = new BufferedOutputStream(res.getOutputStream());
+			try {
+				copyStream(is, os);
+			} finally {
+				is.close();
+				os.close();
+			} 
+		} catch(ImageProxyException e) {
+			res.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
+		}
+	}
+
+	private ImageRecord createImageRecordFromNetwork(String urlString) 
+			throws IOException, ImageProxyException {
+		URL url;
+		URLConnection conn;
+		String contentType;
+		try {
+			url = new URL(urlString);
+			conn = url.openConnection();
+			contentType = conn.getContentType();
+		} catch (Exception e) {
+			throw new ImageProxyException("url could not be read: " + e.getMessage());
+		}
 
 		// The content type must be of type 'image', or we also error out here.
 		if (contentType == null || (!(contentType.startsWith("image/")))) {
-			res.sendError(HttpServletResponse.SC_BAD_REQUEST, "non-image content type " + contentType);
-			return;
+			throw new ImageProxyException("non-image content type " + contentType);
 		}
-
-		res.setContentType(contentType);
 		BufferedInputStream is = new BufferedInputStream(conn.getInputStream());
-		BufferedOutputStream os = new BufferedOutputStream(res.getOutputStream());
+		ByteArrayOutputStream os = new ByteArrayOutputStream();
 		try {
-			int aByte;
-			int count = 0;
-			while ((aByte = is.read()) != -1) {
-				os.write(aByte);
-				count++;
-				// We want to put a restriction on the size of proxied files.
-				if (count > MAX_IMAGE_FILE_SIZE) {
-					res.sendError(HttpServletResponse.SC_BAD_REQUEST, "image too large");
-					return;
-				}
-			}
-		} finally {
+			copyStream(is, os);
+			return new ImageRecord(urlString, contentType, os.toByteArray());
+		} finally { 
 			is.close();
-			os.close();
+		}
+	}
+
+	private void copyStream(InputStream is, OutputStream os) 
+			throws IOException, ImageProxyException {
+		int aByte;
+		int count = 0;
+		while ((aByte = is.read()) != -1) {
+			os.write(aByte);
+			count++;
+			// We want to put a restriction on the size of proxied files.
+			if (count > MAX_IMAGE_FILE_SIZE) {
+				throw new ImageProxyException("image too large");
+			}
+		}
+	}
+
+	/**
+	 * Returns the image record from the cache, or null if we haven't stored it yet.
+	 * @param url
+	 * @return
+	 */
+	private ImageRecord getImageRecordFromCache(String url) {
+		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
+		try {
+			ImageRecord record = (ImageRecord) syncCache.get(KEY_PREFIX + url);
+			return record;
+		} catch (ClassCastException e) { return null; }
+	}
+
+	private void saveImageRecordToCache(ImageRecord record) {
+		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
+		syncCache.put(KEY_PREFIX + record.url,  record);
+	}
+
+	private String parseUrlString(HttpServletRequest req)
+			throws ImageProxyException {
+		String urlString = req.getParameter("url");
+		if (urlString == null) {
+			throw new ImageProxyException("url parameter required");
+		}
+		// Validation: the URL must be an absolute http or https.
+		if ((!urlString.startsWith("http://")) && (!urlString.startsWith("https://"))) {
+			throw new ImageProxyException("Absolute url required");
+		}
+		return urlString;
+	}
+
+
+	/**
+	 * Anything unusual that we should deal with will be an ImageProxyException,
+	 * handled at the toplevel of this servlet.
+	 * @author dyoo
+	 *
+	 */
+	private static class ImageProxyException extends Exception {
+		private static final long serialVersionUID = -8141551594343131574L;
+
+		public ImageProxyException(String reason) {
+			super(reason);
+		}
+	}
+
+
+	/**
+	 * Simple image record class.
+	 * @author dyoo
+	 *
+	 */
+	static private class ImageRecord implements Serializable {
+		private static final long serialVersionUID = 5501395008425013052L;
+		public String url;
+		public String contentType;
+		public byte[] bytes;
+		public ImageRecord(String url, String contentType, byte[] bytes) {
+			this.url = url;
+			this.contentType = contentType;
+			this.bytes = bytes;
 		}
 	}
 }
