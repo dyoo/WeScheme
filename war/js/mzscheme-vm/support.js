@@ -17699,6 +17699,7 @@ PRIMITIVES['image-url'] =
 		 false, true,
 		 function(state, path) {
 		     check(path, isString, "image-url", "string", 1);
+		     var originalPath = path.toString();
 		     if (state.getImageProxyHook()) {
 			 path = (state.getImageProxyHook() +
 				 "?url=" + encodeURIComponent(path.toString()));
@@ -17717,7 +17718,7 @@ PRIMITIVES['image-url'] =
 			 rawImage.onerror = function(e) {
 			     restarter(types.schemeError(types.incompleteExn(
 					types.exnFail,
-					" (unable to load: " + path + ")",
+					" (unable to load: " + originalPath + ")",
 					[])));
 			 };
 			 rawImage.src = path;
