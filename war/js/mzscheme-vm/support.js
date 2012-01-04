@@ -9012,7 +9012,8 @@ var State = function() {
     this.globals = {}; // map from string to types.GlobalBucket values
     this.hooks = { printHook: defaultPrintHook,
 		   displayHook: defaultPrintHook,
-		   toplevelNodeHook: defaultToplevelNodeHook };
+		   toplevelNodeHook: defaultToplevelNodeHook,
+		   imageProxyHook: false};
 
     this.invokedModules = {};
 
@@ -9237,6 +9238,14 @@ State.prototype.getPrintHook = function() {
 
 State.prototype.setDisplayHook = function(printHook) {
     this.hooks['displayHook'] = printHook;
+};
+
+State.prototype.setImageProxyHook = function(imageProxyHook) {
+    this.hooks['imageProxyHook'] = imageProxyHook;
+};
+
+State.prototype.getImageProxyHook = function() {
+    return this.hooks['imageProxyHook'];
 };
 
 
@@ -10245,7 +10254,7 @@ SceneImage.prototype.isEqual = function(other, aUnionFind) {
 
 //////////////////////////////////////////////////////////////////////
 // FileImage: string node -> Image
-var FileImage = function(src, rawImage, afterInit) {
+    var FileImage = function(src, rawImage, afterInit) {
     BaseImage.call(this, 0, 0);
     var self = this;
     this.src = src;
@@ -10303,7 +10312,7 @@ FileImage.installBrokenImage = function(path) {
 
 
 
-FileImage.prototype.render = function(ctx, x, y) {
+FileImage.prototype.render = function(ctx, x, y) {    
     ctx.drawImage(this.animationHackImg, x, y);
 };
 
@@ -17690,13 +17699,20 @@ PRIMITIVES['image-url'] =
 		 false, true,
 		 function(state, path) {
 		     check(path, isString, "image-url", "string", 1);
+		     if (state.getImageProxyHook()) {
+			 path = (state.getImageProxyHook() +
+				 "?url=" + encodeURIComponent(path.toString()));
+		     } else {
+			 path = path.toString();
+		     }
+
 		     return PAUSE(function(restarter, caller) {
 			 var rawImage = new Image();
 			 rawImage.onload = function() {
 			     world.Kernel.fileImage(
-				 path.toString(),
+				 path,
 				 rawImage,
-				 restarter);
+			         restarter);
 			 };
 			 rawImage.onerror = function(e) {
 			     restarter(types.schemeError(types.incompleteExn(
@@ -17704,7 +17720,7 @@ PRIMITIVES['image-url'] =
 					" (unable to load: " + path + ")",
 					[])));
 			 };
-			 rawImage.src = path.toString();
+			 rawImage.src = path;
 		     });
 		 });
 
