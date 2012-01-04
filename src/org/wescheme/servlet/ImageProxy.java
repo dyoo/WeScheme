@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.memcache.MemcacheService;
-import java.io.ByteArrayInputStream;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -60,12 +59,10 @@ public class ImageProxy extends HttpServlet {
 			}
 
 			res.setContentType(record.contentType);
-			InputStream is = new ByteArrayInputStream(record.bytes);
 			BufferedOutputStream os = new BufferedOutputStream(res.getOutputStream());
 			try {
-				copyStream(is, os);
+				os.write(record.bytes, 0, record.bytes.length);
 			} finally {
-				is.close();
 				os.close();
 			} 
 		} catch(ImageProxyException e) {
