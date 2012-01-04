@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.api.memcache.Expiration;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.memcache.MemcacheService;
 import java.io.ByteArrayInputStream;
@@ -40,6 +41,9 @@ public class ImageProxy extends HttpServlet {
 	// Currently, we cap image size to ten megabytes.
 	private static long MAX_IMAGE_FILE_SIZE = 10000000;
 
+	
+	// We cache images for ten minutes.
+	private static Expiration EXPIRATION = Expiration.byDeltaSeconds(60 * 10);
 
 	// Keys stored in the cache will have this prefix in front to disambiguate.
 	private static String KEY_PREFIX = "imageProxy:";
@@ -125,7 +129,7 @@ public class ImageProxy extends HttpServlet {
 
 	private void saveImageRecordToCache(ImageRecord record) {
 		MemcacheService syncCache = MemcacheServiceFactory.getMemcacheService();
-		syncCache.put(KEY_PREFIX + record.url,  record);
+		syncCache.put(KEY_PREFIX + record.url,  record, EXPIRATION);
 	}
 
 	private String parseUrlString(HttpServletRequest req)
