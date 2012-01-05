@@ -1,8 +1,9 @@
 goog.provide('plt.wescheme.WeSchemeTextContainer');
 
-goog.provide('plt.wescheme.fireEvent')
+goog.provide('plt.wescheme.fireEvent');
 
 goog.require('plt.wescheme.topKeymap');
+goog.require('plt.wescheme.BrowserDetect');
 
 //hack to fire events that CodeMirror will pick up
 
@@ -116,6 +117,13 @@ var WeSchemeTextContainer;
 		var km = {};
 		jQuery.extend(km,options.extraKeys);
 		km["Tab"] = "indentAuto";
+		km[plt.wescheme.BrowserDetect.OS==="Mac" ? "Cmd-I" : "Ctrl-I"] = function (ed) {
+			var start = ed.getCursor(true);
+			var end = ed.getCursor(false);
+			CodeMirror.commands.selectAll(ed);
+			CodeMirror.commands.indentAuto(ed);
+			ed.setSelection(start,end);
+		}
 
 		this.editor = CodeMirror(
 				parent.getDiv(), 

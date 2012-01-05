@@ -257,37 +257,6 @@ WeSchemeInteractions = (function () {
         this.historyIndex = lastIndex;
     };
 
-    // isRunEvent: key-event -> boolean
-    Prompt.prototype.isRunEvent = function(event) {
-        return (event.type === 'keydown' && event.keyCode === 116);
-    };
-
-    // isExpressionToEvaluateEvent: key-event -> boolean
-    Prompt.prototype.isExpressionToEvaluateEvent = function(event) {
-        return (event.type === 'keydown' && event.keyCode === 13 &&
-                this.hasCompleteExpression());
-    };
-
-    // isHistoryPreviousEvent: key-event -> boolean
-    Prompt.prototype.isHistoryPreviousEvent = function(event) {
-        return (event.type === 'keydown' && event.keyCode == 80 && (event.altKey || event.ctrlKey));
-    };
-
-    // isHistoryNextEvent: key-event -> boolean
-    Prompt.prototype.isHistoryNextEvent = function(event) {
-        return (event.type === 'keydown' && event.keyCode == 78 && (event.altKey || event.ctrlKey));
-    };
-
-    // isHistoryPreviousEvent: key-event -> boolean
-    Prompt.prototype.isHistoryPreviousEvent = function(event) {
-        return (event.type === 'keydown' && event.keyCode == 80 && (event.altKey || event.ctrlKey));
-    };
-
-    // isHistoryNextEvent: key-event -> boolean
-    Prompt.prototype.isHistoryNextEvent = function(event) {
-        return (event.type === 'keydown' && event.keyCode == 78 && (event.altKey || event.ctrlKey));
-    };
-
     // hasExpressionToEvaluate: -> boolean
     // Return true if the prompt contains a complete expression
     Prompt.prototype.hasCompleteExpression = function() {
