@@ -204,7 +204,15 @@ var WeSchemeTextContainer;
             try {
 		this.editor.getScrollerElement().style.height = "100%";
             } catch (e) {}
-		
+	
+            // Setting overflow to visible to auto-resize the editor to fit
+            // its content.  It may be that IE doesn't support setting some
+            // of these attributes, so we are really crazy about putting
+            // exception handling around this.
+            try {
+		this.editor.getScrollerElement().style.overflow = "visible";
+            } catch (e) {}
+	
 		this.editor.refresh();
 
 		onSuccess.call(that, that);
