@@ -160,9 +160,6 @@ var WeSchemeTextContainer;
 					//textWrapping: true,
 					matchBrackets: true,
 					value: options.content || "",
-					//width: options.width || "100%",
-					//height: options.height || "100%",
-					//minHeight: options.minHeight,
 					readOnly: (typeof (options.readOnly) !== 'undefined'? options.readOnly : false),
 
 					//markParen: function(span, good) {addClass(span, good ? "good-matching-paren" : "bad-matching-paren");},
@@ -192,30 +189,29 @@ var WeSchemeTextContainer;
 		//console.log(this.editor.getScrollerElement())
 
             // Under IE 7, some of these style settings appear to die.
-            try {
-		this.editor.getWrapperElement().style.width = options.width || "100%";
-            } catch (e) {}
-            try {
-		this.editor.getWrapperElement().style.height = options.height || "100%";
-            } catch (e) {}
+            try { this.editor.getWrapperElement().style.width = options.width || "100%"; } catch (e) {}
+            if (! (options.dynamicHeight)) {
+                // If dynamic height, we'll be doing something special below.
+		try { this.editor.getWrapperElement().style.height = options.height || "100%"; } catch(e) {}
+            }
+
             try {
 		this.editor.getScrollerElement().style.width = "100%";
             } catch (e) {}
-            try {
-		this.editor.getScrollerElement().style.height = "100%";
-            } catch (e) {}
-	
+
             // Setting overflow to visible to auto-resize the editor to fit
             // its content.  It may be that IE doesn't support setting some
             // of these attributes, so we are really crazy about putting
             // exception handling around this.
-            try {
-		this.editor.getScrollerElement().style.overflow = "visible";
-            } catch (e) {}
+            if (options.dynamicHeight) {
+                try { this.editor.getScrollerElement().style.height = 'auto'; } catch(e) {}
+                try { this.editor.getScrollerElement().style.overflow = 'visible'; } catch(e) {}
+            } else {
+ 		try { this.editor.getScrollerElement().style.height = "100%"; } catch(e) {}
+            }
 	
-		this.editor.refresh();
-
-		onSuccess.call(that, that);
+	    this.editor.refresh();
+	    onSuccess.call(that, that);
 	};
 
 	CodeMirrorImplementation.prototype.getSourceB = function() {
