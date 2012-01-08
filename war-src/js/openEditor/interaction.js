@@ -376,6 +376,7 @@ WeSchemeInteractions = (function () {
             dialog.dialog("open");
             return innerArea.get(0);
         };
+	evaluator.setImageProxy("/imageProxy");
         return evaluator;
     };
 

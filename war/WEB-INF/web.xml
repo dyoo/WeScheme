@@ -258,6 +258,16 @@
   </servlet-mapping>
 
 
+  <servlet>
+    <servlet-name>imageProxy</servlet-name>
+    <servlet-class>org.wescheme.servlet.ImageProxy</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>imageProxy</servlet-name>
+    <url-pattern>/imageProxy</url-pattern>
+  </servlet-mapping>
+
+
 
 
 

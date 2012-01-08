@@ -42,6 +42,7 @@ var Runner = function(interactionsDiv) {
 	    },
 	    compilationServletUrl: "<%= compilationServerUrl %>"
 	});
+    this.evaluator.setImageProxy("/imageProxy");
 };
 
 
