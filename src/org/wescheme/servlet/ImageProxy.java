@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.google.appengine.api.memcache.Expiration;
+import com.google.appengine.api.memcache.MemcacheServiceException;
 import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.memcache.MemcacheService;
 
@@ -54,13 +55,16 @@ public class ImageProxy extends HttpServlet {
 			ImageRecord record = getImageRecordFromCache(urlString);
 			if (record == null) {
 				record = createImageRecordFromNetwork(urlString);
-				saveImageRecordToCache(record);
+				try { 
+					saveImageRecordToCache(record); 
+				} catch (MemcacheServiceException e) {
+					// If we can't save the image to the cache, just go on silently.
+				}
 			}
 			
 			res.setContentType(record.contentType);
 			res.setHeader("Cache-Control", "public, max-age=300"); // 5 minutes on the browser
 			res.setHeader("Pragma", "public");
-			// res.setContentLength(record.bytes.length);
 			res.getOutputStream().write(record.bytes);
 		} catch(ImageProxyException e) {
 			res.sendError(HttpServletResponse.SC_BAD_REQUEST, e.getMessage());
