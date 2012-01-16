@@ -242,7 +242,7 @@
 	    <li class="logout"><a id="logout">Logout</a></li>
 	    <li class="account"><a id="account" href="/console" target="console">Programs<span></span></a></li>
 	    <% } %>
-	    <li class="docs">	<a id="docs" target="_blank" href="/openEditor/moby-user-api.txt">API</a></li>
+	    <li class="docs">	<a id="docs" target="_blank" href="/doc/wescheme.html">Documentation</a></li>
 
             <li class="designrecipe"><a id="designrecipebutton">Design Recipe</a></li>
 	  </ul>
