@@ -37,5 +37,12 @@ build js/view.js js/view-calc.js
 echo "Building editor"
 build js/openEditor/index.js js/openEditor/openEditor-calc.js
 
-echo "Compressing codemirror"
+
+######################################################################
+echo "Compressing codemirror 2"
 java -jar "$CompilerJarPath" --compilation_level=SIMPLE_OPTIMIZATIONS <war/js/codemirror2/lib/codemirror.js >war/js/codemirror2/lib/codemirror-min.js
+
+echo "Compressing mzscheme-vm runtime libraries"
+java -jar "$CompilerJarPath" --compilation_level=SIMPLE_OPTIMIZATIONS <war/js/mzscheme-vm/support.js >war/js/mzscheme-vm/support-min.js
+java -jar "$CompilerJarPath" --compilation_level=SIMPLE_OPTIMIZATIONS <war/js/mzscheme-vm/collections.js >war/js/mzscheme-vm/collections-min.js
+java -jar "$CompilerJarPath" --compilation_level=SIMPLE_OPTIMIZATIONS <war/js/mzscheme-vm/evaluator.js >war/js/mzscheme-vm/evaluator-min.js

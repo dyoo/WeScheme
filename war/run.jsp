@@ -26,7 +26,7 @@
 <script src="/editor/jquery.js"></script>
 <script src="/editor/jquery.createdomnodes.js"></script>
 <script src="/js/mzscheme-vm/support-min.js"></script>
-<script src="/js/mzscheme-vm/evaluator.js"></script>
+<script src="/js/mzscheme-vm/evaluator-min.js"></script>
 <script src="/js/mzscheme-vm/collections-min.js"></script>
 
 

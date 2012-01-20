@@ -65,7 +65,7 @@
 
     <!-- mzscheme-vm evaluator -->
     <script src="/js/mzscheme-vm/support-min.js"></script>
-    <script src="/js/mzscheme-vm/evaluator.js"></script>
+    <script src="/js/mzscheme-vm/evaluator-min.js"></script>
     <script src="/js/mzscheme-vm/collections-min.js"></script>
 
 
