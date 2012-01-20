@@ -3,22 +3,17 @@ The source to WeScheme can be found at github:
 
    https://github.com/dyoo/WeScheme
 
+The user-level documentation for the project is maintained in:
 
-Check out the WeScheme repository from Github.
+   https://github.com/dyoo/wescheme-docs
 
-Don't forget: we're using git submodules, so also make sure to:
-
-   $ git submodule init
-   $ git submodule update
-
-to grab dependendies.
-
-
+----------------------------------------------------------------------
 Build dependencies:
 
+1.  Java SDK should be installed and in $PATH.
 
 
-1.  WeScheme runs on Google AppEngine 1.4.2 or later.  You'll probably
+2.  WeScheme runs on Google AppEngine 1.4.2 or later.  You'll probably
 need to add the plugins into eclipse.
 
     http://code.google.com/appengine/downloads.html#Download_the_Google_Plugin_for_Eclipse
@@ -31,32 +26,55 @@ and make sure you can run Appengine apps locally.
 
 
 
-2.  WeScheme also uses the Google Closure library:
+3.  WeScheme also uses the Google Closure library:
 
    http://code.google.com/closure/library/docs/gettingstarted.html
 
-to manage the dependencies between the JavaScript modules.
-
+to manage the dependencies between the JavaScript modules and do
+JavaScript minimization.
 
 The build process expects the closure-library to be installed in a
 'closure-library' directory in the same parent as the WeScheme
 directory.  See 'build-console-and-editor.sh' for details.
 
 
+----------------------------------------------------------------------
+
+Installing WeScheme for local development
+
+
+1.  First, check out the WeScheme repository from Github.
+
+   $ git clone git://github.com/dyoo/WeScheme.git
+
+Don't forget: we're using git submodules, so also make sure to:
+
+   $ git submodule init
+   $ git submodule update
+
+to grab the external dependendies as well.
+
+2. You might also need to change war/wescheme.properties if you are
+doing any development on the android packager or compilation server.
+You probably don't need to touch this unless you really know what
+you're doing.
+
+
+3.  Run 'build-console-and-editor.sh'.
+
+This step is important!  The script "build-console-and-editor.sh"
+should be executed after any changes are made to the javascript source
+files in war-src/js, because the files in war-src will be compiled
+into the war directory.  Also, the builder also re-compresses
+JavaScript files (such as CodeMirror 2) with the Closure Compiler, so
+you should run this every time you change the JavaScript files.
+
+
+----------------------------------------------------------------------
 
 The directory structure of WeScheme is a fairly typical Java web app.
 The majority of the JavaScript files are located in:
 
    war-src/js
 
-The script "build-console-and-editor.sh" should be executed after any
-changes are made to the javascript source files in war-src/js, because
-the files in war-src will be co
-
-
-
-
 ----------------------------------------------------------------------
-
-You might also need to change war/wescheme.properties if you are doing
-any development on the android packager or compilation server.
