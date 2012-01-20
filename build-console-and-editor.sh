@@ -6,13 +6,13 @@
 # ClosureDir="${HOME}/work/closure-library"
 
 ClosureDir="$(dirname $(cd $(dirname $0) && pwd))/closure-library"
-JarPath="$(cd $(dirname $0) && pwd)/bin/compiler.jar"
+CompilerJarPath="$(cd $(dirname $0) && pwd)/bin/compiler.jar"
 
 build() {
     mkdir -p `dirname war/$2`
     "${ClosureDir}/closure/bin/calcdeps.py" \
         -i war-src/$1 \
-        -c "$JarPath"\
+        -c "$CompilerJarPath"\
         -f "--compilation_level=SIMPLE_OPTIMIZATIONS"\
         -p "$ClosureDir" \
         -p war-src \
@@ -26,9 +26,7 @@ echo "Building properties file for JS"
 cp wescheme.properties war/wescheme.properties
 python bin/make-properties.py <wescheme.properties >war-src/js/wescheme-properties.js
 
-
-echo "Building test application: if this fails, something's wrong, and closure-library hasn't been installed"
-build test/test.js test/test-calc.js
+######################################################################
 
 echo "Building console"
 build js/console.js js/console-calc.js
@@ -39,6 +37,5 @@ build js/view.js js/view-calc.js
 echo "Building editor"
 build js/openEditor/index.js js/openEditor/openEditor-calc.js
 
-
-echo "buildtest splitframe"
-build test/splitframe.js test/splitframe-calc.js
+echo "Compressing codemirror"
+java -jar "$CompilerJarPath" --compilation_level=SIMPLE_OPTIMIZATIONS <war/js/codemirror2/lib/codemirror.js >war/js/codemirror2/lib/codemirror-min.js
