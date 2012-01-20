@@ -6,14 +6,17 @@
 # ClosureDir="${HOME}/work/closure-library"
 
 ClosureDir="$(dirname $(cd $(dirname $0) && pwd))/closure-library"
+JarPath="$(cd $(dirname $0) && pwd)/bin/compiler.jar"
 
 build() {
     mkdir -p `dirname war/$2`
     "${ClosureDir}/closure/bin/calcdeps.py" \
         -i war-src/$1 \
+        -c "$JarPath"\
+        -f "--compilation_level=SIMPLE_OPTIMIZATIONS"\
         -p "$ClosureDir" \
         -p war-src \
-        -o script \
+        -o compiled \
         > war/$2    
 }
 
@@ -22,7 +25,6 @@ echo "Building properties file for JS"
 ## fill me in
 cp wescheme.properties war/wescheme.properties
 python bin/make-properties.py <wescheme.properties >war-src/js/wescheme-properties.js
-
 
 
 echo "Building test application: if this fails, something's wrong, and closure-library hasn't been installed"
@@ -36,7 +38,6 @@ build js/view.js js/view-calc.js
 
 echo "Building editor"
 build js/openEditor/index.js js/openEditor/openEditor-calc.js
-
 
 
 echo "buildtest splitframe"

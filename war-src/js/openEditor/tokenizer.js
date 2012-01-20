@@ -202,7 +202,6 @@ boundaries.
 		    return false;
 		escaped = !escaped && next == "\\";
 	    }
-	    return false;
 	}
 	
 
