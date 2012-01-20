@@ -19371,7 +19371,7 @@ COLLECTIONS["bootstrap2011/function-teachpack"] = { 'name': "bootstrap2011/funct
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2011/function-teachpack",1865,55,5,18])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":47 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":4 ,"clear":false ,"other-clears?":false ,"flonum?":false
-} ,{"$":"constant" ,"value":types.char(String.fromCharCode(32))
+} ,{"$":"constant" ,"value":types['char'](String.fromCharCode(32))
 }
 ]
 }

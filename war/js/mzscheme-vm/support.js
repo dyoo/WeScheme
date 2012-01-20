@@ -77,32 +77,8 @@ assert.equal = function(x, y) {
 		alert('AssertError: ' + x + ' equal ' + y);
 		throw new Error('AssertError: ' + x + ' equal ' + y);
 	}
-}
+};
 
-assert.deepEqual = function(x, y) {
-	if ( !deepEqual(x, y) ) {
-		alert('AssertError: ' + x + ' deepEqual ' + y);
-		throw new Error('AssertError: ' + x + ' deepEqual ' + y);
-	}
-}
-
-
-assert.ok = function(x) {
-	if (!x) {
-		alert('AssertError: not ok: ' + x);
-		throw new Error('AssertError: not ok: ' + x );
-	}
-}
-
-
-assert.throws = function(f) {
-	try {
-		f.apply(null, []);
-	} catch (e) {
-		return;
-	}
-	throw new Error('AssertError: Throw expected, none received.');
-}
 
 
 /*
@@ -8740,7 +8716,7 @@ var ArityAtLeast = makeStructureType('arity-at-least', false, 1, 0, false,
 
 types.symbol = Symbol.makeInstance;
 types.rational = jsnums.makeRational;
-types.float = jsnums.makeFloat;
+types['float'] = jsnums.makeFloat;
 types.complex = jsnums.makeComplex;
 types.bignum = jsnums.makeBignum;
 types.list = makeList;
@@ -9825,7 +9801,7 @@ var world = {};
 
     //////////////////////////////////////////////////////////////////////
     // Helpers
-    var flt = types.float;
+    var flt = types['float'];
     
     StimuliHandler.prototype.lookup = function(s) {
 	return this.config.lookup(s);
@@ -13778,7 +13754,7 @@ PRIMITIVES['void'] =
 PRIMITIVES['random'] =
 	new CasePrimitive('random',
 	[new PrimProc('random', 0, false, false,
-		      function() {return types.float(Math.random());}),
+		      function() {return types['float'](Math.random());}),
 	 new PrimProc('random', 1, false, false,
 		      function(n) {
 			  check(n, isNatural, 'random', 'non-negative exact integer', 1, arguments);
@@ -15682,7 +15658,7 @@ PRIMITIVES['string-ref'] =
 					   types.toWrittenString(str));
 				raise( types.incompleteExn(types.exnFailContract, msg, []) );
 			}
-			return types.char(str.charAt(n));
+			return types['char'](str.charAt(n));
 		 });
 
 
@@ -15905,7 +15881,7 @@ PRIMITIVES['string->list'] =
 
 			var lst = types.EMPTY;
 			for (var i = str.length-1; i >= 0; i--) {
-				lst = types.cons(types.char(str.charAt(i)), lst);
+				lst = types.cons(types['char'](str.charAt(i)), lst);
 			}
 			return lst;
 		 });
@@ -16792,7 +16768,7 @@ PRIMITIVES['integer->char'] =
 				'exact integer in [0,#x10FFFF], not in [#xD800,#xDFFF]',
 				1);
 
-			return types.char( String.fromCharCode(jsnums.toFixnum(num)) );
+			return types['char']( String.fromCharCode(jsnums.toFixnum(num)) );
 		 });
 
 
@@ -16802,7 +16778,7 @@ PRIMITIVES['char-upcase'] =
 		 false, false,
 		 function(c) {
 		 	check(c, isChar, 'char-upcase', 'char', 1);
-			return types.char( c.val.toUpperCase() );
+			return types['char']( c.val.toUpperCase() );
 		 });
 
 
@@ -16812,7 +16788,7 @@ PRIMITIVES['char-downcase'] =
 		 false, false,
 		 function(c) {
 		 	check(c, isChar, 'char-downcase', 'char', 1);
-			return types.char( c.val.toLowerCase() );
+			return types['char']( c.val.toLowerCase() );
 		 });
 
 
@@ -18876,7 +18852,7 @@ PRIMITIVES['prim-js->scheme'] =
 			      'prim-js->scheme', 'javascript number, string, boolean, function, or array', 1);
 
 		 	if ( typeof(x.obj) === 'number' ) {
-				return types.float(x.obj);
+				return types['float'](x.obj);
 			}
 			else if ( typeof(x.obj) === 'string' || typeof(x.obj) === 'boolean' ) {
 				return x.obj;

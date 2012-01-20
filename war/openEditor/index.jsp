@@ -64,9 +64,9 @@
 
 
     <!-- mzscheme-vm evaluator -->
-    <script src="/js/mzscheme-vm/support.js"></script>
+    <script src="/js/mzscheme-vm/support-min.js"></script>
     <script src="/js/mzscheme-vm/evaluator.js"></script>
-    <script src="/js/mzscheme-vm/collections.js"></script>
+    <script src="/js/mzscheme-vm/collections-min.js"></script>
 
 
     <script src="/js/openEditor/openEditor-calc.js"></script>
