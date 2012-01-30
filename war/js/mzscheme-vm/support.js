@@ -16922,7 +16922,7 @@ PRIMITIVES['make-color'] =
 					                       jsnums.toFixnum(g),
 					                       jsnums.toFixnum(b),
 					                       jsnums.toFixnum(a));
-		                        }),
+		                        })
                           ]);
 
 PRIMITIVES['color-red'] =
