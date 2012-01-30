@@ -77,8 +77,32 @@ assert.equal = function(x, y) {
 		alert('AssertError: ' + x + ' equal ' + y);
 		throw new Error('AssertError: ' + x + ' equal ' + y);
 	}
-};
+}
 
+assert.deepEqual = function(x, y) {
+	if ( !deepEqual(x, y) ) {
+		alert('AssertError: ' + x + ' deepEqual ' + y);
+		throw new Error('AssertError: ' + x + ' deepEqual ' + y);
+	}
+}
+
+
+assert.ok = function(x) {
+	if (!x) {
+		alert('AssertError: not ok: ' + x);
+		throw new Error('AssertError: not ok: ' + x );
+	}
+}
+
+
+// assert.throws = function(f) {
+// 	try {
+// 		f.apply(null, []);
+// 	} catch (e) {
+// 		return;
+// 	}
+// 	throw new Error('AssertError: Throw expected, none received.');
+// }
 
 
 /*
@@ -8703,7 +8727,7 @@ var makeHashEqual = function(lst) {
 
 
 var Posn = makeStructureType('posn', false, 2, 0, false, false);
-var Color = makeStructureType('color', false, 3, 0, false, false);
+var Color = makeStructureType('color', false, 4, 0, false, false);
 var ArityAtLeast = makeStructureType('arity-at-least', false, 1, 0, false,
 		function(k, n, name) {
 			helpers.check(n, function(x) { return ( jsnums.isExact(x) &&
@@ -8743,10 +8767,16 @@ types.posn = Posn.constructor;
 types.posnX = function(psn) { return Posn.accessor(psn, 0); };
 types.posnY = function(psn) { return Posn.accessor(psn, 1); };
 
-types.color = Color.constructor;
+types.color = function(r, g, b, a) { 
+    if (a === undefined) {
+        a = 255;
+    }
+    return Color.constructor(r, g, b, a);
+};
 types.colorRed = function(x) { return Color.accessor(x, 0); };
 types.colorGreen = function(x) { return Color.accessor(x, 1); };
 types.colorBlue = function(x) { return Color.accessor(x, 2); };
+types.colorAlpha = function(x) { return Color.accessor(x, 3); };
 
 types.arityAtLeast = ArityAtLeast.constructor;
 types.arityValue = function(arity) { return ArityAtLeast.accessor(arity, 0); };
@@ -10288,6 +10318,7 @@ FileImage.installBrokenImage = function(path) {
 
 
 
+
 FileImage.prototype.render = function(ctx, x, y) {    
     ctx.drawImage(this.animationHackImg, x, y);
 };
@@ -11616,24 +11647,9 @@ colorDb.put("DIMGRAY", types.color(105, 105, 105));
 colorDb.put("BLACK", types.color(0, 0, 0));
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+var nameToColor = function(s) {
+    return colorDb.get('' + s);
+};
 
 
 
@@ -11654,6 +11670,7 @@ world.Kernel.isColor = function(thing) {
 	    ((types.isString(thing) || types.isSymbol(thing)) &&
 	     typeof(colorDb.get(thing)) != 'undefined'));
 };
+world.Kernel.nameToColor = nameToColor;
 world.Kernel.colorDb = colorDb;
 
 world.Kernel.sceneImage = function(width, height, children, withBorder) {
@@ -13085,6 +13102,7 @@ var isEqv = function(x, y) {
 var isImage = world.Kernel.isImage;
 var isScene = world.Kernel.isScene;
 var isColor = world.Kernel.isColor;
+var nameToColor = world.Kernel.nameToColor;
 var isFontFamily = function(x){
 	return ((isString(x) || isSymbol(x)) &&
 			(x.toString().toLowerCase() == "default" ||
@@ -15175,6 +15193,21 @@ PRIMITIVES['member'] =
 		 	return false;
 		 });
 
+PRIMITIVES['member?'] =
+    new PrimProc('member?',
+		 2,
+		 false, false,
+		 function(item, lst) {
+		 	checkList(lst, 'member?', 2, arguments);
+		 	while ( !lst.isEmpty() ) {
+		 		if ( isEqual(item, lst.first()) ) {
+		 			return true;
+		 		}
+		 		lst = lst.rest();
+		 	}
+		 	return false;
+		 });
+
 
 PRIMITIVES['memf'] =
     new PrimProc('memf',
@@ -16863,18 +16896,34 @@ PRIMITIVES['image=?'] =
 
 
 PRIMITIVES['make-color'] =
-    new PrimProc('make-color',
-		 3,
-		 false, false,
-		 function(r, g, b) {
-		 	check(r, isByte, 'make-color', 'number between 0 and 255', 1, arguments);
-		 	check(g, isByte, 'make-color', 'number between 0 and 255', 2, arguments);
-		 	check(b, isByte, 'make-color', 'number between 0 and 255', 3, arguments);
-
-			return types.color(jsnums.toFixnum(r),
-					   jsnums.toFixnum(g),
-					   jsnums.toFixnum(b));
-		 });
+        new CasePrimitive('make-color',
+                          [new PrimProc('make-color',
+		                        3,
+		                        false, false,
+		                        function(r, g, b) {
+		 	                    check(r, isByte, 'make-color', 'number between 0 and 255', 1, arguments);
+		 	                    check(g, isByte, 'make-color', 'number between 0 and 255', 2, arguments);
+		 	                    check(b, isByte, 'make-color', 'number between 0 and 255', 3, arguments);
+                                            
+			                    return types.color(jsnums.toFixnum(r),
+					                       jsnums.toFixnum(g),
+					                       jsnums.toFixnum(b));
+		                        }),
+                           new PrimProc('make-color',
+		                        4,
+		                        false, false,
+		                        function(r, g, b, a) {
+		 	                    check(r, isByte, 'make-color', 'number between 0 and 255', 1, arguments);
+		 	                    check(g, isByte, 'make-color', 'number between 0 and 255', 2, arguments);
+		 	                    check(b, isByte, 'make-color', 'number between 0 and 255', 3, arguments);
+		 	                    check(a, isByte, 'make-color', 'number between 0 and 255', 4, arguments);
+                                            
+			                    return types.color(jsnums.toFixnum(r),
+					                       jsnums.toFixnum(g),
+					                       jsnums.toFixnum(b),
+					                       jsnums.toFixnum(a));
+		                        }),
+                          ]);
 
 PRIMITIVES['color-red'] =
     new PrimProc('color-red',
@@ -16901,6 +16950,15 @@ PRIMITIVES['color-blue'] =
 		 function(col) {
 		 	check(col, types.isColor, 'color-blue', 'color', 1);
 			return types.colorBlue(col);
+		 });
+
+PRIMITIVES['color-alpha'] =
+    new PrimProc('color-alpha',
+		 1,
+		 false, false,
+		 function(col) {
+		 	check(col, types.isColor, 'color-alpha', 'color', 1);
+			return types.colorAlpha(col);
 		 });
 
 
@@ -17780,47 +17838,63 @@ PRIMITIVES['image->color-list'] =
 			 g = data[i+1];
 			 b = data[i+2];
 			 a = data[i+3];
-			 // FIXME: what to do about the alpha component?
-			 colors.push(types.color(r, g, b));
+			 colors.push(types.color(r, g, b, a));
 		     }
 		     return types.list(colors);
 		 });
+
+
+var colorListToImage = function(listOfColors, width, height, pinholeX, pinholeY) {
+    checkListOf(listOfColors, isColor, 'color-list->image', 'image', 1);
+    check(width, isNatural, 'color-list->image', 'natural', 2);
+    check(height, isNatural, 'color-list->image', 'natural', 3);
+    check(pinholeX, isNatural, 'color-list->image', 'natural', 4);
+    check(pinholeY, isNatural, 'color-list->image', 'natural', 5);
+    var canvas = world.Kernel.makeCanvas(jsnums.toFixnum(width),
+					 jsnums.toFixnum(height)),
+    ctx = canvas.getContext("2d"),
+    imageData = ctx.createImageData(jsnums.toFixnum(width),
+				    jsnums.toFixnum(height)),
+    data = imageData.data,
+    aColor, i = 0;
+    while (listOfColors !== types.EMPTY) {
+	aColor = listOfColors.first();
+	data[i] = jsnums.toFixnum(types.colorRed(aColor));
+	data[i+1] = jsnums.toFixnum(types.colorGreen(aColor));
+	data[i+2] = jsnums.toFixnum(types.colorBlue(aColor));
+	data[i+3] = jsnums.toFixnum(types.colorAlpha(aColor));
+
+	i += 4;
+	listOfColors = listOfColors.rest();
+    };
+
+    return world.Kernel.imageDataImage(imageData);
+};
 
 
 PRIMITIVES['color-list->image'] = 
     new PrimProc('color-list->image',
 		 5,
 		 false, false,
-		 function(listOfColors, width, height, pinholeX, pinholeY) {
-		     checkListOf(listOfColors, isColor, 'color-list->image', 'image', 1);
-		     check(width, isNatural, 'color-list->image', 'natural', 2);
-		     check(height, isNatural, 'color-list->image', 'natural', 3);
-		     check(pinholeX, isNatural, 'color-list->image', 'natural', 4);
-		     check(pinholeY, isNatural, 'color-list->image', 'natural', 5);
-		     var canvas = world.Kernel.makeCanvas(jsnums.toFixnum(width),
-							  jsnums.toFixnum(height)),
-		         ctx = canvas.getContext("2d"),
-   		         imageData = ctx.createImageData(jsnums.toFixnum(width),
-							 jsnums.toFixnum(height)),
-		         data = imageData.data,
-		         aColor, i = 0;
-		     while (listOfColors !== types.EMPTY) {
-			 aColor = listOfColors.first();
-			 data[i] = jsnums.toFixnum(types.colorRed(aColor));
-			 data[i+1] = jsnums.toFixnum(types.colorGreen(aColor));
-			 data[i+2] = jsnums.toFixnum(types.colorBlue(aColor));
-			 data[i+3] = 255; // alpha?
+		 colorListToImage);
 
-			 i += 4;
-			 listOfColors = listOfColors.rest();
-		     };
+PRIMITIVES['color-list->bitmap'] = 
+    new PrimProc('color-list->bitmap',
+		 3,
+		 false, false,
+		 function(colorList, width, height) {
+                     return colorListToImage(colorList, width, height, 0, 0);
+                 });
 
-		     return world.Kernel.imageDataImage(imageData);
-		 });
+
 
 
 PRIMITIVES['mode?']		= new PrimProc('mode?', 1, false, false, isMode);
-PRIMITIVES['image-color?'] = new PrimProc('image-color?', 1, false, false, isColor);
+PRIMITIVES['image-color?']      = new PrimProc('image-color?', 1, false, false, isColor);
+PRIMITIVES['name->color']       = new PrimProc('name->color?', 1, false, false,
+                                               function(x) { 
+                                                   return nameToColor(x) || false; 
+                                               });
 PRIMITIVES['x-place?']		= new PrimProc('x-place?', 1, false, false, isPlaceX);
 PRIMITIVES['y-place?']		= new PrimProc('y-place?', 1, false, false, isPlaceY);
 PRIMITIVES['angle?']		= new PrimProc('angle?', 1, false, false, isAngle);
