@@ -343,11 +343,12 @@
     
     <% if (isEmbedded) { %>
     // If we're in embedded mode, start up a socket for cross domain messaging support.
-    var socket = new easyXDM.Socket({ onMessage: function(message, origin) {
-                                      },
-                                      local: "/js/easyXDM/name.html",
-                                      swf: "/js/easyXDM/easyxdm.swf",
-                                    });
+    var rpc = new easyXDM.Rpc({ local: "/js/easyXDM/name.html",
+                                swf: "/js/easyXDM/easyxdm.swf",
+                              },
+                              { local : { run : function(onSuccess) {
+                                                myEditor.run(onSuccess);
+                                                }}});
    <% } %>
   </script>
 

@@ -12,13 +12,11 @@
 
 <script src="/js/easyXDM/easyXDM.min.js"></script>
 <script>
-    var socket = new easyXDM.Socket({ remote: "/openEditor?embedded=true",
-                                      container: "mydiv",
-                                      props: {style: {width: "100%", height: "100%"}},
-                                      onMessage: function(message, origin) {
-                                      },
-                                    });
-    socket.postMessage("Hello world");
+    var rpc = new easyXDM.Rpc({ remote: "/openEditor?embedded=true",
+                                   container: "mydiv",
+                                   props: {style: {width: "100%", height: "100%"}},
+                                 },
+                                 {remote : { run : {} }});
 </script>
 
 <body>
