@@ -165,6 +165,7 @@ var initializeEditor;
 	var splitPaneSetup = function(attrs) {
 		if (attrs.hideDefinitions) {
 			document.getElementById("interactions").style.height = "100%";
+			document.getElementById("definitions").style.display = "none";
 			return;
 		}
 

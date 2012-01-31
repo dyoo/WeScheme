@@ -5,6 +5,7 @@
 #mydiv {
     width: 80%;
     height: 500px;
+    border: 1px solid black;
 }
 </style>
 
@@ -12,11 +13,12 @@
 
 <script src="/js/easyXDM/easyXDM.min.js"></script>
 <script>
-    var rpc = new easyXDM.Rpc({ remote: "/openEditor?embedded=true",
+    var rpc = new easyXDM.Rpc({ remote: "/openEditor?embedded=true&hideHeader=true&hideFooter=true",
                                    container: "mydiv",
                                    props: {style: {width: "100%", height: "100%"}},
                                  },
-                                 {remote : { run : {} }});
+                                 {remote : { run : {},
+                                             requestBreak : {} }});
 </script>
 
 <body>

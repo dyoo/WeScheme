@@ -433,6 +433,14 @@ var WeSchemeEditor;
 		if (after) { after(); }
 	    });
     };
+    
+    WeSchemeEditor.prototype.getDefinitionsText = function() {
+        return this.defn.getCode();
+    };
+
+    WeSchemeEditor.prototype.setDefinitionsText = function(v) {
+        this.defn.setCode(v);
+    };
 
     WeSchemeEditor.prototype.requestBreak = function() {
 	this.interactions.requestBreak();

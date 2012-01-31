@@ -82,21 +82,17 @@
 
     <script>
       jQuery(document).ready(function() {
-          var userName, pid, publicId, hideHeader, hideFooter, hideDefinitions,
-              warnOnExit, interactionsText, autorunDefinitions;
+          var userName, pid, publicId, hideHeader, hideFooter, hideDefinitions, hideInteractions,
+              warnOnExit, interactionsText, autorunDefinitions, isEmbedded;
           userName = pid = publicId = interactionsText = null;
           hideDefinitions = false;
+          hideInteractions = false;
           autorunDefinitions = false;
           hideHeader = false;
           hideFooter = false;
           warnOnExit = true;
+          isEmbedded = false;
       
-          <%
-             if (request.getParameter("embedded") != null &&
-                 request.getParameter("embedded").equals("true")) {
-	     isEmbedded = true;
-             }
-          %>
 
 
           userName = "<%= userSession != null? userSession.getName() : null %>";
@@ -117,6 +113,11 @@
 	     hideDefinitions = true;
           <% } %>
 
+          <% if (request.getParameter("hideInteractions") != null &&
+                 request.getParameter("hideInteractions").equals("true")) { %>
+	     hideInteractions = true;
+          <% } %>
+
           <% if (request.getParameter("warnOnExit") != null &&
                  request.getParameter("warnOnExit").equals("false")) { %>
 	     warnOnExit = false;
@@ -135,7 +136,6 @@
 
 
 
-
           <% if (request.getParameter("pid") != null) { %>
 	      pid = decodeURIComponent('<%= java.net.URLEncoder.encode(request.getParameter("pid"), "utf-8") %>');
 	  <% } else if (request.getParameter("publicId") != null){ %>
@@ -143,12 +143,23 @@
 	  <% } else { %>
 	  <% } %>
 
+
+          <%
+             if (request.getParameter("embedded") != null &&
+                 request.getParameter("embedded").equals("true")) {
+	     isEmbedded = true;
+             }
+          %>
+          isEmbedded = <%= isEmbedded %>; // expose it on the JavaScript side too.
+
+
           initializeEditor({userName: userName,
                             pid : pid, 
                             publicId: publicId,
 	                    hideHeader: hideHeader,
 	                    hideFooter: hideFooter,
 	                    hideDefinitions: hideDefinitions,
+	                    hideInteractions: hideInteractions,
 	                    warnOnExit: warnOnExit,
 	                    initialInteractionsText: interactionsText,
 	                    autorunDefinitions: autorunDefinitions });
@@ -347,8 +358,19 @@
                                 swf: "/js/easyXDM/easyxdm.swf",
                               },
                               { local : { run : function(onSuccess) {
-                                                myEditor.run(onSuccess);
-                                                }}});
+                                                    myEditor.run(onSuccess);
+                                                },
+                                          requestBreak : function(onSuccess) {
+                                                              myEditor.requestBreak();
+                                                              onSuccess(); 
+                                                         },
+                                          getDefinitionsText : function(onSuccess) {
+                                                                   onSuccess(myEditor.getDefinitionsText());
+                                                               },
+                                          setDefinitionsText : function(v, onSuccess) {
+                                                                   myEditor.setDefinitionsText(v);
+                                                                   onSuccess();
+                                                               }}});
    <% } %>
   </script>
 
