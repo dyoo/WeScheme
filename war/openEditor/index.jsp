@@ -146,7 +146,9 @@
 
           <%
              if (request.getParameter("embedded") != null &&
-                 request.getParameter("embedded").equals("true")) {
+                 request.getParameter("embedded").equals("true") &&
+                 // embedded mode is not allowed when pid has been provided.
+                 request.getParameter("pid") == null) {
 	     isEmbedded = true;
              }
           %>
