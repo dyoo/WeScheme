@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+#mydiv {
+    width: 80%;
+    height: 500px;
+}
+</style>
+
+</head>
+
+<script src="/js/easyXDM/easyXDM.min.js"></script>
+<script>
+    var socket = new easyXDM.Socket({ remote: "/openEditor?embedded=true",
+                                      container: "mydiv",
+                                      props: {style: {width: "100%", height: "100%"}},
+                                      onMessage: function(message, origin) {
+                                      },
+                                    });
+    socket.postMessage("Hello world");
+</script>
+
+<body>
+<h1>Test</h1>
+<div id="mydiv">
+</div>
+</body>
+
+</html>

@@ -25,7 +25,6 @@
 	  id="style" />
 
 
-
     <!-- JQuery -->
     <script src="/editor/jquery.js"></script>
     <script src="/js/jquery/jquery-ui-1.7.3.custom.min.js"></script>
@@ -76,7 +75,8 @@
     <%
        org.wescheme.user.Session userSession = 
        (new org.wescheme.user.SessionManager()).authenticate(request, response); 
-       
+
+       boolean isEmbedded = false;       
        %>
 
 
@@ -91,7 +91,14 @@
           hideFooter = false;
           warnOnExit = true;
       
-      
+          <%
+             if (request.getParameter("embedded") != null &&
+                 request.getParameter("embedded").equals("true")) {
+	     isEmbedded = true;
+             }
+          %>
+
+
           userName = "<%= userSession != null? userSession.getName() : null %>";
 
           <% if (request.getParameter("hideHeader") != null &&
@@ -315,6 +322,16 @@
 
   </body>
 
+
+  <% if (isEmbedded) { %>
+  <!-- EasyXDM and json -->
+  <script src="/js/easyXDM/easyXDM.min.js"></script>
+  <script type="text/javascript">
+    easyXDM.DomHelper.requiresJSON("/json2.min.js");
+  </script>
+  <% } %>
+
+
   <script>
     var widget;
     jQuery(document).ready(function() {
@@ -324,6 +341,14 @@
     jQuery("#designrecipebutton").bind("click", function(e) { e.preventDefault(); e.stopPropagation(); widget.showWidget(); });
     });
     
+    <% if (isEmbedded) { %>
+    // If we're in embedded mode, start up a socket for cross domain messaging support.
+    var socket = new easyXDM.Socket({ onMessage: function(message, origin) {
+                                      },
+                                      local: "/js/easyXDM/name.html",
+                                      swf: "/js/easyXDM/easyxdm.swf",
+                                    });
+   <% } %>
   </script>
 
 
