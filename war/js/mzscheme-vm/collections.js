@@ -22475,7 +22475,7 @@ COLLECTIONS["bootstrap2012/bootstrap-teachpack"] = { 'name': "bootstrap2012/boot
 } ,"then":{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/bootstrap-teachpack",6140,137,10,71])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":1 ,"pos":229 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"constant" ,"value":"http:www.wescheme.org/images/teachpacks2012/gameover.png"
+} ,"rands":[{"$":"constant" ,"value":"http://www.wescheme.org/images/teachpacks2012/gameover.png"
 }
 ]
 }
