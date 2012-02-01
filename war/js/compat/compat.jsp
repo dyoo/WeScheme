@@ -30,13 +30,13 @@
 
 <!-- Add bindings for the canvas-text compatibility library. -->
 
-<script src="/js/compat/canvas-text/canvas.text.js"></script>
+<script src="/js/compat/canvas-text/canvas.text-min.js"></script>
 <script src="/js/compat/canvas-text/faces/optimer-normal-normal.js"></script>
 
 
 
 
 <!-- Compatibility for XMLHttpRequest -->
-<script src="/js/compat/XMLHttpRequest.js"></script>
+<script src="/js/compat/XMLHttpRequest-min.js"></script>
 
 
