@@ -9,7 +9,7 @@
 
 
 <!--[if lt IE 9]>
-<script src="/js/compat/IE9.js"></script>
+<script type="text/javascript" src="/js/compat/IE9.js"></script>
 <![endif]-->
 
 
@@ -30,13 +30,13 @@
 
 <!-- Add bindings for the canvas-text compatibility library. -->
 
-<script src="/js/compat/canvas-text/canvas.text-min.js"></script>
-<script src="/js/compat/canvas-text/faces/optimer-normal-normal.js"></script>
+<script src="/js/compat/canvas-text/canvas.text-min.js" type="text/javascript"></script>
+<script src="/js/compat/canvas-text/faces/optimer-normal-normal.js" type="text/javascript"></script>
 
 
 
 
 <!-- Compatibility for XMLHttpRequest -->
-<script src="/js/compat/XMLHttpRequest-min.js"></script>
+<script src="/js/compat/XMLHttpRequest-min.js" type="text/javascript"></script>
 
 
