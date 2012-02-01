@@ -41,9 +41,9 @@
 <jsp:include page="/google-analytics.jsp"/>
 
 
-<script src="/editor/jquery.js"></script>
-<script src="/js/submitpost.js"></script>
-<script src="/js/view-calc.js"></script>
+<script src="/js/jquery/jquery-1.3.2-min.js" type="text/javascript"></script>
+<script src="/js/submitpost.js" type="text/javascript"></script>
+<script src="/js/view-calc.js" type="text/javascript"></script>
 </head>
 
 
@@ -55,7 +55,7 @@
 
 
 <% if (aProgram == null) { %>
-<script>
+<script type="text/javascript">
 alert("Unable to load program");
 </script>
 <div>
