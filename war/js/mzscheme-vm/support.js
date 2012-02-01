@@ -9007,6 +9007,9 @@ var defaultToplevelNodeHook = function() {
     throw new Error("There is a software configuration error by the system's maintainer: the toplevel node has not been initialized yet.");
 };
 
+var defaultDynamicModuleLoader = function(moduleName, successCallback, errorCallback){ 
+    errorCallback(moduleName +" not known"); 
+};
 
 
 // Interpreter
@@ -9019,7 +9022,9 @@ var State = function() {
     this.hooks = { printHook: defaultPrintHook,
 		   displayHook: defaultPrintHook,
 		   toplevelNodeHook: defaultToplevelNodeHook,
-		   imageProxyHook: false};
+		   imageProxyHook: false,
+                   dynamicModuleLoader: defaultDynamicModuleLoader
+                 };
 
     this.invokedModules = {};
 
@@ -19447,15 +19452,40 @@ RequireControl.prototype.invoke = function(state) {
 	    // Already invoked.
 	    restart(types.VOID);
 	} else {
-	    // KLUDGE
-	    if (typeof(COLLECTIONS) !== 'undefined' &&
-		COLLECTIONS[that.name]) {
-		var moduleRecord = COLLECTIONS[that.name];
+            // Otherwise, try to load and invoke it.
+
+            // If has already been loaded, just invoke.
+            var isLoaded = function(name) {
+                return typeof(window.COLLECTIONS) !== 'undefined' && window.COLLECTIONS[name]
+            };
+            var doTheInvoke = function() {
+		var moduleRecord = window.COLLECTIONS[that.name];
 		invokeModuleAndRestart(state, moduleRecord, restart);
+            };
+            var raiseTheError = function() { 
+                restart(types.schemeError(
+		    types.incompleteExn(types.exn,
+                                        "unable to load " + that.name +
+			                ": it isn't in the set of known collections",
+                                       [])));
+            };
+
+	    if (isLoaded(that.name)){
+                doTheInvoke();
 	    } else {
-		restart(types.schemeError(
-		    types.exn("unable to load " + that.name +
-			      ": it isn't in the set of known collections")));
+                // But if it hasn't been loaded, we must do that first, and then
+                // invoke.
+                // dynamic module loader:
+                state.hooks.dynamicModuleLoader(
+                    that.name,
+                    function() {
+                        if (isLoaded(that.name)) {
+                            doTheInvoke();
+                        } else {
+                            raiseTheError();
+                        }
+                    },
+                    raiseTheError);
 	    }
 	}
     };

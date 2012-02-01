@@ -24,6 +24,9 @@
     <link rel="stylesheet" type="text/css" href="/css/codemirror.css"
 	  id="style" />
 
+    <!-- dynamic script loading -->
+    <script src="/js/loadScript.js"></script>
+
 
     <!-- JQuery -->
     <script src="/editor/jquery.js"></script>
@@ -65,8 +68,6 @@
     <!-- mzscheme-vm evaluator -->
     <script src="/js/mzscheme-vm/support-min.js"></script>
     <script src="/js/mzscheme-vm/evaluator-min.js"></script>
-    <script src="/js/mzscheme-vm/collections-min.js"></script>
-
 
     <script src="/js/openEditor/openEditor-calc.js"></script>
 

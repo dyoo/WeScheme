@@ -375,6 +375,13 @@ WeSchemeInteractions = (function () {
             return innerArea.get(0);
         };
 	evaluator.setImageProxy("/imageProxy");
+        evaluator.setRootLibraryPath("/js/mzscheme-vm/collects");
+        evaluator.setDynamicModuleLoader = function(aName, onSuccess, onFail) {
+            loadScript(this.rootLibraryPath + "/" + aName + "-min.js",
+                       onSuccess,
+                       onFail);
+        };
+
         return evaluator;
     };
 

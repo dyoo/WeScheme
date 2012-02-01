@@ -27,12 +27,10 @@
 <script src="/editor/jquery.createdomnodes.js"></script>
 <script src="/js/mzscheme-vm/support-min.js"></script>
 <script src="/js/mzscheme-vm/evaluator-min.js"></script>
-<script src="/js/mzscheme-vm/collections-min.js"></script>
-
+<script src="/js/loadScript.js"></script>
 
 
 <script>
-
 var Runner = function(interactionsDiv) {
     var that = this;
     this.interactionsDiv = jQuery(interactionsDiv);
@@ -43,6 +41,12 @@ var Runner = function(interactionsDiv) {
 	    compilationServletUrl: "<%= compilationServerUrl %>"
 	});
     this.evaluator.setImageProxy("/imageProxy");
+    this.evaluator.setRootLibraryPath("/js/mzscheme-vm/collects");
+    this.evaluator.setDynamicModuleLoader = function(aName, onSuccess, onFail) {
+        loadScript(this.rootLibraryPath + "/" + aName + "-min.js",
+                   onSuccess,
+                   onFail);
+    };
 };
 
 
