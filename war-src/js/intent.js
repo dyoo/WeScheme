@@ -38,7 +38,7 @@ var WeSchemeIntentBus = (function() {
 	    try {
 		this.listeners[i].apply(this, ["notify", category, data]);
 	    } catch (e) {
-		debugLog(e);
+                // Ignore quietly.
 	    }
 	}
     };

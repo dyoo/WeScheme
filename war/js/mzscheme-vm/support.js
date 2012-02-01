@@ -12409,14 +12409,14 @@ world.Kernel.isFileVideo	= function(x) { return x instanceof FileVideo; };
 	shutdownUserConfigs(function() {
 //		console.log('Got an error, the error was:');
 //		console.log(e);
-		if (typeof(console) !== 'undefined' && console.log) {
-			if (e.stack) {
-				console.log(e.stack);
-			}
-			else {
-				console.log(e);
-			}
-		}
+		// if (typeof(console) !== 'undefined' && console.log) {
+		// 	if (e.stack) {
+		// 		console.log(e.stack);
+		// 	}
+		// 	else {
+		// 		console.log(e);
+		// 	}
+		// }
 		if ( types.isSchemeError(e) ) {
 			terminator(e);
 		}
@@ -12443,9 +12443,9 @@ world.Kernel.isFileVideo	= function(x) { return x instanceof FileVideo; };
 	    try {
 		updater(w, k2);
 	    } catch (e) {
-		if (typeof(console) !== 'undefined' && console.log && e.stack) {
-			    console.log(e.stack);
-		    }
+		// if (typeof(console) !== 'undefined' && console.log && e.stack) {
+		// 	    console.log(e.stack);
+		//     }
 		handleError(e);
 //		k2(w);
 	    }
@@ -12493,9 +12493,9 @@ world.Kernel.isFileVideo	= function(x) { return x instanceof FileVideo; };
 				});
 //			});
 	    } catch (e) {
-		if (typeof(console) !== 'undefined' && console.log && e.stack) {
-			    console.log(e.stack);
-		    }
+		// if (typeof(console) !== 'undefined' && console.log && e.stack) {
+		// 	    console.log(e.stack);
+		//     }
 		handleError(e);
 //		k(w);
 	    }

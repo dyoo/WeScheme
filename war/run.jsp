@@ -42,11 +42,11 @@ var Runner = function(interactionsDiv) {
 	});
     this.evaluator.setImageProxy("/imageProxy");
     this.evaluator.setRootLibraryPath("/js/mzscheme-vm/collects");
-    this.evaluator.setDynamicModuleLoader = function(aName, onSuccess, onFail) {
+    this.evaluator.setDynamicModuleLoader(function(aName, onSuccess, onFail) {
         loadScript(this.rootLibraryPath + "/" + aName + "-min.js",
                    onSuccess,
                    onFail);
-    };
+    });
 };
 
 

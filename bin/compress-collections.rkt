@@ -10,7 +10,8 @@
 (define js-files (find-files
                   (lambda (p)
                     (and (file-exists? p)
-                         (regexp-match #px".js$" (path->string (file-name-from-path p)))))
+                         (regexp-match #px".js$" (path->string (file-name-from-path p)))
+                         (not (regexp-match #px"-min.js$" (path->string (file-name-from-path p))))))
                   (simplify-path mzscheme-vm)))
 
 (for ([file js-files])

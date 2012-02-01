@@ -39,7 +39,6 @@
 
 
     <script src="/safeSubmit.js"></script>
-    <script src="/editor/debug.js"></script>
 
     <script src="/js/flapjax-2.0.1.compressed.js"></script>
     <script src="/js/flapjax-helpers.js"></script>

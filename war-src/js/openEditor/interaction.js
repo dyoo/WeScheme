@@ -376,11 +376,11 @@ WeSchemeInteractions = (function () {
         };
 	evaluator.setImageProxy("/imageProxy");
         evaluator.setRootLibraryPath("/js/mzscheme-vm/collects");
-        evaluator.setDynamicModuleLoader = function(aName, onSuccess, onFail) {
+        evaluator.setDynamicModuleLoader(function(aName, onSuccess, onFail) {
             loadScript(this.rootLibraryPath + "/" + aName + "-min.js",
                        onSuccess,
                        onFail);
-        };
+        });
 
         return evaluator;
     };
