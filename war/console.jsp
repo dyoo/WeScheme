@@ -30,21 +30,21 @@
 
 
     <!-- JQuery -->
-    <script src="/editor/jquery.js"></script>
-    <script src="/js/jquery/jquery-ui-1.7.3.custom.min.js"></script>
+    <script src="/editor/jquery.js" type="text/javascript"></script>
+    <script src="/js/jquery/jquery-ui-1.7.3.custom.min.js" type="text/javascript"></script>
 
 
 <!-- JQuery UI style sheet -->
 <link rel="stylesheet" type="text/css" href="/css/jquery-ui.css"/>
 
 
-<script src="editor/jquery.createdomnodes.js"></script>
-<script src="safeSubmit.js"></script>
-<script src="/js/submitpost.js"></script>
+<script src="editor/jquery.createdomnodes.js" type="text/javascript"></script>
+<script src="safeSubmit.js" type="text/javascript"></script>
+<script src="/js/submitpost.js" type="text/javascript"></script>
 
 
 
-<script src="/js/console-calc.js"></script>
+<script src="/js/console-calc.js" type="text/javascript"></script>
 
 
 </head>

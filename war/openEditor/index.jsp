@@ -25,12 +25,12 @@
 	  id="style" />
 
     <!-- dynamic script loading -->
-    <script src="/js/loadScript.js"></script>
+    <script src="/js/loadScript.js" type="text/javascript"></script>
 
 
     <!-- JQuery -->
-    <script src="/editor/jquery.js"></script>
-    <script src="/js/jquery/jquery-ui-1.7.3.custom.min.js"></script>
+    <script src="/editor/jquery.js" type="text/javascript"></script>
+    <script src="/js/jquery/jquery-ui-1.7.3.custom.min.js" type="text/javascript"></script>
 
 
 
@@ -38,16 +38,16 @@
     <link rel="stylesheet" type="text/css" href="/css/jquery-ui.css"/>
 
 
-    <script src="/safeSubmit.js"></script>
+    <script src="/safeSubmit.js" type="text/javascript"></script>
 
-    <script src="/js/flapjax-2.0.1.compressed.js"></script>
-    <script src="/js/flapjax-helpers.js"></script>
-    <script src="/js/jquery/jquery.createdomnodes.js"></script>
-    <script src="/js/jquery/jquery.center-in-client.js"></script>
-    <script src="/js/jquery/jquery.blockUI.js"></script>
+    <script src="/js/flapjax-2.0.1.compressed.js" type="text/javascript"></script>
+    <script src="/js/flapjax-helpers.js" type="text/javascript"></script>
+    <script src="/js/jquery/jquery.createdomnodes.js" type="text/javascript"></script>
+    <script src="/js/jquery/jquery.center-in-client.js" type="text/javascript"></script>
+    <script src="/js/jquery/jquery.blockUI.js" type="text/javascript"></script>
     
-    <script src="/js/codemirror2/lib/codemirror-min.js"></script>
-    <script src="/js/codemirror2-contrib/scheme2/scheme2-min.js"></script>
+    <script src="/js/codemirror2/lib/codemirror-min.js" type="text/javascript"></script>
+    <script src="/js/codemirror2-contrib/scheme2/scheme2-min.js" type="text/javascript"></script>
     <link rel="stylesheet" type="text/css" href="/js/codemirror2/lib/codemirror.css"></link>
     <link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors.css"></link>
     <link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors-interactive.css"></link>
@@ -56,19 +56,19 @@
 
 
     <!-- Design recipe widget stuff -->
-    <script src="/widget/js/DRwidget.js"></script>
+    <script src="/widget/js/DRwidget.js" type="text/javascript"></script>
     <link rel="stylesheet" type="text/css" href="/widget/css/editor.css"></link>
 
 
     
-    <script src="/js/submitpost.js"></script>
+    <script src="/js/submitpost.js" type="text/javascript"></script>
 
 
     <!-- mzscheme-vm evaluator -->
-    <script src="/js/mzscheme-vm/support-min.js"></script>
-    <script src="/js/mzscheme-vm/evaluator-min.js"></script>
+    <script src="/js/mzscheme-vm/support-min.js" type="text/javascript"></script>
+    <script src="/js/mzscheme-vm/evaluator-min.js" type="text/javascript"></script>
 
-    <script src="/js/openEditor/openEditor-calc.js"></script>
+    <script src="/js/openEditor/openEditor-calc.js" type="text/javascript"></script>
 
 
 
@@ -80,7 +80,7 @@
        %>
 
 
-    <script>
+    <script type="text/javascript">
       jQuery(document).ready(function() {
           var userName, pid, publicId, hideHeader, hideFooter, hideDefinitions, hideInteractions,
               warnOnExit, interactionsText, autorunDefinitions, isEmbedded;
@@ -338,14 +338,14 @@
 
   <% if (isEmbedded) { %>
   <!-- EasyXDM and json -->
-  <script src="/js/easyXDM/easyXDM.min.js"></script>
+  <script src="/js/easyXDM/easyXDM.min.js" type="text/javascript"></script>
   <script type="text/javascript">
     easyXDM.DomHelper.requiresJSON("/json2.min.js");
   </script>
   <% } %>
 
 
-  <script>
+  <script type="text/javascript">
     var widget;
     jQuery(document).ready(function() {
     widget = initializeWidget(myEditor.defn.impl.editor,

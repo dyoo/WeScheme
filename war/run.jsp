@@ -23,14 +23,14 @@
 <jsp:include page="/js/compat/compat.jsp"/>
 
 
-<script src="/editor/jquery.js"></script>
-<script src="/editor/jquery.createdomnodes.js"></script>
-<script src="/js/mzscheme-vm/support-min.js"></script>
-<script src="/js/mzscheme-vm/evaluator-min.js"></script>
-<script src="/js/loadScript.js"></script>
+<script src="/editor/jquery.js" type="text/javascript"></script>
+<script src="/editor/jquery.createdomnodes.js" type="text/javascript"></script>
+<script src="/js/mzscheme-vm/support-min.js" type="text/javascript"></script>
+<script src="/js/mzscheme-vm/evaluator-min.js" type="text/javascript"></script>
+<script src="/js/loadScript.js" type="text/javascript"></script>
 
 
-<script>
+<script type="text/javascript">
 var Runner = function(interactionsDiv) {
     var that = this;
     this.interactionsDiv = jQuery(interactionsDiv);
