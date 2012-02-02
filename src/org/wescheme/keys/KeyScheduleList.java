@@ -63,7 +63,6 @@ public class KeyScheduleList implements Serializable {
 	public static KeyScheduleList getInstance() {		
 		KeyScheduleList ksFromCache = getKeyScheduleFromCache();
 		if (ksFromCache != null) {
-			System.out.println("KeyScheduleList from cache");
 			return ksFromCache;
 		}
 
@@ -72,7 +71,6 @@ public class KeyScheduleList implements Serializable {
 		try {	
 			KeyScheduleList ksFromDb = getKeyScheduleListFromDatabase(pm);
 			if (ksFromDb != null) {
-				System.out.println("KeyScheduleList from db");
 				Cache cache = CacheHelpers.getCache();
 				if (cache != null) {
 					cache.put("keySchedule", ksFromDb);
@@ -80,7 +78,6 @@ public class KeyScheduleList implements Serializable {
 				return ksFromDb;
 			}
 		
-			System.out.println("KeyScheduleList from scratch");
 			KeyScheduleList freshKsl = new KeyScheduleList();
 			pm.makePersistent(freshKsl);
 			Cache cache = CacheHelpers.getCache();

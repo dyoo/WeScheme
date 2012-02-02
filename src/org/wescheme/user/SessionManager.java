@@ -55,8 +55,8 @@ public class SessionManager {
         try { 
             Token userToken	 = (Token) Cookies.getDecodedCookie(req.getCookies(), "token");
             Session userSession = (Session) Cookies.getDecodedCookie(req.getCookies(), "session");
-            System.out.println("authenticate: token=" + userToken);
-            System.out.println("authenticate: session=" + userSession);
+            // System.out.println("authenticate: token=" + userToken);
+            // System.out.println("authenticate: session=" + userSession);
             if (userToken == null || userSession == null) {
                 logger.info("missing credentials: returning null session.");
                 return null;

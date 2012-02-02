@@ -81,7 +81,7 @@ public class ConfirmationServlet extends HttpServlet  {
 			msg.setText(msgBody);
 			Transport.send(msg); 
 			
-			System.out.println("Sending mail to " + addy);
+			// System.out.println("Sending mail to " + addy);
 			
 			} catch (AddressException e) {
 				e.printStackTrace();
