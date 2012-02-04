@@ -1,22 +1,30 @@
+#!/usr/bin/env racket
 #lang racket/base
 (require racket/runtime-path
          racket/path
          racket/file
+         racket/cmdline
          (planet dyoo/closure-compile))
 
 ;; This program compresses all of the JavaScript files using Closure Compiler,
 ;; with simple optimizations.  All ".js" files (excluding the -min.js files)
 ;; get compressed here.
 
-(define-runtime-path mzscheme-vm "../war/js/mzscheme-vm/collects")
+;(define-runtime-path mzscheme-vm "../war/js/mzscheme-vm/collects")
 ;(define-runtime-path mzscheme-vm "../war/js")
+(define path (current-directory))
+
+(void (command-line #:args (p) (set! path p)))
+
+
+
 
 (define js-files (find-files
                   (lambda (p)
                     (and (file-exists? p)
                          (regexp-match #px".js$" (path->string (file-name-from-path p)))
                          (not (regexp-match #px"-min.js$" (path->string (file-name-from-path p))))))
-                  (simplify-path mzscheme-vm)))
+                  (simplify-path path)))
 
 ;; out-of-date?: path path -> boolean
 ;; Returns true if the target file looks at least as new as the source file.

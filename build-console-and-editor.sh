@@ -54,4 +54,4 @@ java -jar "$CompilerJarPath" --compilation_level=SIMPLE_OPTIMIZATIONS <war/js/co
 echo "Compressing mzscheme-vm runtime libraries"
 java -jar "$CompilerJarPath" --compilation_level=SIMPLE_OPTIMIZATIONS <war/js/mzscheme-vm/support.js >war/js/mzscheme-vm/support-min.js
 java -jar "$CompilerJarPath" --compilation_level=SIMPLE_OPTIMIZATIONS <war/js/mzscheme-vm/evaluator.js >war/js/mzscheme-vm/evaluator-min.js
-racket bin/compress-collections.rkt
+racket bin/compress-js.rkt war/js
