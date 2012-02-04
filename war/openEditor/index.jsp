@@ -52,8 +52,6 @@
     <link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors.css"></link>
     <link rel="stylesheet" type="text/css" href="/js/codemirror2-contrib/scheme2/schemecolors-interactive.css"></link>
     <link rel="stylesheet" type="text/css" href="/css/definitions.css"></link>
-        
-
 
     <!-- Design recipe widget stuff -->
     <script src="/widget/js/DRwidget.js" type="text/javascript"></script>
