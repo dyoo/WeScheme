@@ -1,7 +1,6 @@
 #!/usr/bin/env racket
 #lang racket/base
-(require racket/runtime-path
-         racket/path
+(require racket/path
          racket/file
          racket/cmdline
          (planet dyoo/closure-compile))
@@ -10,14 +9,7 @@
 ;; with simple optimizations.  All ".js" files (excluding the -min.js files)
 ;; get compressed here.
 
-;(define-runtime-path mzscheme-vm "../war/js/mzscheme-vm/collects")
-;(define-runtime-path mzscheme-vm "../war/js")
-(define path (current-directory))
-
-(void (command-line #:args (p) (set! path p)))
-
-
-
+(define path (command-line #:args (p) p))
 
 (define js-files (find-files
                   (lambda (p)
