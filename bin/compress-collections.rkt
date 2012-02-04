@@ -4,8 +4,12 @@
          racket/file
          (planet dyoo/closure-compile))
 
+;; This program compresses all of the JavaScript files using Closure Compiler,
+;; with simple optimizations.  All ".js" files (excluding the -min.js files)
+;; get compressed here.
 
 (define-runtime-path mzscheme-vm "../war/js/mzscheme-vm/collects")
+;(define-runtime-path mzscheme-vm "../war/js")
 
 (define js-files (find-files
                   (lambda (p)
@@ -14,9 +18,22 @@
                          (not (regexp-match #px"-min.js$" (path->string (file-name-from-path p))))))
                   (simplify-path mzscheme-vm)))
 
+;; out-of-date?: path path -> boolean
+;; Returns true if the target file looks at least as new as the source file.
+(define (out-of-date? source-file target-file)
+  (cond
+   [(not (file-exists? target-file))
+    #t]
+   [else
+    (>= (file-or-directory-modify-seconds source-file)
+        (file-or-directory-modify-seconds target-file))]))
+     
 (for ([file js-files])
-   (define text (file->string file))
-   (define compressed (closure-compile text))
    (define new-path (regexp-replace #px".js$" (path->string file) "-min.js"))
-   (printf "Compressing ~s to ~s\n" (path->string file) new-path)
-   (call-with-output-file new-path (lambda (op) (display compressed op)) #:exists 'replace))
+   (cond [(out-of-date? file new-path)
+          (printf "Compressing ~s\n" (path->string file))
+          (define text (file->string file))
+          (define compressed (closure-compile text))
+          (call-with-output-file new-path (lambda (op) (display compressed op)) #:exists 'replace)]
+         [else
+          (printf "Skipping ~s: up to date\n" file)]))
