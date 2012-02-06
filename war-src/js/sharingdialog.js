@@ -89,17 +89,6 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
 				   plt.wescheme.WeSchemeIntentBus.notify(
 				       "after-share", that);
                                    
-                                   if (errMessage !== false) {
-				       newDialog.append(
-				           jQuery("<p/>")
-					       .text("Unfortunately, the program could not be built due to the following reason: " + errMessage));
-                                       if (isPublic) {
-				           newDialog.append(
-				               jQuery("<p/>")
-					           .text("Although it won't run, its source can still be viewed."));
-                                       }
-                                   }
-
 				   newDialog.append(
 				       jQuery("<p/>")
 					   .text("Program has been shared: "));
@@ -108,6 +97,24 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
 					   sharedProgram.find("publicId").text()));
 				   anchor.target = "_blank";
 				   newDialog.append(jQuery(anchor));
+
+                                   // Add error message content if something weird happened during the build.
+                                   if (errMessage !== false) {
+				       newDialog.append(
+				           jQuery("<p/>")
+					       .text("However, the program won't be able to run because of the following: "));
+                                       newDialog.append(
+                                           jQuery("<tt/>")
+                                               .css("color", "red")
+                                               .text(errMessage));
+                                       if (isPublic) {
+				           newDialog.append(
+				               jQuery("<p/>")
+					           .text("Although it won't run, its source can still be viewed."));
+                                       }
+                                   }
+
+
 				   newDialog.dialog("open");
 
 			       },
