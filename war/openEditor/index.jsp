@@ -25,7 +25,7 @@
 	  id="style" />
 
     <!-- dynamic script loading -->
-    <script src="/js/loadScript.js" type="text/javascript"></script>
+    <script src="/js/loadScript-min.js" type="text/javascript"></script>
 
 
     <!-- JQuery -->
@@ -38,13 +38,13 @@
     <link rel="stylesheet" type="text/css" href="/css/jquery-ui.css"/>
 
 
-    <script src="/safeSubmit.js" type="text/javascript"></script>
+    <script src="/safeSubmit-min.js" type="text/javascript"></script>
 
-    <script src="/js/flapjax-2.0.1.compressed.js" type="text/javascript"></script>
-    <script src="/js/flapjax-helpers.js" type="text/javascript"></script>
-    <script src="/js/jquery/jquery.createdomnodes.js" type="text/javascript"></script>
-    <script src="/js/jquery/jquery.center-in-client.js" type="text/javascript"></script>
-    <script src="/js/jquery/jquery.blockUI.js" type="text/javascript"></script>
+    <script src="/js/flapjax-2.0.1.compressed-min.js" type="text/javascript"></script>
+    <script src="/js/flapjax-helpers-min.js" type="text/javascript"></script>
+    <script src="/js/jquery/jquery.createdomnodes-min.js" type="text/javascript"></script>
+    <script src="/js/jquery/jquery.center-in-client-min.js" type="text/javascript"></script>
+    <script src="/js/jquery/jquery.blockUI-min.js" type="text/javascript"></script>
     
     <script src="/js/codemirror2/lib/codemirror-min.js" type="text/javascript"></script>
     <script src="/js/codemirror2-contrib/scheme2/scheme2-min.js" type="text/javascript"></script>
@@ -56,19 +56,18 @@
 
 
     <!-- Design recipe widget stuff -->
-    <script src="/widget/js/DRwidget.js" type="text/javascript"></script>
+    <script src="/widget/js/DRwidget-min.js" type="text/javascript"></script>
     <link rel="stylesheet" type="text/css" href="/widget/css/editor.css"></link>
 
-
     
-    <script src="/js/submitpost.js" type="text/javascript"></script>
+    <script src="/js/submitpost-min.js" type="text/javascript"></script>
 
 
     <!-- mzscheme-vm evaluator -->
     <script src="/js/mzscheme-vm/support-min.js" type="text/javascript"></script>
     <script src="/js/mzscheme-vm/evaluator-min.js" type="text/javascript"></script>
 
-    <script src="/js/openEditor/openEditor-calc.js" type="text/javascript"></script>
+    <script src="/js/openEditor/openEditor-calc-min.js" type="text/javascript"></script>
 
 
 
@@ -338,9 +337,9 @@
 
   <% if (isEmbedded) { %>
   <!-- EasyXDM and json -->
-  <script src="/js/easyXDM/easyXDM.min.js" type="text/javascript"></script>
+  <script src="/js/easyXDM/easyXDM-min.js" type="text/javascript"></script>
   <script type="text/javascript">
-    easyXDM.DomHelper.requiresJSON("/json2.min.js");
+    easyXDM.DomHelper.requiresJSON("/js/easyXDM/json2-min.js");
   </script>
   <% } %>
 
