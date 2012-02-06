@@ -12,11 +12,9 @@ build() {
     mkdir -p `dirname war/$2`
     "${ClosureDir}/closure/bin/calcdeps.py" \
         -i war-src/$1 \
-        -c "$CompilerJarPath"\
-        -f "--compilation_level=SIMPLE_OPTIMIZATIONS"\
         -p "$ClosureDir" \
         -p war-src \
-        -o compiled \
+        -o script \
         > war/$2    
 }
 

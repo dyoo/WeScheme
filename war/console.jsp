@@ -38,13 +38,13 @@
 <link rel="stylesheet" type="text/css" href="/css/jquery-ui.css"/>
 
 
-<script src="editor/jquery.createdomnodes.js" type="text/javascript"></script>
-<script src="safeSubmit.js" type="text/javascript"></script>
-<script src="/js/submitpost.js" type="text/javascript"></script>
+<script src="editor/jquery.createdomnodes-min.js" type="text/javascript"></script>
+<script src="safeSubmit-min.js" type="text/javascript"></script>
+<script src="/js/submitpost-min.js" type="text/javascript"></script>
 
 
 
-<script src="/js/console-calc.js" type="text/javascript"></script>
+<script src="/js/console-calc-min.js" type="text/javascript"></script>
 
 
 </head>
