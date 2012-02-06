@@ -14,6 +14,7 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.servlet.ServletContext;
 
 import org.jdom.Element;
+import org.wescheme.project.Compiler.BadCompilationResult;
 import org.wescheme.util.CacheHelpers;
 import org.wescheme.util.Queries;
 import org.wescheme.util.XML;
@@ -138,16 +139,14 @@ public class Program implements Serializable {
 		updateTime();
 	}
 
-	public void build(ServletContext ctx, PersistenceManager pm) throws IOException {
+	public void build(ServletContext ctx, PersistenceManager pm) throws IOException, BadCompilationResult {
 		ObjectCode obj = this.getObject();
-		ObjectCode newCode = 
-			org.wescheme.project.Compiler.compile(ctx, this.getSource());
+		ObjectCode newCode = org.wescheme.project.Compiler.compile(ctx, this.getSource());
 		obj.setObj(newCode.getObj());
 		obj.setPermissions(newCode.getPermissions());
 		this.updateTime();
-		if ((new WeSchemeProperties(ctx))
-		    .getAndroidPackagerUrl() != null) {
-		    AndroidPackager.queueAndroidPackageBuild
+		if ((new WeSchemeProperties(ctx)).getAndroidPackagerUrl() != null) {
+			AndroidPackager.queueAndroidPackageBuild
 			(ctx, getTitle(), obj, pm);
 		}
 	}
@@ -174,11 +173,11 @@ public class Program implements Serializable {
 			this.srcs_.add(new SourceCode(this.title_, ""));
 		}
 
-		return this.srcs_.get(0);
+                // Return the very last source.  
+		return this.srcs_.get(this.srcs_.size() - 1);
 	}
 
 	private void setSource(SourceCode src) {
-		this.srcs_.clear();
 		this.srcs_.add(src);
 		this.updateTime();
 	}

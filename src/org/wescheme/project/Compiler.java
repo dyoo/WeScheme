@@ -48,10 +48,12 @@ public class Compiler extends HttpServlet
         public Set<String> getPermissions() { return permissions; }
     }
 	
-    public static class BadCompilationResult implements CompilationResult {
-        private String errorMessage;
+    public static class BadCompilationResult extends Throwable implements CompilationResult {
+		private static final long serialVersionUID = 3258083004919853680L;
+		private String errorMessage;
         public BadCompilationResult(String errorMessage) {
-            this.errorMessage = errorMessage;
+        	super(errorMessage);
+        	this.errorMessage = errorMessage;
         }
         public boolean isBad() { return true; }
         public String getCompiledCode() { throw new UnsupportedOperationException(); }
@@ -61,10 +63,10 @@ public class Compiler extends HttpServlet
 	
 	
 	
-    public static ObjectCode compile(ServletContext ctx, SourceCode src) {
+    public static ObjectCode compile(ServletContext ctx, SourceCode src) throws BadCompilationResult {
         CompilationResult result = Compiler.compile(ctx, src.getName(), src.toString());
         if (result.isBad()) {
-            throw new RuntimeException(result.getErrorMessage());
+            throw (BadCompilationResult) result;
         } else {
             return new ObjectCode(result.getCompiledCode(),
                                   result.getPermissions(),
@@ -108,11 +110,11 @@ public class Compiler extends HttpServlet
                 return new BadCompilationResult(errorMessage);
             }
         } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
+            return new BadCompilationResult(e.getMessage());
         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
+            return new BadCompilationResult(e.getMessage());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            return new BadCompilationResult(e.getMessage());
         }
     }
 

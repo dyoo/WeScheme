@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jdom.output.XMLOutputter;
+import org.wescheme.project.Compiler.BadCompilationResult;
 import org.wescheme.project.Program;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
@@ -41,9 +42,13 @@ public class Build extends HttpServlet {
 				Program prog = pm.getObjectById(Program.class,
 						Long.parseLong(req.getParameter("pid")));
 				if (prog.getOwner().equals(userSession.getName())) {
-					prog.build(this.getServletContext(), pm);
-					resp.setContentType("text/xml");
-					resp.getWriter().print(outputter.outputString(prog.toXML(pm)));
+					try {
+						prog.build(this.getServletContext(), pm);
+						resp.setContentType("text/xml");
+						resp.getWriter().print(outputter.outputString(prog.toXML(pm)));
+					} catch (BadCompilationResult e) {
+						resp.sendError(400, "Error while compiling project: " + e.getMessage());
+					}
 				} else {
 					log.warning(userSession.getName() + " does not own project " + req.getParameter("pid"));
 					throw new RuntimeException("Doesn't own Project");

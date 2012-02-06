@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+import org.wescheme.project.Compiler.BadCompilationResult;
 import org.wescheme.project.Program;
 import org.wescheme.project.ProgramDigest;
 import org.wescheme.user.Session;
@@ -73,14 +74,16 @@ public class Administrate extends HttpServlet {
 
 			// First, build the program if it's already been built.
 			if (prog.hasBeenBuilt()) {
-				prog.build(this.getServletContext(), pm);
-			}
-
+				try {
+					prog.build(this.getServletContext(), pm);
+				} catch (BadCompilationResult e){
+					// FIXME: report that the compilation failed.
+				}
+			}	
 		} finally {
 			pm.close();
 		}
-
-		// TODO: report that the compilation went ok.
+		// TODO: report if the compilation went ok.
 	}
 
 
