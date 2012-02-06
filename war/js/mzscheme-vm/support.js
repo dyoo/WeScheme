@@ -17849,6 +17849,8 @@ PRIMITIVES['image->color-list'] =
 		 });
 
 
+
+// Note: this has to be done asynchonously.
 var colorListToImage = function(listOfColors, width, height, pinholeX, pinholeY) {
     checkListOf(listOfColors, isColor, 'color-list->image', 'image', 1);
     check(width, isNatural, 'color-list->image', 'natural', 2);
@@ -17872,22 +17874,41 @@ var colorListToImage = function(listOfColors, width, height, pinholeX, pinholeY)
 	i += 4;
 	listOfColors = listOfColors.rest();
     };
-
-    return world.Kernel.imageDataImage(imageData);
+    ctx.putImageData(imageData, 0, 0);
+    var path = canvas.toDataURL("image/png");
+    return PAUSE(function(restarter, caller) {
+	var rawImage = new Image();
+	rawImage.onload = function() {
+	    world.Kernel.fileImage(
+		path,
+		rawImage,
+		restarter);
+	};
+	rawImage.onerror = function(e) {
+	    restarter(types.schemeError(types.incompleteExn(
+		types.exnFail,
+		" (unable to load: " + originalPath + ")",
+		[])));
+	};
+	rawImage.src = path;
+    });
 };
 
 
 PRIMITIVES['color-list->image'] = 
     new PrimProc('color-list->image',
 		 5,
-		 false, false,
-		 colorListToImage);
+		 false, true,
+                 function(state, colorList, width, height, x, y){
+                     return colorListToImage(colorList, width, height, x, y);
+                 });
+
 
 PRIMITIVES['color-list->bitmap'] = 
     new PrimProc('color-list->bitmap',
 		 3,
-		 false, false,
-		 function(colorList, width, height) {
+		 false, true,
+		 function(state, colorList, width, height) {
                      return colorListToImage(colorList, width, height, 0, 0);
                  });
 
@@ -18326,7 +18347,7 @@ PRIMITIVES['on-tick'] =
 			  false, false,
 			  function(f, aDelay) {
 			      check(f, isFunction, "on-tick", "procedure", 1, arguments);
-			      check(aDelay, isNumber, "on-tick", "number", 2, arguments);
+			      check(aDelay, isNonNegativeReal, "on-tick", "number", 2, arguments);
 			      return new OnTickBang(f,
 						    new PrimProc('', 1, false, false,
 								 function(w) { return types.effectDoNothing(); }),
@@ -18351,7 +18372,7 @@ PRIMITIVES['on-tick!'] =
 		      function(handler, effectHandler, aDelay)  {
 			  check(handler, isFunction, "on-tick!", "procedure", 1, arguments);
 			  check(effectHandler, isFunction, "on-tick!","procedure", 2, arguments);
-			  check(aDelay, isNumber, "on-tick!", "number", 3, arguments);
+			  check(aDelay, isNonNegativeReal, "on-tick!", "number", 3, arguments);
 			  return new OnTickBang(handler, effectHandler, aDelay);
 		      }) ]);
 
