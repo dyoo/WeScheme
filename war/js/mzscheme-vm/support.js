@@ -14656,7 +14656,7 @@ PRIMITIVES['equal~?'] =
 		 3,
 		 false, false,
 		 function(x, y, range) {
-		 	check(range, isNonNegativeReal, 'equal~?', 'non-negative-real', 3, arguments);
+		 	check(range, isNonNegativeReal, 'equal~?', 'non-negative number', 3, arguments);
 
 			return (isEqual(x, y) ||
 				(isReal(x) && isReal(y) &&
@@ -17105,11 +17105,11 @@ PRIMITIVES['star'] =
 				"positive integer greater than or equal to 3", 
 				1, arguments);
 			  check(outer, isNonNegativeReal, "star", 
-				"positive number", 
+				"non-negative number", 
 				2, arguments);
 			  check(inner, 
 				isNonNegativeReal, "star",
-				"positive number", 3, arguments);
+				"non-negative number", 3, arguments);
 			  check(m, isMode, "star", "style", 4, arguments);
 			  check(c, isColor, "star", "color", 5, arguments);
 			  if (colorDb.get(c)) {
@@ -17644,8 +17644,8 @@ new PrimProc('crop',
 			 function(x, y, width, height, img) {
 			 check(x,	  isReal, "crop", "finite real number", 1, arguments);
 			 check(y,	  isReal, "crop", "finite real number", 2, arguments);
-			 check(width, isNonNegativeReal, "crop", "positive real number", 3, arguments);
-			 check(height,isNonNegativeReal, "crop", "positive real number", 4, arguments);
+			 check(width, isNonNegativeReal, "crop", "non-negative number", 3, arguments);
+			 check(height,isNonNegativeReal, "crop", "non-negative number", 4, arguments);
 			 check(img,   isImage,"crop", "image", 5, arguments);
 			 return world.Kernel.cropImage(jsnums.toFixnum(x),
 										   jsnums.toFixnum(y),
@@ -18347,7 +18347,7 @@ PRIMITIVES['on-tick'] =
 			  false, false,
 			  function(f, aDelay) {
 			      check(f, isFunction, "on-tick", "procedure", 1, arguments);
-			      check(aDelay, isNonNegativeReal, "on-tick", "number", 2, arguments);
+			      check(aDelay, isNonNegativeReal, "on-tick", "non-negative number", 2, arguments);
 			      return new OnTickBang(f,
 						    new PrimProc('', 1, false, false,
 								 function(w) { return types.effectDoNothing(); }),
@@ -18372,7 +18372,7 @@ PRIMITIVES['on-tick!'] =
 		      function(handler, effectHandler, aDelay)  {
 			  check(handler, isFunction, "on-tick!", "procedure", 1, arguments);
 			  check(effectHandler, isFunction, "on-tick!","procedure", 2, arguments);
-			  check(aDelay, isNonNegativeReal, "on-tick!", "number", 3, arguments);
+			  check(aDelay, isNonNegativeReal, "on-tick!", "non-negative number", 3, arguments);
 			  return new OnTickBang(handler, effectHandler, aDelay);
 		      }) ]);
 
