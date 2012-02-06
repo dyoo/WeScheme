@@ -37,67 +37,82 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
 	
 	var shareWithSource = function() {
 	    dialogWindow.dialog("close");
-	    doTheSharing(true, function() {});
+	    doTheSharing(true);
 	};
 
 	var shareWithoutSource = function() {
 	    dialogWindow.dialog("close");
-	    doTheSharing(false, function() {});
+	    doTheSharing(false);
 	};
 
 	// Does the brunt work of the sharing.
-	var doTheSharing = function(isPublic, onSuccess, onFailure) {
+        // If sharing is completely successful, onSuccess will be called.
+        // If at any point, something breaks, onFailure will be called.
+	var doTheSharing = function(isPublic) {
 	    plt.wescheme.WeSchemeIntentBus.notify("before-share", that);
+            
 	    that.actions.makeAClone(
 		that.pid, 
 		that.code,
 		function(newPid) { 
-		    // FIXME: what should happen if the compilation succeeds,
-		    // versus when it fails?
 		    that.actions.runTheCompiler(
 			newPid, 
-			whenCompilationSucceeds,
-			whenCompilationFails);
-
-		    that.actions.share(newPid,
-				       isPublic,
-				       function(sharedProgram) {
-					   var newDialog = jQuery("<div/>");
-					   newDialog.dialog(
-					       {title: 'Sharing your program',
-						bgiframe : true,
-						modal : true,
-						close : function() {
-						    if (onShareSuccess) { 
-							onShareSuccess(sharedProgram); 
-						    }
-						}
-					       });
-					   plt.wescheme.WeSchemeIntentBus.notify(
-					       "after-share", that);
-					   newDialog.append(
-					       jQuery("<p/>")
-						   .text("Program has been shared: "));
-					   var anchor = plt.wescheme.helpers.urlToAnchor(
-					       plt.wescheme.helpers.makeShareUrl(
-						   sharedProgram.find("publicId").text()));
-					   anchor.target = "_blank";
-					   newDialog.append(jQuery(anchor));
-					   newDialog.dialog("open");
-
-				       },
-				       whenSharingFails);
+			function() { whenCompilationSucceeds(isPublic, newPid); },
+			function(err) { whenCompilationFails(isPublic, newPid, err); });
 		},
 		whenCloningFails);
 	};
 
-	var whenCompilationSucceeds = function() {
+	var whenCompilationSucceeds = function(isPublic, newPid) {
+	    showResultOfSharing(isPublic, newPid, false);
 	};
-	var whenCompilationFails = function() {
-	    // FIXME
-	    alert("compilation failed");
-	    if (onAbort) { onAbort(); }
+
+	var whenCompilationFails = function(isPublic, newPid, errMessage) {
+	    showResultOfSharing(isPublic, newPid, errMessage);
 	};
+
+        var showResultOfSharing = function(isPublic, newPid, errMessage) {
+            that.actions.share(newPid,
+			       isPublic,
+			       function(sharedProgram) {
+				   var newDialog = jQuery("<div/>");
+				   newDialog.dialog(
+				       {title: 'Sharing your program',
+					bgiframe : true,
+					modal : true,
+					close : function() {
+					    if (onShareSuccess) { 
+						onShareSuccess(sharedProgram); 
+					    }
+					}
+				       });
+				   plt.wescheme.WeSchemeIntentBus.notify(
+				       "after-share", that);
+                                   
+                                   if (errMessage !== false) {
+				       newDialog.append(
+				           jQuery("<p/>")
+					       .text("Unfortunately, the program could not be built due to the following reason: " + errMessage));
+                                       if (isPublic) {
+				           newDialog.append(
+				               jQuery("<p/>")
+					           .text("Although it won't run, its source can still be viewed."));
+                                       }
+                                   }
+
+				   newDialog.append(
+				       jQuery("<p/>")
+					   .text("Program has been shared: "));
+				   var anchor = plt.wescheme.helpers.urlToAnchor(
+				       plt.wescheme.helpers.makeShareUrl(
+					   sharedProgram.find("publicId").text()));
+				   anchor.target = "_blank";
+				   newDialog.append(jQuery(anchor));
+				   newDialog.dialog("open");
+
+			       },
+			       whenSharingFails);
+        };
 
 	var whenCloningFails = function() {
 	    // FIXME

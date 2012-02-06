@@ -33,8 +33,8 @@ goog.require('plt.wescheme.Program');
 			 var jDom = jQuery(dom).find("Program");
 			 onSuccess(jDom, new plt.wescheme.Program(jDom));
 		     },
-  		     error: function() {
-			 onFailure();
+  		     error: function(xhr) {
+			 onFailure(xhr.responseText);
 		     },
 		     xhr: function(settings) { return new XMLHttpRequest(settings); }
 		    });
@@ -53,8 +53,8 @@ goog.require('plt.wescheme.Program');
 		     type: "GET",
 		     url: "/listProjects",
 		     success: callback,
-		     error: function() {
-			 onFailure();
+		     error: function(xhr) {
+			 onFailure(xhr.responseText);
 		     },
 		     xhr: function(settings) { return new XMLHttpRequest(settings); }
 		    });
@@ -73,8 +73,8 @@ goog.require('plt.wescheme.Program');
   		     success: function(data) {
 			 onSuccess();
 		     },
-  		     error: function() {
-			 onFailure();
+  		     error: function(xhr) {
+			 onFailure(xhr.responseText);
 		     },
 		     xhr: function(settings) { return new XMLHttpRequest(settings); }
 		    });
@@ -95,8 +95,8 @@ goog.require('plt.wescheme.Program');
 			 var newPid = parseInt(data);
 			 onSuccess(newPid);
 		     },
-		     error: function() {
-			 onFailure();
+		     error: function(xhr) {
+			 onFailure(xhr.responseText);
 		     }, 
 		     xhr: function(settings) { return new XMLHttpRequest(settings); }
 		    });
@@ -118,9 +118,8 @@ goog.require('plt.wescheme.Program');
   		     success: function(data) {
 			 onSuccess(jQuery(data));
 		     },
-  		     error: function() {
-			 // FIXME
-			 onFailure();
+  		     error: function(xhr) {
+			 onFailure(xhr.responseText);
 		     }, 
 		     xhr: function(settings) { return new XMLHttpRequest(settings); }
   		    });
@@ -138,9 +137,8 @@ goog.require('plt.wescheme.Program');
   		     success: function(data) {
 			 onSuccess(jQuery(data));
 		     },
-  		     error: function() {
-			 // FIXME
-			 onFailure();
+  		     error: function(xhr) {
+			 onFailure(xhr.responseText);
 		     }, 
 		     xhr: function(settings) { return new XMLHttpRequest(settings); }
   		    });
@@ -169,8 +167,8 @@ goog.require('plt.wescheme.Program');
 			 var newPid = parseInt(data);
 			 onSuccess(newPid);
 		     },
-		     error: function() {
-			 onFailure();
+		     error: function(xhr) {
+			 onFailure(xhr.responseText);
 		     },
 		     xhr: function(settings) { return new XMLHttpRequest(settings); }
 		    });
