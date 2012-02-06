@@ -14,14 +14,11 @@
 (define path (command-line #:once-each
                            [("-q" "--quiet") "Quiet mode" (set! quiet? #t)]
                            [("-p" "--permissive") "Permissive mode" (set! permissive? #t)]
-                           #:args (p) p))
+                           #:args (path) path))
 
-(define js-files (find-files
-                  (lambda (p)
-                    (and (file-exists? p)
-                         (regexp-match #px".js$" (path->string (file-name-from-path p)))
-                         (not (regexp-match #px"[.-]min.js$" (path->string (file-name-from-path p))))))
-                  (simplify-path path)))
+(define (notify . args)
+  (unless quiet?
+    (apply printf args)))
 
 ;; out-of-date?: path path -> boolean
 ;; Returns true if the target file looks at least as new as the source file.
@@ -32,11 +29,19 @@
    [else
     (>= (file-or-directory-modify-seconds source-file)
         (file-or-directory-modify-seconds target-file))]))
-     
 
-(define (notify . args)
-  (unless quiet?
-    (apply printf args)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(notify "Collecting files...\n")
+(define js-files
+  (find-files
+   (lambda (p)
+     (and (file-exists? p)
+          (regexp-match #px".js$" (path->string (file-name-from-path p)))
+          (not (regexp-match #px"[.-]min.js$" (path->string (file-name-from-path p))))))
+   (simplify-path path)))
 
 (for ([file js-files])
   (with-handlers ([exn:fail?

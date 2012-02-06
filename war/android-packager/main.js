@@ -23,7 +23,7 @@ var main = {};
 
     var evaluator = new Evaluator(
 	{ write: function(x) { writeToInteractions(x) },
-	  writeError: function(err) { reportError(err) },
+	  writeError: function(err) { reportError(err) }
 	});
 
     evaluator.makeToplevelNode = function() {

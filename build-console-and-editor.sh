@@ -39,19 +39,6 @@ build js/openEditor/index.js js/openEditor/openEditor-calc.js
 
 
 
-
 ######################################################################
-echo "Compressing canvas.text"
-java -jar "$CompilerJarPath" --compilation_level=SIMPLE_OPTIMIZATIONS <war/js/compat/canvas-text/canvas.text.js >war/js/compat/canvas-text/canvas.text-min.js
-
-echo "Compressing xmlhttprequest"
-java -jar "$CompilerJarPath" --compilation_level=SIMPLE_OPTIMIZATIONS <war/js/compat/XMLHttpRequest.js >war/js/compat/XMLHttpRequest-min.js
-
-echo "Compressing codemirror 2"
-java -jar "$CompilerJarPath" --compilation_level=SIMPLE_OPTIMIZATIONS <war/js/codemirror2/lib/codemirror.js >war/js/codemirror2/lib/codemirror-min.js
-java -jar "$CompilerJarPath" --compilation_level=SIMPLE_OPTIMIZATIONS <war/js/codemirror2-contrib/scheme2/scheme2.js >war/js/codemirror2-contrib/scheme2/scheme2-min.js
-
-echo "Compressing mzscheme-vm runtime libraries"
-java -jar "$CompilerJarPath" --compilation_level=SIMPLE_OPTIMIZATIONS <war/js/mzscheme-vm/support.js >war/js/mzscheme-vm/support-min.js
-java -jar "$CompilerJarPath" --compilation_level=SIMPLE_OPTIMIZATIONS <war/js/mzscheme-vm/evaluator.js >war/js/mzscheme-vm/evaluator-min.js
-racket bin/compress-js.rkt war/js
+echo "Compressing JavaScript libraries"
+racket bin/compress-js.rkt --permissive war
