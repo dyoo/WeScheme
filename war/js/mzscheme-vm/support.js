@@ -13412,7 +13412,7 @@ PRIMITIVES['write'] =
 PRIMITIVES['display'] = 
 	new CasePrimitive('display',
 		      [new PrimProc('display', 1, false, true, function(state, x) {
-				  state.getDisplayHook()(x);
+			  state.getDisplayHook()(types.toDisplayedString(x));
 			  state.v = types.VOID;
 	}),
 			  new PrimProc('display', 2, false, true, function(state, x, port) {
