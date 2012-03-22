@@ -8175,6 +8175,7 @@ var toDomNode = function(x, cache) {
     if (typeof(x) == 'object') {
 	    if (cache.containsKey(x)) {
 		var node = document.createElement("span");
+                node.style['font-family'] = 'monospace';
 		node.appendChild(document.createTextNode("..."));
 		return node;
 	    }
@@ -8183,20 +8184,15 @@ var toDomNode = function(x, cache) {
 
     if (x == undefined || x == null) {
 	var node = document.createElement("span");
+        node.style['font-family'] = 'monospace';
 	node.appendChild(document.createTextNode("#<undefined>"));
 	return node;
     }
     if (typeof(x) == 'string') {
-	var wrapper = document.createElement("span");
-        wrapper.style["white-space"] = "pre";	
-	var node = document.createTextNode(toWrittenString(x));
-	wrapper.appendChild(node);
-	return wrapper;
+        return textToDomNode(toWrittenString(x));
     }
     if (typeof(x) != 'object' && typeof(x) != 'function') {
-	var node = document.createElement("span");
-	node.appendChild(document.createTextNode(x.toString()));
-	return node;
+        return textToDomNode(x.toString());
     }
 
     var returnVal;
@@ -8204,25 +8200,36 @@ var toDomNode = function(x, cache) {
 	returnVal =  x;
     } else if (typeof(x.toDomNode) !== 'undefined') {
 	returnVal =  x.toDomNode(cache);
-    } else if (typeof(x.toWrittenString) !== 'undefined') {
-	
-	var node = document.createElement("span");
-	node.appendChild(document.createTextNode(x.toWrittenString(cache)));
-	returnVal =  node;
+    } else if (typeof(x.toWrittenString) !== 'undefined') {	
+        returnVal = textToDomNode(x.toWrittenString(cache))
     } else if (typeof(x.toDisplayedString) !== 'undefined') {
-	var node = document.createElement("span");
-	node.appendChild(document.createTextNode(x.toDisplayedString(cache)));
-	returnVal =  node;
+        returnVal = textToDomNode(x.toDisplayedString(cache));
     } else {
-	var node = document.createElement("span");
-	node.appendChild(document.createTextNode(x.toString()));
-	returnVal =  node;
+        returnVal = textToDomNode(x.toString());
     }
     cache.remove(x);
     return returnVal;
 };
 
 
+var textToDomNode = function(text) {
+    var chunks = text.split("\n");
+    var i;
+    var wrapper = document.createElement("span");
+    var newlineDiv;
+    wrapper.style['font-family'] = 'monospace';
+    wrapper.style["white-space"] = "pre";
+    if (chunks.length > 0) {
+        wrapper.appendChild(document.createTextNode(chunks[0]));
+    }
+    for (i = 1; i < chunks.length; i++) {
+        newlineDiv = document.createElement("div");
+        newlineDiv.style.clear = 'left';
+        wrapper.appendChild(newlineDiv);
+        wrapper.appendChild(document.createTextNode(chunks[i]));
+    }
+    return wrapper;
+};
 
 
 
