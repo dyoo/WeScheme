@@ -101,43 +101,30 @@ WeSchemeInteractions = (function () {
               lineNumbers: false,
               theme: "scheme-interactive",
               //stylesheet: "/js/codemirror/contrib/scheme/css/schemecolors-interactive.css",
-              makeTransparentIframe: true },
+              makeTransparentIframe: true,
+              extraKeys: {
+            	  "Enter":function (ed) {
+            		  if (that.hasCompleteExpression()) {
+            			  that.onEvaluation();
+            		  } else {
+            			  CodeMirror.commands.newlineAndIndent(ed);
+            		  }
+            	  },
+            	  "Ctrl-N":function (ed) {
+            		  that.onHistoryNext();
+            	  },
+            	  "Ctrl-P":function (ed) {
+            		  that.onHistoryPrevious();
+            	  },
+            	  "Alt-N":function (ed) {
+            		  that.onHistoryNext();
+            	  },
+            	  "Alt-P":function (ed) {
+            		  that.onHistoryPrevious();
+            	  }
+              }},
             function(container) {
                 that.textContainer = container;
-                container.addKeymap(
-                    function(event) {
-                        // handle F5 especially
-                        if (that.isRunEvent(event)) {
-                            return true;
-                        }
-                        // Also, handle enter if what's in the text is ready for
-                        // evaluation.
-                        if (that.isExpressionToEvaluateEvent(event)) {
-                            return true;
-                        }
-
-                        if (that.isHistoryPreviousEvent(event)) {
-                            return true;
-                        }
-                        if (that.isHistoryNextEvent(event)) {
-                            return true;
-                        }
-                        return false;
-                    },
-                    function(event) {
-                        if (that.isExpressionToEvaluateEvent(event)) {
-                            that.onEvaluation();
-                            return false;
-                        } else if (that.isHistoryPreviousEvent(event)) {
-                            that.onHistoryPrevious();
-                            return false;
-                        } else if (that.isHistoryNextEvent(event)) {
-                            that.onHistoryNext();
-                            return false;
-                        } else {
-                            return plt.wescheme.topKeymap(event);
-                        }
-                    });
 
                 if (K) {
                     K(that);
@@ -266,37 +253,6 @@ WeSchemeInteractions = (function () {
         }
         this.historyArray[lastIndex] = "";
         this.historyIndex = lastIndex;
-    };
-
-    // isRunEvent: key-event -> boolean
-    Prompt.prototype.isRunEvent = function(event) {
-        return (event.type === 'keydown' && event.keyCode === 116);
-    };
-
-    // isExpressionToEvaluateEvent: key-event -> boolean
-    Prompt.prototype.isExpressionToEvaluateEvent = function(event) {
-        return (event.type === 'keydown' && event.keyCode === 13 &&
-                this.hasCompleteExpression());
-    };
-
-    // isHistoryPreviousEvent: key-event -> boolean
-    Prompt.prototype.isHistoryPreviousEvent = function(event) {
-        return (event.type === 'keydown' && event.keyCode == 80 && (event.altKey || event.ctrlKey));
-    };
-
-    // isHistoryNextEvent: key-event -> boolean
-    Prompt.prototype.isHistoryNextEvent = function(event) {
-        return (event.type === 'keydown' && event.keyCode == 78 && (event.altKey || event.ctrlKey));
-    };
-
-    // isHistoryPreviousEvent: key-event -> boolean
-    Prompt.prototype.isHistoryPreviousEvent = function(event) {
-        return (event.type === 'keydown' && event.keyCode == 80 && (event.altKey || event.ctrlKey));
-    };
-
-    // isHistoryNextEvent: key-event -> boolean
-    Prompt.prototype.isHistoryNextEvent = function(event) {
-        return (event.type === 'keydown' && event.keyCode == 78 && (event.altKey || event.ctrlKey));
     };
 
     // hasExpressionToEvaluate: -> boolean

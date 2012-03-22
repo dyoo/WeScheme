@@ -119,18 +119,6 @@ var initializeEditor;
 										}
 
 
-										// Set up the the keymap for the definitions editor so it
-										// pays attentions to f5.
-										defnSourceContainer.addKeymap(
-												function(event) {
-													// handle F5 especially
-													return (event.type == 'keydown' && event.keyCode === 116);
-												},
-												function(event) {
-													return plt.wescheme.topKeymap(event);
-												});
-
-
 										// Set up interactions afterwards.
 										jQuery("#interactions").click(function(e) {
 											myEditor.interactions.focusOnPrompt();
