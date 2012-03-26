@@ -8,7 +8,8 @@
 
 ;; Assumes closure-library is under externals/closure.
 
-(define-runtime-path closure-dir (build-path "externals" "closure"))
+(define-runtime-path closure-dir (build-path "war-src" "closure"))
+(define-runtime-path closure-zip-path (build-path "externals" "closure-library-20111110-r1376.zip"))
 (define-runtime-path compiler-jar-path (build-path "bin" "compiler.jar"))
 
 
@@ -41,19 +42,20 @@
 (define (build src dest)
   (make-directory* (path-only (string-append "war/" dest)))
   (call-system (build-path closure-dir "bin" "calcdeps.py")
-               "-i" (string-append "war-src/" src)
+               "-i" (string-append "war-src/js")
                "-p" (path->string closure-dir)
-               "-p" "war-src"
+               "-p" "war-src/js"
                "-o" "script"
-               #:pipe-output-to (string-append "war/" dest)))
+               #:pipe-output-to (string-append "war/js" dest)))
 
 
 
 (unless (directory-exists? closure-dir)
   (fprintf (current-error-port) "The Closure library has not been installed yet.\n")
-  (fprintf (current-error-port) "Trying to unpack it into 'externals/closure'.\n")
-  (parameterize ([current-directory (build-path closure-dir 'up)])
-    (call-system "unzip" "closure-library-20111110-r1376.zip"))
+  (fprintf (current-error-port) "Trying to unpack it into 'war-src/closure'.\n")
+  (let ([zip-path (normalize-path closure-zip-path)])
+    (parameterize ([current-directory (build-path closure-dir 'up)])
+      (call-system "unzip" (path->string zip-path))))
   (unless (directory-exists? closure-dir)
     (fprintf (current-error-port) "The Closure library could not be installed; please check.\n")
     (exit 0)))
@@ -68,16 +70,26 @@
              #:pipe-input-from "wescheme.properties"
              #:pipe-output-to "war-src/js/wescheme-properties.js")
 
+
+(printf "Writing dependency file for Google Closure library\n")
+(parameterize ([current-directory "war-src"])
+  (call-system (build-path closure-dir "bin" "calcdeps.py")
+               "--dep" "closure"
+               "--path" "js"
+               "--output_mode" "deps"
+               #:pipe-output-to "deps.js"))
+
+
 ;; ######################################################################
 
 (printf "Building console\n")
-(build "js/console.js" "js/console-calc.js")
+(build "console.js" "console-calc.js")
 
 (printf "Building view\n")
-(build "js/view.js" "js/view-calc.js")
+(build "view.js" "view-calc.js")
 
 (printf "Building editor\n")
-(build "js/openEditor/index.js" "js/openEditor/openEditor-calc.js")
+(build "openEditor/index.js" "openEditor/openEditor-calc.js")
 
 
 ;; ######################################################################
