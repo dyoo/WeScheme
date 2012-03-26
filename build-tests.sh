@@ -26,16 +26,7 @@ python bin/make-properties.py <wescheme.properties >war-src/js/wescheme-properti
 
 ######################################################################
 
-echo "Building console"
-build js/console.js js/console-calc.js
+echo "Building tests"
+build js/tests/test-all.js js/tests/test-all.js
 
-echo "Building view"
-build js/view.js js/view-calc.js
-
-echo "Building editor"
-build js/openEditor/index.js js/openEditor/openEditor-calc.js
-
-
-######################################################################
-echo "Compressing JavaScript libraries"
-racket bin/compress-js.rkt --permissive war
+echo "Tests built.  Open war/js/tests/test-all.html to run the test suite."

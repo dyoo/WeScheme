@@ -115,7 +115,26 @@ goog.require('plt.wescheme.cookies');
     };
 
 
+    // Returns true if the provided browser and version strings match.
+    
+    // For example:
+    //    versionMatches("Explorer", "7", { browser: "Explorer", lessThan: "8"} )
+    // should evaluate to true.
 
+    var versionMatches = function(browser, version,
+                                  description) {
+        if (browser === description.browser) {
+            if (description.minimumVersion) {
+                return versionGreaterThanOrEqual(version, description.minimumVersion);
+            } else if (description.lessThan) {
+                return versionLessThan(version, description.lessThan);
+            }
+        } else {
+            return false;
+        }
+    };
+
+    
 
 
     // Version comparison of strings.  Lexicographic comparison.
@@ -265,4 +284,8 @@ goog.require('plt.wescheme.cookies');
     BrowserDetect.debug.isFullySupported = isFullySupported;
     BrowserDetect.debug.isPartiallySupported = isPartiallySupported;
     BrowserDetect.debug.isUnsupported = isUnsupported;
+
+
+    BrowserDetect.debug.versionMatches = versionMatches;
+
 })();
