@@ -21,7 +21,11 @@
                     (open-input-file pipe-input-from)
                     (current-input-port)))
   (define stdout (if pipe-output-to
-                     (open-output-file pipe-output-to #:exists 'replace)
+                     (begin
+                       (unless (let-values ([(base path dir?) (split-path pipe-output-to)])
+                                 (eq? base 'relative))
+                         (make-directory* (path-only pipe-output-to)))
+                       (open-output-file pipe-output-to #:exists 'replace))
                      (current-output-port)))
   (define resolved-cmd
     (if (file-exists? cmd)
@@ -42,28 +46,34 @@
 (define (build src dest)
   (make-directory* (path-only (string-append "war/" dest)))
   (call-system (build-path closure-dir "bin" "calcdeps.py")
-               "-i" (string-append "war-src/js")
+               "-i" (string-append "war-src/js/" src)
                "-p" (path->string closure-dir)
                "-p" "war-src/js"
                "-o" "script"
-               #:pipe-output-to (string-append "war/js" dest)))
+               #:pipe-output-to (string-append "war/js/" dest)))
 
 
 
-(unless (directory-exists? closure-dir)
-  (fprintf (current-error-port) "The Closure library has not been installed yet.\n")
-  (fprintf (current-error-port) "Trying to unpack it into 'war-src/closure'.\n")
-  (let ([zip-path (normalize-path closure-zip-path)])
-    (parameterize ([current-directory (build-path closure-dir 'up)])
-      (call-system "unzip" (path->string zip-path))))
+
+(define (ensure-closure-library-installed!)
   (unless (directory-exists? closure-dir)
-    (fprintf (current-error-port) "The Closure library could not be installed; please check.\n")
-    (exit 0)))
+    (fprintf (current-error-port) "The Closure library has not been installed yet.\n")
+    (fprintf (current-error-port) "Trying to unpack it into 'war-src/closure'.\n")
+    (let ([zip-path (normalize-path closure-zip-path)])
+      (parameterize ([current-directory (build-path closure-dir 'up)])
+        (call-system "unzip" (path->string zip-path))))
+    (unless (directory-exists? closure-dir)
+      (fprintf (current-error-port) "The Closure library could not be installed; please check.\n")
+      (exit 0))))
   
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(ensure-closure-library-installed!)
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (printf "Building properties file for JS\n")
-;; fill me in
 (copy-file "wescheme.properties" "war/wescheme.properties"
            #t)
 (call-system "python" "bin/make-properties.py"
@@ -71,6 +81,7 @@
              #:pipe-output-to "war-src/js/wescheme-properties.js")
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (printf "Writing dependency file for Google Closure library\n")
 (parameterize ([current-directory "war-src"])
   (call-system (build-path closure-dir "bin" "calcdeps.py")
@@ -80,8 +91,8 @@
                #:pipe-output-to "deps.js"))
 
 
-;; ######################################################################
 
+;; ######################################################################
 (printf "Building console\n")
 (build "console.js" "console-calc.js")
 
@@ -92,6 +103,7 @@
 (build "openEditor/index.js" "openEditor/openEditor-calc.js")
 
 
+
 ;; ######################################################################
-(printf "Compressing JavaScript libraries\n")
-(call-system "racket" "bin/compress-js.rkt" "--permissive" "war")
+(printf "Compressing JavaScript libraries.  This may take a few minutes, depending if this is the first time this has been run.\n")
+(call-system "racket" "bin/compress-js.rkt" "--quiet" "war")
