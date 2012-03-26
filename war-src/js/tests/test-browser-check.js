@@ -5,9 +5,11 @@ goog.provide('plt.wescheme.tests.testBrowserCheck');
 
 
 var versionMatches = plt.wescheme.BrowserDetect.debug.versionMatches;
+var isOldIE = plt.wescheme.BrowserDetect.debug.isOldIE;
 
 var testVersionMatches = function() {
     assertTrue(versionMatches("Explorer", "7", { browser: "Explorer", lessThan: "8"}));
+    assertTrue(versionMatches("Explorer", "7.1", { browser: "Explorer", lessThan: "8"}));
     assertFalse(versionMatches("Explorer", "8", { browser: "Explorer", lessThan: "8"}));
     assertFalse(versionMatches("Explorer", "7", { browser: "Explorer", lessThan: "7"}));
 
@@ -17,6 +19,17 @@ var testVersionMatches = function() {
 };
 
 
+
+var testIsOldIE = function() {
+    assertFalse(isOldIE("Chrome", "12"));
+    assertFalse(isOldIE("Safari", "5"));
+    assertTrue(isOldIE("Explorer", "6"));
+    assertTrue(isOldIE("Explorer", "7"));
+    assertTrue(isOldIE("Explorer", "7.1"));
+    assertTrue(isOldIE("Explorer", "7.9"));
+    assertFalse(isOldIE("Explorer", "8"));
+    assertFalse(isOldIE("Explorer", "9"));
+};
 
 
 

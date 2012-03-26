@@ -47,12 +47,22 @@ goog.require('plt.wescheme.cookies');
     plt.wescheme.browserCheck = function() {
 	var browser = BrowserDetect.browser;
 	var versionString = BrowserDetect.versionString;
-	
+
 	if (isFullySupported(browser, versionString)) {
 	    return;
-	} else if (isUnsupported(browser, versionString)) {
+	}
+        
+        if (isOldIE(browser, versionString)) {
+	    warnOldIE();
+            return;
+        }
+
+        if (isUnsupported(browser, versionString)) {
 	    warnBrowserUnsupported();
-	} else if (isPartiallySupported(browser, versionString)) {
+            return;
+	} 
+
+        if (isPartiallySupported(browser, versionString)) {
 	    if (browserAlreadyChecked()) {
 		return;
 	    }
@@ -64,17 +74,27 @@ goog.require('plt.wescheme.cookies');
 	    }
 	    markBrowserChecked();
 	    warnBrowserPartiallySupported(browser, greaterThanOrEqual);
-	} else {
-	    // Warn: using browser that we haven't tested against.
-	    warnBrowserMightNotWork();
-	}
+            return;
+	} 
+
+        // If we get to this point, we don't know what's going to happen,
+        // so give a general warning.
+	warnBrowserMightNotWork();
     };
 
 
 
     //////////////////////////////////////////////////////////////////////
 
-    
+    // isOldIe: string string -> boolean
+    // Returns true if the browser and version are below IE 8.
+    var isOldIE = function(browser, versionString) {
+        return versionMatches(browser, versionString, {browser: "Explorer", lessThan: "8"});
+    };
+
+
+
+
     // // isFullySupported: -> boolean
     // // Returns true if the currently running browser is fully supported.
     var isFullySupported = function(browser, versionString) {
@@ -268,6 +288,30 @@ goog.require('plt.wescheme.cookies');
 	dialogWindow.dialog("open");
     };
 
+
+    var warnOldIE = function() {
+	var dialogWindow = (jQuery("<div/>"));
+	dialogWindow.append(
+	    "WeScheme detects that you are using " 
+                + BrowserDetect.browser + " " + 
+		BrowserDetect.version + 
+		".  Note that WeScheme will no longer support " +
+                "Internet Explorer 7 after June 1st, 2012.  " +
+                "Please update your browser to a newer version.  These browsers include "+
+		"<a href='http://www.google.com/chrome'>Chrome</a>,  "+
+		"<a href='http://www.getfirefox.com'>Firefox</a>, or "+
+		"<a href='http://www.apple.com/safari'>Safari</a>.");
+	dialogWindow.dialog({'title': 'Browser version check',
+			     'bgiframe' : true,
+			     'modal' : true,
+			     'overlay' : {'opacity': 0.5,
+					  'background': 'black'}
+			    });
+	dialogWindow.dialog("open");
+    };
+
+
+    //////////////////////////////////////////////////////////////////////
     
     // Debugging hooks.  These are not going to be normally used, but
     // are at least accessible from a debugging console.
@@ -283,6 +327,8 @@ goog.require('plt.wescheme.cookies');
     BrowserDetect.debug.isPartiallySupported = isPartiallySupported;
     BrowserDetect.debug.isUnsupported = isUnsupported;
 
+    BrowserDetect.debug.isOldIE = isOldIE;
+    BrowserDetect.debug.warnOldIE = warnOldIE;
 
     BrowserDetect.debug.versionMatches = versionMatches;
 
