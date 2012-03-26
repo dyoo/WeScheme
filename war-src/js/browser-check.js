@@ -27,10 +27,10 @@ goog.require('plt.wescheme.cookies');
     var BrowserDetect = plt.wescheme.BrowserDetect;
     var Cookies = plt.wescheme.cookies;
 
-    var fullySupportedVersions = [ {browser: 'Safari', minimumVersion: '5'},
-				   {browser: 'Chrome', minimumVersion: '5'},
-				   {browser: 'Firefox', minimumVersion: '3.5.1'},
-                                   {browser: 'Explorer', minimumVersion: '7'}];
+    var fullySupportedVersions = [ {browser: 'Safari', greaterThanOrEqual: '5'},
+				   {browser: 'Chrome', greaterThanOrEqual: '5'},
+				   {browser: 'Firefox', greaterThanOrEqual: '3.5.1'},
+                                   {browser: 'Explorer', greaterThanOrEqual: '7'}];
 
     var knownBadBrowsers = [ {browser: 'Explorer', lessThan: '7'},
 			     {browser: 'Safari', lessThan: '4'},
@@ -56,14 +56,14 @@ goog.require('plt.wescheme.cookies');
 	    if (browserAlreadyChecked()) {
 		return;
 	    }
-	    var minimumVersion;
+	    var greaterThanOrEqual;
 	    for (var i = 0 ; i < fullySupportedVersions; i++) {
 		if (browser === fullySupportedVersions[i].browser) {
-		    minimumVersion  = fullySupportedVersions[i].minimumVersion;
+		    greaterThanOrEqual  = fullySupportedVersions[i].greaterThanOrEqual;
 		}
 	    }
 	    markBrowserChecked();
-	    warnBrowserPartiallySupported(browser, minimumVersion);
+	    warnBrowserPartiallySupported(browser, greaterThanOrEqual);
 	} else {
 	    // Warn: using browser that we haven't tested against.
 	    warnBrowserMightNotWork();
@@ -81,7 +81,7 @@ goog.require('plt.wescheme.cookies');
     	for (var i = 0; i < fullySupportedVersions.length; i++) {
     	    if (browser === fullySupportedVersions[i].browser) {
     		if (versionGreaterThanOrEqual(versionString,
-					      fullySupportedVersions[i].minimumVersion)) {
+					      fullySupportedVersions[i].greaterThanOrEqual)) {
     		    return true;
     		}
     	    }
@@ -120,12 +120,10 @@ goog.require('plt.wescheme.cookies');
     // For example:
     //    versionMatches("Explorer", "7", { browser: "Explorer", lessThan: "8"} )
     // should evaluate to true.
-
-    var versionMatches = function(browser, version,
-                                  description) {
+    var versionMatches = function(browser, version, description) {
         if (browser === description.browser) {
-            if (description.minimumVersion) {
-                return versionGreaterThanOrEqual(version, description.minimumVersion);
+            if (description.greaterThanOrEqual) {
+                return versionGreaterThanOrEqual(version, description.greaterThanOrEqual);
             } else if (description.lessThan) {
                 return versionLessThan(version, description.lessThan);
             }
@@ -229,12 +227,12 @@ goog.require('plt.wescheme.cookies');
     
     // warnBrowserPartiallySupported: string number -> void
     // Bring up a modal dialog that warns the user if the browser has 
-    var warnBrowserPartiallySupported = function(browser, minimumVersion) {
+    var warnBrowserPartiallySupported = function(browser, greaterThanOrEqual) {
 	var dialogWindow = (jQuery("<div/>"));
 	dialogWindow.append(
 	    "<p>WeScheme detects that you're using " + BrowserDetect.browser + " " + 
 		BrowserDetect.version + ", but WeScheme needs " + browser + " >= " +
-		minimumVersion + ".<hr/>  WeScheme may still continue to work on your browser,"+
+		greaterThanOrEqual + ".<hr/>  WeScheme may still continue to work on your browser,"+
 		" but we have not tested it. We recommend installing "+
 		"<a href='http://www.google.com/chrome'>Chrome</a>,  "+
 		"<a href='http://www.getfirefox.com'>Firefox</a>, or "+
