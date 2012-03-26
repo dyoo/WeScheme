@@ -292,14 +292,13 @@ goog.require('plt.wescheme.cookies');
     var warnOldIE = function() {
 	var dialogWindow = (jQuery("<div/>"));
 	dialogWindow.append(
-	    "WeScheme detects that you are using " 
+	    "You appear to be using " 
                 + BrowserDetect.browser + " " + 
 		BrowserDetect.version + 
-		".  Note that WeScheme will no longer support " +
-                "Internet Explorer 7 after June 1st, 2012.  " +
-                "Please update your browser to a newer version.  These browsers include "+
-                "recent versions of "+
+		".  After June 1st, 2012, WeScheme will no longer support this browser.  " +
+                "Please upgrade to a newer version of " +
                 "<a href='http://www.microsoft.com/download/en/ie.aspx'>Internet Explorer</a>, "+
+                "or switch to " +
 		"<a href='http://www.google.com/chrome'>Chrome</a>,  "+
 		"<a href='http://www.getfirefox.com'>Firefox</a>, or "+
 		"<a href='http://www.apple.com/safari'>Safari</a>.");
