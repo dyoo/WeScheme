@@ -30,9 +30,9 @@ goog.require('plt.wescheme.cookies');
     var fullySupportedVersions = [ {browser: 'Safari', greaterThanOrEqual: '5'},
 				   {browser: 'Chrome', greaterThanOrEqual: '5'},
 				   {browser: 'Firefox', greaterThanOrEqual: '3.5.1'},
-                                   {browser: 'Explorer', greaterThanOrEqual: '7'}];
+                                   {browser: 'Explorer', greaterThanOrEqual: '8'}];
 
-    var knownBadBrowsers = [ {browser: 'Explorer', lessThan: '7'},
+    var knownBadBrowsers = [ {browser: 'Explorer', lessThan: '8'},
 			     {browser: 'Safari', lessThan: '4'},
 			     {browser: 'Firefox', lessThan: '3.5.1'} ];
 
@@ -298,6 +298,8 @@ goog.require('plt.wescheme.cookies');
 		".  Note that WeScheme will no longer support " +
                 "Internet Explorer 7 after June 1st, 2012.  " +
                 "Please update your browser to a newer version.  These browsers include "+
+                "recent versions of "+
+                "<a href='http://www.microsoft.com/download/en/ie.aspx'>Internet Explorer</a>, "+
 		"<a href='http://www.google.com/chrome'>Chrome</a>,  "+
 		"<a href='http://www.getfirefox.com'>Firefox</a>, or "+
 		"<a href='http://www.apple.com/safari'>Safari</a>.");
