@@ -464,7 +464,8 @@ var initializeWidget = (function () {
                     if (extraParams.toBlock) {
                         extraParams.toBlock.call(jQuery(id));
                     } else {
-                        jQuery(id).block({message : null});
+                        jQuery(id).block({message : null,
+                                          applyPlatformOpacityRules: false});
                     }
                     currentlyBlocked = true;
                     that.scheduleNotification();
@@ -477,7 +478,8 @@ var initializeWidget = (function () {
             if (extraParams.toBlock) {
                 extraParams.toBlock.call(jQuery(id));
             } else {
-                jQuery(id).block({message : null});
+                jQuery(id).block({message : null,
+                                  applyPlatformOpacityRules: false});
             }
             currentlyBlocked = true;
             this.scheduleNotification();
