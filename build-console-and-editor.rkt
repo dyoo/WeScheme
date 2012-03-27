@@ -93,6 +93,9 @@
 
 
 ;; ######################################################################
+(printf "Building splash\n")
+(build "splash.js" "splash-calc.js")
+
 (printf "Building console\n")
 (build "console.js" "console-calc.js")
 
