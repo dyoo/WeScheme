@@ -147,10 +147,15 @@ var initializeWidget = (function () {
             jQuery(errorElement).empty();
         };
 
+	var km = {};
+	km["Tab"] = "indentAuto";
+
         this.codeMirrorElement = 
             CodeMirror.fromTextArea(textElement,
                                     { matchBrackets: true,
-                                      tabMode: "default",
+				      extraKeys: km,
+				      mode: "scheme2",
+                                      value: "",
                                       onChange: onChange,
                                       onBlur: onBlur,
                                       onFocus: onFocus
@@ -709,6 +714,8 @@ var initializeWidget = (function () {
         
         // add a demo DR widget at cursor location
         var showWidget = function(){
+            clearForm();
+
             // document.getElementById('design-recipe-insertCode').disabled = true;
             pos = editor.getCursor(true);		// get the current cursor location
             pos.ch = 0;							// force the character to 0
