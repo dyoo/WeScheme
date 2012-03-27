@@ -3,7 +3,7 @@
 (require racket/path
          racket/file
          racket/cmdline
-         (planet dyoo/closure-compile))
+         (planet dyoo/closure-compile:1:3))
 
 ;; This program compresses all of the JavaScript files using Closure Compiler,
 ;; with simple optimizations.  All ".js" files (excluding the -min.js files)
