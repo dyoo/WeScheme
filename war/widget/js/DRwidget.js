@@ -144,7 +144,7 @@ var initializeWidget = (function () {
         };
 
         var onBlur = function() {
-            jQuery(errorElement).empty();
+            // jQuery(errorElement).empty();
         };
 
 	var km = {};
