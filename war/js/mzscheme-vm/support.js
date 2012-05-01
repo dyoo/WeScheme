@@ -1983,6 +1983,90 @@ var jsworld = {};
     Jsworld.on_key = on_key;
 
 
+    function on_tap(press) {
+	return function() {
+	    var wrappedPress = function(e) {
+		    preventDefault(e);
+		    stopPropagation(e);
+		    change_world(function(w, k) { press(w, e, k); }, doNothing);
+	    };
+            if ('ontouchstart' in document.documentElement) {
+	        return {
+		    onRegister: function(top) { attachEvent(top, 'touchstart', wrappedPress); },
+		    onUnregister: function(top) { detachEvent(top, 'touchstart', wrappedPress); }
+	        };
+            } else {
+	        return {
+		    onRegister: function(top) { attachEvent(top, 'mousedown', wrappedPress); },
+		    onUnregister: function(top) { detachEvent(top, 'mousedown', wrappedPress); }
+	        };
+            }
+	}
+    }
+    Jsworld.on_tap = on_tap;
+
+
+    // devicemotion, deviceorientation
+    //   
+    // http://stackoverflow.com/questions/4378435/how-to-access-accelerometer-gyroscope-data-from-javascript
+    // http://www.murraypicton.com/2011/01/exploring-the-iphones-accelerometer-through-javascript/
+    function on_tilt(tilt) {
+	return function() {
+	    var wrappedTilt;
+            var beta = 0, gamma = 0;
+            var tickId;
+            var delay = 1000 / 5; // Send an update five times a second.
+
+            var update = function() {
+                change_world(function(w, k) { tilt(w, gamma, beta, k); }, doNothing);
+            };
+
+            if (window.DeviceOrientationEvent) {
+                wrappedTilt = function(e) {
+		    preventDefault(e);
+		    stopPropagation(e);
+                    // Under web browsers that don't have an accelerometer,
+                    // we actually get the null values for beta and gamma.
+                    // We should guard against that.
+                    beta = e.beta || 0; gamma = e.gamma || 0;
+                };
+
+	        return {
+		    onRegister: function(top) { 
+                        attachEvent(window, 'deviceorientation', wrappedTilt); 
+                        tickId = setInterval(update, delay);
+                    },
+		    onUnregister: function(top) { 
+                        clearInterval(tickId);
+                        detachEvent(window, 'deviceorientation', wrappedTilt);
+                    }
+	        };
+            } else {
+                // MozOrientation attempt.
+                wrappedTilt = function(e) {
+		    preventDefault(e);
+		    stopPropagation(e);
+                    if (!e.gamma && !e.beta) {  
+                        gamma = e.x * 90 || 0;
+                        beta = e.y * (-90) || 0;
+                    } else {
+                        gamma = e.gamma || 0;
+                        beta = e.beta || 0;
+                    }
+                };
+	        return {
+		    onRegister: function(top) { attachEvent(window, 'MozOrientation', wrappedTilt); 
+                                                tickId = setInterval(update, delay); },
+		    onUnregister: function(top) { detachEvent(window, 'MozOrientation', wrappedTilt);
+                                                  clearInterval(tickId); }
+	        };
+            }
+	}
+    }
+    Jsworld.on_tilt = on_tilt;
+
+
+
     
     //  on_draw: CPS(world -> (sexpof node)) CPS(world -> (sexpof css-style)) -> handler
     function on_draw(redraw, redraw_css) {
@@ -8217,13 +8301,13 @@ var textToDomNode = function(text) {
     var i;
     var wrapper = document.createElement("span");
     var newlineDiv;
-    wrapper.style['font-family'] = 'monospace';
-    wrapper.style["white-space"] = "pre";
+    wrapper.style.fontFamily = 'monospace';
+    wrapper.style.whiteSpace = "pre";
     if (chunks.length > 0) {
         wrapper.appendChild(document.createTextNode(chunks[0]));
     }
     for (i = 1; i < chunks.length; i++) {
-        newlineDiv = document.createElement("div");
+        newlineDiv = document.createElement("br");
         newlineDiv.style.clear = 'left';
         wrapper.appendChild(newlineDiv);
         wrapper.appendChild(document.createTextNode(chunks[i]));
@@ -8401,7 +8485,7 @@ var ValuesWrapper = function(elts) {
 
 ValuesWrapper.prototype.toDomNode = function(cache) {
     var parent = document.createElement("span");
-    parent.style["white-space"] = "pre";
+    parent.style.whiteSpace = "pre";
     if ( this.elts.length > 0 ) {
 	    parent.appendChild( toDomNode(this.elts[0], cache) );
 	    for (var i = 1; i < this.elts.length; i++) {
@@ -9487,6 +9571,14 @@ var world = {};
 	    onTilt: false,
 	    // onTiltEffect: world number number number -> effect
 	    onTiltEffect: false,
+
+
+            // Corresponds to touchstart
+	    // onTap: world number number -> world
+	    onTap: false,
+	    // onTapEffect: world number number -> effect
+	    onTapEffect: false,
+
 
 	    // onAcceleration: world number number number -> world
 	    onAcceleration: false,
@@ -12334,15 +12426,40 @@ world.Kernel.isFileVideo	= function(x) { return x instanceof FileVideo; };
 
 	if (config.lookup('onKey')) {
 
-	    // TODO: add virtual key bindings
-	    var removeVirtualKeys = addVirtualKeys(stimuli, toplevelNode);
-	    shutdownListeners.push(function() { removeVirtualKeys(); });
+	    // // TODO: add virtual key bindings
+	    // var removeVirtualKeys = addVirtualKeys(stimuli, toplevelNode);
+	    // shutdownListeners.push(function() { removeVirtualKeys(); });
 		
 
 	    var wrappedKey = function(w, e, k) {
 		    caller(config.lookup('onKey'), [w, helpers.getKeyCodeName(e)], k);
 	    }
 	    wrappedHandlers.push(_js.on_key(wrappedKey));
+	    toplevelNode.focus();
+	}
+
+
+        if (config.lookup('onTap')) {
+	    var wrappedTap = function(w, e, k) {
+                var x = e.pageX, y = e.pageY;
+                var currentElement = e.target;
+                do {
+                    x -= currentElement.offsetLeft;
+                    y -= currentElement.offsetTop;
+                    currentElement = currentElement.offsetParent;
+                } while(currentElement);
+
+		caller(config.lookup('onTap'), [w, x, y], k);
+	    }
+	    wrappedHandlers.push(_js.on_tap(wrappedTap));
+        }
+
+
+	if (config.lookup('onTilt')) {
+	    var wrappedTilt = function(w, gamma, beta, k) {
+		caller(config.lookup('onTilt'), [w, jsnums.makeFloat(gamma), jsnums.makeFloat(beta)], k);
+	    }
+	    wrappedHandlers.push(_js.on_tilt(wrappedTilt));
 	    toplevelNode.focus();
 	}
 
@@ -18416,6 +18533,10 @@ PRIMITIVES['on-tick!'] =
 		      }) ]);
 
 
+PRIMITIVES['on-tap'] = new PrimProc('on-tap', 1, false, false, onEvent('on-tap', 'onTap', 3));
+PRIMITIVES['on-tilt'] = new PrimProc('on-tilt', 1, false, false, onEvent('on-tilt', 'onTilt', 3));
+
+
 PRIMITIVES['on-key'] = new PrimProc('on-key', 1, false, false, onEvent('on-key', 'onKey', 2));
 PRIMITIVES['on-key!'] = new PrimProc('on-key!', 2, false, false, onEventBang('on-key!', 'onKey'));
 
@@ -18429,7 +18550,7 @@ PRIMITIVES['on-key!'] = new PrimProc('on-key!', 2, false, false, onEventBang('on
 // PRIMITIVES['on-location-change!'] = new PrimProc('on-location-change!', 2, false, false,
 // 						 onEventBang('on-location-change!', 'onLocationChange'));
 
-// PRIMITIVES['on-tilt'] = new PrimProc('on-tilt', 1, false, false, onEvent('on-tilt', 'onTilt', 4));
+
 // PRIMITIVES['on-tilt!'] = new PrimProc('on-tilt!', 2, false, false, onEventBang('on-tilt!', 'onTilt'));
 
 // PRIMITIVES['on-acceleration'] = new PrimProc('on-acceleration', 1, false, false,

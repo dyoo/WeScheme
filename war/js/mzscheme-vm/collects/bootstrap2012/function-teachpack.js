@@ -1302,19 +1302,6 @@ window.COLLECTIONS["bootstrap2012/function-teachpack"] = { 'name': "bootstrap201
 ]
 }
 } ,"then":{"$":"seq" ,"forms":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/function-teachpack",6316,189,24,20])
-} ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":1 ,"pos":92 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/function-teachpack",6321,189,29,14])
-} ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":112 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":9 ,"clear":false ,"other-clears?":false ,"flonum?":false
-}
-]
-}
-}
-]
-}
-} ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/function-teachpack",6357,190,20,701])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
@@ -1349,22 +1336,7 @@ window.COLLECTIONS["bootstrap2012/function-teachpack"] = { 'name': "bootstrap201
 }
 ]
 }
-} ,"then":{"$":"seq" ,"forms":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/function-teachpack",6489,193,30,27])
-} ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":1 ,"pos":92 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/function-teachpack",6494,193,35,21])
-} ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":4 ,"pos":105 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":12 ,"clear":false ,"other-clears?":false ,"flonum?":false
-} ,{"$":"localref" ,"unbox?":false ,"pos":14 ,"clear":false ,"other-clears?":false ,"flonum?":false
-} ,{"$":"constant" ,"value":false
-}
-]
-}
-}
-]
-}
-} ,{"$":"seq" ,"forms":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
+} ,"then":{"$":"seq" ,"forms":[{"$":"seq" ,"forms":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/function-teachpack",6578,195,28,22])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":3 ,"pos":107 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":11 ,"clear":false ,"other-clears?":false ,"flonum?":false
@@ -1570,20 +1542,6 @@ window.COLLECTIONS["bootstrap2012/function-teachpack"] = { 'name': "bootstrap201
 ]
 }
 } ,"then":{"$":"seq" ,"forms":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/function-teachpack",7536,215,12,19])
-} ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":1 ,"pos":92 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/function-teachpack",7541,215,17,13])
-} ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":3 ,"pos":50 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":10 ,"clear":false ,"other-clears?":false ,"flonum?":false
-} ,{"$":"localref" ,"unbox?":false ,"pos":11 ,"clear":false ,"other-clears?":false ,"flonum?":false
-}
-]
-}
-}
-]
-}
-} ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/function-teachpack",7564,216,8,133])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":104 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"lam" ,"name":types.EMPTY ,"flags":[

@@ -1469,19 +1469,6 @@ window.COLLECTIONS["bootstrap2012/cage-teachpack"] = { 'name': "bootstrap2012/ca
 ]
 }
 } ,"then":{"$":"seq" ,"forms":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/cage-teachpack",5875,188,24,20])
-} ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":1 ,"pos":85 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/cage-teachpack",5880,188,29,14])
-} ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":118 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":9 ,"clear":false ,"other-clears?":false ,"flonum?":false
-}
-]
-}
-}
-]
-}
-} ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/cage-teachpack",5916,189,20,701])
 } ,"body":{"$":"application" ,"rator":{"$":"lam" ,"name":types.EMPTY ,"flags":[
 ] ,"num-params":1 ,"param-types":[types.symbol("val")
@@ -1516,22 +1503,7 @@ window.COLLECTIONS["bootstrap2012/cage-teachpack"] = { 'name': "bootstrap2012/ca
 }
 ]
 }
-} ,"then":{"$":"seq" ,"forms":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/cage-teachpack",6048,192,30,27])
-} ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":1 ,"pos":85 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/cage-teachpack",6053,192,35,21])
-} ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":4 ,"pos":110 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":12 ,"clear":false ,"other-clears?":false ,"flonum?":false
-} ,{"$":"localref" ,"unbox?":false ,"pos":14 ,"clear":false ,"other-clears?":false ,"flonum?":false
-} ,{"$":"constant" ,"value":false
-}
-]
-}
-}
-]
-}
-} ,{"$":"seq" ,"forms":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
+} ,"then":{"$":"seq" ,"forms":[{"$":"seq" ,"forms":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/cage-teachpack",6137,194,28,22])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":3 ,"pos":115 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":11 ,"clear":false ,"other-clears?":false ,"flonum?":false
@@ -1737,20 +1709,6 @@ window.COLLECTIONS["bootstrap2012/cage-teachpack"] = { 'name': "bootstrap2012/ca
 ]
 }
 } ,"then":{"$":"seq" ,"forms":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/cage-teachpack",7095,214,12,19])
-} ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":1 ,"pos":85 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
-} ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/cage-teachpack",7100,214,17,13])
-} ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":3 ,"pos":57 ,"const?":false ,"ready?":false
-} ,"rands":[{"$":"localref" ,"unbox?":false ,"pos":10 ,"clear":false ,"other-clears?":false ,"flonum?":false
-} ,{"$":"localref" ,"unbox?":false ,"pos":11 ,"clear":false ,"other-clears?":false ,"flonum?":false
-}
-]
-}
-}
-]
-}
-} ,{"$":"with-cont-mark" ,"key":{"$":"constant" ,"value":types.symbol("moby-stack-record-continuation-mark-key")
 } ,"val":{"$":"constant" ,"value":types.vector(["bootstrap2012/cage-teachpack",7123,215,8,133])
 } ,"body":{"$":"application" ,"rator":{"$":"toplevel" ,"depth":2 ,"pos":116 ,"const?":false ,"ready?":false
 } ,"rands":[{"$":"lam" ,"name":types.EMPTY ,"flags":[
