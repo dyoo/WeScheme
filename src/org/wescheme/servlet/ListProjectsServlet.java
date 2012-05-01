@@ -87,19 +87,21 @@ public class ListProjectsServlet extends HttpServlet {
     @SuppressWarnings("unchecked")
 	private String getOutputString(Session userSession) throws IOException {
         Cache c = CacheHelpers.getCache();
-        if (c != null) {
-            if (! c.containsKey(CacheHelpers.getUserProgramsCacheKey(userSession.getName()))) {
-                String outputString = getFromDatabase(userSession);
-                c.put(CacheHelpers.getUserProgramsCacheKey(userSession.getName()),
-                      outputString);
-                return outputString;
-            } else {
-                String result = (String) c.get(CacheHelpers.getUserProgramsCacheKey(userSession.getName()));
-                if (result != null) {
-                    return result;
-                }
-            }			
-        }
+        // if (c != null) {
+        //     if (! c.containsKey(CacheHelpers.getUserProgramsCacheKey(userSession.getName()))) {
+        //         String outputString = getFromDatabase(userSession);
+        //         c.put(CacheHelpers.getUserProgramsCacheKey(userSession.getName()),
+        //               outputString);
+        //         return outputString;
+        //     } else {
+        //         String result = (String) c.get(CacheHelpers.getUserProgramsCacheKey(userSession.getName()));
+        //         if (result != null) {
+        //             return result;
+        //         }
+        //     }			
+        // }
+        
+        // Turning off the cache for the moment.  Something is wrong, as I'm seeing stale data.
 
         return getFromDatabase(userSession);
     }
