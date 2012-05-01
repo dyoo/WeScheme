@@ -330,3 +330,9 @@ span.top-aligned-inline-block {
     zoom: 1;
     *display: inline;
 }
+
+
+.evaluatorToplevelNode {
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    -webkit-touch-callout: none;
+}

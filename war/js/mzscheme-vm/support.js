@@ -1990,17 +1990,27 @@ var jsworld = {};
 		    stopPropagation(e);
 		    change_world(function(w, k) { press(w, e, k); }, doNothing);
 	    };
-            if ('ontouchstart' in document.documentElement) {
-	        return {
-		    onRegister: function(top) { attachEvent(top, 'touchstart', wrappedPress); },
-		    onUnregister: function(top) { detachEvent(top, 'touchstart', wrappedPress); }
-	        };
-            } else {
-	        return {
-		    onRegister: function(top) { attachEvent(top, 'mousedown', wrappedPress); },
-		    onUnregister: function(top) { detachEvent(top, 'mousedown', wrappedPress); }
-	        };
-            }
+
+	    return {
+		onRegister: function(top) { 
+                    top.style.webkitTouchCallout = "none";
+                    attachEvent(top, 'mousedown', wrappedPress); 
+                },
+		onUnregister: function(top) { 
+                    detachEvent(top, 'mousedown', wrappedPress); 
+                }
+	    };
+            // if ('ontouchstart' in document.documentElement) {
+	    //     return {
+	    //         onRegister: function(top) { attachEvent(top, 'touchstart', wrappedPress); },
+	    //         onUnregister: function(top) { detachEvent(top, 'touchstart', wrappedPress); }
+	    //     };
+            // } else {
+	    //     return {
+	    //         onRegister: function(top) { attachEvent(top, 'mousedown', wrappedPress); },
+	    //         onUnregister: function(top) { detachEvent(top, 'mousedown', wrappedPress); }
+	    //     };
+            // }
 	}
     }
     Jsworld.on_tap = on_tap;

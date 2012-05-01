@@ -325,7 +325,7 @@ WeSchemeInteractions = (function () {
                 closeOnEscape: true
             });
 
-            var innerArea = jQuery("<div></div>");
+            var innerArea = jQuery("<div class='evaluatorToplevelNode'></div>");
             dialog.append(innerArea);
             dialog.dialog("open");
             return innerArea.get(0);
