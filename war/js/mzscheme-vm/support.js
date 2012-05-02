@@ -1140,6 +1140,7 @@ var jsworld = {};
     function InitialWorld() {}
 
     var world = new InitialWorld();
+    var isWorldChanging = false;
     var worldListeners = [];
     var eventDetachers = [];
     var runningBigBangs = [];
@@ -1184,42 +1185,45 @@ var jsworld = {};
     // change_world: CPS( CPS(world -> world) -> void )
     // Adjust the world, and notify all listeners.
     function change_world(updater, k) {
+        if (isWorldChanging) {
+            setTimeout(function() {change_world(updater, k);}, 100);
+            return;
+        }
 	var originalWorld = world;
-
-	var changeWorldHelp = function() {
-		if (world instanceof WrappedWorldWithEffects) {
-			var effects = world.getEffects();
-			helpers.forEachK(effects,
+        isWorldChanging = true;
+	var afterUpdate = function(newWorld) {
+            world = newWorld;
+	    if (world instanceof WrappedWorldWithEffects) {
+		var effects = world.getEffects();
+		helpers.forEachK(effects,
 				 function(anEffect, k2) { anEffect.invokeEffect(change_world, k2); },
 				 function (e) { throw e; },
 				 function() {
-				 	world = world.getWorld();
-					changeWorldHelp2();
+				     world = world.getWorld();
+				     changeWorldHelp2();
 				 });
-		} else {
-			changeWorldHelp2();
-		}
+	    } else {
+		changeWorldHelp2();
+	    }
 	};
 	
+        var doWorldChange = function(listener, k2) { listener(world, originalWorld, k2); };
+        var onWorldChangeError = function(e) { world = originalWorld; throw e; };
 	var changeWorldHelp2 = function() {
-		helpers.forEachK(worldListeners,
-			 function(listener, k2) { listener(world, originalWorld, k2); },
-			 function(e) { world = originalWorld; throw e; },
-			 k);
+	    helpers.forEachK(worldListeners,
+			     doWorldChange,
+			     onWorldChangeError,
+			     function(){isWorldChanging = false; k()});
 	};
 
 	try {
-		updater(world, function(newWorld) {
-				world = newWorld;
-				changeWorldHelp();
-			});
+	    updater(world, afterUpdate);
 	} catch(e) {
-		world = originalWorld;
-
+	    world = originalWorld;
 	    if (typeof(console) !== 'undefined' && console.log && e.stack) {
-			console.log(e.stack);
-		}
-		throw e;
+		console.log(e.stack);
+	    }
+	    throw e;
 	}
     }
     Jsworld.change_world = change_world;
@@ -1813,7 +1817,7 @@ var jsworld = {};
 		k();
 	    });
 	} else {
-	    f(function() { k(); });
+	    f(k);
 	}
     }
 
@@ -1951,14 +1955,19 @@ var jsworld = {};
     // on_tick: number CPS(world -> world) -> handler
     function on_tick(delay, tick) {
 	return function() {
+            var watchId;
+            var reschedule = function() {
+                watchId = setTimeout(change, delay);
+            };
+            var change = function() {
+                change_world(tick, reschedule);
+            };
 	    var ticker = {
-		watchId: -1,
 		onRegister: function (top) { 
-		    ticker.watchId = setInterval(function() { change_world(tick, doNothing); }, delay);
+                    reschedule();
 		},
-
 		onUnregister: function (top) {
-		    clearInterval(ticker.watchId);
+		    if (watchId) { clearTimeout(watchId); }
 		}
 	    };
 	    return ticker;
@@ -1969,10 +1978,20 @@ var jsworld = {};
 
     function on_key(press) {
 	return function() {
-	    var wrappedPress = function(e) {
-		    preventDefault(e);
-		    stopPropagation(e);
-		    change_world(function(w, k) { press(w, e, k); }, doNothing);
+            var stillPressing = false;
+            var clearPressing = function() {
+                stillPressing = false;
+            };
+            var e;
+            var f = function(w, k) { press(w, e, k); };
+	    var wrappedPress = function(e_) {
+                e = e_;
+		preventDefault(e);
+		stopPropagation(e);
+                if (! stillPressing) {
+                    stillPressing = true;
+		    change_world(f, clearPressing);
+                }
 	    };
 	    return {
 		onRegister: function(top) { attachEvent(top, 'keydown', wrappedPress); },
@@ -1985,32 +2004,38 @@ var jsworld = {};
 
     function on_tap(press) {
 	return function() {
-	    var wrappedPress = function(e) {
-		    preventDefault(e);
-		    stopPropagation(e);
-		    change_world(function(w, k) { press(w, e, k); }, doNothing);
+            var e;
+            var top;
+
+            var stillPressing = false;
+            var clearPressing = function() {
+                stillPressing = false;
+            };
+
+            var f = function(w, k) { press(w, e, k); };
+	    var wrappedPress = function(_e) {
+                e = _e;
+                if (top) { top.focus(); }
+  
+		preventDefault(e);
+		stopPropagation(e);
+                if (! stillPressing) {
+                    stillPressing = true;
+		    change_world(f, clearPressing);
+                }
 	    };
 
 	    return {
-		onRegister: function(top) { 
-                    top.style.webkitTouchCallout = "none";
+		onRegister: function(top_) {
+                    top = top_;
                     attachEvent(top, 'mousedown', wrappedPress); 
+                    attachEvent(top, 'touchstart', wrappedPress); 
                 },
 		onUnregister: function(top) { 
-                    detachEvent(top, 'mousedown', wrappedPress); 
+                    detachEvent(top, 'mousedown', wrappedPress);
+                    detachEvent(top, 'touchstart', wrappedPress); 
                 }
 	    };
-            // if ('ontouchstart' in document.documentElement) {
-	    //     return {
-	    //         onRegister: function(top) { attachEvent(top, 'touchstart', wrappedPress); },
-	    //         onUnregister: function(top) { detachEvent(top, 'touchstart', wrappedPress); }
-	    //     };
-            // } else {
-	    //     return {
-	    //         onRegister: function(top) { attachEvent(top, 'mousedown', wrappedPress); },
-	    //         onUnregister: function(top) { detachEvent(top, 'mousedown', wrappedPress); }
-	    //     };
-            // }
 	}
     }
     Jsworld.on_tap = on_tap;
@@ -2025,10 +2050,15 @@ var jsworld = {};
 	    var wrappedTilt;
             var beta = 0, gamma = 0;
             var tickId;
-            var delay = 1000 / 5; // Send an update five times a second.
-
+            var delay = 1000 / 4; // Send an update four times a second.
+            
+            var f = function(w, k) { tilt(w, gamma, beta, k); };
             var update = function() {
-                change_world(function(w, k) { tilt(w, gamma, beta, k); }, doNothing);
+                change_world(f, reschedule);
+            };
+
+            var reschedule = function() {
+                tickId = setTimeout(update, delay);
             };
 
             if (window.DeviceOrientationEvent) {
@@ -2044,31 +2074,18 @@ var jsworld = {};
 	        return {
 		    onRegister: function(top) { 
                         attachEvent(window, 'deviceorientation', wrappedTilt); 
-                        tickId = setInterval(update, delay);
+                        reschedule();
                     },
 		    onUnregister: function(top) { 
-                        clearInterval(tickId);
+                        clearTimeout(tickId);
                         detachEvent(window, 'deviceorientation', wrappedTilt);
                     }
 	        };
             } else {
-                // MozOrientation attempt.
-                wrappedTilt = function(e) {
-		    preventDefault(e);
-		    stopPropagation(e);
-                    if (!e.gamma && !e.beta) {  
-                        gamma = e.x * 90 || 0;
-                        beta = e.y * (-90) || 0;
-                    } else {
-                        gamma = e.gamma || 0;
-                        beta = e.beta || 0;
-                    }
-                };
+                // Otherwise, the environment doesn't support orientation events.
 	        return {
-		    onRegister: function(top) { attachEvent(window, 'MozOrientation', wrappedTilt); 
-                                                tickId = setInterval(update, delay); },
-		    onUnregister: function(top) { detachEvent(window, 'MozOrientation', wrappedTilt);
-                                                  clearInterval(tickId); }
+		    onRegister: function(top) { },
+		    onUnregister: function(top) { }
 	        };
             }
 	}
@@ -2080,11 +2097,14 @@ var jsworld = {};
     
     //  on_draw: CPS(world -> (sexpof node)) CPS(world -> (sexpof css-style)) -> handler
     function on_draw(redraw, redraw_css) {
-	var wrappedRedraw = function(w, k) {
-	    redraw(w, function(newDomTree) {
-	    	checkDomSexp(newDomTree, newDomTree);
-	    	k(newDomTree);
-	    });
+        var k;
+        var afterRedraw = function(newDomTree) {
+	    checkDomSexp(newDomTree, newDomTree);
+	    k(newDomTree);
+	};
+	var wrappedRedraw = function(w, k_) {
+            k = k_;
+	    redraw(w, afterRedraw);
 	}
 
 	return function() {
@@ -17854,16 +17874,16 @@ PRIMITIVES['text'] =
 		 3,
 		 false, false,
 		 function(aString, aSize, aColor) {
-			check(aString, isString, "text", "string", 1, arguments);
+		     check(aString, isString, "text", "string", 1, arguments);
 		     check(aSize, function(x) { return isNatural(x) && jsnums.greaterThan(x, 0) && isByte(x); },
-			      "text", "exact integer between 1 and 255", 2, arguments);
-			check(aColor, isColor, "text", "color", 3, arguments);
-
-			if (colorDb.get(aColor)) {
-				aColor = colorDb.get(aColor);
-			}
-		        return world.Kernel.textImage(aString.toString(), jsnums.toFixnum(aSize), aColor,
-											  "normal", "Optimer","","",false);
+			   "text", "exact integer between 1 and 255", 2, arguments);
+		     check(aColor, isColor, "text", "color", 3, arguments);
+                     
+		     if (colorDb.get(aColor)) {
+			 aColor = colorDb.get(aColor);
+		     }
+		     return world.Kernel.textImage(aString.toString(), jsnums.toFixnum(aSize), aColor,
+						   "normal", "Optimer","","",false);
 		 });
 
 
