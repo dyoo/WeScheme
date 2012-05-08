@@ -2045,14 +2045,19 @@ var jsworld = {};
     //   
     // http://stackoverflow.com/questions/4378435/how-to-access-accelerometer-gyroscope-data-from-javascript
     // http://www.murraypicton.com/2011/01/exploring-the-iphones-accelerometer-through-javascript/
+    //
+    // with orientation change content in:
+    //
+    // http://stackoverflow.com/questions/1649086/detect-rotation-of-android-phone-in-the-browser-with-javascript
     function on_tilt(tilt) {
 	return function() {
 	    var wrappedTilt;
-            var beta = 0, gamma = 0;
+            var leftRight = 0,    // top/down
+                topDown = 0;   // left/right
             var tickId;
             var delay = 1000 / 4; // Send an update four times a second.
             
-            var f = function(w, k) { tilt(w, gamma, beta, k); };
+            var f = function(w, k) { tilt(w, leftRight, topDown, k); };
             var update = function() {
                 change_world(f, reschedule);
             };
@@ -2061,14 +2066,42 @@ var jsworld = {};
                 tickId = setTimeout(update, delay);
             };
 
+
             if (window.DeviceOrientationEvent) {
                 wrappedTilt = function(e) {
 		    preventDefault(e);
 		    stopPropagation(e);
+
                     // Under web browsers that don't have an accelerometer,
                     // we actually get the null values for beta and gamma.
                     // We should guard against that.
-                    beta = e.beta || 0; gamma = e.gamma || 0;
+                    if (e.gamma === null || e.beta === null) {
+                        if (tickId) { clearTimeout(tickId); tickId = undefined; }
+                        return;
+                    }
+
+                    if (window.orientation === 0) {
+                        // Portrait
+                        leftRight = e.gamma;
+                        topDown = e.beta; 
+                    } else if (window.orientation === 90) {
+                        // Landscape (counterclockwise turn from portrait)
+                        leftRight = e.beta;
+                        topDown = -(e.gamma); 
+                    } else if (window.orientation === -90) {
+                        // Landscape (clockwise turn from portrait)
+                        leftRight = -(e.beta);
+                        topDown = e.gamma; 
+                    } else if (window.orientation === 180) {
+                        // upside down
+                        leftRight = -(e.gamma);
+                        topDown = -(e.beta); 
+                    } else {
+                        // Failsafe: treat as portrait if we don't get a good
+                        // window.orientation.
+                        leftRight = e.gamma;
+                        topDown = e.beta; 
+                    }
                 };
 
 	        return {
@@ -2077,7 +2110,7 @@ var jsworld = {};
                         reschedule();
                     },
 		    onUnregister: function(top) { 
-                        clearTimeout(tickId);
+                        if(tickId) { clearTimeout(tickId); }
                         detachEvent(window, 'deviceorientation', wrappedTilt);
                     }
 	        };
