@@ -80,6 +80,10 @@ div#design-recipe-form .stillErroneous{
     border: 3px solid blue;
 }
 
+div#design-recipe-form .correct{
+    border: 3px solid green;
+}
+
 div#design-recipe-form span.error{
     font-family: helvetica, arial;
     font-weight: normal; 

@@ -118,6 +118,7 @@ var initializeWidget = (function () {
 
                         if (!err.target.calmedBlink) { err.target.calmedBlink = new CalmedEvent(600); }
                         err.target.calmedBlink.trigger(function() { blinkTwice(err.target); });
+                        jQuery(that.codeMirrorElement.getWrapperElement()).removeClass("correct");
                         jQuery(that.codeMirrorElement.getWrapperElement()).addClass("stillErroneous");
                         return;
                     }
@@ -127,6 +128,7 @@ var initializeWidget = (function () {
                     if (err) {
                         jQuery(errorElement).empty();
                         jQuery(errorElement).append(jQuery('<span/>').addClass("error").append(err));
+                        jQuery(that.codeMirrorElement.getWrapperElement()).removeClass("correct");
                         jQuery(that.codeMirrorElement.getWrapperElement()).addClass("stillErroneous");
                         return;
                     }
@@ -135,6 +137,7 @@ var initializeWidget = (function () {
                     jQuery(errorElement).empty();
                     jQuery(errorElement).append(jQuery('<span/>').text(" "));
                     jQuery(that.codeMirrorElement.getWrapperElement()).removeClass("stillErroneous");
+                    jQuery(that.codeMirrorElement.getWrapperElement()).addClass("correct");
                 });
             }
         };
@@ -183,6 +186,7 @@ var initializeWidget = (function () {
         jQuery(this.errorElement).empty();
         jQuery(this.errorElement).append(jQuery('<span/>').text(" "));
         jQuery(this.codeMirrorElement.getWrapperElement()).removeClass("stillErroneous");
+        jQuery(this.codeMirrorElement.getWrapperElement()).removeClass("correct");
     };
 
     ValidatedTextInputElement.prototype.addChangeListener = function(f) {
