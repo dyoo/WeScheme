@@ -1178,6 +1178,7 @@ var jsworld = {};
 		eventDetachers[i]();
 	}
 	eventDetachers = [];
+        isWorldChanging = false;
     }
 
 
