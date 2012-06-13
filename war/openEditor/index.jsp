@@ -80,8 +80,8 @@
     <script type="text/javascript">
       jQuery(document).ready(function() {
           var userName, pid, publicId, hideHeader, hideFooter, hideDefinitions, hideInteractions,
-              warnOnExit, interactionsText, autorunDefinitions, isEmbedded;
-          userName = pid = publicId = interactionsText = null;
+              warnOnExit, interactionsText, definitionsText, autorunDefinitions, isEmbedded;
+          userName = pid = publicId = interactionsText = definitionsText = null;
           hideDefinitions = false;
           hideInteractions = false;
           autorunDefinitions = false;
@@ -131,6 +131,11 @@
 					 request.getParameter("interactionsText"), "utf-8").replaceAll("\\+", "%20") %>");
           <% } %>
 
+          <% if (request.getParameter("definitionsText") != null) { %>
+	     definitionsText = 
+	         decodeURIComponent("<%= java.net.URLEncoder.encode(
+					 request.getParameter("definitionsText"), "utf-8").replaceAll("\\+", "%20") %>");
+          <% } %>
 
 
           <% if (request.getParameter("pid") != null) { %>
@@ -161,6 +166,7 @@
 	                    hideInteractions: hideInteractions,
 	                    warnOnExit: warnOnExit,
 	                    initialInteractionsText: interactionsText,
+	                    initialDefinitionsText: definitionsText,
 	                    autorunDefinitions: autorunDefinitions });
       });
     </script>

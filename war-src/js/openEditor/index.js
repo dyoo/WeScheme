@@ -117,7 +117,9 @@ var initializeEditor;
 										if (attrs.initialInteractionsText) {
 											myEditor.interactions.setPromptText(attrs.initialInteractionsText + '');
 										}
-
+										if (attrs.initialDefinitionsText) {
+											myEditor.defn.setCode(attrs.initialDefinitionsText + '');
+										}
 
 										// Set up interactions afterwards.
 										jQuery("#interactions").click(function(e) {
