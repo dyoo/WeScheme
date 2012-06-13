@@ -158,6 +158,11 @@ var initializeEditor;
 			document.getElementById("definitions").style.display = "none";
 			return;
 		}
+		if (attrs.hideInteractions) {
+			document.getElementById("interactions").style.display = "none";
+			document.getElementById("definitions").style.height = "100%";
+			return;
+		}
 
 
 		var getDefn = function() {
