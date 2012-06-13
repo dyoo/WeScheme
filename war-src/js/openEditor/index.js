@@ -25,17 +25,20 @@ var initializeEditor;
 
 
 (function() {
-	initializeEditor = function(attrs) {
-		plt.wescheme.browserCheck();
-		maybeHideHeaderAndFooter(attrs.hideHeader, attrs.hideFooter);
-		editorSetup(attrs, 
-			    function() { 
-                                // At this point, we know the editor has been
-                                // initialized.
-		                maybeWarnOnExit(attrs.warnOnExit);
-                                splitPaneSetup(attrs); 
-                            });
-	};
+    initializeEditor = function(attrs) {
+	plt.wescheme.browserCheck();
+	maybeHideHeaderAndFooter(attrs.hideHeader, 
+                                 attrs.hideToolbar,
+                                 attrs.hideProjectName,
+                                 attrs.hideFooter);
+	editorSetup(attrs, 
+		    function() { 
+                        // At this point, we know the editor has been
+                        // initialized.
+		        maybeWarnOnExit(attrs.warnOnExit);
+                        splitPaneSetup(attrs); 
+                    });
+    };
 
 
 
@@ -57,14 +60,23 @@ var initializeEditor;
 
 
 
-	var maybeHideHeaderAndFooter = function(hideHeader, hideFooter) {
-		if (hideHeader) {
-			document.getElementById("top").style.display = 'none';
-		}
-		if (hideFooter) {
-			document.getElementById("bottom").style.display = 'none';
-		}
-	};
+    var maybeHideHeaderAndFooter = function(hideHeader, hideToolbar, hideProjectName, hideFooter) {
+	if (hideHeader) {
+	    document.getElementById("header").style.display = 'none';
+	}
+
+	if (hideToolbar) {
+	    document.getElementById("toolbar").style.display = 'none';
+	}
+
+	if (hideProjectName) {
+	    document.getElementById("fileInfo").style.display = 'none';
+	}
+
+	if (hideFooter) {
+	    document.getElementById("bottom").style.display = 'none';
+	}
+    };
 
 
 	var editorSetup = function(attrs, after) {

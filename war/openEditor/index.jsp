@@ -79,13 +79,18 @@
 
     <script type="text/javascript">
       jQuery(document).ready(function() {
-          var userName, pid, publicId, hideHeader, hideFooter, hideDefinitions, hideInteractions,
+          var userName, pid, publicId, 
+              hideHeader, hideToolbar,
+              hideProjectName,
+              hideFooter, hideDefinitions, hideInteractions,
               warnOnExit, interactionsText, definitionsText, autorunDefinitions, isEmbedded;
           userName = pid = publicId = interactionsText = definitionsText = null;
           hideDefinitions = false;
           hideInteractions = false;
           autorunDefinitions = false;
           hideHeader = false;
+          hideToolbar = false;
+          hideProjectName = false;
           hideFooter = false;
           warnOnExit = true;
           isEmbedded = false;
@@ -99,6 +104,15 @@
 	     hideHeader = true;
           <% } %>
 
+          <% if (request.getParameter("hideToolbar") != null &&
+                 request.getParameter("hideToolbar").equals("true")) { %>
+	     hideToolbar = true;
+          <% } %>
+
+          <% if (request.getParameter("hideProjectName") != null &&
+                 request.getParameter("hideProjectName").equals("true")) { %>
+	     hideProjectName = true;
+          <% } %>
 
           <% if (request.getParameter("hideFooter") != null &&
                  request.getParameter("hideFooter").equals("true")) { %>
@@ -161,6 +175,8 @@
                             pid : pid, 
                             publicId: publicId,
 	                    hideHeader: hideHeader,
+	                    hideToolbar: hideToolbar,
+	                    hideProjectName: hideProjectName,
 	                    hideFooter: hideFooter,
 	                    hideDefinitions: hideDefinitions,
 	                    hideInteractions: hideInteractions,
