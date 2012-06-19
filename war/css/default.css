@@ -338,13 +338,16 @@ span.top-aligned-inline-block {
 }
 
 
+
+/*	
 .documentation{
-    position: absolute;
-    right: 3px;
+	overflow: hidden;
+	position: fixed;
+    right: 10px;
     top: 5px;
-    float: right;
-    /*border: 5px solid red;*/
     width: 33%;
     height: 94.6%;
+    
     z-index: 4;
 }
+*/

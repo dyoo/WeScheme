@@ -186,12 +186,35 @@
 	                    autorunDefinitions: autorunDefinitions });
       });
     </script>
-
+	
+	<script> 		
+        jQuery(function()
+        {
+        		var viewportWidth = jQuery(window).width();
+				var viewportHeight = jQuery(window).height();
+                jQuery("#documentation").dialog({autoOpen: false, 
+                								title: "Documentation",
+                								position: "right", 
+                								minWidth: viewportWidth / 4,
+                								minHeight: viewportHeight / 2,
+                								width: viewportWidth / 3,
+                								height: viewportHeight * .9
+                								
+                									 });
+        });
+	</script>
+	
+	
   </head>
   
   
-  <body>
+  <body>  
+  	
+  
     <div id="editor">
+	      
+      
+        
       
       <div class="top" id="top">
 	
@@ -299,6 +322,18 @@
 	  <input id="filename" type="text" style="width: 20%"/>
 	</div>
 
+
+ <div id="documentation" class="documentation">
+		<!-- <input id="docButton" type="button" value="Click me to hide documentation"/> -->
+		<input id="resetButton" type="image" src="../images/home.png"/>
+        <iframe id="docFrame" src="/doc/wescheme.html" style="width:97%; height:95%"></iframe>
+    </div> 
+
+
+
+
+
+
       </div> <!-- End top -->
 
 
@@ -352,13 +387,6 @@
 
     </div> <!-- end editor -->
 
-
-    <div id="documentation" class="documentation">
-	<input id="docButton" type="button" value="Click me to hide documentation"/>
-	<input id="resetButton" type="button" value="Click me to go back to documentation"/>
-        <iframe id="docFrame" src="/doc/wescheme.html" style="width:100%; height:100%">         </iframe>
-
-    </div>
 
   </body>
 

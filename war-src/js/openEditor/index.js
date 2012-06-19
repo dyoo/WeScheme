@@ -30,12 +30,13 @@ var initializeEditor;
 	  thediv.style.display = 'none';
 	  var button = document.getElementById("docs");
 	  button.onclick = function() { 
-		thediv.style.display = 'block';
+		jQuery(thediv).dialog("open");
 	  };
+	  /*
 	  var hideButton = document.getElementById("docButton");
 	  hideButton.onclick = function() {
 		thediv.style.display = 'none';
-	  }
+	  }*/
 	  var iframe = document.getElementById("docFrame");  
 	  
 	  var resetButton = document.getElementById("resetButton");
