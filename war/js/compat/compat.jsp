@@ -14,11 +14,6 @@
 <![endif]-->
 
 
-<!--[if lt IE 7]>
-    <script src="/js/compat/ie7-squish-min.js" type="text/javascript"></script>
-<![endif]-->
-
-
 <!-- excanvas supports HTML5 canvas.  -->
 
 <!--[if IE]>
