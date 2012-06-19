@@ -336,3 +336,15 @@ span.top-aligned-inline-block {
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     -webkit-touch-callout: none;
 }
+
+
+.documentation{
+    position: absolute;
+    right: 3px;
+    top: 5px;
+    float: right;
+    /*border: 5px solid red;*/
+    width: 33%;
+    height: 94.6%;
+    z-index: 4;
+}

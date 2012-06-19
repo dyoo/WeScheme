@@ -281,7 +281,7 @@
 	    <li class="logout"><a id="logout">Logout</a></li>
 	    <li class="account"><a id="account" href="/console" target="console">Programs<span></span></a></li>
 	    <% } %>
-	    <li class="docs">	<a id="docs" target="_blank" href="/doc/wescheme.html">Documentation</a></li>
+	    <li class="docs">	<a id="docs">Documentation</a></li>
 
             <li class="designrecipe"><a id="designrecipebutton">Design Recipe</a></li>
 	  </ul>
@@ -351,6 +351,14 @@
       </div> <!-- end bottom -->
 
     </div> <!-- end editor -->
+
+
+    <div id="documentation" class="documentation">
+	<input id="docButton" type="button" value="Click me to hide documentation"/>
+	<input id="resetButton" type="button" value="Click me to go back to documentation"/>
+        <iframe id="docFrame" src="/doc/wescheme.html" style="width:100%; height:100%">         </iframe>
+
+    </div>
 
   </body>
 
