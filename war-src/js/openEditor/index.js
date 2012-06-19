@@ -27,7 +27,7 @@ var initializeEditor;
 (function() {
     var setupDocumentationFrame = function() {
 	  var thediv = document.getElementById("documentation");
-	  thediv.style.display = 'none';
+	  thediv.style.display = 'block';
 	  var button = document.getElementById("docs");
 	  button.onclick = function() { 
 		thediv.style.display = 'block';

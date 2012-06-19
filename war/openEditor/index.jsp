@@ -186,12 +186,29 @@
 	                    autorunDefinitions: autorunDefinitions });
       });
     </script>
-
+	
+	<script> 		
+        jQuery(function()
+        {
+                jQuery("#documentation").resizable({minHeight: 95, minWidth: 100, handles:"w");
+        });
+	</script>
+	
+	
   </head>
   
   
-  <body>
+  <body>  
+   <div id="documentation" class="documentation">
+		<input id="docButton" type="button" value="Click me to hide documentation"/>
+		<input id="resetButton" type="button" value="Click me to go back to documentation"/>
+        <iframe id="docFrame" src="/doc/wescheme.html" style="width:100%; height:100%"></iframe>
+    </div> 	
+  
     <div id="editor">
+	      
+      
+        
       
       <div class="top" id="top">
 	
@@ -352,13 +369,6 @@
 
     </div> <!-- end editor -->
 
-
-    <div id="documentation" class="documentation">
-	<input id="docButton" type="button" value="Click me to hide documentation"/>
-	<input id="resetButton" type="button" value="Click me to go back to documentation"/>
-        <iframe id="docFrame" src="/doc/wescheme.html" style="width:100%; height:100%">         </iframe>
-
-    </div>
 
   </body>
 
