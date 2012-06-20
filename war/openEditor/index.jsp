@@ -192,15 +192,18 @@
         {
         		var viewportWidth = jQuery(window).width();
 				var viewportHeight = jQuery(window).height();
-                jQuery("#documentation").dialog({autoOpen: false, 
+                var something = jQuery("#documentation").dialog({autoOpen: false, 
                 								title: "Documentation",
                 								position: "right", 
                 								minWidth: viewportWidth / 4,
                 								minHeight: viewportHeight / 2,
                 								width: viewportWidth / 3,
-                								height: viewportHeight * .9
-                								
+                								height: viewportHeight * .9,
+                								beforeclose: function() {
+                									jQuery(this).dialog('option', 'position', [jQuery(this).parent().offset().left, jQuery(this).parent().offset().top]);
+                								}
                 									 });
+              //something.dialog('close');
         });
 	</script>
 	
