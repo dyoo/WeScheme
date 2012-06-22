@@ -83,7 +83,10 @@ var WeSchemeTextContainer;
 	WeSchemeTextContainer.prototype.highlight = function(id, offset, line, column, span) {
 		return this.impl.highlight(id, offset, line, column, span);
 	};
-
+	WeSchemeTextContainer.prototype.unhighlightAll = function () {
+		return this.impl.unhighlightAll();
+	};
+	
 	WeSchemeTextContainer.prototype.focus = function() {
 		this.impl.focus();
 	};
@@ -114,6 +117,9 @@ var WeSchemeTextContainer;
 		this.behaviorE = receiverE();
 		this.behavior = startsWith(this.behaviorE, "");
 
+		this.highlightedAreas = [];		
+				
+		
 		var km = {};
 		jQuery.extend(km,options.extraKeys);
 		km["Tab"] = "indentAuto";
@@ -210,9 +216,28 @@ var WeSchemeTextContainer;
 		// as 1-offset, rather than 0-offset.
 		var startHandleAndColumn = this.findHandleAndColumn(offset);
 		var endHandleAndColumn = this.findHandleAndColumn(offset+span);
-		this.editor.setSelection(
+		
+		//change this!
+		//to test: myEditor.defn.highlight('', 6, 10, 1, 20)
+		/*this.editor.setSelection(
 				this.handleAndColumnToPos(startHandleAndColumn),
-				this.handleAndColumnToPos(endHandleAndColumn))
+				this.handleAndColumnToPos(endHandleAndColumn))*/
+		
+		//console.log("line, col, endCol, span", line, column, newEnd, span);
+		//console.log(startHandleAndColumn);
+ 		this.highlightedAreas.push(
+			this.editor.markText(this.handleAndColumnToPos(startHandleAndColumn), 
+					this.handleAndColumnToPos(endHandleAndColumn), 
+					"test"));
+		
+		
+	};
+	
+	CodeMirrorImplementation.prototype.unhighlightAll = function () {
+		for(var i = 0; i < this.highlightedAreas.length; i++) {
+		    this.highlightedAreas[i].clear();
+		}
+		this.highlightedAreas = []; 
 	};
 
 

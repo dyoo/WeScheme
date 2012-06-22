@@ -338,6 +338,20 @@ span.top-aligned-inline-block {
 }
 
 
+.highlight1 {
+    background-color: red;
+}
+
+.highlight2 {
+    background-color: blue;
+}
+
+.highlight3 {
+    background-color: yellow;
+}
+
+
+
 
 /*	
 .documentation{

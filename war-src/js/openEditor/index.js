@@ -29,6 +29,7 @@ var initializeEditor;
 	  var thediv = document.getElementById("documentation");
 	  thediv.style.display = 'none';
 	  var button = document.getElementById("docs");
+
 	  button.onclick = function() { 
 		jQuery(thediv).dialog("open");
 	  };
@@ -38,7 +39,6 @@ var initializeEditor;
 		thediv.style.display = 'none';
 	  }*/
 	  var iframe = document.getElementById("docFrame");  
-	  
 	  var resetButton = document.getElementById("resetButton");
 	  resetButton.onclick = function() {
 		  iframe.src = "/doc/wescheme.html";

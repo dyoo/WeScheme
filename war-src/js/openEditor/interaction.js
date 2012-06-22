@@ -477,8 +477,9 @@ WeSchemeInteractions = (function () {
             var anchor = this.createLocationHyperlink(stacktrace[i]);
             stacktraceDiv.appendChild(anchor);
         }
+        
         dom.appendChild(stacktraceDiv);
-
+	
         return dom;
     };
 

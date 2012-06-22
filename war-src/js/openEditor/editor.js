@@ -62,6 +62,7 @@ var WeSchemeEditor;
 		that.interactions = interactions;
 		    
 		that.interactions.setSourceHighlighter(function(id, offset, line, column, span) {
+		    that.unhighlightAll();
 		    that.highlight(id, offset, line, column, span);
 		});
 
@@ -87,6 +88,7 @@ var WeSchemeEditor;
 		});
 
 		that.defn.getSourceB().changes().mapE(function() {
+		    that.unhighlightAll();		  
 		    plt.wescheme.WeSchemeIntentBus.notify("definitions-changed", that);
 		});
 
@@ -211,6 +213,15 @@ var WeSchemeEditor;
 	} else if (this.interactions.previousInteractionsTextContainers[id]) {
 	    this.interactions.previousInteractionsTextContainers[id].highlight(id, offset, line, column, span);
 	}
+    };
+    
+    WeSchemeEditor.prototype.unhighlightAll = function() {
+      for(var key in this.interactions.previousInteractionsTextContainers) {
+	if (this.interactions.previousInteractionsTextContainers.hasOwnProperty(key)) {
+	  this.interactions.previousInteractionsTextContainers[key].unhighlightAll();
+	}
+      }
+	this.defn.unhighlightAll();
     };
 
     // WeSchemeEditor._getIsLoggedIn: -> boolean
