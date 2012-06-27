@@ -18,7 +18,7 @@ h1, h2{
 	background: #f5deb3;
 }
 
-h1{font-size: 60px;}
+h1{font-size: 60px; margin-bottom: 0px;}
 h2{font-size: 20px;}
 
 img{background: none;
