@@ -754,7 +754,7 @@ var helpers = {};
 					   helpers.format(errorFormatStr, details),
 					   []) );
 	};
-
+	//HACK HACK HACK
 	var check = function(x, f, functionName, typeName, position, args) {
 		if ( !f(x) ) {
 			throwCheckError([functionName,
@@ -8889,6 +8889,15 @@ var isGradientPart = function(o) {
   return o instanceof GradientPart;
 };
 
+var MultiPart = function(text, locations) {
+    this.text = text;
+    this.locations = locations;
+};
+
+var isMultiPart = function(o) {
+  return o instanceof MultiPart;
+};
+
 ColoredPart.prototype.toString = function() {
     return this.text+'';
 };
@@ -9235,6 +9244,9 @@ types.isColoredPart = isColoredPart;
 types.isMessage = isMessage;
 types.GradientPart = GradientPart;
 types.isGradientPart = isGradientPart;
+types.MultiPart = MultiPart;
+types.isMultiPart = isMultiPart;
+
 
 
 })();
@@ -14262,8 +14274,8 @@ PRIMITIVES['=~'] =
 PRIMITIVES['/'] =
     new PrimProc('/',
 		 1,
-		 true, false,
-		 function(x, args) {
+		 true, true,
+		 function(aState, x, args) {
 		 	var allArgs = [x].concat(args);
 		 	check(x, isNumber, '/', 'number', 1, allArgs);
 		 	arrayEach(args, function(y, i) {check(y, isNumber, '/', 'number', i+2, allArgs);});
@@ -14272,7 +14284,8 @@ PRIMITIVES['/'] =
 				if ( jsnums.equals(x, 0) ) {
 					raise( types.incompleteExn(types.exnFailContractDivisionByZero, '/: division by zero', []) );
 				}	
-				return jsnums.divide(1, x);
+				state.v = jsnums.divide(1, x);
+				return;
 			}
 
 		 	var res = x;
@@ -14282,7 +14295,7 @@ PRIMITIVES['/'] =
 				}	
 				res = jsnums.divide(res, args[i]);
 		 	}
-		 	return res;
+		 	state.v = res;
 		 });
 
 
@@ -20419,9 +20432,9 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 			": expects ", 
 			''+(procValue.isRest ? 'at least' : ''),
 		        " ",
-			((procValue.locs != undefined) ? new types.ColoredPart((procValue.numParams + " argument" + 
+			((procValue.locs != undefined) ? new types.MultiPart((procValue.numParams + " argument" + 
 							  ((procValue.numParams == 1) ? '' : 's')), 
-							  procValue.locs[1])
+							  procValue.locs.slice(1))
 							:
 							(procValue.numParams + " argument" + 
 							  ((procValue.numParams == 1) ? '' : 's')))

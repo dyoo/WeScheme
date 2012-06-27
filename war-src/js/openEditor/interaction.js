@@ -528,13 +528,13 @@ WeSchemeInteractions = (function () {
 	     /* if (types.isExnFailContractArityWithPosition(err.val)) {
 		gradientHighlighter(err, that);  
 	      } */
-	      var colors = [new Color(240,128,128), new Color(100, 149, 240), new Color(124,205,124), 
+	      var colors = [new Color(238,169,184), new Color(100, 149, 240), new Color(124,205,124), 
 			    new Color(218,165,32), new Color(186,186,186)];
-	      var colorIndex = 0; //WARNING FIXME BAD
+	      var colorIndex = 0; //WARNING
  	      
 	      
 	      var currItem;
-	      var currColor;
+	      var currColor = colors[colorIndex];
 	      var args = msg.args;
 	      for(var i = 0; i < args.length; i++){
 		  //in the unlikely event that there are no more preset colors, choose a random one
@@ -544,7 +544,9 @@ WeSchemeInteractions = (function () {
 					  Math.floor(Math.random()*255));
 		  }
 		  else currColor = colors[colorIndex];
-		  console.log(args[i]);
+		  
+		  
+		  
 		  if(types.isColoredPart(args[i])) {
 		      currItem = args[i].location;
 		      that.addToCurrentHighlighter(currItem.ref(0), currItem.ref(1), currItem.ref(4), currColor+'');
@@ -558,12 +560,9 @@ WeSchemeInteractions = (function () {
 		  else if(types.isGradientPart(args[i])) {
 		    var parts = args[i].coloredParts;
 		    
-		    
-		    
 		    var percentage = 1;
 		    var change = 1/(parts.length+1);
 		    
-		    var currItem;
 		    var currTint;
 		    for(var j = 0; j < parts.length; j++) {
 		      
@@ -577,6 +576,19 @@ WeSchemeInteractions = (function () {
 			jQuery(msgDom).append(aChunk);		     
 			percentage = percentage - change;
 		    }
+		    
+		    colorIndex++;
+		  }
+		  
+		  else if(types.isMultiPart(args[i])) {
+		    var locs = args[i].locations;
+		    
+		    for(var j = 0; j <locs.length; j++){
+			that.addToCurrentHighlighter(locs[j].ref(0), locs[j].ref(1), locs[j].ref(4), 
+					      currColor);
+		    }
+		    var aChunk = jQuery("<span/>").text(args[i].text).css("background-color", currColor+'');
+		    jQuery(msgDom).append(aChunk);
 		    
 		    colorIndex++;
 		  }
