@@ -62,10 +62,10 @@
 
 
     <!-- mzscheme-vm evaluator -->
-    <script src="/js/mzscheme-vm/support-min.js" type="text/javascript"></script>
-    <script src="/js/mzscheme-vm/evaluator-min.js" type="text/javascript"></script>
+    <script src="/js/mzscheme-vm/support.js" type="text/javascript"></script>
+    <script src="/js/mzscheme-vm/evaluator.js" type="text/javascript"></script>
 
-    <script src="/js/openEditor/openEditor-calc-min.js" type="text/javascript"></script>
+    <script src="/js/openEditor/openEditor-calc.js" type="text/javascript"></script>
 
 
 

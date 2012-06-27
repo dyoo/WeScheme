@@ -80,8 +80,8 @@ var WeSchemeTextContainer;
 		return this.impl.setCode(normalizeString(code));
 	};
 
-	WeSchemeTextContainer.prototype.highlight = function(id, offset, line, column, span) {
-		return this.impl.highlight(id, offset, line, column, span);
+	WeSchemeTextContainer.prototype.highlight = function(id, offset, span, color) {
+		return this.impl.highlight(id, offset, span, color);
 	};
 	WeSchemeTextContainer.prototype.unhighlightAll = function () {
 		return this.impl.unhighlightAll();
@@ -210,7 +210,7 @@ var WeSchemeTextContainer;
 		}
 	}
 
-	CodeMirrorImplementation.prototype.highlight = function(id, offset, line, column, span) {
+	CodeMirrorImplementation.prototype.highlight = function(id, offset, span, color) {
 		offset--;
 		// For some reason, we're getting the offset from the highlighter
 		// as 1-offset, rather than 0-offset.
@@ -223,12 +223,19 @@ var WeSchemeTextContainer;
 				this.handleAndColumnToPos(startHandleAndColumn),
 				this.handleAndColumnToPos(endHandleAndColumn))*/
 		
-		//console.log("line, col, endCol, span", line, column, newEnd, span);
-		//console.log(startHandleAndColumn);
+		var stylesheet = document.styleSheets[0]; //this is default.css
+		var name = "highlight" + Math.floor(Math.random()*1000000);//+ color
+
+		//LOOK INTO IE/CHROME business
+
+
+		stylesheet.insertRule("." + name + " { background-color: " + color + ";}", 0);
+		
+		//figure out how to use color input to change css
  		this.highlightedAreas.push(
 			this.editor.markText(this.handleAndColumnToPos(startHandleAndColumn), 
 					this.handleAndColumnToPos(endHandleAndColumn), 
-					"test"));
+					name));
 		
 		
 	};

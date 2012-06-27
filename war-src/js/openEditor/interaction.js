@@ -41,7 +41,7 @@ WeSchemeInteractions = (function () {
             function(prompt) {
                 that.prompt = prompt;
                 that.evaluator = that.makeFreshEvaluator();
-                that.highlighter = function(id, offset, line, column, span) {
+                that.highlighter = function(id, offset, span, color) {
                     // default highlighter does nothing.  Subclasses will specialize that.
                 };
 
@@ -355,6 +355,11 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.setSourceHighlighter = function(highlighter) {
         this.highlighter = highlighter;
     };
+    
+    WeSchemeInteractions.prototype.setAddToCurrentHighlighter = function(addToCurrentHighlighter) {
+        this.addToCurrentHighlighter = addToCurrentHighlighter;
+    };
+    
 
     // Returns if x is a dom node.
     function isDomNode(x) {
@@ -396,7 +401,7 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype._rewriteLocationDom = function(dom) {
         var newDom = document.createElement("span");
         var children = dom.children;
-        var offset, line, column, id, span;
+        var offset, id, span, color;
         for (var i = 0; i < children.length; i++) {
             var textBody = children[i].textContent || children[i].innerText;
             if (children[i]['className'] === 'location-id') {
@@ -405,21 +410,20 @@ WeSchemeInteractions = (function () {
             if (children[i]['className'] === 'location-offset') {
                 offset = textBody;
             }
-            if (children[i]['className'] === 'location-line') {
-                line = textBody;
-            }
-            if (children[i]['className'] === 'location-column') {
-                column = textBody;
-            }
             if (children[i]['className'] === 'location-span') {
                 span = textBody;
             }
+            if (children[i]['className'] === 'location-color') {
+                color = textBody;
+            }
+
         }
+         if(!color) { color = "red"; }//FIXME!
+	  // console.log("_rewriteLocation " + color);
         return this.createLocationHyperlink({ id: id,
                                               offset: parseInt(offset),
-                                              line: parseInt(line),
-                                              column: parseInt(column),
-                                              span: parseInt(span) });
+                                              span: parseInt(span),
+					      color: color});
     };
 
     // Evaluate the source code and accumulate its effects.
@@ -447,6 +451,42 @@ WeSchemeInteractions = (function () {
         this.addToInteractions("\n");
     };
 
+    //nextColor: int float -> int
+    //takes in a rgb color from 0 to 255 and a percentage to tint by, 
+    //  outputs the tinted color as an int
+    var nextColor = function(color, percentage) {
+	return parseInt(percentage*color + (255 * (1 - percentage)));
+    };
+    
+    var gradientHighlighter = function(err, that) {
+	    var info = types.exnFailContractArityWithPositionLocations(err.val);
+	    var currItem = info.first();
+	      
+	    that.highlighter(currItem.ref(0), currItem.ref(1), currItem.ref(4), "pink");
+	    info = info.rest();
+	    
+	    //play with these values for argument colors
+	    var red = 120;
+	    var green = 240;
+	    var blue = 0;
+	    var percentage = 1;
+	    //FIXME: make this based on size
+	    var change = .1;
+	    
+	    while(! (info.isEmpty())) {
+		var nextTint = "rgb(" + nextColor(red, percentage) + "," + nextColor(green, percentage) + "," 
+				      + nextColor(blue, percentage) + ")";
+		
+		currItem = info.first();
+		that.addToCurrentHighlighter(currItem.ref(0), currItem.ref(1), currItem.ref(4), nextTint);
+		info = info.rest();
+
+		percentage = percentage - change;
+ 	    }	    
+    };
+    
+    
+    
     // renderErrorAsDomNode: exception -> element
     // Given an exception, produces error dom node to be displayed.
     WeSchemeInteractions.prototype.renderErrorAsDomNode = function(err) {
@@ -456,17 +496,40 @@ WeSchemeInteractions = (function () {
         if (types.isSchemeError(err) && types.isExnBreak(err.val)) {
             dom['className'] = 'moby-break-error';
             msg = "Program stopped by user (user break)";
-        } else {
+        } 
+        else {
             dom['className'] = 'moby-error';
             msg = this.evaluator.getMessageFromExn(err);
         }
+        
+       
 
         if (err.domMessage) {
             dom.appendChild(err.domMessage);
         } else {
             var msgDom = document.createElement('div');
             msgDom['className'] = 'moby-error:message';
-            msgDom.appendChild(document.createTextNode(msg));
+	    if (! types.isMessage(msg)) {
+	      msgDom.appendChild(document.createTextNode(msg));
+	    }
+	    //if it is a Message, do special formatting
+	    else {
+	      if (types.isExnFailContractArityWithPosition(err.val)) {
+		gradientHighlighter(err, that);  
+	      }
+	      
+	      var args = msg.args;
+	      for(var i = 0; i < args.length; i++){
+		  console.log(args[i]);
+		  if(types.isColoredPart(args[i])) {
+                    var aChunk = jQuery("<span/>").text(args[i].text).css("background-color", "blue");
+		    jQuery(msgDom).append(aChunk);
+		  }
+		  else {
+		      msgDom.appendChild(document.createTextNode(args[i]+''));
+		  }
+	      }
+	    }
             dom.appendChild(msgDom);
         }
 
@@ -504,10 +567,12 @@ WeSchemeInteractions = (function () {
         para.appendChild(anchor);
         return para;
     };
-
+    
+    
+    //WHERE TO GET COLOR??
     var makeHighlighterLinkFunction = function(that, elt) {
         return function() { 
-            that.highlighter(elt.id, elt.offset, elt.line, elt.column, elt.span);
+            that.highlighter(elt.id, elt.offset, elt.span, /*elt.color*/ "red");
         };
     };
 

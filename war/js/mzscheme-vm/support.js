@@ -675,7 +675,7 @@ var helpers = {};
 			reporter(e);
 		} else if ( types.isSchemeError(e) ) {
 			if ( types.isExn(e.val) ) {
-				reporter( types.exnMessage(e.val) );
+				reporter( ''+types.exnMessage(e.val) );
 			}
 			else {
 				reporter(e.val);
@@ -8850,6 +8850,63 @@ CasePrimitive.prototype.toDisplayedString = function(cache) {
 
 
 
+/////////////////////////////////////////////////////////////////////
+// Colored Error Message Support
+
+var Message = function(args) {
+  this.args = args;
+};
+
+Message.prototype.toString = function() {
+  var toReturn = [];
+  
+  for(var i = 0; i < args.length; i++) {
+      toReturn.push(''+args[i]);
+  }
+  
+  return toReturn.join("");
+};
+
+var isMessage = function(o) {
+  return o instanceof Message;
+};
+
+var ColoredPart = function(text) {
+  this.text = text;
+};
+
+var isColoredPart = function(o) {
+  return o instanceof ColoredPart;
+};
+
+ColoredPart.prototype.toString = function() {
+    return this.text+'';
+};
+
+
+
+
+var Ref = function(text, location) {
+    this.text = text;
+    this.location = location;
+}
+
+var DocLink = function(text, name) {
+    this.text = text;
+    this.name = name;
+}
+
+var isRef = function(o) {
+    return o instanceof Ref;
+}
+
+var isDocLink = function(o) {
+    return o instanceof DocLink;
+}
+
+
+
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -9064,7 +9121,7 @@ types.isIncompleteExn = function(x) { return x instanceof IncompleteExn; };
 
 var Exn = makeStructureType('exn', false, 2, 0, false,
 		function(k, msg, contMarks, name) {
-			helpers.check(msg, isString, name, 'string', 1, [msg, contMarks]);
+			// helpers.check(msg, isString, name, 'string', 1, [msg, contMarks]);
 			helpers.check(contMarks, types.isContinuationMarkSet, name, 'continuation mark set', 2);
 			k( new ValuesWrapper([msg, contMarks]) );
 		});
@@ -9106,6 +9163,12 @@ types.exnFailContractVariableId = function(exn) { return ExnFailContractVariable
 var ExnFailContractDivisionByZero = makeStructureType('exn:fail:contract:division-by-zero', ExnFailContract, 0, 0, false, false);
 types.exnFailContractDivisionByZero = ExnFailContractDivisionByZero.constructor;
 types.isExnFailContractDivisionByZero = ExnFailContractDivisionByZero.predicate;
+
+var ExnFailContractArityWithPosition = makeStructureType('exn:fail:contract:arity:position', ExnFailContractArity, 1, 0, false, false);
+types.exnFailContractArityWithPosition = ExnFailContractArityWithPosition.constructor;
+types.isExnFailContractArityWithPosition = ExnFailContractArityWithPosition.predicate;
+
+types.exnFailContractArityWithPositionLocations = function(exn) { return ExnFailContractArityWithPosition.accessor(exn, 0); };
 
 
 ///////////////////////////////////////
@@ -9150,6 +9213,17 @@ types.isRenderEffect = RenderEffect.predicate;
 //types.renderEffectDomNode = function(x) { return RenderEffect.accessor(x, 0); };
 //types.renderEffectEffects = function(x) { return RenderEffect.accessor(x, 1); };
 //types.setRenderEffectEffects = function(x, v) { RenderEffect.mutator(x, 1, v); };
+
+
+
+
+
+
+types.ColoredPart = ColoredPart;
+types.Message = Message;
+types.isColoredPart = isColoredPart;
+types.isMessage = isMessage;
+
 
 
 })();
@@ -14064,7 +14138,7 @@ PRIMITIVES['exn-message'] =
 		 false, false,
 		 function(exn) {
 		 	check(exn, types.isExn, 'exn-message', 'exn', 1, [exn]);
-			return types.exnMessage(exn);
+			return ''+types.exnMessage(exn);
 		 });
 
 
@@ -20076,7 +20150,7 @@ CallControl.prototype.invoke = function(state) {
 
 
 var callProcedure = function(aState, procValue, n, operandValues) {
-    procValue = selectProcedureByArity(n, procValue, operandValues);
+    procValue = selectProcedureByArity(aState, n, procValue, operandValues);
     if (primitive.isPrimitive(procValue)) {
 	callPrimitiveProcedure(aState, procValue, n, operandValues);
     } else if (procValue instanceof types.ClosureValue) {
@@ -20227,8 +20301,8 @@ var callContinuationProcedure = function(state, procValue, n, operandValues) {
 
 
 
-// selectProcedureByArity: (CaseLambdaValue | CasePrimitive | Continuation | Closure | Primitive) -> (Continuation | Closure | Primitive)
-var selectProcedureByArity = function(n, procValue, operands) {
+// selectProcedureByArity: state (CaseLambdaValue | CasePrimitive | Continuation | Closure | Primitive) -> (Continuation | Closure | Primitive)
+var selectProcedureByArity = function(aState, n, procValue, operands) {
     var getArgStr = function() {
 	var argStr = '';
 	if (operands.length > 0) {
@@ -20239,6 +20313,16 @@ var selectProcedureByArity = function(n, procValue, operands) {
 		argStr = argStrBuffer.join(' ');
 	}
 	return argStr;
+    }
+    
+    var getArgColoredParts = function() {
+	var argColoredParts = [];
+	if (operands.length > 0) {
+		for (var i = 0; i < operands.length; i++) {
+			argColoredParts.push(new types.ColoredPart(operands[i]) );
+		}
+	}
+	return argColoredParts;
     }
 
     if ( !types.isFunction(procValue) ) {
@@ -20303,20 +20387,30 @@ var selectProcedureByArity = function(n, procValue, operands) {
 	    (n > procValue.numParams && procValue.isRest)) {
 	    return procValue;
 	} else {
+	    var positionStack = 
+		state.captureCurrentContinuationMarks(aState).ref(
+		    types.symbol('moby-application-position-key'));
+	    
+	    var argColoredParts = getArgColoredParts();
+	    
 	    helpers.raise(types.incompleteExn(
-		types.exnFailContractArity,
-		helpers.format("~a: expects ~a ~a argument~a, given ~s~a",
-			       [(procValue.name !== types.EMPTY ? procValue.name : "#<procedure>"),
-			        (procValue.isRest ? 'at least' : ''),
-				procValue.numParams,
-				(procValue.numParams == 1) ? '' : 's',
-				n,
-				getArgStr()]),
-		[]));
+		types.exnFailContractArityWithPosition,
+		new types.Message([new types.ColoredPart(''+(procValue.name !== types.EMPTY ? procValue.name : "#<procedure>")),
+			": expects ", 
+			''+(procValue.isRest ? 'at least' : ''),
+		        " ",
+			new types.ColoredPart(procValue.numParams + " argument" + 
+                                                ((procValue.numParams == 1) ? '' : 's')),
+  		         " given ",
+			n ,
+			": "
+			/*new types.ColoredPart(getArgStr())*/].concat(argColoredParts)),
+		[positionStack[positionStack.length - 1]]));
 	}
     }
 };
 
+// var ColoredPart = types.ColoredPart;
 
 
 

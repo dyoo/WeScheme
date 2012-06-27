@@ -61,9 +61,13 @@ var WeSchemeEditor;
 	    function(interactions) {
 		that.interactions = interactions;
 		    
-		that.interactions.setSourceHighlighter(function(id, offset, line, column, span) {
+		that.interactions.setSourceHighlighter(function(id, offset, span, color) {
 		    that.unhighlightAll();
-		    that.highlight(id, offset, line, column, span);
+		    that.highlight(id, offset, span, color);
+		});
+		
+		that.interactions.setAddToCurrentHighlighter(function(id, offset, span, color) {
+		    that.highlight(id, offset, span, color);
 		});
 
 		// pid: (or false number)
@@ -88,6 +92,7 @@ var WeSchemeEditor;
 		});
 
 		that.defn.getSourceB().changes().mapE(function() {
+		    //when text changes, everything unhighlighted
 		    that.unhighlightAll();		  
 		    plt.wescheme.WeSchemeIntentBus.notify("definitions-changed", that);
 		});
@@ -207,11 +212,11 @@ var WeSchemeEditor;
 	aBooleanBehavior.changes().mapE(f);
     }
 
-    WeSchemeEditor.prototype.highlight = function(id, offset, line, column, span) {
+    WeSchemeEditor.prototype.highlight = function(id, offset, span, color) {
 	if (id === '<definitions>') {
-	    this.defn.highlight(id, offset, line, column, span);
+	    this.defn.highlight(id, offset, span, color);
 	} else if (this.interactions.previousInteractionsTextContainers[id]) {
-	    this.interactions.previousInteractionsTextContainers[id].highlight(id, offset, line, column, span);
+	    this.interactions.previousInteractionsTextContainers[id].highlight(id, offset, span, color);
 	}
     };
     
