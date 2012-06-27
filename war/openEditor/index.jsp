@@ -289,27 +289,29 @@
 	
 	<div id="header">
 	  <h1>WeScheme</h1>
-	  <h2>Sometimes YouTube.  Perhaps iPhone.  Together, WeScheme!</h2>
+	  <h2>
+            <a id="docs">Documentation</a>
+	    <% if (userSession != null) { %>
+            <a id="account" href="/console" target="console">Programs</a>
+            <a id="logout">Logout</a>
+	    <% } %>
+      </h2>
 	</div>
 
 	
 	<div id="toolbar">
 	  <ul>
 	    <li class="run">	
-	      <a id="run"><img src="/images/run.png" class="button-icon" />Run</a>
+	      <a id="run">Run</a>
 	    </li>
 	    <li class="stop">	
-	      <a id="stop"><img src="/images/break.png" class="button-icon"/>Stop</a>
+	      <a id="stop">Stop</a>
 	    </li>
 	    <% if (userSession != null) { %>
-	    <li class="save"><a id="save"><img src="/images/save.png" class="button-icon"/>Save<span></span></a></li>
-	    <li class="share"><a id="share"><img src="/images/share.png" class="button-icon"/>Share<span></span></a></li>
-	    <li class="logout"><a id="logout">Logout</a></li>
-	    <li class="account"><a id="account" href="/console" target="console">Programs<span></span></a></li>
+	    <li class="save"><a id="save">Save</a></li>
+	    <li class="share"><a id="share">Share</a></li>
 	    <% } %>
-	    <li class="docs">	<a id="docs">Documentation</a></li>
-
-            <li class="designrecipe"><a id="designrecipebutton">Design Recipe</a></li>
+        <li class="designrecipe"><a id="designrecipebutton">Design Recipe</a></li>
 	  </ul>
           <ul></ul>
           <!-- This is here to force the div height.  This may be unnecessary
