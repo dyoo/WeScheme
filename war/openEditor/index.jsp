@@ -311,7 +311,7 @@
 	    <li class="save"><a id="save">Save</a></li>
 	    <li class="share"><a id="share">Share</a></li>
 	    <% } %>
-        <li class="designrecipe"><a id="designrecipebutton">Design Recipe</a></li>
+        <li class="designrecipe"><a id="designrecipebutton">Recipe</a></li>
 	  </ul>
           <ul></ul>
           <!-- This is here to force the div height.  This may be unnecessary
