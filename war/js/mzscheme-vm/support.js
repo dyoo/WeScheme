@@ -8584,8 +8584,9 @@ EofValue.prototype.toString = function() {
 var EOF_VALUE = new EofValue();
 
 
-var ClosureValue = function(name, numParams, paramTypes, isRest, closureVals, body) {
+var ClosureValue = function(name, locs, numParams, paramTypes, isRest, closureVals, body) {
     this.name = name;
+    this.locs = locs;
     this.numParams = numParams;
     this.paramTypes = paramTypes;
     this.isRest = isRest;
@@ -8871,12 +8872,21 @@ var isMessage = function(o) {
   return o instanceof Message;
 };
 
-var ColoredPart = function(text) {
+var ColoredPart = function(text, location) {
   this.text = text;
+  this.location = location;
 };
 
 var isColoredPart = function(o) {
   return o instanceof ColoredPart;
+};
+
+var GradientPart = function(coloredParts) {
+    this.coloredParts = coloredParts;
+};
+
+var isGradientPart = function(o) {
+  return o instanceof GradientPart;
 };
 
 ColoredPart.prototype.toString = function() {
@@ -8885,7 +8895,7 @@ ColoredPart.prototype.toString = function() {
 
 
 
-
+/*
 var Ref = function(text, location) {
     this.text = text;
     this.location = location;
@@ -8905,7 +8915,7 @@ var isDocLink = function(o) {
 }
 
 
-
+*/
 
 
 //////////////////////////////////////////////////////////////////////
@@ -9223,7 +9233,8 @@ types.ColoredPart = ColoredPart;
 types.Message = Message;
 types.isColoredPart = isColoredPart;
 types.isMessage = isMessage;
-
+types.GradientPart = GradientPart;
+types.isGradientPart = isGradientPart;
 
 
 })();
@@ -19960,6 +19971,7 @@ PrimvalControl.prototype.invoke = function(aState) {
 
 var LamControl = function(params) {
     this.name = params.name;
+    this.locs = params.locs;
     this.numParams = params.numParams;
     this.paramTypes = params.paramTypes;
     this.isRest = params.isRest;
@@ -19971,6 +19983,7 @@ var LamControl = function(params) {
 
 LamControl.prototype.invoke = function(state) {
     state.v = new types.ClosureValue(this.name,
+				     this.locs,
 				     this.numParams, 
 				     this.paramTypes, 
 				     this.isRest, 
@@ -20315,11 +20328,13 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 	return argStr;
     }
     
-    var getArgColoredParts = function() {
+    var getArgColoredParts = function(locations) {
 	var argColoredParts = [];
+	var locs = locations;
 	if (operands.length > 0) {
 		for (var i = 0; i < operands.length; i++) {
-			argColoredParts.push(new types.ColoredPart(operands[i]) );
+			argColoredParts.push(new types.ColoredPart(operands[i]+" ", locs.first()));
+			locs = locs.rest();
 		}
 	}
 	return argColoredParts;
@@ -20391,21 +20406,31 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 		state.captureCurrentContinuationMarks(aState).ref(
 		    types.symbol('moby-application-position-key'));
 	    
-	    var argColoredParts = getArgColoredParts();
+	   
+	    var locationList = positionStack[positionStack.length - 1];
+	    var argColoredParts = getArgColoredParts(locationList.rest());
+	    
+	    console.log(locationList);
 	    
 	    helpers.raise(types.incompleteExn(
 		types.exnFailContractArityWithPosition,
-		new types.Message([new types.ColoredPart(''+(procValue.name !== types.EMPTY ? procValue.name : "#<procedure>")),
+		new types.Message([new types.ColoredPart((''+(procValue.name !== types.EMPTY ? procValue.name : "#<procedure>")), 
+							 locationList.first()),
 			": expects ", 
 			''+(procValue.isRest ? 'at least' : ''),
 		        " ",
-			new types.ColoredPart(procValue.numParams + " argument" + 
-                                                ((procValue.numParams == 1) ? '' : 's')),
+			((procValue.locs != undefined) ? new types.ColoredPart((procValue.numParams + " argument" + 
+							  ((procValue.numParams == 1) ? '' : 's')), 
+							  procValue.locs[1])
+							:
+							(procValue.numParams + " argument" + 
+							  ((procValue.numParams == 1) ? '' : 's')))
+					      ,
   		         " given ",
 			n ,
-			": "
-			/*new types.ColoredPart(getArgStr())*/].concat(argColoredParts)),
-		[positionStack[positionStack.length - 1]]));
+			": ", 
+			new types.GradientPart(argColoredParts)]),
+		[]));
 	}
     }
 };
@@ -21075,6 +21100,7 @@ var loadBranch = function(state, nextCode) {
 var loadLam = function(state, nextCode) {
     var result =  new control.LamControl(
 	{ name: nextCode['name'],
+          locs: nextCode['locs'],
 	  numParams: nextCode['num-params'],
 	  paramTypes: nextCode['param-types'],
 	  isRest: nextCode['rest?'],

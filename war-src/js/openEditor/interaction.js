@@ -458,34 +458,45 @@ WeSchemeInteractions = (function () {
 	return parseInt(percentage*color + (255 * (1 - percentage)));
     };
     
-    var gradientHighlighter = function(err, that) {
-	    var info = types.exnFailContractArityWithPositionLocations(err.val);
-	    var currItem = info.first();
-	      
+    //nextTint: int int int float -> string
+    //given rgb ints and a percentage to tint, returns the rgb string of the tinted color
+    var nextTint = function(red, green, blue, percentage) {
+	return "rgb(" + nextColor(red, percentage) + "," + nextColor(green, percentage) + "," 
+				      + nextColor(blue, percentage) + ")";
+    };
+    
+    
+    var gradientHighlighter = function(locationList, that) {
+	    var info = locationList;
+	    var currItem = info.first();  
 	    that.highlighter(currItem.ref(0), currItem.ref(1), currItem.ref(4), "pink");
-	    info = info.rest();
 	    
 	    //play with these values for argument colors
 	    var red = 120;
 	    var green = 240;
 	    var blue = 0;
-	    var percentage = 1;
-	    //FIXME: make this based on size
-	    var change = .1;
 	    
-	    while(! (info.isEmpty())) {
-		var nextTint = "rgb(" + nextColor(red, percentage) + "," + nextColor(green, percentage) + "," 
-				      + nextColor(blue, percentage) + ")";
-		
+	    
+	    while(! (info.isEmpty())) {		
 		currItem = info.first();
-		that.addToCurrentHighlighter(currItem.ref(0), currItem.ref(1), currItem.ref(4), nextTint);
+		that.addToCurrentHighlighter(currItem.ref(0), currItem.ref(1), currItem.ref(4), 
+					     nextTint(red, green, blue, percentage));
 		info = info.rest();
 
 		percentage = percentage - change;
  	    }	    
     };
     
+    var Color = function(red, green, blue) {
+	this.red = red;
+	this.green = green;
+	this.blue = blue;
+    };
     
+    Color.prototype.toString = function() {
+	return "rgb(" + this.red +"," + this.green + "," + this.blue + ")";
+      
+    };
     
     // renderErrorAsDomNode: exception -> element
     // Given an exception, produces error dom node to be displayed.
@@ -514,17 +525,64 @@ WeSchemeInteractions = (function () {
 	    }
 	    //if it is a Message, do special formatting
 	    else {
-	      if (types.isExnFailContractArityWithPosition(err.val)) {
+	     /* if (types.isExnFailContractArityWithPosition(err.val)) {
 		gradientHighlighter(err, that);  
-	      }
+	      } */
+	      var colors = [new Color(240,128,128), new Color(100, 149, 240), new Color(124,205,124), 
+			    new Color(218,165,32), new Color(186,186,186)];
+	      var colorIndex = 0; //WARNING FIXME BAD
+ 	      
 	      
+	      var currItem;
+	      var currColor;
 	      var args = msg.args;
 	      for(var i = 0; i < args.length; i++){
+		  //in the unlikely event that there are no more preset colors, choose a random one
+		  if(colorIndex >= colors.length){
+		    currColor = new Color(Math.floor(Math.random()*255), 
+					  Math.floor(Math.random()*255), 
+					  Math.floor(Math.random()*255));
+		  }
+		  else currColor = colors[colorIndex];
 		  console.log(args[i]);
 		  if(types.isColoredPart(args[i])) {
-                    var aChunk = jQuery("<span/>").text(args[i].text).css("background-color", "blue");
-		    jQuery(msgDom).append(aChunk);
+		      currItem = args[i].location;
+		      that.addToCurrentHighlighter(currItem.ref(0), currItem.ref(1), currItem.ref(4), currColor+'');
+		      
+		      var aChunk = jQuery("<span/>").text(args[i].text).css("background-color", currColor+'');
+		      jQuery(msgDom).append(aChunk);
+		      
+		      colorIndex++;
 		  }
+		  
+		  else if(types.isGradientPart(args[i])) {
+		    var parts = args[i].coloredParts;
+		    
+		    
+		    
+		    var percentage = 1;
+		    var change = 1/(parts.length+1);
+		    
+		    var currItem;
+		    var currTint;
+		    for(var j = 0; j < parts.length; j++) {
+		      
+			currItem = parts[j];
+			currTint = nextTint(currColor.red, currColor.green, currColor.blue, percentage);
+			
+			that.addToCurrentHighlighter(currItem.location.ref(0), currItem.location.ref(1), currItem.location.ref(4), 
+					      currTint);
+					      
+			var aChunk = jQuery("<span/>").text(currItem.text).css("background-color", currTint);
+			jQuery(msgDom).append(aChunk);		     
+			percentage = percentage - change;
+		    }
+		    
+		    colorIndex++;
+		  }
+		  
+		  
+		  
 		  else {
 		      msgDom.appendChild(document.createTextNode(args[i]+''));
 		  }
