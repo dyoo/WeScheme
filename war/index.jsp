@@ -80,12 +80,9 @@ $(document).ready(function() {
     <input id="logoutButton" value="Log Out" type="button">
 <% } %>	
 	
-	
-<h2>Sometimes YouTube. Perhaps iPhone. Together, WeScheme!</h2>
-
 
 <div id="links">
-     <a href="http://www.vidiowiki.com/watch/cydr9yk/#">What is WeScheme? [video]</a>
+     <a href="http://www.BootstrapWorld.org">Looking for a curriculum, too?</a>
 </div>
 
 
