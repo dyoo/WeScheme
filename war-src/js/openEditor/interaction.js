@@ -465,7 +465,7 @@ WeSchemeInteractions = (function () {
 				      + nextColor(blue, percentage) + ")";
     };
     
-    
+    /*
     var gradientHighlighter = function(locationList, that) {
 	    var info = locationList;
 	    var currItem = info.first();  
@@ -486,6 +486,7 @@ WeSchemeInteractions = (function () {
 		percentage = percentage - change;
  	    }	    
     };
+    */ 
     
     var Color = function(red, green, blue) {
 	this.red = red;
