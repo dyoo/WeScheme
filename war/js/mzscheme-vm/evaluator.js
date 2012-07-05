@@ -187,6 +187,7 @@ var Evaluator = (function() {
 		// ignore for now
 	    }
 	}
+        newDom.appendChild(document.createElement("br"));
 	newDom.appendChild(document.createTextNode('at line: ' + line + ', column: ' + column + ', in ' + id));
 	return newDom;
     };
@@ -414,15 +415,17 @@ var Evaluator = (function() {
 	    return new Error(errorValue.message);
 	} else if (errorValue.type && errorValue.type === 'moby-failure') {
 	    var domMessage = this._convertDomSexpr(errorValue['dom-message']);
-	    return new ErrorWithDomMessage(domMessage);
+            var structuredError = errorValue['structured-error'];
+	    return new ErrorWithDomMessage(domMessage, structuredError);
 	}
 	return new Error(errorValue + '');
     };
 
 
-    var ErrorWithDomMessage = function(domMessage) {
+    var ErrorWithDomMessage = function(domMessage, structuredError) {
 	this.message = domMessage.textContent || domMessage.innerText;
 	this.domMessage = domMessage;
+	this.structuredError = structuredError;
     };
 
 

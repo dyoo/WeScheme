@@ -464,29 +464,7 @@ WeSchemeInteractions = (function () {
 	return "rgb(" + nextColor(red, percentage) + "," + nextColor(green, percentage) + "," 
 				      + nextColor(blue, percentage) + ")";
     };
-    
-    /*
-    var gradientHighlighter = function(locationList, that) {
-	    var info = locationList;
-	    var currItem = info.first();  
-	    that.highlighter(currItem.ref(0), currItem.ref(1), currItem.ref(4), "pink");
-	    
-	    //play with these values for argument colors
-	    var red = 120;
-	    var green = 240;
-	    var blue = 0;
-	    
-	    
-	    while(! (info.isEmpty())) {		
-		currItem = info.first();
-		that.addToCurrentHighlighter(currItem.ref(0), currItem.ref(1), currItem.ref(4), 
-					     nextTint(red, green, blue, percentage));
-		info = info.rest();
-
-		percentage = percentage - change;
- 	    }	    
-    };
-    */ 
+ 
     
     var Color = function(red, green, blue) {
 	this.red = red;
@@ -495,8 +473,52 @@ WeSchemeInteractions = (function () {
     };
     
     Color.prototype.toString = function() {
-	return "rgb(" + this.red +"," + this.green + "," + this.blue + ")";
+	   return "rgb(" + this.red +"," + this.green + "," + this.blue + ")";
       
+    };
+
+    //proper order is id offset line column span
+    //badLocs is in   col id line offset span
+   var fixLoc = function(badLocs) {
+        var fixed = [];
+        fixed.push(badLocs.id);
+        fixed.push(parseInt(badLocs.offset));
+        fixed.push(parseInt(badLocs.line));
+        fixed.push(parseInt(badLocs.column));
+        fixed.push(parseInt(badLocs.span));
+        return types.vector(fixed);
+   };
+
+   var fixLocList = function(badLocList) {
+
+
+
+
+   };
+
+    //structuredError -> Message
+    var structuredErrorToMessage = function(se) {
+        var msg = [];
+        se = JSON.parse(se);
+        console.log(se);
+        for(var i = 0; i < se.length; i++){
+            if(typeof(se[i]) === 'string') {
+                msg.push(se[i]);
+            }
+            else if(se[i].type === "ColoredPart"){
+                //console.log("bad locs: ", fixLoc(se[i].loc));
+                msg.push(new types.ColoredPart(se[i].text, fixLoc(se[i].loc)));
+            }
+
+            else if(se[i].type === "MultiPart"){
+                console.log("bad locs list: ", se[i]);
+                //msg.push(new types.MultiPart(se[i].text, fixLocList(se[i].loc)));
+
+            }
+            else msg.push(se[i]+'');
+
+        }
+        return new types.Message(msg);
     };
     
     // renderErrorAsDomNode: exception -> element
@@ -517,18 +539,24 @@ WeSchemeInteractions = (function () {
        
 
         if (err.domMessage) {
-            dom.appendChild(err.domMessage);
-        } else {
+            //dom.appendChild(err.domMessage);
+            console.log(structuredErrorToMessage(err.structuredError));
+            msg = structuredErrorToMessage(err.structuredError);
+        }
+            
+            console.log("goes here");
             var msgDom = document.createElement('div');
             msgDom['className'] = 'moby-error:message';
+
+
+
+
 	    if (! types.isMessage(msg)) {
 	      msgDom.appendChild(document.createTextNode(msg));
 	    }
 	    //if it is a Message, do special formatting
 	    else {
-	     /* if (types.isExnFailContractArityWithPosition(err.val)) {
-		gradientHighlighter(err, that);  
-	      } */
+
 	      var colors = [new Color(238,169,184), new Color(100, 149, 240), new Color(124,205,124), 
 			    new Color(218,165,32), new Color(186,186,186)];
 	      var colorIndex = 0; //WARNING
@@ -546,10 +574,9 @@ WeSchemeInteractions = (function () {
 		  }
 		  else currColor = colors[colorIndex];
 		  
-		  
-		  
 		  if(types.isColoredPart(args[i])) {
 		      currItem = args[i].location;
+              console.log("currItem is ", currItem);
 		      that.addToCurrentHighlighter(currItem.ref(0), currItem.ref(1), currItem.ref(4), currColor+'');
 		      
 		      var aChunk = jQuery("<span/>").text(args[i].text).css("background-color", currColor+'');
@@ -602,7 +629,6 @@ WeSchemeInteractions = (function () {
 	      }
 	    }
             dom.appendChild(msgDom);
-        }
 
         var stacktrace = this.evaluator.getTraceFromExn(err);
         var stacktraceDiv = document.createElement("div");
@@ -622,6 +648,7 @@ WeSchemeInteractions = (function () {
     // FIXME: should this really wrap a paragraph around a link?  The client
     // really should be responsible for layout issues instead....
     WeSchemeInteractions.prototype.createLocationHyperlink = function(aLocation, anchorBodyDom) {
+        console.log("aLocation is ", aLocation);
         if (! anchorBodyDom) {
             anchorBodyDom = document.createTextNode(
                 "at: line " + aLocation.line + 
