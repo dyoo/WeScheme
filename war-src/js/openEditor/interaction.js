@@ -489,11 +489,14 @@ WeSchemeInteractions = (function () {
         return types.vector(fixed);
    };
 
+    //return array of fixed locs
    var fixLocList = function(badLocList) {
 
-
-
-
+    var toReturn = [];
+    for (var i =0; i < badLocList.length; i++) {
+        toReturn.push(fixLoc(badLocList[i]));
+    }
+    return toReturn;
    };
 
     //structuredError -> Message
@@ -511,8 +514,8 @@ WeSchemeInteractions = (function () {
             }
 
             else if(se[i].type === "MultiPart"){
-                console.log("bad locs list: ", se[i]);
-                //msg.push(new types.MultiPart(se[i].text, fixLocList(se[i].loc)));
+                console.log("bad locs list: ", se[i].locs);
+                msg.push(new types.MultiPart(se[i].text, fixLocList(se[i].locs)));
 
             }
             else msg.push(se[i]+'');
