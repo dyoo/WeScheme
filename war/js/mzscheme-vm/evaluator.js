@@ -425,7 +425,7 @@ var Evaluator = (function() {
     var ErrorWithDomMessage = function(domMessage, structuredError) {
 	this.message = domMessage.textContent || domMessage.innerText;
 	this.domMessage = domMessage;
-	this.structuredError = structuredError;
+	this.structuredError = JSON.parse(structuredError);
     };
 
 
