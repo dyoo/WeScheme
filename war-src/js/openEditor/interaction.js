@@ -41,7 +41,7 @@ WeSchemeInteractions = (function () {
             function(prompt) {
                 that.prompt = prompt;
                 that.evaluator = that.makeFreshEvaluator();
-                that.highlighter = function(id, offset, span, color) {
+                that.highlighter = function(id, offset, line, column, span, color) {
                     // default highlighter does nothing.  Subclasses will specialize that.
                 };
 
@@ -401,7 +401,7 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype._rewriteLocationDom = function(dom) {
         var newDom = document.createElement("span");
         var children = dom.children;
-        var offset, id, span, color;
+        var offset, id, span, line, column, color;
         for (var i = 0; i < children.length; i++) {
             var textBody = children[i].textContent || children[i].innerText;
             if (children[i]['className'] === 'location-id') {
@@ -413,15 +413,22 @@ WeSchemeInteractions = (function () {
             if (children[i]['className'] === 'location-span') {
                 span = textBody;
             }
+            if (children[i]['className'] === 'location-line') {
+                line = textBody;
+            }
+            if (children[i]['className'] === 'location-column') {
+                column = textBody;
+            }
             if (children[i]['className'] === 'location-color') {
                 color = textBody;
             }
 
         }
          if(!color) { color = "red"; }//FIXME!
-	  // console.log("_rewriteLocation " + color);
         return this.createLocationHyperlink({ id: id,
                                               offset: parseInt(offset),
+                                              line: parseInt(line),
+                                              column: parseInt(column),
                                               span: parseInt(span),
 					      color: color});
     };
@@ -527,7 +534,6 @@ WeSchemeInteractions = (function () {
 
     // Special multi-color highlighting
     var specialFormatting = function(that, msgDom, msg) {
-	console.log("goes here too");
 	var colors = [new Color(238,169,184), new Color(100, 149, 240), new Color(124,205,124), 
 		      new Color(218,165,32), new Color(186,186,186)];
 	var colorIndex = 0; //WARNING
@@ -546,8 +552,7 @@ WeSchemeInteractions = (function () {
 	    
 	    if(types.isColoredPart(args[i])) {
 		currItem = args[i].location;
-		console.log("currItem is ", currItem);
-		that.addToCurrentHighlighter(currItem.ref(0), currItem.ref(1), currItem.ref(4), currColor+'');
+		that.addToCurrentHighlighter(currItem.ref(0), currItem.ref(1), currItem.ref(2), currItem.ref(3), currItem.ref(4), currColor+'');
 		
 		var aChunk = jQuery("<span/>").text(args[i].text).css("background-color", currColor+'');
 		jQuery(msgDom).append(aChunk);
@@ -565,7 +570,7 @@ WeSchemeInteractions = (function () {
 		    currItem = parts[j];
 		    currTint = nextTint(currColor.red, currColor.green, currColor.blue, percentage);
 		    
-		    that.addToCurrentHighlighter(currItem.location.ref(0), currItem.location.ref(1), currItem.location.ref(4), 
+		    that.addToCurrentHighlighter(currItem.location.ref(0), currItem.location.ref(1), currItem.location.ref(2), currItem.location.ref(3), currItem.location.ref(4), 
 						 currTint);
 		    
 		    var aChunk = jQuery("<span/>").text(currItem.text).css("background-color", currTint);
@@ -580,7 +585,7 @@ WeSchemeInteractions = (function () {
 		var locs = args[i].locations;
 		
 		for(var j = 0; j <locs.length; j++){
-		    that.addToCurrentHighlighter(locs[j].ref(0), locs[j].ref(1), locs[j].ref(4), 
+		    that.addToCurrentHighlighter(locs[j].ref(0), locs[j].ref(1), locs[j].ref(2), locs[j].ref(3), locs[j].ref(4), 
 						 currColor);
 		}
 		var aChunk = jQuery("<span/>").text(args[i].text).css("background-color", currColor+'');
@@ -680,7 +685,7 @@ WeSchemeInteractions = (function () {
     //WHERE TO GET COLOR??
     var makeHighlighterLinkFunction = function(that, elt) {
         return function() { 
-            that.highlighter(elt.id, elt.offset, elt.span, /*elt.color*/ "red");
+            that.highlighter(elt.id, elt.offset, elt.line, elt.column, elt.span, "red");
         };
     };
 
