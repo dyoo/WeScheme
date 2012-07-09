@@ -51,7 +51,7 @@ public class NameGenerator {
 	
 	
     // Generates a random name, but does not check for uniqueness.
-    public String generateName() {
+    private String generateName() {
         StringBuffer buffer = new StringBuffer();
         buffer.append(names.get(gen.nextInt(names.size())));
         for(int i = 1; i < 5; i++) {
@@ -64,11 +64,11 @@ public class NameGenerator {
 
     // We intentionally remove "O" and "I" from consideration, as they can be confused
     // with "0" and "1".
-    static String[] base62chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
-    public String generateBase62Id() {
+    static String base62chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ";
+    private String generateBase62Id() {
         StringBuilder buffer = new StringBuilder();
         for (int i = 0; i < 10; i++) {
-            buffer.append(base62chars[gen.nextInt(base62chars.length)]);
+            buffer.append(base62chars.charAt(gen.nextInt(base62chars.length())));
         }
         return buffer.toString();
     }
