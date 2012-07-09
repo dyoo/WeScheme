@@ -1,0 +1,68 @@
+Done so far:
+
+Runtime error highlighting
+static error highlighting - paren matching
+
+
+
+TODO:
+
+
+Compatibility with other browsers (so far only tested on chrome)  *this should be tested everyday ideally*
+
+Finish cond
+	Highlight cond branches, implement cond design error messages from the document 
+Change error messages to match design error messages
+	Change the I's, change procedure to function etc.
+Implement clicking a highlighted element in the error message to move a cursor to the highlighted error in the source, along with changing the focus of the defintions window to the highlighted error code
+Go through error-struct-to-dom.ss and address all major errors
+
+Bug fixes:
+1. col undefined, line undefined
+2. else clause error, compile time error  FIXED
+3. (circle 20 'solid 'rubbish) //rubbish should be a color type. there is no error stating this, in fact nothing appears
+4. change colors to be color-blind friendly, and make the colors cyclic (they go to random now)
+
+
+
+If ahead of schedule:
+dimming highlighted colors over time
+documentation link (if the error mentions a professional function)
+
+
+
+------------------------------------------------
+
+EOD Wednesday, July 11
+
+Finish all work regarding highlighting cond branches, and rewording cond error messages. This includes the if statement, and anything really related to cond, such as parenthesis. The specific goal is to mimic the appearance and behavior of the design docs. 
+//as of monday, very close to completely finished with this
+
+
+EOD Friday, July 13
+
+Fix bugs 1 3 and 4 (hopefully), and any others that are found/created throughout the week. 
+
+
+EOD Wednesday, July 18
+
+Go through error-struct-to-dom.ss and address all major errors, implementing their correct error messages. The goal is to expand functionality to include more parts of Scheme/Racket code, as the framework should be created by now. 
+
+
+EOD Friday, July 20
+
+Most major errors should be addressed/implemented  by now. 
+
+
+EOD Wednesday, July 25
+
+It is unknown how long it will take to implement clicking a highlighted element in the error message to move a cursor to the highlighted error in the source, along with changing the focus of the defintions window to the highlighted error code. However, it will likely be done by now.
+
+
+EOD Friday, July 27
+
+In theory, everything works perfectly! =] 
+In reality, this is time to continue debugging, extensive testing, code review, and corner cases. 
+
+
+
