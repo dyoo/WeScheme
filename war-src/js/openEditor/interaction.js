@@ -611,19 +611,28 @@ WeSchemeInteractions = (function () {
         }
         var msgDom = document.createElement('div');
         msgDom['className'] = 'moby-error:message';
-        if (err.domMessage) {
-		    console.log('domMessage');
-            if(! err.structuredError){
-                dom.appendChild(err.domMessage);
+        /*if (err.domMessage) {
+		   console.log(err.domMessage);
+            if(! err.structuredError){ 
+			dom.appendChild(err.domMessage);
             } else {
                 msg = structuredErrorToMessage(err.structuredError);
 			}
+		}*/
+		if(err.structuredError){
+		  msg = structuredErrorToMessage(err.structuredError);
 		}
+		  
 				
 				
 				
 		if (! types.isMessage(msg)) {
-            msgDom.appendChild(document.createTextNode(msg));
+			if(err.domMessage){
+			  dom.appendChild(err.domMessage);
+			}
+			else {
+			  msgDom.appendChild(document.createTextNode(msg));
+			}
         } else {
 		    //if it is a Message, do special formatting
             specialFormatting(that, msgDom, msg);
