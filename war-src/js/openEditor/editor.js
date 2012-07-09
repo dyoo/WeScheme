@@ -61,13 +61,13 @@ var WeSchemeEditor;
 	    function(interactions) {
 		that.interactions = interactions;
 		    
-		that.interactions.setSourceHighlighter(function(id, offset, span, color) {
+		that.interactions.setSourceHighlighter(function(id, offset, line, column, span, color) {
 		    that.unhighlightAll();
-		    that.highlight(id, offset, span, color);
+		    that.highlight(id, offset, line, column, span, color);
 		});
 		
-		that.interactions.setAddToCurrentHighlighter(function(id, offset, span, color) {
-		    that.highlight(id, offset, span, color);
+		that.interactions.setAddToCurrentHighlighter(function(id, offset, line, column, span, color) {
+		    that.highlight(id, offset, line, column, span, color);
 		});
 
 		// pid: (or false number)
@@ -212,11 +212,11 @@ var WeSchemeEditor;
 	aBooleanBehavior.changes().mapE(f);
     }
 
-    WeSchemeEditor.prototype.highlight = function(id, offset, span, color) {
+    WeSchemeEditor.prototype.highlight = function(id, offset, line, column, span, color) {
 	if (id === '<definitions>') {
-	    this.defn.highlight(id, offset, span, color);
+	    this.defn.highlight(id, offset, line, column, span, color);
 	} else if (this.interactions.previousInteractionsTextContainers[id]) {
-	    this.interactions.previousInteractionsTextContainers[id].highlight(id, offset, span, color);
+	    this.interactions.previousInteractionsTextContainers[id].highlight(id, offset, line, column, span, color);
 	}
     };
     
