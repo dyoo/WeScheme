@@ -210,6 +210,8 @@ var WeSchemeTextContainer;
 		}
 	}
 
+    var currentHighlightNumber = 0;
+
 	CodeMirrorImplementation.prototype.highlight = function(id, offset, line, column, span, color) {
 		offset--;
 		// For some reason, we're getting the offset from the highlighter
@@ -224,7 +226,8 @@ var WeSchemeTextContainer;
 				this.handleAndColumnToPos(endHandleAndColumn))*/
 		
 		var stylesheet = document.styleSheets[0]; //this is default.css
-		var name = "highlight" + Math.floor(Math.random()*1000000);//+ color
+		var name = "highlight" + currentHighlightNumber;//+ color
+		currentHighlightNumber++;
 
 		//LOOK INTO IE/CHROME business
 
