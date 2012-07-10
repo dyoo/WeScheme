@@ -508,9 +508,9 @@ WeSchemeInteractions = (function () {
 
     //structuredError -> Message
     var structuredErrorToMessage = function(se) {
-	    console.log('structuredErrorToMessage');
+	    //console.log('structuredErrorToMessage');
         var msg = [];
-        console.log(se);
+        //console.log(se);
         for(var i = 0; i < se.length; i++){
             if(typeof(se[i]) === 'string') {
                 msg.push(se[i]);
@@ -521,7 +521,7 @@ WeSchemeInteractions = (function () {
             }
 
             else if(se[i].type === "MultiPart"){
-                console.log("bad locs list: ", se[i].locs);
+                //console.log("bad locs list: ", se[i].locs);
                 msg.push(new types.MultiPart(se[i].text, fixLocList(se[i].locs)));
 
             }
@@ -663,7 +663,7 @@ WeSchemeInteractions = (function () {
     // FIXME: should this really wrap a paragraph around a link?  The client
     // really should be responsible for layout issues instead....
     WeSchemeInteractions.prototype.createLocationHyperlink = function(aLocation, anchorBodyDom) {
-        console.log("aLocation is ", aLocation);
+        //console.log("aLocation is ", aLocation);
         if (! anchorBodyDom) {
             anchorBodyDom = document.createTextNode(
                 "at: line " + aLocation.line + 

@@ -80,8 +80,8 @@ var WeSchemeTextContainer;
 		return this.impl.setCode(normalizeString(code));
 	};
 
-	WeSchemeTextContainer.prototype.highlight = function(id, offset, span, color) {
-		return this.impl.highlight(id, offset, span, color);
+	WeSchemeTextContainer.prototype.highlight = function(id, offset, line, column, span, color) {
+		return this.impl.highlight(id, offset, line, column, span, color);
 	};
 	WeSchemeTextContainer.prototype.unhighlightAll = function () {
 		return this.impl.unhighlightAll();
@@ -210,7 +210,7 @@ var WeSchemeTextContainer;
 		}
 	}
 
-	CodeMirrorImplementation.prototype.highlight = function(id, offset, span, color) {
+	CodeMirrorImplementation.prototype.highlight = function(id, offset, line, column, span, color) {
 		offset--;
 		// For some reason, we're getting the offset from the highlighter
 		// as 1-offset, rather than 0-offset.
