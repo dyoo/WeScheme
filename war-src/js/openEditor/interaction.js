@@ -551,8 +551,7 @@ WeSchemeInteractions = (function () {
     	    if(types.isColoredPart(args[i])) {
     		currItem = args[i].location;
     		that.addToCurrentHighlighter(currItem.ref(0), currItem.ref(1), currItem.ref(2), currItem.ref(3), currItem.ref(4), currColor+'');
-    		
-    		var aChunk = jQuery("<span/>").text(args[i].text).css("background-color", currColor+'');
+    		var aChunk = jQuery("<span/>").text(args[i].text+'').css("background-color", currColor+'');
     		jQuery(msgDom).append(aChunk);
     		
     		colorIndex++;
