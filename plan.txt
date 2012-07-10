@@ -20,8 +20,8 @@ Go through error-struct-to-dom.ss and address all major errors
 Bug fixes:
 1. col undefined, line undefined FIXED
 2. else clause error, compile time error  FIXED
-3. (circle 20 'solid 'rubbish) //rubbish should be a color type. there is no error stating this, in fact nothing appears
-4. change colors to be color-blind friendly, and make the colors cyclic (they go to random now)
+3. (circle 20 'solid 'rubbish) //rubbish should be a color type. there is no error stating this, in fact nothing appears FIXED
+4. change colors to be color-blind friendly, and make the colors cyclic (they go to random now) FIXED
 
 
 
@@ -41,7 +41,7 @@ Finish all work regarding highlighting cond branches, and rewording cond error m
 
 EOD Friday, July 13
 
-Fix bugs 3 and 4 (hopefully), and any others that are found/created throughout the week. 
+Fix any bugs that are found/created throughout the week. 
 
 
 EOD Wednesday, July 18
