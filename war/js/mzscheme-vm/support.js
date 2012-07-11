@@ -20541,9 +20541,7 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 
     if ( !types.isFunction(procValue) ) {
 	    var argStr = getArgStr('; arguments were:');
-       var positionStack = 
-        state.captureCurrentContinuationMarks(aState).ref(
-            types.symbol('moby-application-position-key'));
+        var positionStack = state.captureCurrentContinuationMarks(aState).ref(types.symbol('moby-application-position-key'));
         
        
         var locationList = positionStack[positionStack.length - 1];

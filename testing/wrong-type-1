@@ -23,7 +23,7 @@
 </tr>
 <tr>
 	<td>assertAttribute</td>
-	<td>css=#definitions span:contains(+)@style</td>
+	<td>css=#definitions span:contains(&quot;+&quot;)@style</td>
 	<td>background-color: rgb(238, 169, 184);</td>
 </tr>
 <tr>

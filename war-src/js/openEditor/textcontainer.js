@@ -226,9 +226,9 @@ var WeSchemeTextContainer;
 				this.handleAndColumnToPos(endHandleAndColumn))*/
 		
 		var stylesheet = document.styleSheets[0]; //this is default.css
-		var name = "highlight" + currentHighlightNumber;//+ color
-		currentHighlightNumber++;
+		var name = "highlight" + (currentHighlightNumber+'x');//to prevent overwriting with prefixes
 
+		currentHighlightNumber++;
 		//LOOK INTO IE/CHROME business
 
 
