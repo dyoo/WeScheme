@@ -293,10 +293,36 @@ WeSchemeInteractions = (function () {
         this.textContainer.focus();
     };
 
+
     //////////////////////////////////////////////////////////////////////
+
+    var initializeRoundRobinCompilation = function(evaluator) {
+        var compilation_servers = plt.wescheme.WeSchemeProperties.compilation_servers.split(/\s+/);
+        var xhrs = [];
+        var i;
+        for (i = 0; i < compilation_servers.length; i++) {
+            xhrs.push(new easyXDM.Rpc(
+                { remote: compilation_servers[i],
+                  lazy: true        // This lazy flag must be set to avoid
+                  // a very ugly issue with Firefox 3.5.
+                }, 
+                { remote: { compileProgram: {} }}));
+        }
+
+        i = 0;
+        evaluator.setCompileProgram(
+            function(programName, code, onDone, onDoneError) {
+                xhrs[i].compileProgram(programName, code, onDone,
+                                       function(errorStruct) {
+                                           onDoneError(errorStruct.message);
+                                       });
+                i = ((i + 1) % xhrs.length);
+            });
+    };
 
     WeSchemeInteractions.prototype.makeFreshEvaluator = function() {
         var that = this;
+
         var evaluator = new Evaluator({
             write: function(thing) {
                 that.addToInteractions(thing);
@@ -304,10 +330,12 @@ WeSchemeInteractions = (function () {
             transformDom : function(dom) {
                 var result = that._transformDom(dom);
                 return result;
-            },
-            compilationServletUrl: "/compile",
-            scriptCompilationServletUrl: plt.wescheme.WeSchemeProperties.compilation_server_url
+            }
         });
+        initializeRoundRobinCompilation(evaluator);
+        
+
+
         evaluator.makeToplevelNode = function() {
             var dialog = jQuery("<div/>");
             var handleClose = function(event, ui) {

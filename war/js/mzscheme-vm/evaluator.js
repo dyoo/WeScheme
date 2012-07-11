@@ -35,13 +35,6 @@
 // Evaluator.prototype.getStackTraceFromExn
 //
 // 
-// WARNING: this code assumes that there's toplevel access to:
-//
-//     Evaluator.compilation_success_callback__
-//     Evaluator.compilation_failure_callback__
-//
-// because we will use SCRIPT injection to work around the same-origin
-// policy for direct access to the compilation server.
 
 
 
@@ -203,51 +196,35 @@ var Evaluator = (function() {
     };
 
 
-    // The limit till script breaks is about 2000 characters, according to:
-    // http://stackoverflow.com/questions/2659952/maximum-length-of-http-get-request
-    var MAX_CHARACTERS_TILL_SCRIPT_BREAKS = 2000;
-
-
-    // Returns true if the length of the SCRIPT src is short enough that
-    // we can safely use SCRIPT to talk directly to the compilation server.
-    Evaluator.prototype._isScriptRequestPossible = function(programName, code) {
-	var encodedParams = encodeScriptParameters(programName, code);
-	return (encodedParams.length +
-		this.scriptCompilationServletUrl.length + 1 
-		< MAX_CHARACTERS_TILL_SCRIPT_BREAKS);
-    };
-
-
     // executeProgram: string string (-> void) (exn -> void) -> void
     Evaluator.prototype.executeProgram = function(programName, code,
 						  onDone,
 						  onDoneError) {
-	if (! this._isScriptRequestPossible(programName, code)) {
-	    this._executeProgramWithAjax(programName, code, onDone, onDoneError);
-	} else {
-	    this._executeProgramWithScript(programName, code, onDone, onDoneError);
-	}
-    };
-
-    // _executeProgramWithScript: string string (-> void) (exn -> void) -> void
-    Evaluator.prototype._executeProgramWithScript = function(programName, code,
-							     onDone, onDoneError) {
 	var that = this;
-	var params = encodeScriptParameters(programName, code);
-	Evaluator.compilation_success_callback__ = function(compiledCode) {
-	    that._onCompilationSuccess(compiledCode, onDone, onDoneError);
-	};
-
-	Evaluator.compilation_failure_callback__ = function(errorMessage) {
-	    that._onCompilationFailure(errorMessage, onDoneError);
-	};
-	loadScript(this.scriptCompilationServletUrl + "?" + params);
+        this.compileProgram(programName, code,
+                            function(responseText) {
+		                that._onCompilationSuccess(eval('(' + responseText + ')'), 
+					                   onDone, onDoneError);
+                            },
+                            function(responseErrorText) {
+		                that._onCompilationFailure(JSON.parse(responseErrorText),
+					                   onDoneError);
+                            })
     };
 
 
-    // _executeProgramWithAjax: string string (-> void) (exn -> void) -> void
-    Evaluator.prototype._executeProgramWithAjax = function(programName, code,
-							   onDone, onDoneError) {
+
+    // Under environments that need to customize the compiler, we provide a setter
+    // for compileProgram:
+    Evaluator.prototype.setCompileProgram = function(compileProgram) {
+        this.compileProgram = compileProgram;
+    };
+
+
+    // The default value for it is:
+    // compileProgram: string string (string -> any) (string -> any) -> void
+    // Runs the compiler on the given program.
+    Evaluator.prototype.compileProgram = function(programName, code, onDone, onDoneError) {
 	var that = this;
 	var params = encodeUrlParameters({'name': programName,
 					  'program': code,
@@ -256,11 +233,9 @@ var Evaluator = (function() {
 	xhr.onreadystatechange = function() {
 	    if (xhr.readyState == 4) {
 		if (xhr.status === 200) {
-		    that._onCompilationSuccess(eval('(' + xhr.responseText + ')'), 
-					       onDone, onDoneError);
+                    onDone(xhr.responseText);
 		} else {
-		    that._onCompilationFailure(xhr.responseText, 
-					       onDoneError);
+                    onDoneError(xhr.responseText);
 		}
 	    }
 	};
@@ -268,6 +243,10 @@ var Evaluator = (function() {
 	xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 	xhr.send(params);
     };
+
+
+
+
 
     
 
@@ -465,66 +444,6 @@ var Evaluator = (function() {
 
 
 
-    //////////////////////////////////////////////////////////////////////
-    /* Lesser General Public License for more details.
-	*
-	* You should have received a copy of the GNU Lesser General Public
-	* License along with this library; if not, write to the Free Software
-	* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-	*
-	* Contact information:
-	*   Dao Gottwald  <dao at design-noir.de>
-	*
-	* @version  1.6
-	* @url      http://design-noir.de/webdev/JS/loadScript/
-    */
-
-    var loadScript = function(url, callback, onError) {
-	var f = arguments.callee;
-	if (!("queue" in f))
-	    f.queue = {};
-	var queue = f.queue;
-	if (url in queue) { // script is already in the document
-	    if (callback) {
-		if (queue[url]) // still loading
-		    queue[url].push(callback);
-		else // loaded
-		    callback();
-	    }
-	    return;
-	}
-	queue[url] = callback ? [callback] : [];
-	var script = document.createElement("script");
-	script.type = "text/javascript";
-	script.onload = script.onreadystatechange = function() {
-	    if (script.readyState && script.readyState != "loaded" && script.readyState != "complete")
-		return;
-	    script.onreadystatechange = script.onload = null;
-	    document.getElementsByTagName("head")[0].removeChild(script);
-	    var work = queue[url];
-	    delete(queue[url]);
-	    while (work.length)
-		work.shift()();
-	};
-        script.onerror = function() {
-	    script.onreadystatechange = script.onload = null;
-	    document.getElementsByTagName("head")[0].removeChild(script);
-            onError();
-        };
-	script.src = url;
-	document.getElementsByTagName("head")[0].appendChild(script);
-    }
-    //////////////////////////////////////////////////////////////////////
-
-
-
-
-
     return Evaluator;
 })();
 
-
-
-
-Evaluator.compilation_success_callback__ = function() {}
-Evaluator.compilation_failure_callback__ = function() {}
