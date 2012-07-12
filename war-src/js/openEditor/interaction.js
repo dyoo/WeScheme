@@ -302,17 +302,23 @@ WeSchemeInteractions = (function () {
         return plt.wescheme.WeSchemeProperties.compilation_servers.split(/\s+/);
     };
 
-    // Adds a new xhr to xhrs if it appears to be alive.
+
+    // Initializes the remote procedure call between the client and
+    // the given serverUrl.  Due to the peculiarities of easyXDM, we
+    // need to ping the server up front to see if the connection is
+    // alive: we don't get a reliable error exception if the server is
+    // down from the very beginning.
     var initializeXhr = function(serverUrl, xhrs) {
         var xhr = new easyXDM.Rpc(
             { remote: serverUrl,
-              onReady: function() {
-              },
               // This lazy flag must be set to avoid a very ugly
               // issue with Firefox 3.5.
               lazy: true
             }, 
             { remote: { compileProgram: {} }});
+        // We initiate compilation of the empty program and see
+        // if the server responds.  If it does, we add the server
+        // to the list of known good servers.
         xhr.compileProgram("", 
                            "",
                            function(bytecode) {
@@ -322,6 +328,10 @@ WeSchemeInteractions = (function () {
                            });
     };
 
+
+    // Configures the evaluator to use round-robin compilation between
+    // a set of servers.  Compilation will also fall back to other
+    // servers under network failure.
     var initializeRoundRobinCompilation = function(evaluator) {
         var compilation_servers = getServerList();
         var xhrs = [];
@@ -329,12 +339,21 @@ WeSchemeInteractions = (function () {
         for (i = 0; i < compilation_servers.length; i++) {
             initializeXhr(compilation_servers[i], xhrs);
         }
+        var roundRobinIndex;
 
-
-        var tryServerN = function(n, countFailures, programName, code, onDone, onDoneError) {
-            var onFinalFailure = function() {
-                onDoneError(JSON.stringify("WeScheme's compiler server appears "+
-                                           "to be temporarily busy.  Please try again later."));
+        // Try using server n to compile the expression.  If network
+        // failure occurs, try the next one in round-robin order, up
+        // to xhrs.length tries.
+        var tryServerN = function(n, countFailures, 
+                                  programName, code, 
+                                  onDone, onDoneError) {
+            var onAllCompilationServersFailing = function() {
+                // If all servers are failing, we simulate a 
+                // compile time error with the following content:
+                onDoneError(
+                    JSON.stringify(
+                        "WeScheme's compiler server appears "+
+                            "to be busy.  Please try again later."));
             };
 
             if (n < xhrs.length) {
@@ -343,9 +362,12 @@ WeSchemeInteractions = (function () {
                     code,
                     onDone,
                     function(errorStruct) {
+                        // If the content of the message is the
+                        // empty string, communication with
+                        // the server failed.
                         if (errorStruct.message === "") {
                             if (countFailures >= xhrs.length) {
-                                onFinalFailure();
+                                onAllCompilationServersFailing();
                             } else {
                                 tryServerN(((n + 1) % xhrs.length),
                                            countFailures + 1,
@@ -359,15 +381,17 @@ WeSchemeInteractions = (function () {
                         }
                     });
             } else {
-                onFinalFailure();
+                onAllCompilationServersFailing();
             }
         };
 
-        i = 0;
+        roundRobinIndex = 0;
         evaluator.setCompileProgram(
             function(programName, code, onDone, onDoneError) {
-                i = ((i + 1) % xhrs.length);
-                tryServerN(i, 0, programName, code, onDone, onDoneError);
+                roundRobinIndex = (((roundRobinIndex + 1) 
+                                    % xhrs.length));
+                tryServerN(roundRobinIndex, 0,
+                           programName, code, onDone, onDoneError);
             });
     };
 
