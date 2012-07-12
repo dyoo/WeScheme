@@ -38,6 +38,13 @@
     <link rel="stylesheet" type="text/css" href="/css/jquery-ui.css"/>
 
 
+    <!-- EasyXDM and json -->
+    <script src="/js/easyXDM/easyXDM-min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      easyXDM.DomHelper.requiresJSON("/js/easyXDM/json2-min.js");
+    </script>
+
+
     <script src="/safeSubmit-min.js" type="text/javascript"></script>
 
     <script src="/js/flapjax-2.0.1.compressed-min.js" type="text/javascript"></script>
@@ -396,11 +403,6 @@
   </body>
 
 
-  <!-- EasyXDM and json -->
-  <script src="/js/easyXDM/easyXDM-min.js" type="text/javascript"></script>
-  <script type="text/javascript">
-    easyXDM.DomHelper.requiresJSON("/js/easyXDM/json2-min.js");
-  </script>
 
 
   <script type="text/javascript">

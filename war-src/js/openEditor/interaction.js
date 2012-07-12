@@ -13,6 +13,7 @@ goog.require("plt.wescheme.topKeymap");
 goog.require("plt.wescheme.WeSchemeTextContainer");
 goog.require("plt.wescheme.tokenizer");
 goog.require("plt.wescheme.WeSchemeProperties");
+goog.require("plt.wescheme.RoundRobin");
 
 var WeSchemeInteractions;
 
@@ -40,25 +41,27 @@ WeSchemeInteractions = (function () {
             this.interactionsDiv,
             function(prompt) {
                 that.prompt = prompt;
-                that.evaluator = that.makeFreshEvaluator();
-                that.highlighter = function(id, offset, line, column, span) {
-                    // default highlighter does nothing.  Subclasses will specialize that.
-                };
+                that.makeFreshEvaluator(function(e) {
+                    that.evaluator = e;
+                    that.highlighter = function(id, offset, line, column, span) {
+                        // default highlighter does nothing.  Subclasses will specialize that.
+                    };
 
-                // Note: When starting a new prompt, the last element of
-                // "historyArray" is always an empty string, and "historyIndex"
-                // is the index of the last element in "historyArray".
-                // When recalling history, the last element of "historyArray"
-                // can be set to the line being edited (if different from the
-                // history it recalls), so that a user can back out of the
-                // history recall to return to the edited line.
-                prompt.historyArray = [""];
-                prompt.historyIndex = 0;
-                prompt.maxSavedHistory = 100;
+                    // Note: When starting a new prompt, the last element of
+                    // "historyArray" is always an empty string, and "historyIndex"
+                    // is the index of the last element in "historyArray".
+                    // When recalling history, the last element of "historyArray"
+                    // can be set to the line being edited (if different from the
+                    // history it recalls), so that a user can back out of the
+                    // history recall to return to the edited line.
+                    prompt.historyArray = [""];
+                    prompt.historyIndex = 0;
+                    prompt.maxSavedHistory = 100;
 
-                if (afterInit) {
-                    afterInit(that);
-                }
+                    if (afterInit) {
+                        afterInit(that);
+                    }
+                });
             }
         );
     };
@@ -68,10 +71,12 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.reset = function() {
         var that = this;
         this.notifyBus("before-reset", this);
-        this.evaluator = that.makeFreshEvaluator();
-        jQuery(this.previousInteractionsDiv).empty();
-        this.notifyBus("after-reset", that);
-        this.prompt.clear();
+        that.makeFreshEvaluator(function(e) {
+            that.evaluator = e;
+            jQuery(that.previousInteractionsDiv).empty();
+            that.notifyBus("after-reset", that);
+            that.prompt.clear();
+        })
     };
 
     // clearLine: -> void
@@ -296,106 +301,29 @@ WeSchemeInteractions = (function () {
 
     //////////////////////////////////////////////////////////////////////
 
-    // Initializes the evaluator to use round-robin compilation, given a list of
-    // servers.
-    var getServerList = function() {
-        return plt.wescheme.WeSchemeProperties.compilation_servers.split(/\s+/);
-    };
-
-
-    // Initializes the remote procedure call between the client and
-    // the given serverUrl.  Due to the peculiarities of easyXDM, we
-    // need to ping the server up front to see if the connection is
-    // alive: we don't get a reliable error exception if the server is
-    // down from the very beginning.
-    var initializeXhr = function(serverUrl, xhrs) {
-        var xhr = new easyXDM.Rpc(
-            { remote: serverUrl,
-              // This lazy flag must be set to avoid a very ugly
-              // issue with Firefox 3.5.
-              lazy: true
-            }, 
-            { remote: { compileProgram: {} }});
-        // We initiate compilation of the empty program and see
-        // if the server responds.  If it does, we add the server
-        // to the list of known good servers.
-        xhr.compileProgram("", 
-                           "",
-                           function(bytecode) {
-                               xhrs.push(xhr);
-                           },
-                           function(err) {
-                           });
-    };
-
-
     // Configures the evaluator to use round-robin compilation between
     // a set of servers.  Compilation will also fall back to other
     // servers under network failure.
-    var initializeRoundRobinCompilation = function(evaluator) {
-        var compilation_servers = getServerList();
-        var xhrs = [];
-        var i;
-        for (i = 0; i < compilation_servers.length; i++) {
-            initializeXhr(compilation_servers[i], xhrs);
-        }
-        var roundRobinIndex;
-
-        // Try using server n to compile the expression.  If network
-        // failure occurs, try the next one in round-robin order, up
-        // to xhrs.length tries.
-        var tryServerN = function(n, countFailures, 
-                                  programName, code, 
-                                  onDone, onDoneError) {
-            var onAllCompilationServersFailing = function() {
-                // If all servers are failing, we simulate a 
-                // compile time error with the following content:
-                onDoneError(
-                    JSON.stringify(
-                        "WeScheme's compiler server appears "+
-                            "to be busy.  Please try again later."));
-            };
-
-            if (n < xhrs.length) {
-                xhrs[n].compileProgram(
-                    programName,
-                    code,
-                    onDone,
-                    function(errorStruct) {
-                        // If the content of the message is the
-                        // empty string, communication with
-                        // the server failed.
-                        if (errorStruct.message === "") {
-                            if (countFailures >= xhrs.length) {
-                                onAllCompilationServersFailing();
-                            } else {
-                                tryServerN(((n + 1) % xhrs.length),
-                                           countFailures + 1,
-                                           programName,
-                                           code,
-                                           onDone,
-                                           onDoneError);
-                            }
-                        } else {
-                            onDoneError(errorStruct.message);
-                        }
-                    });
-            } else {
-                onAllCompilationServersFailing();
-            }
-        };
-
-        roundRobinIndex = 0;
-        evaluator.setCompileProgram(
-            function(programName, code, onDone, onDoneError) {
-                roundRobinIndex = (((roundRobinIndex + 1) 
-                                    % xhrs.length));
-                tryServerN(roundRobinIndex, 0,
-                           programName, code, onDone, onDoneError);
+    WeSchemeInteractions.prototype.initializeRoundRobinCompilation = function(evaluator, after) {
+        var that = this;
+        plt.wescheme.RoundRobin.initialize(
+            function() {
+                evaluator.setCompileProgram(
+                    plt.wescheme.RoundRobin.roundRobinCompiler);
+                after();
+            },
+            function() {
+                // Under this situation, all compilation servers are inaccessible.
+                evaluator.setCompileProgram(
+                    plt.wescheme.RoundRobin.roundRobinCompiler);
+                alert("WeScheme appears to be busy or unavailable at this time." +
+                      "  Please try again later.");
+                after();
             });
     };
 
-    WeSchemeInteractions.prototype.makeFreshEvaluator = function() {
+
+    WeSchemeInteractions.prototype.makeFreshEvaluator = function(afterInit) {
         var that = this;
 
         var evaluator = new Evaluator({
@@ -407,41 +335,40 @@ WeSchemeInteractions = (function () {
                 return result;
             }
         });
-        initializeRoundRobinCompilation(evaluator);
-        
+        that.initializeRoundRobinCompilation(
+            evaluator,
+            function() {
+                evaluator.makeToplevelNode = function() {
+                    var dialog = jQuery("<div/>");
+                    var handleClose = function(event, ui) {
+                        that.evaluator.requestBreak();
+                    };
 
+                    dialog.dialog( {
+                        bgiframe : true,
+                        position: ["left", "top"],
+                        modal : true,
+                        width: "auto",
+                        height: "auto",
+                        beforeclose: handleClose,
+                        resizable: false,
+                        closeOnEscape: true
+                    });
 
-        evaluator.makeToplevelNode = function() {
-            var dialog = jQuery("<div/>");
-            var handleClose = function(event, ui) {
-                that.evaluator.requestBreak();
-            };
-
-            dialog.dialog( {
-                bgiframe : true,
-                position: ["left", "top"],
-                modal : true,
-                width: "auto",
-                height: "auto",
-                beforeclose: handleClose,
-                resizable: false,
-                closeOnEscape: true
-            });
-
-            var innerArea = jQuery("<div class='evaluatorToplevelNode'></div>");
-            dialog.append(innerArea);
-            dialog.dialog("open");
-            return innerArea.get(0);
-        };
-	evaluator.setImageProxy("/imageProxy");
-        evaluator.setRootLibraryPath("/js/mzscheme-vm/collects");
-        evaluator.setDynamicModuleLoader(function(aName, onSuccess, onFail) {
-            loadScript(this.rootLibraryPath + "/" + aName + "-min.js",
-                       onSuccess,
-                       onFail);
-        });
-
-        return evaluator;
+                    var innerArea = jQuery("<div class='evaluatorToplevelNode'></div>");
+                    dialog.append(innerArea);
+                    dialog.dialog("open");
+                    return innerArea.get(0);
+                };
+	        evaluator.setImageProxy("/imageProxy");
+                evaluator.setRootLibraryPath("/js/mzscheme-vm/collects");
+                evaluator.setDynamicModuleLoader(function(aName, onSuccess, onFail) {
+                    loadScript(this.rootLibraryPath + "/" + aName + "-min.js",
+                               onSuccess,
+                               onFail);
+                });
+                afterInit(evaluator);
+            }); 
     };
 
 
