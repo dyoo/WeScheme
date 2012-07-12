@@ -12,8 +12,13 @@
 <tr><td rowspan="1" colspan="3">wrong-type-1</td></tr>
 </thead><tbody>
 <tr>
+	<td>open</td>
+	<td>http://localhost:8888/openEditor</td>
+	<td></td>
+</tr>
+<tr>
 	<td>assertEval</td>
-	<td>window.myEditor.defn.setCode(&quot;(+ 194 \&quot;hello\&quot;)&quot;)</td>
+	<td>window.myEditor.defn.setCode(&quot;(+ \&quot;hello\&quot; 2)&quot;)</td>
 	<td>null</td>
 </tr>
 <tr>
@@ -22,19 +27,24 @@
 	<td></td>
 </tr>
 <tr>
-	<td>assertAttribute</td>
-	<td>css=#definitions span:contains(&quot;+&quot;)@style</td>
-	<td>background-color: rgb(238, 169, 184);</td>
+	<td>assertEval</td>
+	<td>&quot;blah&quot;</td>
+	<td>blah</td>
 </tr>
 <tr>
-	<td>assertAttribute</td>
-	<td>css=#definitions span:contains(194)@style</td>
-	<td>background-color: rgb(127, 191, 123);</td>
+	<td>assertEval</td>
+	<td>window.myEditor.defn.getCSS({line: 0, ch: 4})</td>
+	<td>h</td>
 </tr>
 <tr>
-	<td>assertAttribute</td>
-	<td>css=#definitions span:contains(hello)@style</td>
-	<td>background-color: rgb(145, 191, 219);</td>
+	<td>assertElementPresent</td>
+	<td>//html/body/div/div[2]/div/div/div/div[2]/div/div/div[2]/div/div[3]/pre/span[6]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>echo</td>
+	<td>${h}</td>
+	<td></td>
 </tr>
 </tbody></table>
 </body>

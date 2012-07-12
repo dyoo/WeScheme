@@ -352,6 +352,8 @@ WeSchemeInteractions = (function () {
         }
     };
 
+
+    //FIXME refactor this
     WeSchemeInteractions.prototype.setSourceHighlighter = function(highlighter) {
         this.highlighter = highlighter;
     };
@@ -424,13 +426,13 @@ WeSchemeInteractions = (function () {
             }
 
         }
-         if(!color) { color = "red"; }//FIXME!
+         if(!color) { color = "red"; }
         return this.createLocationHyperlink({ id: id,
                                               offset: parseInt(offset),
                                               line: parseInt(line),
                                               column: parseInt(column),
                                               span: parseInt(span),
-					      color: color});
+					                          color: color});
     };
 
     // Evaluate the source code and accumulate its effects.
@@ -459,24 +461,24 @@ WeSchemeInteractions = (function () {
     };
 
     //nextColor: int float -> int
-    //takes in a rgb color from 0 to 255 and a percentage to tint by, 
+    //takes in a rgb color from 0 to 255 and a percentage from 0 to 1 to tint by, 
     //  outputs the tinted color as an int
     var nextColor = function(color, percentage) {
-	return parseInt(percentage*color + (255 * (1 - percentage)));
+	    return Math.floor(percentage*color + (255 * (1 - percentage)));
     };
     
     //nextTint: int int int float -> string
     //given rgb ints and a percentage to tint, returns the rgb string of the tinted color
     var nextTint = function(red, green, blue, percentage) {
-	return "rgb(" + nextColor(red, percentage) + "," + nextColor(green, percentage) + "," 
+	    return "rgb(" + nextColor(red, percentage) + "," + nextColor(green, percentage) + "," 
 				      + nextColor(blue, percentage) + ")";
     };
  
     
     var Color = function(red, green, blue) {
-	this.red = red;
-	this.green = green;
-	this.blue = blue;
+	    this.red = red;
+	    this.green = green;
+	    this.blue = blue;
     };
     
     Color.prototype.toString = function() {
@@ -486,7 +488,7 @@ WeSchemeInteractions = (function () {
 
     //proper order is id offset line column span
     //badLocs is in   col id line offset span
-   var fixLoc = function(badLocs) {
+   var locObjToVector = function(badLocs) {
         var fixed = [];
         fixed.push(badLocs.id);
         fixed.push(parseInt(badLocs.offset));
@@ -498,30 +500,39 @@ WeSchemeInteractions = (function () {
 
     //return array of fixed locs
    var fixLocList = function(badLocList) {
+       var toReturn = [];
 
-    var toReturn = [];
-    for (var i =0; i < badLocList.length; i++) {
-        toReturn.push(fixLoc(badLocList[i]));
-    }
-    return toReturn;
+       var i;
+       for (i =0; i < badLocList.length; i++) {
+           toReturn.push(locObjToVector(badLocList[i]));
+       }
+       return toReturn;
    };
 
     //structuredError -> Message
     var structuredErrorToMessage = function(se) {
-	    //console.log('structuredErrorToMessage');
         var msg = [];
-        //console.log(se);
-        for(var i = 0; i < se.length; i++){
+
+        var i;
+        for(i = 0; i < se.length; i++){
             if(typeof(se[i]) === 'string') {
                 msg.push(se[i]);
             }
             else if(se[i].type === "ColoredPart"){
-                //console.log("bad locs: ", fixLoc(se[i].loc));
-                msg.push(new types.ColoredPart(se[i].text, fixLoc(se[i].loc)));
+                msg.push(new types.ColoredPart(se[i].text, locObjToVector(se[i].loc)));
+            }
+
+            else if(se[i].type === "GradientPart"){
+                var j;
+                var parts = [];
+                for(j = 0; j < se[i].parts.length; j++){
+                    var coloredPart = se[i].parts[j];
+                    parts.push(new types.ColoredPart(coloredPart.text, locObjToVector(coloredPart.loc)));
+                }
+                msg.push(new types.GradientPart(parts));
             }
 
             else if(se[i].type === "MultiPart"){
-                //console.log("bad locs list: ", se[i].locs);
                 msg.push(new types.MultiPart(se[i].text, fixLocList(se[i].locs)));
             }
             else msg.push(se[i]+'');
@@ -533,6 +544,7 @@ WeSchemeInteractions = (function () {
 
     // Special multi-color highlighting
     var specialFormatting = function(that, msgDom, msg) {
+        //pink, blue, green, yellow, gray
     	var colors = [new Color(238,169,184), new Color(145, 191, 219), new Color(127,191,123), 
     		      new Color(175,141,195), new Color(186,186,186)];
     	var colorIndex = 0;
@@ -540,6 +552,7 @@ WeSchemeInteractions = (function () {
     	var currItem;
     	var currColor = colors[colorIndex];
     	var args = msg.args;
+        //FIXME take out var
     	for(var i = 0; i < args.length; i++){
     	    //in the unlikely event that there are no more preset colors, reset it
     	    if(colorIndex >= colors.length){
@@ -602,6 +615,7 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.renderErrorAsDomNode = function(err) {
         var that = this;
         var msg;
+        var i;
         var dom = document.createElement('div');
         if (types.isSchemeError(err) && types.isExnBreak(err.val)) {
             dom['className'] = 'moby-break-error';
@@ -612,19 +626,12 @@ WeSchemeInteractions = (function () {
             msg = this.evaluator.getMessageFromExn(err);
         }
         var msgDom = document.createElement('div');
+        if(err.structuredError){
+          msg = structuredErrorToMessage(err.structuredError);
+        }
+
+
         msgDom['className'] = 'moby-error:message';
-        /*if (err.domMessage) {
-		   console.log(err.domMessage);
-            if(! err.structuredError){ 
-			dom.appendChild(err.domMessage);
-            } else {
-                msg = structuredErrorToMessage(err.structuredError);
-			}
-		}*/
-		if(err.structuredError){
-		  msg = structuredErrorToMessage(err.structuredError);
-		}
-		
 		if (! types.isMessage(msg)) {
 			if(err.domMessage){
 			  dom.appendChild(err.domMessage);
@@ -641,7 +648,7 @@ WeSchemeInteractions = (function () {
         var stacktrace = this.evaluator.getTraceFromExn(err);
         var stacktraceDiv = document.createElement("div");
         stacktraceDiv['className'] = 'error-stack-trace';
-        for (var i = 0; i < stacktrace.length; i++) {
+        for (i = 0; i < stacktrace.length; i++) {
             var anchor = this.createLocationHyperlink(stacktrace[i]);
             stacktraceDiv.appendChild(anchor);
         }
@@ -673,8 +680,6 @@ WeSchemeInteractions = (function () {
         return para;
     };
     
-    
-    //WHERE TO GET COLOR??
     var makeHighlighterLinkFunction = function(that, elt) {
         return function() { 
             that.highlighter(elt.id, elt.offset, elt.line, elt.column, elt.span, "red");

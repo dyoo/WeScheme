@@ -213,20 +213,20 @@ var WeSchemeEditor;
     }
 
     WeSchemeEditor.prototype.highlight = function(id, offset, line, column, span, color) {
-	if (id === '<definitions>') {
-	    this.defn.highlight(id, offset, line, column, span, color);
-	} else if (this.interactions.previousInteractionsTextContainers[id]) {
-	    this.interactions.previousInteractionsTextContainers[id].highlight(id, offset, line, column, span, color);
-	}
+		if (id === '<definitions>') {
+		    this.defn.highlight(id, offset, line, column, span, color);
+		} else if (this.interactions.previousInteractionsTextContainers[id]) {
+		    this.interactions.previousInteractionsTextContainers[id].highlight(id, offset, line, column, span, color);
+		}
     };
     
     WeSchemeEditor.prototype.unhighlightAll = function() {
       for(var key in this.interactions.previousInteractionsTextContainers) {
-	if (this.interactions.previousInteractionsTextContainers.hasOwnProperty(key)) {
-	  this.interactions.previousInteractionsTextContainers[key].unhighlightAll();
-	}
+		if (this.interactions.previousInteractionsTextContainers.hasOwnProperty(key)) {
+	  		this.interactions.previousInteractionsTextContainers[key].unhighlightAll();
+	    }
       }
-	this.defn.unhighlightAll();
+	  this.defn.unhighlightAll();
     };
 
     // WeSchemeEditor._getIsLoggedIn: -> boolean

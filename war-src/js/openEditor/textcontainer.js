@@ -103,6 +103,12 @@ var WeSchemeTextContainer;
 		this.impl.setCursorToEnd();
 	};
 
+
+
+	WeSchemeTextContainer.prototype.getCSS = function(pos){
+		return this.impl.getCSS(pos);
+	}
+
 	//////////////////////////////////////////////////////////////////////
 
 	var CodeMirrorImplementation = function(parent, options, onSuccess) {
@@ -209,7 +215,14 @@ var WeSchemeTextContainer;
 			ch: handle.column
 		}
 	}
+	//takes in location info, returns css
+	CodeMirrorImplementation.prototype.getCSS = function(pos) {
+		//return this.editor.getTokenAt(pos);
+		return this.editor.findMarksAt(pos);
+		//return this.editor.historySize();
+	};
 
+	//name for the current highlight's css
     var currentHighlightNumber = 0;
 
 	CodeMirrorImplementation.prototype.highlight = function(id, offset, line, column, span, color) {
@@ -219,28 +232,18 @@ var WeSchemeTextContainer;
 		var startHandleAndColumn = this.findHandleAndColumn(offset);
 		var endHandleAndColumn = this.findHandleAndColumn(offset+span);
 		
-		//change this!
-		//to test: myEditor.defn.highlight('', 6, 10, 1, 20)
-		/*this.editor.setSelection(
-				this.handleAndColumnToPos(startHandleAndColumn),
-				this.handleAndColumnToPos(endHandleAndColumn))*/
-		
 		var stylesheet = document.styleSheets[0]; //this is default.css
 		var name = "highlight" + (currentHighlightNumber+'x');//to prevent overwriting with prefixes
 
 		currentHighlightNumber++;
-		//LOOK INTO IE/CHROME business
-
 
 		stylesheet.insertRule("." + name + " { background-color: " + color + ";}", 0);
 		
-		//figure out how to use color input to change css
  		this.highlightedAreas.push(
 			this.editor.markText(this.handleAndColumnToPos(startHandleAndColumn), 
 					this.handleAndColumnToPos(endHandleAndColumn), 
 					name));
-		
-		
+
 	};
 	
 	CodeMirrorImplementation.prototype.unhighlightAll = function () {
