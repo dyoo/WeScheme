@@ -296,27 +296,78 @@ WeSchemeInteractions = (function () {
 
     //////////////////////////////////////////////////////////////////////
 
+    // Initializes the evaluator to use round-robin compilation, given a list of
+    // servers.
+    var getServerList = function() {
+        return plt.wescheme.WeSchemeProperties.compilation_servers.split(/\s+/);
+    };
+
+    // Adds a new xhr to xhrs if it appears to be alive.
+    var initializeXhr = function(serverUrl, xhrs) {
+        var xhr = new easyXDM.Rpc(
+            { remote: serverUrl,
+              onReady: function() {
+              },
+              // This lazy flag must be set to avoid a very ugly
+              // issue with Firefox 3.5.
+              lazy: true
+            }, 
+            { remote: { compileProgram: {} }});
+        xhr.compileProgram("", 
+                           "",
+                           function(bytecode) {
+                               xhrs.push(xhr);
+                           },
+                           function(err) {
+                           });
+    };
+
     var initializeRoundRobinCompilation = function(evaluator) {
-        var compilation_servers = plt.wescheme.WeSchemeProperties.compilation_servers.split(/\s+/);
+        var compilation_servers = getServerList();
         var xhrs = [];
         var i;
         for (i = 0; i < compilation_servers.length; i++) {
-            xhrs.push(new easyXDM.Rpc(
-                { remote: compilation_servers[i],
-                  lazy: true        // This lazy flag must be set to avoid
-                  // a very ugly issue with Firefox 3.5.
-                }, 
-                { remote: { compileProgram: {} }}));
+            initializeXhr(compilation_servers[i], xhrs);
         }
+
+
+        var tryServerN = function(n, countFailures, programName, code, onDone, onDoneError) {
+            var onFinalFailure = function() {
+                onDoneError(JSON.stringify("WeScheme's compiler server appears "+
+                                           "to be temporarily busy.  Please try again later."));
+            };
+
+            if (n < xhrs.length) {
+                xhrs[n].compileProgram(
+                    programName,
+                    code,
+                    onDone,
+                    function(errorStruct) {
+                        if (errorStruct.message === "") {
+                            if (countFailures >= xhrs.length) {
+                                onFinalFailure();
+                            } else {
+                                tryServerN(((n + 1) % xhrs.length),
+                                           countFailures + 1,
+                                           programName,
+                                           code,
+                                           onDone,
+                                           onDoneError);
+                            }
+                        } else {
+                            onDoneError(errorStruct.message);
+                        }
+                    });
+            } else {
+                onFinalFailure();
+            }
+        };
 
         i = 0;
         evaluator.setCompileProgram(
             function(programName, code, onDone, onDoneError) {
-                xhrs[i].compileProgram(programName, code, onDone,
-                                       function(errorStruct) {
-                                           onDoneError(errorStruct.message);
-                                       });
                 i = ((i + 1) % xhrs.length);
+                tryServerN(i, 0, programName, code, onDone, onDoneError);
             });
     };
 
