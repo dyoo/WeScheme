@@ -60,12 +60,11 @@ public class Queries {
 		query.setFilter("publicId_ == param");
 		query.declareParameters("String param");
 		try {
-			List<Program> programs = (List<Program>) query.execute(publicId.toLowerCase());
+			List<Program> programs = (List<Program>) query.execute(publicId);
 			if (programs.size() == 1) {
 				return programs.get(0);
 			} else {
 				return null;
-				// throw new RuntimeException("Could not find unique program with publicId=" + publicId);
 			}
 		} finally { 
 			query.closeAll();

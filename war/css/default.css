@@ -1,8 +1,7 @@
 /* Some global settings */
 html {
-    width: 100%;
     height: 100%;
-    min-width: 625px;
+    min-width: 320px;
     background: #f5deb3;
     padding:		0px;
     margin:		0px;
@@ -103,20 +102,25 @@ body {
     height:			65px;
     background:		url(/css/images/icon-trans.png) ;
     background-repeat:no-repeat;
-    clear: both;
+    clear:          both;
+    padding-bottom: 4px;
 }
 
 h1{ font-size:	38px;	margin-left:	65px;}
-h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
+h2{	font-size: 14px; margin-left:	65px;}
+
+h2 a, h2 a:visited {color: black; margin-right: 15px; text-decoration: none;}
+h2 > a:hover{text-decoration: underline;}
 
 /* 30px: FILENAME & URL */
 #fileInfo{
     width:			100%;
-    height:			29px;	/\* leave room for the border *\/ 
+    height:			24px;	/\* leave room for the border *\/ 
     clear:			both;
-    padding:		5px 0px;
+    padding-top:	5px;
     white-space:	nowrap;
     border-top:		solid 1px black;
+    margin:         0px;
 }
 
 #fileInfo *{
@@ -133,57 +137,48 @@ h2{	font-size: 14px; font-style: italic;	margin-left:	65px;}
 /* 20px: TOOLBAR, BUTTONS, ETC */
 #toolbar{
     width:			100%;
-    /* height:			19px;	/\* leave room for the border *\/ */
-    padding-top:                0px;
-    padding-bottom:             0px;
-    border-bottom:	solid 1px black;
+    /* height:		19px;	/\* leave room for the border *\/ */
+    padding-bottom: 0px;
+    border-top:     solid 1px black;
     background:		black;
     clear:			both;
 }
 
 #toolbar ul{
     clear:			both;
-    list-style-type:none;
 }
 
 #toolbar li{
     float:			left;
     text-align:		center;
-    width:			125px;
+    width:			20%;
+    max-width:      125px;
+    list-style-position: inside;
+    display:        list-item;
     background-repeat: no-repeat;
     background-position: 0 50%;
     clear:			right;
 }
+
+#toolbar li.run{list-style-image: url(run.png);}
+#toolbar li.stop{list-style-image: url(break.png);}
+#toolbar li.save{list-style-image: url(save.png);}
+#toolbar li.share{list-style-image: url(share.png);}
+#toolbar li.designrecipe{list-style-image: url(recipe.png);}
 
 #toolbar li a, #toolbar li a:visited{
     display:		block;
     color:			white;
     width:			100%;
     text-decoration:none;
+    vertical-align: top;
+    margin-right:   50px;
 }
 #toolbar li a:hover{
     background:		#546DAF;
     color:			white;
     cursor:			pointer;
 }
-
-#toolbar img.button-icon {
-    margin-right: 5px;
-    vertical-align: text-bottom;
-}
-
-
-/* tooltips */
-a:hover {background:white;} /*BG color is a must for IE6*/
-a span {display:none; width: 130px; text-align: left;}
-a:hover span{display: inline; position: absolute; background:#546DAF; color: white; }
-
-/* Images and text alignment for buttons */
-#toolbar li.logout{float: right; clear: none;}
-#toolbar li.account{float: right; clear: none;}
-#toolbar li.docs{float: right; clear: none;}
-#toolbar li.designrecipe{float: right; clear: none;}
-
 
 
 
@@ -201,10 +196,10 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
     height:                  50%;
     clear:			both;
     text-align:		center;
-     padding:		0px;
+    padding:		0px;
     overflow:		hidden;
     margin:			0px;
-    borders:		0px;
+    border:         0px;
     background:		gray;
     border-bottom:	solid 1px black;
 }
@@ -219,8 +214,7 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
     background:		white url(/css/images/fadeIcon.png) no-repeat right bottom;
     font-size:		12px; 
     font-family:	Monaco, sans-serif; 
-
-    padding:                0px;
+    padding:        0px;
     margin: 		0px;
     borders:		0px;
 }
@@ -268,13 +262,12 @@ a:hover span{display: inline; position: absolute; background:#546DAF; color: whi
 
 /* 22px: FOOTER */
 #footer {
-    clear:                  both;
+    clear:          both;
     width:			100%;
     height:			24px;
     padding:		1px 0px;
     border-top:		solid 1px black;
     color:			black;
-    min-width:		625px;
     background:		#f5deb3; /* prevent interactions from peeking through footer in short windows */
 }
 
@@ -365,3 +358,15 @@ span.top-aligned-inline-block {
     z-index: 4;
 }
 */
+
+@media only screen and (max-width: 480px), only screen and (max-device-width: 480px){
+
+    #toolbar li{
+        width:          75px;
+        padding:        4px 0px;
+        font-size:      1px;
+        border-left:    solid 1px gray;
+        
+    }
+    #toolbar li a{visibility: hidden;}
+}

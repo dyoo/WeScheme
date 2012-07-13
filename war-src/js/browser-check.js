@@ -295,7 +295,7 @@ goog.require('plt.wescheme.cookies');
 	    "You appear to be using " 
                 + BrowserDetect.browser + " " + 
 		BrowserDetect.version + 
-		".  After June 1st, 2012, WeScheme will no longer support this browser.  " +
+		".  WeScheme does not support this browser.  " +
                 "Please upgrade to a newer version of " +
                 "<a href='http://www.microsoft.com/download/en/ie.aspx'>Internet Explorer</a>, "+
                 "or switch to " +

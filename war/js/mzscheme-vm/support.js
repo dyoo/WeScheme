@@ -734,8 +734,7 @@ var helpers = {};
 		}
 	};
 
-	var throwCheckError = function(aState, details, pos, args) {
-		if(aState === undefined) {
+	var throwUncoloredCheckError = function(aState, details, pos, args){
 			var errorFormatStr;
 			if (args && args.length > 1) {
 				var errorFormatStrBuffer = ['~a: expects type ~a as ~a arguments, given: ~s; other arguments were:'];
@@ -745,18 +744,21 @@ var helpers = {};
 					}
 				}
 				errorFormatStr = errorFormatStrBuffer.join(' ');
+				raise( types.incompleteExn(types.exnFailContract,
+						   helpers.format(errorFormatStr, [details.functionName, details.typeName, details.ordinalPosition, details.actualValue]),
+						   []) );
 			}
 			else {
 				errorFormatStr = "~a: expects argument of type ~a, given: ~s";
-				details.splice(2, 1);
-			}
+				raise( types.incompleteExn(types.exnFailContract,
+						   helpers.format(errorFormatStr, [details.functionName, details.typeName , details.actualValue]),
+						   []));
 
-			raise( types.incompleteExn(types.exnFailContract,
-						   helpers.format(errorFormatStr, details),
-						   []) );
-		}
-		else {
-			var positionStack = 
+			}
+	};
+
+	var throwColoredCheckError = function(aState, details, pos, args){
+		var positionStack = 
         		state.captureCurrentContinuationMarks(aState).ref(
             		types.symbol('moby-application-position-key'));
         
@@ -787,6 +789,8 @@ var helpers = {};
 				}
 				return coloredParts;
 			}
+
+			// listRef for locationList.
 			var getLocation = function(pos) {
 				var locs = locationList;
 
@@ -806,13 +810,13 @@ var helpers = {};
 
 				raise( types.incompleteExn(types.exnFailContract,
 							   new types.Message([
-							   		new types.ColoredPart(details[0], locationList.first()),
+							   		new types.ColoredPart(details.functionName, locationList.first()),
 							   		": expects type ",
-							   		details[1],
+							   		details.typeName,
 							   		" as ",
-							   		details[2], 
+							   		details.ordinalPosition, 
 							   		" argument, given: ",
-							   		new types.ColoredPart(details[3], getLocation(pos)),
+							   		new types.ColoredPart(details.actualValue, getLocation(pos)),
 							   		"; other arguments were: ",
 							   		new types.GradientPart(argColoredParts)
 							   	]),
@@ -821,43 +825,40 @@ var helpers = {};
 			else {
 				raise( types.incompleteExn(types.exnFailContract,
 							   new types.Message([
-							   		new types.ColoredPart(details[0], locationList.first()),
+							   		new types.ColoredPart(details.functionName, locationList.first()),
 							   		": expects type ",
-							   		details[1],
+							   		details.typeName,
 							   		" as ",
-							   		details[2], 
+							   		details.ordinalPosition, 
 							   		" argument, given: ",
-							   		new types.ColoredPart(details[3], getLocation(pos)),
+							   		new types.ColoredPart(details.actualValue, getLocation(pos))
 							   	]),
 							   []) );
 			}
 
 
+	};
+
+	var throwCheckError = function(aState, details, pos, args) {
+		if(aState === undefined) {
+			throwUncoloredCheckError(aState, details, pos, args);
+		}
+		else {
+			throwColoredCheckError(aState,details, pos, args);
 		}
 	};
 	//HACK HACK HACK
 	var check = function(aState, x, f, functionName, typeName, position, args) {
 		if ( !f(x) ) {
 			throwCheckError(aState, 
-					[functionName,
-					 typeName,
-					 helpers.ordinalize(position),
-					 x],
+					{ functionName: functionName,
+					  typeName: typeName,
+					  ordinalPosition: helpers.ordinalize(position),
+					  actualValue: x },
 					position,
 					args);
 		}
 	};
-
-        var isList = function(x) {
-	    if (x === types.EMPTY) { return true; }
-	    while (types.isPair(x)) {
-		x = x.rest();
-	    }
-	    return (x === types.EMPTY);
-	};
-
-
-
 
     var isList = function(x) {
         var tortoise, hare;
@@ -8963,12 +8964,26 @@ var isColoredPart = function(o) {
   return o instanceof ColoredPart;
 };
 
+ColoredPart.prototype.toString = function() {
+    return this.text+'';
+};
+
 var GradientPart = function(coloredParts) {
     this.coloredParts = coloredParts;
 };
 
 var isGradientPart = function(o) {
   return o instanceof GradientPart;
+};
+
+GradientPart.prototype.toString = function() {
+	var i;
+	var resultArray = [];
+	for(i = 0; i < this.parts.length; i++){
+		resultArray.push(this.parts[i].text+'');
+	}
+	return resultArray.join("");
+
 };
 
 var MultiPart = function(text, locations) {
@@ -8980,33 +8995,10 @@ var isMultiPart = function(o) {
   return o instanceof MultiPart;
 };
 
-ColoredPart.prototype.toString = function() {
-    return this.text+'';
+MultiPart.prototype.toString = function() {
+	return this.text;
 };
 
-
-
-/*
-var Ref = function(text, location) {
-    this.text = text;
-    this.location = location;
-}
-
-var DocLink = function(text, name) {
-    this.text = text;
-    this.name = name;
-}
-
-var isRef = function(o) {
-    return o instanceof Ref;
-}
-
-var isDocLink = function(o) {
-    return o instanceof DocLink;
-}
-
-
-*/
 
 
 //////////////////////////////////////////////////////////////////////
@@ -14002,8 +13994,8 @@ PRIMITIVES['make-struct-field-accessor'] =
 	    'make-struct-field-accessor',
 	    2,
 	    [false],
-	    false,
-	    function(userArgs, accessor, fieldPos, fieldName) {
+	    true,
+	    function(aState, userArgs, accessor, fieldPos, fieldName) {
 	    	check(aState, accessor, function(x) { return x instanceof StructAccessorProc && x.numParams > 1; },
 		      'make-struct-field-accessor', 'accessor procedure that requires a field index', 1, userArgs);
 		check(aState, fieldPos, isNatural, 'make-struct-field-accessor', 'exact non-negative integer', 2, userArgs);
@@ -14013,7 +14005,7 @@ PRIMITIVES['make-struct-field-accessor'] =
 	    	var procName = accessor.typeName + '-'
 			+ (fieldName ? fieldName.toString() : 'field' + fixnumPos);
 
-		return new StructAccessorProc(accessor.typeName, procName, 1, false, false,
+		aState.v = new StructAccessorProc(accessor.typeName, procName, 1, false, false,
 					      function(x) {
 						  return accessor.impl(x, fixnumPos);
 					      });
@@ -18239,8 +18231,8 @@ PRIMITIVES['image-url'] =
 		 function(aState, path) {
 		     check(aState, path, isString, "image-url", "string", 1);
 		     var originalPath = path.toString();
-		     if (state.getImageProxyHook()) {
-			 path = (state.getImageProxyHook() +
+		     if (aState.getImageProxyHook()) {
+			 path = (aState.getImageProxyHook() +
 				 "?url=" + encodeURIComponent(path.toString()));
 		     } else {
 			 path = path.toString();
@@ -19176,13 +19168,13 @@ PRIMITIVES['js-big-bang'] =
 			 var onBreak = function() {
 			     bigBangController.breaker();
 			 }
-			 state.addBreakRequestedListener(onBreak);
+			 aState.addBreakRequestedListener(onBreak);
 			 bigBangController = jsworld.MobyJsworld.bigBang(initW, 
-						     state.getToplevelNodeHook()(),
+						     aState.getToplevelNodeHook()(),
 						     unwrappedConfigs,
 						     caller, 
 						     function(v) {
-							 state.removeBreakRequestedListener(onBreak);
+							 aState.removeBreakRequestedListener(onBreak);
 							 restarter(v);
 						     });
 		     })
@@ -20528,37 +20520,41 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
     }
     
     var getArgColoredParts = function(locations) {
-	var argColoredParts = [];
-	var locs = locations;
-	if (operands.length > 0) {
-		for (var i = 0; i < operands.length; i++) {
-			argColoredParts.push(new types.ColoredPart(operands[i]+" ", locs.first()));
-			locs = locs.rest();
-		}
-	}
-	return argColoredParts;
+    	var argColoredParts = [];
+    	var locs = locations;
+    	if (operands.length > 0) {
+    		for (var i = 0; i < operands.length; i++) {
+    			argColoredParts.push(new types.ColoredPart(operands[i]+" ", locs.first()));
+    			locs = locs.rest();
+    		}
+    	}
+    	return argColoredParts;
     }
 
     if ( !types.isFunction(procValue) ) {
 	    var argStr = getArgStr('; arguments were:');
-       var positionStack = 
-        state.captureCurrentContinuationMarks(aState).ref(
-            types.symbol('moby-application-position-key'));
+        var positionStack = state.captureCurrentContinuationMarks(aState).ref(types.symbol('moby-application-position-key'));
         
        
         var locationList = positionStack[positionStack.length - 1];
+        var exprLoc = positionStack[0].first().elts;
         var argColoredParts = getArgColoredParts(locationList.rest());
 
+        var openParen = [exprLoc[0], exprLoc[1], exprLoc[2], exprLoc[3], 1];
 
+        var closeParen = [exprLoc[0], exprLoc[1] + exprLoc[4] - 1, exprLoc[2], exprLoc[3] + exprLoc[4] - 1, 1];
+
+        var op = types.vector(openParen);
+        var cp = types.vector(closeParen);
 
 	    helpers.raise(
 		types.incompleteExn(types.exnFailContract,
-
-        new types.Message(["function application: expected function, given: ",
-                            new types.ColoredPart(procValue, locationList.first()),
-                            ((operands.length == 0) ? ' (no arguments)' : '; arguments were '),
-                            ((operands.length != 0) ? new types.GradientPart(argColoredParts) : ''),
-                            ]),
+            new types.Message([new types.MultiPart("function call", [op, cp]),
+                                ": expected function, given: ",
+                                new types.ColoredPart(procValue, locationList.first())
+                                //((operands.length == 0) ? ' (no arguments)' : '; arguments were '),
+                               // ((operands.length != 0) ? new types.GradientPart(argColoredParts) : ''),
+                                ]),
                              []));
 
     }
@@ -20653,8 +20649,7 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 	    
 	    helpers.raise(types.incompleteExn(
 		types.exnFailContractArityWithPosition,
-		new types.Message([new types.ColoredPart((''+(procValue.name !== types.EMPTY ? procValue.name : "#<procedure>")), 
-							 locationList.first()),
+		new types.Message([new types.ColoredPart((''+(procValue.name !== types.EMPTY ? procValue.name : "#<procedure>")), locationList.first()),
 			": expects ", 
 			''+(procValue.isRest ? 'at least' : ''),
 		        " ",
@@ -20673,9 +20668,6 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 	}
     }
 };
-
-// var ColoredPart = types.ColoredPart;
-
 
 
 var prepareClosureArgumentsOnStack = function(state, procValue, operandValues, n) {

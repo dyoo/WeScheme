@@ -52,7 +52,7 @@ public class CloneProjectServlet extends javax.servlet.http.HttpServlet {
 			Program cloned = prog.clone(userSession.getName(), pm);
 			cloned.unpublish();
 			cloned.setAuthor(userSession.getName());
-			cloned.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueName(pm));
+			cloned.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueBase62Id(pm));
 			
 			if(req.getParameter("code") != null) {
 				cloned.updateSource(req.getParameter("code"));
