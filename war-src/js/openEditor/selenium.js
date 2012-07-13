@@ -13,3 +13,16 @@ plt.wescheme.selenium.findParen = function(find) {
     return jQuery('span').filter(function() { return jQuery(this).text() === find }).css('background-color');
     //return window.jQuery('span:contains('+'\'' + find + '\''+')');
 };
+
+
+plt.wescheme.selenium.hasColoredText = function(text, color){
+    var spanArray = jQuery("span");
+    var i;
+    for(i = 0; i < spanArray.length; i++){
+	var span = jQuery(spanArray[i]);
+	if(span.text() === text &&
+	   span.css('background-color') === color)
+            return true;
+    }
+    return false;
+}
