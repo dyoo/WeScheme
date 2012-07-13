@@ -7,6 +7,8 @@ static error highlighting - paren matching
 
 TODO:
 
+Look at selenium!
+
 
 Compatibility with other browsers (so far only tested on chrome)  *this should be tested everyday ideally*
 
@@ -22,12 +24,17 @@ Bug fixes:
 2. else clause error, compile time error  FIXED
 3. (circle 20 'solid 'rubbish) //rubbish should be a color type. there is no error stating this, in fact nothing appears FIXED
 4. change colors to be color-blind friendly, and make the colors cyclic (they go to random now) FIXED
-
+5. (check-expect test expected (img img)(overlay/xy pizza 0 50 salad))
 
 
 If ahead of schedule:
 dimming highlighted colors over time
 documentation link (if the error mentions a professional function)
+
+
+Testing notes:
+
+From the design docs, example 8 is supposed to show a runtime error but a compile time error is present.	
 
 
 
@@ -62,7 +69,10 @@ It is unknown how long it will take to implement clicking a highlighted element 
 EOD Friday, July 27
 
 In theory, everything works perfectly! =] 
-In reality, this is time to continue debugging, extensive testing, code review, and corner cases. 
+In reality, this is time to continue debugging, extensive testing, code review, and corner cases.
+
+
+ 
 
 
 
