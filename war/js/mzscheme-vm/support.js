@@ -13994,8 +13994,8 @@ PRIMITIVES['make-struct-field-accessor'] =
 	    'make-struct-field-accessor',
 	    2,
 	    [false],
-	    false,
-	    function(userArgs, accessor, fieldPos, fieldName) {
+	    true,
+	    function(aState, userArgs, accessor, fieldPos, fieldName) {
 	    	check(aState, accessor, function(x) { return x instanceof StructAccessorProc && x.numParams > 1; },
 		      'make-struct-field-accessor', 'accessor procedure that requires a field index', 1, userArgs);
 		check(aState, fieldPos, isNatural, 'make-struct-field-accessor', 'exact non-negative integer', 2, userArgs);
@@ -14005,7 +14005,7 @@ PRIMITIVES['make-struct-field-accessor'] =
 	    	var procName = accessor.typeName + '-'
 			+ (fieldName ? fieldName.toString() : 'field' + fixnumPos);
 
-		return new StructAccessorProc(accessor.typeName, procName, 1, false, false,
+		aState.v = new StructAccessorProc(accessor.typeName, procName, 1, false, false,
 					      function(x) {
 						  return accessor.impl(x, fixnumPos);
 					      });
@@ -18231,8 +18231,8 @@ PRIMITIVES['image-url'] =
 		 function(aState, path) {
 		     check(aState, path, isString, "image-url", "string", 1);
 		     var originalPath = path.toString();
-		     if (state.getImageProxyHook()) {
-			 path = (state.getImageProxyHook() +
+		     if (aState.getImageProxyHook()) {
+			 path = (aState.getImageProxyHook() +
 				 "?url=" + encodeURIComponent(path.toString()));
 		     } else {
 			 path = path.toString();
@@ -19168,13 +19168,13 @@ PRIMITIVES['js-big-bang'] =
 			 var onBreak = function() {
 			     bigBangController.breaker();
 			 }
-			 state.addBreakRequestedListener(onBreak);
+			 aState.addBreakRequestedListener(onBreak);
 			 bigBangController = jsworld.MobyJsworld.bigBang(initW, 
-						     state.getToplevelNodeHook()(),
+						     aState.getToplevelNodeHook()(),
 						     unwrappedConfigs,
 						     caller, 
 						     function(v) {
-							 state.removeBreakRequestedListener(onBreak);
+							 aState.removeBreakRequestedListener(onBreak);
 							 restarter(v);
 						     });
 		     })

@@ -582,8 +582,9 @@ WeSchemeInteractions = (function () {
     	var currItem;
     	var currColor = colors[colorIndex];
     	var args = msg.args;
-        //FIXME take out var
-    	for(var i = 0; i < args.length; i++){
+        var i;
+
+    	for(i = 0; i < args.length; i++){
     	    //in the unlikely event that there are no more preset colors, reset it
     	    if(colorIndex >= colors.length){
         		colorIndex = 0;
@@ -605,7 +606,9 @@ WeSchemeInteractions = (function () {
         		var change = 1/(parts.length+1);
         		
         		var currTint;
-        		for(var j = 0; j < parts.length; j++) {	    
+                var j;
+
+        		for(j = 0; j < parts.length; j++) {	    
         		    currItem = parts[j];
         		    currTint = nextTint(currColor.red, currColor.green, currColor.blue, percentage);
         		    
@@ -622,8 +625,8 @@ WeSchemeInteractions = (function () {
     	    
     	    else if(types.isMultiPart(args[i])) {
         		var locs = args[i].locations;
-        		
-        		for(var j = 0; j <locs.length; j++){
+        		var j;
+        		for(j = 0; j <locs.length; j++){
         		    that.addToCurrentHighlighter(locs[j].ref(0), locs[j].ref(1), locs[j].ref(2), locs[j].ref(3), locs[j].ref(4), 
         						 currColor);
         		}

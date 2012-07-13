@@ -221,7 +221,8 @@ var WeSchemeEditor;
     };
     
     WeSchemeEditor.prototype.unhighlightAll = function() {
-      for(var key in this.interactions.previousInteractionsTextContainers) {
+    	var key;
+      for(key in this.interactions.previousInteractionsTextContainers) {
 		if (this.interactions.previousInteractionsTextContainers.hasOwnProperty(key)) {
 	  		this.interactions.previousInteractionsTextContainers[key].unhighlightAll();
 	    }
