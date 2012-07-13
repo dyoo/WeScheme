@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+  <title>Test Suite</title>
+</head>
+<body>
+<table id="suiteTable" cellpadding="1" cellspacing="1" border="1" class="selenium"><tbody>
+<tr><td><b>Test Suite</b></td></tr>
+<tr><td><a href="dant1">dant1</a></td></tr>
+<tr><td><a href="dant2">dant2</a></td></tr>
+<tr><td><a href="dant3">dant3</a></td></tr>
+<tr><td><a href="dant4">dant4</a></td></tr>
+<tr><td><a href="dant5">dant5</a></td></tr>
+<tr><td><a href="dant6">dant6</a></td></tr>
+<tr><td><a href="dant7">dant7</a></td></tr>
+<tr><td><a href="dant8">dant8</a></td></tr>
+<tr><td><a href="dant9">dant9</a></td></tr>
+<tr><td><a href="dant10">dant10</a></td></tr>
+<tr><td><a href="dant11">dant11</a></td></tr>
+<tr><td><a href="dant12">dant12</a></td></tr>
+</tbody></table>
+</body>
+</html>
