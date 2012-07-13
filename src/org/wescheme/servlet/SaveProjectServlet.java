@@ -57,7 +57,7 @@ public class SaveProjectServlet extends HttpServlet{
 			String title, String code) throws IOException {
 		Program prog = new Program(code, userSession.getName());
 		prog.updateTitle(title);
-		prog.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueName(pm));
+		prog.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueBase62Id(pm));
 		pm.makePersistent(prog);
 
 		resp.setContentType("text/plain"); 
@@ -80,7 +80,7 @@ public class SaveProjectServlet extends HttpServlet{
 			prog.updateSource(code);
 
 			if (prog.getPublicId() == null) {
-				prog.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueName(pm));
+				prog.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueBase62Id(pm));
 			}
 
 			resp.setContentType("text/plain");

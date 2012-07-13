@@ -84,9 +84,9 @@ public class ListProjectsServlet extends HttpServlet {
     }
 
 
-    @SuppressWarnings("unchecked")
+    // @SuppressWarnings("unchecked")
 	private String getOutputString(Session userSession) throws IOException {
-        Cache c = CacheHelpers.getCache();
+        // Cache c = CacheHelpers.getCache();
         // if (c != null) {
         //     if (! c.containsKey(CacheHelpers.getUserProgramsCacheKey(userSession.getName()))) {
         //         String outputString = getFromDatabase(userSession);

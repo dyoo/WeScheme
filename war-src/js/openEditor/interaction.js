@@ -13,6 +13,7 @@ goog.require("plt.wescheme.topKeymap");
 goog.require("plt.wescheme.WeSchemeTextContainer");
 goog.require("plt.wescheme.tokenizer");
 goog.require("plt.wescheme.WeSchemeProperties");
+goog.require("plt.wescheme.RoundRobin");
 
 var WeSchemeInteractions;
 
@@ -40,25 +41,27 @@ WeSchemeInteractions = (function () {
             this.interactionsDiv,
             function(prompt) {
                 that.prompt = prompt;
-                that.evaluator = that.makeFreshEvaluator();
-                that.highlighter = function(id, offset, line, column, span, color) {
-                    // default highlighter does nothing.  Subclasses will specialize that.
-                };
+                that.makeFreshEvaluator(function(e) {
+                    that.evaluator = e;
+                    that.highlighter = function(id, offset, line, column, span, color) {
+                        // default highlighter does nothing.  Subclasses will specialize that.
+                    };
 
-                // Note: When starting a new prompt, the last element of
-                // "historyArray" is always an empty string, and "historyIndex"
-                // is the index of the last element in "historyArray".
-                // When recalling history, the last element of "historyArray"
-                // can be set to the line being edited (if different from the
-                // history it recalls), so that a user can back out of the
-                // history recall to return to the edited line.
-                prompt.historyArray = [""];
-                prompt.historyIndex = 0;
-                prompt.maxSavedHistory = 100;
+                    // Note: When starting a new prompt, the last element of
+                    // "historyArray" is always an empty string, and "historyIndex"
+                    // is the index of the last element in "historyArray".
+                    // When recalling history, the last element of "historyArray"
+                    // can be set to the line being edited (if different from the
+                    // history it recalls), so that a user can back out of the
+                    // history recall to return to the edited line.
+                    prompt.historyArray = [""];
+                    prompt.historyIndex = 0;
+                    prompt.maxSavedHistory = 100;
 
-                if (afterInit) {
-                    afterInit(that);
-                }
+                    if (afterInit) {
+                        afterInit(that);
+                    }
+                });
             }
         );
     };
@@ -68,10 +71,12 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.reset = function() {
         var that = this;
         this.notifyBus("before-reset", this);
-        this.evaluator = that.makeFreshEvaluator();
-        jQuery(this.previousInteractionsDiv).empty();
-        this.notifyBus("after-reset", that);
-        this.prompt.clear();
+        that.makeFreshEvaluator(function(e) {
+            that.evaluator = e;
+            jQuery(that.previousInteractionsDiv).empty();
+            that.notifyBus("after-reset", that);
+            that.prompt.clear();
+        })
     };
 
     // clearLine: -> void
@@ -293,10 +298,34 @@ WeSchemeInteractions = (function () {
         this.textContainer.focus();
     };
 
+
     //////////////////////////////////////////////////////////////////////
 
-    WeSchemeInteractions.prototype.makeFreshEvaluator = function() {
+    // Configures the evaluator to use round-robin compilation between
+    // a set of servers.  Compilation will also fall back to other
+    // servers under network failure.
+    WeSchemeInteractions.prototype.initializeRoundRobinCompilation = function(evaluator, after) {
         var that = this;
+        plt.wescheme.RoundRobin.initialize(
+            function() {
+                evaluator.setCompileProgram(
+                    plt.wescheme.RoundRobin.roundRobinCompiler);
+                after();
+            },
+            function() {
+                // Under this situation, all compilation servers are inaccessible.
+                evaluator.setCompileProgram(
+                    plt.wescheme.RoundRobin.roundRobinCompiler);
+                alert("WeScheme appears to be busy or unavailable at this time." +
+                      "  Please try again later.");
+                after();
+            });
+    };
+
+
+    WeSchemeInteractions.prototype.makeFreshEvaluator = function(afterInit) {
+        var that = this;
+
         var evaluator = new Evaluator({
             write: function(thing) {
                 that.addToInteractions(thing);
@@ -304,41 +333,42 @@ WeSchemeInteractions = (function () {
             transformDom : function(dom) {
                 var result = that._transformDom(dom);
                 return result;
-            },
-            compilationServletUrl: "/compile",
-            scriptCompilationServletUrl: plt.wescheme.WeSchemeProperties.compilation_server_url
+            }
         });
-        evaluator.makeToplevelNode = function() {
-            var dialog = jQuery("<div/>");
-            var handleClose = function(event, ui) {
-                that.evaluator.requestBreak();
-            };
+        that.initializeRoundRobinCompilation(
+            evaluator,
+            function() {
+                evaluator.makeToplevelNode = function() {
+                    var dialog = jQuery("<div/>");
+                    var handleClose = function(event, ui) {
+                        that.evaluator.requestBreak();
+                    };
 
-            dialog.dialog( {
-                bgiframe : true,
-                position: ["left", "top"],
-                modal : true,
-                width: "auto",
-                height: "auto",
-                beforeclose: handleClose,
-                resizable: false,
-                closeOnEscape: true
-            });
+                    dialog.dialog( {
+                        bgiframe : true,
+                        position: ["left", "top"],
+                        modal : true,
+                        width: "auto",
+                        height: "auto",
+                        beforeclose: handleClose,
+                        resizable: false,
+                        closeOnEscape: true
+                    });
 
-            var innerArea = jQuery("<div class='evaluatorToplevelNode'></div>");
-            dialog.append(innerArea);
-            dialog.dialog("open");
-            return innerArea.get(0);
-        };
-	evaluator.setImageProxy("/imageProxy");
-        evaluator.setRootLibraryPath("/js/mzscheme-vm/collects");
-        evaluator.setDynamicModuleLoader(function(aName, onSuccess, onFail) {
-            loadScript(this.rootLibraryPath + "/" + aName + "-min.js",
-                       onSuccess,
-                       onFail);
-        });
-
-        return evaluator;
+                    var innerArea = jQuery("<div class='evaluatorToplevelNode'></div>");
+                    dialog.append(innerArea);
+                    dialog.dialog("open");
+                    return innerArea.get(0);
+                };
+	        evaluator.setImageProxy("/imageProxy");
+                evaluator.setRootLibraryPath("/js/mzscheme-vm/collects");
+                evaluator.setDynamicModuleLoader(function(aName, onSuccess, onFail) {
+                    loadScript(this.rootLibraryPath + "/" + aName + "-min.js",
+                               onSuccess,
+                               onFail);
+                });
+                afterInit(evaluator);
+            }); 
     };
 
 
