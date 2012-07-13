@@ -767,12 +767,12 @@ var helpers = {};
 			var getArgColoredParts = function(locations) {
 				var coloredParts = [];
 				var locs = locations;
-
+				var i;
 
 				//ARGS IS INCONSISTENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 				//and when there's a state, it's apparently not an array, so .slice(1) doesn't work
 				if(state.isState(args[0])){
-					for(var i = 1; i < args.length; i++){
+					for(i = 1; i < args.length; i++){
 						if(i != pos) {
 							coloredParts.push(new types.ColoredPart(args[i]+" ", locs.first()));
 						}
@@ -780,7 +780,7 @@ var helpers = {};
 					}
 				}
 				else {
-					for(var i = 0; i < args.length; i++){
+					for(i = 0; i < args.length; i++){
 						if(i != (pos -1)) {
 							coloredParts.push(new types.ColoredPart(args[i]+" ", locs.first()));
 						}
@@ -793,8 +793,8 @@ var helpers = {};
 			// listRef for locationList.
 			var getLocation = function(pos) {
 				var locs = locationList;
-
-				for(var i = 0; i < pos; i++){
+				var i;
+				for(i = 0; i < pos; i++){
 					locs = locs.rest();
 				}
 				return locs.first();
@@ -7197,6 +7197,7 @@ var makeStructureType = function(theName, parentType, initFieldCnt, autoFieldCnt
     var aStruct = parentType.type.extend({
 	init: function(name, initArgs) {
 		// if there's no guard, construct a default one
+
 		if (!guard) {
 			guard = function(k) {
 				if (arguments.length == 3) {
@@ -7204,7 +7205,8 @@ var makeStructureType = function(theName, parentType, initFieldCnt, autoFieldCnt
 				}
 				else {
 					var args = [];
-					for(var i = 1; i < arguments.length-1; i++) {
+					var i;
+					for(i = 1; i < arguments.length-1; i++) {
 						args.push(arguments[i]);
 					}
 					k(new ValuesWrapper(args));
@@ -7267,9 +7269,10 @@ var Struct = Class.extend({
 	toWrittenString: function(cache) { 
 	    //    cache.put(this, true);
 	    var buffer = [];
+	    var i;
 	    buffer.push("(");
 	    buffer.push(this._constructorName);
-	    for(var i = 0; i < this._fields.length; i++) {
+	    for(i = 0; i < this._fields.length; i++) {
 		buffer.push(" ");
 		buffer.push(toWrittenString(this._fields[i], cache));
 	    }
@@ -7282,9 +7285,10 @@ var Struct = Class.extend({
 	toDomNode: function(cache) {
 	    //    cache.put(this, true);
 	    var node = document.createElement("div");
+	    var i;
 	    node.appendChild(document.createTextNode("("));
 	    node.appendChild(document.createTextNode(this._constructorName));
-	    for(var i = 0; i < this._fields.length; i++) {
+	    for(i = 0; i < this._fields.length; i++) {
 		node.appendChild(document.createTextNode(" "));
 		appendChild(node, toDomNode(this._fields[i], cache));
 	    }
@@ -8943,8 +8947,8 @@ var Message = function(args) {
 
 Message.prototype.toString = function() {
   var toReturn = [];
-  
-  for(var i = 0; i < this.args.length; i++) {
+  var i;
+  for(i = 0; i < this.args.length; i++) {
       toReturn.push(''+args[i]);
   }
   
@@ -9009,7 +9013,8 @@ MultiPart.prototype.toString = function() {
 
 var makeList = function(args) {
     var result = Empty.EMPTY;
-    for(var i = args.length-1; i >= 0; i--) {
+    var i;
+    for(i = args.length-1; i >= 0; i--) {
 	result = Cons.makeInstance(args[i], result);
     }
     return result;
@@ -13220,7 +13225,8 @@ var compare = function(args, comp) {
 
 // isAlphabeticString: string -> boolean
 var isAlphabeticString = function(s) {
-	for(var i = 0; i < s.length; i++) {
+	var i;
+	for(i = 0; i < s.length; i++) {
 		if (! ((s.charAt(i) >= "a" && s.charAt(i) <= "z") ||
 		       (s.charAt(i) >= "A" && s.charAt(i) <= "Z"))) {
 			return false;
@@ -13230,7 +13236,8 @@ var isAlphabeticString = function(s) {
 }
 
 var isNumericString = function(s) {
-	for (var i = 0; i < s.length; i++) {
+	var i;
+	for (i = 0; i < s.length; i++) {
 		if ( ! (s.charAt(i) >= '0' && s.charAt(i) <= '9') ) {
 			return false;
 		}
@@ -14282,7 +14289,8 @@ PRIMITIVES['*'] =
 		     arrayEach(args, function(x, i) {check(aState, x, isNumber, '*', 'number', i+1, args);});
 
 		     var result = types.rational(1);
-		     for(var i = 0; i < args.length; i++) {
+		     var i;
+		     for(i = 0; i < args.length; i++) {
 			  result = jsnums.multiply(args[i], result);
 		     }
 		     aState.v =  result;
@@ -16162,7 +16170,8 @@ PRIMITIVES['string-ci=?'] =
 		 	strs.unshift(str2);
 			strs.unshift(str1);
 
-			for(var i = 0; i < strs.length; i++) {
+			var i;
+			for(i = 0; i < strs.length; i++) {
 				check(aState, strs[i], isString, 'string-ci=?', 'string', i+1, strs);
 				strs[i] = strs[i].toString().toLowerCase();
 			}
@@ -19164,19 +19173,19 @@ PRIMITIVES['js-big-bang'] =
 			 	     },
 				     handlers);
 		     aState.v = PAUSE(function(restarter, caller) {
-			 var bigBangController;
-			 var onBreak = function() {
-			     bigBangController.breaker();
-			 }
-			 aState.addBreakRequestedListener(onBreak);
-			 bigBangController = jsworld.MobyJsworld.bigBang(initW, 
-						     aState.getToplevelNodeHook()(),
-						     unwrappedConfigs,
-						     caller, 
-						     function(v) {
-							 aState.removeBreakRequestedListener(onBreak);
-							 restarter(v);
-						     });
+				 var bigBangController;
+				 var onBreak = function() {
+				     bigBangController.breaker();
+				 }
+				 aState.addBreakRequestedListener(onBreak);
+				 bigBangController = jsworld.MobyJsworld.bigBang(initW, 
+							     aState.getToplevelNodeHook()(),
+							     unwrappedConfigs,
+							     caller, 
+							     function(v) {
+								 aState.removeBreakRequestedListener(onBreak);
+								 restarter(v);
+							     });
 		     })
 		 });
 
@@ -19831,7 +19840,8 @@ var ModControl = function(prefix, body) {
 ModControl.prototype.invoke = function(state) {
     processPrefix(state, this.prefix);
     var cmds = [];
-    for(var i = 0; i < this.body.length; i++) {
+    var i;
+    for(i = 0; i < this.body.length; i++) {
 	cmds.push(this.body[i]);
     }
     state.pushManyControls(cmds);
@@ -20674,17 +20684,18 @@ var prepareClosureArgumentsOnStack = function(state, procValue, operandValues, n
     var argCount = 0;
     if (procValue.isRest) {
 	var restArg = types.EMPTY;
-	for (var i = 0; i < n - procValue.numParams ; i++) {
+    var i;
+	for (i = 0; i < n - procValue.numParams ; i++) {
 	    restArg = types.cons(operandValues.pop(), restArg);
 	}
 	state.pushValue(restArg);
 	argCount++;
     }	
-    for (var i = operandValues.length -1; i >= 0; i--) {
+    for (i = operandValues.length -1; i >= 0; i--) {
 	state.pushValue(operandValues[i]);
 	argCount++;
     }
-    for(var i = procValue.closureVals.length-1; i >= 0; i--) {
+    for(i = procValue.closureVals.length-1; i >= 0; i--) {
 	state.pushValue(procValue.closureVals[i]);
 	argCount++;
     }
@@ -20705,13 +20716,14 @@ var preparePrimitiveArguments = function(state, primitiveValue, operandValues, n
 //	throw new Error("arity error: expected at least "
 //			+ primitiveValue.numParams + " arguments, but "
 //			+ "received " + n + " arguments instead.");
+    var i;
     }
     if (primitiveValue.isRest) {
-	for(var i = 0; i < primitiveValue.numParams; i++) {
+	for(i = 0; i < primitiveValue.numParams; i++) {
 	    args.push(operandValues.shift());
 	}
 	var restArgs = [];
-	for(var i = 0; i < n - primitiveValue.numParams; i++) {
+	for(i = 0; i < n - primitiveValue.numParams; i++) {
 	    restArgs.push(operandValues.shift());
 	}
 	args.push(restArgs);
@@ -20721,7 +20733,7 @@ var preparePrimitiveArguments = function(state, primitiveValue, operandValues, n
 //			    + primitiveValue.numParams 
 //			    + " but received " + n);
 	}
-	for(var i = 0; i < primitiveValue.numParams; i++) {
+	for(i = 0; i < primitiveValue.numParams; i++) {
 	    args.push(operandValues.shift());
 	}
     }
@@ -20824,9 +20836,10 @@ var ApplyValuesAppControl = function(procVal) {
 ApplyValuesAppControl.prototype.invoke = function(state) {
     var exprValue = state.v;
     state.v = this.procVal;
+    var i;
     if (exprValue instanceof types.ValuesWrapper) {
 	var elts = exprValue.elts;
-	for(var i = elts.length - 1; i >= 0; i--) {
+	for(i = elts.length - 1; i >= 0; i--) {
 	    state.pushValue(elts[i]);
 	}
 	state.pushControl(new CallControl(elts.length));

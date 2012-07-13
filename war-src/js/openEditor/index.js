@@ -2,6 +2,8 @@ goog.require("plt.wescheme.WeSchemeStatusBar");
 goog.require("plt.wescheme.WeSchemeTextContainer");
 goog.require("plt.wescheme.WeSchemeEditor");
 
+goog.require('plt.wescheme.selenium');
+
 
 goog.require('goog.ui.Container');
 goog.require('goog.style');
