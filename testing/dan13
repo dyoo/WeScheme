@@ -28,20 +28,19 @@
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.jQuery(window.jQuery('span:contains(&quot;substring&quot;)')[0]).css('background-color')</td>
-	<td>rgb(238, 169, 184)</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;substring&quot;, &quot;rgb(238, 169, 184)&quot;)</td>
+	<td>true</td>
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.jQuery(window.jQuery('span:contains(&quot;\&quot;hello\&quot;&quot;)')[0]).css('background-color')</td>
-	<td>rgb(127, 191, 123)</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;\&quot;hello\&quot;&quot;, &quot;rgb(127, 191, 123)&quot;)</td>
+	<td>true</td>
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.jQuery(window.jQuery('span:contains(&quot;6&quot;)')[0]).css('background-color')</td>
-	<td>rgb(145, 191, 219)</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;6&quot;, &quot;rgb(145, 191, 219)&quot;)</td>
+	<td>true</td>
 </tr>
-
 </tbody></table>
 </body>
 </html>
