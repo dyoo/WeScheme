@@ -28,10 +28,9 @@
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.jQuery(window.jQuery('span:contains(&quot;cond&quot;)')[1]).css('background-color') </td>
-	<td>rgb(238, 169, 184)</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;cond&quot;, &quot;rgb(238, 169, 184)&quot;) </td>
+	<td>true</td>
 </tr>
-
 </tbody></table>
 </body>
 </html>
