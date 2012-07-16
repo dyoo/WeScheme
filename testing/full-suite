@@ -8,8 +8,35 @@
 <body>
 <table id="suiteTable" cellpadding="1" cellspacing="1" border="1" class="selenium"><tbody>
 <tr><td><b>Test Suite</b></td></tr>
+<tr><td><a href="dant1">dant1</a></td></tr>
+<tr><td><a href="dant2">dant2</a></td></tr>
+<tr><td><a href="dant3">dant3</a></td></tr>
+<tr><td><a href="dant4">dant4</a></td></tr>
+<tr><td><a href="dant5">dant5</a></td></tr>
+<tr><td><a href="dant6">dant6</a></td></tr>
+<tr><td><a href="dant7">dant7</a></td></tr>
+<tr><td><a href="dant8">dant8</a></td></tr>
+<tr><td><a href="dant9">dant9</a></td></tr>
+<tr><td><a href="dant10">dant10</a></td></tr>
+<tr><td><a href="dant11">dant11</a></td></tr>
+<tr><td><a href="dant12">dant12</a></td></tr>
+<tr><td><a href="dan13">dan13</a></td></tr>
+<tr><td><a href="dan14">dan14</a></td></tr>
+<tr><td><a href="dan15">dan15</a></td></tr>
+<tr><td><a href="application-1">application-1</a></td></tr>
+<tr><td><a href="application-2">application-2</a></td></tr>
 <tr><td><a href="arity-1">arity-1</a></td></tr>
-<tr><td><a href="wrong-type-1">wrong-type-1</a></td></tr>
+<tr><td><a href="arity-2">arity-2</a></td></tr>
+<tr><td><a href="arity-3">arity-3</a></td></tr>
+<tr><td><a href="conditional-clause-too-many-elements">conditional-clause-too-many-elements</a></td></tr>
+<tr><td><a href="conditional-malformed-clause">conditional-malformed-clause</a></td></tr>
+<tr><td><a href="conditional-missing-question-answer">conditional-missing-question-answer</a></td></tr>
+<tr><td><a href="div-by-zero-1">div-by-zero-1</a></td></tr>
+<tr><td><a href="div-by-zero-2">div-by-zero-2</a></td></tr>
+<tr><td><a href="div-by-zero-3">div-by-zero-3</a></td></tr>
+<tr><td><a href="div-by-zero-4">div-by-zero-4</a></td></tr>
+<tr><td><a href="else clause should be last but there is another clause after it">else clause should be last but there is another clause after it</a></td></tr>
+<tr><td><a href="if-too-many-elements">if-too-many-elements</a></td></tr>
 </tbody></table>
 </body>
 </html>
