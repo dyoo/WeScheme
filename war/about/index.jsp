@@ -29,7 +29,9 @@
 	<li><a href="http://codemirror.net/">CodeMirror</a> : Marijn Haverbeke's fantastic library for in-browser editing.</li>
 </ul>
 <p/>
-The source to WeScheme itself is <a href="https://github.com/dyoo/WeScheme">available</> for download, under the <a href="http://www.gnu.org/copyleft/">GNU LGPL</a> license. 
+The source to WeScheme itself is <a href="https://github.com/dyoo/WeScheme">available for download</a>, under the <a href="http://www.gnu.org/copyleft/">GNU LGPL</a> license.
+<p/>
+For more information about WeScheme, you can <a href="http://www.vidiowiki.com/watch/cydr9yk/#">watch the video</a> or <a href="http://www.cs.brown.edu/~sk/Publications/Papers/Published/yskf-wescheme/paper.pdf">read the paper</a>.
 </div>
 
 
