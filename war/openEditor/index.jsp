@@ -2,6 +2,12 @@
 <html>
   <head>
     <title>WeScheme</title>
+    <!-- Tags for on mobile -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />	
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="apple-touch-icon-precomposed" href="css/images/BigLogo.png" />
+
 
     <!-- Add compatibility libraries for IE. -->
     <jsp:include page="/js/compat/compat.jsp"/>
@@ -12,17 +18,11 @@
 
 
 
-    <link rel="stylesheet" type="text/css" href="/css/default.css"
-	  id="style" />
-<!--     <link rel="stylesheet" type="text/css" href="/css/default.css"  -->
-<!-- 	  media="only screen and (min-width : 640px)" /> -->
-<!--     <link rel="stylesheet" type="text/css" href="/css/phone.css"  -->
-<!-- 	  media="only screen and (min-device-width : 320px) and (max-device-width : 480px)" > -->
+    <link rel="stylesheet" type="text/css" href="/css/default.css" id="style" />
 
 
       
-    <link rel="stylesheet" type="text/css" href="/css/codemirror.css"
-	  id="style" />
+    <link rel="stylesheet" type="text/css" href="/css/codemirror.css" id="style" />
 
     <!-- dynamic script loading -->
     <script src="/js/loadScript-min.js" type="text/javascript"></script>
