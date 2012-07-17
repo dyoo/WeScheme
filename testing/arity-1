@@ -22,34 +22,24 @@
 	<td></td>
 </tr>
 <tr>
-	<td>assertAttribute</td>
-	<td>css=#definitions span:contains(2)@style</td>
-	<td>background-color: rgb(145, 191, 219);</td>
+	<td>pause</td>
+	<td>100</td>
+	<td></td>
 </tr>
 <tr>
-	<td>assertAttribute</td>
-	<td>css=#definitions span:contains(&quot;check-expect&quot;)@style</td>
-	<td>background-color: rgb(145, 191, 219);</td>
+	<td>assertEval</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;check-expect&quot;, &quot;rgb(238, 169, 184)&quot;)</td>
+	<td>true</td>
 </tr>
 <tr>
-	<td>assertAttribute</td>
-	<td>css=#definitions span:contains(1)@style</td>
-	<td>background-color: rgb(145, 191, 219);</td>
+	<td>assertEval</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;1&quot;, &quot;rgb(145, 191, 219)&quot;) </td>
+	<td>true</td>
 </tr>
 <tr>
-	<td>assertAttribute</td>
-	<td>css=#definitions span:contains(3)@style</td>
-	<td>background-color: rgb(145, 191, 219);</td>
-</tr>
-<tr>
-	<td>assertAttribute</td>
-	<td>css=#definitions span:contains(4)@style</td>
-	<td>background-color: rgb(145, 191, 219);</td>
-</tr>
-<tr>
-	<td>assertAttribute</td>
-	<td>css=#definitions span:contains(5)@style</td>
-	<td>background-color: rgb(145, 191, 219);</td>
+	<td>assertEval</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;5&quot;, &quot;rgb(218, 233, 243)&quot;) </td>
+	<td>true</td>
 </tr>
 </tbody></table>
 </body>
