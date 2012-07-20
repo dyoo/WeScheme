@@ -3,8 +3,8 @@
 //
 // Evaluator(options)
 //     options: { write: dom -> void,
-//                compilationServletUrl: string,
-//                scriptCompilationServletUrl: string}
+//                compilationServletUrl: string }
+
 //
 // Constructs a new evaluator.
 // 
@@ -58,12 +58,6 @@ var Evaluator = (function() {
 	    this.compilationServletUrl = options.compilationServletUrl;
 	} else {
 	    this.compilationServletUrl = DEFAULT_COMPILATION_SERVLET_URL;
-	}
-
-	if (options.scriptCompilationServletUrl) {
-	    this.scriptCompilationServletUrl = options.scriptCompilationServletUrl;
-	} else {
-	    this.scriptCompilationServletUrl = DEFAULT_COMPILATION_SERVLET_URL;
 	}
 
 	if (options.transformDom) {
@@ -186,16 +180,6 @@ var Evaluator = (function() {
 
 
 
-
-    var encodeScriptParameters = function(programName, code) {
-	return encodeUrlParameters({ 'name': programName,
-				     'program': code,
-				     'compiler-version' : '1',
-				     'callback': 'Evaluator.compilation_success_callback__',
-				     'on-error': 'Evaluator.compilation_failure_callback__'});
-    };
-
-
     // executeProgram: string string (-> void) (exn -> void) -> void
     Evaluator.prototype.executeProgram = function(programName, code,
 						  onDone,
@@ -244,11 +228,6 @@ var Evaluator = (function() {
 	xhr.send(params);
     };
 
-
-
-
-
-    
 
     Evaluator.prototype.executeCompiledProgram = function(compiledBytecode,
 							  onDoneSuccess, onDoneFail) {
