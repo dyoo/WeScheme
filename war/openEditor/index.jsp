@@ -4,9 +4,6 @@
     <title>WeScheme</title>
     <!-- Tags for on mobile -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />	
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <link rel="apple-touch-icon-precomposed" href="css/images/BigLogo.png" />
 
 
     <!-- Add compatibility libraries for IE. -->

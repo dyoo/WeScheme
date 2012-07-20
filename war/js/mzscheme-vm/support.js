@@ -55,13 +55,13 @@ var deepEqual = function (obj1, obj2) {
 	}
 
 	for (var i in obj1) {
-		if ( obj1.hasOwnProperty(i) ) {
+		if ( obj1.hasOwnProperty(i) && i !== '_eqHashCode' && i !== '_isList') {
 			if ( !(obj2.hasOwnProperty(i) && deepEqual(obj1[i], obj2[i])) )
 				return false;
 		}
 	}
 	for (var i in obj2) {
-		if ( obj2.hasOwnProperty(i) ) {
+		if ( obj2.hasOwnProperty(i) && i !== '_eqHashCode' && i !== '_isList') {
 			if ( !(obj1.hasOwnProperty(i) && deepEqual(obj1[i], obj2[i])) )
 				return false;
 		}
@@ -74,14 +74,12 @@ var assert = {};
 
 assert.equal = function(x, y) {
 	if (x !== y) {
-		alert('AssertError: ' + x + ' equal ' + y);
 		throw new Error('AssertError: ' + x + ' equal ' + y);
 	}
 }
 
 assert.deepEqual = function(x, y) {
 	if ( !deepEqual(x, y) ) {
-		alert('AssertError: ' + x + ' deepEqual ' + y);
 		throw new Error('AssertError: ' + x + ' deepEqual ' + y);
 	}
 }
@@ -89,22 +87,19 @@ assert.deepEqual = function(x, y) {
 
 assert.ok = function(x) {
 	if (!x) {
-		alert('AssertError: not ok: ' + x);
 		throw new Error('AssertError: not ok: ' + x );
 	}
 }
 
 
-// assert.throws = function(f) {
-// 	try {
-// 		f.apply(null, []);
-// 	} catch (e) {
-// 		return;
-// 	}
-// 	throw new Error('AssertError: Throw expected, none received.');
-// }
-
-
+assert.throwsExn = function(f) {
+	try {
+		f.apply(null, []);
+	} catch (e) {
+		return;
+	}
+	throw new Error('AssertError: Throw expected, none received.');
+}
 /*
     http://www.JSON.org/json2.js
     2010-03-20
@@ -8247,8 +8242,9 @@ var toWrittenString = function(x, cache) {
     if (typeof(x) == 'object') {
 	    if (cache.containsKey(x)) {
 		    return "...";
-	    }
-	    cache.put(x, true);
+	    } else {
+	        cache.put(x, true);
+            }
     }
 
     if (x == undefined || x == null) {
