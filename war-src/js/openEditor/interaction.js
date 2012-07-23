@@ -32,6 +32,8 @@ WeSchemeInteractions = (function () {
         this.interactionsDiv = jQuery(interactionsDiv);
         this.interactionsDiv.empty();
 
+        this.resetters = [];
+
         this.previousInteractionsDiv = document.createElement("div");
         this.previousInteractionsTextContainers = {};
         this.interactionsDiv.append(this.previousInteractionsDiv);
@@ -71,6 +73,11 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.reset = function() {
         var that = this;
         this.notifyBus("before-reset", this);
+        var i;
+        for (i =0; i< that.resetters.length; i++){
+            that.resetters[i]();
+        }
+
         that.makeFreshEvaluator(function(e) {
             that.evaluator = e;
             jQuery(that.previousInteractionsDiv).empty();
@@ -391,6 +398,10 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.setAddToCurrentHighlighter = function(addToCurrentHighlighter) {
         this.addToCurrentHighlighter = addToCurrentHighlighter;
     };
+
+    WeSchemeInteractions.prototype.addOnReset = function(onReset) {
+        this.resetters.push(onReset);
+    };
     
 
     // Returns if x is a dom node.
@@ -660,7 +671,8 @@ WeSchemeInteractions = (function () {
         }
         var msgDom = document.createElement('div');
         if(err.structuredError){
-          msg = structuredErrorToMessage(err.structuredError);
+          msg = structuredErrorToMessage(err.structuredError.message);
+          
         }
 
 
@@ -675,8 +687,15 @@ WeSchemeInteractions = (function () {
         } else {
 		    //if it is a Message, do special formatting
             specialFormatting(that, msgDom, msg);
+
         }
         dom.appendChild(msgDom);
+
+        if(err.structuredError) {
+                var link = this.createLocationHyperlink(err.structuredError.location);
+                console.log("structured error is ", err.structuredError);
+                dom.appendChild(link);
+            }
 
         var stacktrace = this.evaluator.getTraceFromExn(err);
         var stacktraceDiv = document.createElement("div");

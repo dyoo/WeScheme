@@ -70,6 +70,8 @@ var WeSchemeEditor;
 		    that.highlight(id, offset, line, column, span, color);
 		});
 
+		that.interactions.addOnReset(function() {that.defn.unhighlightAll()});
+
 		// pid: (or false number)
 		that.pid = false;
 

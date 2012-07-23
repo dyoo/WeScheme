@@ -230,7 +230,7 @@ var WeSchemeTextContainer;
 		// For some reason, we're getting the offset from the highlighter
 		// as 1-offset, rather than 0-offset.
 		var startHandleAndColumn = this.findHandleAndColumn(offset);
-		var endHandleAndColumn = this.findHandleAndColumn(offset+span);
+		var endHandleAndColumn = this.findHandleAndColumn(parseInt(offset)+parseInt(span));
 		
 		var stylesheet = document.styleSheets[0]; //this is default.css
 		var name = "highlight" + (currentHighlightNumber+'x');//to prevent overwriting with prefixes
@@ -244,8 +244,20 @@ var WeSchemeTextContainer;
 					this.handleAndColumnToPos(endHandleAndColumn), 
 					name));
 
+ 		this.resetCursor(parseInt(line));
 	};
 	
+	CodeMirrorImplementation.prototype.resetCursor = function(line) {
+		var currLine = this.editor.getCursor(false).line;
+ 		if(line != currLine) this.editor.setCursor(line);
+ 		else {
+ 			this.editor.setCursor(line + 1);
+ 			this.editor.setCursor(line);
+ 		}
+
+	};
+
+
 	CodeMirrorImplementation.prototype.unhighlightAll = function () {
 		for(var i = 0; i < this.highlightedAreas.length; i++) {
 		    this.highlightedAreas[i].clear();

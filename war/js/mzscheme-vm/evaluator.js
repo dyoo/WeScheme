@@ -192,7 +192,7 @@ var Evaluator = (function() {
 					                   onDone, onDoneError);
                             },
                             function(responseErrorText) {
-		                that._onCompilationFailure(JSON.parse(responseErrorText),
+		                that._onCompilationFailure(JSON.parse(responseErrorText || '""'),
 					                   onDoneError);
                             })
     };
