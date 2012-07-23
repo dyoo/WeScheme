@@ -243,16 +243,19 @@ var WeSchemeTextContainer;
 			this.editor.markText(this.handleAndColumnToPos(startHandleAndColumn), 
 					this.handleAndColumnToPos(endHandleAndColumn), 
 					name));
-
- 		this.resetCursor(parseInt(line));
+ 		
+ 		this.resetCursor(parseInt(startHandleAndColumn.handle));
 	};
 	
-	CodeMirrorImplementation.prototype.resetCursor = function(line) {
+	CodeMirrorImplementation.prototype.resetCursor = function(li) {
 		var currLine = this.editor.getCursor(false).line;
- 		if(line != currLine) this.editor.setCursor(line);
+		
+ 		if(li != currLine) this.editor.setCursor(li);
+ 		//if the line doesn't change, refocus doesn't happen, 
+ 		//so if they're the same change it twice
  		else {
- 			this.editor.setCursor(line + 1);
- 			this.editor.setCursor(line);
+ 			this.editor.setCursor(li + 1);
+ 			this.editor.setCursor(li);
  		}
 
 	};
