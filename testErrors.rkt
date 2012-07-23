@@ -9,6 +9,9 @@
 (/ 5 (- 2 2))
 (/ 4 3 2 0 1 2)
 (/ 4 3 2 0)
+
+
+
 (substring "hello" 6)
 (substring "hello" 12 0)
 (substring "hello" 2 12)
@@ -55,6 +58,21 @@
     [(= x 2)]
     [(= x 3) 3]
     [else 4]))    
+(define )
+(define () )
+(define () 3)
+(define () 3 4 5)
+(define (x) )
+(define (x) 3)
+(define (x y) 3 4)
+(define ("x") )
+(define ("x") )
+(define ("x" y ) 2)
+(define (x y 7) 4)
+(define x)
+(define x 1 2 3 4)
+(define x y 1 2 3)
+(define "x" 1)
 
 
 
@@ -106,3 +124,5 @@
                  [(string=? word3 label) true]) 
                                                                             
            [else false]]]]))
+
+;;big-bang, make-struct-field-accessor, bitmap/url
