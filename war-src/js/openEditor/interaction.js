@@ -399,8 +399,8 @@ WeSchemeInteractions = (function () {
         this.addToCurrentHighlighter = addToCurrentHighlighter;
     };
 
-    WeSchemeInteractions.prototype.setResetCursor = function(resetCursor) {
-        this.resetCursor = resetCursor;
+    WeSchemeInteractions.prototype.setMoveCursor = function(moveCursor) {
+        this.moveCursor = moveCursor;
     };
 
     WeSchemeInteractions.prototype.addOnReset = function(onReset) {
@@ -534,13 +534,11 @@ WeSchemeInteractions = (function () {
     //proper order is id offset line column span
     //badLocs is in   col id line offset span
    var locObjToVector = function(badLocs) {
-        var fixed = [];
-        fixed.push(badLocs.id);
-        fixed.push(parseInt(badLocs.offset));
-        fixed.push(parseInt(badLocs.line));
-        fixed.push(parseInt(badLocs.column));
-        fixed.push(parseInt(badLocs.span));
-        return types.vector(fixed);
+        return types.vector([badLocs.id,
+                     parseInt(badLocs.offset),
+                     parseInt(badLocs.line),
+                     parseInt(badLocs.column),
+                     parseInt(badLocs.span)]);
    };
 
     //return array of fixed locs
@@ -586,9 +584,11 @@ WeSchemeInteractions = (function () {
         return new types.Message(msg);
     };
 
+
+    //
     var makeCursorLink = function(that, currItem) {
         return function() {
-            that.resetCursor(parseInt(currItem.ref(1)));  //in correct form????
+            that.moveCursor(parseInt(currItem.ref(1)));  //in correct form????
         }
     };
 
@@ -597,8 +597,8 @@ WeSchemeInteractions = (function () {
         //pink, blue, green, yellow, gray
     	var colors = [new Color(240,181,194), new Color(161,200,224), new Color(146,200,142), 
     		      new Color(175,141,195), new Color(186,186,186)];
+      //  var colors = [new Color (255, 255, 255)];
     	var colorIndex = 0;
-    	console.log("colors : ", nextTint(colors[0].red, colors[0].green, colors[0].blue, .85), nextTint(colors[1].red, colors[1].green, colors[1].blue, .85), nextTint(colors[2].red, colors[2].green, colors[2].blue, .85));
     	var currItem;
     	var currColor = colors[colorIndex];
     	var args = msg.args;
@@ -615,7 +615,7 @@ WeSchemeInteractions = (function () {
         		currItem = args[i].location;
         		that.addToCurrentHighlighter(currItem.ref(0), currItem.ref(1), currItem.ref(2), currItem.ref(3), currItem.ref(4), currColor+'');
         		var aChunk = jQuery("<span/>").css("background-color", currColor+'');
-                var aLink = document.createElement("a")
+                var aLink = document.createElement("a");
                 var text = document.createTextNode(args[i].text+'');
                 aLink['href'] = "#";
                 aLink['onclick'] = makeCursorLink(that, currItem);

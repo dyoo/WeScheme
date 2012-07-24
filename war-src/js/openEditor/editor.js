@@ -71,7 +71,7 @@ var WeSchemeEditor;
 		});
 
 		that.interactions.addOnReset(function() {that.defn.unhighlightAll()});
-		that.interactions.setResetCursor(function(li){that.defn.resetCursor(li)});
+		that.interactions.setMoveCursor(function(offset){that.defn.moveCursor(offset)});
 
 		// pid: (or false number)
 		that.pid = false;

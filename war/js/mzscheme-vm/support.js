@@ -769,7 +769,7 @@ var helpers = {};
 				if(state.isState(args[0])){
 					for(i = 1; i < args.length; i++){
 						if(i != pos) {
-							coloredParts.push(new types.ColoredPart(args[i]+" ", locs.first()));
+							coloredParts.push(new types.ColoredPart(types.toWrittenString(args[i])+" ", locs.first()));
 						}
 						locs = locs.rest();
 					}
@@ -777,7 +777,7 @@ var helpers = {};
 				else {
 					for(i = 0; i < args.length; i++){
 						if(i != (pos -1)) {
-							coloredParts.push(new types.ColoredPart(args[i]+" ", locs.first()));
+							coloredParts.push(new types.ColoredPart(types.toWrittenString(args[i])+" ", locs.first()));
 						}
 						locs = locs.rest();
 					}
@@ -797,11 +797,7 @@ var helpers = {};
 
 
 			if(args){
-				//console.log("locationlist.rest() is ", locationList.rest());
-				//console.log("args is ", args, "and is it an array? ", (args instanceof Array));
 				var argColoredParts = getArgColoredParts(locationList.rest());
-				//console.log("argColoredParts is ", argColoredParts);
-
 
 				raise( types.incompleteExn(types.exnFailContract,
 							   new types.Message([
@@ -811,7 +807,7 @@ var helpers = {};
 							   		" as ",
 							   		details.ordinalPosition, 
 							   		" argument, given: ",
-							   		new types.ColoredPart(details.actualValue, getLocation(pos)),
+							   		new types.ColoredPart(types.toWrittenString(details.actualValue), getLocation(pos)),
 							   		"; other arguments were: ",
 							   		new types.GradientPart(argColoredParts)
 							   	]),
@@ -826,7 +822,7 @@ var helpers = {};
 							   		" as ",
 							   		details.ordinalPosition, 
 							   		" argument, given: ",
-							   		new types.ColoredPart(details.actualValue, getLocation(pos))
+							   		new types.ColoredPart(types.toWrittenString(details.actualValue), getLocation(pos))
 							   	]),
 							   []) );
 			}
