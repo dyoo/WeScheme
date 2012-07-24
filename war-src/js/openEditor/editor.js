@@ -71,6 +71,7 @@ var WeSchemeEditor;
 		});
 
 		that.interactions.addOnReset(function() {that.defn.unhighlightAll()});
+		that.interactions.setResetCursor(function(li){that.defn.resetCursor(li)});
 
 		// pid: (or false number)
 		that.pid = false;

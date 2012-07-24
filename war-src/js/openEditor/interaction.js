@@ -399,6 +399,10 @@ WeSchemeInteractions = (function () {
         this.addToCurrentHighlighter = addToCurrentHighlighter;
     };
 
+    WeSchemeInteractions.prototype.setResetCursor = function(resetCursor) {
+        this.resetCursor = resetCursor;
+    };
+
     WeSchemeInteractions.prototype.addOnReset = function(onReset) {
         this.resetters.push(onReset);
     };
@@ -581,7 +585,12 @@ WeSchemeInteractions = (function () {
         }
         return new types.Message(msg);
     };
-    
+
+    var makeCursorLink = function(that, currItem) {
+        return function() {
+            that.resetCursor(parseInt(currItem.ref(1)));  //in correct form????
+        }
+    };
 
     // Special multi-color highlighting
     var specialFormatting = function(that, msgDom, msg) {
@@ -605,7 +614,13 @@ WeSchemeInteractions = (function () {
     	    if(types.isColoredPart(args[i])) {
         		currItem = args[i].location;
         		that.addToCurrentHighlighter(currItem.ref(0), currItem.ref(1), currItem.ref(2), currItem.ref(3), currItem.ref(4), currColor+'');
-        		var aChunk = jQuery("<span/>").text(args[i].text+'').css("background-color", currColor+'');
+        		var aChunk = jQuery("<span/>").css("background-color", currColor+'');
+                var aLink = document.createElement("a")
+                var text = document.createTextNode(args[i].text+'');
+                aLink['href'] = "#";
+                aLink['onclick'] = makeCursorLink(that, currItem);
+                jQuery(aLink).append(text);
+                jQuery(aChunk).append(aLink);
         		jQuery(msgDom).append(aChunk);
         		
         		colorIndex++;
@@ -626,9 +641,16 @@ WeSchemeInteractions = (function () {
         		    that.addToCurrentHighlighter(currItem.location.ref(0), currItem.location.ref(1), currItem.location.ref(2), currItem.location.ref(3), currItem.location.ref(4), 
         						 currTint);
         		    
-        		    var aChunk = jQuery("<span/>").text(currItem.text).css("background-color", currTint);
-        		    jQuery(msgDom).append(aChunk);		     
-        		    percentage = percentage - change;
+        		    var aChunk = jQuery("<span/>").css("background-color", currTint+'');
+                    var aLink = document.createElement("a")
+                    var text = document.createTextNode(currItem.text+'');
+                    aLink['href'] = "#";
+                    aLink['onclick'] = makeCursorLink(that, currItem.location);
+                    jQuery(aLink).append(text);
+                    jQuery(aChunk).append(aLink);
+                    jQuery(msgDom).append(aChunk);
+
+                    percentage = percentage - change;
         		}
         		
         		colorIndex++;
@@ -641,8 +663,14 @@ WeSchemeInteractions = (function () {
         		    that.addToCurrentHighlighter(locs[j].ref(0), locs[j].ref(1), locs[j].ref(2), locs[j].ref(3), locs[j].ref(4), 
         						 currColor);
         		}
-        		var aChunk = jQuery("<span/>").text(args[i].text).css("background-color", currColor+'');
-        		jQuery(msgDom).append(aChunk);
+        		var aChunk = jQuery("<span/>").css("background-color", currColor+'');
+                var aLink = document.createElement("a")
+                var text = document.createTextNode(args[i].text+'');
+                aLink['href'] = "#";
+                aLink['onclick'] = makeCursorLink(that, locs[0]); //choose the first one
+                jQuery(aLink).append(text);
+                jQuery(aChunk).append(aLink);
+                jQuery(msgDom).append(aChunk);
         		
         		colorIndex++;
     	    } 
@@ -715,7 +743,6 @@ WeSchemeInteractions = (function () {
     // FIXME: should this really wrap a paragraph around a link?  The client
     // really should be responsible for layout issues instead....
     WeSchemeInteractions.prototype.createLocationHyperlink = function(aLocation, anchorBodyDom) {
-        //console.log("aLocation is ", aLocation);
         if (! anchorBodyDom) {
             anchorBodyDom = document.createTextNode(
                 "at: line " + aLocation.line + 

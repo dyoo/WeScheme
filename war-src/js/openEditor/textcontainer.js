@@ -86,6 +86,9 @@ var WeSchemeTextContainer;
 	WeSchemeTextContainer.prototype.unhighlightAll = function () {
 		return this.impl.unhighlightAll();
 	};
+	WeSchemeTextContainer.prototype.resetCursor = function(li) {
+		return this.impl.resetCursor(li);
+	};
 	
 	WeSchemeTextContainer.prototype.focus = function() {
 		this.impl.focus();
@@ -229,7 +232,7 @@ var WeSchemeTextContainer;
 		offset--;
 		// For some reason, we're getting the offset from the highlighter
 		// as 1-offset, rather than 0-offset.
-		var startHandleAndColumn = this.findHandleAndColumn(offset);
+		var startHandleAndColumn = this.findHandleAndColumn(parseInt(offset));
 		var endHandleAndColumn = this.findHandleAndColumn(parseInt(offset)+parseInt(span));
 		
 		var stylesheet = document.styleSheets[0]; //this is default.css
@@ -244,10 +247,11 @@ var WeSchemeTextContainer;
 					this.handleAndColumnToPos(endHandleAndColumn), 
 					name));
  		
- 		this.resetCursor(parseInt(startHandleAndColumn.handle));
+ 		this.resetCursor(offset);
 	};
 	
-	CodeMirrorImplementation.prototype.resetCursor = function(li) {
+	CodeMirrorImplementation.prototype.resetCursor = function(off) {
+		var li = this.findHandleAndColumn(off).handle;
 		var currLine = this.editor.getCursor(false).line;
 		
  		if(li != currLine) this.editor.setCursor(li);
@@ -257,7 +261,6 @@ var WeSchemeTextContainer;
  			this.editor.setCursor(li + 1);
  			this.editor.setCursor(li);
  		}
-
 	};
 
 
