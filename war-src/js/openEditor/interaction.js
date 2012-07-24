@@ -595,10 +595,10 @@ WeSchemeInteractions = (function () {
     // Special multi-color highlighting
     var specialFormatting = function(that, msgDom, msg) {
         //pink, blue, green, yellow, gray
-    	var colors = [new Color(238,169,184), new Color(145, 191, 219), new Color(127,191,123), 
+    	var colors = [new Color(240,181,194), new Color(161,200,224), new Color(146,200,142), 
     		      new Color(175,141,195), new Color(186,186,186)];
     	var colorIndex = 0;
-    	
+    	console.log("colors : ", nextTint(colors[0].red, colors[0].green, colors[0].blue, .85), nextTint(colors[1].red, colors[1].green, colors[1].blue, .85), nextTint(colors[2].red, colors[2].green, colors[2].blue, .85));
     	var currItem;
     	var currColor = colors[colorIndex];
     	var args = msg.args;
