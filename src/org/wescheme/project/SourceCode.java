@@ -21,7 +21,6 @@ public class SourceCode implements Serializable{
 	 */
 	private static final long serialVersionUID = -6657496787529704087L;
 
-	@SuppressWarnings("unused")
 	@PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
     private Key key;
