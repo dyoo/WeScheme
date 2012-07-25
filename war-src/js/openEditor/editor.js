@@ -225,17 +225,18 @@ var WeSchemeEditor;
 	this.save();
     };
 
-    WeSchemeEditor.prototype.save = function() {
+    WeSchemeEditor.prototype.save = function(success, fail, cancel) {
 	var that = this;
 	var afterSave = function(pid) {
 	    that.pid = pid;
 
 	    that.savedE.sendEvent(true);
 	    plt.wescheme.WeSchemeIntentBus.notify("after-save", that);
+            if (success) { success(); }
 	};
 	var whenSaveBreaks = function() {
 	    alert("Unable to save");
-	    // FIXME
+            if (fail) { fail(); }
 	};
 
 	var onFirstSave = function() {
@@ -287,6 +288,7 @@ var WeSchemeEditor;
 	that._enforceNonemptyName(afterFileNameChosen,
 				  function() {
 				      // on abort, don't do anything.
+                                      if (cancel) { cancel(); }
 				  },
 				  true);
     };
@@ -297,7 +299,10 @@ var WeSchemeEditor;
 	if (title === "") {
 	    var dialogWindow = (jQuery("<div/>"));
 
-	    var onSaveButton = function() {		
+            var buttonPressed = false;
+
+	    var onSaveButton = function() {
+		buttonPressed = true;
 		dialogWindow.dialog("close");
 		that.filenameEntry.attr("value", 
 					plt.wescheme.helpers.trimWhitespace(
@@ -306,6 +311,7 @@ var WeSchemeEditor;
 	    };
 
 	    var onCancelButton = function() {
+                buttonPressed = true;
 		dialogWindow.dialog("close");
 		abortK();
 	    };
@@ -325,6 +331,14 @@ var WeSchemeEditor;
 				 buttons : { "Save" : onSaveButton,
 					     "Don't Save" : onCancelButton }
 				});
+
+            dialogWindow.bind("dialogclose",
+                              function(event, ui) {
+                                  if (! buttonPressed) {
+                                      abortK();
+                                  }
+                              });
+
 
 	    // Really stupid hacky code.  I have no idea how to
 	    // cleanly grab at the buttons in a dialog constructed by
@@ -356,8 +370,6 @@ var WeSchemeEditor;
 	    maintainSaveButtonStatus();
 	    inputField.keydown(maintainSaveButtonStatus);
 	    inputField.change(maintainSaveButtonStatus);
-
-	    //dialogWindow.dialog("open");
 	} else {
 	    afterK();
 	}
