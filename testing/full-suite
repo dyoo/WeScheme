@@ -82,6 +82,16 @@
 <tr><td><a href="cond-special1">cond-special1</a></td></tr>
 <tr><td><a href="quote1">quote1</a></td></tr>
 <tr><td><a href="quote2">quote2</a></td></tr>
+<tr><td><a href="and1">and1</a></td></tr>
+<tr><td><a href="and2">and2</a></td></tr>
+<tr><td><a href="and3">and3</a></td></tr>
+<tr><td><a href="or1">or1</a></td></tr>
+<tr><td><a href="or2">or2</a></td></tr>
+<tr><td><a href="or3">or3</a></td></tr>
+<tr><td><a href="def-val1">def-val1</a></td></tr>
+<tr><td><a href="def-val2">def-val2</a></td></tr>
+<tr><td><a href="def-val3">def-val3</a></td></tr>
+<tr><td><a href="def-val4">def-val4</a></td></tr>
 </tbody></table>
 </body>
 </html>
