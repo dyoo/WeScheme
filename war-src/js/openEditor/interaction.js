@@ -115,25 +115,25 @@ WeSchemeInteractions = (function () {
               //stylesheet: "/js/codemirror/contrib/scheme/css/schemecolors-interactive.css",
               makeTransparentIframe: true,
               extraKeys: {
-            	  "Enter":function (ed) {
-            		  if (that.hasCompleteExpression()) {
-            			  that.onEvaluation();
-            		  } else {
-            			  CodeMirror.commands.newlineAndIndent(ed);
-            		  }
-            	  },
-            	  "Ctrl-N":function (ed) {
-            		  that.onHistoryNext();
-            	  },
-            	  "Ctrl-P":function (ed) {
-            		  that.onHistoryPrevious();
-            	  },
-            	  "Alt-N":function (ed) {
-            		  that.onHistoryNext();
-            	  },
-            	  "Alt-P":function (ed) {
-            		  that.onHistoryPrevious();
-            	  }
+                  "Enter":function (ed) {
+                      if (that.hasCompleteExpression()) {
+                          that.onEvaluation();
+                      } else {
+                          CodeMirror.commands.newlineAndIndent(ed);
+                      }
+                  },
+                  "Ctrl-N":function (ed) {
+                      that.onHistoryNext();
+                  },
+                  "Ctrl-P":function (ed) {
+                      that.onHistoryPrevious();
+                  },
+                  "Alt-N":function (ed) {
+                      that.onHistoryNext();
+                  },
+                  "Alt-P":function (ed) {
+                      that.onHistoryPrevious();
+                  }
               }},
             function(container) {
                 that.textContainer = container;
@@ -367,7 +367,7 @@ WeSchemeInteractions = (function () {
                     dialog.dialog("open");
                     return innerArea.get(0);
                 };
-	        evaluator.setImageProxy("/imageProxy");
+            evaluator.setImageProxy("/imageProxy");
                 evaluator.setRootLibraryPath("/js/mzscheme-vm/collects");
                 evaluator.setDynamicModuleLoader(function(aName, onSuccess, onFail) {
                     loadScript(this.rootLibraryPath + "/" + aName + "-min.js",
@@ -477,7 +477,7 @@ WeSchemeInteractions = (function () {
                                               line: parseInt(line),
                                               column: parseInt(column),
                                               span: parseInt(span),
-					                          color: color});
+                                              color: color});
     };
 
     // Evaluate the source code and accumulate its effects.
@@ -509,25 +509,25 @@ WeSchemeInteractions = (function () {
     //takes in a rgb color from 0 to 255 and a percentage from 0 to 1 to tint by, 
     //  outputs the tinted color as an int
     var nextColor = function(color, percentage) {
-	    return Math.floor(percentage*color + (255 * (1 - percentage)));
+        return Math.floor(percentage*color + (255 * (1 - percentage)));
     };
     
     //nextTint: int int int float -> string
     //given rgb ints and a percentage to tint, returns the rgb string of the tinted color
     var nextTint = function(red, green, blue, percentage) {
-	    return "rgb(" + nextColor(red, percentage) + "," + nextColor(green, percentage) + "," 
-				      + nextColor(blue, percentage) + ")";
+        return "rgb(" + nextColor(red, percentage) + "," + nextColor(green, percentage) + "," 
+                      + nextColor(blue, percentage) + ")";
     };
  
     
     var Color = function(red, green, blue) {
-	    this.red = red;
-	    this.green = green;
-	    this.blue = blue;
+        this.red = red;
+        this.green = green;
+        this.blue = blue;
     };
     
     Color.prototype.toString = function() {
-	   return "rgb(" + this.red +"," + this.green + "," + this.blue + ")";
+       return "rgb(" + this.red +"," + this.green + "," + this.blue + ")";
       
     };
 
@@ -595,98 +595,80 @@ WeSchemeInteractions = (function () {
     // Special multi-color highlighting
     var specialFormatting = function(that, msgDom, msg) {
         //pink, blue, green, yellow, gray
-    // these colors mess up testing but should be used at launch	var colors = [new Color(240,181,194), new Color(161,200,224), new Color(146,200,142), 
-	var colors = [new Color(238, 169, 184), new Color(145, 191, 219), new Color(127, 191, 123),
-    		      new Color(175,141,195), new Color(186,186,186)];
+    // these colors mess up testing but should be used at launch    var colors = [new Color(240,181,194), new Color(161,200,224), new Color(146,200,142), 
+        var colors = [new Color(238, 169, 184), new Color(145, 191, 219), new Color(127, 191, 123),
+                  new Color(175,141,195), new Color(186,186,186)];
       //  var colors = [new Color (255, 255, 255)];
-    	var colorIndex = 0;
-    	var currItem;
-    	var currColor = colors[colorIndex];
-    	var args = msg.args;
+        var colorIndex = 0;
+        var currItem;
+        var currColor = colors[colorIndex];
+        var args = msg.args;
         var i;
 
-    	for(i = 0; i < args.length; i++){
-    	    //in the unlikely event that there are no more preset colors, reset it
-    	    if(colorIndex >= colors.length){
-        		colorIndex = 0;
-    	    }
-    	    currColor = colors[colorIndex];
-    	    
-    	    if(types.isColoredPart(args[i])) {
-        		currItem = args[i].location;
-        		that.addToCurrentHighlighter(currItem.ref(0), currItem.ref(1), currItem.ref(2), currItem.ref(3), currItem.ref(4), currColor+'');
-        		var aChunk = jQuery("<span/>").css("background-color", currColor+'');
-                var aLink = document.createElement("a");
-                var text = document.createTextNode(args[i].text+'');
-                aLink['href'] = "#";
-                aLink['onclick'] = makeCursorLink(that, currItem);
-                jQuery(aLink).append(text);
-                jQuery(aChunk).append(aLink);
-        		jQuery(msgDom).append(aChunk);
-        		
-        		colorIndex++;
-    	    } 
+        for(i = 0; i < args.length; i++){
+            //in the unlikely event that there are no more preset colors, reset it
+            if(colorIndex >= colors.length){
+                colorIndex = 0;
+            }
+            currColor = colors[colorIndex];
+            
+            if(types.isColoredPart(args[i])) {
+                colorAndLink(that, msgDom, currColor, args[i].text, [args[i].location]);
+                colorIndex++;
+            }
             else if(types.isGradientPart(args[i])) {
-        		var parts = args[i].coloredParts;
-        		
-        		var percentage = 1;
-        		var change = 1/(parts.length+1);
-        		
-        		var currTint;
+                var parts = args[i].coloredParts;
+                
+                var percentage = 1;
+                var change = 1/(parts.length+1);
+                
+                var currTint;
                 var j;
 
-        		for(j = 0; j < parts.length; j++) {	    
-        		    currItem = parts[j];
-        		    currTint = nextTint(currColor.red, currColor.green, currColor.blue, percentage);
-        		    
-        		    that.addToCurrentHighlighter(currItem.location.ref(0), currItem.location.ref(1), currItem.location.ref(2), currItem.location.ref(3), currItem.location.ref(4), 
-        						 currTint);
-        		    
-        		    var aChunk = jQuery("<span/>").css("background-color", currTint+'');
-                    var aLink = document.createElement("a")
-                    var text = document.createTextNode(currItem.text+'');
-                    aLink['href'] = "#";
-                    aLink['onclick'] = makeCursorLink(that, currItem.location);
-                    jQuery(aLink).append(text);
-                    jQuery(aChunk).append(aLink);
-                    jQuery(msgDom).append(aChunk);
+                for(j = 0; j < parts.length; j++) {        
+                    currTint = nextTint(currColor.red, currColor.green, currColor.blue, percentage);
+
+                    colorAndLink(that, msgDom, currTint, parts[j].text, [parts[j].location])
 
                     percentage = percentage - change;
-        		}
-        		
-        		colorIndex++;
-    	    }
-    	    
-    	    else if(types.isMultiPart(args[i])) {
-        		var locs = args[i].locations;
-        		var j;
-        		for(j = 0; j <locs.length; j++){
-        		    that.addToCurrentHighlighter(locs[j].ref(0), locs[j].ref(1), locs[j].ref(2), locs[j].ref(3), locs[j].ref(4), 
-        						 currColor);
-        		}
-        		var aChunk = jQuery("<span/>").css("background-color", currColor+'');
-                var aLink = document.createElement("a")
-                var text = document.createTextNode(args[i].text+'');
-                aLink['href'] = "#";
-                aLink['onclick'] = makeCursorLink(that, locs[0]); //choose the first one
-                jQuery(aLink).append(text);
-                jQuery(aChunk).append(aLink);
-                jQuery(msgDom).append(aChunk);
-        		
-        		colorIndex++;
-    	    } 
+                }
+                
+                colorIndex++;
+            }
+            else if(types.isMultiPart(args[i])) {
+                colorAndLink(that, msgDom, currColor, args[i].text, args[i].locations);
+                
+                colorIndex++;
+            } 
             else {
-    		    msgDom.appendChild(document.createTextNode(args[i]+''));
-    	    }
-    	}	
+                msgDom.appendChild(document.createTextNode(args[i]+''));
+            }
+        }    
     };
 
+    //Color, string, nonempty array[loc]
+    //does the coloring and makes a link to the location in the definitions
+    var colorAndLink = function(that, msgDom, color, text, locs) {
+        var i;
+        for(i = 0; i < locs.length; i++){
+            that.addToCurrentHighlighter(locs[i].ref(0), locs[i].ref(1), locs[i].ref(2), locs[i].ref(3), locs[i].ref(4), color+'');
+        }
+        var aChunk = jQuery("<span/>").css("background-color", color+'');
+        var aLink = document.createElement("a");
+        var text = document.createTextNode(text+'');
+        aLink['href'] = "#";
+        aLink['onclick'] = makeCursorLink(that, locs[0]);
+        jQuery(aLink).append(text);
+        jQuery(aChunk).append(aLink);
+        jQuery(msgDom).append(aChunk);
+    }
 
 
     // renderErrorAsDomNode: exception -> element
     // Given an exception, produces error dom node to be displayed.
     WeSchemeInteractions.prototype.renderErrorAsDomNode = function(err) {
         var that = this;
+        console.log("err is ", err);
         var msg;
         var i;
         var dom = document.createElement('div');
@@ -696,35 +678,36 @@ WeSchemeInteractions = (function () {
         } 
         else {
             dom['className'] = 'moby-error';
-            msg = this.evaluator.getMessageFromExn(err);
+            if(err.structuredError && err.structuredError.message) {
+                msg = structuredErrorToMessage(err.structuredError.message);
+            }
+            else {
+                msg = this.evaluator.getMessageFromExn(err);
+            }
         }
+
         var msgDom = document.createElement('div');
-        if(err.structuredError){
-          msg = structuredErrorToMessage(err.structuredError.message);
-          
-        }
-
-
         msgDom['className'] = 'moby-error:message';
-		if (! types.isMessage(msg)) {
-			if(err.domMessage){
-			  dom.appendChild(err.domMessage);
-			}
-			else {
-			  msgDom.appendChild(document.createTextNode(msg));
-			}
-        } else {
-		    //if it is a Message, do special formatting
-            specialFormatting(that, msgDom, msg);
 
+        if(types.isMessage(msg)) {
+            //if it is a Message, do special formatting
+            specialFormatting(that, msgDom, msg);
         }
+        else {
+            if(err.domMessage){
+              dom.appendChild(err.domMessage);
+            }
+            else {
+              msgDom.appendChild(document.createTextNode(msg));
+            }
+        } 
         dom.appendChild(msgDom);
 
-        if(err.structuredError) {
-                var link = this.createLocationHyperlink(err.structuredError.location);
-                console.log("structured error is ", err.structuredError);
-                dom.appendChild(link);
-            }
+        if(err.structuredError && err.structuredError.message) {
+            var link = this.createLocationHyperlink(err.structuredError.location);
+            console.log("structured error is ", err.structuredError);
+            dom.appendChild(link);
+        }
 
         var stacktrace = this.evaluator.getTraceFromExn(err);
         var stacktraceDiv = document.createElement("div");
@@ -733,9 +716,10 @@ WeSchemeInteractions = (function () {
             var anchor = this.createLocationHyperlink(stacktrace[i]);
             stacktraceDiv.appendChild(anchor);
         }
+
         
         dom.appendChild(stacktraceDiv);
-	
+    
         return dom;
     };
 

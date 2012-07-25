@@ -50,37 +50,53 @@ var debugF = function(f_s) {
 
 
 var deepEqual = function (obj1, obj2) {
-	if (obj1 === obj2) {
-		return true;
-	}
-
-	for (var i in obj1) {
-		if ( obj1.hasOwnProperty(i) && i !== '_eqHashCode' && i !== '_isList') {
-			if ( !(obj2.hasOwnProperty(i) && deepEqual(obj1[i], obj2[i])) )
-				return false;
-		}
-	}
-	for (var i in obj2) {
-		if ( obj2.hasOwnProperty(i) && i !== '_eqHashCode' && i !== '_isList') {
-			if ( !(obj1.hasOwnProperty(i) && deepEqual(obj1[i], obj2[i])) )
-				return false;
-		}
-	}
+    if (obj1 === obj2) {
 	return true;
+    }
+
+    var i;
+    if (obj1 instanceof Array) {
+        if (obj2 instanceof Array) {
+            for (i = 0; i < obj1.length; i++) {
+                if (! deepEqual(obj1[i], obj2[i])) { return false; }
+            }
+            return true;
+        } else {
+            return false;
+        }        
+    }
+
+    if (typeof(obj1) === 'string' || typeof(obj1) === 'number') {
+        return obj1 === obj2;
+    }
+
+    for (var i in obj1) {
+	if ( obj1.hasOwnProperty(i) && i !== '_eqHashCode' && i !== '_isList') {
+	    if ( !(obj2.hasOwnProperty(i) && deepEqual(obj1[i], obj2[i])) )
+		return false;
+	}
+    }
+    for (var i in obj2) {
+	if ( obj2.hasOwnProperty(i) && i !== '_eqHashCode' && i !== '_isList') {
+	    if ( !(obj1.hasOwnProperty(i) && deepEqual(obj1[i], obj2[i])) )
+		return false;
+	}
+    }
+    return true;
 }
 
 
 var assert = {};
 
 assert.equal = function(x, y) {
-	if (x !== y) {
-		throw new Error('AssertError: ' + x + ' equal ' + y);
-	}
+    if (x !== y) {
+	throw new Error('AssertError: ' + x + ' equal ' + y);
+    }
 }
 
 assert.deepEqual = function(x, y) {
 	if ( !deepEqual(x, y) ) {
-		throw new Error('AssertError: ' + x + ' deepEqual ' + y);
+	    throw new Error('AssertError: ' + x + ' deepEqual ' + y);
 	}
 }
 
@@ -897,7 +913,8 @@ var helpers = {};
 
 	var checkListOf = function(lst, f, functionName, typeName, position, args) {
 		if ( !isListOf(lst, f) ) {
-			helpers.throwCheckError([functionName,
+			helpers.throwCheckError(undefined,
+						[functionName,
 						 'list of ' + typeName,
 						 helpers.ordinalize(position),
 						 lst],
@@ -8948,7 +8965,7 @@ Message.prototype.toString = function() {
   var toReturn = [];
   var i;
   for(i = 0; i < this.args.length; i++) {
-      toReturn.push(''+args[i]);
+      toReturn.push(''+this.args[i]);
   }
   
   return toReturn.join("");
@@ -8982,8 +8999,8 @@ var isGradientPart = function(o) {
 GradientPart.prototype.toString = function() {
 	var i;
 	var resultArray = [];
-	for(i = 0; i < this.parts.length; i++){
-		resultArray.push(this.parts[i].text+'');
+	for(i = 0; i < this.coloredParts.length; i++){
+		resultArray.push(this.coloredParts[i].text+'');
 	}
 	return resultArray.join("");
 
@@ -13013,15 +13030,7 @@ var CasePrimitive = types.CasePrimitive;
 
 var id = function(x) { return x; };
 
-var sub1 = function(x) {
-	check(undefined, x, isNumber, 'sub1', 'number', 1, [x]);
-	return jsnums.subtract(x, 1);
-}
 
-var add1 = function(x) {
-	check(undefined, x, isNumber, 'add1', 'number', 1, [x]);
-	return jsnums.add(x, 1);
-}
 
 var callWithValues = function(f, vals) {
 	if (vals instanceof types.ValuesWrapper) {
@@ -13032,8 +13041,8 @@ var callWithValues = function(f, vals) {
 	}
 };
 
-var procedureArity = function(proc) {
-	check(undefined, proc, isFunction, 'procedure-arity', 'procedure', 1, [proc]);
+var procedureArity = function(aState, proc) {
+	check(aState, proc, isFunction, 'procedure-arity', 'procedure', 1, [proc]);
 			
 	var singleCaseArity = function(aCase) {
 		if (aCase instanceof types.ContinuationClosureValue) {
@@ -13104,31 +13113,7 @@ var normalizeArity = function(arity) {
 
 
 var procArityContains = helpers.procArityContains;
-//var procArityContains = function(n) {
-//	return function(proc) {
-//		if ( !isFunction(proc) ) {
-//			return false;
-//		}
-//
-//		var arity = procedureArity(proc);
-//		if ( !isList(arity) ) {
-//			arity = types.pair(arity, types.EMPTY);
-//		}
-//
-//		while ( !arity.isEmpty() ) {
-//			if ( isNumber(arity.first()) &&
-//			     n === arity.first() ) {
-//				return true;
-//			}
-//			else if ( types.isArityAtLeast(arity.first()) &&
-//				  types.arityValue( arity.first() ) <= n ) {
-//				return true;
-//			}
-//			arity = arity.rest();
-//		}
-//		return false;
-//	}
-//}
+
 
 var length = function(lst) {
 	checkList(lst, 'length', 1, [lst]);
@@ -13176,7 +13161,7 @@ var foldHelp = function(f, acc, args) {
 var quicksort = function(functionName) {
     return function(aState, initList, comp) {
 	checkList(initList, functionName, 1, arguments);
-	check(undefined, comp, procArityContains(2), functionName, 'procedure (arity 2)', 2, arguments);
+	check(aState, comp, procArityContains(2), functionName, 'procedure (arity 2)', 2, arguments);
 	
 	var quicksortHelp = function(aState, lst) {
 	    if ( lst.isEmpty() ) {
@@ -13305,8 +13290,8 @@ var onEvent = function(funName, inConfigName, numArgs) {
 
 var onEventBang = function(funName, inConfigName) {
     return function(aState, handler, effectHandler) {
-	check(undefined, handler, isFunction, funName, 'procedure', 1, arguments);
-	check(undefined, effectHandler, isFunction, funName, 'procedure', 2, arguments);
+	check(aState, handler, isFunction, funName, 'procedure', 1, arguments);
+	check(aState, effectHandler, isFunction, funName, 'procedure', 2, arguments);
 	return new (WorldConfigOption.extend({
 		    init: function() {
 			this._super(funName);
@@ -13402,9 +13387,9 @@ var getMakeStructTypeReturns = function(aStructType) {
 					 2,
 					 false,
 					 false,
-					 function(x, i) {
-						check(undefined, x, aStructType.predicate, name+'-ref', 'struct:'+name, 1, arguments);
-						check(undefined, i, isNatural, name+'-ref', 'non-negative exact integer', 2, arguments);
+					 function(aState, x, i) {
+						check(aState, x, aStructType.predicate, name+'-ref', 'struct:'+name, 1, arguments);
+						check(aState, i, isNatural, name+'-ref', 'non-negative exact integer', 2, arguments);
 
 						var numFields = aStructType.numberOfFields;
 						if ( jsnums.greaterThanOrEqual(i, numFields) ) {
@@ -13419,9 +13404,9 @@ var getMakeStructTypeReturns = function(aStructType) {
 					3,
 					false,
 					false,
-					function(x, i, v) {
-						check(undefined, x, aStructType.predicate, name+'-set!', 'struct:'+name, 1, arguments);
-						check(undefined, i, isNatural, name+'-set!', 'non-negative exact integer', 2, arguments);
+					function(aState, x, i, v) {
+						check(aState, x, aStructType.predicate, name+'-set!', 'struct:'+name, 1, arguments);
+						check(aState, i, isNatural, name+'-set!', 'non-negative exact integer', 2, arguments);
 
 						var numFields = aStructType.numberOfFields;
 						if ( jsnums.greaterThanOrEqual(i, numFields) ) {
@@ -13594,7 +13579,8 @@ var check = helpers.check;
 
 var checkList = function(x, functionName, position, args) {
 	if ( !isList(x) ) {
-		helpers.throwCheckError([functionName,
+		helpers.throwCheckError(undefined,
+					[functionName,
 					 'list',
 					 helpers.ordinalize(position),
 					 x],
@@ -13754,8 +13740,8 @@ var defaultPrint =
 		 1, 
 		 false, 
 		 false, 
-		 function(state, x) {
-		     state.getPrintHook()(types.toWrittenString(x));
+		 function(aState, x) {
+		     aState.getPrintHook()(types.toWrittenString(x));
 		     return types.VOID;
 		 });
 
@@ -13775,10 +13761,10 @@ PRIMITIVES['write'] =
 PRIMITIVES['display'] = 
 	new CasePrimitive('display',
 		      [new PrimProc('display', 1, false, false, function(aState, x) {
-			  state.getDisplayHook()(types.toDisplayedString(x));
+			  aState.getDisplayHook()(types.toDisplayedString(x));
 			  return types.VOID;
 	}),
-			  new PrimProc('display', 2, false, true, function(state, x, port) {
+			  new PrimProc('display', 2, false, true, function(aState, x, port) {
 	     // FIXME
 	     throw types.internalError("display to a port not implemented yet.", false);
 	 } )]);
@@ -13787,11 +13773,11 @@ PRIMITIVES['display'] =
 
 PRIMITIVES['newline'] = 
 	new CasePrimitive('newline',
-	[new PrimProc('newline', 0, false, true, function(state) {
-	    state.getDisplayHook()('\n');
-	    state.v = types.VOID;
+                          [new PrimProc('newline', 0, false, true, function(aState) {
+	    aState.getDisplayHook()('\n');
+	    aState.v = types.VOID;
 	}),
-	 new PrimProc('newline', 1, false, false, function(state, port) {
+	 new PrimProc('newline', 1, false, false, function(aState, port) {
 	     // FIXME
 	     throw types.internalError("newline to a port not implemented yet.", false);
 	 } )]);
@@ -14019,11 +14005,11 @@ PRIMITIVES['make-struct-field-accessor'] =
 	    2,
 	    [false],
 	    false,
-	    function(userArgs, accessor, fieldPos, fieldName) {
-	    	check(undefined, accessor, function(x) { return x instanceof StructAccessorProc && x.numParams > 1; },
+	    function(userArgs, aState, accessor, fieldPos, fieldName) {
+	    	check(aState, accessor, function(x) { return x instanceof StructAccessorProc && x.numParams > 1; },
 		      'make-struct-field-accessor', 'accessor procedure that requires a field index', 1, userArgs);
-		check(undefined, fieldPos, isNatural, 'make-struct-field-accessor', 'exact non-negative integer', 2, userArgs);
-		check(undefined, fieldName, function(x) { return x === false || isSymbol(x); },
+		check(aState, fieldPos, isNatural, 'make-struct-field-accessor', 'exact non-negative integer', 2, userArgs);
+		check(aState, fieldName, function(x) { return x === false || isSymbol(x); },
 		      'make-struct-field-accessor', 'symbol or #f', 3, userArgs);
 	    	var fixnumPos = jsnums.toFixnum(fieldPos);
 	    	var procName = accessor.typeName + '-'
@@ -14044,11 +14030,11 @@ PRIMITIVES['make-struct-field-mutator'] =
 	    2,
 	    [false],
 	    false,
-	    function(userArgs, mutator, fieldPos, fieldName) {
-	    	check(undefined, mutator, function(x) { return x instanceof StructMutatorProc && x.numParams > 1; },
+	    function(userArgs, aState, mutator, fieldPos, fieldName) {
+	    	check(aState, mutator, function(x) { return x instanceof StructMutatorProc && x.numParams > 1; },
 		      'make-struct-field-mutator', 'mutator procedure that requires a field index', 1, userArgs);
-		check(undefined, fieldPos, isNatural, 'make-struct-field-mutator', 'exact non-negative integer', 2, userArgs);
-		check(undefined, fieldName, function(x) { return x === false || isSymbol(x); },
+		check(aState, fieldPos, isNatural, 'make-struct-field-mutator', 'exact non-negative integer', 2, userArgs);
+		check(aState, fieldName, function(x) { return x === false || isSymbol(x); },
 		      'make-struct-field-mutator', 'symbol or #f', 3, userArgs);
 	    	var fixnumPos = jsnums.toFixnum(fieldPos);
 	    	var procName = mutator.typeName + '-'
@@ -14082,7 +14068,7 @@ PRIMITIVES['struct-mutator-procedure?'] =
 
 
 PRIMITIVES['procedure-arity'] = new PrimProc('procedure-arity', 1, false, false, 
-                                             function(aState, proc){ return procedureArity(proc); });
+                                             function(aState, proc){ return procedureArity(aState, proc); });
 
 
 PRIMITIVES['apply'] =
@@ -14204,7 +14190,7 @@ PRIMITIVES['random'] =
 		      function(aState) {return types['float'](Math.random());}),
 	 new PrimProc('random', 1, false, false,
 		      function(aState, n) {
-			  check(undefined, n, isNatural, 'random', 'non-negative exact integer', 1, arguments);
+			  check(aState, n, isNatural, 'random', 'non-negative exact integer', 1, arguments);
 			  return Math.floor(Math.random() * jsnums.toFixnum(n));
 		      }) ]);
 
@@ -14216,7 +14202,7 @@ PRIMITIVES['sleep'] =
 		      1,
 		      false, false,
 		      function(aState, secs) {
-			  check(undefined, secs, isNonNegativeReal, 'sleep', 'non-negative real number', 1);
+			  check(aState, secs, isNonNegativeReal, 'sleep', 'non-negative real number', 1);
 			  
 			  var millisecs = jsnums.toFixnum(jsnums.multiply(secs, 1000) );
 			  return PAUSE(function(restarter, caller) {
@@ -14446,13 +14432,20 @@ PRIMITIVES['sub1'] =
     new PrimProc("sub1",
 		 1,
 		 false, false,
-		 function(aState, v){ return sub1(v); });
+		 function(aState, v){ 
+	             check(aState, v, isNumber, 'sub1', 'number', 1, arguments);
+	             return jsnums.subtract(v, 1);
+                 });
+
 
 PRIMITIVES['add1'] =
     new PrimProc("add1",
 		 1,
 		 false, false,
-		 function(aState, v) { return add1(v); });
+		 function(aState, v) {
+	             check(aState, v, isNumber, 'add1', 'number', 1, arguments);
+	             return jsnums.add(v, 1);
+                 });
 
 
 PRIMITIVES['<'] = 
@@ -15562,7 +15555,7 @@ PRIMITIVES['map'] =
 		 function(aState, f, lst, arglists) {
 		 	var allArgs = [f, lst].concat(arglists);
 		 	arglists.unshift(lst);
-		 	check(undefined, f, isFunction, 'map', 'procedure', 1, allArgs);
+		 	check(aState, f, isFunction, 'map', 'procedure', 1, allArgs);
 		 	arrayEach(arglists, function(x, i) {checkList(x, 'map', i+2, allArgs);});
 			checkAllSameLength(arglists, 'map', allArgs);
 			
@@ -16529,10 +16522,10 @@ PRIMITIVES['format'] =
 
 PRIMITIVES['printf'] =
     new PrimProc('printf', 1, true, false,
-		 function(state, formatStr, args) {
+		 function(aState, formatStr, args) {
 		 	check(aState, formatStr, isString, 'printf', 'string', 1, [formatStr].concat(args));
 			var msg = helpers.format(formatStr, args, 'printf');
-			state.getDisplayHook()(msg);
+			aState.getDisplayHook()(msg);
 			return types.VOID;
 		 });
 
@@ -18033,7 +18026,7 @@ PRIMITIVES['underlay/align'] =
 new PrimProc('underlay/align',
 			 4,
 			 true, false,
-			 function(placeX, placeY, img1, img2, restImages) {
+	     function(aState, placeX, placeY, img1, img2, restImages) {
 			 check(aState, placeX, isPlaceX, "underlay/align", "x-place", 1, arguments);
 			 check(aState, placeY, isPlaceY, "underlay/align", "y-place", 2, arguments);
 			 check(aState, img1, isImage, "underlay/align", "image", 3, arguments);
@@ -18317,7 +18310,7 @@ PRIMITIVES['image-url'] =
 		 1,
 		 false, false,
 		 function(aState, path) {
-		     check(undefined, path, isString, "image-url", "string", 1);
+		     check(aState, path, isString, "image-url", "string", 1);
 		     var originalPath = path.toString();
 		     if (aState.getImageProxyHook()) {
 			 path = (aState.getImageProxyHook() +
@@ -18432,12 +18425,12 @@ PRIMITIVES['image->color-list'] =
 
 
 // Note: this has to be done asynchonously.
-var colorListToImage = function(listOfColors, width, height, pinholeX, pinholeY) {
+var colorListToImage = function(aState, listOfColors, width, height, pinholeX, pinholeY) {
     checkListOf(listOfColors, isColor, 'color-list->image', 'image', 1);
-    check(undefined, width, isNatural, 'color-list->image', 'natural', 2);
-    check(undefined, height, isNatural, 'color-list->image', 'natural', 3);
-    check(undefined, pinholeX, isNatural, 'color-list->image', 'natural', 4);
-    check(undefined, pinholeY, isNatural, 'color-list->image', 'natural', 5);
+    check(aState, width, isNatural, 'color-list->image', 'natural', 2);
+    check(aState, height, isNatural, 'color-list->image', 'natural', 3);
+    check(aState, pinholeX, isNatural, 'color-list->image', 'natural', 4);
+    check(aState, pinholeY, isNatural, 'color-list->image', 'natural', 5);
     var canvas = world.Kernel.makeCanvas(jsnums.toFixnum(width),
 					 jsnums.toFixnum(height)),
     ctx = canvas.getContext("2d"),
@@ -18481,7 +18474,7 @@ PRIMITIVES['color-list->image'] =
 		 5,
 		 false, false,
                  function(aState, colorList, width, height, x, y){
-                     return colorListToImage(colorList, width, height, x, y);
+                     return colorListToImage(aState, colorList, width, height, x, y);
                  });
 
 
@@ -18490,7 +18483,7 @@ PRIMITIVES['color-list->bitmap'] =
 		 3,
 		 false, false,
 		 function(aState, colorList, width, height) {
-                     return colorListToImage(colorList, width, height, 0, 0);
+                     return colorListToImage(aState, colorList, width, height, 0, 0);
                  });
 
 
@@ -19136,8 +19129,8 @@ PRIMITIVES['js-div'] =
 
 var jsButtonBang = function(funName) {
     return function(aState, worldUpdateF, effectF, attribList) {
-		check(undefined, worldUpdateF, isFunction, funName, 'procedure', 1);
-		check(undefined, effectF, isFunction, funName, 'procedure', 2);
+		check(aState, worldUpdateF, isFunction, funName, 'procedure', 1);
+		check(aState, effectF, isFunction, funName, 'procedure', 2);
 		checkListOf(attribList, isAssocList, funName, '(listof X Y)', 3);
 
 		var attribs = attribList ? assocListToHash(attribList) : {};
@@ -19287,10 +19280,10 @@ PRIMITIVES['js-big-bang'] =
     new PrimProc('js-big-bang',
 		 1,
 		 true, false,
-		 function(state, initW, handlers) {
+		 function(aState, initW, handlers) {
 		 	arrayEach(handlers,
 				function(x, i) {
-					check(undefined, x, function(y) { return isWorldConfigOption(y) || isList(y) || types.isWorldConfig(y); },
+					check(aState, x, function(y) { return isWorldConfigOption(y) || isList(y) || types.isWorldConfig(y); },
 					      'js-big-bang', 'handler or attribute list', i+2);
 				});
 		     var unwrappedConfigs = 
@@ -19308,13 +19301,13 @@ PRIMITIVES['js-big-bang'] =
 			 var onBreak = function() {
 			     bigBangController.breaker();
 			 }
-			 state.addBreakRequestedListener(onBreak);
+			 aState.addBreakRequestedListener(onBreak);
 			 bigBangController = jsworld.MobyJsworld.bigBang(initW, 
-						     state.getToplevelNodeHook()(),
+						     aState.getToplevelNodeHook()(),
 						     unwrappedConfigs,
 						     caller, 
 						     function(v) {
-							 state.removeBreakRequestedListener(onBreak);
+							 aState.removeBreakRequestedListener(onBreak);
 							 restarter(v);
 						     });
 		     })
