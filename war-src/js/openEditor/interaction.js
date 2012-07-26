@@ -668,7 +668,6 @@ WeSchemeInteractions = (function () {
     // Given an exception, produces error dom node to be displayed.
     WeSchemeInteractions.prototype.renderErrorAsDomNode = function(err) {
         var that = this;
-        console.log("err is ", err);
         var msg;
         var i;
         var dom = document.createElement('div');
@@ -705,7 +704,6 @@ WeSchemeInteractions = (function () {
 
         if(err.structuredError && err.structuredError.message) {
             var link = this.createLocationHyperlink(err.structuredError.location);
-            console.log("structured error is ", err.structuredError);
             dom.appendChild(link);
         }
 

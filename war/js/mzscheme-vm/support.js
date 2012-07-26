@@ -775,6 +775,7 @@ var helpers = {};
         
        		var locationList = positionStack[positionStack.length - 1];
 
+       		//locations -> array
 			var getArgColoredParts = function(locations) {
 				var coloredParts = [];
 				var locs = locations;
@@ -811,10 +812,8 @@ var helpers = {};
 				return locs.first();
 			}
 
-
-			if(args){
-				var argColoredParts = getArgColoredParts(locationList.rest());
-
+			var argColoredParts = getArgColoredParts(locationList.rest());
+			if(argColoredParts.length > 0){
 				raise( types.incompleteExn(types.exnFailContract,
 							   new types.Message([
 							   		new types.ColoredPart(details.functionName, locationList.first()),
@@ -13634,7 +13633,15 @@ PRIMITIVES['verify-boolean-branch-value'] =
 			     // FIXME: should throw structure
 			     // make-moby-error-type:branch-value-not-boolean
 			     // instead.
-			     throw new Error("the value " + sys.inspect(x) + " is not boolean type at " + aLoc);
+			     //throw new Error("the value " + sys.inspect(x) + " is not boolean type at " + aLoc);
+			     raise(types.incompleteExn(
+                                 types.exnFailContract,
+				 new types.Message(["the value ",
+						    new types.ColoredPart(types.toWrittenString(x),
+                                                                          aLoc),
+                                                    " is not a boolean value."
+						   ]),
+                                 []));
 			 }
 			 return x;
 		     })
@@ -20409,10 +20416,23 @@ var DefValuesInstallControl = function(ids) {
 
 DefValuesInstallControl.prototype.invoke = function(aState) {
     debug("DEF_VALUES");
+
+    var positionStack = state.captureCurrentContinuationMarks(aState).ref(types.symbol('moby-application-position-key'));   
+   
+    var locationList = positionStack[positionStack.length - 1];
+
     var bodyValue = aState.v;
+
+    var idLength = this.ids.length;
+
     if (bodyValue instanceof types.ValuesWrapper) {
 	if (this.ids.length !== bodyValue.elts.length) {
 	    helpers.raise(
+     //   types.incompleteExn(types.exnFailContract,
+        //    new types.Message([new types.ColoredPart("define-values", locationList.first()), 
+           //                     ": expected ", 
+                     //          [new types.MultiPart(idLength+'', 
+        //it is impossible to find the locationList
 		types.exnFailContractArity("define-values: expected " + this.ids.length 
 					   + " values, but received " + bodyValue.elts.length,
 					   state.captureCurrentContinuationMarks(aState)));
@@ -20801,7 +20821,7 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 							(procValue.numParams + " argument" + 
 							  ((procValue.numParams == 1) ? '' : 's')))
 					      ,
-  		         " given ",
+  		         ", given ",
 			n ,
 			": ", 
 			new types.GradientPart(argColoredParts)]),
