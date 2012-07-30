@@ -3,6 +3,7 @@
          scribble/xref
          racket/match
          racket/path
+         racket/promise
          racket/runtime-path
          (planet neil/html-parsing:1:2)
          "tree-cursor.rkt")
@@ -42,13 +43,13 @@
 
 
 
-(define XREF (load-collections-xref))
+(define XREF-promise (delay (load-collections-xref)))
 
 (define cache (make-weak-hash))
 
 
 (define (extract-doc-sexp/id id #:phase (phase #f)
-                                #:xref (xref XREF))
+                                #:xref (xref (force XREF-promise)))
   (define a-tag (xref-binding->definition-tag xref id phase))  
   (unless a-tag
     (error 'extract-docstring "Unable to locate documentation for ~s" id))
@@ -56,7 +57,7 @@
   (extract-doc-sexp/tag a-tag #:xref xref))
 
 
-(define (extract-doc-sexp/tag a-tag #:xref (xref XREF))  
+(define (extract-doc-sexp/tag a-tag #:xref (xref (force XREF-promise)))  
   (define-values (path anchor)
     (xref-tag->path+anchor xref a-tag))
 

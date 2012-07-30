@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><meta http-equiv="content-type" content="text-html; charset=utf-8" /><title>Beginning with WeScheme</title><link rel="stylesheet" type="text/css" href="scribble.css" title="default" /><link rel="stylesheet" type="text/css" href="fullpage.css" title="default" /><link rel="stylesheet" type="text/css" href="racket.css" title="default" /><link rel="stylesheet" type="text/css" href="scribble-style.css" title="default" /><script type="text/javascript" src="scribble-common.js"></script></head><body id="scribble-racket-lang-org"><div class="tocset"><div class="tocview"><div class="tocviewlist" style="margin-bottom: 1em;"><div class="tocviewtitle"><table cellspacing="0" cellpadding="0"><tr><td style="width: 1em;"><a href="javascript:void(0);" title="Expand/Collapse" class="tocviewtoggle" onclick="TocviewToggle(this,&quot;tocview_0&quot;);">&#9658;</a></td><td></td><td><a href="" class="tocviewselflink" pltdoc="x">Beginning with We<span class="mywbr"> </span>Scheme</a></td></tr></table></div><div class="tocviewsublistonly" style="display: none;" id="tocview_0"><table cellspacing="0" cellpadding="0"><tr><td align="right">1&nbsp;</td><td><a href="#(part._.Introduction)" class="tocviewlink" pltdoc="x">Introduction</a></td></tr><tr><td align="right">2&nbsp;</td><td><a href="#(part._.Playing_with_images)" class="tocviewlink" pltdoc="x">Playing with images</a></td></tr><tr><td align="right">3&nbsp;</td><td><a href="#(part._.Other_data_types)" class="tocviewlink" pltdoc="x">Other data types</a></td></tr></table></div></div></div><div class="tocsub"><table class="tocsublist" cellspacing="0"><tr><td><span class="tocsublinknumber">1<tt>&nbsp;</tt></span><a href="#(part._.Introduction)" class="tocsubseclink" pltdoc="x">Introduction</a></td></tr><tr><td><span class="tocsublinknumber">2<tt>&nbsp;</tt></span><a href="#(part._.Playing_with_images)" class="tocsubseclink" pltdoc="x">Playing with images</a></td></tr><tr><td><span class="tocsublinknumber">3<tt>&nbsp;</tt></span><a href="#(part._.Other_data_types)" class="tocsubseclink" pltdoc="x">Other data types</a></td></tr></table></div></div><div class="maincolumn"><div class="main"><h2><a name="(part._.Beginning_with_.We.Scheme)"></a>Beginning with WeScheme</h2><p>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script><noscript></noscript><script type="text/javascript" src="easyXDM.min.js"></script><noscript></noscript><script type="text/javascript" src="json2.min.js"></script><noscript></noscript><script type="text/javascript" src="wescheme-embedded.js"></script><noscript></noscript></p><h3>1<tt>&nbsp;</tt><a name="(part._.Introduction)"></a>Introduction</h3><p>In human languages, there&rsquo;s an idea that we can break down the things
+we say into categories, such as <span style="font-style: italic">nouns</span> like &ldquo;apple&rdquo; or
+&ldquo;car&rdquo;, and <span style="font-style: italic">verbs</span> like &ldquo;eat&rdquo; or &ldquo;drive&rdquo;.</p><p>When we&rsquo;re programming computers, we as programmers have analogous
+concepts.  The kinds of things that we deal with are <span style="font-style: italic">values</span>,
+like:</p><ul><li><p>numbers, like
+<span class="RktVal">42</span><div id="wescheme157" class="embedded-wescheme"></div><script type="text/javascript">
+document.getElementById("wescheme157").style.width="500px"; document.getElementById("wescheme157").style.height="50px";
+</script><noscript></noscript><script type="text/javascript">
+WeSchemeEmbedded.withRpc("http://www.wescheme.org/openEditor?interactionsText=42&embedded=true&warnOnExit=false&hideHeader=true&hideFooter=true&hideDefinitions=true&autorun=true", "wescheme157")
+</script><noscript></noscript>,
+<span class="RktVal">22/7</span><div id="wescheme158" class="embedded-wescheme"></div><script type="text/javascript">
+document.getElementById("wescheme158").style.width="500px"; document.getElementById("wescheme158").style.height="50px";
+</script><noscript></noscript><script type="text/javascript">
+WeSchemeEmbedded.withRpc("http://www.wescheme.org/openEditor?interactionsText=22%2F7&embedded=true&warnOnExit=false&hideHeader=true&hideFooter=true&hideDefinitions=true&autorun=true", "wescheme158")
+</script><noscript></noscript>, or
+<span class="RktVal">3259235679253689012346</span><div id="wescheme159" class="embedded-wescheme"></div><script type="text/javascript">
+document.getElementById("wescheme159").style.width="500px"; document.getElementById("wescheme159").style.height="50px";
+</script><noscript></noscript><script type="text/javascript">
+WeSchemeEmbedded.withRpc("http://www.wescheme.org/openEditor?interactionsText=3259235679253689012346&embedded=true&warnOnExit=false&hideHeader=true&hideFooter=true&hideDefinitions=true&autorun=true", "wescheme159")
+</script><noscript></noscript></p></li><li><p>strings, like
+<span class="RktVal">"hello world"</span><div id="wescheme160" class="embedded-wescheme"></div><script type="text/javascript">
+document.getElementById("wescheme160").style.width="500px"; document.getElementById("wescheme160").style.height="50px";
+</script><noscript></noscript><script type="text/javascript">
+WeSchemeEmbedded.withRpc("http://www.wescheme.org/openEditor?interactionsText=%22hello+world%22&embedded=true&warnOnExit=false&hideHeader=true&hideFooter=true&hideDefinitions=true&autorun=true", "wescheme160")
+</script><noscript></noscript>,
+<span class="RktVal">"solid"</span><div id="wescheme161" class="embedded-wescheme"></div><script type="text/javascript">
+document.getElementById("wescheme161").style.width="500px"; document.getElementById("wescheme161").style.height="50px";
+</script><noscript></noscript><script type="text/javascript">
+WeSchemeEmbedded.withRpc("http://www.wescheme.org/openEditor?interactionsText=%22solid%22&embedded=true&warnOnExit=false&hideHeader=true&hideFooter=true&hideDefinitions=true&autorun=true", "wescheme161")
+</script><noscript></noscript></p></li><li><p>pictures, like
+<span class="RktPn">(</span><span class="RktSym">rectangle</span><span class="stt"> </span><span class="RktVal">20</span><span class="stt"> </span><span class="RktVal">30</span><span class="stt"> </span><span class="RktVal">"solid"</span><span class="stt"> </span><span class="RktVal">"green"</span><span class="RktPn">)</span><div id="wescheme162" class="embedded-wescheme"></div><script type="text/javascript">
+document.getElementById("wescheme162").style.width="500px"; document.getElementById("wescheme162").style.height="50px";
+</script><noscript></noscript><script type="text/javascript">
+WeSchemeEmbedded.withRpc("http://www.wescheme.org/openEditor?interactionsText=%28rectangle+20+30+%22solid%22+%22green%22%29&embedded=true&warnOnExit=false&hideHeader=true&hideFooter=true&hideDefinitions=true&autorun=true", "wescheme162")
+</script><noscript></noscript>
+or
+<span class="RktPn">(</span><span class="RktSym">circle</span><span class="stt"> </span><span class="RktVal">20</span><span class="stt"> </span><span class="RktVal">"solid"</span><span class="stt"> </span><span class="RktVal">"blue"</span><span class="RktPn">)</span><div id="wescheme163" class="embedded-wescheme"></div><script type="text/javascript">
+document.getElementById("wescheme163").style.width="500px"; document.getElementById("wescheme163").style.height="50px";
+</script><noscript></noscript><script type="text/javascript">
+WeSchemeEmbedded.withRpc("http://www.wescheme.org/openEditor?interactionsText=%28circle+20+%22solid%22+%22blue%22%29&embedded=true&warnOnExit=false&hideHeader=true&hideFooter=true&hideDefinitions=true&autorun=true", "wescheme163")
+</script><noscript></noscript></p></li></ul><p>Once we have a few values in hand, we may want to manipulate them.  To
+do this, we have <span style="font-style: italic">operators</span> that can create new values out of
+other ones.  For example, to <span style="font-style: italic">overlay</span> one picture atop another,</p><h3>2<tt>&nbsp;</tt><a name="(part._.Playing_with_images)"></a>Playing with images</h3><h3>3<tt>&nbsp;</tt><a name="(part._.Other_data_types)"></a>Other data types</h3></div></div><div id="contextindicator">&nbsp;</div></body></html>
