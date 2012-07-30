@@ -775,6 +775,8 @@ var helpers = {};
         
        		var locationList = positionStack[positionStack.length - 1];
 
+       		console.log("locationList is ", locationList);
+
        		//locations -> array
 			var getArgColoredParts = function(locations) {
 				var coloredParts = [];
@@ -786,7 +788,7 @@ var helpers = {};
 				//and when there's a state, it's apparently not an array, so .slice(1) doesn't work
 				if(state.isState(args[0])){
 					for(i = 1; i < args.length; i++){
-						if(! (locs.isEmpty)){
+						if(! (locs.isEmpty())){
 							if(i != pos) {
 								coloredParts.push(new types.ColoredPart(types.toWrittenString(args[i])+" ", locs.first()));
 							}
@@ -796,7 +798,7 @@ var helpers = {};
 				}
 				else {
 					for(i = 0; i < args.length; i++){
-						if(! (locs.isEmpty)){
+						if(! (locs.isEmpty())){
 							if(i != (pos -1)) {
 								coloredParts.push(new types.ColoredPart(types.toWrittenString(args[i])+" ", locs.first()));
 							}
@@ -851,7 +853,6 @@ var helpers = {};
 	};
 
 	var throwCheckError = function(aState, details, pos, args) {
-		console.log("throwCheckError started, aState is ",aState);
 		
 		if(aState instanceof state.State){
 			//if it's defined and a State, can inspect position stack
@@ -859,15 +860,14 @@ var helpers = {};
 			state.captureCurrentContinuationMarks(aState).ref(
 	    		types.symbol('moby-application-position-key'));
 
-			console.log("moving along");
 			//if the positionStack at the correct position is defined, we can throw a colored error
 			if (positionStack[positionStack.length - 1] !== undefined) {
-				console.log("colored error");
+				//console.log("colored error");
 				throwColoredCheckError(aState,details, pos, args);
 			}
 		}
 		//otherwise, throw an uncolored error
-		console.log("uncolored error");
+		//console.log("uncolored error");
 		throwUncoloredCheckError(aState, details, pos, args);
 	};
 
@@ -884,8 +884,6 @@ var helpers = {};
 	};
 
 	var checkVarArity = function(aState, x, f, functionName, typeName, position, args) {
-		//window.huh = args;
-
 		//check to ensure last thing is an array
 		if(args.length > 0 && (args[args.length - 1] instanceof Array)) {
 			var flattenedArgs = [];
@@ -13628,8 +13626,6 @@ var checkVarArity = helpers.checkVarArity;
 
 var checkList = function(aState, x, functionName, position, args) {
 	if ( !isList(x) ) {
-		console.log("not a list, calling throwCheckError");
-
 		helpers.throwCheckError(aState,
 					{ functionName: functionName,
 					  typeName: 'list',
@@ -15610,21 +15606,16 @@ PRIMITIVES['map'] =
 		 2,
 		 true, false,
 		 function(aState, f, lst, arglists) {
-		 	console.log("map started");
 		 	var allArgs = [f, lst].concat(arglists);
 		 	arglists.unshift(lst);
 		 	check(aState, f, isFunction, 'map', 'procedure', 1, allArgs);
 		 	arrayEach(arglists, function(x, i) {checkList(aState, x, 'map', i+2, allArgs);});
 			checkAllSameLength(aState, arglists, 'map', allArgs);
 
-			console.log("map passes all tests");
-
 			var mapHelp = function(f, args, acc) {
-				console.log("mapHelp called on f:", f, " args:", args," acc:",acc);
 				if (args[0].isEmpty()) {
 				    return acc.reverse();
 				}
-				console.log("gets past first check");
 				
 				var argsFirst = [];
 				var argsRest = [];
@@ -15632,7 +15623,6 @@ PRIMITIVES['map'] =
 					argsFirst.push(args[i].first());
 					argsRest.push(args[i].rest());
 				}
-				console.log("gets past argsFirst/rest business");
 				var result = CALL(f, argsFirst,
 					function(result) {
 						return mapHelp(f, argsRest, types.cons(result, acc));
@@ -20905,13 +20895,12 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 	    
 	   
 	    var locationList = positionStack[positionStack.length - 1];
-        console.log("locationList is ",locationList);
 	    var argColoredParts = getArgColoredParts(locationList.rest());
-	   
-	    
+
+
 	    helpers.raise(types.incompleteExn(
 		types.exnFailContractArityWithPosition,
-		new types.Message([new types.ColoredPart((''+(procValue.name !== types.EMPTY ? procValue.name : "#<procedure>")), locationList.first()),
+		new types.Message([new types.ColoredPart((''+(procValue.name !== types.EMPTY ? procValue.name : "anonymous function")), locationList.first()),
 			": expects ", 
 			''+(procValue.isRest ? 'at least ' : ''),
 			((procValue.locs != undefined) ? new types.MultiPart((procValue.numParams + " argument" + 

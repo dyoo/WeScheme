@@ -402,6 +402,9 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.setMoveCursor = function(moveCursor) {
         this.moveCursor = moveCursor;
     };
+    WeSchemeInteractions.prototype.setFocus = function(focus) {
+        this.focus = focus;
+    };
 
     WeSchemeInteractions.prototype.addOnReset = function(onReset) {
         this.resetters.push(onReset);
@@ -587,8 +590,11 @@ WeSchemeInteractions = (function () {
 
     //
     var makeCursorLink = function(that, currItem) {
-        return function() {
-            that.moveCursor(parseInt(currItem.ref(1)));  //in correct form????
+        return function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            that.moveCursor(currItem.ref(0), parseInt(currItem.ref(1)));  //in correct form????
+            that.focus(currItem.ref(0));
         }
     };
 
@@ -661,11 +667,9 @@ WeSchemeInteractions = (function () {
         }
         else {
             var aChunk = jQuery("<span/>").css("background-color", color+'');
-            var aLink = document.createElement("a");
-            var text = document.createTextNode(text+'');
-            aLink['href'] = "#";
-            aLink['onclick'] = makeCursorLink(that, locs[0]);
-            jQuery(aLink).append(text);
+            var aLink = jQuery("<a/>").text(text+'')
+                                      .attr("href", "#")
+                                      .click(makeCursorLink(that, locs[0]));
             jQuery(aChunk).append(aLink);
             jQuery(msgDom).append(aChunk);
         }

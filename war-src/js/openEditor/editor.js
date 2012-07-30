@@ -71,7 +71,8 @@ var WeSchemeEditor;
 		});
 
 		that.interactions.addOnReset(function() {that.defn.unhighlightAll()});
-		that.interactions.setMoveCursor(function(offset){that.defn.moveCursor(offset)});
+		that.interactions.setMoveCursor(function(id, offset){that.moveCursor(id, offset)});
+		that.interactions.setFocus(function(id){that.focus(id)});
 
 		// pid: (or false number)
 		that.pid = false;
@@ -234,6 +235,23 @@ var WeSchemeEditor;
 	    }
       }
 	  this.defn.unhighlightAll();
+    };
+
+    WeSchemeEditor.prototype.moveCursor = function(id, offset) {
+    	//console.log("id: ", id, " offset: ",offset);
+    	if (id === '<definitions>') {
+		    this.defn.moveCursor(offset);
+		} else if (this.interactions.previousInteractionsTextContainers[id]) {
+		    this.interactions.previousInteractionsTextContainers[id].moveCursor(offset);
+		}
+    };
+
+    WeSchemeEditor.prototype.focus = function(id) {
+		if (id === '<definitions>') {
+		    this.defn.focus();
+		} else if (this.interactions.previousInteractionsTextContainers[id]) {
+		    this.interactions.previousInteractionsTextContainers[id].focus();
+		}
     };
 
     // WeSchemeEditor._getIsLoggedIn: -> boolean
