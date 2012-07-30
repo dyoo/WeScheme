@@ -216,7 +216,10 @@ var WeSchemeEditor;
     }
 
     WeSchemeEditor.prototype.highlight = function(id, offset, line, column, span, color) {
-		if (id === '<definitions>') {
+    	if(id === '<no-location>'){ 
+    		//do nothing
+    	}
+		else if (id === '<definitions>') {
 		    this.defn.highlight(id, offset, line, column, span, color);
 		} else if (this.interactions.previousInteractionsTextContainers[id]) {
 		    this.interactions.previousInteractionsTextContainers[id].highlight(id, offset, line, column, span, color);

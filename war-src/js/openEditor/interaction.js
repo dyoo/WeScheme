@@ -598,6 +598,8 @@ WeSchemeInteractions = (function () {
     // these colors mess up testing but should be used at launch    var colors = [new Color(240,181,194), new Color(161,200,224), new Color(146,200,142), 
         var colors = [new Color(238, 169, 184), new Color(145, 191, 219), new Color(127, 191, 123),
                   new Color(175,141,195), new Color(186,186,186)];
+
+        //to turn off highlighting, have the only color be white
       //  var colors = [new Color (255, 255, 255)];
         var colorIndex = 0;
         var currItem;
@@ -646,21 +648,27 @@ WeSchemeInteractions = (function () {
         }    
     };
 
-    //Color, string, nonempty array[loc]
+    //that, dom, Color, string, nonempty array[loc]
     //does the coloring and makes a link to the location in the definitions
     var colorAndLink = function(that, msgDom, color, text, locs) {
         var i;
         for(i = 0; i < locs.length; i++){
             that.addToCurrentHighlighter(locs[i].ref(0), locs[i].ref(1), locs[i].ref(2), locs[i].ref(3), locs[i].ref(4), color+'');
         }
-        var aChunk = jQuery("<span/>").css("background-color", color+'');
-        var aLink = document.createElement("a");
-        var text = document.createTextNode(text+'');
-        aLink['href'] = "#";
-        aLink['onclick'] = makeCursorLink(that, locs[0]);
-        jQuery(aLink).append(text);
-        jQuery(aChunk).append(aLink);
-        jQuery(msgDom).append(aChunk);
+        if(locs[0].ref(0) === "<no-location>"){
+            var aChunk = jQuery("<span/>").text(text);
+            jQuery(msgDom).append(aChunk);
+        }
+        else {
+            var aChunk = jQuery("<span/>").css("background-color", color+'');
+            var aLink = document.createElement("a");
+            var text = document.createTextNode(text+'');
+            aLink['href'] = "#";
+            aLink['onclick'] = makeCursorLink(that, locs[0]);
+            jQuery(aLink).append(text);
+            jQuery(aChunk).append(aLink);
+            jQuery(msgDom).append(aChunk);
+        }
     }
 
 
