@@ -31,7 +31,7 @@
 <p/>
 The source to WeScheme itself is <a href="https://github.com/dyoo/WeScheme">available for download</a>, under the <a href="http://www.gnu.org/copyleft/">GNU LGPL</a> license.
 <p/>
-For more information about WeScheme, you can <a href="http://www.vidiowiki.com/watch/cydr9yk/#">watch the video</a> or <a href="http://www.cs.brown.edu/~sk/Publications/Papers/Published/yskf-wescheme/paper.pdf">read the paper</a>.
+For more information about WeScheme, you can <a href="http://www.vidiowiki.com/watch/cydr9yk/#">watch the video</a> or <a href="http://www.cs.brown.edu/~sk/Publications/Papers/Published/yskf-wescheme/">read the paper</a>.
 </div>
 
 
