@@ -337,11 +337,11 @@
 	</div>
 
 
- <div id="documentation" class="documentation">
-		<!-- <input id="docButton" type="button" value="Click me to hide documentation"/> -->
-		<input id="resetButton" type="image" src="../images/home.png"/>
-        <iframe id="docFrame" src="/doc/wescheme.html" style="width:97%; height:95%"></iframe>
-    </div> 
+        <div id="documentation" class="documentation">
+	  <!-- <input id="docButton" type="button" value="Click me to hide documentation"/> -->
+	  <input id="resetButton" type="image" src="../images/home.png"/>
+          <iframe id="docFrame" style="width:97%; height:95%"></iframe>
+        </div> 
 
 
 

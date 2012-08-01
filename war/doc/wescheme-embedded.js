@@ -4,7 +4,7 @@ var WeSchemeEmbedded = (function() {
         this.rpc =
              new easyXDM.Rpc({ remote: url,
                                container: containerName,
-                               props: {style: {width: "100%", height: "100%"}},
+                               props: {style: {width: "100%", height: "100%"}}
                              },
                              {remote : { run : {},
                                          requestBreak : {},
