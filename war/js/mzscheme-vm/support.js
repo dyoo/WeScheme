@@ -756,7 +756,7 @@ var helpers = {};
 				}
 				errorFormatStr = errorFormatStrBuffer.join(' ');
 
-				console.log("errorFormatStr is ", errorFormatStr);
+				//console.log("errorFormatStr is ", errorFormatStr);
 
 				raise( types.incompleteExn(types.exnFailContract,
 						   helpers.format(errorFormatStr, [details.functionName, details.typeName, details.ordinalPosition, details.actualValue]),
@@ -845,7 +845,7 @@ var helpers = {};
 
 			if(args) { 
 				var argColoredParts = getArgColoredParts(locationList.rest()); 
-				console.log("args, argColoredParts is ", argColoredParts);
+				//console.log("args, argColoredParts is ", argColoredParts);
 
 				if(argColoredParts.length > 0){
 				raise( types.incompleteExn(types.exnFailContract,
@@ -13452,8 +13452,14 @@ var getMakeStructTypeReturns = function(aStructType) {
 					    aStructType.numberOfArgs,
 					    false,
 					    false,
-					    aStructType.constructor)),
-		 (new StructPredicateProc(name, name+'?', 1, false, false, aStructType.predicate)),
+					    function(aState) { 
+                                                return aStructType.constructor.apply(
+                                                    null, [].slice.call(arguments, 1));
+                                            })),
+		 (new StructPredicateProc(name, name+'?', 1, false, false,
+                                          function(aState, x) { 
+                                              return aStructType.predicate(x);
+                                          })),
 		 (new StructAccessorProc(name,
 					 name+'-ref',
 					 2,
@@ -14098,8 +14104,8 @@ PRIMITIVES['make-struct-field-accessor'] =
 			+ (fieldName ? fieldName.toString() : 'field' + fixnumPos);
 
 		return new StructAccessorProc(accessor.typeName, procName, 1, false, false,
-					      function(x) {
-						  return accessor.impl(x, fixnumPos);
+					      function(aState, x) {
+						  return accessor.impl(aState, x, fixnumPos);
 					      });
 	    });
 
@@ -14124,7 +14130,7 @@ PRIMITIVES['make-struct-field-mutator'] =
 
 		return new StructMutatorProc(mutator.typeName, procName, 2, false, false,
 					     function(x, v) {
-						 return mutator.impl(x, fixnumPos, v);
+						 return mutator.impl(aState, x, fixnumPos, v);
 					     });
 	    });
 
@@ -17653,8 +17659,8 @@ PRIMITIVES['place-image/align'] =
 		     false, false,
 		     function(aState, img, x, y, placeX, placeY, background) {
 			 check(aState, img,		isImage,	"place-image/align", "image",	1, arguments);
-			 check(aState, x,		isReal,		"place-image/align", "real",	2, arguments);
-			 check(aState, y,		isReal,		"place-image/align", "real",	3, arguments);
+			 check(aState, x,		isReal,		"place-image/align", "real number",	2, arguments);
+			 check(aState, y,		isReal,		"place-image/align", "real number",	3, arguments);
 			 check(aState, placeX,	isPlaceX,	"place-image/align", "x-place", 4, arguments);
 			 check(aState, placeY,	isPlaceY,	"place-image/align", "y-place", 5, arguments);
 			 check(aState, background, function(x) { return isScene(x) || isImage(x) },

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><title>Testing easyxdm access</title>
+</head>
+<body>
+</body>
+<script src="easyXDM.js"></script>
+<script>
+var xhr = new easyXDM.Rpc(
+    { protocol: "1", remote: "/index.html" }, 
+    { remote: { compileProgram: {} }});
+
+// xhr.compileProgram("interactions", "(string-append \"hello\" \"world\")", function(bytecode) { console.log(bytecode); }, function(error) { console.log(error); });
+                                     
+</script>
+
+</html>
