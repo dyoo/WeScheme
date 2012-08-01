@@ -80,10 +80,19 @@ var WeSchemeTextContainer;
 		return this.impl.setCode(normalizeString(code));
 	};
 
-	WeSchemeTextContainer.prototype.highlight = function(id, offset, line, column, span) {
-		return this.impl.highlight(id, offset, line, column, span);
+	WeSchemeTextContainer.prototype.highlight = function(id, offset, line, column, span, color) {
+		return this.impl.highlight(id, offset, line, column, span, color);
 	};
-
+	WeSchemeTextContainer.prototype.unhighlightAll = function () {
+		return this.impl.unhighlightAll();
+	};
+	WeSchemeTextContainer.prototype.moveCursor = function(offset) {
+		return this.impl.moveCursor(offset);
+	};
+	WeSchemeTextContainer.prototype.setSelection = function(id, offset, line, column, span) {
+		return this.impl.setSelection(id, offset, line, column, span);
+	};
+	
 	WeSchemeTextContainer.prototype.focus = function() {
 		this.impl.focus();
 	};
@@ -100,6 +109,12 @@ var WeSchemeTextContainer;
 		this.impl.setCursorToEnd();
 	};
 
+
+
+	WeSchemeTextContainer.prototype.getCSS = function(pos){
+		return this.impl.getCSS(pos);
+	}
+
 	//////////////////////////////////////////////////////////////////////
 
 	var CodeMirrorImplementation = function(parent, options, onSuccess) {
@@ -114,6 +129,9 @@ var WeSchemeTextContainer;
 		this.behaviorE = receiverE();
 		this.behavior = startsWith(this.behaviorE, "");
 
+		this.highlightedAreas = [];		
+				
+		
 		var km = {};
 		jQuery.extend(km,options.extraKeys);
 		km["Tab"] = "indentAuto";
@@ -203,16 +221,69 @@ var WeSchemeTextContainer;
 			ch: handle.column
 		}
 	}
+	//takes in location info, returns css
+	CodeMirrorImplementation.prototype.getCSS = function(pos) {
+		//return this.editor.getTokenAt(pos);
+		return this.editor.findMarksAt(pos);
+		//return this.editor.historySize();
+	};
 
-	CodeMirrorImplementation.prototype.highlight = function(id, offset, line, column, span) {
+	//name for the current highlight's css
+    var currentHighlightNumber = 0;
+
+	CodeMirrorImplementation.prototype.highlight = function(id, offset, line, column, span, color) {
 		offset--;
 		// For some reason, we're getting the offset from the highlighter
 		// as 1-offset, rather than 0-offset.
-		var startHandleAndColumn = this.findHandleAndColumn(offset);
-		var endHandleAndColumn = this.findHandleAndColumn(offset+span);
-		this.editor.setSelection(
-				this.handleAndColumnToPos(startHandleAndColumn),
-				this.handleAndColumnToPos(endHandleAndColumn))
+		var startHandleAndColumn = this.findHandleAndColumn(parseInt(offset));
+		var endHandleAndColumn = this.findHandleAndColumn(parseInt(offset)+parseInt(span));
+		
+		var stylesheet = document.styleSheets[0]; //this is default.css
+		var name = "highlight" + (currentHighlightNumber+'x');//to prevent overwriting with prefixes
+
+		currentHighlightNumber++;
+
+		stylesheet.insertRule("." + name + " { background-color: " + color + ";}", 0);
+		
+ 		this.highlightedAreas.push(
+			this.editor.markText(this.handleAndColumnToPos(startHandleAndColumn), 
+					this.handleAndColumnToPos(endHandleAndColumn), 
+					name));
+ 		
+ 		this.moveCursor(offset, span);
+	};
+	
+	CodeMirrorImplementation.prototype.moveCursor = function(offset) {
+		var moveTo = this.findHandleAndColumn(offset);
+		var li = moveTo.handle;
+		var col = moveTo.column - 1; //off-by-one otherwise
+		var currLine = this.editor.getCursor(false).line;
+		
+ 		if(li != currLine) this.editor.setCursor({line: li, ch: col});
+ 		//if the line doesn't change, refocus doesn't happen, 
+ 		//so if they're the same change it twice
+ 		else {
+ 			this.editor.setCursor({line: li + 1, ch: col});
+ 			this.editor.setCursor({line: li, ch: col});
+ 		}
+	};
+
+	CodeMirrorImplementation.prototype.setSelection = function(id, offset, line, column, span) {
+		offset--;
+		// For some reason, we're getting the offset from the highlighter
+		// as 1-offset, rather than 0-offset.
+		var startHandleAndColumn = this.findHandleAndColumn(parseInt(offset));
+		var endHandleAndColumn = this.findHandleAndColumn(parseInt(offset)+parseInt(span));
+
+		this.editor.setSelection({line: startHandleAndColumn.handle, ch: startHandleAndColumn.column}, 
+								{line: endHandleAndColumn.handle, ch: endHandleAndColumn.column});
+	};
+
+	CodeMirrorImplementation.prototype.unhighlightAll = function () {
+		for(var i = 0; i < this.highlightedAreas.length; i++) {
+		    this.highlightedAreas[i].clear();
+		}
+		this.highlightedAreas = []; 
 	};
 
 
@@ -235,7 +306,7 @@ var WeSchemeTextContainer;
 
 
 	CodeMirrorImplementation.prototype.getOffsetFromHandleAndColumn = function(handle, column) {
-		var startHandle = 0
+		var startHandle = 0;
 		var offset = 0;
 		while (startHandle !== handle) {
 			offset += this.editor.getLine(startHandle).length + 1;

@@ -3,8 +3,8 @@
 //
 // Evaluator(options)
 //     options: { write: dom -> void,
-//                compilationServletUrl: string,
-//                scriptCompilationServletUrl: string}
+//                compilationServletUrl: string }
+
 //
 // Constructs a new evaluator.
 // 
@@ -58,12 +58,6 @@ var Evaluator = (function() {
 	    this.compilationServletUrl = options.compilationServletUrl;
 	} else {
 	    this.compilationServletUrl = DEFAULT_COMPILATION_SERVLET_URL;
-	}
-
-	if (options.scriptCompilationServletUrl) {
-	    this.scriptCompilationServletUrl = options.scriptCompilationServletUrl;
-	} else {
-	    this.scriptCompilationServletUrl = DEFAULT_COMPILATION_SERVLET_URL;
 	}
 
 	if (options.transformDom) {
@@ -180,20 +174,11 @@ var Evaluator = (function() {
 		// ignore for now
 	    }
 	}
+        newDom.appendChild(document.createElement("br"));
 	newDom.appendChild(document.createTextNode('at line: ' + line + ', column: ' + column + ', in ' + id));
 	return newDom;
     };
 
-
-
-
-    var encodeScriptParameters = function(programName, code) {
-	return encodeUrlParameters({ 'name': programName,
-				     'program': code,
-				     'compiler-version' : '1',
-				     'callback': 'Evaluator.compilation_success_callback__',
-				     'on-error': 'Evaluator.compilation_failure_callback__'});
-    };
 
 
     // executeProgram: string string (-> void) (exn -> void) -> void
@@ -207,7 +192,7 @@ var Evaluator = (function() {
 					                   onDone, onDoneError);
                             },
                             function(responseErrorText) {
-		                that._onCompilationFailure(JSON.parse(responseErrorText),
+		                that._onCompilationFailure(JSON.parse(responseErrorText || '""'),
 					                   onDoneError);
                             })
     };
@@ -244,11 +229,6 @@ var Evaluator = (function() {
 	xhr.send(params);
     };
 
-
-
-
-
-    
 
     Evaluator.prototype.executeCompiledProgram = function(compiledBytecode,
 							  onDoneSuccess, onDoneFail) {
@@ -393,15 +373,17 @@ var Evaluator = (function() {
 	    return new Error(errorValue.message);
 	} else if (errorValue.type && errorValue.type === 'moby-failure') {
 	    var domMessage = this._convertDomSexpr(errorValue['dom-message']);
-	    return new ErrorWithDomMessage(domMessage);
+            var structuredError = errorValue['structured-error'];
+	    return new ErrorWithDomMessage(domMessage, structuredError);
 	}
 	return new Error(errorValue + '');
     };
 
 
-    var ErrorWithDomMessage = function(domMessage) {
+    var ErrorWithDomMessage = function(domMessage, structuredError) {
 	this.message = domMessage.textContent || domMessage.innerText;
 	this.domMessage = domMessage;
+	this.structuredError = JSON.parse(structuredError);
     };
 
 

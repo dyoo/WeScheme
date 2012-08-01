@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+  <title>Test Suite</title>
+</head>
+<body>
+<table id="suiteTable" cellpadding="1" cellspacing="1" border="1" class="selenium"><tbody>
+<tr><td><b>Test Suite</b></td></tr>
+<tr><td><a href="def1">def1</a></td></tr>
+<tr><td><a href="def2">def2</a></td></tr>
+<tr><td><a href="def3">def3</a></td></tr>
+<tr><td><a href="def4">def4</a></td></tr>
+<tr><td><a href="def5">def5</a></td></tr>
+<tr><td><a href="def6">def6</a></td></tr>
+<tr><td><a href="def7">def7</a></td></tr>
+<tr><td><a href="def8">def8</a></td></tr>
+<tr><td><a href="def9">def9</a></td></tr>
+<tr><td><a href="def10">def10</a></td></tr>
+<tr><td><a href="def11">def11</a></td></tr>
+<tr><td><a href="def12">def12</a></td></tr>
+<tr><td><a href="def13">def13</a></td></tr>
+<tr><td><a href="def14">def14</a></td></tr>
+<tr><td><a href="defvar1">defvar1</a></td></tr>
+<tr><td><a href="defvar2">defvar2</a></td></tr>
+<tr><td><a href="defvar3">defvar3</a></td></tr>
+<tr><td><a href="defvar4">defvar4</a></td></tr>
+<tr><td><a href="defvar5">defvar5</a></td></tr>
+<tr><td><a href="defstruct1">defstruct1</a></td></tr>
+<tr><td><a href="defstruct2">defstruct2</a></td></tr>
+<tr><td><a href="defstruct3">defstruct3</a></td></tr>
+<tr><td><a href="defstruct4">defstruct4</a></td></tr>
+<tr><td><a href="defstruct5">defstruct5</a></td></tr>
+<tr><td><a href="defstruct6">defstruct6</a></td></tr>
+<tr><td><a href="defstruct7">defstruct7</a></td></tr>
+<tr><td><a href="defstruct8">defstruct8</a></td></tr>
+</tbody></table>
+</body>
+</html>

@@ -50,61 +50,72 @@ var debugF = function(f_s) {
 
 
 var deepEqual = function (obj1, obj2) {
-	if (obj1 === obj2) {
-		return true;
-	}
-
-	for (var i in obj1) {
-		if ( obj1.hasOwnProperty(i) ) {
-			if ( !(obj2.hasOwnProperty(i) && deepEqual(obj1[i], obj2[i])) )
-				return false;
-		}
-	}
-	for (var i in obj2) {
-		if ( obj2.hasOwnProperty(i) ) {
-			if ( !(obj1.hasOwnProperty(i) && deepEqual(obj1[i], obj2[i])) )
-				return false;
-		}
-	}
+    if (obj1 === obj2) {
 	return true;
+    }
+
+    var i;
+    if (obj1 instanceof Array) {
+        if (obj2 instanceof Array) {
+            for (i = 0; i < obj1.length; i++) {
+                if (! deepEqual(obj1[i], obj2[i])) { return false; }
+            }
+            return true;
+        } else {
+            return false;
+        }        
+    }
+
+    if (typeof(obj1) === 'string' || typeof(obj1) === 'number') {
+        return obj1 === obj2;
+    }
+
+    for (var i in obj1) {
+	if ( obj1.hasOwnProperty(i) && i !== '_eqHashCode' && i !== '_isList') {
+	    if ( !(obj2.hasOwnProperty(i) && deepEqual(obj1[i], obj2[i])) )
+		return false;
+	}
+    }
+    for (var i in obj2) {
+	if ( obj2.hasOwnProperty(i) && i !== '_eqHashCode' && i !== '_isList') {
+	    if ( !(obj1.hasOwnProperty(i) && deepEqual(obj1[i], obj2[i])) )
+		return false;
+	}
+    }
+    return true;
 }
 
 
 var assert = {};
 
 assert.equal = function(x, y) {
-	if (x !== y) {
-		alert('AssertError: ' + x + ' equal ' + y);
-		throw new Error('AssertError: ' + x + ' equal ' + y);
-	}
+    if (x !== y) {
+	throw new Error('AssertError: ' + x + ' equal ' + y);
+    }
 }
 
 assert.deepEqual = function(x, y) {
 	if ( !deepEqual(x, y) ) {
-		alert('AssertError: ' + x + ' deepEqual ' + y);
-		throw new Error('AssertError: ' + x + ' deepEqual ' + y);
+	    throw new Error('AssertError: ' + x + ' deepEqual ' + y);
 	}
 }
 
 
 assert.ok = function(x) {
 	if (!x) {
-		alert('AssertError: not ok: ' + x);
 		throw new Error('AssertError: not ok: ' + x );
 	}
 }
 
 
-// assert.throws = function(f) {
-// 	try {
-// 		f.apply(null, []);
-// 	} catch (e) {
-// 		return;
-// 	}
-// 	throw new Error('AssertError: Throw expected, none received.');
-// }
-
-
+assert.throwsExn = function(f) {
+	try {
+		f.apply(null, []);
+	} catch (e) {
+		return;
+	}
+	throw new Error('AssertError: Throw expected, none received.');
+}
 /*
     http://www.JSON.org/json2.js
     2010-03-20
@@ -675,7 +686,7 @@ var helpers = {};
 			reporter(e);
 		} else if ( types.isSchemeError(e) ) {
 			if ( types.isExn(e.val) ) {
-				reporter( types.exnMessage(e.val) );
+				reporter( ''+types.exnMessage(e.val) );
 			}
 			else {
 				reporter(e.val);
@@ -734,49 +745,189 @@ var helpers = {};
 		}
 	};
 
-	var throwCheckError = function(details, pos, args) {
-		var errorFormatStr;
-		if (args && args.length > 1) {
-			var errorFormatStrBuffer = ['~a: expects type <~a> as ~a arguments, given: ~s; other arguments were:'];
-			for (var i = 0; i < args.length; i++) {
-				if ( i != pos-1 ) {
-					errorFormatStrBuffer.push( types.toWrittenString(args[i]) );
+	var throwUncoloredCheckError = function(aState, details, pos, args){
+			var errorFormatStr;
+			if (args && args.length > 1) {
+				var errorFormatStrBuffer = ['~a: expects type ~a as ~a arguments, given: ~s; other arguments were:'];
+				for (var i = 0; i < args.length; i++) {
+					if ( i != pos-1 ) {
+						errorFormatStrBuffer.push( types.toWrittenString(args[i]) );
+					}
 				}
-			}
-			errorFormatStr = errorFormatStrBuffer.join(' ');
-		}
-		else {
-			errorFormatStr = "~a: expects argument of type <~a>, given: ~s";
-			details.splice(2, 1);
-		}
+				errorFormatStr = errorFormatStrBuffer.join(' ');
 
-		raise( types.incompleteExn(types.exnFailContract,
-					   helpers.format(errorFormatStr, details),
-					   []) );
+				console.log("errorFormatStr is ", errorFormatStr);
+
+				raise( types.incompleteExn(types.exnFailContract,
+						   helpers.format(errorFormatStr, [details.functionName, details.typeName, details.ordinalPosition, details.actualValue]),
+						   []) );
+			}
+			else {
+				errorFormatStr = "~a: expects argument of type ~a, given: ~s";
+				raise( types.incompleteExn(types.exnFailContract,
+						   helpers.format(errorFormatStr, [details.functionName, details.typeName , details.actualValue]),
+						   []));
+
+			}
 	};
 
-	var check = function(x, f, functionName, typeName, position, args) {
+	var throwColoredCheckError = function(aState, details, pos, args){
+
+
+		var positionStack = 
+        		state.captureCurrentContinuationMarks(aState).ref(
+            		types.symbol('moby-application-position-key'));
+        
+       		var locationList = positionStack[positionStack.length - 1];
+
+       		//console.log("locationList is ", locationList);
+
+       		//locations -> array
+			var getArgColoredParts = function(locations) {
+				var coloredParts = [];
+				var locs = locations;
+				var i;
+
+				//ARGS IS INCONSISTENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				//REALLY INCONSISTENT!!!!!! SOMETIMES IT HAS STATE FIRST, SOMETIMES IS HAS A PRIMPROC LAST
+				//and when there's a state, it's apparently not an array, so .slice(1) doesn't work
+
+				//getting the actual arguments from args
+				var actualArgs = [];
+				for(i = 0; i < args.length; i++) {
+					if(! (state.isState(args[i]))){
+						actualArgs.push(args[i]);
+					} 
+				}
+
+				//console.log("args is ", args, ", actualArgs is ", actualArgs);
+				/*
+				if(state.isState(args[0])){
+					for(i = 1; i < args.length; i++){
+						if(! (locs.isEmpty())){
+							if(i != pos) {
+								//space = (locs.rest().isEmpty() ? "" : " ");
+								coloredParts.push(new types.ColoredPart(types.toWrittenString(args[i])+(i < args.length -2 ? " " : ""), 
+									locs.first()));
+							}
+							locs = locs.rest();
+					    }
+					}
+				}*/
+				for(i = 0; i < actualArgs.length; i++){
+					if(! (locs.isEmpty())){
+						if(i != (pos -1)) {
+							//coloredParts.push(new types.ColoredPart(types.toWrittenString(actualArgs[i])+(i < actualArgs.length -1 ? " " : ""), locs.first()));\
+							coloredParts.push(new types.ColoredPart(types.toWrittenString(actualArgs[i])+" ", locs.first()));
+						}
+						locs = locs.rest();
+					}
+				}
+				if(coloredParts.length > 0){
+					//removing the last space
+					var lastEltText = coloredParts[coloredParts.length-1].text;
+					lastEltText = lastEltText.substring(0, lastEltText.length - 1);
+					coloredParts[coloredParts.length - 1] = new types.ColoredPart(lastEltText, 
+																					coloredParts[coloredParts.length-1].location);
+				}
+				return coloredParts;
+			}
+
+			// listRef for locationList.
+			var getLocation = function(pos) {
+				var locs = locationList;
+				var i;
+				for(i = 0; i < pos; i++){
+					locs = locs.rest();
+				}
+				return locs.first();
+			}
+
+			if(args) { 
+				var argColoredParts = getArgColoredParts(locationList.rest()); 
+				console.log("args, argColoredParts is ", argColoredParts);
+
+				if(argColoredParts.length > 0){
+				raise( types.incompleteExn(types.exnFailContract,
+							   new types.Message([
+							   		new types.ColoredPart(details.functionName, locationList.first()),
+							   		": expects type ",
+							   		details.typeName,
+							   		" as ",
+							   		details.ordinalPosition, 
+							   		" argument, given: ",
+							   		new types.ColoredPart(types.toWrittenString(details.actualValue), getLocation(pos)),
+							   		"; other arguments were: ",
+							   		new types.GradientPart(argColoredParts)
+							   	]),
+							   []) );
+				}
+			}
+			raise( types.incompleteExn(types.exnFailContract,
+						   new types.Message([
+						   		new types.ColoredPart(details.functionName, locationList.first()),
+						   		": expects type ",
+						   		details.typeName,
+						   		" as ",
+						   		details.ordinalPosition, 
+						   		" argument, given: ",
+						   		new types.ColoredPart(types.toWrittenString(details.actualValue), getLocation(pos))
+						   	]),
+						   []) );
+
+
+	};
+
+	var throwCheckError = function(aState, details, pos, args) {
+		
+		if(aState instanceof state.State){
+			//if it's defined and a State, can inspect position stack
+			var positionStack = 
+			state.captureCurrentContinuationMarks(aState).ref(
+	    		types.symbol('moby-application-position-key'));
+
+			//if the positionStack at the correct position is defined, we can throw a colored error
+			if (positionStack[positionStack.length - 1] !== undefined) {
+				//console.log("colored error");
+				throwColoredCheckError(aState,details, pos, args);
+			}
+		}
+		//otherwise, throw an uncolored error
+		//console.log("uncolored error");
+		throwUncoloredCheckError(aState, details, pos, args);
+	};
+
+	var check = function(aState, x, f, functionName, typeName, position, args) {
 		if ( !f(x) ) {
-			throwCheckError([functionName,
-					 typeName,
-					 helpers.ordinalize(position),
-					 x],
+			throwCheckError(aState, 
+					{ functionName: functionName,
+					  typeName: typeName,
+					  ordinalPosition: helpers.ordinalize(position),
+					  actualValue: x },
 					position,
 					args);
 		}
 	};
 
-        var isList = function(x) {
-	    if (x === types.EMPTY) { return true; }
-	    while (types.isPair(x)) {
-		x = x.rest();
-	    }
-	    return (x === types.EMPTY);
+	var checkVarArity = function(aState, x, f, functionName, typeName, position, args) {
+		//check to ensure last thing is an array
+		if(args.length > 0 && (args[args.length - 1] instanceof Array)) {
+			var flattenedArgs = [];
+			var i;
+			for(i = 0; i < (args.length - 1); i++) {
+				flattenedArgs.push(args[i]);
+			}
+			//the angry variable names are because flattenedArgs = flattenedArgs.concat(args[args.length - 1]) doesn't work
+			var wtf1 = flattenedArgs;
+			var wtf2 = args[args.length -1];
+			var passOn = wtf1.concat(wtf2);
+
+			check(aState, x, f, functionName, typeName, position, passOn);
+		}
+		else {
+			check(aState, x, f, functionName, typeName, position, args);
+		}
 	};
-
-
-
-
     var isList = function(x) {
         var tortoise, hare;
         tortoise = hare = x;
@@ -815,12 +966,13 @@ var helpers = {};
 	    return (x === types.EMPTY);
 	};
 
-	var checkListOf = function(lst, f, functionName, typeName, position, args) {
+	var checkListOf = function(aState, lst, f, functionName, typeName, position, args) {
 		if ( !isListOf(lst, f) ) {
-			helpers.throwCheckError([functionName,
-						 'list of ' + typeName,
-						 helpers.ordinalize(position),
-						 lst],
+			helpers.throwCheckError(aState,
+						{functionName: functionName,
+						 typeName: 'list of ' + typeName,
+						 ordinalPosition: helpers.ordinalize(position),
+						 actualValue: lst},
 						position,
 						args);
 		}
@@ -1086,6 +1238,7 @@ var helpers = {};
 	helpers.isList = isList;
 	helpers.isListOf = isListOf;
 	helpers.check = check;
+	helpers.checkVarArity = checkVarArity;
 	helpers.checkListOf = checkListOf;
 	
 //	helpers.remove = remove;
@@ -7114,6 +7267,7 @@ var makeStructureType = function(theName, parentType, initFieldCnt, autoFieldCnt
     var aStruct = parentType.type.extend({
 	init: function(name, initArgs) {
 		// if there's no guard, construct a default one
+
 		if (!guard) {
 			guard = function(k) {
 				if (arguments.length == 3) {
@@ -7121,7 +7275,8 @@ var makeStructureType = function(theName, parentType, initFieldCnt, autoFieldCnt
 				}
 				else {
 					var args = [];
-					for(var i = 1; i < arguments.length-1; i++) {
+					var i;
+					for(i = 1; i < arguments.length-1; i++) {
 						args.push(arguments[i]);
 					}
 					k(new ValuesWrapper(args));
@@ -7184,9 +7339,10 @@ var Struct = Class.extend({
 	toWrittenString: function(cache) { 
 	    //    cache.put(this, true);
 	    var buffer = [];
+	    var i;
 	    buffer.push("(");
 	    buffer.push(this._constructorName);
-	    for(var i = 0; i < this._fields.length; i++) {
+	    for(i = 0; i < this._fields.length; i++) {
 		buffer.push(" ");
 		buffer.push(toWrittenString(this._fields[i], cache));
 	    }
@@ -7199,9 +7355,10 @@ var Struct = Class.extend({
 	toDomNode: function(cache) {
 	    //    cache.put(this, true);
 	    var node = document.createElement("div");
+	    var i;
 	    node.appendChild(document.createTextNode("("));
 	    node.appendChild(document.createTextNode(this._constructorName));
-	    for(var i = 0; i < this._fields.length; i++) {
+	    for(i = 0; i < this._fields.length; i++) {
 		node.appendChild(document.createTextNode(" "));
 		appendChild(node, toDomNode(this._fields[i], cache));
 	    }
@@ -7559,10 +7716,10 @@ Empty.prototype.reverse = function() {
 };
 
 Empty.prototype.first = function() {
-    throwRuntimeError("first can't be applied on empty.");
+    throw new Error("first can't be applied on empty.");
 };
 Empty.prototype.rest = function() {
-    throwRuntimeError("rest can't be applied on empty.");
+    throw new Error("rest can't be applied on empty.");
 };
 Empty.prototype.isEmpty = function() {
     return true;
@@ -8178,7 +8335,7 @@ var makeEffectType = function(name, superType, initFieldCnt, impl, guard, caller
 	newType.type.prototype.invokeEffect = function(changeWorld, k) {
 		var schemeChangeWorld = new PrimProc('update-world', 1, false, true,
 			function(aState, worldUpdater) {
-				helpers.check(worldUpdater, helpers.procArityContains(1),
+				helpers.check(aState, worldUpdater, helpers.procArityContains(1),
 					      'update-world', 'procedure (arity 1)', 1);
 				
 				changeWorld(function(w, k2) { interpret.call(aState,
@@ -8247,8 +8404,9 @@ var toWrittenString = function(x, cache) {
     if (typeof(x) == 'object') {
 	    if (cache.containsKey(x)) {
 		    return "...";
-	    }
-	    cache.put(x, true);
+	    } else {
+	        cache.put(x, true);
+            }
     }
 
     if (x == undefined || x == null) {
@@ -8584,8 +8742,9 @@ EofValue.prototype.toString = function() {
 var EOF_VALUE = new EofValue();
 
 
-var ClosureValue = function(name, numParams, paramTypes, isRest, closureVals, body) {
+var ClosureValue = function(name, locs, numParams, paramTypes, isRest, closureVals, body) {
     this.name = name;
+    this.locs = locs;
     this.numParams = numParams;
     this.paramTypes = paramTypes;
     this.isRest = isRest;
@@ -8663,25 +8822,26 @@ PrefixValue.prototype.addSlot = function(v) {
     }
 };
 
-PrefixValue.prototype.ref = function(n) {
+PrefixValue.prototype.ref = function(n, srcloc) {
     if (this.slots[n] instanceof GlobalBucket) {
-	if (this.definedMask[n]) {
-	    return this.slots[n].value;
-	} else {
-	    helpers.raise(types.incompleteExn(
-			types.exnFailContractVariable,
-			"reference to an identifier before its definition: " + this.slots[n].name,
-			[this.slots[n].name]));
-	}
-    } else {
-	if (this.definedMask[n]) {
-	    return this.slots[n];
-	} else {
-	    helpers.raise(types.incompleteExn(
-			types.exnFailContractVariable,
-			"variable has not been defined",
-			[false]));
-	}
+    	if (this.definedMask[n]) {
+    	    return this.slots[n].value;
+    	} else {
+    	    helpers.raise(types.incompleteExn(
+    			types.exnFailContractVariable,
+    			new Message([new ColoredPart(this.slots[n].name, srcloc),
+                            ": this variable is not defined"]),
+    			[this.slots[n].name]));
+    	}
+        } else {
+    	if (this.definedMask[n]) {
+    	    return this.slots[n];
+    	} else {
+    	    helpers.raise(types.incompleteExn(
+    			types.exnFailContractVariable,
+    			"variable has not been defined",
+    			[false]));
+    	}
     }
 };
 
@@ -8799,11 +8959,11 @@ var defaultContinuationPrompt = new ContinuationPrompt();
 
 //////////////////////////////////////////////////////////////////////
 
-var PrimProc = function(name, numParams, isRest, usesState, impl) {
+var PrimProc = function(name, numParams, isRest, assignsToValueRegister, impl) {
     this.name = name;
     this.numParams = numParams;
     this.isRest = isRest;
-    this.usesState = usesState;
+    this.assignsToValueRegister = assignsToValueRegister;
     this.impl = impl;
 };
 
@@ -8850,6 +9010,71 @@ CasePrimitive.prototype.toDisplayedString = function(cache) {
 
 
 
+/////////////////////////////////////////////////////////////////////
+// Colored Error Message Support
+
+var Message = function(args) {
+  this.args = args;
+};
+
+Message.prototype.toString = function() {
+  var toReturn = [];
+  var i;
+  for(i = 0; i < this.args.length; i++) {
+      toReturn.push(''+this.args[i]);
+  }
+  
+  return toReturn.join("");
+};
+
+var isMessage = function(o) {
+  return o instanceof Message;
+};
+
+var ColoredPart = function(text, location) {
+  this.text = text;
+  this.location = location;
+};
+
+var isColoredPart = function(o) {
+  return o instanceof ColoredPart;
+};
+
+ColoredPart.prototype.toString = function() {
+    return this.text+'';
+};
+
+var GradientPart = function(coloredParts) {
+    this.coloredParts = coloredParts;
+};
+
+var isGradientPart = function(o) {
+  return o instanceof GradientPart;
+};
+
+GradientPart.prototype.toString = function() {
+	var i;
+	var resultArray = [];
+	for(i = 0; i < this.coloredParts.length; i++){
+		resultArray.push(this.coloredParts[i].text+'');
+	}
+	return resultArray.join("");
+
+};
+
+var MultiPart = function(text, locations) {
+    this.text = text;
+    this.locations = locations;
+};
+
+var isMultiPart = function(o) {
+  return o instanceof MultiPart;
+};
+
+MultiPart.prototype.toString = function() {
+	return this.text;
+};
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -8859,7 +9084,8 @@ CasePrimitive.prototype.toDisplayedString = function(cache) {
 
 var makeList = function(args) {
     var result = Empty.EMPTY;
-    for(var i = args.length-1; i >= 0; i--) {
+    var i;
+    for(i = args.length-1; i >= 0; i--) {
 	result = Cons.makeInstance(args[i], result);
     }
     return result;
@@ -8868,7 +9094,7 @@ var makeList = function(args) {
 
 var makeVector = function(args) {
     return Vector.makeInstance(args.length, args);
-}
+};
 
 var makeString = function(s) {
 	if (s instanceof Str) {
@@ -8890,7 +9116,7 @@ var makeString = function(s) {
 					  ' given ' + s.toString(),
 					  false);
 	}
-}
+};
 
 
 var makeHashEq = function(lst) {
@@ -8900,7 +9126,7 @@ var makeHashEq = function(lst) {
 		lst = lst.rest();
 	}
 	return newHash;
-}
+};
 
 
 var makeHashEqual = function(lst) {
@@ -8910,14 +9136,24 @@ var makeHashEqual = function(lst) {
 		lst = lst.rest();
 	}
 	return newHash;
-}
+};
+
+
+//if there is not enough location information available,
+//this allows for highlighting to be turned off
+var NoLocation = makeVector(['<no-location>', 0,0,0,0]);
+
+var isNoLocation = function(o) {
+  return o === NoLocation;
+};
+
 
 
 var Posn = makeStructureType('posn', false, 2, 0, false, false);
 var Color = makeStructureType('color', false, 4, 0, false, false);
 var ArityAtLeast = makeStructureType('arity-at-least', false, 1, 0, false,
 		function(k, n, name) {
-			helpers.check(n, function(x) { return ( jsnums.isExact(x) &&
+			helpers.check(undefined, n, function(x) { return ( jsnums.isExact(x) &&
 								jsnums.isInteger(x) &&
 								jsnums.greaterThanOrEqual(x, 0) ); },
 				      name, 'exact non-negative integer', 1);
@@ -9064,8 +9300,8 @@ types.isIncompleteExn = function(x) { return x instanceof IncompleteExn; };
 
 var Exn = makeStructureType('exn', false, 2, 0, false,
 		function(k, msg, contMarks, name) {
-			helpers.check(msg, isString, name, 'string', 1, [msg, contMarks]);
-			helpers.check(contMarks, types.isContinuationMarkSet, name, 'continuation mark set', 2);
+			// helpers.check(msg, isString, name, 'string', 1, [msg, contMarks]);
+			helpers.check(undefined, contMarks, types.isContinuationMarkSet, name, 'continuation mark set', 2);
 			k( new ValuesWrapper([msg, contMarks]) );
 		});
 types.exn = Exn.constructor;
@@ -9111,6 +9347,8 @@ var ExnFailContractArityWithPosition = makeStructureType('exn:fail:contract:arit
 types.exnFailContractArityWithPosition = ExnFailContractArityWithPosition.constructor;
 types.isExnFailContractArityWithPosition = ExnFailContractArityWithPosition.predicate;
 
+types.exnFailContractArityWithPositionLocations = function(exn) { return ExnFailContractArityWithPosition.accessor(exn, 0); };
+
 
 ///////////////////////////////////////
 // World-specific exports
@@ -9154,6 +9392,22 @@ types.isRenderEffect = RenderEffect.predicate;
 //types.renderEffectDomNode = function(x) { return RenderEffect.accessor(x, 0); };
 //types.renderEffectEffects = function(x) { return RenderEffect.accessor(x, 1); };
 //types.setRenderEffectEffects = function(x, v) { RenderEffect.mutator(x, 1, v); };
+
+
+types.NoLocation = NoLocation;
+types.isNoLocation = isNoLocation;
+
+
+
+types.ColoredPart = ColoredPart;
+types.Message = Message;
+types.isColoredPart = isColoredPart;
+types.isMessage = isMessage;
+types.GradientPart = GradientPart;
+types.isGradientPart = isGradientPart;
+types.MultiPart = MultiPart;
+types.isMultiPart = isMultiPart;
+
 
 
 })();
@@ -9223,6 +9477,11 @@ var State = function() {
     this.breakRequested = false;
     this.breakRequestedListeners = [];
 };
+
+var isState = function(o) {
+  return o instanceof State;
+};
+
 
 
 // clearForEval: -> void
@@ -9397,23 +9656,21 @@ State.prototype.setn = function(depth, v) {
 
 
 // Reference an element of a prefix on the value stack.
-State.prototype.refPrefix = function(depth, pos) {
-    var value = this.vstack[this.vstack.length-1 - depth].ref(pos);
+State.prototype.refPrefix = function(depth, pos, srcloc) {
+    var value = this.vstack[this.vstack.length-1 - depth].ref(pos, srcloc);
     if (value instanceof types.ModuleVariableRecord) {
-	if (this.invokedModules[value.resolvedModuleName]) {
-	    var moduleRecord =  this.invokedModules[value.resolvedModuleName];
-	    if (typeof(moduleRecord.providedValues[value.variableName]) 
-		!== 'undefined') {
-		return moduleRecord.providedValues[value.variableName];
-	    }
-	    
-	    throw types.schemeError(
-		types.exnFailContractVariable(
-		    "reference to an identifier before its definition: " +
-			value.variableName,
-		    false,
-		    value.variableName));
-	}
+    	if (this.invokedModules[value.resolvedModuleName]) {
+    	    var moduleRecord =  this.invokedModules[value.resolvedModuleName];
+    	    if (typeof(moduleRecord.providedValues[value.variableName]) !== 'undefined') {
+    		    return moduleRecord.providedValues[value.variableName];
+    	    }
+    	   throw types.schemeError(
+    		types.exnFailContractVariable(
+    		    "reference to an identifier before its definition: " +
+    			value.variableName,
+    		    false,
+    		    value.variableName)); 
+    	}
     }
     return value;
 };
@@ -9553,6 +9810,7 @@ var isEqualHash = function(hash1, hash2) {
 
 
 state.State = State;
+state.isState = isState;
 state.captureCurrentContinuationMarks = captureCurrentContinuationMarks;
 state.getStackTraceFromContinuationMarks = getStackTraceFromContinuationMarks;
 
@@ -12838,15 +13096,7 @@ var CasePrimitive = types.CasePrimitive;
 
 var id = function(x) { return x; };
 
-var sub1 = function(x) {
-	check(x, isNumber, 'sub1', 'number', 1, [x]);
-	return jsnums.subtract(x, 1);
-}
 
-var add1 = function(x) {
-	check(x, isNumber, 'add1', 'number', 1, [x]);
-	return jsnums.add(x, 1);
-}
 
 var callWithValues = function(f, vals) {
 	if (vals instanceof types.ValuesWrapper) {
@@ -12857,8 +13107,8 @@ var callWithValues = function(f, vals) {
 	}
 };
 
-var procedureArity = function(proc) {
-	check(proc, isFunction, 'procedure-arity', 'procedure', 1, [proc]);
+var procedureArity = function(aState, proc) {
+	check(aState, proc, isFunction, 'procedure-arity', 'procedure', 1, [proc]);
 			
 	var singleCaseArity = function(aCase) {
 		if (aCase instanceof types.ContinuationClosureValue) {
@@ -12929,34 +13179,9 @@ var normalizeArity = function(arity) {
 
 
 var procArityContains = helpers.procArityContains;
-//var procArityContains = function(n) {
-//	return function(proc) {
-//		if ( !isFunction(proc) ) {
-//			return false;
-//		}
-//
-//		var arity = procedureArity(proc);
-//		if ( !isList(arity) ) {
-//			arity = types.pair(arity, types.EMPTY);
-//		}
-//
-//		while ( !arity.isEmpty() ) {
-//			if ( isNumber(arity.first()) &&
-//			     n === arity.first() ) {
-//				return true;
-//			}
-//			else if ( types.isArityAtLeast(arity.first()) &&
-//				  types.arityValue( arity.first() ) <= n ) {
-//				return true;
-//			}
-//			arity = arity.rest();
-//		}
-//		return false;
-//	}
-//}
+
 
 var length = function(lst) {
-	checkList(lst, 'length', 1, [lst]);
 	var ret = 0;
 	for (; !lst.isEmpty(); lst = lst.rest()) {
 		ret = ret+1;
@@ -12964,13 +13189,13 @@ var length = function(lst) {
 	return ret;
 }
 
-var append = function(initArgs) {
+var append = function(aState, initArgs) {
 	if (initArgs.length == 0) {
 		return types.EMPTY;
 	}
 	var args = initArgs.slice(0, initArgs.length-1);
 	var lastArg = initArgs[initArgs.length - 1];
-	arrayEach(args, function(x, i) {checkList(x, 'append', i+1, initArgs);});
+	arrayEach(args, function(x, i) {checkList(aState, x, 'append', i+1, initArgs);});
 
 	var ret = lastArg;
 	for (var i = args.length-1; i >= 0; i--) {
@@ -12978,6 +13203,11 @@ var append = function(initArgs) {
 	}
 	return ret;
 }
+
+
+
+
+
 
 var foldHelp = function(f, acc, args) {
 	if ( args[0].isEmpty() ) {
@@ -12995,44 +13225,45 @@ var foldHelp = function(f, acc, args) {
 		function(result) {
 			return foldHelp(f, result, argsRest);
 		});
-}
+};
+
 
 var quicksort = function(functionName) {
-	return function(initList, comp) {
-		checkList(initList, functionName, 1, arguments);
-		check(comp, procArityContains(2), functionName, 'procedure (arity 2)', 2, arguments);
+    return function(aState, initList, comp) {
+	checkList(aState, initList, functionName, 1, arguments);
+	check(aState, comp, procArityContains(2), functionName, 'procedure (arity 2)', 2, arguments);
 	
-		var quicksortHelp = function(lst) {
-			if ( lst.isEmpty() ) {
-				return types.EMPTY;
-			}
-	
-			var compYes = new PrimProc('compYes', 1, false, false,
-					function(x) { return CALL(comp, [x, lst.first()], id); });
-			var compNo = new PrimProc('compNo', 1, false, false,
-					function(x) { return CALL(comp, [x, lst.first()],
-								  function(res) { return !res; });
+	var quicksortHelp = function(aState, lst) {
+	    if ( lst.isEmpty() ) {
+		return types.EMPTY;
+	    }
+	    
+	    var compYes = new PrimProc('compYes', 1, false, false,
+				       function(aState, x) { return CALL(comp, [x, lst.first()], id); });
+	    var compNo = new PrimProc('compNo', 1, false, false,
+				      function(aState, x) { return CALL(comp, [x, lst.first()],
+								        function(res) { return !res; });
+					                  });
+	    var recCallProc = new PrimProc('quicksort', 1, false, false, quicksortHelp);
+	    return CALL(PRIMITIVES['filter'], [compYes, lst.rest()],
+			function(half1) {
+			    return CALL(recCallProc, [half1],
+					function(sorted1) {
+					    return CALL(PRIMITIVES['filter'], [compNo, lst.rest()],
+							function(half2) {
+							    return CALL(recCallProc, [half2],
+									function(sorted2) {
+									    return append(aState, [sorted1,
+											   types.list([lst.first()]),
+											   sorted2]);
+									});
+							});
 					});
-			var recCallProc = new PrimProc('quicksort', 1, false, false, quicksortHelp);
-			return CALL(PRIMITIVES['filter'], [compYes, lst.rest()],
-				function(half1) {
-					return CALL(recCallProc, [half1],
-						function(sorted1) {
-							return CALL(PRIMITIVES['filter'], [compNo, lst.rest()],
-								function(half2) {
-									return CALL(recCallProc, [half2],
-										function(sorted2) {
-											return append([sorted1,
-												       types.list([lst.first()]),
-												       sorted2]);
-										});
-								});
-						});
-				});
-		}
-		return quicksortHelp(initList);
-	};
-}
+			});
+	}
+	return quicksortHelp(aState, initList);
+    };
+};
 
 var compare = function(args, comp) {
 	var curArg = args[0];
@@ -13047,7 +13278,8 @@ var compare = function(args, comp) {
 
 // isAlphabeticString: string -> boolean
 var isAlphabeticString = function(s) {
-	for(var i = 0; i < s.length; i++) {
+	var i;
+	for(i = 0; i < s.length; i++) {
 		if (! ((s.charAt(i) >= "a" && s.charAt(i) <= "z") ||
 		       (s.charAt(i) >= "A" && s.charAt(i) <= "Z"))) {
 			return false;
@@ -13057,7 +13289,8 @@ var isAlphabeticString = function(s) {
 }
 
 var isNumericString = function(s) {
-	for (var i = 0; i < s.length; i++) {
+	var i;
+	for (i = 0; i < s.length; i++) {
 		if ( ! (s.charAt(i) >= '0' && s.charAt(i) <= '9') ) {
 			return false;
 		}
@@ -13119,16 +13352,18 @@ var isWorldConfigOption = function(x) { return x instanceof WorldConfigOption; }
 
 
 var onEvent = function(funName, inConfigName, numArgs) {
-    return function(handler) {
-	return onEventBang(funName, inConfigName)(handler,
-						  new PrimProc('', numArgs, false, false, function() { return types.EMPTY; }));
+    return function(aState, handler) {
+		return onEventBang(funName, inConfigName)(
+			    aState,
+				handler,
+				new PrimProc('', numArgs, false, false, function(aState) { return types.EMPTY; }));
     };
 };
 
 var onEventBang = function(funName, inConfigName) {
-    return function(handler, effectHandler) {
-	check(handler, isFunction, funName, 'procedure', 1, arguments);
-	check(effectHandler, isFunction, funName, 'procedure', 2, arguments);
+    return function(aState, handler, effectHandler) {
+	check(aState, handler, isFunction, funName, 'procedure', 1, arguments);
+	check(aState, effectHandler, isFunction, funName, 'procedure', 2, arguments);
 	return new (WorldConfigOption.extend({
 		    init: function() {
 			this._super(funName);
@@ -13182,8 +13417,8 @@ var schemeProcToJs = function(aState, schemeProc) {
 
 
 // Struct Procedure types
-var StructProc = function(typeName, name, numParams, isRest, usesState, impl) {
-	PrimProc.call(this, name, numParams, isRest, usesState, impl);
+var StructProc = function(typeName, name, numParams, isRest, assignsToValueRegister, impl) {
+	PrimProc.call(this, name, numParams, isRest, assignsToValueRegister, impl);
 	this.typeName = typeName;
 };
 StructProc.prototype = PrimProc.prototype;
@@ -13224,9 +13459,9 @@ var getMakeStructTypeReturns = function(aStructType) {
 					 2,
 					 false,
 					 false,
-					 function(x, i) {
-						check(x, aStructType.predicate, name+'-ref', 'struct:'+name, 1, arguments);
-						check(i, isNatural, name+'-ref', 'non-negative exact integer', 2, arguments);
+					 function(aState, x, i) {
+						check(aState, x, aStructType.predicate, name+'-ref', 'struct:'+name, 1, arguments);
+						check(aState, i, isNatural, name+'-ref', 'non-negative exact integer', 2, arguments);
 
 						var numFields = aStructType.numberOfFields;
 						if ( jsnums.greaterThanOrEqual(i, numFields) ) {
@@ -13241,9 +13476,9 @@ var getMakeStructTypeReturns = function(aStructType) {
 					3,
 					false,
 					false,
-					function(x, i, v) {
-						check(x, aStructType.predicate, name+'-set!', 'struct:'+name, 1, arguments);
-						check(i, isNatural, name+'-set!', 'non-negative exact integer', 2, arguments);
+					function(aState, x, i, v) {
+						check(aState, x, aStructType.predicate, name+'-set!', 'struct:'+name, 1, arguments);
+						check(aState, i, isNatural, name+'-set!', 'non-negative exact integer', 2, arguments);
 
 						var numFields = aStructType.numberOfFields;
 						if ( jsnums.greaterThanOrEqual(i, numFields) ) {
@@ -13413,13 +13648,15 @@ var arrayEach = function(arr, f) {
 
 //var throwCheckError = helpers.throwCheckError;
 var check = helpers.check;
+var checkVarArity = helpers.checkVarArity;
 
-var checkList = function(x, functionName, position, args) {
+var checkList = function(aState, x, functionName, position, args) {
 	if ( !isList(x) ) {
-		helpers.throwCheckError([functionName,
-					 'list',
-					 helpers.ordinalize(position),
-					 x],
+		helpers.throwCheckError(aState,
+					{ functionName: functionName,
+					  typeName: 'list',
+					  ordinalPosition: helpers.ordinalize(position),
+					  actualValue: x },
 					position,
 					args);
 	}
@@ -13427,26 +13664,27 @@ var checkList = function(x, functionName, position, args) {
 
 var checkListOf = helpers.checkListOf;
 
-var checkListOfLength = function(lst, n, functionName, position, args) {
+var checkListOfLength = function(aState, lst, n, functionName, position, args) {
 	if ( !isList(lst) || (length(lst) < n) ) {
-		helpers.throwCheckError([functionName,
-					 'list with ' + n + ' or more elements',
-					 helpers.ordinalize(position),
-					 lst],
-					position,
-					args);
+		helpers.throwCheckError(aState,
+							{functionName: functionName,
+							 typeName: 'list with ' + n + ' or more elements',
+							 ordinalPosition: helpers.ordinalize(position),
+							 actualValue: lst},
+							 position,
+							 args);
 	}
 }
 
-var checkAllSameLength = function(lists, functionName, args) {
-	if (lists.length == 0)
+var checkAllSameLength = function(aState, lists, functionName, args) {
+	if (lists.length === 0)
 		return;
-	
+
 	var len = length(lists[0]);
 	arrayEach(lists,
 		  function(lst, i) {
 			if (length(lst) != len) {
-				var argsStr = helpers.map(function(x) { return " ~s"; }, args).join('');
+				var argStr = helpers.map(function(x) { return " ~s"; }, args).join('');
 				var msg = helpers.format(functionName + ': all lists must have the same size; arguments were:' + argStr,
 							 args);
 				raise( types.incompleteExn(types.exnFailContract, msg, []) );
@@ -13465,12 +13703,20 @@ PRIMITIVES['verify-boolean-branch-value'] =
 		     2,
 		     false,
 		     false,
-		     function(x, aLoc) { 
+		     function(aState, x, aLoc) { 
 			 if (x !== true && x !== false) {
 			     // FIXME: should throw structure
 			     // make-moby-error-type:branch-value-not-boolean
 			     // instead.
-			     throw new Error("the value " + sys.inspect(x) + " is not boolean type at " + aLoc);
+			     //throw new Error("the value " + sys.inspect(x) + " is not boolean type at " + aLoc);
+			     raise(types.incompleteExn(
+                                 types.exnFailContract,
+				 new types.Message(["the value ",
+						    new types.ColoredPart(types.toWrittenString(x),
+                                                                          aLoc),
+                                                    " is not a boolean value."
+						   ]),
+                                 []));
 			 }
 			 return x;
 		     })
@@ -13480,7 +13726,7 @@ PRIMITIVES['throw-cond-exhausted-error'] =
 		     1,
 		     false,
 		     false,
-		     function(aLoc) {
+		     function(aState, aLoc) {
 			     // FIXME: should throw structure
 			     // make-moby-error-type:conditional-exhausted
 			     // instead.
@@ -13492,19 +13738,19 @@ PRIMITIVES['print-values'] =
     new PrimProc('print-values',
 		 0,
 		 true,
-		 true,
-		 function(state, values) {
+		 false,
+		 function(aState, values) {
 		     var printed = false;
 		     for (var i = 0; i < values.length; i++) {
 			 if (values[i] !== types.VOID) {
-			     state.getPrintHook()(values[i]);
+			     aState.getPrintHook()(values[i]);
 			     printed = true;
 			 }
 		     }
 		     if (printed) {
-			 state.getDisplayHook()("\n");
+			 aState.getDisplayHook()("\n");
 		     }
-		     state.v = types.VOID;
+		     return types.VOID;
 		 });
 
 
@@ -13514,7 +13760,7 @@ PRIMITIVES['print-values'] =
 PRIMITIVES['check-expect'] =
     new PrimProc('check-expect',
 		 2,
-		 false, true,
+		 false, false,
 		 function(aState, actual, expected) {
 		 	if ( isFunction(actual) || isFunction(expected) ) {
 				var msg = 'check-expect cannot compare functions';
@@ -13525,12 +13771,12 @@ PRIMITIVES['check-expect'] =
 							 [actual, expected]);
 			        aState.getDisplayHook()(msg);
 			    var stackTrace = state.getStackTraceFromContinuationMarks(
-				state.captureCurrentContinuationMarks(aState));
+									state.captureCurrentContinuationMarks(aState));
 			    for (var i = 0; i < stackTrace.length; i++) {
 			        aState.getPrintHook()(helpers.makeLocationDom(stackTrace[i]));
 			    }
 			}
-			aState.v = types.VOID;
+			return types.VOID;
 		});
 PRIMITIVES['EXAMPLE'] = PRIMITIVES['check-expect'];
 
@@ -13538,7 +13784,7 @@ PRIMITIVES['EXAMPLE'] = PRIMITIVES['check-expect'];
 PRIMITIVES['check-within'] =
     new PrimProc('check-within',
 		 3,
-		 false, true,
+		 false, false,
 		 function(aState, actual, expected, range) {
 		 	if ( !isNonNegativeReal(range) ) {
 				var msg = helpers.format('check-within requires a non-negative real number for range, given ~s.',
@@ -13564,7 +13810,7 @@ PRIMITIVES['check-within'] =
 			        aState.getPrintHook()(helpers.makeLocationDom(stackTrace[i]));
 			    }
 			}
-			aState.v = types.VOID;
+			return types.VOID;
 		});
 				
 
@@ -13575,18 +13821,18 @@ var defaultPrint =
     new PrimProc('print', 
 		 1, 
 		 false, 
-		 true, 
-		 function(state, x) {
-		     state.getPrintHook()(types.toWrittenString(x));
-		     state.v = types.VOID;
+		 false, 
+		 function(aState, x) {
+		     aState.getPrintHook()(types.toWrittenString(x));
+		     return types.VOID;
 		 });
 
 
 PRIMITIVES['write'] =
     new CasePrimitive('write',
-	[new PrimProc('write', 1, false, true, function(aState, x) {
+	[new PrimProc('write', 1, false, false, function(aState, x) {
 			aState.getPrintHook()(x);
-			aState.v = types.VOID;
+			return types.VOID;
 		}),
 	 new PrimProc('write', 2, false, true, function(aState, x, port) {
 		 	throw types.internalError('write to a port not implemented yet.', false);
@@ -13596,11 +13842,11 @@ PRIMITIVES['write'] =
 
 PRIMITIVES['display'] = 
 	new CasePrimitive('display',
-		      [new PrimProc('display', 1, false, true, function(state, x) {
-			  state.getDisplayHook()(types.toDisplayedString(x));
-			  state.v = types.VOID;
+		      [new PrimProc('display', 1, false, false, function(aState, x) {
+			  aState.getDisplayHook()(types.toDisplayedString(x));
+			  return types.VOID;
 	}),
-			  new PrimProc('display', 2, false, true, function(state, x, port) {
+			  new PrimProc('display', 2, false, true, function(aState, x, port) {
 	     // FIXME
 	     throw types.internalError("display to a port not implemented yet.", false);
 	 } )]);
@@ -13609,11 +13855,11 @@ PRIMITIVES['display'] =
 
 PRIMITIVES['newline'] = 
 	new CasePrimitive('newline',
-	[new PrimProc('newline', 0, false, true, function(state) {
-		    state.getDisplayHook()('\n');
-	    state.v = types.VOID;
+                          [new PrimProc('newline', 0, false, true, function(aState) {
+	    aState.getDisplayHook()('\n');
+	    aState.v = types.VOID;
 	}),
-	 new PrimProc('newline', 1, false, false, function(port) {
+	 new PrimProc('newline', 1, false, false, function(aState, port) {
 	     // FIXME
 	     throw types.internalError("newline to a port not implemented yet.", false);
 	 } )]);
@@ -13624,7 +13870,7 @@ PRIMITIVES['current-print'] =
     new PrimProc('current-print', 
 		 0, 
 		 false, false,
-		 function() {
+		 function(aState) {
 		     return defaultPrint;
 		 });
 
@@ -13633,70 +13879,70 @@ PRIMITIVES['current-continuation-marks'] =
     // FIXME: should be CasePrimitive taking either 0 or 1 arguments
     new PrimProc('current-continuation-marks',
 		 0,
-		 false, true,
+		 false, false,
 		 function(aState) {
-		     aState.v = state.captureCurrentContinuationMarks(aState);
+		     return state.captureCurrentContinuationMarks(aState);
 		 });
 
 PRIMITIVES['continuation-mark-set->list'] = 
     new PrimProc('continuation-mark-set->list',
 		 2,
 		 false,
-		 true,
-		 function(state, markSet, keyV) {
-		     check(markSet, 
+		 false,
+		 function(aState, markSet, keyV) {
+		     check(aState, markSet, 
 			   types.isContinuationMarkSet, 
 			   'continuation-mark-set->list',
 			   'continuation-mark-set',
 			   1,
 			   [markSet, keyV]);
-		     state.v = types.list(markSet.ref(keyV));
+		     return types.list(markSet.ref(keyV));
 		 });
 
 
 
 PRIMITIVES['for-each'] =
-    new PrimProc('for-each', 
-		 2, 
-		 true, false,
-		 function(f, firstArg, arglists) {
-		 	var allArgs = [f, firstArg].concat(arglists);
-		 	arglists.unshift(firstArg);
-			check(f, isFunction, 'for-each', 'procedure', 1, allArgs);
-			arrayEach(arglists, function(lst, i) {checkList(lst, 'for-each', i+2, allArgs);});
-			checkAllSameLength(arglists, 'for-each', allArgs);
+        new PrimProc('for-each', 
+		     2, 
+		     true, false,
+		     function(aState, f, firstArg, arglists) {
+		 	 var allArgs = [f, firstArg].concat(arglists);
+		 	 arglists.unshift(firstArg);
+			 check(aState, f, isFunction, 'for-each', 'procedure', 1, allArgs);
+			 arrayEach(arglists, function(lst, i) {checkList(aState, lst, 'for-each', i+2, allArgs);});
+			 checkAllSameLength(aState, arglists, 'for-each', allArgs);
 
-			var forEachHelp = function(args) {
-				if (args[0].isEmpty()) {
-					return types.VOID;
-				}
+			 var forEachHelp = function(args) {
+			     if (args[0].isEmpty()) {
+				 return types.VOID;
+			     }
 
-				var argsFirst = [];
-				var argsRest = [];
-				for (var i = 0; i < args.length; i++) {
-					argsFirst.push(args[i].first());
-					argsRest.push(args[i].rest());
-				}
+			     var argsFirst = [];
+			     var argsRest = [];
+			     for (var i = 0; i < args.length; i++) {
+				 argsFirst.push(args[i].first());
+				 argsRest.push(args[i].rest());
+			     }
 
-				return CALL(f, argsFirst,
-					function(result) {return forEachHelp(argsRest);});
-			}
+			     return CALL(f, argsFirst,
+					 function(result) {return forEachHelp(argsRest);});
+			 }
 
-			return forEachHelp(arglists);
-		 });
+			 return forEachHelp(arglists);
+		     });
 
 
 PRIMITIVES['make-thread-cell'] = 
 	new CasePrimitive('make-thread-cell', [
 	new PrimProc("make-thread-cell",
 		     1, false, false,
-		     function(x) {
+		     function(aState, x) {
 			  return new types.ThreadCell(x, false);
 		     }
 		    ),
 	new PrimProc("make-thread-cell",
 		     2, false, false,
-		     function(x, y) {
+		     function(aState, x, y) {
 			  return new types.ThreadCell(x, y);
 		     }
 		    )]);
@@ -13708,13 +13954,13 @@ PRIMITIVES['make-continuation-prompt-tag'] =
 			  [
 	new PrimProc("make-continuation-prompt-tag",
 		     0, false, false,
-		     function() {
+		     function(aState) {
 			  return new types.ThreadCell();
 		     }
 		    ),
 	new PrimProc("make-continuation-prompt-tag",
 		     1, false, false,
-		     function(x) {
+		     function(aState, x) {
 			  return new types.ThreadCell(x);
 		     }
 		    )]);
@@ -13724,22 +13970,21 @@ PRIMITIVES['make-continuation-prompt-tag'] =
 var makeOptionPrimitive = function(name,
 				   numArgs,
 				   defaultVals,
-				   usesState,
+				   assignsToValueRegister,
 				   bodyF) {
     var makeNthPrimitive = function(n) {
 	return new PrimProc(name,
 			     numArgs + n,
 			     false,
-			     usesState,
-			     function() {
-				 var expectedNumArgs = numArgs + n + (usesState ? 1 : 0);
-				 assert.equal(arguments.length,
-					      expectedNumArgs);
+			     assignsToValueRegister,
+			     function(aState) {
+				 var expectedNumArgs = numArgs + n + 1;
+				 assert.equal(arguments.length, expectedNumArgs);
 				 var args = [arguments];
 				 for (var i = 0; i < arguments.length; i++) {
 				     args.push(arguments[i]);
 				 }
-				 var startDefaults = i - numArgs - (usesState ? 1 : 0);
+				 var startDefaults = i - numArgs - 1;
 				 return bodyF.apply(
 				     bodyF,
 				     args.concat(defaultVals.slice(startDefaults)));
@@ -13766,7 +14011,7 @@ PRIMITIVES['make-struct-type'] =
 	     false,
 	     types.EMPTY,
 	     false],
-	    true,
+	    false,
 	    function(userArgs,
 		     aState,
 		     name,
@@ -13779,16 +14024,16 @@ PRIMITIVES['make-struct-type'] =
 		     procSpec,	 // FIXME: currently ignored
 		     immutables, // FIXME: currently ignored
 		     guard) {
-		check(name, isSymbol, 'make-struct-type', 'symbol', 1, userArgs);
-		check(superType, function(x) { return x === false || types.isStructType(x); },
+		check(aState, name, isSymbol, 'make-struct-type', 'symbol', 1, userArgs);
+		check(aState, superType, function(x) { return x === false || types.isStructType(x); },
 		      'make-struct-type', 'struct-type or #f', 2, userArgs);
-		check(initFieldCnt, isNatural, 'make-struct-type', 'exact non-negative integer', 3, userArgs);
-		check(autoFieldCnt, isNatural, 'make-struct-type', 'exact non-negative integer', 4, userArgs);
+		check(aState, initFieldCnt, isNatural, 'make-struct-type', 'exact non-negative integer', 3, userArgs);
+		check(aState, autoFieldCnt, isNatural, 'make-struct-type', 'exact non-negative integer', 4, userArgs);
 		// TODO: check props
 		// TODO: check inspector
 		// TODO: check procSpect
-		checkListOf(immutables, isNatural, 'make-struct-type', 'exact non-negative integer', 9, userArgs);
-		check(guard, function(x) { return x === false || isFunction(x); },
+		checkListOf(aState, immutables, isNatural, 'make-struct-type', 'exact non-negative integer', 9, userArgs);
+		check(aState, guard, function(x) { return x === false || isFunction(x); },
 		      'make-struct-type', 'procedure or #f', 10, userArgs);
 		// Check the number of arguments on the guard
 		var numberOfGuardArgs = initFieldCnt + 1 + (superType ? superType.numberOfArgs : 0);
@@ -13810,21 +14055,43 @@ PRIMITIVES['make-struct-type'] =
 					    autoV,
 					    jsGuard);
 
-		aState.v = getMakeStructTypeReturns(aStructType);
+		return getMakeStructTypeReturns(aStructType);
 	    });
 			    
-			   
+/*			   
+PRIMITIVES['make-struct-field-accessor'] =
+	makeOptionPrimitive(
+	    'make-struct-field-accessor',
+	    2,
+	    [false],
+	    true,
+	    function(aState, userArgs, accessor, fieldPos, fieldName) {
+	    	check(aState, accessor, function(x) { return x instanceof StructAccessorProc && x.numParams > 1; },
+		      'make-struct-field-accessor', 'accessor procedure that requires a field index', 1, userArgs);
+		check(aState, fieldPos, isNatural, 'make-struct-field-accessor', 'exact non-negative integer', 2, userArgs);
+		check(aState, fieldName, function(x) { return x === false || isSymbol(x); },
+		      'make-struct-field-accessor', 'symbol or #f', 3, userArgs);
+	    	var fixnumPos = jsnums.toFixnum(fieldPos);
+	    	var procName = accessor.typeName + '-'
+			+ (fieldName ? fieldName.toString() : 'field' + fixnumPos);
+
+		aState.v = new StructAccessorProc(accessor.typeName, procName, 1, false, false,
+					      function(x) {
+						  return accessor.impl(x, fixnumPos);
+					      });
+	    });
+*/
 PRIMITIVES['make-struct-field-accessor'] =
 	makeOptionPrimitive(
 	    'make-struct-field-accessor',
 	    2,
 	    [false],
 	    false,
-	    function(userArgs, accessor, fieldPos, fieldName) {
-	    	check(accessor, function(x) { return x instanceof StructAccessorProc && x.numParams > 1; },
+	    function(userArgs, aState, accessor, fieldPos, fieldName) {
+	    	check(aState, accessor, function(x) { return x instanceof StructAccessorProc && x.numParams > 1; },
 		      'make-struct-field-accessor', 'accessor procedure that requires a field index', 1, userArgs);
-		check(fieldPos, isNatural, 'make-struct-field-accessor', 'exact non-negative integer', 2, userArgs);
-		check(fieldName, function(x) { return x === false || isSymbol(x); },
+		check(aState, fieldPos, isNatural, 'make-struct-field-accessor', 'exact non-negative integer', 2, userArgs);
+		check(aState, fieldName, function(x) { return x === false || isSymbol(x); },
 		      'make-struct-field-accessor', 'symbol or #f', 3, userArgs);
 	    	var fixnumPos = jsnums.toFixnum(fieldPos);
 	    	var procName = accessor.typeName + '-'
@@ -13838,17 +14105,18 @@ PRIMITIVES['make-struct-field-accessor'] =
 
 
 
+
 PRIMITIVES['make-struct-field-mutator'] =
 	makeOptionPrimitive(
 	    'make-struct-field-mutator',
 	    2,
 	    [false],
 	    false,
-	    function(userArgs, mutator, fieldPos, fieldName) {
-	    	check(mutator, function(x) { return x instanceof StructMutatorProc && x.numParams > 1; },
+	    function(userArgs, aState, mutator, fieldPos, fieldName) {
+	    	check(aState, mutator, function(x) { return x instanceof StructMutatorProc && x.numParams > 1; },
 		      'make-struct-field-mutator', 'mutator procedure that requires a field index', 1, userArgs);
-		check(fieldPos, isNatural, 'make-struct-field-mutator', 'exact non-negative integer', 2, userArgs);
-		check(fieldName, function(x) { return x === false || isSymbol(x); },
+		check(aState, fieldPos, isNatural, 'make-struct-field-mutator', 'exact non-negative integer', 2, userArgs);
+		check(aState, fieldName, function(x) { return x === false || isSymbol(x); },
 		      'make-struct-field-mutator', 'symbol or #f', 3, userArgs);
 	    	var fixnumPos = jsnums.toFixnum(fieldPos);
 	    	var procName = mutator.typeName + '-'
@@ -13861,43 +14129,44 @@ PRIMITIVES['make-struct-field-mutator'] =
 	    });
 
 
-PRIMITIVES['struct-type?'] = new PrimProc('struct-type?', 1, false, false, types.isStructType);
+PRIMITIVES['struct-type?'] = new PrimProc('struct-type?', 1, false, false, function(aState, x) { return types.isStructType(x); });
 
 PRIMITIVES['struct-constructor-procedure?'] =
     new PrimProc('struct-constructor-procedure?', 1, false, false,
-		 function(x) { return x instanceof StructConstructorProc; });
+		 function(aState, x) { return x instanceof StructConstructorProc; });
 
 PRIMITIVES['struct-predicate-procedure?'] =
     new PrimProc('struct-predicate-procedure?', 1, false, false,
-		 function(x) { return x instanceof StructPredicateProc; });
+		 function(aState, x) { return x instanceof StructPredicateProc; });
 
 PRIMITIVES['struct-accessor-procedure?'] =
     new PrimProc('struct-accessor-procedure?', 1, false, false,
-		 function(x) { return x instanceof StructAccessorProc; });
+		 function(aState, x) { return x instanceof StructAccessorProc; });
 
 PRIMITIVES['struct-mutator-procedure?'] =
     new PrimProc('struct-mutator-procedure?', 1, false, false,
-		 function(x) { return x instanceof StructMutatorProc; });
+		 function(aState, x) { return x instanceof StructMutatorProc; });
 
 
 
-PRIMITIVES['procedure-arity'] = new PrimProc('procedure-arity', 1, false, false, procedureArity);
+PRIMITIVES['procedure-arity'] = new PrimProc('procedure-arity', 1, false, false, 
+                                             function(aState, proc){ return procedureArity(aState, proc); });
 
 
 PRIMITIVES['apply'] =
     new PrimProc('apply',
 		 2,
 		 true, false,
-		 function(f, firstArg, args) {
+		 function(aState, f, firstArg, args) {
 		 	var allArgs = [f, firstArg].concat(args);
-		 	check(f, isFunction, 'apply', 'procedure', 1, allArgs);
+		 	check(aState, f, isFunction, 'apply', 'procedure', 1, allArgs);
 		 	args.unshift(firstArg);
 
 			var lastArg = args.pop();
-			checkList(lastArg, 'apply', args.length+2, allArgs);
+			checkList(aState, lastArg, 'apply', args.length+2, allArgs);
 			var args = args.concat(helpers.schemeListToArray(lastArg));
 
-			return CALL(f, args, id);
+			return  CALL(f, args, id);
 		 });
 
 
@@ -13905,7 +14174,7 @@ PRIMITIVES['values'] =
     new PrimProc('values',
 		 0,
 		 true, false,
-		 function(args) {
+		 function(aState, args) {
 		 	if (args.length === 1) {
 				return args[0];
 			}
@@ -13917,10 +14186,9 @@ PRIMITIVES['call-with-values'] =
     new PrimProc('call-with-values',
 		 2,
 		 false, false,
-		 function(g, r) {
-		 	check(g, procArityContains(0), 'call-with-values', 'procedure (arity 0)', 1, arguments);
-			check(r, isFunction, 'call-with-values', 'procedure', 2, arguments);
-
+		 function(aState, g, r) {
+		 	check(aState, g, procArityContains(0), 'call-with-values', 'procedure (arity 0)', 1, arguments);
+			check(aState, r, isFunction, 'call-with-values', 'procedure', 2, arguments);
 			return CALL(g, [],
 				function(res) {
 					return callWithValues(r, res);
@@ -13932,8 +14200,8 @@ PRIMITIVES['compose'] =
     new PrimProc('compose',
 		 0,
 		 true, false,
-		 function(procs) {
-		 	arrayEach(procs, function(p, i) {check(p, isFunction, 'compose', 'procedure', i+1, procs);});
+		 function(aState, procs) {
+		 	arrayEach(procs, function(p, i) {check(aState, p, isFunction, 'compose', 'procedure', i+1, procs);});
 
 			if (procs.length == 0) {
 				return PRIMITIVES['values'];
@@ -13946,7 +14214,7 @@ PRIMITIVES['compose'] =
 				}
 
 				return CALL(new PrimProc('', 1, false, false,
-						         function(args) {
+						         function(aState, args) {
 							     return callWithValues(fList.first(), args);
 							 }),
 					    [x],
@@ -13954,8 +14222,8 @@ PRIMITIVES['compose'] =
 						return composeHelp(result, fList.rest());
 					    });
 			}
-			return new PrimProc('', 0, true, false,
-					    function(args) {
+			return  new PrimProc('', 0, true, false,
+					     function(aState, args) {
 						if (args.length === 1) {
 							return composeHelp(args[0], funList);
 						}
@@ -13968,7 +14236,7 @@ PRIMITIVES['current-inexact-milliseconds'] =
     new PrimProc('current-inexact-milliseconds',
 		 0,
 		 false, false,
-		 function() {
+		 function(aState) {
 			return jsnums.makeFloat((new Date()).valueOf());
 		 });
 
@@ -13977,7 +14245,7 @@ PRIMITIVES['current-seconds'] =
     new PrimProc('current-seconds',
 		 0,
 		 false, false,
-		 function() {
+		 function(aState) {
 		 	return Math.floor( (new Date()).getTime() / 1000 );
 		 });
 
@@ -13986,14 +14254,14 @@ PRIMITIVES['not'] =
     new PrimProc('not',
 		 1,
 		 false, false,
-		 function(x) {
+		 function(aState, x) {
 		 	return x === false;
 		 });
 
 
 PRIMITIVES['void'] =
     new PrimProc('void', 0, true, false,
-		 function(args) {
+		 function(aState, args) {
 		 	return types.VOID;
 		 });
 
@@ -14001,22 +14269,22 @@ PRIMITIVES['void'] =
 PRIMITIVES['random'] =
 	new CasePrimitive('random',
 	[new PrimProc('random', 0, false, false,
-		      function() {return types['float'](Math.random());}),
+		      function(aState) {return types['float'](Math.random());}),
 	 new PrimProc('random', 1, false, false,
-		      function(n) {
-			  check(n, isNatural, 'random', 'non-negative exact integer', 1, arguments);
+		      function(aState, n) {
+			  check(aState, n, isNatural, 'random', 'non-negative exact integer', 1, arguments);
 			  return Math.floor(Math.random() * jsnums.toFixnum(n));
 		      }) ]);
 
 
 PRIMITIVES['sleep'] =
     new CasePrimitive('sleep',
-	[new PrimProc('sleep', 0, false, false, function() { return types.VOID; }),
+	[new PrimProc('sleep', 0, false, false, function(aState) { return types.VOID; }),
 	 new PrimProc('sleep',
 		      1,
 		      false, false,
-		      function(secs) {
-			  check(secs, isNonNegativeReal, 'sleep', 'non-negative real number', 1);
+		      function(aState, secs) {
+			  check(aState, secs, isNonNegativeReal, 'sleep', 'non-negative real number', 1);
 			  
 			  var millisecs = jsnums.toFixnum(jsnums.multiply(secs, 1000) );
 			  return PAUSE(function(restarter, caller) {
@@ -14026,18 +14294,18 @@ PRIMITIVES['sleep'] =
 		      }) ]);
 
 
-PRIMITIVES['identity'] = new PrimProc('identity', 1, false, false, id);
+PRIMITIVES['identity'] = new PrimProc('identity', 1, false, false, function(aState, x) { return x; });
 
 
-PRIMITIVES['raise'] = new PrimProc('raise', 1, false, false, raise);
+PRIMITIVES['raise'] = new PrimProc('raise', 1, false, false, function(aState, v) { return raise(v);} );
 
 PRIMITIVES['error'] =
     new PrimProc('error',
 		 1,
-		 true, false,
-		 function(arg1, args) {
+		 true, true,
+		 function(aState, arg1, args) {
 		 	var allArgs = [arg1].concat(args);
-		 	check(arg1, function(x) {return isSymbol(x) || isString(x);},
+		 	check(aState, arg1, function(x) {return isSymbol(x) || isString(x);},
 			      'error', 'symbol or string', 1, allArgs);
 
 			if ( isSymbol(arg1) ) {
@@ -14045,7 +14313,7 @@ PRIMITIVES['error'] =
 					raise( types.incompleteExn(types.exnFail, "error: " + arg1.val, []) );
 				}
 				var formatStr = args.shift();
-				check(formatStr, isString, 'error', 'string', 2, allArgs);
+				check(aState, formatStr, isString, 'error', 'string', 2, allArgs);
 
 				args.unshift(arg1);
 				raise( types.incompleteExn(types.exnFail, helpers.format('~s: '+formatStr.toString(), args), []) );
@@ -14060,15 +14328,15 @@ PRIMITIVES['error'] =
 		 });
 
 
-PRIMITIVES['make-exn'] = new PrimProc('make-exn', 2, false, false, types.exn);
+PRIMITIVES['make-exn'] = new PrimProc('make-exn', 2, false, false, function(aState, msg, marks){ return types.exn(msg, marks); } );
 
 PRIMITIVES['exn-message'] =
     new PrimProc('exn-message',
 		 1,
 		 false, false,
-		 function(exn) {
-		 	check(exn, types.isExn, 'exn-message', 'exn', 1, [exn]);
-			return types.exnMessage(exn);
+		 function(aState, exn) {
+		 	check(aState, exn, types.isExn, 'exn-message', 'exn', 1, [exn]);
+			return ''+types.exnMessage(exn);
 		 });
 
 
@@ -14076,20 +14344,23 @@ PRIMITIVES['exn-continuation-marks'] =
     new PrimProc('exn-continuation-marks',
 		 1,
 		 false, false,
-		 function(exn) {
-		 	check(exn, types.isExn, 'exn-continuation-marks', 'exn', 1, [exn]);
+		 function(aState, exn) {
+		 	check(aState, exn, types.isExn, 'exn-continuation-marks', 'exn', 1, [exn]);
 			return types.exnContMarks(exn);
 		 });
 
 
-PRIMITIVES['make-exn:fail'] = new PrimProc('make-exn:fail', 2, false, false, types.exnFail);
+PRIMITIVES['make-exn:fail'] = new PrimProc('make-exn:fail', 2, false, false,
+                                           function(aState, msg, marks) { return types.exnFail(msg, marks); });
+                                     
 
-
-PRIMITIVES['make-exn:fail:contract'] = new PrimProc('make-exn:fail:contract', 2, false, false, types.exnFailContract);
+PRIMITIVES['make-exn:fail:contract'] = new PrimProc('make-exn:fail:contract', 2, false, false,
+                                                    function(aState, msg, marks) { return types.exnFailContract(msg, marks); });
 
 
 PRIMITIVES['make-exn:fail:contract:division-by-zero'] =
-    new PrimProc('make-exn:fail:contract:division-by-zero', 2, false, false, types.exnFailContractDivisionByZero);
+    new PrimProc('make-exn:fail:contract:division-by-zero', 2, false, false,
+                 function(aState, msg, marks) { return types.exnFailContractDivisionByZero(msg, marks); });
 
 
 
@@ -14102,11 +14373,12 @@ PRIMITIVES['*'] =
     new PrimProc('*',
 		 0,
 		 true, false,
-		 function(args) {
-		     arrayEach(args, function(x, i) {check(x, isNumber, '*', 'number', i+1, args);});
+		 function(aState, args) {
+		     arrayEach(args, function(x, i) {check(aState, x, isNumber, '*', 'number', i+1, args);});
 
 		     var result = types.rational(1);
-		     for(var i = 0; i < args.length; i++) {
+		     var i;
+		     for(i = 0; i < args.length; i++) {
 			  result = jsnums.multiply(args[i], result);
 		     }
 		     return result;
@@ -14118,10 +14390,10 @@ PRIMITIVES['-'] =
     new PrimProc("-",
 		 1,
 		 true, false,
-		 function(x, args) {
+		 function(aState, x, args) {
 		     var allArgs = [x].concat(args);
-		     check(x, isNumber, '-', 'number', 1, allArgs);
-		     arrayEach(args, function(y, i) {check(y, isNumber, '-', 'number', i+2, allArgs);});
+		     check(aState, x, isNumber, '-', 'number', 1, allArgs);
+		     arrayEach(args, function(y, i) {check(aState, y, isNumber, '-', 'number', i+2, allArgs);});
 
 		     if (args.length == 0) { 
 			  return jsnums.subtract(0, x);
@@ -14138,11 +14410,11 @@ PRIMITIVES['+'] =
     new PrimProc("+",
 		 0,
 		 true, false,
-		 function(args) {
-		     arrayEach(args, function(x, i) {check(x, isNumber, '+', 'number', i+1, args);});
+		 function(aState, args) {
+		     arrayEach(args, function(x, i) {check(aState, x, isNumber, '+', 'number', i+1, args);});
 
 		     if (args.length == 0) { 
-			  return 0;
+			 return 0;
 		     }
 		     var result = args[0];
 		     for (var i = 1; i < args.length; i++) {
@@ -14156,10 +14428,10 @@ PRIMITIVES['='] =
     new PrimProc("=",
 		 2,
 		 true, false,
-		 function(x, y, args) {
+		 function(aState, x, y, args) {
 		 	args.unshift(y);
 		 	args.unshift(x);
-		 	arrayEach(args, function(z, i) {check(z, isNumber, '=', 'number', i+1, args);});
+		 	arrayEach(args, function(z, i) {check(aState, z, isNumber, '=', 'number', i+1, args);});
 
 		 	return compare(args, jsnums.equals);
 		 });
@@ -14169,10 +14441,10 @@ PRIMITIVES['=~'] =
     new PrimProc('=~',
 		 3,
 		 false, false,
-		 function(x, y, range) {
-		 	check(x, isReal, '=~', 'real', 1, arguments);
-			check(y, isReal, '=~', 'real', 2, arguments);
-			check(range, isNonNegativeReal, '=~', 'non-negative-real', 3, arguments);
+		 function(aState, x, y, range) {
+		 	check(aState, x, isReal, '=~', 'real', 1, arguments);
+			check(aState, y, isReal, '=~', 'real', 2, arguments);
+			check(aState, range, isNonNegativeReal, '=~', 'non-negative-real', 3, arguments);
 
 			return jsnums.lessThanOrEqual(jsnums.abs(jsnums.subtract(x, y)), range);
 		 });
@@ -14182,51 +14454,87 @@ PRIMITIVES['/'] =
     new PrimProc('/',
 		 1,
 		 true, false,
-		 function(x, args) {
+		 function(aState, x, args) {
 		 	var allArgs = [x].concat(args);
-		 	check(x, isNumber, '/', 'number', 1, allArgs);
-		 	arrayEach(args, function(y, i) {check(y, isNumber, '/', 'number', i+2, allArgs);});
+		 	check(aState, x, isNumber, '/', 'number', 1, allArgs);
+		 	arrayEach(args, function(y, i) {check(aState, y, isNumber, '/', 'number', i+2, allArgs);});
 			
+		 	
+
+
+       		var handleError = function(step) {
+       			var positionStack = 
+        			state.captureCurrentContinuationMarks(aState).ref(
+            			types.symbol('moby-application-position-key'));
+        
+       
+       			var locationList = positionStack[positionStack.length - 1];
+       			var func = locationList.first();
+
+       			if (step !== -1){
+       				locationList = locationList.rest().rest();
+       			}
+       			else locationList = locationList.rest();
+       			var i;
+       			for(i = 0; i< step; i++) {
+       				locationList = locationList.rest();
+       			}
+       			raise( types.incompleteExn(types.exnFailContractDivisionByZero, 
+												new types.Message([new types.ColoredPart('/', func),
+													": division by ",
+													new types.ColoredPart("zero", locationList.first())]),
+												[]) );
+
+       		}
+
 			if (args.length == 0) {
 				if ( jsnums.equals(x, 0) ) {
-					raise( types.incompleteExn(types.exnFailContractDivisionByZero, '/: division by zero', []) );
+					handleError(-1);
 				}	
 				return jsnums.divide(1, x);
 			}
 
 		 	var res = x;
+		 	
 		 	for (var i = 0; i < args.length; i++) {
 				if ( jsnums.equals(args[i], 0) ) {
-					raise( types.incompleteExn(types.exnFailContractDivisionByZero, '/: division by zero', []) );
+					handleError(i);
 				}	
 				res = jsnums.divide(res, args[i]);
 		 	}
 		 	return res;
 		 });
 
-
+ 
 
 PRIMITIVES['sub1'] =
     new PrimProc("sub1",
 		 1,
 		 false, false,
-		 sub1);
+		 function(aState, v){ 
+	             check(aState, v, isNumber, 'sub1', 'number', 1, arguments);
+	             return jsnums.subtract(v, 1);
+                 });
+
 
 PRIMITIVES['add1'] =
     new PrimProc("add1",
 		 1,
 		 false, false,
-		 add1);
+		 function(aState, v) {
+	             check(aState, v, isNumber, 'add1', 'number', 1, arguments);
+	             return jsnums.add(v, 1);
+                 });
 
 
 PRIMITIVES['<'] = 
     new PrimProc('<',
 		 2,
 		 true, false,
-		 function(x, y, args) {
+		 function(aState, x, y, args) {
 		 	args.unshift(y);
 		 	args.unshift(x);
-		 	arrayEach(args, function(z, i) {check(z, isNumber, '<', 'number', i+1, args);});
+		 	arrayEach(args, function(z, i) {check(aState, z, isNumber, '<', 'number', i+1, args);});
 
 		 	return compare(args, jsnums.lessThan);
 		 });
@@ -14236,10 +14544,10 @@ PRIMITIVES['>'] =
     new PrimProc('>',
 		 2,
 		 true, false,
-		 function(x, y, args) {
+		 function(aState, x, y, args) {
 		 	args.unshift(y);
 		 	args.unshift(x);
-		 	arrayEach(args, function(z, i) {check(z, isNumber, '>', 'number', i+1, args);});
+		 	arrayEach(args, function(z, i) {check(aState, z, isNumber, '>', 'number', i+1, args);});
 
 		 	return compare(args, jsnums.greaterThan);
 		 });
@@ -14249,10 +14557,10 @@ PRIMITIVES['<='] =
     new PrimProc('<=',
 		 2,
 		 true, false,
-		 function(x, y, args) {
+		 function(aState, x, y, args) {
 		 	args.unshift(y);
 		 	args.unshift(x);
-		 	arrayEach(args, function(z, i) {check(z, isNumber, '<=', 'number', i+1, args);});
+		 	arrayEach(args, function(z, i) {check(aState, z, isNumber, '<=', 'number', i+1, args);});
 
 		 	return compare(args, jsnums.lessThanOrEqual);
 		 });
@@ -14262,10 +14570,10 @@ PRIMITIVES['>='] =
     new PrimProc('>=',
 		 2,
 		 true, false,
-		 function(x, y, args) {
+		 function(aState, x, y, args) {
 		 	args.unshift(y);
 		 	args.unshift(x);
-		 	arrayEach(args, function(z, i) {check(z, isNumber, '>=', 'number', i+1, args);});
+		 	arrayEach(args, function(z, i) {check(aState, z, isNumber, '>=', 'number', i+1, args);});
 
 		 	return compare(args, jsnums.greaterThanOrEqual);
 		 });
@@ -14277,8 +14585,8 @@ PRIMITIVES['abs'] =
     new PrimProc('abs',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isReal, 'abs', 'real', 1);
+		 function(aState, x) {
+		 	check(aState, x, isReal, 'abs', 'real', 1);
 			return jsnums.abs(x);
 		 });
 
@@ -14287,9 +14595,9 @@ PRIMITIVES['quotient'] =
     new PrimProc('quotient',
 		 2,
 		 false, false,
-		 function(x, y) {
-		 	check(x, isInteger, 'quotient', 'integer', 1, arguments);
-			check(y, isInteger, 'quotient', 'integer', 2, arguments);
+		 function(aState, x, y) {
+		 	check(aState, x, isInteger, 'quotient', 'integer', 1, arguments);
+			check(aState, y, isInteger, 'quotient', 'integer', 2, arguments);
 
 			return jsnums.quotient(x, y);
 		 });
@@ -14299,9 +14607,9 @@ PRIMITIVES['remainder'] =
     new PrimProc('remainder',
 		 2,
 		 false, false,
-		 function(x, y) {
-		 	check(x, isInteger, 'remainder', 'integer', 1, arguments);
-			check(y, isInteger, 'remainder', 'integer', 2, arguments);
+		 function(aState, x, y) {
+		 	check(aState, x, isInteger, 'remainder', 'integer', 1, arguments);
+			check(aState, y, isInteger, 'remainder', 'integer', 2, arguments);
 
 			return jsnums.remainder(x, y);
 		 });
@@ -14311,9 +14619,9 @@ PRIMITIVES['modulo'] =
     new PrimProc('modulo',
 		 2,
 		 false, false,
-		 function(x, y) {
-		 	check(x, isInteger, 'modulo', 'integer', 1, arguments);
-			check(y, isInteger, 'modulo', 'integer', 2, arguments);
+		 function(aState, x, y) {
+		 	check(aState, x, isInteger, 'modulo', 'integer', 1, arguments);
+			check(aState, y, isInteger, 'modulo', 'integer', 2, arguments);
 
 			return jsnums.modulo(x, y);
 		 });
@@ -14323,10 +14631,10 @@ PRIMITIVES['max'] =
     new PrimProc('max',
 		 1,
 		 true, false,
-		 function(x, args) {
+		 function(aState, x, args) {
 			args.unshift(x);
-//		 	check(x, isReal, 'max', 'real', 1, allArgs);
-			arrayEach(args, function(y, i) {check(y, isReal, 'max', 'real', i+1, args);});
+//		 	check(aState, x, isReal, 'max', 'real', 1, allArgs);
+			arrayEach(args, function(y, i) {check(aState, y, isReal, 'max', 'real', i+1, args);});
 
 			var curMax = x;
 			for (var i = 1; i < args.length; i++) {
@@ -14342,10 +14650,10 @@ PRIMITIVES['min'] =
     new PrimProc('min',
 		 1,
 		 true, false,
-		 function(x, args) {
+		 function(aState, x, args) {
 		 	args.unshift(x);
-//		 	check(x, isReal, 'min', 'real', 1);
-			arrayEach(args, function(y, i) {check(y, isReal, 'min', 'real', i+1, args);});
+//		 	check(aState, x, isReal, 'min', 'real', 1);
+			arrayEach(args, function(y, i) {check(aState, y, isReal, 'min', 'real', i+1, args);});
 
 			var curMin = x;
 			for (var i = 1; i < args.length; i++) {
@@ -14361,10 +14669,10 @@ PRIMITIVES['gcd'] =
     new PrimProc('gcd',
 		 1,
 		 true, false,
-		 function(x, args) {
+		 function(aState, x, args) {
 		 	var allArgs = [x].concat(args);
-		 	check(x, isInteger, 'gcd', 'integer', 1, allArgs);
-		 	arrayEach(args, function(y, i) {check(y, isInteger, 'gcd', 'integer', i+2, allArgs);});
+		 	check(aState, x, isInteger, 'gcd', 'integer', 1, allArgs);
+		 	arrayEach(args, function(y, i) {check(aState, y, isInteger, 'gcd', 'integer', i+2, allArgs);});
 
 		 	return jsnums.gcd(x, args);
 		 });
@@ -14373,10 +14681,10 @@ PRIMITIVES['lcm'] =
     new PrimProc('lcm',
 		 1,
 		 true, false,
-		 function(x, args) {
+		 function(aState, x, args) {
 		 	var allArgs = [x].concat(args);
-		 	check(x, isInteger, 'lcm', 'integer', 1, allArgs);
-		 	arrayEach(args, function(y, i) {check(y, isInteger, 'lcm', 'integer', i+2, allArgs);});
+		 	check(aState, x, isInteger, 'lcm', 'integer', 1, allArgs);
+		 	arrayEach(args, function(y, i) {check(aState, y, isInteger, 'lcm', 'integer', i+2, allArgs);});
 
 		 	return jsnums.lcm(x, args);
 		 });
@@ -14386,8 +14694,8 @@ PRIMITIVES['floor'] =
     new PrimProc('floor',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isReal, 'floor', 'real', 1);
+		 function(aState, x) {
+		 	check(aState, x, isReal, 'floor', 'real', 1);
 			return jsnums.floor(x);
 		 });
 
@@ -14396,8 +14704,8 @@ PRIMITIVES['ceiling'] =
     new PrimProc('ceiling',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isReal, 'ceiling', 'real', 1);
+		 function(aState, x) {
+		 	check(aState, x, isReal, 'ceiling', 'real', 1);
 			return jsnums.ceiling(x);
 		 });
 
@@ -14406,8 +14714,8 @@ PRIMITIVES['round'] =
     new PrimProc('round',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isReal, 'round', 'real', 1);
+		 function(aState, x) {
+		 	check(aState, x, isReal, 'round', 'real', 1);
 			return jsnums.round(x);
 		 });
 
@@ -14416,8 +14724,8 @@ PRIMITIVES['numerator'] =
     new PrimProc('numerator',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isRational, 'numerator', 'rational number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isRational, 'numerator', 'rational number', 1);
 			return jsnums.numerator(x);
 		 });
 
@@ -14426,8 +14734,8 @@ PRIMITIVES['denominator'] =
     new PrimProc('denominator',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isRational, 'denominator', 'rational number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isRational, 'denominator', 'rational number', 1);
 			return jsnums.denominator(x);
 		 });
 
@@ -14436,9 +14744,9 @@ PRIMITIVES['expt'] =
     new PrimProc("expt",
 		 2,
 		 false, false,
-		 function(x, y) {
-		 	check(x, isNumber, 'expt', 'number', 1, arguments);
-			check(y, isNumber, 'expt', 'number', 2, arguments);
+		 function(aState, x, y) {
+		 	check(aState, x, isNumber, 'expt', 'number', 1, arguments);
+			check(aState, y, isNumber, 'expt', 'number', 2, arguments);
 		 	return jsnums.expt(x, y);
 		 });
 
@@ -14447,8 +14755,8 @@ PRIMITIVES['exp'] =
     new PrimProc('exp',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'exp', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'exp', 'number', 1);
 			return jsnums.exp(x);
 		 });
 
@@ -14457,8 +14765,8 @@ PRIMITIVES['log'] =
     new PrimProc('log',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'log', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'log', 'number', 1);
 			return jsnums.log(x);
 		 });
 
@@ -14467,8 +14775,8 @@ PRIMITIVES['sin'] =
     new PrimProc('sin',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'sin', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'sin', 'number', 1);
 			return jsnums.sin(x);
 		 });
 
@@ -14477,8 +14785,8 @@ PRIMITIVES['cos'] =
     new PrimProc('cos',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'cos', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'cos', 'number', 1);
 			return jsnums.cos(x);
 		 });
 
@@ -14487,8 +14795,8 @@ PRIMITIVES['tan'] =
     new PrimProc('tan',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'tan', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'tan', 'number', 1);
 			return jsnums.tan(x);
 		 });
 
@@ -14497,8 +14805,8 @@ PRIMITIVES['asin'] =
     new PrimProc('asin',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'asin', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'asin', 'number', 1);
 			return jsnums.asin(x);
 		 });
 
@@ -14507,8 +14815,8 @@ PRIMITIVES['acos'] =
     new PrimProc('acos',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'acos', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'acos', 'number', 1);
 			return jsnums.acos(x);
 		 });
 
@@ -14517,8 +14825,8 @@ PRIMITIVES['atan'] =
     new PrimProc('atan',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'atan', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'atan', 'number', 1);
 			return jsnums.atan(x);
 		 });
 
@@ -14527,8 +14835,8 @@ PRIMITIVES['sinh'] =
     new PrimProc('sinh',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'sinh', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'sinh', 'number', 1);
 			return jsnums.sinh(x);
 		 });
 
@@ -14537,8 +14845,8 @@ PRIMITIVES['cosh'] =
     new PrimProc('cosh',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'cosh', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'cosh', 'number', 1);
 			return jsnums.cosh(x);
 		 });
 
@@ -14547,8 +14855,8 @@ PRIMITIVES['sqr'] =
     new PrimProc('sqr',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'sqr', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'sqr', 'number', 1);
 			return jsnums.sqr(x);
 		 });
 
@@ -14557,8 +14865,8 @@ PRIMITIVES['sqrt'] =
     new PrimProc('sqrt',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'sqrt', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'sqrt', 'number', 1);
 			return jsnums.sqrt(x);
 		 });
 
@@ -14567,8 +14875,8 @@ PRIMITIVES['integer-sqrt'] =
     new PrimProc('integer-sqrt',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isInteger, 'integer-sqrt', 'integer', 1);
+		 function(aState, x) {
+		 	check(aState, x, isInteger, 'integer-sqrt', 'integer', 1);
 			return jsnums.integerSqrt(x);
 		 });
 
@@ -14577,9 +14885,9 @@ PRIMITIVES['make-rectangular'] =
     new PrimProc('make-rectangular',
 		 2,
 		 false, false,
-		 function(x, y) {
-		 	check(x, isReal, 'make-rectangular', 'real', 1, arguments);
-			check(y, isReal, 'make-rectangular', 'real', 2, arguments);
+		 function(aState, x, y) {
+		 	check(aState, x, isReal, 'make-rectangular', 'real', 1, arguments);
+			check(aState, y, isReal, 'make-rectangular', 'real', 2, arguments);
 			return types.complex(x, y);
 		 });
 
@@ -14587,9 +14895,9 @@ PRIMITIVES['make-polar'] =
     new PrimProc('make-polar',
 		 2,
 		 false, false,
-		 function(x, y) {
-		 	check(x, isReal, 'make-polar', 'real', 1, arguments);
-			check(x, isReal, 'make-polar', 'real', 2, arguments);
+		 function(aState, x, y) {
+		 	check(aState, x, isReal, 'make-polar', 'real', 1, arguments);
+			check(aState, y, isReal, 'make-polar', 'real', 2, arguments);
 			return jsnums.makeComplexPolar(x, y);
 		 });
 
@@ -14598,8 +14906,8 @@ PRIMITIVES['real-part'] =
     new PrimProc('real-part',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'real-part', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'real-part', 'number', 1);
 			return jsnums.realPart(x);
 		 });
 
@@ -14608,8 +14916,8 @@ PRIMITIVES['imag-part'] =
     new PrimProc('imag-part',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'imag-part', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'imag-part', 'number', 1);
 			return jsnums.imaginaryPart(x);
 		 });
 
@@ -14618,8 +14926,8 @@ PRIMITIVES['angle'] =
     new PrimProc('angle',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'angle', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'angle', 'number', 1);
 			return jsnums.angle(x);
 		 });
 
@@ -14628,8 +14936,8 @@ PRIMITIVES['magnitude'] =
     new PrimProc('magnitude',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'magnitude', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'magnitude', 'number', 1);
 			return jsnums.magnitude(x);
 		 });
 
@@ -14638,8 +14946,8 @@ PRIMITIVES['conjugate'] =
     new PrimProc('conjugate',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'conjugate', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'conjugate', 'number', 1);
 			return jsnums.conjugate(x);
 		 });
 
@@ -14648,8 +14956,8 @@ PRIMITIVES['sgn'] =
     new PrimProc('sgn',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isReal, 'sgn', 'real number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isReal, 'sgn', 'real number', 1);
 			if ( jsnums.greaterThan(x, 0) ) {
 				return 1;
 			}
@@ -14666,10 +14974,10 @@ PRIMITIVES['inexact->exact'] =
     new PrimProc('inexact->exact',
 		 1,
 		 false, false,
-		 function (x) {
-		 	check(x, isNumber, 'inexact->exact', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'inexact->exact', 'number', 1);
 			try {
-				return jsnums.toExact(x);
+			        return jsnums.toExact(x);
 			} catch(e) {
 				raise( types.exnFailContract('inexact->exact: no exact representation for '
 							     + types.toWrittenString(x),
@@ -14682,8 +14990,8 @@ PRIMITIVES['exact->inexact'] =
     new PrimProc('exact->inexact',
 		 1,
 		 false, false,
-		 function (x) {
-		 	check(x, isNumber, 'exact->inexact', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'exact->inexact', 'number', 1);
 			return jsnums.toInexact(x);
 		 });
 
@@ -14692,8 +15000,8 @@ PRIMITIVES['number->string'] =
     new PrimProc('number->string',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isNumber, 'number->string', 'number', 1);
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'number->string', 'number', 1);
 			return types.string(x+'');
 		 });
 
@@ -14702,8 +15010,8 @@ PRIMITIVES['string->number'] =
     new PrimProc('string->number',
 		 1,
 		 false, false,
-		 function(str) {
-		 	check(str, isString, 'string->number', 'string', 1);
+		 function(aState, str) {
+		 	check(aState, str, isString, 'string->number', 'string', 1);
 			return jsnums.fromString(str);
 		 });
 
@@ -14712,8 +15020,8 @@ PRIMITIVES['xml->s-exp'] =
     new PrimProc('xml->s-exp',
 		 1,
 		 false, false,
-		 function(str) {
-		 	check(str, isString, 'xml->s-exp', 'string', 1);
+		 function(aState, str) {
+		 	check(aState, str, isString, 'xml->s-exp', 'string', 1);
 			if (str.length == 0) {
 				return types.string('');
 			}
@@ -14774,8 +15082,7 @@ PRIMITIVES['xml->s-exp'] =
 					return types.EMPTY;
 				}
 			};
-			var result = parse(xmlDoc.firstChild);
-			return result;
+			return parse(xmlDoc.firstChild);
 		 });
 
 
@@ -14785,43 +15092,63 @@ PRIMITIVES['xml->s-exp'] =
  *** Predicates ***
  ******************/
 
-PRIMITIVES['procedure?'] = new PrimProc('procedure?', 1, false, false, isFunction);
+PRIMITIVES['procedure?'] = new PrimProc('procedure?', 1, false, false, 
+                                        function(aState, v) { return isFunction(v); });
 
-PRIMITIVES['pair?'] = new PrimProc('pair?', 1, false, false, isPair);
-PRIMITIVES['cons?'] = new PrimProc('cons?', 1, false, false, isPair);
-PRIMITIVES['empty?'] = new PrimProc('empty?', 1, false, false, isEmpty);
-PRIMITIVES['null?'] = new PrimProc('null?', 1, false, false, isEmpty);
+PRIMITIVES['pair?'] = new PrimProc('pair?', 1, false, false, 
+                                   function(aState, v) { return isPair(v); } );
+PRIMITIVES['cons?'] = new PrimProc('cons?', 1, false, false, 
+                                   function(aState, v) { return isPair(v); });
+PRIMITIVES['empty?'] = new PrimProc('empty?', 1, false, false,
+                                    function(aState, v) { return isEmpty(v); });
+PRIMITIVES['null?'] = new PrimProc('null?', 1, false, false,
+                                   function(aState, v) { return isEmpty(v); });
 
-PRIMITIVES['undefined?'] = new PrimProc('undefined?', 1, false, false, function(x) { return x === types.UNDEFINED; });
-PRIMITIVES['void?'] = new PrimProc('void?', 1, false, false, function(x) { return x === types.VOID; });
+PRIMITIVES['undefined?'] = new PrimProc('undefined?', 1, false, false, function(aState, x) { return x === types.UNDEFINED; });
+PRIMITIVES['void?'] = new PrimProc('void?', 1, false, false, function(aState, x) { return x === types.VOID; });
 
-PRIMITIVES['symbol?'] = new PrimProc('symbol?', 1, false, false, isSymbol);
-PRIMITIVES['string?'] = new PrimProc('string?', 1, false, false, isString);
-PRIMITIVES['char?'] = new PrimProc('char?', 1, false, false, isChar);
-PRIMITIVES['boolean?'] = new PrimProc('boolean?', 1, false, false, isBoolean);
-PRIMITIVES['vector?'] = new PrimProc('vector?', 1, false, false, isVector);
-PRIMITIVES['struct?'] = new PrimProc('struct?', 1, false, false, types.isStruct);
-PRIMITIVES['eof-object?'] = new PrimProc('eof-object?', 1, false, false, function(x) { return x === types.EOF; });
-PRIMITIVES['posn?'] = new PrimProc('posn?', 1, false, false, types.isPosn);
-PRIMITIVES['bytes?'] = new PrimProc('bytes?', 1, false, false, isByteString);
-PRIMITIVES['byte?'] = new PrimProc('byte?', 1, false, false, isByte);
+PRIMITIVES['symbol?'] = new PrimProc('symbol?', 1, false, false, 
+                                     function(aState, v) { return isSymbol(v); });
+PRIMITIVES['string?'] = new PrimProc('string?', 1, false, false,
+                                     function(aState, v) { return isString(v); });
+PRIMITIVES['char?'] = new PrimProc('char?', 1, false, false, 
+                                   function(aState, v){ return isChar(v); });
+PRIMITIVES['boolean?'] = new PrimProc('boolean?', 1, false, false, 
+                                      function(aState, v){ return isBoolean(v); });
+PRIMITIVES['vector?'] = new PrimProc('vector?', 1, false, false,
+                                     function(aState, v) { return isVector(v); });
+PRIMITIVES['struct?'] = new PrimProc('struct?', 1, false, false, 
+                                     function(aState, v) { return types.isStruct(v); });
+PRIMITIVES['eof-object?'] = new PrimProc('eof-object?', 1, false, false,
+                                         function(aState, x) { return x === types.EOF; });
+PRIMITIVES['posn?'] = new PrimProc('posn?', 1, false, false,
+                                   function(aState, v){ return types.isPosn(v); });
+PRIMITIVES['bytes?'] = new PrimProc('bytes?', 1, false, false, 
+                                    function(aState, v){ return isByteString(v); });
+PRIMITIVES['byte?'] = new PrimProc('byte?', 1, false, false,
+                                   function(aState, v) { return isByte(v); });
 
-PRIMITIVES['number?'] = new PrimProc('number?', 1, false, false, isNumber);
-PRIMITIVES['complex?'] = new PrimProc('complex?', 1, false, false, isComplex);
-PRIMITIVES['real?'] = new PrimProc('real?', 1, false, false, isReal);
-PRIMITIVES['rational?'] = new PrimProc('rational?', 1, false, false, isRational);
-PRIMITIVES['integer?'] = new PrimProc('integer?', 1, false, false, isInteger);
+PRIMITIVES['number?'] = new PrimProc('number?', 1, false, false, 
+                                     function(aState, v) { return isNumber(v); });
+PRIMITIVES['complex?'] = new PrimProc('complex?', 1, false, false, 
+                                      function(aState, v) { return isComplex(v); });
+PRIMITIVES['real?'] = new PrimProc('real?', 1, false, false,
+                                   function(aState, v) { return isReal(v); });
+PRIMITIVES['rational?'] = new PrimProc('rational?', 1, false, false, 
+                                       function(aState, v) { return isRational(v); });
+PRIMITIVES['integer?'] = new PrimProc('integer?', 1, false, false, 
+                                      function(aState, v) { return isInteger(v); });
 
 PRIMITIVES['exact?'] =
     new PrimProc('exact?', 1, false, false,
-		 function(x) {
-			check(x, isNumber, 'exact?', 'number', 1);
+		 function(aState, x) {
+			check(aState, x, isNumber, 'exact?', 'number', 1);
 			return jsnums.isExact(x);
 		 });
 PRIMITIVES['inexact?'] =
     new PrimProc('inexact?', 1, false, false,
-		 function(x) {
-			check(x, isNumber, 'inexact?', 'number', 1);
+		 function(aState, x) {
+			check(aState, x, isNumber, 'inexact?', 'number', 1);
 			return jsnums.isInexact(x);
 		 });
 
@@ -14829,16 +15156,16 @@ PRIMITIVES['odd?'] =
     new PrimProc('odd?',
 		 1,
 		 false, false,
-		 function(x) {
-			check(x, isInteger, 'odd?', 'integer', 1);
+		 function(aState, x) {
+			check(aState, x, isInteger, 'odd?', 'integer', 1);
 			return jsnums.equals(jsnums.modulo(x, 2), 1);
 		 });
 PRIMITIVES['even?'] =
     new PrimProc('even?',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isInteger, 'even?', 'integer', 1);
+		 function(aState, x) {
+		 	check(aState, x, isInteger, 'even?', 'integer', 1);
 			return jsnums.equals(jsnums.modulo(x, 2), 0);
 		 });
 
@@ -14846,7 +15173,8 @@ PRIMITIVES['zero?'] =
     new PrimProc("zero?",
 		 1,
 		 false, false,
-		 function(x) {
+		 function(aState, x) {
+		 	check(aState, x, isNumber, 'zero?', 'number', 1);
 		     return jsnums.equals(0, x)
 		 });
 
@@ -14854,33 +15182,38 @@ PRIMITIVES['positive?'] =
     new PrimProc('positive?',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isReal, 'positive?', 'real', 1);
+		 function(aState, x) {
+		 	check(aState, x, isReal, 'positive?', 'real', 1);
 			return jsnums.greaterThan(x, 0);
 		 });
 PRIMITIVES['negative?'] =
     new PrimProc('negative?',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, isReal, 'negative?', 'real', 1);
+		 function(aState, x) {
+		 	check(aState, x, isReal, 'negative?', 'real', 1);
 			return jsnums.lessThan(x, 0);
 		 });
 
-PRIMITIVES['box?'] = new PrimProc('box?', 1, false, false, isBox);
+PRIMITIVES['box?'] = new PrimProc('box?', 1, false, false, 
+                                  function(aState, v) { return isBox(v); });
 
-PRIMITIVES['hash?'] = new PrimProc('hash?', 1, false, false, isHash);
+PRIMITIVES['hash?'] = new PrimProc('hash?', 1, false, false,
+                                   function(aState, v) { return isHash(v); });
 
 
-PRIMITIVES['eq?'] = new PrimProc('eq?', 2, false, false, isEq);
-PRIMITIVES['eqv?'] = new PrimProc('eqv?', 2, false, false, isEqv);
-PRIMITIVES['equal?'] = new PrimProc('equal?', 2, false, false, isEqual);
+PRIMITIVES['eq?'] = new PrimProc('eq?', 2, false, false, 
+                                 function(aState, x, y) { return isEq(x, y); } );
+PRIMITIVES['eqv?'] = new PrimProc('eqv?', 2, false, false, 
+                                  function(aState, x, y) { return isEqv(x, y); });
+PRIMITIVES['equal?'] = new PrimProc('equal?', 2, false, false, 
+                                    function(aState, x, y) { return isEqual(x, y); });
 PRIMITIVES['equal~?'] =
     new PrimProc('equal~?',
 		 3,
 		 false, false,
-		 function(x, y, range) {
-		 	check(range, isNonNegativeReal, 'equal~?', 'non-negative number', 3, arguments);
+		 function(aState, x, y, range) {
+		 	check(aState, range, isNonNegativeReal, 'equal~?', 'non-negative number', 3, arguments);
 
 			return (isEqual(x, y) ||
 				(isReal(x) && isReal(y) &&
@@ -14888,29 +15221,30 @@ PRIMITIVES['equal~?'] =
 		 });
 
 
-PRIMITIVES['false?'] = new PrimProc('false?', 1, false, false, function(x) { return x === false; });
+PRIMITIVES['false?'] = new PrimProc('false?', 1, false, false, function(aState, x) { return x === false; });
 PRIMITIVES['boolean=?'] =
     new PrimProc('boolean=?',
 		 2,
 		 false, false,
-		 function(x, y) {
-		 	check(x, isBoolean, 'boolean=?', 'boolean', 1, arguments);
-			check(y, isBoolean, 'boolean=?', 'boolean', 2, arguments);
-			return x === y;
+		 function(aState, x, y) {
+		 	check(aState, x, isBoolean, 'boolean=?', 'boolean', 1, arguments);
+			check(aState, y, isBoolean, 'boolean=?', 'boolean', 2, arguments);
+  		        return (x === y);
 		 });
 
 PRIMITIVES['symbol=?'] =
     new PrimProc('symbol=?',
 		 2,
 		 false, false,
-		 function(x, y) {
-		 	check(x, isSymbol, 'symbol=?', 'symbol', 1, arguments);
-			check(y, isSymbol, 'symbol=?', 'symbol', 2, arguments);
+		 function(aState, x, y) {
+		 	check(aState, x, isSymbol, 'symbol=?', 'symbol', 1, arguments);
+			check(aState, y, isSymbol, 'symbol=?', 'symbol', 2, arguments);
 			return isEqual(x, y);
 		 });
 
 
-PRIMITIVES['js-object?'] = new PrimProc('js-object?', 1, false, false, isJsObject);
+PRIMITIVES['js-object?'] = new PrimProc('js-object?', 1, false, false, 
+                                        function(aState, v) { return isJsObject(v); });
 
 
 /***********************
@@ -14921,8 +15255,8 @@ PRIMITIVES['cons'] =
     new PrimProc('cons',
 		 2,
 		 false, false,
-		 function(f, r) {
-//		 	checkList(r, "cons", 2);
+		 function(aState, f, r) {
+//		 	checkList(aState, r, "cons", 2);
 		 	return types.cons(f, r);
 		 });
 
@@ -14931,8 +15265,8 @@ PRIMITIVES['car'] =
     new PrimProc('car',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	check(lst, isPair, 'car', 'pair', 1);
+		 function(aState, lst) {
+		 	check(aState, lst, isPair, 'car', 'pair', 1);
 			return lst.first();
 		 });
 
@@ -14940,8 +15274,8 @@ PRIMITIVES['cdr'] =
     new PrimProc('cdr',
 		 1,
 		 false, false,
-		 function (lst) {
-			check(lst, isPair, 'cdr', 'pair', 1);
+		 function(aState, lst) {
+			check(aState, lst, isPair, 'cdr', 'pair', 1);
 			return lst.rest();
 		 });
 
@@ -14949,8 +15283,8 @@ PRIMITIVES['caar'] =
     new PrimProc('caar',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	check(lst, function(x) { return (isPair(x) && isPair(x.first())); },
+		 function(aState, lst) {
+		 	check(aState, lst, function(x) { return (isPair(x) && isPair(x.first())); },
 			      'caar', 'caarable value', 1);
 		 	return lst.first().first();
 		 });
@@ -14959,8 +15293,8 @@ PRIMITIVES['cadr'] =
     new PrimProc('cadr',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	check(lst, function(x) { return isPair(x) && isPair(x.rest()); },
+		 function(aState, lst) {
+		 	check(aState, lst, function(x) { return isPair(x) && isPair(x.rest()); },
 			      'cadr', 'cadrable value', 1);
 			return lst.rest().first();
 		 });
@@ -14969,8 +15303,8 @@ PRIMITIVES['cdar'] =
     new PrimProc('cdar',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	check(lst, function(x) { return isPair(x) && isPair(x.first()); },
+		 function(aState, lst) {
+		 	check(aState, lst, function(x) { return isPair(x) && isPair(x.first()); },
 			      'cdar', 'cdarable value', 1);
 		 	return lst.first().rest();
 		 });
@@ -14979,8 +15313,8 @@ PRIMITIVES['cddr'] =
     new PrimProc('cddr',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	check(lst, function(x) { return isPair(x) && isPair(x.rest()); },
+		 function(aState, lst) {
+		 	check(aState, lst, function(x) { return isPair(x) && isPair(x.rest()); },
 			      'cddr', 'cddrable value', 1);
 		 	return lst.rest().rest();
 		 });
@@ -14989,8 +15323,8 @@ PRIMITIVES['caaar'] =
     new PrimProc('caaar',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	check(lst, function(x) { return ( isPair(x) &&
+		 function(aState, lst) {
+		 	check(aState, lst, function(x) { return ( isPair(x) &&
 							  isPair(x.first()) &&
 							  isPair(x.first().first()) ); },
 			      'caaar', 'caaarable value', 1);
@@ -15001,8 +15335,8 @@ PRIMITIVES['caadr'] =
     new PrimProc('caadr',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	check(lst, function(x) { return ( isPair(x) &&
+		 function(aState, lst) {
+		 	check(aState, lst, function(x) { return ( isPair(x) &&
 							  isPair(x.rest()) &&
 							  isPair(x.rest().first()) ); },
 			      'caadr', 'caadrable value', 1);
@@ -15013,8 +15347,8 @@ PRIMITIVES['cadar'] =
     new PrimProc('cadar',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	check(lst, function(x) { return ( isPair(x) &&
+		 function(aState, lst) {
+		 	check(aState, lst, function(x) { return ( isPair(x) &&
 							  isPair(x.first()) &&
 							  isPair(x.first().rest()) ); },
 			      'cadar', 'cadarable value', 1);
@@ -15025,8 +15359,8 @@ PRIMITIVES['cdaar'] =
     new PrimProc('cdaar',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	check(lst, function(x) { return ( isPair(x) &&
+		 function(aState, lst) {
+		 	check(aState, lst, function(x) { return ( isPair(x) &&
 							  isPair(x.first()) &&
 							  isPair(x.first().first()) ); },
 			      'cdaar', 'cdaarable value', 1);
@@ -15037,8 +15371,8 @@ PRIMITIVES['cdadr'] =
     new PrimProc('cdadr',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	check(lst, function(x) { return ( isPair(x) &&
+		 function(aState, lst) {
+		 	check(aState, lst, function(x) { return ( isPair(x) &&
 							  isPair(x.rest()) &&
 							  isPair(x.rest().first()) ); },
 			      'cdadr', 'cdadrable value', 1);
@@ -15049,8 +15383,8 @@ PRIMITIVES['cddar'] =
     new PrimProc('cddar',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	check(lst, function(x) { return ( isPair(x) &&
+		 function(aState, lst) {
+		 	check(aState, lst, function(x) { return ( isPair(x) &&
 							  isPair(x.first()) &&
 							  isPair(x.first().rest()) ); },
 			      'cddar', 'cddarable value', 1);
@@ -15061,8 +15395,8 @@ PRIMITIVES['caddr'] =
     new PrimProc('caddr',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	check(lst, function(x) { return ( isPair(x) &&
+		 function(aState, lst) {
+		 	check(aState, lst, function(x) { return ( isPair(x) &&
 							  isPair(x.rest()) &&
 							  isPair(x.rest().rest()) ); },
 			      'caddr', 'caddrable value', 1);
@@ -15073,8 +15407,8 @@ PRIMITIVES['cdddr'] =
     new PrimProc('cdddr',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	check(lst, function(x) { return ( isPair(x) &&
+		 function(aState, lst) {
+		 	check(aState, lst, function(x) { return ( isPair(x) &&
 							  isPair(x.rest()) &&
 							  isPair(x.rest().rest()) ); },
 			      'cdddr', 'cdddrable value', 1);
@@ -15085,8 +15419,8 @@ PRIMITIVES['cadddr'] =
     new PrimProc('cadddr',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	check(lst, function(x) { return ( isPair(x) &&
+		 function(aState, lst) {
+		 	check(aState, lst, function(x) { return ( isPair(x) &&
 							  isPair(x.rest()) &&
 							  isPair(x.rest().rest()) &&
 				       			  isPair(x.rest().rest().rest()) ); },
@@ -15099,8 +15433,8 @@ PRIMITIVES['rest'] =
     new PrimProc('rest',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	check(lst, function(x) { return isList(x) && !isEmpty(x); },
+		 function(aState, lst) {
+		 	check(aState, lst, function(x) { return isList(x) && !isEmpty(x); },
 			      'rest', 'non-empty list', 1);
 			return lst.rest();
 		 });
@@ -15109,8 +15443,8 @@ PRIMITIVES['first'] =
     new PrimProc('first',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	check(lst, function(x) { return isList(x) && !isEmpty(x); },
+		 function(aState, lst) {
+		 	check(aState, lst, function(x) { return isList(x) && !isEmpty(x); },
 			      'first', 'non-empty list', 1);
 			return lst.first();
 		 });
@@ -15119,8 +15453,8 @@ PRIMITIVES['second'] =
     new PrimProc('second',
 		 1,
 		 false, false,
-		 function(lst) {
-			checkListOfLength(lst, 2, 'second', 1);
+		 function(aState, lst) {
+			checkListOfLength(aState, lst, 2, 'second', 1);
 			return lst.rest().first();
 		 });
 
@@ -15128,8 +15462,8 @@ PRIMITIVES['third'] =
     new PrimProc('third',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	checkListOfLength(lst, 3, 'third', 1);
+		 function(aState, lst) {
+		 	checkListOfLength(aState, lst, 3, 'third', 1);
 			return lst.rest().rest().first();
 		 });
 
@@ -15137,8 +15471,8 @@ PRIMITIVES['fourth'] =
     new PrimProc('fourth',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	checkListOfLength(lst, 4, 'fourth', 1);
+		 function(aState, lst) {
+		 	checkListOfLength(aState, lst, 4, 'fourth', 1);
 			return lst.rest().rest().rest().first();
 		 });
 
@@ -15146,8 +15480,8 @@ PRIMITIVES['fifth'] =
     new PrimProc('fifth',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	checkListOfLength(lst, 5, 'fifth', 1);
+		 function(aState, lst) {
+		 	checkListOfLength(aState, lst, 5, 'fifth', 1);
 		 	return lst.rest().rest().rest().rest().first();
 		 });
 
@@ -15155,8 +15489,8 @@ PRIMITIVES['sixth'] =
     new PrimProc('sixth',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	checkListOfLength(lst, 6, 'sixth', 1);
+		 function(aState, lst) {
+		 	checkListOfLength(aState, lst, 6, 'sixth', 1);
 		 	return lst.rest().rest().rest().rest().rest().first();
 		 });
 
@@ -15165,8 +15499,8 @@ PRIMITIVES['seventh'] =
 		 'seventh',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	checkListOfLength(lst, 7, 'seventh', 1);
+ 	         function(aState, lst) {
+		 	checkListOfLength(aState, lst, 7, 'seventh', 1);
 		 	return lst.rest().rest().rest().rest().rest().rest().first();
 		 });
 
@@ -15174,8 +15508,8 @@ PRIMITIVES['eighth'] =
     new PrimProc('eighth',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	checkListOfLength(lst, 8, 'eighth', 1);
+		 function(aState, lst) {
+		 	checkListOfLength(aState, lst, 8, 'eighth', 1);
 		 	return lst.rest().rest().rest().rest().rest().rest().rest().first();
 		 });
 
@@ -15184,36 +15518,38 @@ PRIMITIVES['length'] =
     new PrimProc('length',
 		 1,
 		 false, false,
-		 function(lst) {
+		 function(aState, lst) {
+		 	checkList(aState, lst, 'length', 1, arguments);
 		  	return jsnums.makeRational(length(lst));
 		 });
 
 
-PRIMITIVES['list?'] = new PrimProc('list?', 1, false, false, isList);
+PRIMITIVES['list?'] = new PrimProc('list?', 1, false, false,
+                                   function(aState, v) { return isList(v); });
 
 
 PRIMITIVES['list'] =
     new PrimProc('list',
 		 0,
 		 true, false,
-		 types.list);
+		 function(aState, v) { return types.list(v); });
 
 
 PRIMITIVES['list*'] =
     new PrimProc('list*',
 		 1,
 		 true, false,
-		 function(items, otherItems) {
+		 function(aState, items, otherItems) {
 		 	var allArgs = [items].concat(otherItems);
 		 	if (otherItems.length == 0) {
 				return items;
 			}
 		 
 		 	var lastListItem = otherItems.pop();
-		 	checkList(lastListItem, 'list*', otherItems.length+2, allArgs);
+		 	checkList(aState, lastListItem, 'list*', otherItems.length+2, allArgs);
 
 		 	otherItems.unshift(items);
-		 	return append([types.list(otherItems), lastListItem]);
+		 	return append(aState, [types.list(otherItems), lastListItem]);
 		 });
 
 
@@ -15221,31 +15557,45 @@ PRIMITIVES['list-ref'] =
     new PrimProc('list-ref',
 		 2,
 		 false, false,
-		 function(origList, num) {
-		 	checkList(origList, 'list-ref', 1, arguments);
-		 	check(num, isNatural, 'list-ref', 'non-negative exact integer', 2, arguments);
+		 function(aState, origList, num) {
+		 	checkList(aState, origList, 'list-ref', 1, arguments);
+		 	check(aState, num, isNatural, 'list-ref', 'non-negative exact integer', 2, arguments);
+
+		 	var positionStack = 
+        		state.captureCurrentContinuationMarks(aState).ref(
+            		types.symbol('moby-application-position-key'));
+        
+       
+       		  var locationList = positionStack[positionStack.length - 1];
 
 			var lst = origList;
 			var n = jsnums.toFixnum(num);
 		 	for (var i = 0; i < n; i++) {
-		 		if (lst.isEmpty()) {
-					var msg = ('list-ref: index ' + n +
+		 		if (lst.isEmpty() || lst.rest().isEmpty()) { //fixing off by one error
+					/*var msg = ('list-ref: index ' + n +
 						   ' is too large for list: ' +
-						   types.toWrittenString(origList));
-					raise( types.incompleteExn(types.exnFailContract, msg, []) );
+						   types.toWrittenString(origList));*/
+					raise( types.incompleteExn(types.exnFailContract, 
+												new types.Message([
+													new types.ColoredPart('list-ref', locationList.first()),
+													": index ",
+													new types.ColoredPart(n, locationList.rest().rest().first()) ,
+													' is too large for list: ',
+													new types.ColoredPart(types.toWrittenString(origList), locationList.rest().first())]), 
+												[]) );
 		 		}
 	  			lst = lst.rest();
 		 	}
-		 	return lst.first();
+		        return lst.first();
 		 });
-
+///////////////////////////////////////
 PRIMITIVES['list-tail'] =
     new PrimProc('list-tail',
 		 2,
 		 false, false,
-		 function(lst, num) {
-		 	checkList(lst, 'list-tail', 1, arguments);
-			check(x, isNatural, 'list-tail', 'non-negative exact integer', 2, arguments);
+		 function(aState, lst, num) {
+		 	checkList(aState, lst, 'list-tail', 1, arguments);
+			check(aState, x, isNatural, 'list-tail', 'non-negative exact integer', 2, arguments);
 
 			var lst = origList;
 			var n = jsnums.toFixnum(num);
@@ -15266,15 +15616,15 @@ PRIMITIVES['append'] =
     new PrimProc('append',
 		 0,
 		 true, false,
-		 append);
+		 function(aState, args) { return append(aState, args); });
 
 
 PRIMITIVES['reverse'] =
     new PrimProc('reverse',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	checkList(lst, 'reverse', 1);
+		 function(aState, lst) {
+		 	checkList(aState, lst, 'reverse', 1);
 		 	return lst.reverse();
 		 });
 
@@ -15283,13 +15633,13 @@ PRIMITIVES['map'] =
     new PrimProc('map',
 		 2,
 		 true, false,
-		 function(f, lst, arglists) {
+		 function(aState, f, lst, arglists) {
 		 	var allArgs = [f, lst].concat(arglists);
 		 	arglists.unshift(lst);
-		 	check(f, isFunction, 'map', 'procedure', 1, allArgs);
-		 	arrayEach(arglists, function(x, i) {checkList(x, 'map', i+2, allArgs);});
-			checkAllSameLength(arglists, 'map', allArgs);
-			
+		 	check(aState, f, isFunction, 'map', 'procedure', 1, allArgs);
+		 	arrayEach(arglists, function(x, i) {checkList(aState, x, 'map', i+2, allArgs);});
+			checkAllSameLength(aState, arglists, 'map', allArgs);
+
 			var mapHelp = function(f, args, acc) {
 				if (args[0].isEmpty()) {
 				    return acc.reverse();
@@ -15315,12 +15665,12 @@ PRIMITIVES['andmap'] =
     new PrimProc('andmap',
 		 2,
 		 true, false,
-		 function(f, lst, arglists) {
+		 function(aState, f, lst, arglists) {
 		 	var allArgs = [f, lst].concat(arglists);
 		 	arglists.unshift(lst);
-		  	check(f, isFunction, 'andmap', 'procedure', 1, allArgs);
-		  	arrayEach(arglists, function(x, i) {checkList(x, 'andmap', i+2, allArgs);});
-			checkAllSameLength(arglists, 'andmap', allArgs);
+		  	check(aState, f, isFunction, 'andmap', 'procedure', 1, allArgs);
+		  	arrayEach(arglists, function(x, i) {checkList(aState, x, 'andmap', i+2, allArgs);});
+			checkAllSameLength(aState, arglists, 'andmap', allArgs);
   
 			var andmapHelp = function(f, args) {
 				if ( args[0].isEmpty() ) {
@@ -15347,12 +15697,12 @@ PRIMITIVES['ormap'] =
     new PrimProc('ormap',
 		 2,
 		 true, false,
-		 function(f, lst, arglists) {
+		 function(aState, f, lst, arglists) {
 		 	var allArgs = [f, lst].concat(arglists);
 		 	arglists.unshift(lst);
-		  	check(f, isFunction, 'ormap', 'procedure', 1, allArgs);
-		  	arrayEach(arglists, function(x, i) {checkList(x, 'ormap', i+2, allArgs);});
-			checkAllSameLength(arglists, 'ormap', allArgs);
+		  	check(aState, f, isFunction, 'ormap', 'procedure', 1, allArgs);
+		  	arrayEach(arglists, function(x, i) {checkList(aState, x, 'ormap', i+2, allArgs);});
+			checkAllSameLength(aState, arglists, 'ormap', allArgs);
 
 			var ormapHelp = function(f, args) {
 				if ( args[0].isEmpty() ) {
@@ -15379,8 +15729,8 @@ PRIMITIVES['memq'] =
     new PrimProc('memq',
 		 2,
 		 false, false,
-		 function(item, lst) {
-		 	checkList(lst, 'memq', 2, arguments);
+		 function(aState, item, lst) {
+		 	checkList(aState, lst, 'memq', 2, arguments);
 			while ( !lst.isEmpty() ) {
 				if ( isEq(item, lst.first()) ) {
 					return lst;
@@ -15395,8 +15745,8 @@ PRIMITIVES['memv'] =
     new PrimProc('memv',
 		 2,
 		 false, false,
-		 function(item, lst) {
-		 	checkList(lst, 'memv', 2, arguments);
+		 function(aState, item, lst) {
+		 	checkList(aState, lst, 'memv', 2, arguments);
 			while ( !lst.isEmpty() ) {
 				if ( isEqv(item, lst.first()) ) {
 					return lst;
@@ -15411,8 +15761,8 @@ PRIMITIVES['member'] =
     new PrimProc('member',
 		 2,
 		 false, false,
-		 function(item, lst) {
-		 	checkList(lst, 'member', 2, arguments);
+		 function(aState, item, lst) {
+		 	checkList(aState, lst, 'member', 2, arguments);
 		 	while ( !lst.isEmpty() ) {
 		 		if ( isEqual(item, lst.first()) ) {
 		 			return lst;
@@ -15426,8 +15776,8 @@ PRIMITIVES['member?'] =
     new PrimProc('member?',
 		 2,
 		 false, false,
-		 function(item, lst) {
-		 	checkList(lst, 'member?', 2, arguments);
+		 function(aState, item, lst) {
+		 	checkList(aState, lst, 'member?', 2, arguments);
 		 	while ( !lst.isEmpty() ) {
 		 		if ( isEqual(item, lst.first()) ) {
 		 			return true;
@@ -15441,10 +15791,10 @@ PRIMITIVES['member?'] =
 PRIMITIVES['memf'] =
     new PrimProc('memf',
 		 2,
-		 false, false,
-		 function(f, initList) {
-		 	check(f, isFunction, 'memf', 'procedure', 1, arguments);
-			checkList(initList, 'memf', 2, arguments);
+		 false, true,
+		 function(aState, f, initList) {
+		 	check(aState, f, isFunction, 'memf', 'procedure', 1, arguments);
+			checkList(aState, initList, 'memf', 2, arguments);
 
 			var memfHelp = function(lst) {
 				if ( lst.isEmpty() ) {
@@ -15467,8 +15817,8 @@ PRIMITIVES['assq'] =
     new PrimProc('assq',
 		 2,
 		 false, false,
-		 function(item, lst) {
-		 	checkListOf(lst, isPair, 'assq', 'pair', 2, arguments);
+		 function(aState, item, lst) {
+		 	checkListOf(aState, lst, isPair, 'assq', 'pair', 2, arguments);
 			while ( !lst.isEmpty() ) {
 				if ( isEq(item, lst.first().first()) ) {
 					return lst.first();
@@ -15483,8 +15833,8 @@ PRIMITIVES['assv'] =
     new PrimProc('assv',
 		 2,
 		 false, false,
-		 function(item, lst) {
-		 	checkListOf(lst, isPair, 'assv', 'pair', 2, arguments);
+		 function(aState, item, lst) {
+		 	checkListOf(aState, lst, isPair, 'assv', 'pair', 2, arguments);
 			while ( !lst.isEmpty() ) {
 				if ( isEqv(item, lst.first().first()) ) {
 					return lst.first();
@@ -15499,8 +15849,8 @@ PRIMITIVES['assoc'] =
     new PrimProc('assoc',
 		 2,
 		 false, false,
-		 function(item, lst) {
-		 	checkListOf(lst, isPair, 'assoc', 'pair', 2, arguments);
+		 function(aState, item, lst) {
+		 	checkListOf(aState, lst, isPair, 'assoc', 'pair', 2, arguments);
 			while ( !lst.isEmpty() ) {
 				if ( isEqual(item, lst.first().first()) ) {
 					return lst.first();
@@ -15515,13 +15865,13 @@ PRIMITIVES['remove'] =
     new PrimProc('remove',
 		 2,
 		 false, false,
-		 function(item, lst) {
-		 	checkList(lst, 'remove', 2, arguments);
+		 function(aState, item, lst) {
+		 	checkList(aState, lst, 'remove', 2, arguments);
 		 	var originalLst = lst;
 		 	var result = types.EMPTY;
 		 	while ( !lst.isEmpty() ) {
 		 		if ( isEqual(item, lst.first()) ) {
-		 			return append([result.reverse(), lst.rest()]);
+		 			return append(aState, [result.reverse(), lst.rest()]);
 		 		} else {
 		 			result = types.cons(lst.first(), result);
 		 			lst = lst.rest();
@@ -15535,9 +15885,9 @@ PRIMITIVES['filter'] =
     new PrimProc('filter',
 		 2,
 		 false, false,
-		 function(f, lst) {
-		 	check(f, procArityContains(1), 'filter', 'procedure (arity 1)', 1, arguments);
-			checkList(lst, 'filter', 2);
+		 function(aState, f, lst) {
+		 	check(aState, f, procArityContains(1), 'filter', 'procedure (arity 1)', 1, arguments);
+			checkList(aState, lst, 'filter', 2);
 
 			var filterHelp = function(f, lst, acc) {
 				if ( lst.isEmpty() ) {
@@ -15562,12 +15912,12 @@ PRIMITIVES['foldl'] =
     new PrimProc('foldl',
 		 3,
 		 true, false,
-		 function(f, initAcc, lst, arglists) {
+		 function(aState, f, initAcc, lst, arglists) {
 		 	arglists.unshift(lst);
 			var allArgs = [f, initAcc].concat(arglists);
-		 	check(f, isFunction, 'foldl', 'procedure', 1, allArgs);
-			arrayEach(arglists, function(x, i) {checkList(x, 'foldl', i+3, allArgs);});
-			checkAllSameLength(arglists, 'foldl', allArgs);
+		 	check(aState, f, isFunction, 'foldl', 'procedure', 1, allArgs);
+			arrayEach(arglists, function(x, i) {checkList(aState, x, 'foldl', i+3, allArgs);});
+			checkAllSameLength(aState, arglists, 'foldl', allArgs);
 	
 			return foldHelp(f, initAcc, arglists);
 		});
@@ -15576,12 +15926,12 @@ PRIMITIVES['foldr'] =
     new PrimProc('foldr',
 		 3,
 		 true, false,
-		 function(f, initAcc, lst, arglists) {
+		 function(aState, f, initAcc, lst, arglists) {
 		 	arglists.unshift(lst);
 			var allArgs = [f, initAcc].concat(arglists);
-		 	check(f, isFunction, 'foldr', 'procedure', 1, allArgs);
-			arrayEach(arglists, function(x, i) {checkList(x, 'foldr', i+3, allArgs);});
-			checkAllSameLength(arglists, 'foldr', allArgs);
+		 	check(aState, f, isFunction, 'foldr', 'procedure', 1, allArgs);
+			arrayEach(arglists, function(x, i) {checkList(aState, x, 'foldr', i+3, allArgs);});
+			checkAllSameLength(aState, arglists, 'foldr', allArgs);
 
 			for (var i = 0; i < arglists.length; i++) {
 				arglists[i] = arglists[i].reverse();
@@ -15600,10 +15950,10 @@ PRIMITIVES['argmax'] =
     new PrimProc('argmax',
 		 2,
 		 false, false,
-		 function(f, initList) {
+		 function(aState, f, initList) {
 		 	var args = arguments
-		 	check(f, isFunction, 'argmax', 'procedure', 1, args);
-			check(initList, isPair, 'argmax', 'non-empty list', 2, args);
+		 	check(aState, f, isFunction, 'argmax', 'procedure', 1, args);
+			check(aState, initList, isPair, 'argmax', 'non-empty list', 2, args);
 
 			var argmaxHelp = function(lst, curMaxVal, curMaxElt) {
 				if ( lst.isEmpty() ) {
@@ -15612,7 +15962,7 @@ PRIMITIVES['argmax'] =
 
 				return CALL(f, [lst.first()],
 					function(result) {
-						check(result, isReal, 'argmax',
+						check(aState, result, isReal, 'argmax',
 						      'procedure that returns real numbers', 1, args);
 						if (jsnums.greaterThan(result, curMaxVal)) {
 							return argmaxHelp(lst.rest(), result, lst.first());
@@ -15624,7 +15974,7 @@ PRIMITIVES['argmax'] =
 			}
 			return CALL(f, [initList.first()],
 				function(result) {
-					check(result, isReal, 'argmax', 'procedure that returns real numbers', 1, args);
+					check(aState, result, isReal, 'argmax', 'procedure that returns real numbers', 1, args);
 					return argmaxHelp(initList.rest(), result, initList.first());
 				});
 		 });
@@ -15634,10 +15984,10 @@ PRIMITIVES['argmin'] =
     new PrimProc('argmin',
 		 2,
 		 false, false,
-		 function(f, initList) {
+		 function(aState, f, initList) {
 		 	var args = arguments;
-		 	check(f, isFunction, 'argmin', 'procedure', 1, args);
-			check(initList, isPair, 'argmin', 'non-empty list', 2, args);
+		 	check(aState, f, isFunction, 'argmin', 'procedure', 1, args);
+			check(aState, initList, isPair, 'argmin', 'non-empty list', 2, args);
 
 			var argminHelp = function(lst, curMaxVal, curMaxElt) {
 				if ( lst.isEmpty() ) {
@@ -15646,7 +15996,7 @@ PRIMITIVES['argmin'] =
 
 				return CALL(f, [lst.first()],
 					function(result) {
-						check(result, isReal, 'argmin',
+						check(aState, result, isReal, 'argmin',
 						      'procedure that returns real numbers', 1, args);
 						if (jsnums.lessThan(result, curMaxVal)) {
 							return argminHelp(lst.rest(), result, lst.first());
@@ -15658,7 +16008,7 @@ PRIMITIVES['argmin'] =
 			}
 			return CALL(f, [initList.first()],
 				function(result) {
-					check(result, isReal, 'argmin', 'procedure that returns real numbers', 1, args);
+					check(aState, result, isReal, 'argmin', 'procedure that returns real numbers', 1, args);
 					return argminHelp(initList.rest(), result, initList.first());
 				});
 		 });
@@ -15668,9 +16018,9 @@ PRIMITIVES['build-list'] =
     new PrimProc('build-list',
 		 2,
 		 false, false,
-		 function(num, f) {
-		 	check(num, isNatural, 'build-list', 'non-negative exact integer', 1, arguments);
-			check(f, isFunction, 'build-list', 'procedure', 2, arguments);
+		 function(aState, num, f) {
+		 	check(aState, num, isNatural, 'build-list', 'non-negative exact integer', 1, arguments);
+			check(aState, f, isFunction, 'build-list', 'procedure', 2, arguments);
 
 			var buildListHelp = function(n, acc) {
 				if ( jsnums.greaterThanOrEqual(n, num) ) {
@@ -15691,16 +16041,18 @@ PRIMITIVES['build-list'] =
  **********************/
 
 
-PRIMITIVES['box'] = new PrimProc('box', 1, false, false, types.box);
+PRIMITIVES['box'] = new PrimProc('box', 1, false, false, 
+                                 function(aState, v) { return types.box(v); });
 
-PRIMITIVES['box-immutable'] = new PrimProc('box-immutable', 1, false, false, types.boxImmutable);
+PRIMITIVES['box-immutable'] = new PrimProc('box-immutable', 1, false, false,
+                                           function(aState, v) { return types.boxImmutable(v); });
 
 PRIMITIVES['unbox'] =
     new PrimProc('unbox',
 		 1,
 		 false, false,
-		 function(box) {
-		 	check(box, isBox, 'unbox', 'box', 1);
+		 function(aState, box) {
+		 	check(aState, box, isBox, 'unbox', 'box', 1);
 			return box.unbox();
 		 });
 
@@ -15709,8 +16061,8 @@ PRIMITIVES['set-box!'] =
     new PrimProc('set-box!',
 		 2,
 		 false, false,
-		 function(box, newVal) {
-		 	check(box, function(x) { return isBox(x) && x.mutable; }, 'set-box!', 'mutable box', 1, arguments);
+		 function(aState, box, newVal) {
+		 	check(aState, box, function(x) { return isBox(x) && x.mutable; }, 'set-box!', 'mutable box', 1, arguments);
 			box.set(newVal);
 			return types.VOID;
 		 });
@@ -15728,19 +16080,19 @@ PRIMITIVES['make-hash'] =
 	 new PrimProc('make-hash',
 		      1,
 		      false, false,
-		      function(lst) {
-			  checkListOf(lst, isPair, 'make-hash', 'list of pairs', 1);
+		      function(aState, lst) {
+			  checkListOf(aState, lst, isPair, 'make-hash', 'list of pairs', 1);
 			  return types.hash(lst);
 		      }) ]);
 
 PRIMITIVES['make-hasheq'] =
 	new CasePrimitive('make-hasheq',
-	[new PrimProc('make-hasheq', 0, false, false, function() { return types.hashEq(types.EMPTY); }),
+        [new PrimProc('make-hasheq', 0, false, false, function(aState) { return types.hashEq(types.EMPTY); }),
 	 new PrimProc('make-hasheq',
 		      1,
 		      false, false,
-		      function(lst) {
-			  checkListOf(lst, isPair, 'make-hasheq', 'list of pairs', 1);
+		      function(aState, lst) {
+			  checkListOf(aState, lst, isPair, 'make-hasheq', 'list of pairs', 1);
 			  return types.hashEq(lst);
 		      }) ]);
 
@@ -15748,8 +16100,8 @@ PRIMITIVES['hash-set!'] =
     new PrimProc('hash-set!',
 		 3,
 		 false, false,
-		 function(obj, key, val) {
-		 	check(obj, isHash, 'hash-set!', 'hash', 1, arguments);
+		 function(aState, obj, key, val) {
+		 	check(aState, obj, isHash, 'hash-set!', 'hash', 1, arguments);
 			obj.hash.put(key, val);
 			return types.VOID;
 		 });
@@ -15759,38 +16111,48 @@ PRIMITIVES['hash-ref'] =
 	[new PrimProc('hash-ref',
 		      2,
 		      false, false,
-		      function(obj, key) {
-			  check(obj, isHash, 'hash-ref', 'hash', 1, arguments);
+		      function(aState, obj, key) {
+			  check(aState, obj, isHash, 'hash-ref', 'hash', 1, arguments);
 
 			  if ( !obj.hash.containsKey(key) ) {
-			  	var msg = 'hash-ref: no value found for key: ' + types.toWrittenString(key);
-			  	raise( types.incompleteExn(types.exnFailContract, msg, []) );
+			  	//var msg = 'hash-ref: no value found for key: ' + types.toWrittenString(key);
+			  	var positionStack = 
+					state.captureCurrentContinuationMarks(aState).ref(
+					    types.symbol('moby-application-position-key'));
+			    var locationList = positionStack[positionStack.length - 1];
+
+			  	raise( types.incompleteExn(types.exnFailContract, 
+			  		new types.Message([new types.ColoredPart("hash-ref", locationList.first()),
+			  							": no value found for key ",
+			  							new types.ColoredPart(types.toWrittenString(key), locationList.rest().rest().first())]), 
+			  		[]) );
 			  }
 			  return obj.hash.get(key);
 		      }),
 	 new PrimProc('hash-ref',
 		      3,
 		      false, false,
-		      function(obj, key, defaultVal) {
-			  check(obj, isHash, 'hash-ref', 'hash', 1, arguments);
+		      function(aState, obj, key, defaultVal) {
+			  check(aState, obj, isHash, 'hash-ref', 'hash', 1, arguments);
 
 			  if (obj.hash.containsKey(key)) {
 				return obj.hash.get(key);
 			  }
 			  else {
 				if (isFunction(defaultVal)) {
+					//window.call = CALL;
 					return CALL(defaultVal, [], id);
 				}
 				return defaultVal;
 			  }
-		      }) ]);
+		      })]);
 
 PRIMITIVES['hash-remove!'] =
     new PrimProc('hash-remove',
 		 2,
 		 false, false,
-		 function(obj, key) {
-		 	check(obj, isHash, 'hash-remove!', 'hash', 1, arguments);
+		 function(aState, obj, key) {
+		 	check(aState, obj, isHash, 'hash-remove!', 'hash', 1, arguments);
 			obj.hash.remove(key);
 			return types.VOID;
 		 });
@@ -15799,9 +16161,9 @@ PRIMITIVES['hash-map'] =
     new PrimProc('hash-map',
 		 2,
 		 false, false,
-		 function(ht, f) {
-		 	check(ht, isHash, 'hash-map', 'hash', 1, arguments);
-			check(f, isFunction, 'hash-map', 'procedure', 2, arguments);
+		 function(aState, ht, f) {
+		 	check(aState, ht, isHash, 'hash-map', 'hash', 1, arguments);
+			check(aState, f, isFunction, 'hash-map', 'procedure', 2, arguments);
 			
 			var keys = ht.hash.keys();
 			var hashMapHelp = function(i, acc) {
@@ -15823,11 +16185,12 @@ PRIMITIVES['hash-for-each'] =
     new PrimProc('hash-for-each',
 		 2,
 		 false, false,
-		 function(ht, f) {
-		 	check(ht, isHash, 'hash-for-each', 'hash', 1, arguments);
-			check(f, isFunction, 'hash-for-each', 'procedure', 2, arguments);
-		 	
+		 function(aState, ht, f) {
+		 	check(aState, ht, isHash, 'hash-for-each', 'hash', 1, arguments);
+			check(aState, f, isFunction, 'hash-for-each', 'procedure', 2, arguments);
+		     
 		 	var keys = ht.hash.keys();
+
 		 	var hashForEachHelp = function(i) {
 		 		if (i >= keys.length) {
 					return types.VOID;
@@ -15853,9 +16216,9 @@ PRIMITIVES['make-string'] =
     new PrimProc('make-string',
 		 2,
 		 false, false,
-		 function(n, c) {
-		 	check(n, isNatural, 'make-string', 'non-negative exact integer', 1, arguments);
-			check(c, isChar, 'make-string', 'char', 2, arguments);
+		 function(aState, n, c) {
+		 	check(aState, n, isNatural, 'make-string', 'non-negative exact integer', 1, arguments);
+			check(aState, c, isChar, 'make-string', 'char', 2, arguments);
 
 			var ret = [];
 			for (var i = 0; jsnums.lessThan(i, n); i++) {
@@ -15869,9 +16232,9 @@ PRIMITIVES['replicate'] =
     new PrimProc('replicate',
 		 2,
 		 false, false,
-		 function(n, str) {
-		 	check(n, isNatural, 'replicate', 'non-negative exact integer', 1, arguments);
-			check(str, isString, 'replicate', 'string', 2, arguments);
+		 function(aState, n, str) {
+		 	check(aState, n, isNatural, 'replicate', 'non-negative exact integer', 1, arguments);
+			check(aState, str, isString, 'replicate', 'string', 2, arguments);
 
 			var ret = "";
 			var primStr = str.toString();
@@ -15886,8 +16249,8 @@ PRIMITIVES['string'] =
     new PrimProc('string',
 		 0,
 		 true, false,
-		 function(chars) {
-			arrayEach(chars, function(c, i) {check(c, isChar, 'string', 'char', i+1, chars);});
+		 function(aState, chars) {
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'string', 'char', i+1, chars);});
 
 			var ret = [];
 			for (var i = 0; i < chars.length; i++) {
@@ -15899,8 +16262,8 @@ PRIMITIVES['string'] =
 
 PRIMITIVES['string-length'] =
     new PrimProc('string-length', 1, false, false,
-		 function(str) {
-		 	check(str, isString, 'string-length', 'string', 1);
+		 function(aState, str) {
+		 	check(aState, str, isString, 'string-length', 'string', 1);
 			return str.length;
 		 });
 
@@ -15909,16 +16272,29 @@ PRIMITIVES['string-ref'] =
     new PrimProc('string-ref',
 		 2,
 		 false, false,
-		 function(str, num) {
-		 	check(str, isString, 'string-ref', 'string', 1, arguments);
-			check(num, isNatural, 'string-ref', 'non-negative exact integer', 2, arguments);
+		 function(aState, str, num) {
+		 	check(aState, str, isString, 'string-ref', 'string', 1, arguments);
+			check(aState, num, isNatural, 'string-ref', 'non-negative exact integer', 2, arguments);
 
 			var n = jsnums.toFixnum(num);
 			if (n >= str.length) {
 				var msg = ('string-ref: index ' + n + ' out of range ' +
 					   '[0, ' + (str.length-1) + '] for string: ' +
 					   types.toWrittenString(str));
-				raise( types.incompleteExn(types.exnFailContract, msg, []) );
+				var positionStack = 
+					state.captureCurrentContinuationMarks(aState).ref(
+					    types.symbol('moby-application-position-key'));
+			    var locationList = positionStack[positionStack.length - 1];
+
+			  	raise( types.incompleteExn(types.exnFailContract, 
+			  		new types.Message([new types.ColoredPart("string-ref", locationList.first()),
+			  							": index ",
+			  							n,
+			  							' out of range [0, ',
+										(str.length-1),
+										'] for string: ',
+			  							new types.ColoredPart(types.toWrittenString(str), locationList.rest().first())]), 
+			  		[]) );
 			}
 			return types['char'](str.charAt(n));
 		 });
@@ -15928,10 +16304,10 @@ PRIMITIVES['string=?'] =
     new PrimProc('string=?',
 		 2,
 		 true, false,
-		 function(str1, str2, strs) {
+		 function(aState, str1, str2, strs) {
 		 	strs.unshift(str2);
 		 	strs.unshift(str1);
-		 	arrayEach(strs, function(str, i) {check(str, isString, 'string=?', 'string', i+1, strs);});
+		 	arrayEach(strs, function(str, i) {check(aState, str, isString, 'string=?', 'string', i+1, strs);});
 		 	
 			return compare(strs, function(strA, strB) {return strA.toString() === strB.toString();});
 		 });
@@ -15941,12 +16317,13 @@ PRIMITIVES['string-ci=?'] =
     new PrimProc('string-ci=?',
 		 2,
 		 true, false,
-		 function(str1, str2, strs) {
+		 function(aState, str1, str2, strs) {
 		 	strs.unshift(str2);
 			strs.unshift(str1);
 
-			for(var i = 0; i < strs.length; i++) {
-				check(strs[i], isString, 'string-ci=?', 'string', i+1, strs);
+			var i;
+			for(i = 0; i < strs.length; i++) {
+				check(aState, strs[i], isString, 'string-ci=?', 'string', i+1, strs);
 				strs[i] = strs[i].toString().toLowerCase();
 			}
 
@@ -15958,10 +16335,10 @@ PRIMITIVES['string<?'] =
     new PrimProc('string<?',
 		 2,
 		 true, false,
-		 function(str1, str2, strs) {
+		 function(aState, str1, str2, strs) {
 		 	strs.unshift(str2);
 			strs.unshift(str1);
-			arrayEach(strs, function(str, i) {check(str, isString, 'string<?', 'string', i+1, strs);});
+			arrayEach(strs, function(str, i) {check(aState, str, isString, 'string<?', 'string', i+1, strs);});
 
 			return compare(strs, function(strA, strB) {return strA.toString() < strB.toString();});
 		 });
@@ -15971,10 +16348,10 @@ PRIMITIVES['string>?'] =
     new PrimProc('string>?',
 		 2,
 		 true, false,
-		 function(str1, str2, strs) {
+		 function(aState, str1, str2, strs) {
 		 	strs.unshift(str2);
 			strs.unshift(str1);
-			arrayEach(strs, function(str, i) {check(str, isString, 'string>?', 'string', i+1, strs);});
+			arrayEach(strs, function(str, i) {check(aState, str, isString, 'string>?', 'string', i+1, strs);});
 
 			return compare(strs, function(strA, strB) {return strA.toString() > strB.toString();});
 		 });
@@ -15984,10 +16361,10 @@ PRIMITIVES['string<=?'] =
     new PrimProc('string<=?',
 		 2,
 		 true, false,
-		 function(str1, str2, strs) {
+		 function(aState, str1, str2, strs) {
 		 	strs.unshift(str2);
 			strs.unshift(str1);
-			arrayEach(strs, function(str, i) {check(str, isString, 'string<=?', 'string', i+1, strs);});
+			arrayEach(strs, function(str, i) {check(aState, str, isString, 'string<=?', 'string', i+1, strs);});
 
 			return compare(strs, function(strA, strB) {return strA.toString() <= strB.toString();});
 		 });
@@ -15997,10 +16374,10 @@ PRIMITIVES['string>=?'] =
     new PrimProc('string>=?',
 		 2,
 		 true, false,
-		 function(str1, str2, strs) {
+		 function(aState, str1, str2, strs) {
 		 	strs.unshift(str2);
 			strs.unshift(str1);
-			arrayEach(strs, function(str, i) {check(str, isString, 'string>=?', 'string', i+1, strs);});
+			arrayEach(strs, function(str, i) {check(aState, str, isString, 'string>=?', 'string', i+1, strs);});
 
 			return compare(strs, function(strA, strB) {return strA.toString() >= strB.toString();});
 		 });
@@ -16010,12 +16387,12 @@ PRIMITIVES['string-ci<?'] =
     new PrimProc('string-ci<?',
 		 2,
 		 true, false,
-		 function(str1, str2, strs) {
+		 function(aState, str1, str2, strs) {
 		 	strs.unshift(str2);
 			strs.unshift(str1);
 
 			for (var i = 0; i < strs.length; i++) {
-				check(strs[i], isString, 'string-ci<?', 'string', i+1, strs);
+				check(aState, strs[i], isString, 'string-ci<?', 'string', i+1, strs);
 				strs[i] = strs[i].toString().toLowerCase();
 			}
 
@@ -16027,12 +16404,12 @@ PRIMITIVES['string-ci>?'] =
     new PrimProc('string-ci>?',
 		 2,
 		 true, false,
-		 function(str1, str2, strs) {
+		 function(aState, str1, str2, strs) {
 		 	strs.unshift(str2);
 			strs.unshift(str1);
 
 			for (var i = 0; i < strs.length; i++) {
-				check(strs[i], isString, 'string-ci>?', 'string', i+1, strs);
+				check(aState, strs[i], isString, 'string-ci>?', 'string', i+1, strs);
 				strs[i] = strs[i].toString().toLowerCase();
 			}
 
@@ -16044,12 +16421,12 @@ PRIMITIVES['string-ci<=?'] =
     new PrimProc('string-ci<=?',
 		 2,
 		 true, false,
-		 function(str1, str2, strs) {
+		 function(aState, str1, str2, strs) {
 		 	strs.unshift(str2);
 			strs.unshift(str1);
 
 			for (var i = 0; i < strs.length; i++) {
-				check(strs[i], isString, 'string-ci<=?', 'string', i+1, strs);
+				check(aState, strs[i], isString, 'string-ci<=?', 'string', i+1, strs);
 				strs[i] = strs[i].toString().toLowerCase();
 			}
 
@@ -16061,12 +16438,12 @@ PRIMITIVES['string-ci>=?'] =
     new PrimProc('string-ci>=?',
 		 2,
 		 true, false,
-		 function(str1, str2, strs) {
+		 function(aState, str1, str2, strs) {
 		 	strs.unshift(str2);
 			strs.unshift(str1);
 
 			for (var i = 0; i < strs.length; i++) {
-				check(strs[i], isString, 'string-ci>=?', 'string', i+1, strs);
+				check(aState, strs[i], isString, 'string-ci>=?', 'string', i+1, strs);
 				strs[i] = strs[i].toString().toLowerCase();
 			}
 
@@ -16079,15 +16456,32 @@ PRIMITIVES['substring'] =
 	[new PrimProc('substring',
 		      2,
 		      false, false,
-		      function(str, theStart) {
-			  check(str, isString, 'substring', 'string', 1, arguments);
-			  check(theStart, isNatural, 'substring', 'non-negative exact integer', 2, arguments);
+		      function(aState, str, theStart) {
+			  check(aState, str, isString, 'substring', 'string', 1, arguments);
+			  check(aState, theStart, isNatural, 'substring', 'non-negative exact integer', 2, arguments);
 			  
+			  var positionStack = 
+        		state.captureCurrentContinuationMarks(aState).ref(
+            		types.symbol('moby-application-position-key'));
+        
+       
+       		  var locationList = positionStack[positionStack.length - 1];
+
 			  var start = jsnums.toFixnum(theStart);
 			  if (start > str.length) {
-			   	var msg = ('substring: starting index ' + start + ' out of range ' +
-					   '[0, ' + str.length + '] for string: ' + types.toWrittenString(str));
-				raise( types.incompleteExn(types.exnFailContract, msg, []) );
+			   /*	var msg = ('substring: starting index ' + start + ' out of range ' +
+					   '[0, ' + str.length + '] for string: ' + types.toWrittenString(str)); */
+				raise( types.incompleteExn(types.exnFailContract,
+											new types.Message([ new types.ColoredPart('substring', locationList.first()),
+																': starting index ',
+																new types.ColoredPart(start, locationList.rest().rest().first()),
+																' out of range ',
+																'[0, ',
+																 str.length, 
+																 '] for string: ',
+																 new types.ColoredPart(types.toWrittenString(str), locationList.rest().first())
+												]), 
+											[]) );
 			  }
 			  else {
 			  	return types.string( str.substring(jsnums.toFixnum(start)) );
@@ -16096,22 +16490,48 @@ PRIMITIVES['substring'] =
 	 new PrimProc('substring',
 		      3,
 		      false, false,
-		      function(str, theStart, theEnd) {
-			  check(str, isString, 'substring', 'string', 1, arguments);
-			  check(theStart, isNatural, 'substring', 'non-negative exact integer', 2, arguments);
-			  check(theEnd, isNatural, 'substring', 'non-negative exact integer', 3, arguments);
+		      function(aState, str, theStart, theEnd) {
+			  check(aState, str, isString, 'substring', 'string', 1, arguments);
+			  check(aState, theStart, isNatural, 'substring', 'non-negative exact integer', 2, arguments);
+			  check(aState, theEnd, isNatural, 'substring', 'non-negative exact integer', 3, arguments);
+
+			  var positionStack = 
+        		state.captureCurrentContinuationMarks(aState).ref(
+            		types.symbol('moby-application-position-key'));
+        
+       		  var locationList = positionStack[positionStack.length - 1];
 
 			  var start = jsnums.toFixnum(theStart);
 			  var end = jsnums.toFixnum(theEnd);
 			  if (start > str.length) {
-			   	var msg = ('substring: starting index ' + start + ' out of range ' +
-					   '[0, ' + str.length + '] for string: ' + types.toWrittenString(str));
-				raise( types.incompleteExn(types.exnFailContract, msg, []) );
+			   /*	var msg = ('substring: starting index ' + start + ' out of range ' +
+					   '[0, ' + str.length + '] for string: ' + types.toWrittenString(str)); */
+				raise( types.incompleteExn(types.exnFailContract,
+											new types.Message([ new types.ColoredPart('substring', locationList.first()),
+																': starting index ',
+																new types.ColoredPart(start, locationList.rest().rest().first()),
+																' out of range ',
+																'[0, ',
+																 str.length, 
+																 '] for string: ',
+																 new types.ColoredPart(types.toWrittenString(str), locationList.rest().first())
+												]), 
+											[]) );
 			  }
 			  if (end < start || end > str.length) {
-			   	var msg = ('substring: ending index ' + end + ' out of range ' + '[' + start +
-					   ', ' + str.length + '] for string: ' + types.toWrittenString(str));
-				raise( types.incompleteExn(types.exnFailContract, msg, []) );
+			   	/*var msg = ('substring: ending index ' + end + ' out of range ' + '[' + start +
+					   ', ' + str.length + '] for string: ' + types.toWrittenString(str));*/ 
+				raise( types.incompleteExn(types.exnFailContract,
+											new types.Message([ new types.ColoredPart('substring', locationList.first()),
+																': ending index ',
+																new types.ColoredPart(end, locationList.rest().rest().rest().first()),
+																' out of range ',
+																'[0, ',
+																 str.length, 
+																 '] for string: ',
+																 new types.ColoredPart(types.toWrittenString(str), locationList.rest().first())
+												]), 
+											[]) );
 			  }
 			  return types.string( str.substring(start, end) );
 		      }) ]);
@@ -16121,10 +16541,10 @@ PRIMITIVES['string-append'] =
     new PrimProc("string-append",
 		 0,
 		 true, false,
-		 function(args) {
+		 function(aState, args) {
 		 	arrayEach(args,
 				function(str, i) {
-					check(str, isString, 'string-append', 'string', i+1, args);
+					check(aState, str, isString, 'string-append', 'string', i+1, args);
 				});
 			
 			for (var i = 0; i < args.length; i++) {
@@ -16138,8 +16558,8 @@ PRIMITIVES['string->list'] =
     new PrimProc('string->list',
 		 1,
 		 false, false,
-		 function(str) {
-		 	check(str, isString, 'string->list', 'string', 1);
+		 function(aState, str) {
+		 	check(aState, str, isString, 'string->list', 'string', 1);
 
 			var lst = types.EMPTY;
 			for (var i = str.length-1; i >= 0; i--) {
@@ -16153,8 +16573,8 @@ PRIMITIVES['list->string'] =
     new PrimProc('list->string',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	checkListOf(lst, isChar, 'list->string', 'char', 1);
+		 function(aState, lst) {
+		 	checkListOf(aState, lst, isChar, 'list->string', 'char', 1);
 
 			var ret = [];
 			while( !lst.isEmpty() ) {
@@ -16169,8 +16589,8 @@ PRIMITIVES['string-copy'] =
     new PrimProc('string-copy',
 		 1,
 		 false, false,
-		 function(str) {
-		 	check(str, isString, 'string-copy', 'string', 1);
+		 function(aState, str) {
+		 	check(aState, str, isString, 'string-copy', 'string', 1);
 			return types.string(str.toString());
 		 });
 
@@ -16180,8 +16600,8 @@ PRIMITIVES['string->symbol'] =
     new PrimProc('string->symbol',
 		 1,
 		 false, false,
-		 function(str) {
-		 	check(str, isString, 'string->symbol', 'string', 1);
+		 function(aState, str) {
+		 	check(aState, str, isString, 'string->symbol', 'string', 1);
 			return types.symbol(str.toString());
 		 });
 
@@ -16190,27 +16610,27 @@ PRIMITIVES['symbol->string'] =
     new PrimProc('symbol->string',
 		 1,
 		 false, false,
-		 function(symb) {
-		 	check(symb, isSymbol, 'symbol->string', 'symbol', 1);
+		 function(aState, symb) {
+		 	check(aState, symb, isSymbol, 'symbol->string', 'symbol', 1);
 			return types.string(symb.toString());
 		 });
 
 
 PRIMITIVES['format'] =
     new PrimProc('format', 1, true, false,
-		 function(formatStr, args) {
-		 	check(formatStr, isString, 'format', 'string', 1, [formatStr].concat(args));
+		 function(aState, formatStr, args) {
+		 	check(aState, formatStr, isString, 'format', 'string', 1, [formatStr].concat(args));
 			return types.string( helpers.format(formatStr, args, 'format') );
 		 });
 
 
 PRIMITIVES['printf'] =
-    new PrimProc('printf', 1, true, true,
-		 function(state, formatStr, args) {
-		 	check(formatStr, isString, 'printf', 'string', 1, [formatStr].concat(args));
+    new PrimProc('printf', 1, true, false,
+		 function(aState, formatStr, args) {
+		 	check(aState, formatStr, isString, 'printf', 'string', 1, [formatStr].concat(args));
 			var msg = helpers.format(formatStr, args, 'printf');
-			state.getDisplayHook()(msg);
-			state.v = types.VOID;
+			aState.getDisplayHook()(msg);
+			return types.VOID;
 		 });
 
 
@@ -16218,8 +16638,8 @@ PRIMITIVES['string->int'] =
     new PrimProc('string->int',
 		 1,
 		 false, false,
-		 function(str) {
-		 	check(str, function(s) {return isString(s) && s.length == 1;},
+		 function(aState, str) {
+		 	check(aState, str, function(s) {return isString(s) && s.length == 1;},
 			      'string->int', '1-letter string', 1);
 			return str.charCodeAt(0);
 		 });
@@ -16229,8 +16649,8 @@ PRIMITIVES['int->string'] =
     new PrimProc('int->string',
 		 1,
 		 false, false,
-		 function(num) {
-		 	check(num, function(x) {
+		 function(aState, num) {
+		 	check(aState, num, function(x) {
 					if ( !isInteger(x) ) {
 						return false;
 					}
@@ -16250,8 +16670,8 @@ PRIMITIVES['explode'] =
     new PrimProc('explode',
 		 1,
 		 false, false,
-		 function(str) {
-		 	check(str, isString, 'explode', 'string', 1);
+		 function(aState, str) {
+		 	check(aState, str, isString, 'explode', 'string', 1);
 			var ret = types.EMPTY;
 			for (var i = str.length-1; i >= 0; i--) {
 				ret = types.cons( types.string(str.charAt(i)), ret );
@@ -16263,9 +16683,9 @@ PRIMITIVES['implode'] =
     new PrimProc('implode',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	checkListOf(lst, function(x) { return isString(x) && x.length == 1; },
-				    'implode', 'list of 1-letter strings', 1);
+		 function(aState, lst) {
+		 	checkListOf(aState, lst, function(x) { return isString(x) && x.length == 1; },
+				    'implode', '1-letter strings', 1);
 			var ret = [];
 			while ( !lst.isEmpty() ) {
 				ret.push( lst.first().toString() );
@@ -16279,8 +16699,8 @@ PRIMITIVES['string-alphabetic?'] =
     new PrimProc('string-alphabetic?',
 		 1,
 		 false, false,
-		 function(str) {
-		 	check(str, isString, 'string-alphabetic?', 'string', 1);
+		 function(aState, str) {
+		 	check(aState, str, isString, 'string-alphabetic?', 'string', 1);
 			return isAlphabeticString(str);
 		 });
 
@@ -16289,9 +16709,9 @@ PRIMITIVES['string-ith'] =
     new PrimProc('string-ith',
 		 2,
 		 false, false,
-		 function(str, num) {
-		 	check(str, isString, 'string-ith', 'string', 1, arguments);
-			check(num, function(x) { return isNatural(x) && jsnums.lessThan(x, str.length); }, 'string-ith',
+		 function(aState, str, num) {
+		 	check(aState, str, isString, 'string-ith', 'string', 1, arguments);
+			check(aState, num, function(x) { return isNatural(x) && jsnums.lessThan(x, str.length); }, 'string-ith',
 			      'exact integer in [0, length of the given string minus 1 (' + (str.length-1) + ')]', 2, arguments);
 			return types.string( str.charAt(jsnums.toFixnum(num)) );
 		 });
@@ -16301,8 +16721,8 @@ PRIMITIVES['string-lower-case?'] =
     new PrimProc('string-lower-case?',
 		 1,
 		 false, false,
-		 function(str) {
-		 	check(str, isString, 'string-lower-case?', 'string', 1);
+		 function(aState, str) {
+		 	check(aState, str, isString, 'string-lower-case?', 'string', 1);
 			var primStr = str.toString();
 			return isAlphabeticString(str) && primStr.toLowerCase() === primStr;
 		 });
@@ -16312,8 +16732,8 @@ PRIMITIVES['string-numeric?'] =
     new PrimProc('string-numeric?',
 		 1,
 		 false, false,
-		 function(str) {
-		 	check(str, isString, 'string-numeric?', 'string', 1);
+		 function(aState, str) {
+		 	check(aState, str, isString, 'string-numeric?', 'string', 1);
 			return isNumericString(str);
 		 });
 
@@ -16322,8 +16742,8 @@ PRIMITIVES['string-upper-case?'] =
     new PrimProc('string-upper-case?',
 		 1,
 		 false, false,
-		 function(str) {
-		 	check(str, isString, 'string-upper-case?', 'string', 1);
+		 function(aState, str) {
+		 	check(aState, str, isString, 'string-upper-case?', 'string', 1);
 			var primStr = str.toString();
 			return isAlphabeticString(str) && primStr.toUpperCase() === primStr;
 		 });
@@ -16333,8 +16753,8 @@ PRIMITIVES['string-whitespace?'] =
     new PrimProc('string-whitespace?',
 		 1,
 		 false, false,
-		 function(str) {
-		 	check(str, isString, 'string-whitespace?', 'string', 1);
+		 function(aState, str) {
+		 	check(aState, str, isString, 'string-whitespace?', 'string', 1);
 			return isWhitespaceString(str);
 		 });
 
@@ -16343,9 +16763,9 @@ PRIMITIVES['build-string'] =
     new PrimProc('build-string',
 		 2,
 		 false, false,
-		 function(num, f) {
-		 	check(num, isNatural, 'build-string', 'non-negative exact integer', 1, arguments);
-			check(f, isFunction, 'build-string', 'procedure', 2, arguments);
+		 function(aState, num, f) {
+		 	check(aState, num, isNatural, 'build-string', 'non-negative exact integer', 1, arguments);
+			check(aState, f, isFunction, 'build-string', 'procedure', 2, arguments);
 
 			var buildStringHelp = function(n, acc) {
 				if ( jsnums.greaterThanOrEqual(n, num) ) {
@@ -16354,7 +16774,7 @@ PRIMITIVES['build-string'] =
 
 				return CALL(f, [n],
 					function(res) {
-						check(res, isChar, 'build-string',
+						check(aState, res, isChar, 'build-string',
 						      'procedure that returns a char', 2);
 						return buildStringHelp(n+1, acc.push(res.val));
 					});
@@ -16367,8 +16787,8 @@ PRIMITIVES['string->immutable-string'] =
     new PrimProc('string->immutable-string',
 		 1,
 		 false, false,
-		 function(str) {
-		 	check(str, isString, 'string->immutable-string', 'string', 1);
+		 function(aState, str) {
+		 	check(aState, str, isString, 'string->immutable-string', 'string', 1);
 			return str.toString();
 		 });
 
@@ -16377,11 +16797,11 @@ PRIMITIVES['string-set!'] =
     new PrimProc('string-set!',
 		 3,
 		 false, false,
-		 function(str, k, c) {
-		 	check(str, function(x) { return isString(x) && typeof x != 'string'; },
+		 function(aState, str, k, c) {
+		 	check(aState, str, function(x) { return isString(x) && typeof x != 'string'; },
 			      'string-set!', 'mutable string', 1, arguments);
-			check(k, isNatural, 'string-set!', 'non-negative exact integer', 2, arguments);
-			check(c, isChar, 'string-set!', 'char', 3, arguments);
+			check(aState, k, isNatural, 'string-set!', 'non-negative exact integer', 2, arguments);
+			check(aState, c, isChar, 'string-set!', 'char', 3, arguments);
 
 			if ( jsnums.greaterThanOrEqual(k, str.length) ) {
 				var msg = ('string-set!: index ' + n + ' out of range ' +
@@ -16398,10 +16818,10 @@ PRIMITIVES['string-fill!'] =
     new PrimProc('string-fill!',
 		 2,
 		 false, false,
-		 function(str, c) {
-		 	check(str, function(x) { return isString(x) && typeof x != 'string'; },
+		 function(aState, str, c) {
+		 	check(aState, str, function(x) { return isString(x) && typeof x != 'string'; },
 			      'string-fill!', 'mutable string', 1, arguments);
-			check(c, isChar, 'string-fill!', 'char', 2, arguments);
+			check(aState, c, isChar, 'string-fill!', 'char', 2, arguments);
 
 			for (var i = 0; i < str.length; i++) {
 				str.set(i, c.val);
@@ -16421,8 +16841,8 @@ PRIMITIVES['make-bytes'] =
 	[new PrimProc('make-bytes',
 		      1,
 		      false, false,
-		      function(k) {
-			  check(k, isNatural, 'make-bytes', 'non-negative exact integer', 1);
+		      function(aState, k) {
+			  check(aState, k, isNatural, 'make-bytes', 'non-negative exact integer', 1);
 			  
 			  var ret = [];
 			  for (var i = 0; i < jsnums.toFixnum(k); i++) {
@@ -16433,9 +16853,9 @@ PRIMITIVES['make-bytes'] =
 	 new PrimProc('make-bytes',
 		      2,
 		      false, false,
-		      function(k, b) {
-			  check(k, isNatural, 'make-bytes', 'non-negative exact integer', 1, arguments);
-			  check(b, isByte, 'make-bytes', 'byte', 2, arguments);
+		      function(aState, k, b) {
+			  check(aState, k, isNatural, 'make-bytes', 'non-negative exact integer', 1, arguments);
+			  check(aState, b, isByte, 'make-bytes', 'byte', 2, arguments);
 
 			  var ret = [];
 			  for (var i = 0; i < jsnums.toFixnum(k); i++) {
@@ -16449,8 +16869,8 @@ PRIMITIVES['bytes'] =
     new PrimProc('bytes',
 		 0,
 		 true, false,
-		 function(args) {
-		 	arrayEach(args, function(b, i) {check(b, isByte, 'bytes', 'byte', i+1, args);});
+		 function(aState, args) {
+		 	arrayEach(args, function(b, i) {check(aState, b, isByte, 'bytes', 'byte', i+1, args);});
 			return types.bytes(args, true);
 		 });
 
@@ -16459,8 +16879,8 @@ PRIMITIVES['bytes->immutable-bytes'] =
     new PrimProc('bytes->immutable-bytes',
 		 1,
 		 false, false,
-		 function(bstr) {
-		 	check(bstr, isByteString, 'bytes->immutable-bytes', 'byte string', 1);
+		 function(aState, bstr) {
+		 	check(aState, bstr, isByteString, 'bytes->immutable-bytes', 'byte string', 1);
 			if ( bstr.mutable ) {
 				return bstr.copy(false);
 			}
@@ -16474,8 +16894,8 @@ PRIMITIVES['bytes-length'] =
     new PrimProc('bytes-length',
 		 1,
 		 false, false,
-		 function(bstr) {
-		 	check(bstr, isByteString, 'bytes-length', 'byte string', 1);
+		 function(aState, bstr) {
+		 	check(aState, bstr, isByteString, 'bytes-length', 'byte string', 1);
 			return bstr.length();
 		 });
 
@@ -16484,9 +16904,9 @@ PRIMITIVES['bytes-ref'] =
     new PrimProc('bytes-ref',
 		 2,
 		 false, false,
-		 function(bstr, num) {
-		 	check(bstr, isByteString, 'bytes-ref', 'byte string', 1, arguments);
-			check(num, isNatural, 'bytes-ref', 'non-negative exact integer', 2, arguments);
+		 function(aState, bstr, num) {
+		 	check(aState, bstr, isByteString, 'bytes-ref', 'byte string', 1, arguments);
+			check(aState, num, isNatural, 'bytes-ref', 'non-negative exact integer', 2, arguments);
 
 			var n = jsnums.toFixnum(num);
 			if ( n >= bstr.length() ) {
@@ -16503,11 +16923,11 @@ PRIMITIVES['bytes-set!'] =
     new PrimProc('bytes-set!',
 		 3,
 		 false, false,
-		 function(bstr, num, b) {
-		 	check(bstr, function(x) { return isByteString(x) && x.mutable; },
+		 function(aState, bstr, num, b) {
+		 	check(aState, bstr, function(x) { return isByteString(x) && x.mutable; },
 			      'bytes-set!', 'mutable byte string', 1, arguments);
-			check(num, isNatural, 'bytes-set!', 'non-negative exact integer', 2, arguments);
-			check(b, isByte, 'bytes-set!', 'byte', 3, arguments);
+			check(aState, num, isNatural, 'bytes-set!', 'non-negative exact integer', 2, arguments);
+			check(aState, b, isByte, 'bytes-set!', 'byte', 3, arguments);
 
 			var n = jsnums.toFixnum(num);
 			if ( n >= bstr.length() ) {
@@ -16526,9 +16946,9 @@ PRIMITIVES['subbytes'] =
 	[new PrimProc('subbytes',
 		      2,
 		      false, false,
-		      function(bstr, theStart) {
-		          check(bstr, isByteString, 'subbytes', 'bytes string', 1, arguments);
-			  check(theStart, isNatural, 'subbytes', 'non-negative exact integer', 2, arguments);
+		      function(aState, bstr, theStart) {
+		          	check(aState, bstr, isByteString, 'subbytes', 'bytes string', 1, arguments);
+			  		check(aState, theStart, isNatural, 'subbytes', 'non-negative exact integer', 2, arguments);
 			  
 			  var start = jsnums.toFixnum(theStart);
 			  if (start > bstr.length()) {
@@ -16544,10 +16964,10 @@ PRIMITIVES['subbytes'] =
 	 new PrimProc('subbytes',
 		      3,
 		      false, false,
-		      function(bstr, theStart, theEnd) {
-		          check(bstr, isByteString, 'subbytes', 'byte string', 1, arguments);
-			  check(theStart, isNatural, 'subbytes', 'non-negative exact integer', 2, arguments);
-			  check(theEnd, isNatural, 'subbytes', 'non-negative exact integer', 3, arguments);
+		      function(aState, bstr, theStart, theEnd) {
+		          check(aState, bstr, isByteString, 'subbytes', 'byte string', 1, arguments);
+			  check(aState, theStart, isNatural, 'subbytes', 'non-negative exact integer', 2, arguments);
+			  check(aState, theEnd, isNatural, 'subbytes', 'non-negative exact integer', 3, arguments);
 
 			  var start = jsnums.toFixnum(theStart);
 			  var end = jsnums.toFixnum(theEnd);
@@ -16573,8 +16993,8 @@ PRIMITIVES['bytes-copy'] =
     new PrimProc('bytes-copy',
 		 1,
 		 false, false,
-		 function(bstr) {
-		 	check(bstr, isByteString, 'bytes-copy', 'byte string', 1);
+		 function(aState, bstr) {
+		 	check(aState, bstr, isByteString, 'bytes-copy', 'byte string', 1);
 			return bstr.copy(true);
 		 });
 
@@ -16583,10 +17003,10 @@ PRIMITIVES['bytes-fill!'] =
     new PrimProc('bytes-fill!',
 		 2,
 		 false, false,
-		 function(bstr, b) {
-		 	check(bstr, function(x) { return isByteString(x) && x.mutable; },
+		 function(aState, bstr, b) {
+		 	check(aState, bstr, function(x) { return isByteString(x) && x.mutable; },
 			      'bytes-fill!', 'mutable byte string', 1, arguments);
-			check(b, isByte, 'bytes-fill!', 'byte', 2, arguments);
+			check(aState, b, isByte, 'bytes-fill!', 'byte', 2, arguments);
 			
 			for (var i = 0; i < bstr.length(); i++) {
 				bstr.set(i, b);
@@ -16599,8 +17019,8 @@ PRIMITIVES['bytes-append'] =
     new PrimProc('bytes-append',
 		 0,
 		 true, false,
-		 function(args) {
-		  	arrayEach(args, function(x, i) { check(x, isByteString, 'bytes-append', 'byte string', i+1, args); });
+		 function(aState, args) {
+		  	arrayEach(args, function(x, i) { check(aState, x, isByteString, 'bytes-append', 'byte string', i+1, args); });
 
 			var ret = [];
 			for (var i = 0; i < args.length; i++) {
@@ -16614,8 +17034,8 @@ PRIMITIVES['bytes->list'] =
     new PrimProc('bytes->list',
 		 1,
 		 false, false,
-		 function(bstr) {
-		 	check(bstr, isByteString, 'bytes->list', 'byte string', 1);
+		 function(aState, bstr) {
+		 	check(aState, bstr, isByteString, 'bytes->list', 'byte string', 1);
 
 			var ret = types.EMPTY;
 			for (var i = bstr.length()-1; i >= 0; i--) {
@@ -16629,8 +17049,8 @@ PRIMITIVES['list->bytes'] =
     new PrimProc('list->bytes',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	checkListOf(lst, isByte, 'list->bytes', 'byte', 1);
+		 function(aState, lst) {
+		 	checkListOf(aState, lst, isByte, 'list->bytes', 'byte', 1);
 
 			var ret = [];
 			while ( !lst.isEmpty() ) {
@@ -16645,10 +17065,10 @@ PRIMITIVES['bytes=?'] =
     new PrimProc('bytes=?',
 		 2,
 		 true, false,
-		 function(bstr1, bstr2, bstrs) {
+		 function(aState, bstr1, bstr2, bstrs) {
 		 	bstrs.unshift(bstr2);
 			bstrs.unshift(bstr1);
-			arrayEach(bstrs, function(x, i) { check(x, isByteString, 'bytes=?', 'byte string', i+1, bstrs); });
+			arrayEach(bstrs, function(x, i) { check(aState, x, isByteString, 'bytes=?', 'byte string', i+1, bstrs); });
 
 			return compare(bstrs, function(bstrA, bstrB) { return bstrA.toString() === bstrB.toString(); });
 		 });
@@ -16658,10 +17078,10 @@ PRIMITIVES['bytes<?'] =
     new PrimProc('bytes<?',
 		 2,
 		 true, false,
-		 function(bstr1, bstr2, bstrs) {
+		 function(aState, bstr1, bstr2, bstrs) {
 		 	bstrs.unshift(bstr2);
 			bstrs.unshift(bstr1);
-			arrayEach(bstrs, function(x, i) { check(x, isByteString, 'bytes<?', 'byte string', i+1, bstrs); });
+			arrayEach(bstrs, function(x, i) { check(aState, x, isByteString, 'bytes<?', 'byte string', i+1, bstrs); });
 
 			return compare(bstrs, function(bstrA, bstrB) { return bstrA.toString() < bstrB.toString(); });
 		 });
@@ -16671,10 +17091,10 @@ PRIMITIVES['bytes>?'] =
     new PrimProc('bytes>?',
 		 2,
 		 true, false,
-		 function(bstr1, bstr2, bstrs) {
+		 function(aState, bstr1, bstr2, bstrs) {
 		 	bstrs.unshift(bstr2);
 			bstrs.unshift(bstr1);
-			arrayEach(bstrs, function(x, i) { check(x, isByteString, 'bytes>?', 'byte string', i+1, bstrs); });
+			arrayEach(bstrs, function(x, i) { check(aState, x, isByteString, 'bytes>?', 'byte string', i+1, bstrs); });
 
 			return compare(bstrs, function(bstrA, bstrB) { return bstrA.toString() > bstrB.toString(); });
 		 });
@@ -16691,8 +17111,8 @@ PRIMITIVES['make-vector'] =
     new PrimProc('make-vector',
 		 2,
 		 false, false,
-		 function(size, content) {
-		 	check(size, isNatural, 'make-vector', 'non-negative exact integer', 1, arguments);
+		 function(aState, size, content) {
+		 	check(aState, size, isNatural, 'make-vector', 'non-negative exact integer', 1, arguments);
 			var s = jsnums.toFixnum(size);
 			var ret = [];
 			for (var i = 0; i < s; i++) {
@@ -16706,7 +17126,7 @@ PRIMITIVES['vector'] =
     new PrimProc('vector',
 		 0,
 		 true, false,
-		 function(args) {
+		 function(aState, args) {
 		 	return types.vector(args);
 		 });
 
@@ -16715,8 +17135,8 @@ PRIMITIVES['vector-length'] =
     new PrimProc('vector-length',
 		 1,
 		 false, false,
-		 function(vec) {
-		 	check(vec, isVector, 'vector-length', 'vector', 1);
+		 function(aState, vec) {
+		 	check(aState, vec, isVector, 'vector-length', 'vector', 1);
 			return vec.length();
 		 });
 
@@ -16725,9 +17145,9 @@ PRIMITIVES['vector-ref'] =
     new PrimProc('vector-ref',
 		 2,
 		 false, false,
-		 function(vec, index) {
-		 	check(vec, isVector, 'vector-ref', 'vector', 1, arguments);
-			check(index, isNatural, 'vector-ref', 'non-negative exact integer', 2, arguments);
+		 function(aState, vec, index) {
+		 	check(aState, vec, isVector, 'vector-ref', 'vector', 1, arguments);
+			check(aState, index, isNatural, 'vector-ref', 'non-negative exact integer', 2, arguments);
 
 			var i = jsnums.toFixnum(index);
 			if (i >= vec.length()) {
@@ -16744,9 +17164,9 @@ PRIMITIVES['vector-set!'] =
     new PrimProc('vector-set!',
 		 3,
 		 false, false,
-		 function(vec, index, val) {
-		 	check(vec, isVector, 'vector-set!', 'vector', 1, arguments);
-			check(index, isNatural, 'vector-set!', 'non-negative exact integer', 2, arguments);
+		 function(aState, vec, index, val) {
+		 	check(aState, vec, isVector, 'vector-set!', 'vector', 1, arguments);
+			check(aState, index, isNatural, 'vector-set!', 'non-negative exact integer', 2, arguments);
 
 			var i = jsnums.toFixnum(index);
 			if (i >= vec.length()) {
@@ -16764,8 +17184,8 @@ PRIMITIVES['vector->list'] =
     new PrimProc('vector->list',
 		 1,
 		 false, false,
-		 function(vec) {
-		 	check(vec, isVector, 'vector->list', 'vector', 1);
+		 function(aState, vec) {
+		 	check(aState, vec, isVector, 'vector->list', 'vector', 1);
 			return vec.toList();
 		 });
 
@@ -16774,8 +17194,8 @@ PRIMITIVES['list->vector'] =
     new PrimProc('list->vector',
 		 1,
 		 false, false,
-		 function(lst) {
-		 	checkList(lst, 'list->vector', 1);
+		 function(aState, lst) {
+		 	checkList(aState, lst, 'list->vector', 1);
 			return types.vector( helpers.schemeListToArray(lst) );
 		 });
 
@@ -16784,9 +17204,9 @@ PRIMITIVES['build-vector'] =
     new PrimProc('build-vector',
 		 2,
 		 false, false,
-		 function(num, f) {
-		 	check(num, isNatural, 'build-vector', 'non-negative exact integer', 1, arguments);
-			check(f, isFunction, 'build-vector', 'procedure', 2, arguments);
+		 function(aState, num, f) {
+		 	check(aState, num, isNatural, 'build-vector', 'non-negative exact integer', 1, arguments);
+			check(aState, f, isFunction, 'build-vector', 'procedure', 2, arguments);
 
 			var buildVectorHelp = function(n, acc) {
 				if ( jsnums.greaterThanOrEqual(n, num) ) {
@@ -16812,10 +17232,10 @@ PRIMITIVES['char=?'] =
     new PrimProc('char=?',
 		 2,
 		 true, false,
-		 function(char1, char2, chars) {
+		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(c, isChar, 'char=?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char=?', 'char', i+1, chars);});
 
 			return compare(chars, function(c1, c2) {return c1.val === c2.val;});
 		 });
@@ -16825,10 +17245,10 @@ PRIMITIVES['char<?'] =
     new PrimProc('char<?',
 		 2,
 		 true, false,
-		 function(char1, char2, chars) {
+		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(c, isChar, 'char<?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char<?', 'char', i+1, chars);});
 
 			return compare(chars, function(c1, c2) {return c1.val < c2.val;});
 		 });
@@ -16838,10 +17258,10 @@ PRIMITIVES['char>?'] =
     new PrimProc('char>?',
 		 2,
 		 true, false,
-		 function(char1, char2, chars) {
+		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(c, isChar, 'char>?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char>?', 'char', i+1, chars);});
 
 			return compare(chars, function(c1, c2) {return c1.val > c2.val;});
 		 });
@@ -16851,10 +17271,10 @@ PRIMITIVES['char<=?'] =
     new PrimProc('char<=?',
 		 2,
 		 true, false,
-		 function(char1, char2, chars) {
+		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(c, isChar, 'char<=?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char<=?', 'char', i+1, chars);});
 
 			return compare(chars, function(c1, c2) {return c1.val <= c2.val;});
 		 });
@@ -16864,10 +17284,10 @@ PRIMITIVES['char>=?'] =
     new PrimProc('char>=?',
 		 2,
 		 true, false,
-		 function(char1, char2, chars) {
+		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(c, isChar, 'char>=?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char>=?', 'char', i+1, chars);});
 
 			return compare(chars, function(c1, c2) {return c1.val >= c2.val;});
 		 });
@@ -16877,10 +17297,10 @@ PRIMITIVES['char-ci=?'] =
     new PrimProc('char-ci=?',
 		 2,
 		 true, false,
-		 function(char1, char2, chars) {
+		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(c, isChar, 'char-ci=?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char-ci=?', 'char', i+1, chars);});
 
 			return compare(chars,
 				function(c1, c2) {
@@ -16893,10 +17313,10 @@ PRIMITIVES['char-ci<?'] =
     new PrimProc('char-ci<?',
 		 2,
 		 true, false,
-		 function(char1, char2, chars) {
+		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(c, isChar, 'char-ci<?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char-ci<?', 'char', i+1, chars);});
 
 			return compare(chars,
 				function(c1, c2) {
@@ -16909,10 +17329,10 @@ PRIMITIVES['char-ci>?'] =
     new PrimProc('char-ci>?',
 		 2,
 		 true, false,
-		 function(char1, char2, chars) {
+		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(c, isChar, 'char-ci>?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char-ci>?', 'char', i+1, chars);});
 
 			return compare(chars,
 				function(c1, c2) {
@@ -16925,10 +17345,10 @@ PRIMITIVES['char-ci<=?'] =
     new PrimProc('char-ci<=?',
 		 2,
 		 true, false,
-		 function(char1, char2, chars) {
+		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(c, isChar, 'char-ci<=?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char-ci<=?', 'char', i+1, chars);});
 
 			return compare(chars,
 				function(c1, c2) {
@@ -16941,10 +17361,10 @@ PRIMITIVES['char-ci>=?'] =
     new PrimProc('char-ci>=?',
 		 2,
 		 true, false,
-		 function(char1, char2, chars) {
+		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(c, isChar, 'char-ci>=?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char-ci>=?', 'char', i+1, chars);});
 
 			return compare(chars,
 				function(c1, c2) {
@@ -16957,8 +17377,8 @@ PRIMITIVES['char-alphabetic?'] =
     new PrimProc('char-alphabetic?',
 		 1,
 		 false, false,
-		 function(c) {
-		 	check(c, isChar, 'char-alphabetic?', 'char', 1);
+		 function(aState, c) {
+		 	check(aState, c, isChar, 'char-alphabetic?', 'char', 1);
 			return isAlphabeticString(c.val);
 		 });
 
@@ -16967,8 +17387,8 @@ PRIMITIVES['char-numeric?'] =
     new PrimProc('char-numeric?',
 		 1,
 		 false, false,
-		 function(c) {
-		 	check(c, isChar, 'char-numeric?', 'char', 1);
+		 function(aState, c) {
+		 	check(aState, c, isChar, 'char-numeric?', 'char', 1);
 			return (c.val >= '0' && c.val <= '9');
 		 });
 
@@ -16977,8 +17397,8 @@ PRIMITIVES['char-whitespace?'] =
     new PrimProc('char-whitespace?',
 		 1,
 		 false, false,
-		 function(c) {
-		 	check(c, isChar, 'char-whitespace?', 'char', 1);
+		 function(aState, c) {
+		 	check(aState, c, isChar, 'char-whitespace?', 'char', 1);
 			return isWhitespaceString(c.val);
 		 });
 
@@ -16987,8 +17407,8 @@ PRIMITIVES['char-upper-case?'] =
     new PrimProc('char-upper-case?',
 		 1,
 		 false, false,
-		 function(c) {
-		 	check(c, isChar, 'char-upper-case?', 'char', 1);
+		 function(aState, c) {
+		 	check(aState, c, isChar, 'char-upper-case?', 'char', 1);
 			return (isAlphabeticString(c.val) && c.val.toUpperCase() === c.val);
 		 });
 
@@ -16997,8 +17417,8 @@ PRIMITIVES['char-lower-case?'] =
     new PrimProc('char-lower-case?',
 		 1,
 		 false, false,
-		 function(c) {
-		 	check(c, isChar, 'char-lower-case?', 'char', 1);
+		 function(aState, c) {
+		 	check(aState, c, isChar, 'char-lower-case?', 'char', 1);
 			return (isAlphabeticString(c.val) && c.val.toLowerCase() === c.val);
 		 });
 
@@ -17007,8 +17427,8 @@ PRIMITIVES['char->integer'] =
     new PrimProc('char->integer',
 		 1,
 		 false, false,
-		 function(c) {
-		 	check(c, isChar, 'char->integer', 'char', 1);
+		 function(aState, c) {
+		 	check(aState, c, isChar, 'char->integer', 'char', 1);
 			return c.val.charCodeAt(0);
 		 });
 
@@ -17017,8 +17437,8 @@ PRIMITIVES['integer->char'] =
     new PrimProc('integer->char',
 		 1,
 		 false, false,
-		 function(num) {
-		 	check(num, function(x) {
+		 function(aState, num) {
+		 	check(aState, num, function(x) {
 					if ( !isInteger(x) ) {
 						return false;
 					}
@@ -17038,8 +17458,8 @@ PRIMITIVES['char-upcase'] =
     new PrimProc('char-upcase',
 		 1,
 		 false, false,
-		 function(c) {
-		 	check(c, isChar, 'char-upcase', 'char', 1);
+		 function(aState, c) {
+		 	check(aState, c, isChar, 'char-upcase', 'char', 1);
 			return types['char']( c.val.toUpperCase() );
 		 });
 
@@ -17048,8 +17468,8 @@ PRIMITIVES['char-downcase'] =
     new PrimProc('char-downcase',
 		 1,
 		 false, false,
-		 function(c) {
-		 	check(c, isChar, 'char-downcase', 'char', 1);
+		 function(aState, c) {
+		 	check(aState, c, isChar, 'char-downcase', 'char', 1);
 			return types['char']( c.val.toLowerCase() );
 		 });
 
@@ -17064,7 +17484,7 @@ PRIMITIVES['make-posn'] =
     new PrimProc('make-posn',
 		 2,
 		 false, false,
-		 function(x, y) {
+		 function(aState, x, y) {
 		 	return types.posn(x, y);
 		 });
 
@@ -17073,8 +17493,8 @@ PRIMITIVES['posn-x'] =
     new PrimProc('posn-x',
 		 1,
 		 false, false,
-		 function(p) {
-		 	check(p, types.isPosn, 'posn-x', 'posn', 1);
+		 function(aState, p) {
+		 	check(aState, p, types.isPosn, 'posn-x', 'posn', 1);
 			return types.posnX(p);
 		 });
 
@@ -17083,8 +17503,8 @@ PRIMITIVES['posn-y'] =
     new PrimProc('posn-y',
 		 1,
 		 false, false,
-		 function(p) {
-		 	check(p, types.isPosn, 'posn-y', 'posn', 1);
+		 function(aState, p) {
+		 	check(aState, p, types.isPosn, 'posn-y', 'posn', 1);
 			return types.posnY(p);
 		 });
 
@@ -17093,7 +17513,7 @@ PRIMITIVES['key=?'] =
     new PrimProc('key=?',
 		 2,
 		 false, false,
-		 function(key1, key2) {
+		 function(aState, key1, key2) {
 		     if (types.isChar(key1)) {
 			 key1 = key1.getValue();
 		     }
@@ -17111,15 +17531,16 @@ PRIMITIVES['key=?'] =
 
 
 
-PRIMITIVES['image?'] = new PrimProc('image?', 1, false, false, isImage);
+PRIMITIVES['image?'] = new PrimProc('image?', 1, false, false,
+                                    function(aState, v) { return isImage(v); });
 
 PRIMITIVES['image=?'] =
     new PrimProc('image=?',
 		 2,
 		 false, false,
-		 function(img1, img2) {
-		 	check(img1, isImage, 'image=?', 'image', 1);
-			check(img2, isImage, 'image=?', 'image', 2);
+		 function(aState, img1, img2) {
+		 	check(aState, img1, isImage, 'image=?', 'image', 1);
+			check(aState, img2, isImage, 'image=?', 'image', 2);
 			return isEqual(img1, img2);
 		 });
 
@@ -17129,10 +17550,10 @@ PRIMITIVES['make-color'] =
                           [new PrimProc('make-color',
 		                        3,
 		                        false, false,
-		                        function(r, g, b) {
-		 	                    check(r, isByte, 'make-color', 'number between 0 and 255', 1, arguments);
-		 	                    check(g, isByte, 'make-color', 'number between 0 and 255', 2, arguments);
-		 	                    check(b, isByte, 'make-color', 'number between 0 and 255', 3, arguments);
+		                        function(aState, r, g, b) {
+		 	                    check(aState, r, isByte, 'make-color', 'number between 0 and 255', 1, arguments);
+		 	                    check(aState, g, isByte, 'make-color', 'number between 0 and 255', 2, arguments);
+		 	                    check(aState, b, isByte, 'make-color', 'number between 0 and 255', 3, arguments);
                                             
 			                    return types.color(jsnums.toFixnum(r),
 					                       jsnums.toFixnum(g),
@@ -17141,11 +17562,11 @@ PRIMITIVES['make-color'] =
                            new PrimProc('make-color',
 		                        4,
 		                        false, false,
-		                        function(r, g, b, a) {
-		 	                    check(r, isByte, 'make-color', 'number between 0 and 255', 1, arguments);
-		 	                    check(g, isByte, 'make-color', 'number between 0 and 255', 2, arguments);
-		 	                    check(b, isByte, 'make-color', 'number between 0 and 255', 3, arguments);
-		 	                    check(a, isByte, 'make-color', 'number between 0 and 255', 4, arguments);
+		                        function(aState, r, g, b, a) {
+		 	                    check(aState, r, isByte, 'make-color', 'number between 0 and 255', 1, arguments);
+		 	                    check(aState, g, isByte, 'make-color', 'number between 0 and 255', 2, arguments);
+		 	                    check(aState, b, isByte, 'make-color', 'number between 0 and 255', 3, arguments);
+		 	                    check(aState, a, isByte, 'make-color', 'number between 0 and 255', 4, arguments);
                                             
 			                    return types.color(jsnums.toFixnum(r),
 					                       jsnums.toFixnum(g),
@@ -17158,8 +17579,8 @@ PRIMITIVES['color-red'] =
     new PrimProc('color-red',
 		 1,
 		 false, false,
-		 function(col) {
-		 	check(col, types.isColor, 'color-red', 'color', 1);
+		 function(aState, col) {
+		 	check(aState, col, types.isColor, 'color-red', 'color', 1);
 			return types.colorRed(col);
 		 });
 
@@ -17167,8 +17588,8 @@ PRIMITIVES['color-green'] =
     new PrimProc('color-green',
 		 1,
 		 false, false,
-		 function(col) {
-		 	check(col, types.isColor, 'color-green', 'color', 1);
+		 function(aState, col) {
+		 	check(aState, col, types.isColor, 'color-green', 'color', 1);
 			return types.colorGreen(col);
 		 });
 
@@ -17176,8 +17597,8 @@ PRIMITIVES['color-blue'] =
     new PrimProc('color-blue',
 		 1,
 		 false, false,
-		 function(col) {
-		 	check(col, types.isColor, 'color-blue', 'color', 1);
+		 function(aState, col) {
+		 	check(aState, col, types.isColor, 'color-blue', 'color', 1);
 			return types.colorBlue(col);
 		 });
 
@@ -17185,8 +17606,8 @@ PRIMITIVES['color-alpha'] =
     new PrimProc('color-alpha',
 		 1,
 		 false, false,
-		 function(col) {
-		 	check(col, types.isColor, 'color-alpha', 'color', 1);
+		 function(aState, col) {
+		 	check(aState, col, types.isColor, 'color-alpha', 'color', 1);
 			return types.colorAlpha(col);
 		 });
 
@@ -17195,10 +17616,10 @@ PRIMITIVES['empty-scene'] =
     new PrimProc('empty-scene',
 		 2,
 		 false, false,
-		 function(width, height) {
-		 	check(width, isNonNegativeReal, 'empty-scene', 'non-negative number', 1, arguments);
-			check(height, isNonNegativeReal, 'empty-scene', 'non-negative number', 2, arguments);
-		     return world.Kernel.sceneImage(jsnums.toFixnum(width), jsnums.toFixnum(height), [], true);
+		 function(aState, width, height) {
+		 	check(aState, width, isNonNegativeReal, 'empty-scene', 'non-negative number', 1, arguments);
+			check(aState, height, isNonNegativeReal, 'empty-scene', 'non-negative number', 2, arguments);
+		        return world.Kernel.sceneImage(jsnums.toFixnum(width), jsnums.toFixnum(height), [], true);
 		 });
 
 
@@ -17206,11 +17627,11 @@ PRIMITIVES['place-image'] =
     new PrimProc('place-image',
 		 4,
 		 false, false,
-		 function(picture, x, y, background) {
-			check(picture, isImage, "place-image", "image", 1, arguments);
-			check(x, isReal, "place-image", "real", 2, arguments);
-			check(y, isReal, "place-image", "real", 3, arguments);
-			check(background, function(x) { return isScene(x) || isImage(x) },
+		 function(aState, picture, x, y, background) {
+			check(aState, picture, isImage, "place-image", "image", 1, arguments);
+			check(aState, x, isReal, "place-image", "real", 2, arguments);
+			check(aState, y, isReal, "place-image", "real", 3, arguments);
+			check(aState, background, function(x) { return isScene(x) || isImage(x) },
 			      "place-image", "image", 4, arguments);
 			if (isScene(background)) {
 			    return background.add(picture, jsnums.toFixnum(x), jsnums.toFixnum(y));
@@ -17227,17 +17648,17 @@ PRIMITIVES['place-image'] =
 
 
 PRIMITIVES['place-image/align'] =
-new PrimProc('place-image/align',
-			 6,
-			 false, false,
-			 function(img, x, y, placeX, placeY, background) {
-			 check(img,		isImage,	"place-image/align", "image",	1, arguments);
-			 check(x,		isReal,		"place-image/align", "real",	2, arguments);
-			 check(y,		isReal,		"place-image/align", "real",	3, arguments);
-			 check(placeX,	isPlaceX,	"place-image/align", "x-place", 4, arguments);
-			 check(placeY,	isPlaceY,	"place-image/align", "y-place", 5, arguments);
-			 check(background, function(x) { return isScene(x) || isImage(x) },
-										"place-image/align", "image",	6, arguments);
+        new PrimProc('place-image/align',
+		     6,
+		     false, false,
+		     function(aState, img, x, y, placeX, placeY, background) {
+			 check(aState, img,		isImage,	"place-image/align", "image",	1, arguments);
+			 check(aState, x,		isReal,		"place-image/align", "real",	2, arguments);
+			 check(aState, y,		isReal,		"place-image/align", "real",	3, arguments);
+			 check(aState, placeX,	isPlaceX,	"place-image/align", "x-place", 4, arguments);
+			 check(aState, placeY,	isPlaceY,	"place-image/align", "y-place", 5, arguments);
+			 check(aState, background, function(x) { return isScene(x) || isImage(x) },
+			       "place-image/align", "image",	6, arguments);
 			 
 			 // calculate x and y based on placeX and placeY
 			 if		 (placeX == "left"  ) x = x + img.pinholeX;
@@ -17246,56 +17667,56 @@ new PrimProc('place-image/align',
 			 else if (placeY == "bottom") y = y - img.pinholeY;
 
 			 if (isScene(background)) {
-			 return background.add(img, jsnums.toFixnum(x), jsnums.toFixnum(y));
+			     return  background.add(img, jsnums.toFixnum(x), jsnums.toFixnum(y));
 			 } else {
-			 var newScene = world.Kernel.sceneImage(background.getWidth(),
-													background.getHeight(),
-													[], 
-													false);
-			 newScene = newScene.add(background.updatePinhole(0, 0), 0, 0);
-			 newScene = newScene.add(img, jsnums.toFixnum(x), jsnums.toFixnum(y));
-			 return newScene;
+			     var newScene = world.Kernel.sceneImage(background.getWidth(),
+								    background.getHeight(),
+								    [], 
+								    false);
+			     newScene = newScene.add(background.updatePinhole(0, 0), 0, 0);
+			     newScene = newScene.add(img, jsnums.toFixnum(x), jsnums.toFixnum(y));
+			     return  newScene;
 			 }
-			 });
+		     });
 
 
 PRIMITIVES['scene+line'] =
-new PrimProc('scene+line',
-			 6,
-			 false, false,
-			 function(img, x1, y1, x2, y2, c) {
-			 check(img,		isImage,	"scene+line", "image",				1, arguments);
-			 check(x1,		isReal,		"scene+line", "finite real number", 2, arguments);
-			 check(y1,		isReal,		"scene+line", "finite real number", 3, arguments);
-			 check(x2,		isReal,		"scene+line", "finite real number", 4, arguments);
-			 check(y2,		isReal,		"scene+line", "finite real number", 5, arguments);
-			 check(c,		isColor,	"scene+line", "color",				6, arguments);
+        new PrimProc('scene+line',
+		     6,
+		     false, false,
+		     function(aState, img, x1, y1, x2, y2, c) {
+			 check(aState, img,		isImage,	"scene+line", "image",				1, arguments);
+			 check(aState, x1,		isReal,		"scene+line", "finite real number", 2, arguments);
+			 check(aState, y1,		isReal,		"scene+line", "finite real number", 3, arguments);
+			 check(aState, x2,		isReal,		"scene+line", "finite real number", 4, arguments);
+			 check(aState, y2,		isReal,		"scene+line", "finite real number", 5, arguments);
+			 check(aState, c,		isColor,	"scene+line", "color",				6, arguments);
 			 if (colorDb.get(c)) {
-			 c = colorDb.get(c);
+			     c = colorDb.get(c);
 			 }
 			 // make a scene containing the image
-		     newScene = world.Kernel.sceneImage(jsnums.toFixnum(img.getWidth()), 
-												jsnums.toFixnum(img.getHeight()), 
-												[],
-												true);
+		         newScene = world.Kernel.sceneImage(jsnums.toFixnum(img.getWidth()), 
+							    jsnums.toFixnum(img.getHeight()), 
+							    [],
+							    true);
 			 newScene = newScene.add(img.updatePinhole(0, 0), 0, 0);
 			 // make an image containing the line
 			 line = world.Kernel.lineImage(jsnums.toFixnum(x2-x1),
-										   jsnums.toFixnum(y2-y1),
-										   c,
-										   false);
+						       jsnums.toFixnum(y2-y1),
+						       c,
+						       false);
 			 // add the line to scene, offset by the original amount
 			 return newScene.add(line, jsnums.toFixnum(x1), jsnums.toFixnum(y1));
-			 });
+		     });
 
 PRIMITIVES['put-pinhole'] =
     new PrimProc('put-pinhole',
 		 3,
 		 false, false,
-		 function(img, x, y) {
-			check(img, isImage, "put-pinhole", "image", 1, arguments);
-			check(x, isReal, "put-pinhole", "real", 2, arguments);
-			check(y, isReal, "put-pinhole", "real", 3, arguments);
+		 function(aState, img, x, y) {
+			check(aState, img, isImage, "put-pinhole", "image", 1, arguments);
+			check(aState, x, isReal, "put-pinhole", "real", 2, arguments);
+			check(aState, y, isReal, "put-pinhole", "real", 3, arguments);
 			return img.updatePinhole(jsnums.toFixnum(x), jsnums.toFixnum(y));
     		 });
 
@@ -17304,10 +17725,10 @@ PRIMITIVES['circle'] =
     new PrimProc('circle',
 		 3,
 		 false, false,
-		 function(aRadius, aStyle, aColor) {
-			check(aRadius, isNonNegativeReal, "circle", "non-negative number", 1, arguments);
-			check(aStyle, isMode, "circle", "style", 2, arguments);
-			check(aColor, isColor, "circle", "color", 3, arguments);
+		 function(aState, aRadius, aStyle, aColor) {
+			check(aState, aRadius, isNonNegativeReal, "circle", "non-negative number", 1, arguments);
+			check(aState, aStyle, isMode, "circle", "style", 2, arguments);
+			check(aState, aColor, isColor, "circle", "color", 3, arguments);
 
 
 			if (colorDb.get(aColor)) {
@@ -17324,18 +17745,18 @@ PRIMITIVES['star'] =
 	[new PrimProc('star',
 		      5,
 		      false, false,		      
-		      function(n, outer, inner, m, c) {
-			  check(n, isSideCount, "star", 
+		      function(aState, n, outer, inner, m, c) {
+			  check(aState, n, isSideCount, "star", 
 				"positive integer greater than or equal to 3", 
 				1, arguments);
-			  check(outer, isNonNegativeReal, "star", 
+			  check(aState, outer, isNonNegativeReal, "star", 
 				"non-negative number", 
 				2, arguments);
-			  check(inner, 
+			  check(aState, inner, 
 				isNonNegativeReal, "star",
 				"non-negative number", 3, arguments);
-			  check(m, isMode, "star", "style", 4, arguments);
-			  check(c, isColor, "star", "color", 5, arguments);
+			  check(aState, m, isMode, "star", "style", 4, arguments);
+			  check(aState, c, isColor, "star", "color", 5, arguments);
 			  if (colorDb.get(c)) {
 			      c = colorDb.get(c);
 			  }
@@ -17349,11 +17770,11 @@ PRIMITIVES['star'] =
 	 new PrimProc('star', 
 		      3,
 		      false, false,
-		      function(sideLength, mode, color) {
-			  check(sideLength, isNonNegativeReal,
+		      function(aState, sideLength, mode, color) {
+			  check(aState, sideLength, isNonNegativeReal,
 				"star", "non-negative number", 1, arguments);
-			  check(mode, isMode, "star", "style", 2, arguments);
-			  check(color, isColor, "star", "color", 3, arguments);
+			  check(aState, mode, isMode, "star", "style", 2, arguments);
+			  check(aState, color, isColor, "star", "color", 3, arguments);
 			  if (colorDb.get(color)) {
 			      color = colorDb.get(color);
 			  }
@@ -17370,15 +17791,15 @@ PRIMITIVES['radial-star'] =
 new PrimProc('radial-star',
 			 5,
 			 false, false,
-			 function(aPoints, anOuter, anInner, aStyle, aColor) {
-			 check(aPoints, function(x) { return isNatural(x) && jsnums.greaterThanOrEqual(x, 2); },
+			 function(aState, aPoints, anOuter, anInner, aStyle, aColor) {
+			 check(aState, aPoints, function(x) { return isNatural(x) && jsnums.greaterThanOrEqual(x, 2); },
 									"radial-star", "positive integer greater than or equal to 2", 1, arguments);
-			 check(anOuter, function(x) { return isReal(x) && jsnums.greaterThan(x, 0); },
+			 check(aState, anOuter, function(x) { return isReal(x) && jsnums.greaterThan(x, 0); },
 									"radial-star", "positive number", 2, arguments);
-			 check(anInner, function(x) { return isReal(x) && jsnums.greaterThan(x, 0); },
-									"radial-star", "positive number", 2, arguments);
-			 check(aStyle, isMode, "radial-star", "style", 4, arguments);
-			 check(aColor, isColor, "radial-star", "color", 5, arguments);
+			 check(aState, anInner, function(x) { return isReal(x) && jsnums.greaterThan(x, 0); },
+									"radial-star", "positive number", 3, arguments);
+			 check(aState, aStyle, isMode, "radial-star", "style", 4, arguments);
+			 check(aState, aColor, isColor, "radial-star", "color", 5, arguments);
 			 
 			 if (colorDb.get(aColor)) {
 			 aColor = colorDb.get(aColor);
@@ -17395,11 +17816,11 @@ PRIMITIVES['nw:rectangle'] =
     new PrimProc('nw:rectangle',
 		 4,
 		 false, false,
-		 function(w, h, s, c) {
-			check(w, isNonNegativeReal, "nw:rectangle", "non-negative number", 1, arguments);
-			check(h, isNonNegativeReal, "nw:rectangle", "non-negative number", 2, arguments);
-			check(s, isMode, "nw:rectangle", "style", 3, arguments);
-			check(c, isColor, "nw:rectangle", "color", 4, arguments);
+		 function(aState, w, h, s, c) {
+			check(aState, w, isNonNegativeReal, "nw:rectangle", "non-negative number", 1, arguments);
+			check(aState, h, isNonNegativeReal, "nw:rectangle", "non-negative number", 2, arguments);
+			check(aState, s, isMode, "nw:rectangle", "style", 3, arguments);
+			check(aState, c, isColor, "nw:rectangle", "color", 4, arguments);
 
 			if (colorDb.get(c)) {
 				c = colorDb.get(c);
@@ -17415,11 +17836,11 @@ PRIMITIVES['rectangle'] =
     new PrimProc('rectangle',
 		 4,
 		 false, false,
-		 function(w, h, s, c) {
-			check(w, isNonNegativeReal, "rectangle", "non-negative number", 1, arguments);
-			check(h, isNonNegativeReal, "rectangle", "non-negative number", 2, arguments);
-			check(s, isMode, "rectangle", "style", 3, arguments);
-			check(c, isColor, "rectangle", "color", 4, arguments);
+		 function(aState, w, h, s, c) {
+			check(aState, w, isNonNegativeReal, "rectangle", "non-negative number", 1, arguments);
+			check(aState, h, isNonNegativeReal, "rectangle", "non-negative number", 2, arguments);
+			check(aState, s, isMode, "rectangle", "style", 3, arguments);
+			check(aState, c, isColor, "rectangle", "color", 4, arguments);
 
 			if (colorDb.get(c)) {
 				c = colorDb.get(c);
@@ -17433,11 +17854,11 @@ PRIMITIVES['regular-polygon'] =
 new PrimProc('regular-polygon',
 			 4,
 			 false, false,
-			 function(length, count, s, c) {
-			 check(length,	isNonNegativeReal,	"regular-polygon", "non-negative number", 1, arguments);
-			 check(count,	isSideCount,		"regular-polygon", "positive integer greater than or equal to 3", 2, arguments);
-			 check(s,		isMode, "regular-polygon", "style", 3, arguments);
-			 check(c,		isColor, "regular-polygon", "color", 4, arguments);
+			 function(aState, length, count, s, c) {
+			 check(aState, length,	isNonNegativeReal,	"regular-polygon", "non-negative number", 1, arguments);
+			 check(aState, count,	isSideCount,		"regular-polygon", "positive integer greater than or equal to 3", 2, arguments);
+			 check(aState, s,		isMode, "regular-polygon", "style", 3, arguments);
+			 check(aState, c,		isColor, "regular-polygon", "color", 4, arguments);
 			 
 			 if (colorDb.get(c)) {
 			 c = colorDb.get(c);
@@ -17453,12 +17874,12 @@ PRIMITIVES['star-polygon'] =
 new PrimProc('star-polygon',
 			 5,
 			 false, false,
-			 function(length, count, step, s, c) {
-			 check(length,	isNonNegativeReal,	"star-polygon", "non-negative number", 1, arguments);
-			 check(count,	isSideCount,		"star-polygon", "positive integer greater than or equal to 3", 2, arguments);
-			 check(step,	isStepCount,		"star-polygon", "positive integer greater than or equal to 1", 3, arguments);
-			 check(s,		isMode,				"star-polygon", "style", 4, arguments);
-			 check(c,		isColor,			"star-polygon", "color", 5, arguments);
+			 function(aState, length, count, step, s, c) {
+			 check(aState, length,	isNonNegativeReal,	"star-polygon", "non-negative number", 1, arguments);
+			 check(aState, count,	isSideCount,		"star-polygon", "positive integer greater than or equal to 3", 2, arguments);
+			 check(aState, step,	isStepCount,		"star-polygon", "positive integer greater than or equal to 1", 3, arguments);
+			 check(aState, s,		isMode,				"star-polygon", "style", 4, arguments);
+			 check(aState, c,		isColor,			"star-polygon", "color", 5, arguments);
 			 
 			 if (colorDb.get(c)) {
 				c = colorDb.get(c);
@@ -17474,11 +17895,11 @@ PRIMITIVES['rhombus'] =
 new PrimProc('rhombus',
 			 4,
 			 false, false,
-			 function(l, a, s, c) {
-			 check(l, isNonNegativeReal, "rhombus", "non-negative number", 1, arguments);
-			 check(a, isNonNegativeReal, "rhombus", "non-negative number", 2, arguments);
-			 check(s, isMode, "rhombus", "style", 3, arguments);
-			 check(c, isColor, "rhombus", "color", 4, arguments);
+			 function(aState, l, a, s, c) {
+			 check(aState, l, isNonNegativeReal, "rhombus", "non-negative number", 1, arguments);
+			 check(aState, a, isNonNegativeReal, "rhombus", "non-negative number", 2, arguments);
+			 check(aState, s, isMode, "rhombus", "style", 3, arguments);
+			 check(aState, c, isColor, "rhombus", "color", 4, arguments);
 			 
 			 if (colorDb.get(c)) {
 			 c = colorDb.get(c);
@@ -17490,10 +17911,10 @@ PRIMITIVES['square'] =
 new PrimProc('square',
 			 3,
 			 false, false,
-			 function(l, s, c) {
-			 check(l, isNonNegativeReal, "square", "non-negative number", 1, arguments);
-			 check(s, isMode, "square", "style", 3, arguments);
-			 check(c, isColor, "square", "color", 4, arguments);
+			 function(aState, l, s, c) {
+			 check(aState, l, isNonNegativeReal, "square", "non-negative number", 1, arguments);
+			 check(aState, s, isMode, "square", "style", 2, arguments);
+			 check(aState, c, isColor, "square", "color", 3, arguments);
 			 
 			 if (colorDb.get(c)) {
 			 c = colorDb.get(c);
@@ -17505,10 +17926,10 @@ PRIMITIVES['triangle'] =
     new PrimProc('triangle',
 		 3,
 		 false, false,
-		 function(s, m, c) {
-			check(s, isNonNegativeReal, "triangle", "non-negative number", 1, arguments);
-			check(m, isMode, "triangle", "style", 2, arguments);
-			check(c, isColor, "triangle", "color", 3, arguments);
+		 function(aState, s, m, c) {
+			check(aState, s, isNonNegativeReal, "triangle", "non-negative number", 1, arguments);
+			check(aState, m, isMode, "triangle", "style", 2, arguments);
+			check(aState, c, isColor, "triangle", "color", 3, arguments);
 			if (colorDb.get(c)) {
 				c = colorDb.get(c);
 			}
@@ -17523,11 +17944,11 @@ PRIMITIVES['right-triangle'] =
 new PrimProc('right-triangle',
 			 4,
 			 false, false,
-			 function(side1, side2, s, c) {
-			 check(side1, isNonNegativeReal, "right-triangle", "non-negative number", 1, arguments);
-			 check(side2, isNonNegativeReal, "right-triangle", "non-negative number", 2, arguments);
-			 check(s, isMode, "right-triangle", "style", 3, arguments);
-			 check(c, isColor, "right-triangle", "color", 4, arguments);
+			 function(aState, side1, side2, s, c) {
+			 check(aState, side1, isNonNegativeReal, "right-triangle", "non-negative number", 1, arguments);
+			 check(aState, side2, isNonNegativeReal, "right-triangle", "non-negative number", 2, arguments);
+			 check(aState, s, isMode, "right-triangle", "style", 3, arguments);
+			 check(aState, c, isColor, "right-triangle", "color", 4, arguments);
 			 if (colorDb.get(c)) {
 			 c = colorDb.get(c);
 			 }
@@ -17539,11 +17960,11 @@ PRIMITIVES['isosceles-triangle'] =
 new PrimProc('isosceles-triangle',
 			 4,
 			 false, false,
-			 function(side, angle, s, c) {
-			 check(side, isNonNegativeReal, "isosceles-triangle", "non-negative number", 1, arguments);
-			 check(angle, isAngle, "isosceles-triangle", "finite real number between 0 and 360", 2, arguments);
-			 check(s, isMode, "isosceles-triangle", "style", 3, arguments);
-			 check(c, isColor, "isosceles-triangle", "color", 4, arguments);
+			 function(aState, side, angle, s, c) {
+			 check(aState, side, isNonNegativeReal, "isosceles-triangle", "non-negative number", 1, arguments);
+			 check(aState, angle, isAngle, "isosceles-triangle", "finite real number between 0 and 360", 2, arguments);
+			 check(aState, s, isMode, "isosceles-triangle", "style", 3, arguments);
+			 check(aState, c, isColor, "isosceles-triangle", "color", 4, arguments);
 			 if (colorDb.get(c)) {
 			 c = colorDb.get(c);
 			 }
@@ -17555,11 +17976,11 @@ PRIMITIVES['ellipse'] =
     new PrimProc('ellipse',
 		 4,
 		 false, false,
-		 function(w, h, s, c) {
-			check(w, isNonNegativeReal, "ellipse", "non-negative number", 1, arguments);
-			check(h, isNonNegativeReal, "ellipse", "non-negative number", 2, arguments);
-			check(s, isMode, "ellipse", "string", 3, arguments);
-			check(c, isColor, "ellipse", "color", 4, arguments);
+		 function(aState, w, h, s, c) {
+			check(aState, w, isNonNegativeReal, "ellipse", "non-negative number", 1, arguments);
+			check(aState, h, isNonNegativeReal, "ellipse", "non-negative number", 2, arguments);
+			check(aState, s, isMode, "ellipse", "string", 3, arguments);
+			check(aState, c, isColor, "ellipse", "color", 4, arguments);
 			
 			if (colorDb.get(c)) {
 				c = colorDb.get(c);
@@ -17575,10 +17996,10 @@ PRIMITIVES['line'] =
     new PrimProc('line',
 		 3,
 		 false, false,
-		 function(x, y, c) {
-			check(x, isReal, "line", "finite real number", 1, arguments);
-			check(y, isReal, "line", "finite real number", 2, arguments);
-			check(c, isColor, "line", "color", 3, arguments);
+		 function(aState, x, y, c) {
+			check(aState, x, isReal, "line", "finite real number", 1, arguments);
+			check(aState, y, isReal, "line", "finite real number", 2, arguments);
+			check(aState, c, isColor, "line", "color", 3, arguments);
 			if (colorDb.get(c)) {
 				c = colorDb.get(c);
 			}
@@ -17594,13 +18015,13 @@ PRIMITIVES['add-line'] =
 new PrimProc('add-line',
 			 6,
 			 false, false,
-			 function(img, x1, y1, x2, y2, c) {
-			 check(img, isImage,	"add-line", "image",			  1, arguments);
-			 check(x1,	isReal,		"add-line", "finite real number", 2, arguments);
-			 check(y1,	isReal,		"add-line", "finite real number", 3, arguments);
-			 check(x2,	isReal,		"add-line", "finite real number", 4, arguments);
-			 check(y2,	isReal,		"add-line", "finite real number", 5, arguments);
-			 check(c,	isColor,	"add-line", "color",			  6, arguments);
+			 function(aState, img, x1, y1, x2, y2, c) {
+			 check(aState, img, isImage,	"add-line", "image",			  1, arguments);
+			 check(aState, x1,	isReal,		"add-line", "finite real number", 2, arguments);
+			 check(aState, y1,	isReal,		"add-line", "finite real number", 3, arguments);
+			 check(aState, x2,	isReal,		"add-line", "finite real number", 4, arguments);
+			 check(aState, y2,	isReal,		"add-line", "finite real number", 5, arguments);
+			 check(aState, c,	isColor,	"add-line", "color",			  6, arguments);
 			 if (colorDb.get(c)) {
 				c = colorDb.get(c);
 			 }
@@ -17616,10 +18037,12 @@ PRIMITIVES['overlay'] =
     new PrimProc('overlay',
 		 2,
 		 true, false,
-		 function(img1, img2, restImages) {
-			check(img1, isImage, "overlay", "image", 1, arguments);
-			check(img2, isImage, "overlay", "image", 2, arguments);
-			arrayEach(restImages, function(x, i) { check(x, isImage, "overlay", "image", i+3); }, arguments);
+		 function(aState, img1, img2, restImages) {
+		 	//fixme
+		 	var allArgs = [img1, img2].concat(restImages);
+			check(aState, img1, isImage, "overlay", "image", 1, allArgs);
+			check(aState, img2, isImage, "overlay", "image", 2, allArgs);
+			arrayEach(restImages, function(x, i) { check(aState, x, isImage, "overlay", "image", i+3); }, arguments);
 
 			var img = world.Kernel.overlayImage(img1, img2, "middle", "middle");
 			for (var i = 0; i < restImages.length; i++) {
@@ -17633,11 +18056,11 @@ PRIMITIVES['overlay/xy'] =
     new PrimProc('overlay/xy',
 		 4,
 		 false, false,
-		 function(img1, deltaX, deltaY, img2) {
-			check(img1, isImage, "overlay/xy", "image", 1, arguments);
-			check(deltaX, isReal, "overlay/xy", "finite real number", 2, arguments);
-			check(deltaY, isReal, "overlay/xy", "finite real number", 3, arguments);
-			check(img2, isImage, "overlay/xy", "image", 4, arguments);
+		 function(aState, img1, deltaX, deltaY, img2) {
+			check(aState, img1, isImage, "overlay/xy", "image", 1, arguments);
+			check(aState, deltaX, isReal, "overlay/xy", "finite real number", 2, arguments);
+			check(aState, deltaY, isReal, "overlay/xy", "finite real number", 3, arguments);
+			check(aState, img2, isImage, "overlay/xy", "image", 4, arguments);
 
 		     return world.Kernel.overlayImage(img1.updatePinhole(0, 0),
 											  img2.updatePinhole(0, 0),
@@ -17650,12 +18073,12 @@ PRIMITIVES['overlay/align'] =
 new PrimProc('overlay/align',
 			 4,
 			 true, false,
-			 function(placeX, placeY, img1, img2, restImages) {
-			 check(placeX, isPlaceX, "overlay/align", "x-place", 1, arguments);
-			 check(placeY, isPlaceY, "overlay/align", "y-place", 2, arguments);
-			 check(img1, isImage, "overlay/align", "image", 3, arguments);
-			 check(img2, isImage, "overlay/align", "image", 4, arguments);
-			 arrayEach(restImages, function(x, i) { check(x, isImage, "overlay/align", "image", i+4); }, arguments);
+			 function(aState, placeX, placeY, img1, img2, restImages) {
+			 checkVarArity(aState, placeX, isPlaceX, "overlay/align", "x-place", 1, arguments);
+			 checkVarArity(aState, placeY, isPlaceY, "overlay/align", "y-place", 2, arguments);
+			 checkVarArity(aState, img1, isImage, "overlay/align", "image", 3, arguments);
+			 checkVarArity(aState, img2, isImage, "overlay/align", "image", 4, arguments);
+			 arrayEach(restImages, function(x, i) { check(aState, x, isImage, "overlay/align", "image", i+4); }, arguments);
 			 
 			 var img = world.Kernel.overlayImage(img1,
 												 img2,
@@ -17675,10 +18098,10 @@ PRIMITIVES['underlay'] =
     new PrimProc('underlay',
 		 2,
 		 true, false,
-		 function(img1, img2, restImages) {
-			check(img1, isImage, "underlay", "image", 1, arguments);
-			check(img2, isImage, "underlay", "image", 2, arguments);
-			arrayEach(restImages, function(x, i) { check(x, isImage, "underlay", "image", i+3); }, arguments);
+		 function(aState, img1, img2, restImages) {
+			checkVarArity(aState, img1, isImage, "underlay", "image", 1, arguments);
+			checkVarArity(aState, img2, isImage, "underlay", "image", 2, arguments);
+			arrayEach(restImages, function(x, i) { check(aState, x, isImage, "underlay", "image", i+3); }, arguments);
 
 			var img = world.Kernel.overlayImage(img2, img1, 0, 0);
 			for (var i = 0; i < restImages.length; i++) {
@@ -17692,11 +18115,11 @@ PRIMITIVES['underlay/xy'] =
     new PrimProc('underlay/xy',
 		 4,
 		 false, false,
-		 function(img1, deltaX, deltaY, img2) {
-			check(img1, isImage, "underlay/xy", "image", 1, arguments);
-			check(deltaX, isReal, "underlay/xy", "finite real number", 2, arguments);
-			check(deltaY, isReal, "underlay/xy", "finite real number", 3, arguments);
-			check(img2, isImage, "underlay/xy", "image", 4, arguments);
+		 function(aState, img1, deltaX, deltaY, img2) {
+			check(aState, img1, isImage, "underlay/xy", "image", 1, arguments);
+			check(aState, deltaX, isReal, "underlay/xy", "finite real number", 2, arguments);
+			check(aState, deltaY, isReal, "underlay/xy", "finite real number", 3, arguments);
+			check(aState, img2, isImage, "underlay/xy", "image", 4, arguments);
 
 		     return world.Kernel.overlayImage(img2.updatePinhole(0, 0), 
 						      img1.updatePinhole(0, 0),
@@ -17709,12 +18132,12 @@ PRIMITIVES['underlay/align'] =
 new PrimProc('underlay/align',
 			 4,
 			 true, false,
-			 function(placeX, placeY, img1, img2, restImages) {
-			 check(placeX, isPlaceX, "underlay/align", "x-place", 1, arguments);
-			 check(placeY, isPlaceY, "underlay/align", "y-place", 2, arguments);
-			 check(img1, isImage, "underlay/align", "image", 3, arguments);
-			 check(img2, isImage, "underlay/align", "image", 4, arguments);
-			 arrayEach(restImages, function(x, i) { check(x, isImage, "underlay/align", "image", i+4); }, arguments);
+	     function(aState, placeX, placeY, img1, img2, restImages) {
+			 checkVarArity(aState, placeX, isPlaceX, "underlay/align", "x-place", 1, arguments);
+			 checkVarArity(aState, placeY, isPlaceY, "underlay/align", "y-place", 2, arguments);
+			 checkVarArity(aState, img1, isImage, "underlay/align", "image", 3, arguments);
+			 checkVarArity(aState, img2, isImage, "underlay/align", "image", 4, arguments);
+			 arrayEach(restImages, function(x, i) { check(aState, x, isImage, "underlay/align", "image", i+4); }, arguments);
 			 
 			 var img = world.Kernel.overlayImage(img2,
 												  img1,
@@ -17735,10 +18158,10 @@ PRIMITIVES['beside'] =
 new PrimProc('beside',
 			 2,
 			 true, false,
-			 function(img1, img2, restImages) {
-			 check(img1, isImage, "beside", "image", 1, arguments);
-			 check(img2, isImage, "beside", "image", 2, arguments);
-			 arrayEach(restImages, function(x, i) { check(x, isImage, "beside", "image", i+4); }, arguments);
+			 function(aState, img1, img2, restImages) {
+			 checkVarArity(aState, img1, isImage, "beside", "image", 1, arguments);
+			 checkVarArity(aState, img2, isImage, "beside", "image", 2, arguments);
+			 arrayEach(restImages, function(x, i) { check(aState, x, isImage, "beside", "image", i+4); }, arguments);
 			 
 			 var img = world.Kernel.overlayImage(img1,
 												 img2,
@@ -17755,11 +18178,11 @@ PRIMITIVES['beside/align'] =
 new PrimProc('beside/align',
 			 3,
 			 true, false,
-			 function(placeY, img1, img2, restImages) {
-			 check(placeY, isPlaceY, "beside/align", "y-place", 1, arguments);
-			 check(img1, isImage, "beside/align", "image", 2, arguments);
-			 check(img2, isImage, "beside/align", "image", 3, arguments);
-			 arrayEach(restImages, function(x, i) { check(x, isImage, "beside", "image", i+3); }, arguments);
+			 function(aState, placeY, img1, img2, restImages) {
+			 checkVarArity(aState, placeY, isPlaceY, "beside/align", "y-place", 1, arguments);
+			 checkVarArity(aState, img1, isImage, "beside/align", "image", 2, arguments);
+			 checkVarArity(aState, img2, isImage, "beside/align", "image", 3, arguments);
+			 arrayEach(restImages, function(x, i) { check(aState, x, isImage, "beside", "image", i+3); }, arguments);
 			 
 			 var img = world.Kernel.overlayImage(img1,
 												 img2,
@@ -17779,10 +18202,10 @@ PRIMITIVES['above'] =
 new PrimProc('above',
 			 2,
 			 true, false,
-			 function(img1, img2, restImages) {
-			 check(img1, isImage, "above", "image", 1, arguments);
-			 check(img2, isImage, "above", "image", 2, arguments);
-			 arrayEach(restImages, function(x, i) { check(x, isImage, "above", "image", i+4); }, arguments);
+			 function(aState, img1, img2, restImages) {
+			 checkVarArity(aState, img1, isImage, "above", "image", 1, arguments);
+			 checkVarArity(aState, img2, isImage, "above", "image", 2, arguments);
+			 arrayEach(restImages, function(x, i) { check(aState, x, isImage, "above", "image", i+4); }, arguments);
 			 
 			 var img = world.Kernel.overlayImage(img1,
 												 img2,
@@ -17802,11 +18225,11 @@ PRIMITIVES['above/align'] =
 new PrimProc('above/align',
 			 3,
 			 true, false,
-			 function(placeX, img1, img2, restImages) {
-			 check(placeX, isPlaceX, "above/align", "x-place", 1, arguments);
-			 check(img1, isImage, "above/align", "image", 1, arguments);
-			 check(img2, isImage, "above/align", "image", 2, arguments);
-			 arrayEach(restImages, function(x, i) { check(x, isImage, "above/align", "image", i+4); }, arguments);
+			 function(aState, placeX, img1, img2, restImages) {
+			 checkVarArity(aState, placeX, isPlaceX, "above/align", "x-place", 1, arguments);
+			 checkVarArity(aState, img1, isImage, "above/align", "image", 1, arguments);
+			 checkVarArity(aState, img2, isImage, "above/align", "image", 2, arguments);
+			 arrayEach(restImages, function(x, i) { check(aState, x, isImage, "above/align", "image", i+4); }, arguments);
 			 
 			 var img = world.Kernel.overlayImage(img1,
 												 img2,
@@ -17826,9 +18249,9 @@ PRIMITIVES['rotate'] =
 new PrimProc('rotate',
 			 2,
 			 false, false,
-			 function(angle, img) {
-			 check(angle, isAngle, "rotate", "finite real number between 0 and 360", 1, arguments);
-			 check(img, isImage, "rotate", "image", 2, arguments);
+			 function(aState, angle, img) {
+			 check(aState, angle, isAngle, "rotate", "finite real number between 0 and 360", 1, arguments);
+			 check(aState, img, isImage, "rotate", "image", 2, arguments);
 				 // negate the angle, to make it a counterclockwise rotation
 			     return world.Kernel.rotateImage(jsnums.toFixnum(-angle), img);
 			 });
@@ -17837,10 +18260,10 @@ PRIMITIVES['scale/xy'] =
 new PrimProc('scale/xy',
 			 3,
 			 false, false,
-			 function(xFactor, yFactor, img) {
-			 check(xFactor, isReal, "scale/xy", "finite real number", 1, arguments);
-			 check(yFactor, isReal, "scale/xy", "finite real number", 2, arguments);
-			 check(img, isImage, "scale/xy", "image", 3, arguments);
+			 function(aState, xFactor, yFactor, img) {
+			 check(aState, xFactor, isReal, "scale/xy", "finite real number", 1, arguments);
+			 check(aState, yFactor, isReal, "scale/xy", "finite real number", 2, arguments);
+			 check(aState, img, isImage, "scale/xy", "image", 3, arguments);
 			 
 			 return world.Kernel.scaleImage(jsnums.toFixnum(xFactor), 
 							jsnums.toFixnum(yFactor),
@@ -17852,9 +18275,9 @@ PRIMITIVES['scale'] =
 new PrimProc('scale',
 			 2,
 			 false, false,
-			 function(factor, img) {
-			 check(factor, isReal, "scale", "finite real number", 1, arguments);
-			 check(img, isImage, "scale", "image", 2, arguments);
+			 function(aState, factor, img) {
+			 check(aState, factor, isReal, "scale", "finite real number", 1, arguments);
+			 check(aState, img, isImage, "scale", "image", 2, arguments);
 			 
 			 return world.Kernel.scaleImage(jsnums.toFixnum(factor),
 											jsnums.toFixnum(factor),
@@ -17865,12 +18288,12 @@ PRIMITIVES['crop'] =
 new PrimProc('crop',
 			 5,
 			 false, false,
-			 function(x, y, width, height, img) {
-			 check(x,	  isReal, "crop", "finite real number", 1, arguments);
-			 check(y,	  isReal, "crop", "finite real number", 2, arguments);
-			 check(width, isNonNegativeReal, "crop", "non-negative number", 3, arguments);
-			 check(height,isNonNegativeReal, "crop", "non-negative number", 4, arguments);
-			 check(img,   isImage,"crop", "image", 5, arguments);
+			 function(aState, x, y, width, height, img) {
+			 check(aState, x,	  isReal, "crop", "finite real number", 1, arguments);
+			 check(aState, y,	  isReal, "crop", "finite real number", 2, arguments);
+			 check(aState, width, isNonNegativeReal, "crop", "non-negative number", 3, arguments);
+			 check(aState, height,isNonNegativeReal, "crop", "non-negative number", 4, arguments);
+			 check(aState, img,   isImage,"crop", "image", 5, arguments);
 			 return world.Kernel.cropImage(jsnums.toFixnum(x),
 										   jsnums.toFixnum(y),
 										   jsnums.toFixnum(width),
@@ -17882,8 +18305,8 @@ PRIMITIVES['frame'] =
 new PrimProc('frame',
 			 1,
 			 false, false,
-			 function(img) {
-			 check(img,   isImage,"frame", "image", 1, arguments);
+			 function(aState, img) {
+			 check(aState, img,   isImage,"frame", "image", 1, arguments);
 			 return world.Kernel.frameImage(img);
 			 });
 
@@ -17891,8 +18314,8 @@ PRIMITIVES['flip-vertical'] =
 new PrimProc('flip-vertical',
 			 1,
 			 false, false,
-			 function(img) {
-			 check(img, isImage, "flip-vertical", "image", 1, arguments);
+			 function(aState, img) {
+			 check(aState, img, isImage, "flip-vertical", "image", 1, arguments);
 			 return world.Kernel.flipImage(img, "vertical");
 			 });
 
@@ -17901,8 +18324,8 @@ PRIMITIVES['flip-horizontal'] =
 new PrimProc('flip-horizontal',
 			 1,
 			 false, false,
-			 function(img) {
-			 check(img, isImage, "flip-horizontal", "image", 1, arguments);
+			 function(aState, img) {
+			 check(aState, img, isImage, "flip-horizontal", "image", 1, arguments);
 			 return world.Kernel.flipImage(img, "horizontal");
 			 });
 
@@ -17911,11 +18334,11 @@ PRIMITIVES['text'] =
     new PrimProc('text',
 		 3,
 		 false, false,
-		 function(aString, aSize, aColor) {
-		     check(aString, isString, "text", "string", 1, arguments);
-		     check(aSize, function(x) { return isNatural(x) && jsnums.greaterThan(x, 0) && isByte(x); },
+		 function(aState, aString, aSize, aColor) {
+		     check(aState, aString, isString, "text", "string", 1, arguments);
+		     check(aState, aSize, function(x) { return isNatural(x) && jsnums.greaterThan(x, 0) && isByte(x); },
 			   "text", "exact integer between 1 and 255", 2, arguments);
-		     check(aColor, isColor, "text", "color", 3, arguments);
+		     check(aState, aColor, isColor, "text", "color", 3, arguments);
                      
 		     if (colorDb.get(aColor)) {
 			 aColor = colorDb.get(aColor);
@@ -17929,17 +18352,17 @@ PRIMITIVES['text/font'] =
 new PrimProc('text/font',
 			 8,
 			 false, false,
-			 function(aString, aSize, aColor, aFace, aFamily, aStyle, aWeight, aUnderline) {
-			 check(aString, isString,		"text/font", "string",	1, arguments);
-		     check(aSize,	function(x) { return isNatural(x) && jsnums.greaterThan(x, 0) && isByte(x); },
+			 function(aState, aString, aSize, aColor, aFace, aFamily, aStyle, aWeight, aUnderline) {
+			 check(aState, aString, isString,		"text/font", "string",	1, arguments);
+		     check(aState, aSize,	function(x) { return isNatural(x) && jsnums.greaterThan(x, 0) && isByte(x); },
 				   "text/font", "exact integer between 1 and 255",	2, arguments);
-			 check(aColor,	isColor,		"text/font", "color",	3, arguments);
-			 check(aFace,	function(x) {return isString(x) || !x;},		
+			 check(aState, aColor,	isColor,		"text/font", "color",	3, arguments);
+			 check(aState, aFace,	function(x) {return isString(x) || !x;},		
 											"text/font", "face",	4, arguments);
-			 check(aFamily,	isFontFamily,	"text/font", "family",	5, arguments);
-			 check(aStyle,	isFontStyle,	"text/font", "style",	6, arguments);
-			 check(aWeight,	isFontWeight,	"text/font", "weight",	7, arguments);
-			 check(aUnderline,isBoolean,	"text/font", "underline?",8, arguments);
+			 check(aState, aFamily,	isFontFamily,	"text/font", "family",	5, arguments);
+			 check(aState, aStyle,	isFontStyle,	"text/font", "style",	6, arguments);
+			 check(aState, aWeight,	isFontWeight,	"text/font", "weight",	7, arguments);
+			 check(aState, aUnderline,isBoolean,	"text/font", "underline?",8, arguments);
 			 
 			 if (colorDb.get(aColor)) {
 			 aColor = colorDb.get(aColor);
@@ -17954,17 +18377,49 @@ new PrimProc('text/font',
 											  "normal", "Optimer","","",false);
                              }
 			 });
-
+/*
 PRIMITIVES['bitmap/url'] = 
 PRIMITIVES['image-url'] =
     new PrimProc('image-url',
 		 1,
 		 false, true,
-		 function(state, path) {
-		     check(path, isString, "image-url", "string", 1);
+		 function(aState, path) {
+		     check(aState, path, isString, "image-url", "string", 1);
 		     var originalPath = path.toString();
-		     if (state.getImageProxyHook()) {
-			 path = (state.getImageProxyHook() +
+		     if (aState.getImageProxyHook()) {
+			 path = (aState.getImageProxyHook() +
+				 "?url=" + encodeURIComponent(path.toString()));
+		     } else {
+			 path = path.toString();
+		     }
+
+		     aState.v = PAUSE(function(restarter, caller) {
+			 var rawImage = new Image();
+			 rawImage.onload = function() {
+			     world.Kernel.fileImage(
+				 path,
+				 rawImage,
+			         restarter);
+			 };
+			 rawImage.onerror = function(e) {
+			     restarter(types.schemeError(types.incompleteExn(
+					types.exnFail,
+					" (unable to load: " + originalPath + ")",
+					[])));
+			 };
+			 rawImage.src = path;
+		     });
+		 });*/
+PRIMITIVES['bitmap/url'] = 
+PRIMITIVES['image-url'] =
+    new PrimProc('image-url',
+		 1,
+		 false, false,
+		 function(aState, path) {
+		     check(aState, path, isString, "image-url", "string", 1);  //fixme? if using bitmap/url, error says image-url...
+		     var originalPath = path.toString();
+		     if (aState.getImageProxyHook()) {
+			 path = (aState.getImageProxyHook() +
 				 "?url=" + encodeURIComponent(path.toString()));
 		     } else {
 			 path = path.toString();
@@ -17988,15 +18443,16 @@ PRIMITIVES['image-url'] =
 		     });
 		 });
 
+
 PRIMITIVES['open-image-url'] = PRIMITIVES['image-url'];
 
 
 PRIMITIVES['video-url'] =
 new PrimProc('video-url',
 			 1,
-			 false, true,
-			 function(state, path) {
-		     check(path, isString, "video-url", "string", 1);
+			 false, false,
+			 function(aState, path) {
+		     check(aState, path, isString, "video-url", "string", 1);
 			     return PAUSE(function(restarter, caller) {
 										var rawVideo = document.createElement('video');
 										rawVideo.src = path.toString();
@@ -18018,8 +18474,8 @@ PRIMITIVES['image-width'] =
     new PrimProc('image-width',
 		 1,
 		 false, false,
-		 function(img) {
-		     check(img, isImage, 'image-width', 'image', 1);
+		 function(aState, img) {
+		     check(aState, img, isImage, 'image-width', 'image', 1);
 		     return img.getWidth();
 		 });
 
@@ -18028,8 +18484,8 @@ PRIMITIVES['image-height'] =
     new PrimProc('image-height',
 		 1,
 		 false, false,
-		 function(img) {
-		     check(img, isImage, 'image-height', 'image', 1);
+		 function(aState, img) {
+		     check(aState, img, isImage, 'image-height', 'image', 1);
 		     return img.getHeight();
 		 });
 
@@ -18038,8 +18494,8 @@ PRIMITIVES['image-baseline'] =
 new PrimProc('image-baseline',
 			 1,
 			 false, false,
-			 function(img) {
-			 check(img, isImage, 'image-baseline', 'image', 1);
+			 function(aState, img) {
+			 check(aState, img, isImage, 'image-baseline', 'image', 1);
 			 return img.getBaseline();
 			 });
 
@@ -18048,8 +18504,8 @@ PRIMITIVES['image->color-list'] =
    new PrimProc('image->color-list',
 		 1,
 		 false, false,
-		 function(img) {
-		     check(img, isImage, 'image->color-list', 'image', 1);
+		 function(aState, img) {
+		     check(aState, img, isImage, 'image->color-list', 'image', 1);
 		     var width = img.getWidth(),
                          height = img.getHeight(),
 		         canvas = world.Kernel.makeCanvas(width, height),
@@ -18075,12 +18531,12 @@ PRIMITIVES['image->color-list'] =
 
 
 // Note: this has to be done asynchonously.
-var colorListToImage = function(listOfColors, width, height, pinholeX, pinholeY) {
-    checkListOf(listOfColors, isColor, 'color-list->image', 'image', 1);
-    check(width, isNatural, 'color-list->image', 'natural', 2);
-    check(height, isNatural, 'color-list->image', 'natural', 3);
-    check(pinholeX, isNatural, 'color-list->image', 'natural', 4);
-    check(pinholeY, isNatural, 'color-list->image', 'natural', 5);
+var colorListToImage = function(aState, listOfColors, width, height, pinholeX, pinholeY) {
+    checkListOf(aState, listOfColors, isColor, 'color-list->image', 'image', 1);
+    check(aState, width, isNatural, 'color-list->image', 'natural', 2);
+    check(aState, height, isNatural, 'color-list->image', 'natural', 3);
+    check(aState, pinholeX, isNatural, 'color-list->image', 'natural', 4);
+    check(aState, pinholeY, isNatural, 'color-list->image', 'natural', 5);
     var canvas = world.Kernel.makeCanvas(jsnums.toFixnum(width),
 					 jsnums.toFixnum(height)),
     ctx = canvas.getContext("2d"),
@@ -18122,34 +18578,41 @@ var colorListToImage = function(listOfColors, width, height, pinholeX, pinholeY)
 PRIMITIVES['color-list->image'] = 
     new PrimProc('color-list->image',
 		 5,
-		 false, true,
-                 function(state, colorList, width, height, x, y){
-                     return colorListToImage(colorList, width, height, x, y);
+		 false, false,
+                 function(aState, colorList, width, height, x, y){
+                     return colorListToImage(aState, colorList, width, height, x, y);
                  });
 
 
 PRIMITIVES['color-list->bitmap'] = 
     new PrimProc('color-list->bitmap',
 		 3,
-		 false, true,
-		 function(state, colorList, width, height) {
-                     return colorListToImage(colorList, width, height, 0, 0);
+		 false, false,
+		 function(aState, colorList, width, height) {
+                     return colorListToImage(aState, colorList, width, height, 0, 0);
                  });
 
 
 
 
-PRIMITIVES['mode?']		= new PrimProc('mode?', 1, false, false, isMode);
-PRIMITIVES['image-color?']      = new PrimProc('image-color?', 1, false, false, isColor);
-PRIMITIVES['name->color']       = new PrimProc('name->color?', 1, false, false,
-                                               function(x) { 
+PRIMITIVES['mode?']		= new PrimProc('mode?', 1, false, false, 
+                                               function(aState, v) { return isMode(v); });
+PRIMITIVES['image-color?']      = new PrimProc('image-color?', 1, false, false, 
+                                               function(aState, v) { return isColor(v); });
+PRIMITIVES['name->color']       = new PrimProc('name->color', 1, false, false,
+                                               function(aState, x) { 
                                                    return nameToColor(x) || false; 
                                                });
-PRIMITIVES['x-place?']		= new PrimProc('x-place?', 1, false, false, isPlaceX);
-PRIMITIVES['y-place?']		= new PrimProc('y-place?', 1, false, false, isPlaceY);
-PRIMITIVES['angle?']		= new PrimProc('angle?', 1, false, false, isAngle);
-PRIMITIVES['side-count?']	= new PrimProc('side-count?', 1, false, false, isSideCount);
-PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepCount);
+PRIMITIVES['x-place?']		= new PrimProc('x-place?', 1, false, false,
+                                               function(aState, v) { return isPlaceX(v); });
+PRIMITIVES['y-place?']		= new PrimProc('y-place?', 1, false, false,
+                                               function(aState, v) { return isPlaceY(v); });
+PRIMITIVES['angle?']		= new PrimProc('angle?', 1, false, false,
+                                               function(aState, v) { return isAngle(v); });
+PRIMITIVES['side-count?']	= new PrimProc('side-count?', 1, false, false, 
+                                               function(aState, v) { return isSideCount(v); });
+PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, 
+                                               function(aState, v) { return isStepCount(v); });
 
 
 
@@ -18163,8 +18626,8 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 2,
 // 		 false, false,
 // 		 function(img1, img2) {
-// 		 	check(img1, isImage, 'image=?', 'image', 1);
-// 			check(img2, isImage, 'image=?', 'image', 2);
+// 		 	check(aState, img1, isImage, 'image=?', 'image', 1);
+// 			check(aState, img2, isImage, 'image=?', 'image', 2);
 // 			return isEqual(img1, img2);
 // 		 });
 
@@ -18174,9 +18637,9 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 3,
 // 		 false, false,
 // 		 function(r, g, b) {
-// 		 	check(r, isByte, 'make-color', 'number between 0 and 255', 1, arguments);
-// 		 	check(g, isByte, 'make-color', 'number between 0 and 255', 2, arguments);
-// 		 	check(b, isByte, 'make-color', 'number between 0 and 255', 3, arguments);
+// 		 	check(aState, r, isByte, 'make-color', 'number between 0 and 255', 1, arguments);
+// 		 	check(aState, g, isByte, 'make-color', 'number between 0 and 255', 2, arguments);
+// 		 	check(aState, b, isByte, 'make-color', 'number between 0 and 255', 3, arguments);
 
 // 			return types.color(jsnums.toFixnum(r),
 // 					   jsnums.toFixnum(g),
@@ -18188,7 +18651,7 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 1,
 // 		 false, false,
 // 		 function(col) {
-// 		 	check(col, types.isColor, 'color-red', 'color', 1);
+// 		 	check(aState, col, types.isColor, 'color-red', 'color', 1);
 // 			return types.colorRed(col);
 // 		 });
 
@@ -18197,7 +18660,7 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 1,
 // 		 false, false,
 // 		 function(col) {
-// 		 	check(col, types.isColor, 'color-green', 'color', 1);
+// 		 	check(aState, col, types.isColor, 'color-green', 'color', 1);
 // 			return types.colorGreen(col);
 // 		 });
 
@@ -18206,7 +18669,7 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 1,
 // 		 false, false,
 // 		 function(col) {
-// 		 	check(col, types.isColor, 'color-blue', 'color', 1);
+// 		 	check(aState, col, types.isColor, 'color-blue', 'color', 1);
 // 			return types.colorBlue(col);
 // 		 });
 
@@ -18216,8 +18679,8 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 2,
 // 		 false, false,
 // 		 function(width, height) {
-// 		 	check(width, isNonNegativeReal, 'empty-scene', 'non-negative number', 1, arguments);
-// 			check(height, isNonNegativeReal, 'empty-scene', 'non-negative number', 2, arguments);
+// 		 	check(aState, width, isNonNegativeReal, 'empty-scene', 'non-negative number', 1, arguments);
+// 			check(aState, height, isNonNegativeReal, 'empty-scene', 'non-negative number', 2, arguments);
 // 		     return world.Kernel.sceneImage(jsnums.toFixnum(width), jsnums.toFixnum(height), [], true);
 // 		 });
 
@@ -18227,10 +18690,10 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 4,
 // 		 false, false,
 // 		 function(picture, x, y, background) {
-// 			check(picture, isImage, "place-image", "image", 1, arguments);
-// 			check(x, isReal, "place-image", "real", 2, arguments);
-// 			check(y, isReal, "place-image", "real", 3, arguments);
-// 			check(background, function(x) { return isScene(x) || isImage(x) },
+// 			check(aState, picture, isImage, "place-image", "image", 1, arguments);
+// 			check(aState, x, isReal, "place-image", "real", 2, arguments);
+// 			check(aState, y, isReal, "place-image", "real", 3, arguments);
+// 			check(aState, background, function(x) { return isScene(x) || isImage(x) },
 // 			      "place-image", "image", 4, arguments);
 // 			if (isScene(background)) {
 // 			    return background.add(picture, jsnums.toFixnum(x), jsnums.toFixnum(y));
@@ -18251,9 +18714,9 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 3,
 // 		 false, false,
 // 		 function(img, x, y) {
-// 			check(img, isImage, "put-pinhole", "image", 1, arguments);
-// 			check(x, isReal, "put-pinhole", "real", 2, arguments);
-// 			check(y, isReal, "put-pinhole", "real", 3, arguments);
+// 			check(aState, img, isImage, "put-pinhole", "image", 1, arguments);
+// 			check(aState, x, isReal, "put-pinhole", "real", 2, arguments);
+// 			check(aState, y, isReal, "put-pinhole", "real", 3, arguments);
 // 			return img.updatePinhole(jsnums.toFixnum(x), jsnums.toFixnum(y));
 //     		 });
 
@@ -18263,9 +18726,9 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 3,
 // 		 false, false,
 // 		 function(aRadius, aStyle, aColor) {
-// 			check(aRadius, isNonNegativeReal, "circle", "non-negative number", 1, arguments);
-// 			check(aStyle, isStyle, "circle", "style", 2, arguments);
-// 			check(aColor, isColor, "circle", "color", 3, arguments);
+// 			check(aState, aRadius, isNonNegativeReal, "circle", "non-negative number", 1, arguments);
+// 			check(aState, aStyle, isStyle, "circle", "style", 2, arguments);
+// 			check(aState, aColor, isColor, "circle", "color", 3, arguments);
 
 
 // 			if (colorDb.get(aColor)) {
@@ -18280,14 +18743,14 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 5,
 // 		 false, false,
 // 		 function(aPoints, anOuter, anInner, aStyle, aColor) {
-// 			check(aPoints, function(x) { return isNatural(x) && jsnums.greaterThanOrEqual(x, 3); },
+// 			check(aState, aPoints, function(x) { return isNatural(x) && jsnums.greaterThanOrEqual(x, 3); },
 // 			      "star", "positive integer greater than or equal to 3", 1, arguments);
-// 			check(anOuter, function(x) { return isReal(x) && jsnums.greaterThan(x, 0); },
+// 			check(aState, anOuter, function(x) { return isReal(x) && jsnums.greaterThan(x, 0); },
 // 			      "star", "positive number", 2, arguments);
-// 			check(anInner, function(x) { return isReal(x) && jsnums.greaterThan(x, 0); },
+// 			check(aState, anInner, function(x) { return isReal(x) && jsnums.greaterThan(x, 0); },
 // 			      "star", "positive number", 2, arguments);
-// 			check(aStyle, isStyle, "star", "style", 4, arguments);
-// 			check(aColor, isColor, "star", "color", 5, arguments);
+// 			check(aState, aStyle, isStyle, "star", "style", 4, arguments);
+// 			check(aState, aColor, isColor, "star", "color", 5, arguments);
 
 // 			if (colorDb.get(aColor)) {
 // 				aColor = colorDb.get(aColor);
@@ -18305,10 +18768,10 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 4,
 // 		 false, false,
 // 		 function(w, h, s, c) {
-// 			check(w, isNonNegativeReal, "nw:rectangle", "non-negative number", 1, arguments);
-// 			check(h, isNonNegativeReal, "nw:rectangle", "non-negative number", 2, arguments);
-// 			check(s, isStyle, "nw:rectangle", "style", 3, arguments);
-// 			check(c, isColor, "nw:rectangle", "color", 4, arguments);
+// 			check(aState, w, isNonNegativeReal, "nw:rectangle", "non-negative number", 1, arguments);
+// 			check(aState, h, isNonNegativeReal, "nw:rectangle", "non-negative number", 2, arguments);
+// 			check(aState, s, isStyle, "nw:rectangle", "style", 3, arguments);
+// 			check(aState, c, isColor, "nw:rectangle", "color", 4, arguments);
 
 // 			if (colorDb.get(c)) {
 // 				c = colorDb.get(c);
@@ -18325,10 +18788,10 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 4,
 // 		 false, false,
 // 		 function(w, h, s, c) {
-// 			check(w, isNonNegativeReal, "rectangle", "non-negative number", 1, arguments);
-// 			check(h, isNonNegativeReal, "rectangle", "non-negative number", 2, arguments);
-// 			check(s, isStyle, "rectangle", "style", 3, arguments);
-// 			check(c, isColor, "rectangle", "color", 4, arguments);
+// 			check(aState, w, isNonNegativeReal, "rectangle", "non-negative number", 1, arguments);
+// 			check(aState, h, isNonNegativeReal, "rectangle", "non-negative number", 2, arguments);
+// 			check(aState, s, isStyle, "rectangle", "style", 3, arguments);
+// 			check(aState, c, isColor, "rectangle", "color", 4, arguments);
 
 // 			if (colorDb.get(c)) {
 // 				c = colorDb.get(c);
@@ -18344,9 +18807,9 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 3,
 // 		 false, false,
 // 		 function(r, s, c) {
-// 			check(r, isNonNegativeReal, "triangle", "non-negative number", 1, arguments);
-// 			check(s, isStyle, "triangle", "style", 2, arguments);
-// 			check(c, isColor, "triangle", "color", 3, arguments);
+// 			check(aState, r, isNonNegativeReal, "triangle", "non-negative number", 1, arguments);
+// 			check(aState, s, isStyle, "triangle", "style", 2, arguments);
+// 			check(aState, c, isColor, "triangle", "color", 3, arguments);
 // 			if (colorDb.get(c)) {
 // 				c = colorDb.get(c);
 // 			}
@@ -18359,10 +18822,10 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 4,
 // 		 false, false,
 // 		 function(w, h, s, c) {
-// 			check(w, isNonNegativeReal, "ellipse", "non-negative number", 1, arguments);
-// 			check(h, isNonNegativeReal, "ellipse", "non-negative number", 2, arguments);
-// 			check(s, isStyle, "ellipse", "string", 3, arguments);
-// 			check(c, isColor, "ellipse", "color", 4, arguments);
+// 			check(aState, w, isNonNegativeReal, "ellipse", "non-negative number", 1, arguments);
+// 			check(aState, h, isNonNegativeReal, "ellipse", "non-negative number", 2, arguments);
+// 			check(aState, s, isStyle, "ellipse", "string", 3, arguments);
+// 			check(aState, c, isColor, "ellipse", "color", 4, arguments);
 			
 // 			if (colorDb.get(c)) {
 // 				c = colorDb.get(c);
@@ -18378,9 +18841,9 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 3,
 // 		 false, false,
 // 		 function(x, y, c) {
-// 			check(x, isReal, "line", "finite real number", 1, arguments);
-// 			check(y, isReal, "line", "finite real number", 2, arguments);
-// 			check(c, isColor, "line", "color", 3, arguments);
+// 			check(aState, x, isReal, "line", "finite real number", 1, arguments);
+// 			check(aState, y, isReal, "line", "finite real number", 2, arguments);
+// 			check(aState, c, isColor, "line", "color", 3, arguments);
 // 			if (colorDb.get(c)) {
 // 				c = colorDb.get(c);
 // 			}
@@ -18396,9 +18859,9 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 2,
 // 		 true, false,
 // 		 function(img1, img2, restImages) {
-// 			check(img1, isImage, "overlay", "image", 1, arguments);
-// 			check(img2, isImage, "overlay", "image", 2, arguments);
-// 			arrayEach(restImages, function(x, i) { check(x, isImage, "overlay", "image", i+3); }, arguments);
+// 			check(aState, img1, isImage, "overlay", "image", 1, arguments);
+// 			check(aState, img2, isImage, "overlay", "image", 2, arguments);
+// 			arrayEach(restImages, function(x, i) { check(aState, x, isImage, "overlay", "image", i+3); }, arguments);
 
 // 			var img = world.Kernel.overlayImage(img1, img2, 0, 0);
 // 			for (var i = 0; i < restImages.length; i++) {
@@ -18413,10 +18876,10 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 4,
 // 		 false, false,
 // 		 function(img1, deltaX, deltaY, img2) {
-// 			check(img1, isImage, "overlay/xy", "image", 1, arguments);
-// 			check(deltaX, isReal, "overlay/xy", "finite real number", 2, arguments);
-// 			check(deltaY, isReal, "overlay/xy", "finite real number", 3, arguments);
-// 			check(img2, isImage, "overlay/xy", "image", 4, arguments);
+// 			check(aState, img1, isImage, "overlay/xy", "image", 1, arguments);
+// 			check(aState, deltaX, isReal, "overlay/xy", "finite real number", 2, arguments);
+// 			check(aState, deltaY, isReal, "overlay/xy", "finite real number", 3, arguments);
+// 			check(aState, img2, isImage, "overlay/xy", "image", 4, arguments);
 
 // 		     return world.Kernel.overlayImage(img1.updatePinhole(0, 0),
 // 						      img2.updatePinhole(0, 0),
@@ -18430,9 +18893,9 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 2,
 // 		 true, false,
 // 		 function(img1, img2, restImages) {
-// 			check(img1, isImage, "underlay", "image", 1, arguments);
-// 			check(img2, isImage, "underlay", "image", 2, arguments);
-// 			arrayEach(restImages, function(x, i) { check(x, isImage, "underlay", "image", i+3); }, arguments);
+// 			check(aState, img1, isImage, "underlay", "image", 1, arguments);
+// 			check(aState, img2, isImage, "underlay", "image", 2, arguments);
+// 			arrayEach(restImages, function(x, i) { check(aState, x, isImage, "underlay", "image", i+3); }, arguments);
 
 // 			var img = world.Kernel.overlayImage(img2, img1, 0, 0);
 // 			for (var i = 0; i < restImages.length; i++) {
@@ -18447,10 +18910,10 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 4,
 // 		 false, false,
 // 		 function(img1, deltaX, deltaY, img2) {
-// 			check(img1, isImage, "underlay/xy", "image", 1, arguments);
-// 			check(deltaX, isReal, "underlay/xy", "finite real number", 2, arguments);
-// 			check(deltaY, isReal, "underlay/xy", "finite real number", 3, arguments);
-// 			check(img2, isImage, "underlay/xy", "image", 4, arguments);
+// 			check(aState, img1, isImage, "underlay/xy", "image", 1, arguments);
+// 			check(aState, deltaX, isReal, "underlay/xy", "finite real number", 2, arguments);
+// 			check(aState, deltaY, isReal, "underlay/xy", "finite real number", 3, arguments);
+// 			check(aState, img2, isImage, "underlay/xy", "image", 4, arguments);
 
 // 		     return world.Kernel.overlayImage(img2.updatePinhole(0, 0), 
 // 						      img1.updatePinhole(0, 0),
@@ -18467,10 +18930,10 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 3,
 // 		 false, false,
 // 		 function(aString, aSize, aColor) {
-// 			check(aString, isString, "text", "string", 1, arguments);
-// 			check(aSize, function(x) { return jsnums.greaterThan(x, 0) && isByte(x); },
+// 			check(aState, aString, isString, "text", "string", 1, arguments);
+// 			check(aState, aSize, function(x) { return jsnums.greaterThan(x, 0) && isByte(x); },
 // 			      "text", "exact integer between 1 and 255", 2, arguments);
-// 			check(aColor, isColor, "text", "color", 3, arguments);
+// 			check(aState, aColor, isColor, "text", "color", 3, arguments);
 
 // 			if (colorDb.get(aColor)) {
 // 				aColor = colorDb.get(aColor);
@@ -18484,7 +18947,7 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 1,
 // 		 false, true,
 // 		 function(state, path) {
-// 		     check(path, isString, "open-image-url", "string", 1);
+// 		     check(aState, path, isString, "open-image-url", "string", 1);
 // 		     return PAUSE(function(restarter, caller) {
 // 			 var rawImage = new Image();
 // 			 rawImage.onload = function() {
@@ -18508,7 +18971,7 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 1,
 // 		 false, false,
 // 		 function(img) {
-// 		 	check(img, isImage, 'image-width', 'image', 1);
+// 		 	check(aState, img, isImage, 'image-width', 'image', 1);
 // 			return img.getWidth();
 // 		 });
 
@@ -18518,7 +18981,7 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false, isStepC
 // 		 1,
 // 		 false, false,
 // 		 function(img) {
-// 		 	check(img, isImage, 'image-height', 'image', 1);
+// 		 	check(aState, img, isImage, 'image-height', 'image', 1);
 // 			return img.getHeight();
 // 		 });
 
@@ -18559,22 +19022,22 @@ PRIMITIVES['on-tick'] =
 	    [new PrimProc('on-tick',
 			  1,
 			  false, false,
-			  function(f) {
-			      check(f, isFunction, "on-tick", "procedure", 1);
+			  function(aState, f) {
+			      check(aState, f, isFunction, "on-tick", "procedure", 1);
 			      return new OnTickBang(f,
 						    new PrimProc('', 1, false, false,
-								 function(w) { return types.effectDoNothing(); }),
+								 function(aState, w) { return types.effectDoNothing(); }),
 						    DEFAULT_TICK_DELAY);
 			  }),
 	     new PrimProc('on-tick',
 			  2,
 			  false, false,
-			  function(f, aDelay) {
-			      check(f, isFunction, "on-tick", "procedure", 1, arguments);
-			      check(aDelay, isNonNegativeReal, "on-tick", "non-negative number", 2, arguments);
+			  function(aState, f, aDelay) {
+			      check(aState, f, isFunction, "on-tick", "procedure", 1, arguments);
+			      check(aState, aDelay, isNonNegativeReal, "on-tick", "non-negative number", 2, arguments);
 			      return new OnTickBang(f,
 						    new PrimProc('', 1, false, false,
-								 function(w) { return types.effectDoNothing(); }),
+								 function(aState, w) { return types.effectDoNothing(); }),
 						    aDelay);
 			  }) ]);
 
@@ -18585,18 +19048,18 @@ PRIMITIVES['on-tick!'] =
 	[new PrimProc('on-tick!',
 		      2,
 		      false, false,
-		      function(handler, effectHandler) {
-			  check(handler, isFunction, "on-tick!", "procedure", 1, arguments);
-			  check(effectHandler, isFunction, "on-tick!","procedure", 2, arguments);
+		      function(aState, handler, effectHandler) {
+			  check(aState, handler, isFunction, "on-tick!", "procedure", 1, arguments);
+			  check(aState, effectHandler, isFunction, "on-tick!","procedure", 2, arguments);
 			  return new OnTickBang(handler, effectHandler, DEFAULT_TICK_DELAY);
 		      }),
 	 new PrimProc('on-tick!',
 		      3,
 		      false, false,
-		      function(handler, effectHandler, aDelay)  {
-			  check(handler, isFunction, "on-tick!", "procedure", 1, arguments);
-			  check(effectHandler, isFunction, "on-tick!","procedure", 2, arguments);
-			  check(aDelay, isNonNegativeReal, "on-tick!", "non-negative number", 3, arguments);
+		      function(aState, handler, effectHandler, aDelay)  {
+			  check(aState, handler, isFunction, "on-tick!", "procedure", 1, arguments);
+			  check(aState, effectHandler, isFunction, "on-tick!","procedure", 2, arguments);
+			  check(aState, aDelay, isNonNegativeReal, "on-tick!", "non-negative number", 3, arguments);
 			  return new OnTickBang(handler, effectHandler, aDelay);
 		      }) ]);
 
@@ -18645,8 +19108,8 @@ PRIMITIVES['on-redraw'] =
     new PrimProc('on-redraw',
 		 1,
 		 false, false,
-		 function(f) {
-		     check(f, isFunction, 'on-redraw', 'procedure', 1);
+		 function(aState, f) {
+		     check(aState, f, isFunction, 'on-redraw', 'procedure', 1);
 		     return new (WorldConfigOption.extend({
 				 init: function() {
 				     this._super('on-redraw');
@@ -18663,8 +19126,8 @@ PRIMITIVES['to-draw'] =
     new PrimProc('to-draw',
 		 1,
 		 false, false,
-		 function(f) {
-		     check(f, isFunction, 'to-draw', 'procedure', 1);
+		 function(aState, f) {
+		     check(aState, f, isFunction, 'to-draw', 'procedure', 1);
 		     return new (WorldConfigOption.extend({
 				 init: function() {
 				     this._super('on-redraw');
@@ -18684,8 +19147,8 @@ PRIMITIVES['on-draw'] =
 	[new PrimProc('on-draw',
 		      1,
 		      false, false,
-		      function(domHandler) {
-			  check(domHandler, isFunction, 'on-draw', 'procedure', 1);
+		      function(aState, domHandler) {
+			  check(aState, domHandler, isFunction, 'on-draw', 'procedure', 1);
 			  return new (WorldConfigOption.extend({
 				    init: function() {
 					this._super('on-draw');
@@ -18698,9 +19161,9 @@ PRIMITIVES['on-draw'] =
 	 new PrimProc('on-draw',
 		      2,
 		      false, false,
-		      function(domHandler, styleHandler) {
-		 	  check(domHandler, isFunction, 'on-draw', 'procedure', 1, arguments);
-			  check(styleHandler, isFunction, 'on-draw', 'procedure', 2, arguments);
+		      function(aState, domHandler, styleHandler) {
+		 	  check(aState, domHandler, isFunction, 'on-draw', 'procedure', 1, arguments);
+			  check(aState, styleHandler, isFunction, 'on-draw', 'procedure', 2, arguments);
 			  return new (WorldConfigOption.extend({
 				    init: function() {
 					this._super('on-draw');
@@ -18717,7 +19180,7 @@ PRIMITIVES['initial-effect'] =
     new PrimProc('initial-effect',
 		 1,
 		 false, false,
-		 function(effect) {
+		 function(aState, effect) {
 		     return new (WorldConfigOption.extend({
 				 init: function() {
 				     this._super("initial-effect");
@@ -18734,9 +19197,9 @@ PRIMITIVES['initial-effect'] =
  *** Jsworld Primitives ***
  **************************/
 
-
+//fixme pass in aState?
 var jsp = function(attribList) {
-	checkListOf(attribList, function(x) { return isList(x) && length(x) == 2; },
+	checkListOf(undefined, attribList, function(x) { return isList(x) && length(x) == 2; },
 		    'js-p', 'list of (list of X Y)', 1);
 	var attribs = assocListToHash(attribList);
 	var node = jsworld.MobyJsworld.p(attribs);
@@ -18747,12 +19210,13 @@ var jsp = function(attribList) {
 };
 PRIMITIVES['js-p'] =
     new CasePrimitive('js-p',
-	[new PrimProc('js-p', 0, false, false, function() { return jsp(types.EMPTY); }),
-	 new PrimProc('js-p', 1, false, false, jsp)]);
+	[new PrimProc('js-p', 0, false, false, function(aState) { return jsp(types.EMPTY); }),
+	 new PrimProc('js-p', 1, false, false, 
+                      function(aState, v) { return jsp(v); })]);
 
 
 var jsdiv = function(attribList) {
-	checkListOf(attribList, isAssocList, 'js-div', '(listof X Y)', 1);
+	checkListOf(undefined, attribList, isAssocList, 'js-div', '(listof X Y)', 1);
 
 	var attribs = assocListToHash(attribList);
 	var node = jsworld.MobyJsworld.div(attribs);
@@ -18764,15 +19228,16 @@ var jsdiv = function(attribList) {
 };
 PRIMITIVES['js-div'] =
     new CasePrimitive('js-div',
-	[new PrimProc('js-div', 0, false, false, function() { return jsdiv(types.EMPTY); }),
-	 new PrimProc('js-div', 1, false, false, jsdiv)]);
+	[new PrimProc('js-div', 0, false, false, function(aState) { return jsdiv(types.EMPTY); }),
+	 new PrimProc('js-div', 1, false, false, 
+                      function(aState, v) { return jsdiv(v); })]);
 
 
 var jsButtonBang = function(funName) {
-	return function(worldUpdateF, effectF, attribList) {
-		check(worldUpdateF, isFunction, funName, 'procedure', 1);
-		check(effectF, isFunction, funName, 'procedure', 2);
-		checkListOf(attribList, isAssocList, funName, '(listof X Y)', 3);
+    return function(aState, worldUpdateF, effectF, attribList) {
+		check(aState, worldUpdateF, isFunction, funName, 'procedure', 1);
+		check(aState, effectF, isFunction, funName, 'procedure', 2);
+		checkListOf(undefined, attribList, isAssocList, funName, '(listof X Y)', 3);
 
 		var attribs = attribList ? assocListToHash(attribList) : {};
 		var node = jsworld.MobyJsworld.buttonBang(worldUpdateF, effectF, attribs);
@@ -18783,14 +19248,16 @@ var jsButtonBang = function(funName) {
 		return helpers.wrapJsObject(node);
 	}
 };
-var jsButton = function(updateWorldF, attribList) {
-	var noneF = new types.PrimProc('', 1, false, false, function(w) { return types.EMPTY; });
-	return jsButtonBang('js-button')(updateWorldF, noneF, attribList);
+var jsButton = function(aState, updateWorldF, attribList) {
+    var noneF = new types.PrimProc('', 1, false, false, function(aState, w) { return types.EMPTY; });
+        return jsButtonBang('js-button')(aState, updateWorldF, noneF, attribList);
 };
 PRIMITIVES['js-button'] =
     new CasePrimitive('js-button',
-	[new PrimProc('js-button', 1, false, false, jsButton),
-	 new PrimProc('js-button', 2, false, false, jsButton)]);
+	[new PrimProc('js-button', 1, false, false,
+                      function(aState, v) { return jsButton(aState, v); }),
+	 new PrimProc('js-button', 2, false, false,
+                      function(aState, v, w) { return jsButton(aState, v, w); })]);
 
 PRIMITIVES['js-button!'] =
     new CasePrimitive('js-button!',
@@ -18800,9 +19267,9 @@ PRIMITIVES['js-button!'] =
 
 
 var jsInput = function(type, updateF, attribList) {
-	check(type, isString, 'js-input', 'string', 1);
-	check(updateF, isFunction, 'js-input', 'procedure', 2);
-	checkListOf(attribList, isAssocList, 'js-input', '(listof X Y)', 3);
+	check(aState, type, isString, 'js-input', 'string', 1);
+	check(aState, updateF, isFunction, 'js-input', 'procedure', 2);
+	checkListOf(undefined, attribList, isAssocList, 'js-input', '(listof X Y)', 3);
 
 	var attribs = attribList ? assocListToHash(attribList) : {};
 	var node = jsworld.MobyJsworld.input(type, updateF, attribs);
@@ -18814,14 +19281,16 @@ var jsInput = function(type, updateF, attribList) {
 };
 PRIMITIVES['js-input'] =
 	new CasePrimitive('js-input', 
-	[new PrimProc('js-input', 2, false, false, jsInput),
-	 new PrimProc('js-input', 3, false, false, jsInput)]);
+	[new PrimProc('js-input', 2, false, false, 
+                      function(aState, type, updateF) { return jsInput(type, updateF); }),
+	 new PrimProc('js-input', 3, false, false,
+                      function(aState, type, udpateF, attribList) { return jsInput(type, updateF, attribList); })]);
 
 
 
 var jsImg = function(src, attribList) {
-	check(src, isString, "js-img", "string", 1);
-	checkListOf(attribList, isAssocList, 'js-img', '(listof X Y)', 2);
+	check(aState, src, isString, "js-img", "string", 1);
+	checkListOf(undefined, attribList, isAssocList, 'js-img', '(listof X Y)', 2);
 
 	var attribs = assocListToHash(attribList);
 	var node = jsworld.MobyJsworld.img(src, attribs);
@@ -18833,8 +19302,8 @@ var jsImg = function(src, attribList) {
 };
 PRIMITIVES['js-img'] =
     new CasePrimitive('js-img',
-	[new PrimProc('js-img', 1, false, false, function(src) { return jsImg(src, types.EMPTY); }),
-	 new PrimProc('js-img', 2, false, false, jsImg)]);
+        [new PrimProc('js-img', 1, false, false, function(aState, src) { return jsImg(src, types.EMPTY); }),
+	 new PrimProc('js-img', 2, false, false, function(aState, src, l) { return jsImg(src, l); })]);
 
 
 
@@ -18842,8 +19311,8 @@ PRIMITIVES['js-text'] =
     new PrimProc('js-text',
 		 1,
 		 false, false,
-		 function(s) {
-		 	check(s, isString, 'js-text', 'string', 1);
+		 function(aState, s) {
+		 	check(aState, s, isString, 'js-text', 'string', 1);
 
 			var node = jsworld.MobyJsworld.text(s, []);
 			node.toWrittenString = function(cache) { return "(js-text ...)"; }
@@ -18854,9 +19323,9 @@ PRIMITIVES['js-text'] =
 
 
 var jsSelect = function(optionList, updateF, attribList) {
-	checkListOf(optionList, isString, 'js-select', 'listof string', 1);
-	check(updateF, isFunction, 'js-select', 'procedure', 2);
-	checkListOf(attribList, isAssocList, 'js-select', '(listof X Y)', 3);
+	checkListOf(undefined, optionList, isString, 'js-select', 'listof string', 1);
+	check(aState, updateF, isFunction, 'js-select', 'procedure', 2);
+	checkListOf(undefined, attribList, isAssocList, 'js-select', '(listof X Y)', 3);
 
 	var attribs = attribList ? assocListToHash(attribList) : {};
 	var options = helpers.deepListToArray(optionList);
@@ -18869,21 +19338,59 @@ var jsSelect = function(optionList, updateF, attribList) {
 };
 PRIMITIVES['js-select'] =
     new CasePrimitive('js-select',
-	[new PrimProc('js-select', 2, false, false, jsSelect),
-	 new PrimProc('js-select', 3, false, false, jsSelect)]);
+                      [new PrimProc('js-select', 2, false, false, function(aState, optionList, updateF) { return jsSelect(optionList, updateF); }),
+                       new PrimProc('js-select', 3, false, false, function(aState, optionList, updateF, attribList) { return jsSelect(optionList, updateF, attribList); })]);
 
 
-
+/*
 PRIMITIVES['big-bang'] =
 PRIMITIVES['js-big-bang'] =
     new PrimProc('js-big-bang',
 		 1,
 		 true, true,
-		 function(state, initW, handlers) {
+		 function(aState, initW, handlers) {
 		 	arrayEach(handlers,
 				function(x, i) {
-					check(x, function(y) { return isWorldConfigOption(y) || isList(y) || types.isWorldConfig(y); },
+					check(aState, x, function(y) { return isWorldConfigOption(y) || isList(y) || types.isWorldConfig(y); },
 					      'js-big-bang', 'handler or attribute list', i+2);
+				});
+		     var unwrappedConfigs = 
+			 helpers.map(function(x) {
+					if ( isWorldConfigOption(x) ) {
+						return function(config) { return x.configure(config); };
+					}
+					else {
+						return x;
+					}
+			 	     },
+				     handlers);
+		     aState.v = PAUSE(function(restarter, caller) {
+				 var bigBangController;
+				 var onBreak = function() {
+				     bigBangController.breaker();
+				 }
+				 aState.addBreakRequestedListener(onBreak);
+				 bigBangController = jsworld.MobyJsworld.bigBang(initW, 
+							     aState.getToplevelNodeHook()(),
+							     unwrappedConfigs,
+							     caller, 
+							     function(v) {
+								 aState.removeBreakRequestedListener(onBreak);
+								 restarter(v);
+							     });
+		     })
+		 });
+*/
+PRIMITIVES['big-bang'] =
+PRIMITIVES['js-big-bang'] =
+    new PrimProc('big-bang',
+		 1,
+		 true, false,
+		 function(aState, initW, handlers) {
+		 	arrayEach(handlers,
+				function(x, i) {
+					check(aState, x, function(y) { return isWorldConfigOption(y) || isList(y) || types.isWorldConfig(y); },
+					      'big-bang', 'handler or attribute list', i+2, [aState, initW].concat(handlers));
 				});
 		     var unwrappedConfigs = 
 			 helpers.map(function(x) {
@@ -18900,24 +19407,27 @@ PRIMITIVES['js-big-bang'] =
 			 var onBreak = function() {
 			     bigBangController.breaker();
 			 }
-			 state.addBreakRequestedListener(onBreak);
+			 aState.addBreakRequestedListener(onBreak);
 			 bigBangController = jsworld.MobyJsworld.bigBang(initW, 
-						     state.getToplevelNodeHook()(),
+						     aState.getToplevelNodeHook()(),
 						     unwrappedConfigs,
 						     caller, 
 						     function(v) {
-							 state.removeBreakRequestedListener(onBreak);
+							 aState.removeBreakRequestedListener(onBreak);
 							 restarter(v);
 						     });
 		     })
 		 });
 
 
+
+
+
 //////////////////////////////////////////////////////////////////////
 
 
     var emptyPage = function(attribList) {
-	checkListOf(attribList, isAssocList, 'empty-page', '(listof X Y)', 1);
+	checkListOf(undefined, attribList, isAssocList, 'empty-page', '(listof X Y)', 1);
 
 	var attribs = assocListToHash(attribList);
 	var node = jsworld.MobyJsworld.emptyPage(attribs);
@@ -18932,15 +19442,16 @@ PRIMITIVES['js-big-bang'] =
     PRIMITIVES['empty-page'] =
 	new CasePrimitive('empty-page',
 			  [new PrimProc('empty-page', 0, false, false, 
-					function() {  return emptyPage(types.EMPTY); }),
-			   new PrimProc('empty-page', 1, false, false, emptyPage)]);
+					function(aState) {  return emptyPage(types.EMPTY); }),
+			   new PrimProc('empty-page', 1, false, false,
+                                        function(aState, v) { return emptyPage(v); })]);
 
     
     PRIMITIVES['place-on-page'] = 
 	new PrimProc('empty-page',
 		     4,
 		     false, false,
-		     function(elt, left, top, page) {
+		     function(aState, elt, left, top, page) {
 			 // FIXME: add type checking
 			 return jsworld.MobyJsworld.placeOnPage(
 			     elt, left, top, page);
@@ -18960,11 +19471,11 @@ PRIMITIVES['make-world-config'] =
     new PrimProc('make-world-config',
 		 2,
 		 true, false,
-		 function(startup, shutdown, handlers) {
+		 function(aState, startup, shutdown, handlers) {
 		 	var allArgs = [startup, shutdown].concat(handlers);
-		 	check(startup, isFunction, 'make-world-config', 'procedure', 1, allArgs);
-			check(shutdown, procArityContains(1), 'make-world-config', 'procedure (arity 1)', 2, allArgs);
-			arrayEach(handlers, function(x, i) { check(x, isFunction, 'make-world-config', 'handler', i+3, allArgs); });
+		 	check(aState, startup, isFunction, 'make-world-config', 'procedure', 1, allArgs);
+			check(aState, shutdown, procArityContains(1), 'make-world-config', 'procedure (arity 1)', 2, allArgs);
+			arrayEach(handlers, function(x, i) { check(aState, x, isFunction, 'make-world-config', 'handler', i+3, allArgs); });
 
 			if ( !procArityContains(handlers.length)(startup) ) {
 				raise( types.incompleteExn(
@@ -18983,15 +19494,15 @@ PRIMITIVES['make-effect-type'] =
 	    'make-effect-type',
 	    4,
 	    [false],
-	    true,
+	    false,
 	    function(userArgs, aState, name, superType, fieldCnt, impl, guard) {
-		check(name, isSymbol, 'make-effect-type', 'string', 1, userArgs);
-		check(superType, function(x) { return x === false || types.isEffectType(x) },
+		check(aState, name, isSymbol, 'make-effect-type', 'string', 1, userArgs);
+		check(aState, superType, function(x) { return x === false || types.isEffectType(x) },
 		      'make-effect-type', 'effect type or #f', 2, userArgs);
-		check(fieldCnt, isNatural, 'make-effect-type', 'exact non-negative integer', 3, userArgs);
-		check(impl, isFunction, 'make-effect-type', 'procedure', 4, userArgs);
-//		checkListOf(handlerIndices, isNatural, 'make-effect-type', 'exact non-negative integer', 5);
-		check(guard, function(x) { return x === false || isFunction(x); }, 'make-effect-type', 'procedure or #f', 6, userArgs);
+		check(aState, fieldCnt, isNatural, 'make-effect-type', 'exact non-negative integer', 3, userArgs);
+		check(aState, impl, isFunction, 'make-effect-type', 'procedure', 4, userArgs);
+//		checkListOf(aState, handlerIndices, isNatural, 'make-effect-type', 'exact non-negative integer', 5);
+		check(aState, guard, function(x) { return x === false || isFunction(x); }, 'make-effect-type', 'procedure or #f', 6, userArgs);
 		// Check the number of arguments on the guard
 		var numberOfGuardArgs = fieldCnt + 1 + (superType ? superType.numberOfArgs : 0);
 		if ( guard && !procArityContains(numberOfGuardArgs)(guard) ) {
@@ -19029,12 +19540,14 @@ PRIMITIVES['make-effect-type'] =
 //							handlerIndices_js,
 							jsGuard,
 							makeCaller(aState));
-		aState.v = getMakeStructTypeReturns(anEffectType);
+		return getMakeStructTypeReturns(anEffectType);
 	    });
 
 
-PRIMITIVES['effect-type?'] = new PrimProc('effect-type?', 1, false, false, types.isEffectType);
-PRIMITIVES['effect?'] = new PrimProc('effect?', 1, false, false, types.isEffect);
+PRIMITIVES['effect-type?'] = new PrimProc('effect-type?', 1, false, false,
+                                          function(aState, v) { return types.isEffectType(v); });
+PRIMITIVES['effect?'] = new PrimProc('effect?', 1, false, false, 
+                                     function(aState, v) { return types.isEffect(v); });
 
 //PRIMITIVES['make-effect:do-nothing'] = new PrimProc('make-effect:do-nothing', 0, false, false, types.EffectDoNothing.constructor);
 //PRIMITIVES['effect:do-nothing?'] = new PrimProc('effect:do-nothing?', 1, false, false, types.EffectDoNothing.predicate);
@@ -19045,14 +19558,14 @@ PRIMITIVES['make-render-effect-type'] =
 	    'make-render-effect-type',
 	    4,
 	    [false],
-	    true,
+	    false,
 	    function(userArgs, aState, name, superType, fieldCnt, impl, guard) {
-		check(name, isSymbol, 'make-render-effect-type', 'string', 1, userArgs);
-		check(superType, function(x) { return x === false || types.isEffectType(x) },
+		check(aState, name, isSymbol, 'make-render-effect-type', 'string', 1, userArgs);
+		check(aState, superType, function(x) { return x === false || types.isEffectType(x) },
 		      'make-render-effect-type', 'effect type or #f', 2, userArgs);
-		check(fieldCnt, isNatural, 'make-render-effect-type', 'exact non-negative integer', 3, userArgs);
-		check(impl, isFunction, 'make-render-effect-type', 'procedure', 4, userArgs);
-		check(guard, function(x) { return x === false || isFunction(x); }, 'make-render-effect-type', 'procedure or #f', 6, userArgs);
+		check(aState, fieldCnt, isNatural, 'make-render-effect-type', 'exact non-negative integer', 3, userArgs);
+		check(aState, impl, isFunction, 'make-render-effect-type', 'procedure', 4, userArgs);
+		check(aState, guard, function(x) { return x === false || isFunction(x); }, 'make-render-effect-type', 'procedure or #f', 6, userArgs);
 		// Check the number of arguments on the guard
 		var numberOfGuardArgs = fieldCnt + 1 + (superType ? superType.numberOfArgs : 0);
 		if ( guard && !procArityContains(numberOfGuardArgs)(guard) ) {
@@ -19071,36 +19584,40 @@ PRIMITIVES['make-render-effect-type'] =
 								   fieldCnt,
 								   impl,
 								   jsGuard);
-		aState.v = getMakeStructTypeReturns(aRenderEffectType);
+		return getMakeStructTypeReturns(aRenderEffectType);
 	    });
 
 
-PRIMITIVES['render-effect-type?'] = new PrimProc('render-effect-type?', 1, false, false, types.isRenderEffectType);
-PRIMITIVES['render-effect?'] = new PrimProc('render-effect?', 1, false, false, types.isRenderEffect);
+PRIMITIVES['render-effect-type?'] = new PrimProc('render-effect-type?', 1, false, false,
+                                                 function(aState, v) { return types.isRenderEffectType(v); });
+PRIMITIVES['render-effect?'] = new PrimProc('render-effect?', 1, false, false,
+                                            function(aState, v) { return types.isRenderEffect(v); });
 
 
 PRIMITIVES['world-with-effects'] =
     new PrimProc('world-with-effects',
 		 2,
 		 false, false,
-		 function(effects, w) {
-		 	check(effects, isCompoundEffect, 'world-with-effects', 'compound effect', 1, arguments);
+		 function(aState, effects, w) {
+		 	check(aState, effects, isCompoundEffect, 'world-with-effects', 'compound effect', 1, arguments);
 
 			return jsworld.Jsworld.with_multiple_effects(w, helpers.flattenSchemeListToArray(effects));
 		 });
 
 
 
-PRIMITIVES['make-render-effect'] = new PrimProc('make-render-effect', 2, false, false, types.makeRenderEffect);
+PRIMITIVES['make-render-effect'] = new PrimProc('make-render-effect', 2, false, false, 
+                                                function(aState, x, y) { return types.makeRenderEffect(x, y); });
 
-PRIMITIVES['render-effect?'] = new PrimProc('render-effect?', 1, false, false, types.isRenderEffect);
+PRIMITIVES['render-effect?'] = new PrimProc('render-effect?', 1, false, false,
+                                            function(aState, v) { return types.isRenderEffect(v); });
 
 PRIMITIVES['render-effect-dom-node'] =
     new PrimProc('render-effect-dom-node',
 		 1,
 		 false, false,
-		 function(effect) {
-		 	check(effect, types.isRenderEffect, 'render-effect-dom-node', 'render-effect', 1);
+		 function(aState, effect) {
+		 	check(aState, effect, types.isRenderEffect, 'render-effect-dom-node', 'render-effect', 1);
 			return types.renderEffectDomNode(effect);
 		 });
 
@@ -19108,8 +19625,8 @@ PRIMITIVES['render-effect-effects'] =
     new PrimProc('render-effect-effects',
 		 1,
 		 false, false,
-		 function(effect) {
-		 	check(effect, types.isRenderEffect, 'render-effect-effects', 'render-effect', 1);
+		 function(aState, effect) {
+		 	check(aState, effect, types.isRenderEffect, 'render-effect-effects', 'render-effect', 1);
 			return types.renderEffectEffects(effect);
 		 });
 
@@ -19125,8 +19642,8 @@ PRIMITIVES['scheme->prim-js'] =
     new PrimProc('scheme->prim-js',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, function(y) { return ( isReal(y) ||
+		 function(aState, x) {
+		 	check(aState, x, function(y) { return ( isReal(y) ||
 							isString(y) ||
 							isSymbol(y) ||
 							isChar(y) ||
@@ -19170,8 +19687,8 @@ PRIMITIVES['prim-js->scheme'] =
     new PrimProc('prim-js->scheme',
 		 1,
 		 false, false,
-		 function(x) {
-		 	check(x, function(y) { return isJsObject(y) &&
+		 function(aState, x) {
+		 	check(aState, x, function(y) { return isJsObject(y) &&
 						      ( typeof(y.obj) == 'number' ||
 							typeof(y.obj) == 'string' ||
 							typeof(y.obj) == 'boolean' ||
@@ -19197,12 +19714,12 @@ PRIMITIVES['prim-js->scheme'] =
 PRIMITIVES['procedure->cps-js-fun'] =
     new PrimProc('procedure->cps-js-fun',
 		 1,
-		 false, true,
+		 false, false,
 		 function(aState, proc) {
-		 	check(proc, isFunction, 'procedure->cps-js-fun', 'procedure', 1);
+		 	check(aState, proc, isFunction, 'procedure->cps-js-fun', 'procedure', 1);
 
 			var caller = makeCaller(aState);
-			aState.v = types.jsObject(proc.name + ' (cps)', function() {
+			return types.jsObject(proc.name + ' (cps)', function() {
 				var args = helpers.map(helpers.wrapJsObject, arguments);
 				var k = (args.length == 0 ? function() {} : args.shift());
 
@@ -19214,12 +19731,12 @@ PRIMITIVES['procedure->cps-js-fun'] =
 PRIMITIVES['procedure->void-js-fun'] =
     new PrimProc('procedure->void-js-fun',
 		 1,
-		 false, true,
+		 false, false,
 		 function(aState, proc) {
-		 	check(proc, isFunction, 'procedure->void-js-fun', 'procedure', 1);
+		 	check(aState, proc, isFunction, 'procedure->void-js-fun', 'procedure', 1);
 
 			var caller = makeCaller(aState);
-			aState.v = types.jsObject(proc.name + ' (void)', function() {
+			return types.jsObject(proc.name + ' (void)', function() {
 				var args = helpers.map(helpers.wrapJsObject, arguments);
 				caller(proc, args, function() {});
 			});
@@ -19230,11 +19747,11 @@ PRIMITIVES['js-==='] =
     new PrimProc('js-===',
 		 2,
 		 false, false,
-		 function(v1, v2) {
-		 	check(v1, isJsObject, 'js-===', 'javascript value', 1);
-			check(v2, isJsObject, 'js-===', 'javascript value', 2);
+		 function(aState, v1, v2) {
+		 	check(aState, v1, isJsObject, 'js-===', 'javascript value', 1);
+			check(aState, v2, isJsObject, 'js-===', 'javascript value', 2);
 
-			return v1.obj === v2.obj;
+		     return (v1.obj === v2.obj);
 		 });
 
 
@@ -19242,8 +19759,8 @@ PRIMITIVES['js-get-named-object'] =
     new PrimProc('js-get-named-object',
 		 1,
 		 false, false,
-		 function(name) {
-		 	check(name, isString, 'js-get-named-object', 'string', 1);
+		 function(aState, name) {
+		 	check(aState, name, isString, 'js-get-named-object', 'string', 1);
 
 			var nameStr = name.toString();
 			var obj = (nameStr === 'window') ? window : window[nameStr];
@@ -19251,16 +19768,15 @@ PRIMITIVES['js-get-named-object'] =
 		 });
 
 
-
 PRIMITIVES['js-get-field'] =
     new PrimProc('js-get-field',
 		 2,
 		 true, false,
-		 function(root, firstSelector, selectors) {
+		 function(aState, root, firstSelector, selectors) {
 		 	selectors.unshift(firstSelector);
 			var allArgs = [root].concat(selectors);
-		 	check(root, isJsObject, 'js-get-field', 'js-object', 1, allArgs);
-			arrayEach(selectors, function(x, i) { check(x, isString, 'js-get-field', 'string', i+2, allArgs); });
+		 	check(aState, root, isJsObject, 'js-get-field', 'js-object', 1, allArgs);
+			arrayEach(selectors, function(x, i) { check(aState, x, isString, 'js-get-field', 'string', i+2, allArgs); });
 
 			var name = [root.name];
 			var obj = root.obj;
@@ -19285,10 +19801,10 @@ PRIMITIVES['js-set-field!'] =
     new PrimProc('js-set-field!',
 		 3,
 		 false, false,
-		 function(obj, field, val) {
-		 	check(obj, function(x) { return isJsObject(x) && typeof(x.obj) == 'object'; },
+		 function(aState, obj, field, val) {
+		 	check(aState, obj, function(x) { return isJsObject(x) && typeof(x.obj) == 'object'; },
 			      'js-set-field!', 'javascript object', 1, arguments);
-			check(field, isString, 'js-set-field!', 'string', 2, arguments);
+			check(aState, field, isString, 'js-set-field!', 'string', 2, arguments);
 
 			obj.obj[field.toString()] = (isJsObject(val) ? val.obj : val);
 			return types.VOID;
@@ -19299,8 +19815,8 @@ PRIMITIVES['js-typeof'] =
     new PrimProc('js-typeof',
 		 1,
 		 false, false,
-		 function(jsObj) {
-		 	check(jsObj, isJsObject, 'js-typeof', 'js-object', 1);
+		 function(aState, jsObj) {
+		 	check(aState, jsObj, isJsObject, 'js-typeof', 'js-object', 1);
 			return typeof(jsObj.obj);
 		 });
 
@@ -19309,9 +19825,9 @@ PRIMITIVES['js-instanceof'] =
     new PrimProc('js-instanceof',
 		 2,
 		 false, false,
-		 function(obj, type) {
-		 	check(obj, isJsObject, 'js-instanceof', 'js-object', 1, arguments);
-			check(type, isJsFunction, 'js-instanceof', 'javascript function', 2, arguments);
+		 function(aState, obj, type) {
+		 	check(aState, obj, isJsObject, 'js-instanceof', 'js-object', 1, arguments);
+			check(aState, type, isJsFunction, 'js-instanceof', 'javascript function', 2, arguments);
 
 			return (obj.obj instanceof type.obj);
 		 });
@@ -19321,10 +19837,10 @@ PRIMITIVES['js-call'] =
     new PrimProc('js-call',
 		 2,
 		 true, false,
-		 function(fun, parent, initArgs) {
+		 function(aState, fun, parent, initArgs) {
 		 	var allArgs = [fun, parent].concat(initArgs);
-		 	check(fun, isJsFunction, 'js-call', 'javascript function', 1, allArgs);
-			check(parent, function(x) { return (x === false ||
+		 	check(aState, fun, isJsFunction, 'js-call', 'javascript function', 1, allArgs);
+			check(aState, parent, function(x) { return (x === false ||
 							    (isJsObject(x) && typeof(x.obj) == 'object')); },
 			      'js-call', 'javascript object or false', 2, allArgs);
 			
@@ -19344,8 +19860,8 @@ PRIMITIVES['js-new'] =
     new PrimProc('js-new',
 		 1,
 		 true, false,
-		 function(constructor, initArgs) {
-		 	check(constructor, isJsFunction, 'js-new', 'javascript function', 1);
+		 function(aState, constructor, initArgs) {
+		 	checkVarArity(aState, constructor, isJsFunction, 'js-new', 'javascript function', 1);
 
 			var args = helpers.map(function(x) { return (isJsObject(x) ? x.obj : x); }, initArgs);
 			var proxy = function() {
@@ -19363,8 +19879,8 @@ PRIMITIVES['js-make-hash'] =
 	 new PrimProc('js-make-hash',
 		      1,
 		      false, false,
-		      function(bindings) {
-			  checkListOf(bindings, function(x) { return isAssocList(x) && isString(x.first()); },
+		      function(aState, bindings) {
+			  checkListOf(aState, bindings, function(x) { return isAssocList(x) && isString(x.first()); },
 				      'js-make-hash', '(listof string X)', 1);
 
 			  var ret = {};
@@ -19426,7 +19942,6 @@ primitive.setCALL = setCALL;
 primitive.setPAUSE = setPAUSE;
 
 })();
-
 // Control structures
 
 /*
@@ -19559,7 +20074,8 @@ var ModControl = function(prefix, body) {
 ModControl.prototype.invoke = function(state) {
     processPrefix(state, this.prefix);
     var cmds = [];
-    for(var i = 0; i < this.body.length; i++) {
+    var i;
+    for(i = 0; i < this.body.length; i++) {
 	cmds.push(this.body[i]);
     }
     state.pushManyControls(cmds);
@@ -19837,14 +20353,15 @@ Beg0RestControl.prototype.invoke = function(state) {
 //////////////////////////////////////////////////////////////////////
 // Toplevel variable lookup
 
-var ToplevelControl = function(depth, pos) {
+var ToplevelControl = function(depth, pos, loc) {
     this.depth = depth;
     this.pos = pos;
+    this.loc = loc;
     // FIXME: use isConst and isReady 
 };
 
 ToplevelControl.prototype.invoke = function(state) {
-    state.v = state.refPrefix(this.depth, this.pos);
+    state.v = state.refPrefix(this.depth, this.pos, this.loc);
 };
 
 
@@ -19890,6 +20407,7 @@ PrimvalControl.prototype.invoke = function(aState) {
 
 var LamControl = function(params) {
     this.name = params.name;
+    this.locs = params.locs;
     this.numParams = params.numParams;
     this.paramTypes = params.paramTypes;
     this.isRest = params.isRest;
@@ -19901,6 +20419,7 @@ var LamControl = function(params) {
 
 LamControl.prototype.invoke = function(state) {
     state.v = new types.ClosureValue(this.name,
+				     this.locs,
 				     this.numParams, 
 				     this.paramTypes, 
 				     this.isRest, 
@@ -19994,10 +20513,24 @@ var DefValuesInstallControl = function(ids) {
 
 DefValuesInstallControl.prototype.invoke = function(aState) {
     debug("DEF_VALUES");
+
+    //the following two are empty, because aState does not have the information
+    var positionStack = state.captureCurrentContinuationMarks(aState).ref(types.symbol('moby-application-position-key'));   
+    var locationList = positionStack[positionStack.length - 1];
+
     var bodyValue = aState.v;
+
+    var idLength = this.ids.length;
+
     if (bodyValue instanceof types.ValuesWrapper) {
 	if (this.ids.length !== bodyValue.elts.length) {
 	    helpers.raise(
+        //   types.incompleteExn(types.exnFailContract,
+        //    new types.Message([new types.ColoredPart("define-values", locationList.first()), 
+        //                     ": expected ", 
+                     //          [new types.MultiPart(idLength+'', 
+        //it is impossible to find the locationList, due to how values is returning information.
+
 		types.exnFailContractArity("define-values: expected " + this.ids.length 
 					   + " values, but received " + bodyValue.elts.length,
 					   state.captureCurrentContinuationMarks(aState)));
@@ -20105,14 +20638,16 @@ var callPrimitiveProcedure = function(state, procValue, n, operandValues) {
 					 operandValues,
 					 n);
     var result = procValue.impl.apply(procValue.impl, args);
-    processPrimitiveResult(state, result, procValue);
+    processPrimitiveResult(state, result, procValue, n);
 };
 
 
-var processPrimitiveResult = function(state, result, procValue) {
+var processPrimitiveResult = function(state, result, procValue, n) {
     if (result instanceof INTERNAL_CALL) {
 	state.cstack.push(new InternalCallRestartControl
 			  (result.k, procValue));
+
+        addNoLocationContinuationMark(state, n);
 	callProcedure(state,
 		      result.operator, 
 		      result.operands.length, 
@@ -20120,7 +20655,7 @@ var processPrimitiveResult = function(state, result, procValue) {
     } else if (result instanceof INTERNAL_PAUSE) {
 	throw new PauseException(result.onPause);
     } else {
-	if (! procValue.usesState) {
+	if (! procValue.assignsToValueRegister) {
 	    state.v = result;
 	}
     }
@@ -20158,6 +20693,24 @@ InternalCallRestartControl.prototype.invoke = function(state) {
 };
 
 primitive.setCALL(INTERNAL_CALL);
+
+
+
+// When we're doing an application, but we don't have source locations,
+// we the following function to add the mark.
+var addNoLocationContinuationMark = function(aState, n) {
+    var i;
+    var aHash = types.makeLowLevelEqHash();
+    var nonPositions = [types.NoLocation];
+    for (i = 0; i < n; i++) { nonPositions.push(types.NoLocation); }
+    aHash.put(types.symbol('moby-application-position-key'),
+              types.list(nonPositions));
+    aState.pushControl(types.contMarkRecordControl(aHash));
+};
+
+
+
+
 
 
 //////////////////////////////////////////////////////////////////////
@@ -20234,25 +20787,55 @@ var callContinuationProcedure = function(state, procValue, n, operandValues) {
 // selectProcedureByArity: state (CaseLambdaValue | CasePrimitive | Continuation | Closure | Primitive) -> (Continuation | Closure | Primitive)
 var selectProcedureByArity = function(aState, n, procValue, operands) {
     var getArgStr = function() {
-	var argStr = '';
-	if (operands.length > 0) {
-		var argStrBuffer = [':'];
-		for (var i = 0; i < operands.length; i++) {
-			argStrBuffer.push( types.toWrittenString(operands[i]) );
-		}
-		argStr = argStrBuffer.join(' ');
-	}
-	return argStr;
+    	var argStr = '';
+    	if (operands.length > 0) {
+    		var argStrBuffer = [':'];
+    		for (var i = 0; i < operands.length; i++) {
+    			argStrBuffer.push( types.toWrittenString(operands[i]) );
+    		}
+    		argStr = argStrBuffer.join(' ');
+    	}
+    	return argStr;
+    }
+    
+    var getArgColoredParts = function(locations) {
+    	var argColoredParts = [];
+    	var locs = locations;
+        var space = "";
+    	if (operands.length > 0) {
+    	    for (var i = 0; i < operands.length; i++) {
+    		argColoredParts.push(new types.ColoredPart(operands[i]+(i < operands.length -1 ? " " : ""),
+                                                           locs.first()));
+    		locs = locs.rest();
+    	    }
+    	}
+    	return argColoredParts;
     }
 
     if ( !types.isFunction(procValue) ) {
 	    var argStr = getArgStr('; arguments were:');
+        var positionStack = state.captureCurrentContinuationMarks(aState).ref(types.symbol('moby-application-position-key'));
+        
+       
+        var locationList = positionStack[positionStack.length - 1];
+        var exprLoc = positionStack[0].first().elts;
+        var argColoredParts = getArgColoredParts(locationList.rest());
+
+        var openParen = [exprLoc[0], exprLoc[1], exprLoc[2], exprLoc[3], 1];
+
+        var closeParen = [exprLoc[0], exprLoc[1] + exprLoc[4] - 1, exprLoc[2], exprLoc[3] + exprLoc[4] - 1, 1];
+
+        var op = types.vector(openParen);
+        var cp = types.vector(closeParen);
+
 	    helpers.raise(
 		types.incompleteExn(types.exnFailContract,
-				    helpers.format("procedure application: expected procedure, given: ~s~a",
-						   [procValue,
-						    (operands.length == 0) ? ' (no arguments)' : '; arguments were' + getArgStr()]),
-				    []));
+            new types.Message([new types.MultiPart("function call", [op, cp]),
+                                ": expected function, given: ",
+                                new types.ColoredPart(procValue, locationList.first())
+                                ]),
+                             []));
+
     }
 
     if (procValue instanceof types.CaseLambdaValue) {
@@ -20267,15 +20850,28 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 	for (var i = 0; i < procValue.closures.length; i++) {
 	    acceptableParameterArity.push(procValue.closures[i].numParams + '');
 	}
+
+    var positionStack = 
+        state.captureCurrentContinuationMarks(aState).ref(
+            types.symbol('moby-application-position-key'));
+        
+       
+        var locationList = positionStack[positionStack.length - 1];
+        var argColoredParts = getArgColoredParts(locationList.rest());
+
+
+//unable to test
 	helpers.raise(types.incompleteExn(
 		types.exnFailContractArity,
-		helpers.format("~a: expects [~a] arguments, given ~s~a",
-			       [(procValue.name ? procValue.name : "#<case-lambda-procedure>"),
-			        acceptableParameterArity.join(', '),
-				n,
-				getArgStr()]),
+		new types.Message([new types.ColoredPart(procValue.name ? procValue.name : "#<case-lambda-procedure>", locationList.first()),
+                           ": expects [",
+                           acceptableParameterArity.join(', '),
+                           "] arguments, given ",
+                           n,
+                           new types.GradientPart(argColoredParts)]),	
 		[]));
-    } else if (procValue instanceof primitive.CasePrimitive) {
+    } 
+    else if (procValue instanceof primitive.CasePrimitive) {
 	for (var j = 0; j < procValue.cases.length; j++) {
 	    if (n === procValue.cases[j].numParams ||
 		(n > procValue.cases[j].numParams && 
@@ -20287,10 +20883,25 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 	for (var i = 0; i < procValue.cases.length; i++) {
 	    acceptableParameterArity.push(procValue.cases[i].numParams + '');
 	}
+    var positionStack = 
+        state.captureCurrentContinuationMarks(aState).ref(
+            types.symbol('moby-application-position-key'));
+        
+       
+        var locationList = positionStack[positionStack.length - 1];
+        var argColoredParts = getArgColoredParts(locationList.rest());
+
+
+        //textchange
 	helpers.raise(types.incompleteExn(
 		types.exnFailContractArity,
-		helpers.format("~a: expects [~a] arguments, given ~s~a",
-			       [procValue.name, acceptableParameterArity.join(', '), n, getArgStr()]),
+		new types.Message([new types.ColoredPart(procValue.name, locationList.first()),
+                ": expects ",
+                acceptableParameterArity.join(' or '),
+                " arguments, given ",
+                n,
+            ((argColoredParts.length > 0) ? ": " : ""),
+            ((argColoredParts.length > 0) ? new types.GradientPart(argColoredParts) : "")]),
 		[]));
     }
 
@@ -20310,40 +20921,50 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 	    var positionStack = 
 		state.captureCurrentContinuationMarks(aState).ref(
 		    types.symbol('moby-application-position-key'));
-
 	    
+	   
+	    var locationList = positionStack[positionStack.length - 1];
+	    var argColoredParts = getArgColoredParts(locationList.rest());
+
+
 	    helpers.raise(types.incompleteExn(
 		types.exnFailContractArityWithPosition,
-		helpers.format("~a: expects ~a ~a argument~a, given ~s~a",
-			       [(procValue.name !== types.EMPTY ? procValue.name : "#<procedure>"),
-			        (procValue.isRest ? 'at least' : ''),
-				procValue.numParams,
-				(procValue.numParams == 1) ? '' : 's',
-				n,
-				getArgStr()]),
-		[positionStack[positionStack.length - 1]]));
+		new types.Message([new types.ColoredPart((''+(procValue.name !== types.EMPTY ? procValue.name : "anonymous function")), locationList.first()),
+			": expects ", 
+			''+(procValue.isRest ? 'at least ' : ''),
+			((procValue.locs != undefined) ? new types.MultiPart((procValue.numParams + " argument" + 
+							  ((procValue.numParams == 1) ? '' : 's')), 
+							  procValue.locs.slice(1))
+							:
+							(procValue.numParams + " argument" + 
+							  ((procValue.numParams == 1) ? '' : 's')))
+					      ,
+  		         ", given ",
+			n ,
+            ((argColoredParts.length > 0) ? ": " : ""),
+            ((argColoredParts.length > 0) ? new types.GradientPart(argColoredParts) : "")]),
+		[]));
 	}
     }
 };
-
-
 
 
 var prepareClosureArgumentsOnStack = function(state, procValue, operandValues, n) {
     var argCount = 0;
     if (procValue.isRest) {
 	var restArg = types.EMPTY;
-	for (var i = 0; i < n - procValue.numParams ; i++) {
+    var i;
+	for (i = 0; i < n - procValue.numParams ; i++) {
 	    restArg = types.cons(operandValues.pop(), restArg);
 	}
 	state.pushValue(restArg);
 	argCount++;
     }	
-    for (var i = operandValues.length -1; i >= 0; i--) {
+    for (i = operandValues.length -1; i >= 0; i--) {
 	state.pushValue(operandValues[i]);
 	argCount++;
     }
-    for(var i = procValue.closureVals.length-1; i >= 0; i--) {
+    for(i = procValue.closureVals.length-1; i >= 0; i--) {
 	state.pushValue(procValue.closureVals[i]);
 	argCount++;
     }
@@ -20356,21 +20977,20 @@ var prepareClosureArgumentsOnStack = function(state, procValue, operandValues, n
 var preparePrimitiveArguments = function(state, primitiveValue, operandValues, n) {
     var args = [];
 
-    if (primitiveValue.usesState) {
-	args.push(state);
-    }
+    args.push(state);
 
     if (n < primitiveValue.numParams) {
 //	throw new Error("arity error: expected at least "
 //			+ primitiveValue.numParams + " arguments, but "
 //			+ "received " + n + " arguments instead.");
+    var i;
     }
     if (primitiveValue.isRest) {
-	for(var i = 0; i < primitiveValue.numParams; i++) {
+	for(i = 0; i < primitiveValue.numParams; i++) {
 	    args.push(operandValues.shift());
 	}
 	var restArgs = [];
-	for(var i = 0; i < n - primitiveValue.numParams; i++) {
+	for(i = 0; i < n - primitiveValue.numParams; i++) {
 	    restArgs.push(operandValues.shift());
 	}
 	args.push(restArgs);
@@ -20380,7 +21000,7 @@ var preparePrimitiveArguments = function(state, primitiveValue, operandValues, n
 //			    + primitiveValue.numParams 
 //			    + " but received " + n);
 	}
-	for(var i = 0; i < primitiveValue.numParams; i++) {
+	for(i = 0; i < primitiveValue.numParams; i++) {
 	    args.push(operandValues.shift());
 	}
     }
@@ -20483,9 +21103,10 @@ var ApplyValuesAppControl = function(procVal) {
 ApplyValuesAppControl.prototype.invoke = function(state) {
     var exprValue = state.v;
     state.v = this.procVal;
+    var i;
     if (exprValue instanceof types.ValuesWrapper) {
 	var elts = exprValue.elts;
-	for(var i = elts.length - 1; i >= 0; i--) {
+	for(i = elts.length - 1; i >= 0; i--) {
 	    state.pushValue(elts[i]);
 	}
 	state.pushControl(new CallControl(elts.length));
@@ -20938,7 +21559,8 @@ var loadApplyValues = function(state, nextCode) {
 
 var loadToplevel = function(state, nextCode) {
     return new control.ToplevelControl(nextCode['depth'],
-				       nextCode['pos']);
+				       nextCode['pos'],
+				       nextCode['loc']);
     // FIXME: use isConst and isReady
     //    isConst: nextCode['const?']
     //    isReady: nextCode['ready?'];
@@ -20990,6 +21612,7 @@ var loadBranch = function(state, nextCode) {
 var loadLam = function(state, nextCode) {
     var result =  new control.LamControl(
 	{ name: nextCode['name'],
+          locs: nextCode['locs'],
 	  numParams: nextCode['num-params'],
 	  paramTypes: nextCode['param-types'],
 	  isRest: nextCode['rest?'],

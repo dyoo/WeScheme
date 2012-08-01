@@ -232,6 +232,7 @@ h2 > a:hover{text-decoration: underline;}
     height:                     50%;
     background:		white url(images/blank.gif) no-repeat;
     overflow:           auto;
+    padding-left: 	5px;
 }
 
 #interactions:hover{
@@ -329,6 +330,20 @@ span.top-aligned-inline-block {
     -webkit-tap-highlight-color: rgba(0,0,0,0);
     -webkit-touch-callout: none;
 }
+
+
+.highlight1 {
+    background-color: green;
+}
+
+.highlight2 {
+    background-color: blue;
+}
+
+.highlight3 {
+    background-color: yellow;
+}
+
 
 
 

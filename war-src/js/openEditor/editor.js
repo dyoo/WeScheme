@@ -61,9 +61,20 @@ var WeSchemeEditor;
 	    function(interactions) {
 		that.interactions = interactions;
 		    
-		that.interactions.setSourceHighlighter(function(id, offset, line, column, span) {
-		    that.highlight(id, offset, line, column, span);
+		that.interactions.setSourceHighlighter(function(id, offset, line, column, span, color) {
+		    that.unhighlightAll();
+		    that.highlight(id, offset, line, column, span, color);
 		});
+		
+		that.interactions.setAddToCurrentHighlighter(function(id, offset, line, column, span, color) {
+		    that.highlight(id, offset, line, column, span, color);
+		});
+
+		that.interactions.addOnReset(function() {that.defn.unhighlightAll()});
+		that.interactions.setMoveCursor(function(id, offset){that.moveCursor(id, offset)});
+		that.interactions.setFocus(function(id){that.focus(id)});
+		that.interactions.addSetSelection(function(id, offset, line, column, span){ 
+			that.setSelection(id, offset, line, column, span);});
 
 		// pid: (or false number)
 		that.pid = false;
@@ -87,6 +98,8 @@ var WeSchemeEditor;
 		});
 
 		that.defn.getSourceB().changes().mapE(function() {
+		    //when text changes, everything unhighlighted
+		    that.unhighlightAll();		  
 		    plt.wescheme.WeSchemeIntentBus.notify("definitions-changed", that);
 		});
 
@@ -205,12 +218,50 @@ var WeSchemeEditor;
 	aBooleanBehavior.changes().mapE(f);
     }
 
-    WeSchemeEditor.prototype.highlight = function(id, offset, line, column, span) {
-	if (id === '<definitions>') {
-	    this.defn.highlight(id, offset, line, column, span);
-	} else if (this.interactions.previousInteractionsTextContainers[id]) {
-	    this.interactions.previousInteractionsTextContainers[id].highlight(id, offset, line, column, span);
-	}
+    WeSchemeEditor.prototype.highlight = function(id, offset, line, column, span, color) {
+    	if(id === '<no-location>'){ 
+    		//do nothing
+    	}
+		else if (id === '<definitions>') {
+		    this.defn.highlight(id, offset, line, column, span, color);
+		} else if (this.interactions.previousInteractionsTextContainers[id]) {
+		    this.interactions.previousInteractionsTextContainers[id].highlight(id, offset, line, column, span, color);
+		}
+    };
+
+    WeSchemeEditor.prototype.setSelection = function(id, offset, line, column, span, color) {
+    	if (id === '<definitions>') {
+		    this.defn.setSelection(id, offset, line, column, span);
+		} else if (this.interactions.previousInteractionsTextContainers[id]) {
+		    this.interactions.previousInteractionsTextContainers[id].setSelection(id, offset, line, column, span);
+		}
+    };
+    
+    WeSchemeEditor.prototype.unhighlightAll = function() {
+    	var key;
+      for(key in this.interactions.previousInteractionsTextContainers) {
+		if (this.interactions.previousInteractionsTextContainers.hasOwnProperty(key)) {
+	  		this.interactions.previousInteractionsTextContainers[key].unhighlightAll();
+	    }
+      }
+	  this.defn.unhighlightAll();
+    };
+
+    WeSchemeEditor.prototype.moveCursor = function(id, offset) {
+    	//console.log("id: ", id, " offset: ",offset);
+    	if (id === '<definitions>') {
+		    this.defn.moveCursor(offset);
+		} else if (this.interactions.previousInteractionsTextContainers[id]) {
+		    this.interactions.previousInteractionsTextContainers[id].moveCursor(offset);
+		}
+    };
+
+    WeSchemeEditor.prototype.focus = function(id) {
+		if (id === '<definitions>') {
+		    this.defn.focus();
+		} else if (this.interactions.previousInteractionsTextContainers[id]) {
+		    this.interactions.previousInteractionsTextContainers[id].focus();
+		}
     };
 
     // WeSchemeEditor._getIsLoggedIn: -> boolean

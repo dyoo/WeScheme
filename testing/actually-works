@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="selenium.base" href="http://localhost:8888/" />
+<title>wrong-type-1</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+<thead>
+<tr><td rowspan="1" colspan="3">wrong-type-1</td></tr>
+</thead><tbody>
+<tr>
+	<td>assertEval</td>
+	<td>window.myEditor.defn.setCode(&quot;(+ 1 \&quot;hello\&quot;)&quot;)</td>
+	<td>null</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=run</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>css=span:contains(&quot;hello&quot;)</td>
+	<td></td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>30</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>window.jQuery(window.jQuery('span:contains(&quot;hello&quot;)')[1]).css('background-color')</td>
+	<td>rgb(145, 191, 219)</td>
+</tr>
+</tbody></table>
+</body>
+</html>
