@@ -644,9 +644,16 @@ WeSchemeInteractions = (function () {
                 colorIndex++;
             }
             else if(types.isMultiPart(args[i])) {
-                colorAndLink(that, msgDom, currColor, args[i].text, args[i].locations);
-                
-                colorIndex++;
+                console.log("multipart, args[i] is ", args[i]);
+
+                if(args[i].locations.length > 0){ //should really go to the source of the multipart to fix
+                    colorAndLink(that, msgDom, currColor, args[i].text, args[i].locations);
+                    
+                    colorIndex++;
+                }
+                else {
+                    msgDom.appendChild(document.createTextNode(args[i].text+''));
+                }
             } 
             else {
                 msgDom.appendChild(document.createTextNode(args[i]+''));

@@ -755,6 +755,9 @@ var helpers = {};
 					}
 				}
 				errorFormatStr = errorFormatStrBuffer.join(' ');
+
+				console.log("errorFormatStr is ", errorFormatStr);
+
 				raise( types.incompleteExn(types.exnFailContract,
 						   helpers.format(errorFormatStr, [details.functionName, details.typeName, details.ordinalPosition, details.actualValue]),
 						   []) );
@@ -769,13 +772,15 @@ var helpers = {};
 	};
 
 	var throwColoredCheckError = function(aState, details, pos, args){
+
+
 		var positionStack = 
         		state.captureCurrentContinuationMarks(aState).ref(
             		types.symbol('moby-application-position-key'));
         
        		var locationList = positionStack[positionStack.length - 1];
 
-       		console.log("locationList is ", locationList);
+       		//console.log("locationList is ", locationList);
 
        		//locations -> array
 			var getArgColoredParts = function(locations) {
@@ -786,25 +791,44 @@ var helpers = {};
 				//ARGS IS INCONSISTENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 				//REALLY INCONSISTENT!!!!!! SOMETIMES IT HAS STATE FIRST, SOMETIMES IS HAS A PRIMPROC LAST
 				//and when there's a state, it's apparently not an array, so .slice(1) doesn't work
+
+				//getting the actual arguments from args
+				var actualArgs = [];
+				for(i = 0; i < args.length; i++) {
+					if(! (state.isState(args[i]))){
+						actualArgs.push(args[i]);
+					} 
+				}
+
+				//console.log("args is ", args, ", actualArgs is ", actualArgs);
+				/*
 				if(state.isState(args[0])){
 					for(i = 1; i < args.length; i++){
 						if(! (locs.isEmpty())){
 							if(i != pos) {
-								coloredParts.push(new types.ColoredPart(types.toWrittenString(args[i])+" ", locs.first()));
+								//space = (locs.rest().isEmpty() ? "" : " ");
+								coloredParts.push(new types.ColoredPart(types.toWrittenString(args[i])+(i < args.length -2 ? " " : ""), 
+									locs.first()));
 							}
 							locs = locs.rest();
 					    }
 					}
-				}
-				else {
-					for(i = 0; i < args.length; i++){
-						if(! (locs.isEmpty())){
-							if(i != (pos -1)) {
-								coloredParts.push(new types.ColoredPart(types.toWrittenString(args[i])+" ", locs.first()));
-							}
-							locs = locs.rest();
+				}*/
+				for(i = 0; i < actualArgs.length; i++){
+					if(! (locs.isEmpty())){
+						if(i != (pos -1)) {
+							//coloredParts.push(new types.ColoredPart(types.toWrittenString(actualArgs[i])+(i < actualArgs.length -1 ? " " : ""), locs.first()));\
+							coloredParts.push(new types.ColoredPart(types.toWrittenString(actualArgs[i])+" ", locs.first()));
 						}
+						locs = locs.rest();
 					}
+				}
+				if(coloredParts.length > 0){
+					//removing the last space
+					var lastEltText = coloredParts[coloredParts.length-1].text;
+					lastEltText = lastEltText.substring(0, lastEltText.length - 1);
+					coloredParts[coloredParts.length - 1] = new types.ColoredPart(lastEltText, 
+																					coloredParts[coloredParts.length-1].location);
 				}
 				return coloredParts;
 			}
@@ -821,6 +845,8 @@ var helpers = {};
 
 			if(args) { 
 				var argColoredParts = getArgColoredParts(locationList.rest()); 
+				console.log("args, argColoredParts is ", argColoredParts);
+
 				if(argColoredParts.length > 0){
 				raise( types.incompleteExn(types.exnFailContract,
 							   new types.Message([
@@ -14871,7 +14897,7 @@ PRIMITIVES['make-polar'] =
 		 false, false,
 		 function(aState, x, y) {
 		 	check(aState, x, isReal, 'make-polar', 'real', 1, arguments);
-			check(aState, x, isReal, 'make-polar', 'real', 2, arguments);
+			check(aState, y, isReal, 'make-polar', 'real', 2, arguments);
 			return jsnums.makeComplexPolar(x, y);
 		 });
 
@@ -15148,6 +15174,7 @@ PRIMITIVES['zero?'] =
 		 1,
 		 false, false,
 		 function(aState, x) {
+		 	check(aState, x, isNumber, 'zero?', 'number', 1);
 		     return jsnums.equals(0, x)
 		 });
 
@@ -15427,7 +15454,7 @@ PRIMITIVES['second'] =
 		 1,
 		 false, false,
 		 function(aState, lst) {
-			checkListOf(aState, lst, 2, 'second', 1);
+			checkListOfLength(aState, lst, 2, 'second', 1);
 			return lst.rest().first();
 		 });
 
@@ -15492,6 +15519,7 @@ PRIMITIVES['length'] =
 		 1,
 		 false, false,
 		 function(aState, lst) {
+		 	checkList(aState, lst, 'length', 1, arguments);
 		  	return jsnums.makeRational(length(lst));
 		 });
 
@@ -16657,7 +16685,7 @@ PRIMITIVES['implode'] =
 		 false, false,
 		 function(aState, lst) {
 		 	checkListOf(aState, lst, function(x) { return isString(x) && x.length == 1; },
-				    'implode', 'list of 1-letter strings', 1);
+				    'implode', '1-letter strings', 1);
 			var ret = [];
 			while ( !lst.isEmpty() ) {
 				ret.push( lst.first().toString() );
@@ -17769,7 +17797,7 @@ new PrimProc('radial-star',
 			 check(aState, anOuter, function(x) { return isReal(x) && jsnums.greaterThan(x, 0); },
 									"radial-star", "positive number", 2, arguments);
 			 check(aState, anInner, function(x) { return isReal(x) && jsnums.greaterThan(x, 0); },
-									"radial-star", "positive number", 2, arguments);
+									"radial-star", "positive number", 3, arguments);
 			 check(aState, aStyle, isMode, "radial-star", "style", 4, arguments);
 			 check(aState, aColor, isColor, "radial-star", "color", 5, arguments);
 			 
@@ -18151,9 +18179,9 @@ new PrimProc('beside/align',
 			 3,
 			 true, false,
 			 function(aState, placeY, img1, img2, restImages) {
-			 check(aState, placeY, isPlaceY, "beside/align", "y-place", 1, arguments);
-			 check(aState, img1, isImage, "beside/align", "image", 2, arguments);
-			 check(aState, img2, isImage, "beside/align", "image", 3, arguments);
+			 checkVarArity(aState, placeY, isPlaceY, "beside/align", "y-place", 1, arguments);
+			 checkVarArity(aState, img1, isImage, "beside/align", "image", 2, arguments);
+			 checkVarArity(aState, img2, isImage, "beside/align", "image", 3, arguments);
 			 arrayEach(restImages, function(x, i) { check(aState, x, isImage, "beside", "image", i+3); }, arguments);
 			 
 			 var img = world.Kernel.overlayImage(img1,
@@ -18571,7 +18599,7 @@ PRIMITIVES['mode?']		= new PrimProc('mode?', 1, false, false,
                                                function(aState, v) { return isMode(v); });
 PRIMITIVES['image-color?']      = new PrimProc('image-color?', 1, false, false, 
                                                function(aState, v) { return isColor(v); });
-PRIMITIVES['name->color']       = new PrimProc('name->color?', 1, false, false,
+PRIMITIVES['name->color']       = new PrimProc('name->color', 1, false, false,
                                                function(aState, x) { 
                                                    return nameToColor(x) || false; 
                                                });
@@ -19355,7 +19383,7 @@ PRIMITIVES['js-big-bang'] =
 */
 PRIMITIVES['big-bang'] =
 PRIMITIVES['js-big-bang'] =
-    new PrimProc('js-big-bang',
+    new PrimProc('big-bang',
 		 1,
 		 true, false,
 		 function(aState, initW, handlers) {
@@ -20759,25 +20787,27 @@ var callContinuationProcedure = function(state, procValue, n, operandValues) {
 // selectProcedureByArity: state (CaseLambdaValue | CasePrimitive | Continuation | Closure | Primitive) -> (Continuation | Closure | Primitive)
 var selectProcedureByArity = function(aState, n, procValue, operands) {
     var getArgStr = function() {
-	var argStr = '';
-	if (operands.length > 0) {
-		var argStrBuffer = [':'];
-		for (var i = 0; i < operands.length; i++) {
-			argStrBuffer.push( types.toWrittenString(operands[i]) );
-		}
-		argStr = argStrBuffer.join(' ');
-	}
-	return argStr;
+    	var argStr = '';
+    	if (operands.length > 0) {
+    		var argStrBuffer = [':'];
+    		for (var i = 0; i < operands.length; i++) {
+    			argStrBuffer.push( types.toWrittenString(operands[i]) );
+    		}
+    		argStr = argStrBuffer.join(' ');
+    	}
+    	return argStr;
     }
     
     var getArgColoredParts = function(locations) {
     	var argColoredParts = [];
     	var locs = locations;
+        var space = "";
     	if (operands.length > 0) {
-    		for (var i = 0; i < operands.length; i++) {
-    			argColoredParts.push(new types.ColoredPart(operands[i]+" ", locs.first()));
-    			locs = locs.rest();
-    		}
+    	    for (var i = 0; i < operands.length; i++) {
+    		argColoredParts.push(new types.ColoredPart(operands[i]+(i < operands.length -1 ? " " : ""),
+                                                           locs.first()));
+    		locs = locs.rest();
+    	    }
     	}
     	return argColoredParts;
     }
@@ -20803,8 +20833,6 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
             new types.Message([new types.MultiPart("function call", [op, cp]),
                                 ": expected function, given: ",
                                 new types.ColoredPart(procValue, locationList.first())
-                                //((operands.length == 0) ? ' (no arguments)' : '; arguments were '),
-                               // ((operands.length != 0) ? new types.GradientPart(argColoredParts) : ''),
                                 ]),
                              []));
 
@@ -20842,7 +20870,8 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
                            n,
                            new types.GradientPart(argColoredParts)]),	
 		[]));
-    } else if (procValue instanceof primitive.CasePrimitive) {
+    } 
+    else if (procValue instanceof primitive.CasePrimitive) {
 	for (var j = 0; j < procValue.cases.length; j++) {
 	    if (n === procValue.cases[j].numParams ||
 		(n > procValue.cases[j].numParams && 
