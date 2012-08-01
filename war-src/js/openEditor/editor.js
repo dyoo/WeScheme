@@ -73,6 +73,8 @@ var WeSchemeEditor;
 		that.interactions.addOnReset(function() {that.defn.unhighlightAll()});
 		that.interactions.setMoveCursor(function(id, offset){that.moveCursor(id, offset)});
 		that.interactions.setFocus(function(id){that.focus(id)});
+		that.interactions.addSetSelection(function(id, offset, line, column, span){ 
+			that.setSelection(id, offset, line, column, span);});
 
 		// pid: (or false number)
 		that.pid = false;
@@ -224,6 +226,14 @@ var WeSchemeEditor;
 		    this.defn.highlight(id, offset, line, column, span, color);
 		} else if (this.interactions.previousInteractionsTextContainers[id]) {
 		    this.interactions.previousInteractionsTextContainers[id].highlight(id, offset, line, column, span, color);
+		}
+    };
+
+    WeSchemeEditor.prototype.setSelection = function(id, offset, line, column, span, color) {
+    	if (id === '<definitions>') {
+		    this.defn.setSelection(id, offset, line, column, span);
+		} else if (this.interactions.previousInteractionsTextContainers[id]) {
+		    this.interactions.previousInteractionsTextContainers[id].setSelection(id, offset, line, column, span);
 		}
     };
     

@@ -402,6 +402,10 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.setMoveCursor = function(moveCursor) {
         this.moveCursor = moveCursor;
     };
+    WeSchemeInteractions.prototype.addSetSelection = function(setSelection) {
+        this.setSelection = setSelection;
+    };
+
     WeSchemeInteractions.prototype.setFocus = function(focus) {
         this.focus = focus;
     };
@@ -644,8 +648,6 @@ WeSchemeInteractions = (function () {
                 colorIndex++;
             }
             else if(types.isMultiPart(args[i])) {
-                console.log("multipart, args[i] is ", args[i]);
-
                 if(args[i].locations.length > 0){ //should really go to the source of the multipart to fix
                     colorAndLink(that, msgDom, currColor, args[i].text, args[i].locations);
                     
@@ -658,7 +660,9 @@ WeSchemeInteractions = (function () {
             else {
                 msgDom.appendChild(document.createTextNode(args[i]+''));
             }
-        }    
+        }
+
+        jQuery(msgDom).css("font-size", "large"); //this is a still a matter of debate
     };
 
     //that, dom, Color, string, nonempty array[loc]
@@ -673,7 +677,9 @@ WeSchemeInteractions = (function () {
             jQuery(msgDom).append(aChunk);
         }
         else {
-            var aChunk = jQuery("<span/>").css("background-color", color+'');
+            var aChunk = jQuery("<span/>").css("background-color", color+'')
+                                           // .css("font-size", "large")
+                                            .css("font-style", "italic");
             var aLink = jQuery("<a/>").text(text+'')
                                       .attr("href", "#")
                                       .click(makeCursorLink(that, locs[0]));
@@ -763,7 +769,8 @@ WeSchemeInteractions = (function () {
     
     var makeHighlighterLinkFunction = function(that, elt) {
         return function() { 
-            that.highlighter(elt.id, elt.offset, elt.line, elt.column, elt.span, "rgb(254, 196, 79)");
+            //that.highlighter(elt.id, elt.offset, elt.line, elt.column, elt.span, "rgb(254, 196, 79)");
+            that.setSelection(elt.id, elt.offset, elt.line, elt.column, elt.span);
         };
     };
 

@@ -89,6 +89,9 @@ var WeSchemeTextContainer;
 	WeSchemeTextContainer.prototype.moveCursor = function(offset) {
 		return this.impl.moveCursor(offset);
 	};
+	WeSchemeTextContainer.prototype.setSelection = function(id, offset, line, column, span) {
+		return this.impl.setSelection(id, offset, line, column, span);
+	};
 	
 	WeSchemeTextContainer.prototype.focus = function() {
 		this.impl.focus();
@@ -247,22 +250,34 @@ var WeSchemeTextContainer;
 					this.handleAndColumnToPos(endHandleAndColumn), 
 					name));
  		
- 		this.moveCursor(offset);
+ 		this.moveCursor(offset, span);
 	};
 	
 	CodeMirrorImplementation.prototype.moveCursor = function(offset) {
-		var li = this.findHandleAndColumn(offset).handle;
+		var moveTo = this.findHandleAndColumn(offset);
+		var li = moveTo.handle;
+		var col = moveTo.column - 1; //off-by-one otherwise
 		var currLine = this.editor.getCursor(false).line;
 		
- 		if(li != currLine) this.editor.setCursor(li);
+ 		if(li != currLine) this.editor.setCursor({line: li, ch: col});
  		//if the line doesn't change, refocus doesn't happen, 
  		//so if they're the same change it twice
  		else {
- 			this.editor.setCursor(li + 1);
- 			this.editor.setCursor(li);
+ 			this.editor.setCursor({line: li + 1, ch: col});
+ 			this.editor.setCursor({line: li, ch: col});
  		}
 	};
 
+	CodeMirrorImplementation.prototype.setSelection = function(id, offset, line, column, span) {
+		offset--;
+		// For some reason, we're getting the offset from the highlighter
+		// as 1-offset, rather than 0-offset.
+		var startHandleAndColumn = this.findHandleAndColumn(parseInt(offset));
+		var endHandleAndColumn = this.findHandleAndColumn(parseInt(offset)+parseInt(span));
+
+		this.editor.setSelection({line: startHandleAndColumn.handle, ch: startHandleAndColumn.column}, 
+								{line: endHandleAndColumn.handle, ch: endHandleAndColumn.column});
+	};
 
 	CodeMirrorImplementation.prototype.unhighlightAll = function () {
 		for(var i = 0; i < this.highlightedAreas.length; i++) {
