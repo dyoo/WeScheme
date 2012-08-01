@@ -232,6 +232,7 @@ h2 > a:hover{text-decoration: underline;}
     height:                     50%;
     background:		white url(images/blank.gif) no-repeat;
     overflow:           auto;
+    padding-left: 	5px;
 }
 
 #interactions:hover{

@@ -677,12 +677,16 @@ WeSchemeInteractions = (function () {
             jQuery(msgDom).append(aChunk);
         }
         else {
+            var clickFunction = makeCursorLink(that, locs[0]);
             var aChunk = jQuery("<span/>").css("background-color", color+'')
-                                           // .css("font-size", "large")
-                                            .css("font-style", "italic");
+                                            .css("font-style", "italic")
+                                            .css("padding-left", "6px")
+                                            .css("padding-right", "6px")
+                                            .css('cursor', 'pointer')
+                                            .click(clickFunction);
             var aLink = jQuery("<a/>").text(text+'')
                                       .attr("href", "#")
-                                      .click(makeCursorLink(that, locs[0]));
+                                      .click(clickFunction);
             jQuery(aChunk).append(aLink);
             jQuery(msgDom).append(aChunk);
         }
