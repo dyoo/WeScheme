@@ -109,4 +109,4 @@
 
 ;; ######################################################################
 (printf "Compressing JavaScript libraries.  This may take a few minutes, depending if this is the first time this has been run.\n")
-(call-system "racket" "bin/compress-js.rkt" #;"--quiet" "war")
+(call-system "racket" "bin/compress-js.rkt" "--quiet" "war")
