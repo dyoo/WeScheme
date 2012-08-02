@@ -6,6 +6,9 @@ Creating the launch configuration:
     $ as-create-launch-config MyLC --image-id ami-ca62edfa --instance-type m1.small --group quicklaunch-1
 
 
+As of this writing, the current launch configuration group has the id: MyLC20120801.
+
+
 
 
 Creating an auto-scaling group, attached to a particular load balancer:
