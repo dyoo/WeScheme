@@ -3,7 +3,8 @@ EC2 Auto scaling notes
 
 Creating the launch configuration:
 
-    $ as-create-launch-config MyLC --image-id ami-ca62edfa --instance-type m1.small
+    $ as-create-launch-config MyLC --image-id ami-ca62edfa --instance-type m1.small --group quicklaunch-1
+
 
 
 
