@@ -1,0 +1,36 @@
+EC2 Auto scaling notes
+
+
+Creating the launch configuration:
+
+    $ as-create-launch-config MyLC --image-id ami-ca62edfa --instance-type m1.small
+
+
+
+Creating an auto-scaling group, attached to a particular load balancer:
+
+    $ as-create-auto-scaling-group WeSchemeCompilerGroup --launch-configuration MyLC --availability-zones us-west-2a --min-size 2 --max-size 20 --load-balancers balanced-wescheme-compilers
+
+
+
+Creating a policy for adding a new instance to this group:
+
+    $ as-put-scaling-policy MyScaleUpPolicy --auto-scaling-group WeSchemeCompilerGroup --adjustment=1 --type ChangeInCapacity --cooldown 300
+
+
+Adding a CloudWatch alarm that will trigger this scaling-up policy on high load.  5 minutes at 80% CPU:
+
+    $ mon-put-metric-alarm MyHighCPUAlarm --comparison-operator GreaterThanThreshold --evaluation-periods 1 --metric-name CPUUtilization --namespace "AWS/EC2" --period 300 --statistic Average --threshold 80 --alarm-actions  arn:aws:autoscaling:us-west-2:093537034380:scalingPolicy:0c0d1a8a-8828-4395-99ae-8fb35b098e85:autoScalingGroupName/WeSchemeCompilerGroup:policyName/MyScaleUpPolicy --dimensions "AutoScalingGroupName=WeSchemeCompilerGroup" --region us-west-2
+
+
+
+Creating the other policy for dropping instances:
+
+    $ as-put-scaling-policy MyScaleDownPolicy --auto-scaling-group WeSchemeCompilerGroup --adjustment=-1 --type ChangeInCapacity --cooldown 300
+
+and adding the corresponding CloudWatch alarm on idleness:
+
+
+    $ mon-put-metric-alarm MyLowCPUAlarm --comparison-operator LessThanThreshold --evaluation-periods=1 --metric-name CPUUtilization --namespace "AWS/EC2" --period 300 --statistic Average --threshold 40 --alarm-actions arn:aws:autoscaling:us-west-2:093537034380:scalingPolicy:3a6b57eb-c9c2-4360-8de8-5056b414c66b:autoScalingGroupName/WeSchemeCompilerGroup:policyName/MyScaleDownPolicy --dimensions "AutoScalingGroupName=WeSchemeCompilerGroup" --region us-west-2
+
+
