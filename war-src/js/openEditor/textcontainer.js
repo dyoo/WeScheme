@@ -245,12 +245,18 @@ var WeSchemeTextContainer;
 
 		stylesheet.insertRule("." + name + " { background-color: " + color + ";}", 0);
 		
- 		this.highlightedAreas.push(
-			this.editor.markText(this.handleAndColumnToPos(startHandleAndColumn), 
+		var highlightedArea = this.editor.markText(this.handleAndColumnToPos(startHandleAndColumn), 
 					this.handleAndColumnToPos(endHandleAndColumn), 
-					name));
- 		
+					name);
+
+ 		this.highlightedAreas.push(highlightedArea);
  		this.moveCursor(offset, span);
+
+ 		//return highlightedArea;
+ 		return { clear: function()  { return highlightedArea.clear(); },
+ 				 find: function() {return highlightedArea.find();},
+ 				 styleName: name
+ 				}
 	};
 	
 	CodeMirrorImplementation.prototype.moveCursor = function(offset) {

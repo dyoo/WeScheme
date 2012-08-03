@@ -756,7 +756,7 @@ var helpers = {};
 				}
 				errorFormatStr = errorFormatStrBuffer.join(' ');
 
-				console.log("errorFormatStr is ", errorFormatStr);
+				//console.log("errorFormatStr is ", errorFormatStr);
 
 				raise( types.incompleteExn(types.exnFailContract,
 						   helpers.format(errorFormatStr, [details.functionName, details.typeName, details.ordinalPosition, details.actualValue]),
@@ -845,7 +845,7 @@ var helpers = {};
 
 			if(args) { 
 				var argColoredParts = getArgColoredParts(locationList.rest()); 
-				console.log("args, argColoredParts is ", argColoredParts);
+				//console.log("args, argColoredParts is ", argColoredParts);
 
 				if(argColoredParts.length > 0){
 				raise( types.incompleteExn(types.exnFailContract,
@@ -13452,8 +13452,14 @@ var getMakeStructTypeReturns = function(aStructType) {
 					    aStructType.numberOfArgs,
 					    false,
 					    false,
-					    aStructType.constructor)),
-		 (new StructPredicateProc(name, name+'?', 1, false, false, aStructType.predicate)),
+					    function(aState) { 
+                                                return aStructType.constructor.apply(
+                                                    null, [].slice.call(arguments, 1));
+                                            })),
+		 (new StructPredicateProc(name, name+'?', 1, false, false,
+                                          function(aState, x) { 
+                                              return aStructType.predicate(x);
+                                          })),
 		 (new StructAccessorProc(name,
 					 name+'-ref',
 					 2,
@@ -14098,8 +14104,8 @@ PRIMITIVES['make-struct-field-accessor'] =
 			+ (fieldName ? fieldName.toString() : 'field' + fixnumPos);
 
 		return new StructAccessorProc(accessor.typeName, procName, 1, false, false,
-					      function(x) {
-						  return accessor.impl(x, fixnumPos);
+					      function(aState, x) {
+						  return accessor.impl(aState, x, fixnumPos);
 					      });
 	    });
 
@@ -14124,7 +14130,7 @@ PRIMITIVES['make-struct-field-mutator'] =
 
 		return new StructMutatorProc(mutator.typeName, procName, 2, false, false,
 					     function(x, v) {
-						 return mutator.impl(x, fixnumPos, v);
+						 return mutator.impl(aState, x, fixnumPos, v);
 					     });
 	    });
 
@@ -14166,7 +14172,7 @@ PRIMITIVES['apply'] =
 			checkList(aState, lastArg, 'apply', args.length+2, allArgs);
 			var args = args.concat(helpers.schemeListToArray(lastArg));
 
-			return  CALL(f, args, id);
+			return CALL(f, args, id);
 		 });
 
 
@@ -17653,8 +17659,8 @@ PRIMITIVES['place-image/align'] =
 		     false, false,
 		     function(aState, img, x, y, placeX, placeY, background) {
 			 check(aState, img,		isImage,	"place-image/align", "image",	1, arguments);
-			 check(aState, x,		isReal,		"place-image/align", "real",	2, arguments);
-			 check(aState, y,		isReal,		"place-image/align", "real",	3, arguments);
+			 check(aState, x,		isReal,		"place-image/align", "real number",	2, arguments);
+			 check(aState, y,		isReal,		"place-image/align", "real number",	3, arguments);
 			 check(aState, placeX,	isPlaceX,	"place-image/align", "x-place", 4, arguments);
 			 check(aState, placeY,	isPlaceY,	"place-image/align", "y-place", 5, arguments);
 			 check(aState, background, function(x) { return isScene(x) || isImage(x) },
@@ -20638,16 +20644,16 @@ var callPrimitiveProcedure = function(state, procValue, n, operandValues) {
 					 operandValues,
 					 n);
     var result = procValue.impl.apply(procValue.impl, args);
-    processPrimitiveResult(state, result, procValue, n);
+    processPrimitiveResult(state, result, procValue);
 };
 
 
-var processPrimitiveResult = function(state, result, procValue, n) {
+var processPrimitiveResult = function(state, result, procValue) {
     if (result instanceof INTERNAL_CALL) {
 	state.cstack.push(new InternalCallRestartControl
 			  (result.k, procValue));
 
-        addNoLocationContinuationMark(state, n);
+        addNoLocationContinuationMark(state, result.operands.length);
 	callProcedure(state,
 		      result.operator, 
 		      result.operands.length, 
@@ -20839,70 +20845,70 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
     }
 
     if (procValue instanceof types.CaseLambdaValue) {
-	for (var j = 0; j < procValue.closures.length; j++) {
-	    if (n === procValue.closures[j].numParams ||
-		(n > procValue.closures[j].numParams && 
-		 procValue.closures[j].isRest)) {
-		return procValue.closures[j];
-	    }
-	}
-	var acceptableParameterArity = [];
-	for (var i = 0; i < procValue.closures.length; i++) {
-	    acceptableParameterArity.push(procValue.closures[i].numParams + '');
-	}
+    	for (var j = 0; j < procValue.closures.length; j++) {
+    	    if (n === procValue.closures[j].numParams ||
+    		(n > procValue.closures[j].numParams && 
+    		 procValue.closures[j].isRest)) {
+    		return procValue.closures[j];
+    	    }
+    	}
+    	var acceptableParameterArity = [];
+    	for (var i = 0; i < procValue.closures.length; i++) {
+    	    acceptableParameterArity.push(procValue.closures[i].numParams + '');
+    	}
 
-    var positionStack = 
-        state.captureCurrentContinuationMarks(aState).ref(
-            types.symbol('moby-application-position-key'));
-        
-       
-        var locationList = positionStack[positionStack.length - 1];
-        var argColoredParts = getArgColoredParts(locationList.rest());
+        var positionStack = 
+            state.captureCurrentContinuationMarks(aState).ref(
+                types.symbol('moby-application-position-key'));
+            
+           
+            var locationList = positionStack[positionStack.length - 1];
+            var argColoredParts = getArgColoredParts(locationList.rest());
 
 
-//unable to test
-	helpers.raise(types.incompleteExn(
-		types.exnFailContractArity,
-		new types.Message([new types.ColoredPart(procValue.name ? procValue.name : "#<case-lambda-procedure>", locationList.first()),
-                           ": expects [",
-                           acceptableParameterArity.join(', '),
-                           "] arguments, given ",
-                           n,
-                           new types.GradientPart(argColoredParts)]),	
-		[]));
+        //unable to test
+    	helpers.raise(types.incompleteExn(
+    		types.exnFailContractArity,
+    		new types.Message([new types.ColoredPart(procValue.name ? procValue.name : "#<case-lambda-procedure>", locationList.first()),
+                               ": expects [",
+                               acceptableParameterArity.join(', '),
+                               "] arguments, given ",
+                               n,
+                               new types.GradientPart(argColoredParts)]),	
+    		[]));
     } 
     else if (procValue instanceof primitive.CasePrimitive) {
-	for (var j = 0; j < procValue.cases.length; j++) {
-	    if (n === procValue.cases[j].numParams ||
-		(n > procValue.cases[j].numParams && 
-		 procValue.cases[j].isRest)) {
-		return procValue.cases[j];
-	    }
-	}
-	var acceptableParameterArity = [];
-	for (var i = 0; i < procValue.cases.length; i++) {
-	    acceptableParameterArity.push(procValue.cases[i].numParams + '');
-	}
-    var positionStack = 
-        state.captureCurrentContinuationMarks(aState).ref(
-            types.symbol('moby-application-position-key'));
-        
-       
-        var locationList = positionStack[positionStack.length - 1];
-        var argColoredParts = getArgColoredParts(locationList.rest());
+    	for (var j = 0; j < procValue.cases.length; j++) {
+    	    if (n === procValue.cases[j].numParams ||
+    		(n > procValue.cases[j].numParams && 
+    		 procValue.cases[j].isRest)) {
+    		return procValue.cases[j];
+    	    }
+    	}
+    	var acceptableParameterArity = [];
+    	for (var i = 0; i < procValue.cases.length; i++) {
+    	    acceptableParameterArity.push(procValue.cases[i].numParams + '');
+    	}
+        var positionStack = 
+            state.captureCurrentContinuationMarks(aState).ref(
+                types.symbol('moby-application-position-key'));
+            
+           
+            var locationList = positionStack[positionStack.length - 1];
+            var argColoredParts = getArgColoredParts(locationList.rest());
 
 
-        //textchange
-	helpers.raise(types.incompleteExn(
-		types.exnFailContractArity,
-		new types.Message([new types.ColoredPart(procValue.name, locationList.first()),
-                ": expects ",
-                acceptableParameterArity.join(' or '),
-                " arguments, given ",
-                n,
-            ((argColoredParts.length > 0) ? ": " : ""),
-            ((argColoredParts.length > 0) ? new types.GradientPart(argColoredParts) : "")]),
-		[]));
+            //textchange
+    	helpers.raise(types.incompleteExn(
+    		types.exnFailContractArity,
+    		new types.Message([new types.ColoredPart(procValue.name, locationList.first()),
+                    ": expects ",
+                    acceptableParameterArity.join(' or '),
+                    " arguments, given ",
+                    n,
+                ((argColoredParts.length > 0) ? ": " : ""),
+                ((argColoredParts.length > 0) ? new types.GradientPart(argColoredParts) : "")]),
+    		[]));
     }
 
 

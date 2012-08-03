@@ -591,23 +591,22 @@ WeSchemeInteractions = (function () {
         return new types.Message(msg);
     };
 
-
-    //
-    var makeCursorLink = function(that, currItem) {
-        return function(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            that.moveCursor(currItem.ref(0), parseInt(currItem.ref(1)));  //in correct form????
-            that.focus(currItem.ref(0));
-        }
-    };
-
     // Special multi-color highlighting
     var specialFormatting = function(that, msgDom, msg) {
         //pink, blue, green, yellow, gray
     // these colors mess up testing but should be used at launch    var colors = [new Color(240,181,194), new Color(161,200,224), new Color(146,200,142), 
         var colors = [new Color(238, 169, 184), new Color(145, 191, 219), new Color(127, 191, 123),
-                  new Color(175,141,195), new Color(186,186,186)];
+                  new Color(255, 239, 0), new Color(186,186,186)];
+
+        //these colors are different versions of the same color, used for gradient purposes
+        //to allow for greater differentiation between nearby colors
+        var altColors = [
+            [new Color(238, 169, 184), new Color(220, 20, 60), new Color(171, 78, 82), new Color(128, 0, 0)],    //shades of red/pink
+            [new Color(145, 191, 219), new Color(137, 207, 240), new Color(0, 147, 175), new Color(89, 89, 187)],    //shades of blue
+            [new Color(127, 191, 123), new Color(73, 121, 107), new Color(41, 171, 135), new Color(169, 186, 157)],    //shades of green
+            [new Color(255, 239, 0), new Color(255, 215, 0), new Color(250, 218, 94), new Color(239, 204, 0)],    //shades of yellow
+            [new Color(186,186,186), new Color(100,100,100), new Color(147,147,147), new Color(212,212,212)]    //shades of gray
+        ];
 
         //to turn off highlighting, have the only color be white
       //  var colors = [new Color (255, 255, 255)];
@@ -630,21 +629,26 @@ WeSchemeInteractions = (function () {
             }
             else if(types.isGradientPart(args[i])) {
                 var parts = args[i].coloredParts;
-                
-                var percentage = 1;
-                var change = 1/(parts.length+1);
-                
                 var currTint;
+                var altIndex = 0;
                 var j;
+                var percentage = 1;
+                var change = 2/(parts.length+1);
 
-                for(j = 0; j < parts.length; j++) {        
+                for (j = 0; j < parts.length; j++){
+                    if(altIndex >= altColors[colorIndex].length) {
+                        altIndex = 0;
+                        percentage = percentage - change;
+                    }
+                    currColor = altColors[colorIndex][altIndex];
+
                     currTint = nextTint(currColor.red, currColor.green, currColor.blue, percentage);
 
                     colorAndLink(that, msgDom, currTint, parts[j].text, [parts[j].location])
 
-                    percentage = percentage - change;
+                    altIndex++;
+
                 }
-                
                 colorIndex++;
             }
             else if(types.isMultiPart(args[i])) {
@@ -661,29 +665,26 @@ WeSchemeInteractions = (function () {
                 msgDom.appendChild(document.createTextNode(args[i]+''));
             }
         }
-
-        jQuery(msgDom).css("font-size", "large"); //this is a still a matter of debate
     };
 
     //that, dom, Color, string, nonempty array[loc]
     //does the coloring and makes a link to the location in the definitions
     var colorAndLink = function(that, msgDom, color, text, locs) {
         var i;
+        var x;
+        var pieces = [];
         for(i = 0; i < locs.length; i++){
-            that.addToCurrentHighlighter(locs[i].ref(0), locs[i].ref(1), locs[i].ref(2), locs[i].ref(3), locs[i].ref(4), color+'');
+            pieces.push(that.addToCurrentHighlighter(locs[i].ref(0), locs[i].ref(1), locs[i].ref(2), locs[i].ref(3), locs[i].ref(4), color+''));
         }
         if(locs[0].ref(0) === "<no-location>"){
             var aChunk = jQuery("<span/>").text(text);
             jQuery(msgDom).append(aChunk);
         }
         else {
-            var clickFunction = makeCursorLink(that, locs[0]);
+            var clickFunction = makeCursorLink(that, locs, pieces, color);
             var aChunk = jQuery("<span/>").css("background-color", color+'')
-                                            .css("font-style", "italic")
-                                            .css("padding-left", "6px")
-                                            .css("padding-right", "6px")
-                                            .css('cursor', 'pointer')
-                                            .click(clickFunction);
+                                          .addClass("colored-link")
+                                          .click(clickFunction);
             var aLink = jQuery("<a/>").text(text+'')
                                       .attr("href", "#")
                                       .click(clickFunction);
@@ -691,6 +692,29 @@ WeSchemeInteractions = (function () {
             jQuery(msgDom).append(aChunk);
         }
     }
+
+    var makeCursorLink = function(that, locs, pieces, color) {
+        var currItem = locs[0];
+        return function(e) {
+            var i;
+            e.stopPropagation();
+            e.preventDefault();
+            that.moveCursor(currItem.ref(0), parseInt(currItem.ref(1)));
+            that.focus(currItem.ref(0));
+            for(i = 0; i < pieces.length; i++){
+                catchAttention(pieces[i].styleName);
+            }
+        }
+    };
+
+    var catchAttention = function(styleName){
+        var opacity = 0;
+        var intervalId = setInterval(function() {
+            jQuery("." + styleName).css("opacity", opacity);
+            opacity = opacity + 0.02;                
+            if (opacity >= 1) { clearInterval(intervalId); }
+        }, 15);
+    };
 
 
     // renderErrorAsDomNode: exception -> element
