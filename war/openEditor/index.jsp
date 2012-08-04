@@ -3,7 +3,10 @@
   <head>
     <title>WeScheme</title>
     <!-- Tags for on mobile -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=640, initial-scale=.75, user-scalable=yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />	
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="apple-touch-icon-precomposed" href="css/images/BigLogo.png" />
 
 
     <!-- Add compatibility libraries for IE. -->
@@ -306,16 +309,16 @@
 	<div id="toolbar">
 	  <ul>
 	    <li class="run">	
-	      <a id="run">Run</a>
+	      <a id="run"><span class="button">Run</span></a>
 	    </li>
 	    <li class="stop">	
-	      <a id="stop">Stop</a>
+	      <a id="stop"><span class="button">Stop</span></a>
 	    </li>
 	    <% if (userSession != null) { %>
-	    <li class="save"><a id="save">Save</a></li>
-	    <li class="share"><a id="share">Share</a></li>
+	    <li class="save"><a id="save"><span class="button">Save</span></a></li>
+	    <li class="share"><a id="share"><span class="button">Share</span></a></li>
 	    <% } %>
-        <li class="designrecipe"><a id="designrecipebutton">Recipe</a></li>
+        <li class="designrecipe"><a id="designrecipebutton"><span class="button">Recipe</span></a></li>
 	  </ul>
           <ul></ul>
           <!-- This is here to force the div height.  This may be unnecessary
