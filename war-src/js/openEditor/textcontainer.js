@@ -221,7 +221,9 @@ var WeSchemeTextContainer;
 			ch: handle.column
 		}
 	}
+
 	//takes in location info, returns css
+	//fixme: is this used anywhere?
 	CodeMirrorImplementation.prototype.getCSS = function(pos) {
 		//return this.editor.getTokenAt(pos);
 		return this.editor.findMarksAt(pos);

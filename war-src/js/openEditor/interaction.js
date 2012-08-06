@@ -594,17 +594,16 @@ WeSchemeInteractions = (function () {
     // Special multi-color highlighting
     var specialFormatting = function(that, msgDom, msg) {
         //pink, blue, green, yellow, gray
-    // these colors mess up testing but should be used at launch    var colors = [new Color(240,181,194), new Color(161,200,224), new Color(146,200,142), 
-        var colors = [new Color(238, 169, 184), new Color(145, 191, 219), new Color(127, 191, 123),
+        var colors = [new Color(240,181,194), new Color(161,200,224), new Color(146,200,142), 
                   new Color(255, 239, 0), new Color(186,186,186)];
 
         //these colors are different versions of the same color, used for gradient purposes
         //to allow for greater differentiation between nearby colors
         var altColors = [
-            [new Color(238, 169, 184), new Color(220, 20, 60), new Color(171, 78, 82), new Color(128, 0, 0)],    //shades of red/pink
-            [new Color(145, 191, 219), new Color(137, 207, 240), new Color(0, 147, 175), new Color(89, 89, 187)],    //shades of blue
-            [new Color(127, 191, 123), new Color(73, 121, 107), new Color(41, 171, 135), new Color(169, 186, 157)],    //shades of green
-            [new Color(255, 239, 0), new Color(255, 215, 0), new Color(250, 218, 94), new Color(239, 204, 0)],    //shades of yellow
+            [new Color(240,181,194), new Color(220, 20, 60), new Color(171, 78, 82), new Color(128, 0, 0)],    //shades of red/pink
+            [new Color(161,200,224), new Color(137,207,240), new Color(0, 147, 175), new Color(89, 89,187)],    //shades of blue
+            [new Color(146,200,142), new Color(73, 121,107), new Color(41, 171,135), new Color(169,186,157)],    //shades of green
+            [new Color(255, 239, 0), new Color(255, 215, 0), new Color(250, 218,94), new Color(239,204, 0)],    //shades of yellow
             [new Color(186,186,186), new Color(100,100,100), new Color(147,147,147), new Color(212,212,212)]    //shades of gray
         ];
 
@@ -693,6 +692,9 @@ WeSchemeInteractions = (function () {
         }
     }
 
+    //that locations {find, clear, styleName} string -> function
+    //takes in information, returns a function to run when clicked-
+    //moves the cursor before the first piece, and catches the user's attention
     var makeCursorLink = function(that, locs, pieces, color) {
         var currItem = locs[0];
         return function(e) {
@@ -706,7 +708,8 @@ WeSchemeInteractions = (function () {
             }
         }
     };
-
+    //takes in style name, then for all elements with that style name,
+    //fades them out and back in
     var catchAttention = function(styleName){
         var opacity = 0;
         var intervalId = setInterval(function() {

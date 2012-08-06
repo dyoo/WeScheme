@@ -248,7 +248,6 @@ var WeSchemeEditor;
     };
 
     WeSchemeEditor.prototype.moveCursor = function(id, offset) {
-    	//console.log("id: ", id, " offset: ",offset);
     	if (id === '<definitions>') {
 		    this.defn.moveCursor(offset);
 		} else if (this.interactions.previousInteractionsTextContainers[id]) {

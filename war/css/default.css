@@ -283,7 +283,7 @@ div.moby-error {
     border-width: 1px 0px;
     color: red;
     width: 100%;
-   font-size: large;
+   /*font-size: large;*/
 }
 
 .colored-link {
