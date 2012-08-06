@@ -29,16 +29,16 @@
 <tr>
 	<td>assertEval</td>
 	<td>window.jQuery(window.jQuery('span:contains(&quot;\&quot;orange\&quot;&quot;)')[0]).css('background-color')</td>
-	<td>rgb(203, 229, 202)</td>
+	<td>rgb(169, 186, 157)</td>
 </tr>
 <tr>
 	<td>assertEval</td>
 	<td>window.jQuery(window.jQuery('span:contains(&quot;star&quot;)')[0]).css('background-color')</td>
-	<td>rgb(238, 169, 184)</td>
+	<td>rgb(240, 181, 194)</td>
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;\&quot;orange\&quot;&quot;, &quot;rgb(203, 229, 202)&quot;)</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;\&quot;orange\&quot;&quot;, &quot;rgb(169, 186, 157)&quot;)</td>
 	<td>true</td>
 </tr>
 </tbody></table>

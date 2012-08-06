@@ -594,7 +594,7 @@ WeSchemeInteractions = (function () {
     // Special multi-color highlighting
     var specialFormatting = function(that, msgDom, msg) {
         //pink, blue, green, yellow, gray
-        var colors = [new Color(240,181,194), new Color(161,200,224), new Color(146,200,142), 
+        var colors = [new Color(240, 181, 194), new Color(161, 200, 224), new Color(146, 200, 142), 
                   new Color(255, 239, 0), new Color(186,186,186)];
 
         //these colors are different versions of the same color, used for gradient purposes

@@ -613,7 +613,7 @@ var helpers = {};
 			var matches = formatStr.match(new RegExp('~[sSaA]', 'g'));
 			var expectedNumberOfArgs = matches == null ? 0 : matches.length;
 			var errorStrBuffer = [functionName + ': format string requires ' + expectedNumberOfArgs
-						+ ' arguments, given ' + args.length + '; arguments were:',
+						+ ' arguments, but given ' + args.length + '; arguments were:',
 					      types.toWrittenString(formatStr)];
 			for (var i = 0; i < args.length; i++) {
 				errorStrBuffer.push( types.toWrittenString(args[i]) );
@@ -748,7 +748,7 @@ var helpers = {};
 	var throwUncoloredCheckError = function(aState, details, pos, args){
 			var errorFormatStr;
 			if (args && args.length > 1) {
-				var errorFormatStrBuffer = ['~a: expects type ~a as ~a arguments, given: ~s; other arguments were:'];
+				var errorFormatStrBuffer = ['~a: expects type ~a as ~a arguments, but given: ~s; other arguments were:'];
 				for (var i = 0; i < args.length; i++) {
 					if ( i != pos-1 ) {
 						errorFormatStrBuffer.push( types.toWrittenString(args[i]) );
@@ -756,14 +756,12 @@ var helpers = {};
 				}
 				errorFormatStr = errorFormatStrBuffer.join(' ');
 
-				//console.log("errorFormatStr is ", errorFormatStr);
-
 				raise( types.incompleteExn(types.exnFailContract,
 						   helpers.format(errorFormatStr, [details.functionName, details.typeName, details.ordinalPosition, details.actualValue]),
 						   []) );
 			}
 			else {
-				errorFormatStr = "~a: expects argument of type ~a, given: ~s";
+				errorFormatStr = "~a: expects argument of type ~a, but given: ~s";
 				raise( types.incompleteExn(types.exnFailContract,
 						   helpers.format(errorFormatStr, [details.functionName, details.typeName , details.actualValue]),
 						   []));
@@ -779,8 +777,6 @@ var helpers = {};
             		types.symbol('moby-application-position-key'));
         
        		var locationList = positionStack[positionStack.length - 1];
-
-       		//console.log("locationList is ", locationList);
 
        		//locations -> array
 			var getArgColoredParts = function(locations) {
@@ -799,21 +795,6 @@ var helpers = {};
 						actualArgs.push(args[i]);
 					} 
 				}
-
-				//console.log("args is ", args, ", actualArgs is ", actualArgs);
-				/*
-				if(state.isState(args[0])){
-					for(i = 1; i < args.length; i++){
-						if(! (locs.isEmpty())){
-							if(i != pos) {
-								//space = (locs.rest().isEmpty() ? "" : " ");
-								coloredParts.push(new types.ColoredPart(types.toWrittenString(args[i])+(i < args.length -2 ? " " : ""), 
-									locs.first()));
-							}
-							locs = locs.rest();
-					    }
-					}
-				}*/
 				for(i = 0; i < actualArgs.length; i++){
 					if(! (locs.isEmpty())){
 						if(i != (pos -1)) {
@@ -843,19 +824,23 @@ var helpers = {};
 				return locs.first();
 			}
 
+			var typeName = details.typeName+'';
+			var fL = typeName.substring(0,1);   //first letter of type name
+
+
 			if(args) { 
 				var argColoredParts = getArgColoredParts(locationList.rest()); 
-				//console.log("args, argColoredParts is ", argColoredParts);
 
 				if(argColoredParts.length > 0){
 				raise( types.incompleteExn(types.exnFailContract,
 							   new types.Message([
 							   		new types.ColoredPart(details.functionName, locationList.first()),
-							   		": expects type ",
-							   		details.typeName,
+							   		": expects ",
+							   		((fL === "a" || fL === "e" || fL === "i" || fL === "o" || fL === "u") ? "an " : "a "),
+							   		typeName,
 							   		" as ",
 							   		details.ordinalPosition, 
-							   		" argument, given: ",
+							   		" argument, but given: ",
 							   		new types.ColoredPart(types.toWrittenString(details.actualValue), getLocation(pos)),
 							   		"; other arguments were: ",
 							   		new types.GradientPart(argColoredParts)
@@ -866,15 +851,15 @@ var helpers = {};
 			raise( types.incompleteExn(types.exnFailContract,
 						   new types.Message([
 						   		new types.ColoredPart(details.functionName, locationList.first()),
-						   		": expects type ",
-						   		details.typeName,
+						   		": expects ",
+						   		((fL === "a" || fL === "e" || fL === "i" || fL === "o" || fL === "u") ? "an " : "a "),
+						   		typeName,
 						   		" as ",
 						   		details.ordinalPosition, 
-						   		" argument, given: ",
+						   		" argument, but given: ",
 						   		new types.ColoredPart(types.toWrittenString(details.actualValue), getLocation(pos))
 						   	]),
 						   []) );
-
 
 	};
 
@@ -888,12 +873,10 @@ var helpers = {};
 
 			//if the positionStack at the correct position is defined, we can throw a colored error
 			if (positionStack[positionStack.length - 1] !== undefined) {
-				//console.log("colored error");
 				throwColoredCheckError(aState,details, pos, args);
 			}
 		}
 		//otherwise, throw an uncolored error
-		//console.log("uncolored error");
 		throwUncoloredCheckError(aState, details, pos, args);
 	};
 
@@ -13706,23 +13689,31 @@ var checkAllSameLength = function(aState, lists, functionName, args) {
 
 PRIMITIVES['verify-boolean-branch-value'] =
 	new PrimProc('verify-boolean-branch-value',
-		     2,
+		     4,
 		     false,
 		     false,
-		     function(aState, x, aLoc) { 
+		     function(aState, name, nameLoc, x, aLoc) { 
 			 if (x !== true && x !== false) {
+		
+       			var positionStack = 
+        			state.captureCurrentContinuationMarks(aState).ref(
+            			types.symbol('moby-application-position-key'));  
+       
+       			var locationList = positionStack[positionStack.length - 1];
+
 			     // FIXME: should throw structure
 			     // make-moby-error-type:branch-value-not-boolean
 			     // instead.
 			     //throw new Error("the value " + sys.inspect(x) + " is not boolean type at " + aLoc);
 			     raise(types.incompleteExn(
                                  types.exnFailContract,
-				 new types.Message(["the value ",
+				 new types.Message([new types.ColoredPart(name, nameLoc), 
+						    ": expected a boolean value, but found: ",
 						    new types.ColoredPart(types.toWrittenString(x),
                                                                           aLoc),
-                                                    " is not a boolean value."
+                                                    
 						   ]),
-                                 []));
+                                 []));  
 			 }
 			 return x;
 		     })
@@ -13736,7 +13727,14 @@ PRIMITIVES['throw-cond-exhausted-error'] =
 			     // FIXME: should throw structure
 			     // make-moby-error-type:conditional-exhausted
 			     // instead.
-			 throw types.schemeError(types.incompleteExn(types.exnFail, "cond: all question results were false", []));
+			// throw types.schemeError(types.incompleteExn(types.exnFail, "cond: all question results were false", []));
+			 raise(types.incompleteExn(
+			     types.exnFailContract,
+			     new types.Message([new types.ColoredPart("cond", aLoc), 
+						": all question results were false"
+					       ]),
+			     []));
+			 
 		     });
 
 
@@ -13793,7 +13791,7 @@ PRIMITIVES['check-within'] =
 		 false, false,
 		 function(aState, actual, expected, range) {
 		 	if ( !isNonNegativeReal(range) ) {
-				var msg = helpers.format('check-within requires a non-negative real number for range, given ~s.',
+				var msg = helpers.format('check-within requires a non-negative real number for range, but given ~s.',
 							 [range]);
 				raise( types.incompleteExn(types.exnFailContract, msg, []) );
 			}
@@ -14301,6 +14299,7 @@ PRIMITIVES['sleep'] =
 
 
 PRIMITIVES['identity'] = new PrimProc('identity', 1, false, false, function(aState, x) { return x; });
+
 
 
 PRIMITIVES['raise'] = new PrimProc('raise', 1, false, false, function(aState, v) { return raise(v);} );
@@ -20872,7 +20871,7 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
     		new types.Message([new types.ColoredPart(procValue.name ? procValue.name : "#<case-lambda-procedure>", locationList.first()),
                                ": expects [",
                                acceptableParameterArity.join(', '),
-                               "] arguments, given ",
+                               "] arguments, but given ",
                                n,
                                new types.GradientPart(argColoredParts)]),	
     		[]));
@@ -20904,7 +20903,7 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
     		new types.Message([new types.ColoredPart(procValue.name, locationList.first()),
                     ": expects ",
                     acceptableParameterArity.join(' or '),
-                    " arguments, given ",
+                    " arguments, but given ",
                     n,
                 ((argColoredParts.length > 0) ? ": " : ""),
                 ((argColoredParts.length > 0) ? new types.GradientPart(argColoredParts) : "")]),
@@ -20945,7 +20944,7 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 							(procValue.numParams + " argument" + 
 							  ((procValue.numParams == 1) ? '' : 's')))
 					      ,
-  		         ", given ",
+  		         ", but given ",
 			n ,
             ((argColoredParts.length > 0) ? ": " : ""),
             ((argColoredParts.length > 0) ? new types.GradientPart(argColoredParts) : "")]),

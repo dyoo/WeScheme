@@ -22,11 +22,6 @@
 	<td></td>
 </tr>
 <tr>
-	<td>assertElementPresent</td>
-	<td>css=span:contains(&quot;hello&quot;)</td>
-	<td></td>
-</tr>
-<tr>
 	<td>pause</td>
 	<td>30</td>
 	<td></td>
@@ -34,7 +29,7 @@
 <tr>
 	<td>assertEval</td>
 	<td>window.jQuery(window.jQuery('span:contains(&quot;hello&quot;)')[1]).css('background-color')</td>
-	<td>rgb(145, 191, 219)</td>
+	<td>rgb(161, 200, 224)</td>
 </tr>
 </tbody></table>
 </body>
