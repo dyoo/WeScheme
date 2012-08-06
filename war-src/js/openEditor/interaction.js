@@ -602,7 +602,7 @@ WeSchemeInteractions = (function () {
         var altColors = [
             [new Color(240,181,194), new Color(220, 20, 60), new Color(171, 78, 82), new Color(128, 0, 0)],    //shades of red/pink
             [new Color(161,200,224), new Color(137,207,240), new Color(0, 147, 175), new Color(89, 89,187)],    //shades of blue
-            [new Color(146,200,142), new Color(73, 121,107), new Color(41, 171,135), new Color(169,186,157)],    //shades of green
+            [new Color(146,200,142), new Color(73, 121,107), new Color(41, 171,135), new Color(169, 186, 157)],    //shades of green
             [new Color(255, 239, 0), new Color(255, 215, 0), new Color(250, 218,94), new Color(239,204, 0)],    //shades of yellow
             [new Color(186,186,186), new Color(100,100,100), new Color(147,147,147), new Color(212,212,212)]    //shades of gray
         ];
@@ -616,7 +616,7 @@ WeSchemeInteractions = (function () {
         var i;
 
         for(i = 0; i < args.length; i++){
-            //in the unlikely event that there are no more preset colors, reset it
+            //in the event that there are no more preset colors, reset it
             if(colorIndex >= colors.length){
                 colorIndex = 0;
             }
@@ -653,7 +653,6 @@ WeSchemeInteractions = (function () {
             else if(types.isMultiPart(args[i])) {
                 if(args[i].locations.length > 0){ //should really go to the source of the multipart to fix
                     colorAndLink(that, msgDom, currColor, args[i].text, args[i].locations);
-                    
                     colorIndex++;
                 }
                 else {
@@ -692,7 +691,7 @@ WeSchemeInteractions = (function () {
         }
     }
 
-    //that locations {find, clear, styleName} string -> function
+    //WeSchemeInteractions locations {find, clear, styleName} string -> function
     //takes in information, returns a function to run when clicked-
     //moves the cursor before the first piece, and catches the user's attention
     var makeCursorLink = function(that, locs, pieces, color) {
