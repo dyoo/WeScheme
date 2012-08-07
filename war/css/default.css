@@ -352,15 +352,17 @@ span.top-aligned-inline-block {
 
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px){
     #toolbar li a{
-        width:        75px;
+        width:        90px;
         height:       30px;
+		border-left:  solid 1px gray;
     }
+
+	#toolbar li a:hover{background: none;}
 
     #toolbar  .button{
         font-size: 0px; 
-        background-position: 30px 5px; 
+        background-position: 40px 5px; 
         height: 30px;
-        border-left:    solid 1px gray;
         float: left;
     }
 }
