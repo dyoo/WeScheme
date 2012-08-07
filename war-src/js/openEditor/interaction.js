@@ -602,7 +602,7 @@ WeSchemeInteractions = (function () {
         var altColors = [
             [new Color(240,181,194), new Color(220, 20, 60), new Color(171, 78, 82), new Color(128, 0, 0)],    //shades of red/pink
             [new Color(161,200,224), new Color(137,207,240), new Color(0, 147, 175), new Color(89, 89,187)],    //shades of blue
-            [new Color(146,200,142), new Color(73, 121,107), new Color(41, 171,135), new Color(169, 186, 157)],    //shades of green
+            [new Color(146,200,142), new Color(123, 158, 147), new Color(41, 171,135), new Color(169, 186, 157)],    //shades of green
             [new Color(255, 239, 0), new Color(255, 215, 0), new Color(250, 218,94), new Color(239,204, 0)],    //shades of yellow
             [new Color(186,186,186), new Color(100,100,100), new Color(147,147,147), new Color(212,212,212)]    //shades of gray
         ];
