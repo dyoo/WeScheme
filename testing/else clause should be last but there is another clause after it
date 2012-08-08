@@ -28,27 +28,62 @@
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;(&quot;, &quot;rgb(238, 169, 184)&quot;)</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;(&quot;, &quot;rgb(240, 181, 194)&quot;)</td>
 	<td>true</td>
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;cond&quot;, &quot;rgb(238, 169, 184)&quot;)</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;cond&quot;, &quot;rgb(240, 181, 194)&quot;)</td>
 	<td>true</td>
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;[&quot;, &quot;rgb(145, 191, 219)&quot;) </td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;else&quot;, &quot;rgb(161, 200, 224)&quot;) </td>
 	<td>true</td>
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;else&quot;, &quot;rgb(145, 191, 219)&quot;) </td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;6&quot;, &quot;rgb(161, 200, 224)&quot;) </td>
 	<td>true</td>
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;6&quot;, &quot;rgb(145, 191, 219)&quot;) </td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;=&quot;, &quot;rgb(146, 200, 142)&quot;) </td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;2&quot;, &quot;rgb(146, 200, 142)&quot;) </td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;1&quot;, &quot;rgb(146, 200, 142)&quot;) </td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;)&quot;, &quot;rgb(146, 200, 142)&quot;) </td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;4&quot;, &quot;rgb(146, 200, 142)&quot;) </td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;]&quot;, &quot;rgb(146, 200, 142)&quot;) </td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;)&quot;, &quot;rgb(240, 181, 194)&quot;)</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;[&quot;, &quot;rgb(161, 200, 224)&quot;) </td>
 	<td>true</td>
 </tr>
 <tr>
@@ -58,42 +93,7 @@
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;[(&quot;, &quot;rgb(127, 191, 123)&quot;) </td>
-	<td>true</td>
-</tr>
-<tr>
-	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;=&quot;, &quot;rgb(127, 191, 123)&quot;) </td>
-	<td>true</td>
-</tr>
-<tr>
-	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;2&quot;, &quot;rgb(127, 191, 123)&quot;) </td>
-	<td>true</td>
-</tr>
-<tr>
-	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;1&quot;, &quot;rgb(127, 191, 123)&quot;) </td>
-	<td>true</td>
-</tr>
-<tr>
-	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;)&quot;, &quot;rgb(127, 191, 123)&quot;) </td>
-	<td>true</td>
-</tr>
-<tr>
-	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;4&quot;, &quot;rgb(127, 191, 123)&quot;) </td>
-	<td>true</td>
-</tr>
-<tr>
-	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;]&quot;, &quot;rgb(127, 191, 123)&quot;) </td>
-	<td>true</td>
-</tr>
-<tr>
-	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;)&quot;, &quot;rgb(238, 169, 184)&quot;)</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;[(&quot;, &quot;rgb(146, 200, 142)&quot;) </td>
 	<td>true</td>
 </tr>
 </tbody></table>

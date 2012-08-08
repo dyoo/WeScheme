@@ -29,14 +29,13 @@
 <tr>
 	<td>assertEval</td>
 	<td>window.jQuery(window.jQuery('span:contains(&quot;string-length&quot;)')[1]).css('background-color')</td>
-	<td>rgb(238, 169, 184)</td>
+	<td>rgb(240, 181, 194)</td>
 </tr>
 <tr>
 	<td>assertEval</td>
 	<td>window.jQuery(window.jQuery('span:contains(&quot;45&quot;)')[1]).css('background-color')</td>
-	<td>rgb(145, 191, 219)</td>
+	<td>rgb(161, 200, 224)</td>
 </tr>
-
 </tbody></table>
 </body>
 </html>

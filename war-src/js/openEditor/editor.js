@@ -63,11 +63,11 @@ var WeSchemeEditor;
 		    
 		that.interactions.setSourceHighlighter(function(id, offset, line, column, span, color) {
 		    that.unhighlightAll();
-		    that.highlight(id, offset, line, column, span, color);
+		    return that.highlight(id, offset, line, column, span, color);
 		});
 		
 		that.interactions.setAddToCurrentHighlighter(function(id, offset, line, column, span, color) {
-		    that.highlight(id, offset, line, column, span, color);
+		    return that.highlight(id, offset, line, column, span, color);
 		});
 
 		that.interactions.addOnReset(function() {that.defn.unhighlightAll()});
@@ -223,9 +223,9 @@ var WeSchemeEditor;
     		//do nothing
     	}
 		else if (id === '<definitions>') {
-		    this.defn.highlight(id, offset, line, column, span, color);
+		    return this.defn.highlight(id, offset, line, column, span, color);
 		} else if (this.interactions.previousInteractionsTextContainers[id]) {
-		    this.interactions.previousInteractionsTextContainers[id].highlight(id, offset, line, column, span, color);
+		    return this.interactions.previousInteractionsTextContainers[id].highlight(id, offset, line, column, span, color);
 		}
     };
 
@@ -248,7 +248,6 @@ var WeSchemeEditor;
     };
 
     WeSchemeEditor.prototype.moveCursor = function(id, offset) {
-    	//console.log("id: ", id, " offset: ",offset);
     	if (id === '<definitions>') {
 		    this.defn.moveCursor(offset);
 		} else if (this.interactions.previousInteractionsTextContainers[id]) {

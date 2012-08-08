@@ -28,17 +28,17 @@
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;check-expect&quot;, &quot;rgb(238, 169, 184)&quot;)</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;check-expect&quot;, &quot;rgb(240, 181, 194)&quot;)</td>
 	<td>true</td>
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;1&quot;, &quot;rgb(145, 191, 219)&quot;) </td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;1&quot;, &quot;rgb(161, 200, 224)&quot;) </td>
 	<td>true</td>
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;5&quot;, &quot;rgb(218, 233, 243)&quot;) </td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;4&quot;, &quot;rgb(89, 89, 187)&quot;) </td>
 	<td>true</td>
 </tr>
 </tbody></table>

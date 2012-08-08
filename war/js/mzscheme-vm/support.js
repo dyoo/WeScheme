@@ -609,11 +609,11 @@ var helpers = {};
 
 	var format = function(formatStr, args, functionName) {
 		var throwFormatError = function() {
-			functionName = functionName || '#<procedure>';
+			functionName = functionName || '#<function>';
 			var matches = formatStr.match(new RegExp('~[sSaA]', 'g'));
 			var expectedNumberOfArgs = matches == null ? 0 : matches.length;
 			var errorStrBuffer = [functionName + ': format string requires ' + expectedNumberOfArgs
-						+ ' arguments, given ' + args.length + '; arguments were:',
+						+ ' arguments, but given ' + args.length + '; arguments were:',
 					      types.toWrittenString(formatStr)];
 			for (var i = 0; i < args.length; i++) {
 				errorStrBuffer.push( types.toWrittenString(args[i]) );
@@ -748,7 +748,7 @@ var helpers = {};
 	var throwUncoloredCheckError = function(aState, details, pos, args){
 			var errorFormatStr;
 			if (args && args.length > 1) {
-				var errorFormatStrBuffer = ['~a: expects type ~a as ~a arguments, given: ~s; other arguments were:'];
+				var errorFormatStrBuffer = ['~a: expects type ~a as ~a arguments, but given: ~s; other arguments were:'];
 				for (var i = 0; i < args.length; i++) {
 					if ( i != pos-1 ) {
 						errorFormatStrBuffer.push( types.toWrittenString(args[i]) );
@@ -756,14 +756,12 @@ var helpers = {};
 				}
 				errorFormatStr = errorFormatStrBuffer.join(' ');
 
-				//console.log("errorFormatStr is ", errorFormatStr);
-
 				raise( types.incompleteExn(types.exnFailContract,
 						   helpers.format(errorFormatStr, [details.functionName, details.typeName, details.ordinalPosition, details.actualValue]),
 						   []) );
 			}
 			else {
-				errorFormatStr = "~a: expects argument of type ~a, given: ~s";
+				errorFormatStr = "~a: expects argument of type ~a, but given: ~s";
 				raise( types.incompleteExn(types.exnFailContract,
 						   helpers.format(errorFormatStr, [details.functionName, details.typeName , details.actualValue]),
 						   []));
@@ -780,40 +778,22 @@ var helpers = {};
         
        		var locationList = positionStack[positionStack.length - 1];
 
-       		//console.log("locationList is ", locationList);
-
        		//locations -> array
 			var getArgColoredParts = function(locations) {
 				var coloredParts = [];
 				var locs = locations;
 				var i;
 
-				//ARGS IS INCONSISTENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				//REALLY INCONSISTENT!!!!!! SOMETIMES IT HAS STATE FIRST, SOMETIMES IS HAS A PRIMPROC LAST
-				//and when there's a state, it's apparently not an array, so .slice(1) doesn't work
-
 				//getting the actual arguments from args
 				var actualArgs = [];
 				for(i = 0; i < args.length; i++) {
-					if(! (state.isState(args[i]))){
+					if((! (state.isState(args[i])))
+					   && 
+					   (!((args[i].name !== undefined) && args[i].name === ""))) {
 						actualArgs.push(args[i]);
 					} 
 				}
-
-				//console.log("args is ", args, ", actualArgs is ", actualArgs);
-				/*
-				if(state.isState(args[0])){
-					for(i = 1; i < args.length; i++){
-						if(! (locs.isEmpty())){
-							if(i != pos) {
-								//space = (locs.rest().isEmpty() ? "" : " ");
-								coloredParts.push(new types.ColoredPart(types.toWrittenString(args[i])+(i < args.length -2 ? " " : ""), 
-									locs.first()));
-							}
-							locs = locs.rest();
-					    }
-					}
-				}*/
+				window.wtf = args[2];
 				for(i = 0; i < actualArgs.length; i++){
 					if(! (locs.isEmpty())){
 						if(i != (pos -1)) {
@@ -843,19 +823,24 @@ var helpers = {};
 				return locs.first();
 			}
 
-			if(args) { 
-				var argColoredParts = getArgColoredParts(locationList.rest()); 
-				//console.log("args, argColoredParts is ", argColoredParts);
+			var typeName = details.typeName+'';
+			var fL = typeName.substring(0,1);   //first letter of type name
 
+
+			if(args) { 
+				console.log("args is ", args);
+				var argColoredParts = getArgColoredParts(locationList.rest()); 
+				console.log("argColoredParts is ", argColoredParts);
 				if(argColoredParts.length > 0){
 				raise( types.incompleteExn(types.exnFailContract,
 							   new types.Message([
 							   		new types.ColoredPart(details.functionName, locationList.first()),
-							   		": expects type ",
-							   		details.typeName,
+							   		": expects ",
+							   		((fL === "a" || fL === "e" || fL === "i" || fL === "o" || fL === "u") ? "an " : "a "),
+							   		typeName,
 							   		" as ",
 							   		details.ordinalPosition, 
-							   		" argument, given: ",
+							   		" argument, but given: ",
 							   		new types.ColoredPart(types.toWrittenString(details.actualValue), getLocation(pos)),
 							   		"; other arguments were: ",
 							   		new types.GradientPart(argColoredParts)
@@ -866,15 +851,15 @@ var helpers = {};
 			raise( types.incompleteExn(types.exnFailContract,
 						   new types.Message([
 						   		new types.ColoredPart(details.functionName, locationList.first()),
-						   		": expects type ",
-						   		details.typeName,
+						   		": expects ",
+						   		((fL === "a" || fL === "e" || fL === "i" || fL === "o" || fL === "u") ? "an " : "a "),
+						   		typeName,
 						   		" as ",
 						   		details.ordinalPosition, 
-						   		" argument, given: ",
+						   		" argument, but given: ",
 						   		new types.ColoredPart(types.toWrittenString(details.actualValue), getLocation(pos))
 						   	]),
 						   []) );
-
 
 	};
 
@@ -888,12 +873,10 @@ var helpers = {};
 
 			//if the positionStack at the correct position is defined, we can throw a colored error
 			if (positionStack[positionStack.length - 1] !== undefined) {
-				//console.log("colored error");
 				throwColoredCheckError(aState,details, pos, args);
 			}
 		}
 		//otherwise, throw an uncolored error
-		//console.log("uncolored error");
 		throwUncoloredCheckError(aState, details, pos, args);
 	};
 
@@ -8677,7 +8660,7 @@ var liftToplevelToFunctionValue = function(primitiveF,
 	    return this === other; 
 	}
 	lifted.toWrittenString = function(cache) { 
-	    return "#<procedure:" + name + ">";
+	    return "#<function:" + name + ">";
 	};
 	lifted.toDisplayedString = lifted.toWrittenString;
 	lifted.procedureArity = procedureArityDescription;
@@ -8757,9 +8740,9 @@ var ClosureValue = function(name, locs, numParams, paramTypes, isRest, closureVa
 
 ClosureValue.prototype.toString = function() {
     if (this.name !== Empty.EMPTY) {
-	return helpers.format("#<procedure:~a>", [this.name]);
+	return helpers.format("#<function:~a>", [this.name]);
     } else {
-	return "#<procedure>";
+	return "#<function>";
     }
 };
 
@@ -8787,9 +8770,9 @@ var ContinuationClosureValue = function(vstack, cstack) {
 
 ContinuationClosureValue.prototype.toString = function() {
     if (this.name !== Empty.EMPTY) {
-	return helpers.format("#<procedure:~a>", [this.name]);
+	return helpers.format("#<function:~a>", [this.name]);
     } else {
-	return "#<procedure>";
+	return "#<function>";
     }
 };
 
@@ -8968,21 +8951,21 @@ var PrimProc = function(name, numParams, isRest, assignsToValueRegister, impl) {
 };
 
 PrimProc.prototype.toString = function() {
-    return ("#<procedure:" + this.name + ">");
+    return ("#<function:" + this.name + ">");
 };
 
 PrimProc.prototype.toWrittenString = function(cache) {
-    return ("#<procedure:" + this.name + ">");
+    return ("#<function:" + this.name + ">");
 };
 
 PrimProc.prototype.toDisplayedString = function(cache) {
-    return ("#<procedure:" + this.name + ">");
+    return ("#<function:" + this.name + ">");
 };
 
 
 PrimProc.prototype.toDomNode = function(cache) {
     var div = document.createElement("span");
-    div.appendChild(document.createTextNode("#<procedure:"+ this.name +">"));
+    div.appendChild(document.createTextNode("#<function:"+ this.name +">"));
     return div;
 };
 
@@ -8995,16 +8978,16 @@ var CasePrimitive = function(name, cases) {
 
 CasePrimitive.prototype.toDomNode = function(cache) {
     var div = document.createElement("span");
-    div.appendChild(document.createTextNode("#<procedure:"+ this.name +">"));
+    div.appendChild(document.createTextNode("#<function:"+ this.name +">"));
     return div;    
 };
 
 CasePrimitive.prototype.toWrittenString = function(cache) {
-    return ("#<procedure:" + this.name + ">");
+    return ("#<function:" + this.name + ">");
 };
 
 CasePrimitive.prototype.toDisplayedString = function(cache) {
-    return ("#<procedure:" + this.name + ">");
+    return ("#<function:" + this.name + ">");
 };
 
 
@@ -13108,7 +13091,7 @@ var callWithValues = function(f, vals) {
 };
 
 var procedureArity = function(aState, proc) {
-	check(aState, proc, isFunction, 'procedure-arity', 'procedure', 1, [proc]);
+	check(aState, proc, isFunction, 'procedure-arity', 'function name', 1, [proc]);
 			
 	var singleCaseArity = function(aCase) {
 		if (aCase instanceof types.ContinuationClosureValue) {
@@ -13362,18 +13345,19 @@ var onEvent = function(funName, inConfigName, numArgs) {
 
 var onEventBang = function(funName, inConfigName) {
     return function(aState, handler, effectHandler) {
-	check(aState, handler, isFunction, funName, 'procedure', 1, arguments);
-	check(aState, effectHandler, isFunction, funName, 'procedure', 2, arguments);
-	return new (WorldConfigOption.extend({
-		    init: function() {
-			this._super(funName);
-		    },
-		    configure: function(config) {
-			var newHash = {};
-			newHash[inConfigName] = handler;
-			newHash[inConfigName+'Effect'] = effectHandler;
-			return config.updateAll(newHash);
-		    }}))();
+    	console.log("in OnEventBang, arguments: ", arguments);
+		check(aState, handler, isFunction, funName, 'function name', 1, arguments);
+		check(aState, effectHandler, isFunction, funName, 'function name', 2, arguments);
+		return new (WorldConfigOption.extend({
+			    init: function() {
+				this._super(funName);
+			    },
+			    configure: function(config) {
+				var newHash = {};
+				newHash[inConfigName] = handler;
+				newHash[inConfigName+'Effect'] = effectHandler;
+				return config.updateAll(newHash);
+			    }}))();
     };
 };
 
@@ -13706,23 +13690,31 @@ var checkAllSameLength = function(aState, lists, functionName, args) {
 
 PRIMITIVES['verify-boolean-branch-value'] =
 	new PrimProc('verify-boolean-branch-value',
-		     2,
+		     4,
 		     false,
 		     false,
-		     function(aState, x, aLoc) { 
+		     function(aState, name, nameLoc, x, aLoc) { 
 			 if (x !== true && x !== false) {
+		
+       			var positionStack = 
+        			state.captureCurrentContinuationMarks(aState).ref(
+            			types.symbol('moby-application-position-key'));  
+       
+       			var locationList = positionStack[positionStack.length - 1];
+
 			     // FIXME: should throw structure
 			     // make-moby-error-type:branch-value-not-boolean
 			     // instead.
 			     //throw new Error("the value " + sys.inspect(x) + " is not boolean type at " + aLoc);
 			     raise(types.incompleteExn(
                                  types.exnFailContract,
-				 new types.Message(["the value ",
+				 new types.Message([new types.ColoredPart(name, nameLoc), 
+						    ": expected a boolean value, but found: ",
 						    new types.ColoredPart(types.toWrittenString(x),
-                                                                          aLoc),
-                                                    " is not a boolean value."
+                                                                          aLoc)
+                                                    
 						   ]),
-                                 []));
+                                 []));  
 			 }
 			 return x;
 		     })
@@ -13736,7 +13728,14 @@ PRIMITIVES['throw-cond-exhausted-error'] =
 			     // FIXME: should throw structure
 			     // make-moby-error-type:conditional-exhausted
 			     // instead.
-			 throw types.schemeError(types.incompleteExn(types.exnFail, "cond: all question results were false", []));
+			// throw types.schemeError(types.incompleteExn(types.exnFail, "cond: all question results were false", []));
+			 raise(types.incompleteExn(
+			     types.exnFailContract,
+			     new types.Message([new types.ColoredPart("cond", aLoc), 
+						": all question results were false"
+					       ]),
+			     []));
+			 
 		     });
 
 
@@ -13793,7 +13792,7 @@ PRIMITIVES['check-within'] =
 		 false, false,
 		 function(aState, actual, expected, range) {
 		 	if ( !isNonNegativeReal(range) ) {
-				var msg = helpers.format('check-within requires a non-negative real number for range, given ~s.',
+				var msg = helpers.format('check-within requires a non-negative real number for range, but given ~s.',
 							 [range]);
 				raise( types.incompleteExn(types.exnFailContract, msg, []) );
 			}
@@ -13914,7 +13913,7 @@ PRIMITIVES['for-each'] =
 		     function(aState, f, firstArg, arglists) {
 		 	 var allArgs = [f, firstArg].concat(arglists);
 		 	 arglists.unshift(firstArg);
-			 check(aState, f, isFunction, 'for-each', 'procedure', 1, allArgs);
+			 check(aState, f, isFunction, 'for-each', 'function name', 1, allArgs);
 			 arrayEach(arglists, function(lst, i) {checkList(aState, lst, 'for-each', i+2, allArgs);});
 			 checkAllSameLength(aState, arglists, 'for-each', allArgs);
 
@@ -14165,14 +14164,14 @@ PRIMITIVES['apply'] =
 		 true, false,
 		 function(aState, f, firstArg, args) {
 		 	var allArgs = [f, firstArg].concat(args);
-		 	check(aState, f, isFunction, 'apply', 'procedure', 1, allArgs);
+		 	check(aState, f, isFunction, 'apply', 'function name', 1, allArgs);
 		 	args.unshift(firstArg);
 
 			var lastArg = args.pop();
 			checkList(aState, lastArg, 'apply', args.length+2, allArgs);
 			var args = args.concat(helpers.schemeListToArray(lastArg));
 
-			return  CALL(f, args, id);
+			return CALL(f, args, id);
 		 });
 
 
@@ -14194,7 +14193,7 @@ PRIMITIVES['call-with-values'] =
 		 false, false,
 		 function(aState, g, r) {
 		 	check(aState, g, procArityContains(0), 'call-with-values', 'procedure (arity 0)', 1, arguments);
-			check(aState, r, isFunction, 'call-with-values', 'procedure', 2, arguments);
+			check(aState, r, isFunction, 'call-with-values', 'function name', 2, arguments);
 			return CALL(g, [],
 				function(res) {
 					return callWithValues(r, res);
@@ -14207,7 +14206,7 @@ PRIMITIVES['compose'] =
 		 0,
 		 true, false,
 		 function(aState, procs) {
-		 	arrayEach(procs, function(p, i) {check(aState, p, isFunction, 'compose', 'procedure', i+1, procs);});
+		 	arrayEach(procs, function(p, i) {check(aState, p, isFunction, 'compose', 'function name', i+1, procs);});
 
 			if (procs.length == 0) {
 				return PRIMITIVES['values'];
@@ -14301,6 +14300,7 @@ PRIMITIVES['sleep'] =
 
 
 PRIMITIVES['identity'] = new PrimProc('identity', 1, false, false, function(aState, x) { return x; });
+
 
 
 PRIMITIVES['raise'] = new PrimProc('raise', 1, false, false, function(aState, v) { return raise(v);} );
@@ -14487,7 +14487,7 @@ PRIMITIVES['/'] =
        			}
        			raise( types.incompleteExn(types.exnFailContractDivisionByZero, 
 												new types.Message([new types.ColoredPart('/', func),
-													": division by ",
+													": cannot divide by ",
 													new types.ColoredPart("zero", locationList.first())]),
 												[]) );
 
@@ -15642,7 +15642,7 @@ PRIMITIVES['map'] =
 		 function(aState, f, lst, arglists) {
 		 	var allArgs = [f, lst].concat(arglists);
 		 	arglists.unshift(lst);
-		 	check(aState, f, isFunction, 'map', 'procedure', 1, allArgs);
+		 	check(aState, f, isFunction, 'map', 'function name', 1, allArgs);
 		 	arrayEach(arglists, function(x, i) {checkList(aState, x, 'map', i+2, allArgs);});
 			checkAllSameLength(aState, arglists, 'map', allArgs);
 
@@ -15674,7 +15674,7 @@ PRIMITIVES['andmap'] =
 		 function(aState, f, lst, arglists) {
 		 	var allArgs = [f, lst].concat(arglists);
 		 	arglists.unshift(lst);
-		  	check(aState, f, isFunction, 'andmap', 'procedure', 1, allArgs);
+		  	check(aState, f, isFunction, 'andmap', 'function name', 1, allArgs);
 		  	arrayEach(arglists, function(x, i) {checkList(aState, x, 'andmap', i+2, allArgs);});
 			checkAllSameLength(aState, arglists, 'andmap', allArgs);
   
@@ -15706,7 +15706,7 @@ PRIMITIVES['ormap'] =
 		 function(aState, f, lst, arglists) {
 		 	var allArgs = [f, lst].concat(arglists);
 		 	arglists.unshift(lst);
-		  	check(aState, f, isFunction, 'ormap', 'procedure', 1, allArgs);
+		  	check(aState, f, isFunction, 'ormap', 'function name', 1, allArgs);
 		  	arrayEach(arglists, function(x, i) {checkList(aState, x, 'ormap', i+2, allArgs);});
 			checkAllSameLength(aState, arglists, 'ormap', allArgs);
 
@@ -15799,7 +15799,7 @@ PRIMITIVES['memf'] =
 		 2,
 		 false, true,
 		 function(aState, f, initList) {
-		 	check(aState, f, isFunction, 'memf', 'procedure', 1, arguments);
+		 	check(aState, f, isFunction, 'memf', 'function name', 1, arguments);
 			checkList(aState, initList, 'memf', 2, arguments);
 
 			var memfHelp = function(lst) {
@@ -15892,7 +15892,7 @@ PRIMITIVES['filter'] =
 		 2,
 		 false, false,
 		 function(aState, f, lst) {
-		 	check(aState, f, procArityContains(1), 'filter', 'procedure (arity 1)', 1, arguments);
+		 	check(aState, f, procArityContains(1), 'filter', 'function name (arity 1)', 1, arguments);
 			checkList(aState, lst, 'filter', 2);
 
 			var filterHelp = function(f, lst, acc) {
@@ -15921,7 +15921,7 @@ PRIMITIVES['foldl'] =
 		 function(aState, f, initAcc, lst, arglists) {
 		 	arglists.unshift(lst);
 			var allArgs = [f, initAcc].concat(arglists);
-		 	check(aState, f, isFunction, 'foldl', 'procedure', 1, allArgs);
+		 	check(aState, f, isFunction, 'foldl', 'function name', 1, allArgs);
 			arrayEach(arglists, function(x, i) {checkList(aState, x, 'foldl', i+3, allArgs);});
 			checkAllSameLength(aState, arglists, 'foldl', allArgs);
 	
@@ -15935,7 +15935,7 @@ PRIMITIVES['foldr'] =
 		 function(aState, f, initAcc, lst, arglists) {
 		 	arglists.unshift(lst);
 			var allArgs = [f, initAcc].concat(arglists);
-		 	check(aState, f, isFunction, 'foldr', 'procedure', 1, allArgs);
+		 	check(aState, f, isFunction, 'foldr', 'function name', 1, allArgs);
 			arrayEach(arglists, function(x, i) {checkList(aState, x, 'foldr', i+3, allArgs);});
 			checkAllSameLength(aState, arglists, 'foldr', allArgs);
 
@@ -15958,7 +15958,7 @@ PRIMITIVES['argmax'] =
 		 false, false,
 		 function(aState, f, initList) {
 		 	var args = arguments
-		 	check(aState, f, isFunction, 'argmax', 'procedure', 1, args);
+		 	check(aState, f, isFunction, 'argmax', 'function name', 1, args);
 			check(aState, initList, isPair, 'argmax', 'non-empty list', 2, args);
 
 			var argmaxHelp = function(lst, curMaxVal, curMaxElt) {
@@ -15992,7 +15992,7 @@ PRIMITIVES['argmin'] =
 		 false, false,
 		 function(aState, f, initList) {
 		 	var args = arguments;
-		 	check(aState, f, isFunction, 'argmin', 'procedure', 1, args);
+		 	check(aState, f, isFunction, 'argmin', 'function name', 1, args);
 			check(aState, initList, isPair, 'argmin', 'non-empty list', 2, args);
 
 			var argminHelp = function(lst, curMaxVal, curMaxElt) {
@@ -16026,7 +16026,7 @@ PRIMITIVES['build-list'] =
 		 false, false,
 		 function(aState, num, f) {
 		 	check(aState, num, isNatural, 'build-list', 'non-negative exact integer', 1, arguments);
-			check(aState, f, isFunction, 'build-list', 'procedure', 2, arguments);
+			check(aState, f, isFunction, 'build-list', 'function name', 2, arguments);
 
 			var buildListHelp = function(n, acc) {
 				if ( jsnums.greaterThanOrEqual(n, num) ) {
@@ -16169,7 +16169,7 @@ PRIMITIVES['hash-map'] =
 		 false, false,
 		 function(aState, ht, f) {
 		 	check(aState, ht, isHash, 'hash-map', 'hash', 1, arguments);
-			check(aState, f, isFunction, 'hash-map', 'procedure', 2, arguments);
+			check(aState, f, isFunction, 'hash-map', 'function name', 2, arguments);
 			
 			var keys = ht.hash.keys();
 			var hashMapHelp = function(i, acc) {
@@ -16193,7 +16193,7 @@ PRIMITIVES['hash-for-each'] =
 		 false, false,
 		 function(aState, ht, f) {
 		 	check(aState, ht, isHash, 'hash-for-each', 'hash', 1, arguments);
-			check(aState, f, isFunction, 'hash-for-each', 'procedure', 2, arguments);
+			check(aState, f, isFunction, 'hash-for-each', 'function name', 2, arguments);
 		     
 		 	var keys = ht.hash.keys();
 
@@ -16224,7 +16224,7 @@ PRIMITIVES['make-string'] =
 		 false, false,
 		 function(aState, n, c) {
 		 	check(aState, n, isNatural, 'make-string', 'non-negative exact integer', 1, arguments);
-			check(aState, c, isChar, 'make-string', 'char', 2, arguments);
+			check(aState, c, isChar, 'make-string', 'character', 2, arguments);
 
 			var ret = [];
 			for (var i = 0; jsnums.lessThan(i, n); i++) {
@@ -16256,7 +16256,7 @@ PRIMITIVES['string'] =
 		 0,
 		 true, false,
 		 function(aState, chars) {
-			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'string', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'string', 'character', i+1, chars);});
 
 			var ret = [];
 			for (var i = 0; i < chars.length; i++) {
@@ -16580,7 +16580,7 @@ PRIMITIVES['list->string'] =
 		 1,
 		 false, false,
 		 function(aState, lst) {
-		 	checkListOf(aState, lst, isChar, 'list->string', 'char', 1);
+		 	checkListOf(aState, lst, isChar, 'list->string', 'character', 1);
 
 			var ret = [];
 			while( !lst.isEmpty() ) {
@@ -16771,7 +16771,7 @@ PRIMITIVES['build-string'] =
 		 false, false,
 		 function(aState, num, f) {
 		 	check(aState, num, isNatural, 'build-string', 'non-negative exact integer', 1, arguments);
-			check(aState, f, isFunction, 'build-string', 'procedure', 2, arguments);
+			check(aState, f, isFunction, 'build-string', 'function name', 2, arguments);
 
 			var buildStringHelp = function(n, acc) {
 				if ( jsnums.greaterThanOrEqual(n, num) ) {
@@ -16807,7 +16807,7 @@ PRIMITIVES['string-set!'] =
 		 	check(aState, str, function(x) { return isString(x) && typeof x != 'string'; },
 			      'string-set!', 'mutable string', 1, arguments);
 			check(aState, k, isNatural, 'string-set!', 'non-negative exact integer', 2, arguments);
-			check(aState, c, isChar, 'string-set!', 'char', 3, arguments);
+			check(aState, c, isChar, 'string-set!', 'character', 3, arguments);
 
 			if ( jsnums.greaterThanOrEqual(k, str.length) ) {
 				var msg = ('string-set!: index ' + n + ' out of range ' +
@@ -16827,7 +16827,7 @@ PRIMITIVES['string-fill!'] =
 		 function(aState, str, c) {
 		 	check(aState, str, function(x) { return isString(x) && typeof x != 'string'; },
 			      'string-fill!', 'mutable string', 1, arguments);
-			check(aState, c, isChar, 'string-fill!', 'char', 2, arguments);
+			check(aState, c, isChar, 'string-fill!', 'character', 2, arguments);
 
 			for (var i = 0; i < str.length; i++) {
 				str.set(i, c.val);
@@ -17212,7 +17212,7 @@ PRIMITIVES['build-vector'] =
 		 false, false,
 		 function(aState, num, f) {
 		 	check(aState, num, isNatural, 'build-vector', 'non-negative exact integer', 1, arguments);
-			check(aState, f, isFunction, 'build-vector', 'procedure', 2, arguments);
+			check(aState, f, isFunction, 'build-vector', 'function name', 2, arguments);
 
 			var buildVectorHelp = function(n, acc) {
 				if ( jsnums.greaterThanOrEqual(n, num) ) {
@@ -17241,7 +17241,7 @@ PRIMITIVES['char=?'] =
 		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char=?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char=?', 'character', i+1, chars);});
 
 			return compare(chars, function(c1, c2) {return c1.val === c2.val;});
 		 });
@@ -17254,7 +17254,7 @@ PRIMITIVES['char<?'] =
 		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char<?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char<?', 'character', i+1, chars);});
 
 			return compare(chars, function(c1, c2) {return c1.val < c2.val;});
 		 });
@@ -17267,7 +17267,7 @@ PRIMITIVES['char>?'] =
 		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char>?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char>?', 'character', i+1, chars);});
 
 			return compare(chars, function(c1, c2) {return c1.val > c2.val;});
 		 });
@@ -17280,7 +17280,7 @@ PRIMITIVES['char<=?'] =
 		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char<=?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char<=?', 'character', i+1, chars);});
 
 			return compare(chars, function(c1, c2) {return c1.val <= c2.val;});
 		 });
@@ -17293,7 +17293,7 @@ PRIMITIVES['char>=?'] =
 		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char>=?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char>=?', 'character', i+1, chars);});
 
 			return compare(chars, function(c1, c2) {return c1.val >= c2.val;});
 		 });
@@ -17306,7 +17306,7 @@ PRIMITIVES['char-ci=?'] =
 		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char-ci=?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char-ci=?', 'character', i+1, chars);});
 
 			return compare(chars,
 				function(c1, c2) {
@@ -17322,7 +17322,7 @@ PRIMITIVES['char-ci<?'] =
 		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char-ci<?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char-ci<?', 'character', i+1, chars);});
 
 			return compare(chars,
 				function(c1, c2) {
@@ -17338,7 +17338,7 @@ PRIMITIVES['char-ci>?'] =
 		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char-ci>?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char-ci>?', 'character', i+1, chars);});
 
 			return compare(chars,
 				function(c1, c2) {
@@ -17354,7 +17354,7 @@ PRIMITIVES['char-ci<=?'] =
 		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char-ci<=?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char-ci<=?', 'character', i+1, chars);});
 
 			return compare(chars,
 				function(c1, c2) {
@@ -17370,7 +17370,7 @@ PRIMITIVES['char-ci>=?'] =
 		 function(aState, char1, char2, chars) {
 		 	chars.unshift(char2);
 			chars.unshift(char1);
-			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char-ci>=?', 'char', i+1, chars);});
+			arrayEach(chars, function(c, i) {check(aState, c, isChar, 'char-ci>=?', 'character', i+1, chars);});
 
 			return compare(chars,
 				function(c1, c2) {
@@ -17384,7 +17384,7 @@ PRIMITIVES['char-alphabetic?'] =
 		 1,
 		 false, false,
 		 function(aState, c) {
-		 	check(aState, c, isChar, 'char-alphabetic?', 'char', 1);
+		 	check(aState, c, isChar, 'char-alphabetic?', 'character', 1);
 			return isAlphabeticString(c.val);
 		 });
 
@@ -17394,7 +17394,7 @@ PRIMITIVES['char-numeric?'] =
 		 1,
 		 false, false,
 		 function(aState, c) {
-		 	check(aState, c, isChar, 'char-numeric?', 'char', 1);
+		 	check(aState, c, isChar, 'char-numeric?', 'character', 1);
 			return (c.val >= '0' && c.val <= '9');
 		 });
 
@@ -17404,7 +17404,7 @@ PRIMITIVES['char-whitespace?'] =
 		 1,
 		 false, false,
 		 function(aState, c) {
-		 	check(aState, c, isChar, 'char-whitespace?', 'char', 1);
+		 	check(aState, c, isChar, 'char-whitespace?', 'character', 1);
 			return isWhitespaceString(c.val);
 		 });
 
@@ -17414,7 +17414,7 @@ PRIMITIVES['char-upper-case?'] =
 		 1,
 		 false, false,
 		 function(aState, c) {
-		 	check(aState, c, isChar, 'char-upper-case?', 'char', 1);
+		 	check(aState, c, isChar, 'char-upper-case?', 'character', 1);
 			return (isAlphabeticString(c.val) && c.val.toUpperCase() === c.val);
 		 });
 
@@ -17424,7 +17424,7 @@ PRIMITIVES['char-lower-case?'] =
 		 1,
 		 false, false,
 		 function(aState, c) {
-		 	check(aState, c, isChar, 'char-lower-case?', 'char', 1);
+		 	check(aState, c, isChar, 'char-lower-case?', 'character', 1);
 			return (isAlphabeticString(c.val) && c.val.toLowerCase() === c.val);
 		 });
 
@@ -17434,7 +17434,7 @@ PRIMITIVES['char->integer'] =
 		 1,
 		 false, false,
 		 function(aState, c) {
-		 	check(aState, c, isChar, 'char->integer', 'char', 1);
+		 	check(aState, c, isChar, 'char->integer', 'character', 1);
 			return c.val.charCodeAt(0);
 		 });
 
@@ -17465,7 +17465,7 @@ PRIMITIVES['char-upcase'] =
 		 1,
 		 false, false,
 		 function(aState, c) {
-		 	check(aState, c, isChar, 'char-upcase', 'char', 1);
+		 	check(aState, c, isChar, 'char-upcase', 'character', 1);
 			return types['char']( c.val.toUpperCase() );
 		 });
 
@@ -17475,7 +17475,7 @@ PRIMITIVES['char-downcase'] =
 		 1,
 		 false, false,
 		 function(aState, c) {
-		 	check(aState, c, isChar, 'char-downcase', 'char', 1);
+		 	check(aState, c, isChar, 'char-downcase', 'character', 1);
 			return types['char']( c.val.toLowerCase() );
 		 });
 
@@ -17733,7 +17733,7 @@ PRIMITIVES['circle'] =
 		 false, false,
 		 function(aState, aRadius, aStyle, aColor) {
 			check(aState, aRadius, isNonNegativeReal, "circle", "non-negative number", 1, arguments);
-			check(aState, aStyle, isMode, "circle", "style", 2, arguments);
+			check(aState, aStyle, isMode, "circle", 'style ("solid" or "outline")', 2, arguments);
 			check(aState, aColor, isColor, "circle", "color", 3, arguments);
 
 
@@ -17761,7 +17761,7 @@ PRIMITIVES['star'] =
 			  check(aState, inner, 
 				isNonNegativeReal, "star",
 				"non-negative number", 3, arguments);
-			  check(aState, m, isMode, "star", "style", 4, arguments);
+			  check(aState, m, isMode, "star", 'style ("solid" or "outline")', 4, arguments);
 			  check(aState, c, isColor, "star", "color", 5, arguments);
 			  if (colorDb.get(c)) {
 			      c = colorDb.get(c);
@@ -17779,7 +17779,7 @@ PRIMITIVES['star'] =
 		      function(aState, sideLength, mode, color) {
 			  check(aState, sideLength, isNonNegativeReal,
 				"star", "non-negative number", 1, arguments);
-			  check(aState, mode, isMode, "star", "style", 2, arguments);
+			  check(aState, mode, isMode, "star", 'style ("solid" or "outline")', 2, arguments);
 			  check(aState, color, isColor, "star", "color", 3, arguments);
 			  if (colorDb.get(color)) {
 			      color = colorDb.get(color);
@@ -17804,7 +17804,7 @@ new PrimProc('radial-star',
 									"radial-star", "positive number", 2, arguments);
 			 check(aState, anInner, function(x) { return isReal(x) && jsnums.greaterThan(x, 0); },
 									"radial-star", "positive number", 3, arguments);
-			 check(aState, aStyle, isMode, "radial-star", "style", 4, arguments);
+			 check(aState, aStyle, isMode, "radial-star", 'style ("solid" or "outline")', 4, arguments);
 			 check(aState, aColor, isColor, "radial-star", "color", 5, arguments);
 			 
 			 if (colorDb.get(aColor)) {
@@ -17825,7 +17825,7 @@ PRIMITIVES['nw:rectangle'] =
 		 function(aState, w, h, s, c) {
 			check(aState, w, isNonNegativeReal, "nw:rectangle", "non-negative number", 1, arguments);
 			check(aState, h, isNonNegativeReal, "nw:rectangle", "non-negative number", 2, arguments);
-			check(aState, s, isMode, "nw:rectangle", "style", 3, arguments);
+			check(aState, s, isMode, "nw:rectangle", 'style ("solid" or "outline")', 3, arguments);
 			check(aState, c, isColor, "nw:rectangle", "color", 4, arguments);
 
 			if (colorDb.get(c)) {
@@ -17845,7 +17845,7 @@ PRIMITIVES['rectangle'] =
 		 function(aState, w, h, s, c) {
 			check(aState, w, isNonNegativeReal, "rectangle", "non-negative number", 1, arguments);
 			check(aState, h, isNonNegativeReal, "rectangle", "non-negative number", 2, arguments);
-			check(aState, s, isMode, "rectangle", "style", 3, arguments);
+			check(aState, s, isMode, "rectangle", 'style ("solid" or "outline")', 3, arguments);
 			check(aState, c, isColor, "rectangle", "color", 4, arguments);
 
 			if (colorDb.get(c)) {
@@ -17863,7 +17863,7 @@ new PrimProc('regular-polygon',
 			 function(aState, length, count, s, c) {
 			 check(aState, length,	isNonNegativeReal,	"regular-polygon", "non-negative number", 1, arguments);
 			 check(aState, count,	isSideCount,		"regular-polygon", "positive integer greater than or equal to 3", 2, arguments);
-			 check(aState, s,		isMode, "regular-polygon", "style", 3, arguments);
+			 check(aState, s,		isMode, "regular-polygon", 'style ("solid" or "outline")', 3, arguments);
 			 check(aState, c,		isColor, "regular-polygon", "color", 4, arguments);
 			 
 			 if (colorDb.get(c)) {
@@ -17884,7 +17884,7 @@ new PrimProc('star-polygon',
 			 check(aState, length,	isNonNegativeReal,	"star-polygon", "non-negative number", 1, arguments);
 			 check(aState, count,	isSideCount,		"star-polygon", "positive integer greater than or equal to 3", 2, arguments);
 			 check(aState, step,	isStepCount,		"star-polygon", "positive integer greater than or equal to 1", 3, arguments);
-			 check(aState, s,		isMode,				"star-polygon", "style", 4, arguments);
+			 check(aState, s,		isMode,				"star-polygon", 'style ("solid" or "outline")', 4, arguments);
 			 check(aState, c,		isColor,			"star-polygon", "color", 5, arguments);
 			 
 			 if (colorDb.get(c)) {
@@ -17904,7 +17904,7 @@ new PrimProc('rhombus',
 			 function(aState, l, a, s, c) {
 			 check(aState, l, isNonNegativeReal, "rhombus", "non-negative number", 1, arguments);
 			 check(aState, a, isNonNegativeReal, "rhombus", "non-negative number", 2, arguments);
-			 check(aState, s, isMode, "rhombus", "style", 3, arguments);
+			 check(aState, s, isMode, "rhombus", 'style ("solid" or "outline")', 3, arguments);
 			 check(aState, c, isColor, "rhombus", "color", 4, arguments);
 			 
 			 if (colorDb.get(c)) {
@@ -17919,7 +17919,7 @@ new PrimProc('square',
 			 false, false,
 			 function(aState, l, s, c) {
 			 check(aState, l, isNonNegativeReal, "square", "non-negative number", 1, arguments);
-			 check(aState, s, isMode, "square", "style", 2, arguments);
+			 check(aState, s, isMode, "square", 'style ("solid" or "outline")', 2, arguments);
 			 check(aState, c, isColor, "square", "color", 3, arguments);
 			 
 			 if (colorDb.get(c)) {
@@ -17934,7 +17934,7 @@ PRIMITIVES['triangle'] =
 		 false, false,
 		 function(aState, s, m, c) {
 			check(aState, s, isNonNegativeReal, "triangle", "non-negative number", 1, arguments);
-			check(aState, m, isMode, "triangle", "style", 2, arguments);
+			check(aState, m, isMode, "triangle", 'style ("solid" or "outline")', 2, arguments);
 			check(aState, c, isColor, "triangle", "color", 3, arguments);
 			if (colorDb.get(c)) {
 				c = colorDb.get(c);
@@ -17953,7 +17953,7 @@ new PrimProc('right-triangle',
 			 function(aState, side1, side2, s, c) {
 			 check(aState, side1, isNonNegativeReal, "right-triangle", "non-negative number", 1, arguments);
 			 check(aState, side2, isNonNegativeReal, "right-triangle", "non-negative number", 2, arguments);
-			 check(aState, s, isMode, "right-triangle", "style", 3, arguments);
+			 check(aState, s, isMode, "right-triangle", 'style ("solid" or "outline")', 3, arguments);
 			 check(aState, c, isColor, "right-triangle", "color", 4, arguments);
 			 if (colorDb.get(c)) {
 			 c = colorDb.get(c);
@@ -17969,7 +17969,7 @@ new PrimProc('isosceles-triangle',
 			 function(aState, side, angle, s, c) {
 			 check(aState, side, isNonNegativeReal, "isosceles-triangle", "non-negative number", 1, arguments);
 			 check(aState, angle, isAngle, "isosceles-triangle", "finite real number between 0 and 360", 2, arguments);
-			 check(aState, s, isMode, "isosceles-triangle", "style", 3, arguments);
+			 check(aState, s, isMode, "isosceles-triangle", 'style ("solid" or "outline")', 3, arguments);
 			 check(aState, c, isColor, "isosceles-triangle", "color", 4, arguments);
 			 if (colorDb.get(c)) {
 			 c = colorDb.get(c);
@@ -18366,7 +18366,7 @@ new PrimProc('text/font',
 			 check(aState, aFace,	function(x) {return isString(x) || !x;},		
 											"text/font", "face",	4, arguments);
 			 check(aState, aFamily,	isFontFamily,	"text/font", "family",	5, arguments);
-			 check(aState, aStyle,	isFontStyle,	"text/font", "style",	6, arguments);
+			 check(aState, aStyle,	isFontStyle,	"text/font", 'style ("solid" or "outline")',	6, arguments);
 			 check(aState, aWeight,	isFontWeight,	"text/font", "weight",	7, arguments);
 			 check(aState, aUnderline,isBoolean,	"text/font", "underline?",8, arguments);
 			 
@@ -18733,7 +18733,7 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false,
 // 		 false, false,
 // 		 function(aRadius, aStyle, aColor) {
 // 			check(aState, aRadius, isNonNegativeReal, "circle", "non-negative number", 1, arguments);
-// 			check(aState, aStyle, isStyle, "circle", "style", 2, arguments);
+// 			check(aState, aStyle, isStyle, "circle", 'style ("solid" or "outline")', 2, arguments);
 // 			check(aState, aColor, isColor, "circle", "color", 3, arguments);
 
 
@@ -18755,7 +18755,7 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false,
 // 			      "star", "positive number", 2, arguments);
 // 			check(aState, anInner, function(x) { return isReal(x) && jsnums.greaterThan(x, 0); },
 // 			      "star", "positive number", 2, arguments);
-// 			check(aState, aStyle, isStyle, "star", "style", 4, arguments);
+// 			check(aState, aStyle, isStyle, "star", 'style ("solid" or "outline")', 4, arguments);
 // 			check(aState, aColor, isColor, "star", "color", 5, arguments);
 
 // 			if (colorDb.get(aColor)) {
@@ -18776,7 +18776,7 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false,
 // 		 function(w, h, s, c) {
 // 			check(aState, w, isNonNegativeReal, "nw:rectangle", "non-negative number", 1, arguments);
 // 			check(aState, h, isNonNegativeReal, "nw:rectangle", "non-negative number", 2, arguments);
-// 			check(aState, s, isStyle, "nw:rectangle", "style", 3, arguments);
+// 			check(aState, s, isStyle, "nw:rectangle", 'style ("solid" or "outline")', 3, arguments);
 // 			check(aState, c, isColor, "nw:rectangle", "color", 4, arguments);
 
 // 			if (colorDb.get(c)) {
@@ -18796,7 +18796,7 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false,
 // 		 function(w, h, s, c) {
 // 			check(aState, w, isNonNegativeReal, "rectangle", "non-negative number", 1, arguments);
 // 			check(aState, h, isNonNegativeReal, "rectangle", "non-negative number", 2, arguments);
-// 			check(aState, s, isStyle, "rectangle", "style", 3, arguments);
+// 			check(aState, s, isStyle, "rectangle", 'style ("solid" or "outline")', 3, arguments);
 // 			check(aState, c, isColor, "rectangle", "color", 4, arguments);
 
 // 			if (colorDb.get(c)) {
@@ -18814,7 +18814,7 @@ PRIMITIVES['step-count?']	= new PrimProc('step-count?', 1, false, false,
 // 		 false, false,
 // 		 function(r, s, c) {
 // 			check(aState, r, isNonNegativeReal, "triangle", "non-negative number", 1, arguments);
-// 			check(aState, s, isStyle, "triangle", "style", 2, arguments);
+// 			check(aState, s, isStyle, "triangle", 'style ("solid" or "outline")', 2, arguments);
 // 			check(aState, c, isColor, "triangle", "color", 3, arguments);
 // 			if (colorDb.get(c)) {
 // 				c = colorDb.get(c);
@@ -19029,7 +19029,7 @@ PRIMITIVES['on-tick'] =
 			  1,
 			  false, false,
 			  function(aState, f) {
-			      check(aState, f, isFunction, "on-tick", "procedure", 1);
+			      check(aState, f, isFunction, "on-tick", "function name", 1);
 			      return new OnTickBang(f,
 						    new PrimProc('', 1, false, false,
 								 function(aState, w) { return types.effectDoNothing(); }),
@@ -19039,7 +19039,7 @@ PRIMITIVES['on-tick'] =
 			  2,
 			  false, false,
 			  function(aState, f, aDelay) {
-			      check(aState, f, isFunction, "on-tick", "procedure", 1, arguments);
+			      check(aState, f, isFunction, "on-tick", "function name", 1, arguments);
 			      check(aState, aDelay, isNonNegativeReal, "on-tick", "non-negative number", 2, arguments);
 			      return new OnTickBang(f,
 						    new PrimProc('', 1, false, false,
@@ -19055,16 +19055,16 @@ PRIMITIVES['on-tick!'] =
 		      2,
 		      false, false,
 		      function(aState, handler, effectHandler) {
-			  check(aState, handler, isFunction, "on-tick!", "procedure", 1, arguments);
-			  check(aState, effectHandler, isFunction, "on-tick!","procedure", 2, arguments);
+			  check(aState, handler, isFunction, "on-tick!", "function name", 1, arguments);
+			  check(aState, effectHandler, isFunction, "on-tick!","function name", 2, arguments);
 			  return new OnTickBang(handler, effectHandler, DEFAULT_TICK_DELAY);
 		      }),
 	 new PrimProc('on-tick!',
 		      3,
 		      false, false,
 		      function(aState, handler, effectHandler, aDelay)  {
-			  check(aState, handler, isFunction, "on-tick!", "procedure", 1, arguments);
-			  check(aState, effectHandler, isFunction, "on-tick!","procedure", 2, arguments);
+			  check(aState, handler, isFunction, "on-tick!", "function name", 1, arguments);
+			  check(aState, effectHandler, isFunction, "on-tick!","function name", 2, arguments);
 			  check(aState, aDelay, isNonNegativeReal, "on-tick!", "non-negative number", 3, arguments);
 			  return new OnTickBang(handler, effectHandler, aDelay);
 		      }) ]);
@@ -19115,7 +19115,7 @@ PRIMITIVES['on-redraw'] =
 		 1,
 		 false, false,
 		 function(aState, f) {
-		     check(aState, f, isFunction, 'on-redraw', 'procedure', 1);
+		     check(aState, f, isFunction, 'on-redraw', "function name", 1);
 		     return new (WorldConfigOption.extend({
 				 init: function() {
 				     this._super('on-redraw');
@@ -19133,7 +19133,7 @@ PRIMITIVES['to-draw'] =
 		 1,
 		 false, false,
 		 function(aState, f) {
-		     check(aState, f, isFunction, 'to-draw', 'procedure', 1);
+		     check(aState, f, isFunction, 'to-draw', "function name", 1);
 		     return new (WorldConfigOption.extend({
 				 init: function() {
 				     this._super('on-redraw');
@@ -19154,7 +19154,7 @@ PRIMITIVES['on-draw'] =
 		      1,
 		      false, false,
 		      function(aState, domHandler) {
-			  check(aState, domHandler, isFunction, 'on-draw', 'procedure', 1);
+			  check(aState, domHandler, isFunction, 'on-draw', "function name", 1);
 			  return new (WorldConfigOption.extend({
 				    init: function() {
 					this._super('on-draw');
@@ -19168,8 +19168,8 @@ PRIMITIVES['on-draw'] =
 		      2,
 		      false, false,
 		      function(aState, domHandler, styleHandler) {
-		 	  check(aState, domHandler, isFunction, 'on-draw', 'procedure', 1, arguments);
-			  check(aState, styleHandler, isFunction, 'on-draw', 'procedure', 2, arguments);
+		 	  check(aState, domHandler, isFunction, 'on-draw', "function name", 1, arguments);
+			  check(aState, styleHandler, isFunction, 'on-draw', "function name", 2, arguments);
 			  return new (WorldConfigOption.extend({
 				    init: function() {
 					this._super('on-draw');
@@ -19241,8 +19241,8 @@ PRIMITIVES['js-div'] =
 
 var jsButtonBang = function(funName) {
     return function(aState, worldUpdateF, effectF, attribList) {
-		check(aState, worldUpdateF, isFunction, funName, 'procedure', 1);
-		check(aState, effectF, isFunction, funName, 'procedure', 2);
+		check(aState, worldUpdateF, isFunction, funName, "function name", 1);
+		check(aState, effectF, isFunction, funName, "function name", 2);
 		checkListOf(undefined, attribList, isAssocList, funName, '(listof X Y)', 3);
 
 		var attribs = attribList ? assocListToHash(attribList) : {};
@@ -19274,7 +19274,7 @@ PRIMITIVES['js-button!'] =
 
 var jsInput = function(type, updateF, attribList) {
 	check(aState, type, isString, 'js-input', 'string', 1);
-	check(aState, updateF, isFunction, 'js-input', 'procedure', 2);
+	check(aState, updateF, isFunction, 'js-input', "function name", 2);
 	checkListOf(undefined, attribList, isAssocList, 'js-input', '(listof X Y)', 3);
 
 	var attribs = attribList ? assocListToHash(attribList) : {};
@@ -19330,7 +19330,7 @@ PRIMITIVES['js-text'] =
 
 var jsSelect = function(optionList, updateF, attribList) {
 	checkListOf(undefined, optionList, isString, 'js-select', 'listof string', 1);
-	check(aState, updateF, isFunction, 'js-select', 'procedure', 2);
+	check(aState, updateF, isFunction, 'js-select', "function name", 2);
 	checkListOf(undefined, attribList, isAssocList, 'js-select', '(listof X Y)', 3);
 
 	var attribs = attribList ? assocListToHash(attribList) : {};
@@ -19348,45 +19348,6 @@ PRIMITIVES['js-select'] =
                        new PrimProc('js-select', 3, false, false, function(aState, optionList, updateF, attribList) { return jsSelect(optionList, updateF, attribList); })]);
 
 
-/*
-PRIMITIVES['big-bang'] =
-PRIMITIVES['js-big-bang'] =
-    new PrimProc('js-big-bang',
-		 1,
-		 true, true,
-		 function(aState, initW, handlers) {
-		 	arrayEach(handlers,
-				function(x, i) {
-					check(aState, x, function(y) { return isWorldConfigOption(y) || isList(y) || types.isWorldConfig(y); },
-					      'js-big-bang', 'handler or attribute list', i+2);
-				});
-		     var unwrappedConfigs = 
-			 helpers.map(function(x) {
-					if ( isWorldConfigOption(x) ) {
-						return function(config) { return x.configure(config); };
-					}
-					else {
-						return x;
-					}
-			 	     },
-				     handlers);
-		     aState.v = PAUSE(function(restarter, caller) {
-				 var bigBangController;
-				 var onBreak = function() {
-				     bigBangController.breaker();
-				 }
-				 aState.addBreakRequestedListener(onBreak);
-				 bigBangController = jsworld.MobyJsworld.bigBang(initW, 
-							     aState.getToplevelNodeHook()(),
-							     unwrappedConfigs,
-							     caller, 
-							     function(v) {
-								 aState.removeBreakRequestedListener(onBreak);
-								 restarter(v);
-							     });
-		     })
-		 });
-*/
 PRIMITIVES['big-bang'] =
 PRIMITIVES['js-big-bang'] =
     new PrimProc('big-bang',
@@ -19396,7 +19357,7 @@ PRIMITIVES['js-big-bang'] =
 		 	arrayEach(handlers,
 				function(x, i) {
 					check(aState, x, function(y) { return isWorldConfigOption(y) || isList(y) || types.isWorldConfig(y); },
-					      'big-bang', 'handler or attribute list', i+2, [aState, initW].concat(handlers));
+					      'big-bang', 'handler', i+2, [aState, initW].concat(handlers));
 				});
 		     var unwrappedConfigs = 
 			 helpers.map(function(x) {
@@ -19479,8 +19440,8 @@ PRIMITIVES['make-world-config'] =
 		 true, false,
 		 function(aState, startup, shutdown, handlers) {
 		 	var allArgs = [startup, shutdown].concat(handlers);
-		 	check(aState, startup, isFunction, 'make-world-config', 'procedure', 1, allArgs);
-			check(aState, shutdown, procArityContains(1), 'make-world-config', 'procedure (arity 1)', 2, allArgs);
+		 	check(aState, startup, isFunction, 'make-world-config', "function name", 1, allArgs);
+			check(aState, shutdown, procArityContains(1), 'make-world-config', 'function name (arity 1)', 2, allArgs);
 			arrayEach(handlers, function(x, i) { check(aState, x, isFunction, 'make-world-config', 'handler', i+3, allArgs); });
 
 			if ( !procArityContains(handlers.length)(startup) ) {
@@ -19506,7 +19467,7 @@ PRIMITIVES['make-effect-type'] =
 		check(aState, superType, function(x) { return x === false || types.isEffectType(x) },
 		      'make-effect-type', 'effect type or #f', 2, userArgs);
 		check(aState, fieldCnt, isNatural, 'make-effect-type', 'exact non-negative integer', 3, userArgs);
-		check(aState, impl, isFunction, 'make-effect-type', 'procedure', 4, userArgs);
+		check(aState, impl, isFunction, 'make-effect-type', "function name", 4, userArgs);
 //		checkListOf(aState, handlerIndices, isNatural, 'make-effect-type', 'exact non-negative integer', 5);
 		check(aState, guard, function(x) { return x === false || isFunction(x); }, 'make-effect-type', 'procedure or #f', 6, userArgs);
 		// Check the number of arguments on the guard
@@ -19570,7 +19531,7 @@ PRIMITIVES['make-render-effect-type'] =
 		check(aState, superType, function(x) { return x === false || types.isEffectType(x) },
 		      'make-render-effect-type', 'effect type or #f', 2, userArgs);
 		check(aState, fieldCnt, isNatural, 'make-render-effect-type', 'exact non-negative integer', 3, userArgs);
-		check(aState, impl, isFunction, 'make-render-effect-type', 'procedure', 4, userArgs);
+		check(aState, impl, isFunction, 'make-render-effect-type', "function name", 4, userArgs);
 		check(aState, guard, function(x) { return x === false || isFunction(x); }, 'make-render-effect-type', 'procedure or #f', 6, userArgs);
 		// Check the number of arguments on the guard
 		var numberOfGuardArgs = fieldCnt + 1 + (superType ? superType.numberOfArgs : 0);
@@ -19722,7 +19683,7 @@ PRIMITIVES['procedure->cps-js-fun'] =
 		 1,
 		 false, false,
 		 function(aState, proc) {
-		 	check(aState, proc, isFunction, 'procedure->cps-js-fun', 'procedure', 1);
+		 	check(aState, proc, isFunction, 'procedure->cps-js-fun', "function name", 1);
 
 			var caller = makeCaller(aState);
 			return types.jsObject(proc.name + ' (cps)', function() {
@@ -19739,7 +19700,7 @@ PRIMITIVES['procedure->void-js-fun'] =
 		 1,
 		 false, false,
 		 function(aState, proc) {
-		 	check(aState, proc, isFunction, 'procedure->void-js-fun', 'procedure', 1);
+		 	check(aState, proc, isFunction, 'procedure->void-js-fun', "function name", 1);
 
 			var caller = makeCaller(aState);
 			return types.jsObject(proc.name + ' (void)', function() {
@@ -20644,16 +20605,16 @@ var callPrimitiveProcedure = function(state, procValue, n, operandValues) {
 					 operandValues,
 					 n);
     var result = procValue.impl.apply(procValue.impl, args);
-    processPrimitiveResult(state, result, procValue, n);
+    processPrimitiveResult(state, result, procValue);
 };
 
 
-var processPrimitiveResult = function(state, result, procValue, n) {
+var processPrimitiveResult = function(state, result, procValue) {
     if (result instanceof INTERNAL_CALL) {
 	state.cstack.push(new InternalCallRestartControl
 			  (result.k, procValue));
 
-        addNoLocationContinuationMark(state, n);
+        addNoLocationContinuationMark(state, result.operands.length);
 	callProcedure(state,
 		      result.operator, 
 		      result.operands.length, 
@@ -20821,18 +20782,19 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
     if ( !types.isFunction(procValue) ) {
 	    var argStr = getArgStr('; arguments were:');
         var positionStack = state.captureCurrentContinuationMarks(aState).ref(types.symbol('moby-application-position-key'));
-        
        
         var locationList = positionStack[positionStack.length - 1];
-        var exprLoc = positionStack[0].first().elts;
+        var locs = locationList;
+        var exprLoc;
+        while(!locs.isEmpty()){
+            exprLoc = locs.first().elts;
+            locs = locs.rest();
+        }
+
         var argColoredParts = getArgColoredParts(locationList.rest());
 
-        var openParen = [exprLoc[0], exprLoc[1], exprLoc[2], exprLoc[3], 1];
-
-        var closeParen = [exprLoc[0], exprLoc[1] + exprLoc[4] - 1, exprLoc[2], exprLoc[3] + exprLoc[4] - 1, 1];
-
-        var op = types.vector(openParen);
-        var cp = types.vector(closeParen);
+        var op = types.vector([exprLoc[0], exprLoc[1], exprLoc[2], exprLoc[3], 1]);
+        var cp = types.vector([exprLoc[0], exprLoc[1] + exprLoc[4] - 1, exprLoc[2], exprLoc[3] + exprLoc[4] - 1, 1]);
 
 	    helpers.raise(
 		types.incompleteExn(types.exnFailContract,
@@ -20845,70 +20807,70 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
     }
 
     if (procValue instanceof types.CaseLambdaValue) {
-	for (var j = 0; j < procValue.closures.length; j++) {
-	    if (n === procValue.closures[j].numParams ||
-		(n > procValue.closures[j].numParams && 
-		 procValue.closures[j].isRest)) {
-		return procValue.closures[j];
-	    }
-	}
-	var acceptableParameterArity = [];
-	for (var i = 0; i < procValue.closures.length; i++) {
-	    acceptableParameterArity.push(procValue.closures[i].numParams + '');
-	}
+    	for (var j = 0; j < procValue.closures.length; j++) {
+    	    if (n === procValue.closures[j].numParams ||
+    		(n > procValue.closures[j].numParams && 
+    		 procValue.closures[j].isRest)) {
+    		return procValue.closures[j];
+    	    }
+    	}
+    	var acceptableParameterArity = [];
+    	for (var i = 0; i < procValue.closures.length; i++) {
+    	    acceptableParameterArity.push(procValue.closures[i].numParams + '');
+    	}
 
-    var positionStack = 
-        state.captureCurrentContinuationMarks(aState).ref(
-            types.symbol('moby-application-position-key'));
-        
-       
-        var locationList = positionStack[positionStack.length - 1];
-        var argColoredParts = getArgColoredParts(locationList.rest());
+        var positionStack = 
+            state.captureCurrentContinuationMarks(aState).ref(
+                types.symbol('moby-application-position-key'));
+            
+           
+            var locationList = positionStack[positionStack.length - 1];
+            var argColoredParts = getArgColoredParts(locationList.rest());
 
 
-//unable to test
-	helpers.raise(types.incompleteExn(
-		types.exnFailContractArity,
-		new types.Message([new types.ColoredPart(procValue.name ? procValue.name : "#<case-lambda-procedure>", locationList.first()),
-                           ": expects [",
-                           acceptableParameterArity.join(', '),
-                           "] arguments, given ",
-                           n,
-                           new types.GradientPart(argColoredParts)]),	
-		[]));
+        //unable to test
+    	helpers.raise(types.incompleteExn(
+    		types.exnFailContractArity,
+    		new types.Message([new types.ColoredPart(procValue.name ? procValue.name : "#<case-lambda-procedure>", locationList.first()),
+                               ": expects [",
+                               acceptableParameterArity.join(', '),
+                               "] arguments, but given ",
+                               n,
+                               new types.GradientPart(argColoredParts)]),	
+    		[]));
     } 
     else if (procValue instanceof primitive.CasePrimitive) {
-	for (var j = 0; j < procValue.cases.length; j++) {
-	    if (n === procValue.cases[j].numParams ||
-		(n > procValue.cases[j].numParams && 
-		 procValue.cases[j].isRest)) {
-		return procValue.cases[j];
-	    }
-	}
-	var acceptableParameterArity = [];
-	for (var i = 0; i < procValue.cases.length; i++) {
-	    acceptableParameterArity.push(procValue.cases[i].numParams + '');
-	}
-    var positionStack = 
-        state.captureCurrentContinuationMarks(aState).ref(
-            types.symbol('moby-application-position-key'));
-        
-       
-        var locationList = positionStack[positionStack.length - 1];
-        var argColoredParts = getArgColoredParts(locationList.rest());
+    	for (var j = 0; j < procValue.cases.length; j++) {
+    	    if (n === procValue.cases[j].numParams ||
+    		(n > procValue.cases[j].numParams && 
+    		 procValue.cases[j].isRest)) {
+    		return procValue.cases[j];
+    	    }
+    	}
+    	var acceptableParameterArity = [];
+    	for (var i = 0; i < procValue.cases.length; i++) {
+    	    acceptableParameterArity.push(procValue.cases[i].numParams + '');
+    	}
+        var positionStack = 
+            state.captureCurrentContinuationMarks(aState).ref(
+                types.symbol('moby-application-position-key'));
+            
+           
+            var locationList = positionStack[positionStack.length - 1];
+            var argColoredParts = getArgColoredParts(locationList.rest());
 
 
-        //textchange
-	helpers.raise(types.incompleteExn(
-		types.exnFailContractArity,
-		new types.Message([new types.ColoredPart(procValue.name, locationList.first()),
-                ": expects ",
-                acceptableParameterArity.join(' or '),
-                " arguments, given ",
-                n,
-            ((argColoredParts.length > 0) ? ": " : ""),
-            ((argColoredParts.length > 0) ? new types.GradientPart(argColoredParts) : "")]),
-		[]));
+            //textchange
+    	helpers.raise(types.incompleteExn(
+    		types.exnFailContractArity,
+    		new types.Message([new types.ColoredPart(procValue.name, locationList.first()),
+                    ": expects ",
+                    acceptableParameterArity.join(' or '),
+                    " arguments, but given ",
+                    n,
+                ((argColoredParts.length > 0) ? ": " : ""),
+                ((argColoredParts.length > 0) ? new types.GradientPart(argColoredParts) : "")]),
+    		[]));
     }
 
 
@@ -20945,7 +20907,7 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 							(procValue.numParams + " argument" + 
 							  ((procValue.numParams == 1) ? '' : 's')))
 					      ,
-  		         ", given ",
+  		         ", but given ",
 			n ,
             ((argColoredParts.length > 0) ? ": " : ""),
             ((argColoredParts.length > 0) ? new types.GradientPart(argColoredParts) : "")]),

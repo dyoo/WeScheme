@@ -53,8 +53,7 @@ var reportError = function(exn) {
     domElt.style['color'] = 'red';
 
     if (exn.domMessage) {
-	   domElt.appendChild(exn.domMessage);
-       console.log(exn.structuredError);
+	domElt.appendChild(exn.domMessage);
     } else {
 	domElt.appendChild(document.createTextNode(evaluator.getMessageFromExn(exn)+""));
     }

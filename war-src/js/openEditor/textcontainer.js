@@ -221,7 +221,9 @@ var WeSchemeTextContainer;
 			ch: handle.column
 		}
 	}
+
 	//takes in location info, returns css
+	//fixme: is this used anywhere?
 	CodeMirrorImplementation.prototype.getCSS = function(pos) {
 		//return this.editor.getTokenAt(pos);
 		return this.editor.findMarksAt(pos);
@@ -245,12 +247,18 @@ var WeSchemeTextContainer;
 
 		stylesheet.insertRule("." + name + " { background-color: " + color + ";}", 0);
 		
- 		this.highlightedAreas.push(
-			this.editor.markText(this.handleAndColumnToPos(startHandleAndColumn), 
+		var highlightedArea = this.editor.markText(this.handleAndColumnToPos(startHandleAndColumn), 
 					this.handleAndColumnToPos(endHandleAndColumn), 
-					name));
- 		
+					name);
+
+ 		this.highlightedAreas.push(highlightedArea);
  		this.moveCursor(offset, span);
+
+ 		//return highlightedArea;
+ 		return { clear: function()  { return highlightedArea.clear(); },
+ 				 find: function() {return highlightedArea.find();},
+ 				 styleName: name
+ 				}
 	};
 	
 	CodeMirrorImplementation.prototype.moveCursor = function(offset) {

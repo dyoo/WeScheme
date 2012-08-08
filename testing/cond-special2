@@ -28,32 +28,21 @@
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;(&quot;, &quot;rgb(238, 169, 184)&quot;) </td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;(&quot;, &quot;rgb(240, 181, 194)&quot;) </td>
 	<td>true</td>
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;cond&quot;, &quot;rgb(238, 169, 184)&quot;) </td>
-	<td>true</td>
-</tr>
-<tr>
-	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;[&quot;, &quot;rgb(145, 191, 219)&quot;) </td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;cond&quot;, &quot;rgb(240, 181, 194)&quot;) </td>
 	<td>true</td>
 </tr>
 <!--what does the green correspond to?-->
 <!--should empty part be highlighted same color as clause-->
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;]&quot;, &quot;rgb(145, 191, 219)&quot;) </td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;)&quot;, &quot;rgb(240, 181, 194)&quot;) </td>
 	<td>true</td>
 </tr>
-<tr>
-	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;)&quot;, &quot;rgb(238, 169, 184)&quot;) </td>
-	<td>true</td>
-</tr>
-
 </tbody></table>
 </body>
 </html>

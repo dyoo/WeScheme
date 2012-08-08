@@ -28,12 +28,12 @@
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;define&quot;, &quot;rgb(238, 169, 184)&quot;)</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;define&quot;, &quot;rgb(240, 181, 194)&quot;)</td>
 	<td>true</td>
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;x&quot;, &quot;rgb(145, 191, 219)&quot;)</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;4&quot;, &quot;rgb(161, 200, 224)&quot;)</td>
 	<td>true</td>
 </tr>
 </tbody></table>
