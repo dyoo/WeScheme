@@ -13,7 +13,7 @@
 </thead><tbody>
 <tr>
 	<td>assertEval</td>
-	<td>window.myEditor.defn.setCode(&quot;(80)&quot;)</td>
+	<td>window.myEditor.defn.setCode(&quot;(if true (80) (40))&quot;)</td>
 	<td>null</td>
 </tr>
 <tr>
@@ -23,7 +23,17 @@
 </tr>
 <tr>
 	<td>pause</td>
-	<td>250</td>
+	<td>100</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertEval</td>
+	<td>window.plt.wescheme.selenium.moveCursor(3);</td>
+	<td>true</td>
+</tr>
+<tr>
+	<td>pause</td>
+	<td>100</td>
 	<td></td>
 </tr>
 <tr>

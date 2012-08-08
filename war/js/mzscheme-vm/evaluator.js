@@ -372,20 +372,82 @@ var Evaluator = (function() {
 	if (errorValue.type && errorValue.type === 'exn:fail:read') {
 	    return new Error(errorValue.message);
 	} else if (errorValue.type && errorValue.type === 'moby-failure') {
-	    var domMessage = this._convertDomSexpr(errorValue['dom-message']);
-            var structuredError = errorValue['structured-error'];
-	    return new ErrorWithDomMessage(domMessage, structuredError);
+            return new ErrorWithDomMessage(this._convertDomSexpr(errorValue['dom-message']),
+                                           errorValue['structured-error']);
 	}
 	return new Error(errorValue + '');
     };
 
 
-    var ErrorWithDomMessage = function(domMessage, structuredError) {
-	this.message = domMessage.textContent || domMessage.innerText;
-	this.domMessage = domMessage;
-	this.structuredError = JSON.parse(structuredError);
+
+    //FIXME: duplicated code from war-src/js/openEditor/interaction.js,
+    //has already caused a problem 
+
+
+    //proper order is id offset line column span
+    //badLocs is in   col id line offset span
+   var locObjToVector = function(badLocs) {
+        return types.vector([badLocs.id,
+                     parseInt(badLocs.offset),
+                     parseInt(badLocs.line),
+                     parseInt(badLocs.column),
+                     parseInt(badLocs.span)]);
+   };
+
+    //return array of fixed locs
+    var fixLocList = function(badLocList) {
+       var toReturn = [];
+
+       var i;
+       for (i =0; i < badLocList.length; i++) {
+           toReturn.push(locObjToVector(badLocList[i]));
+       }
+       return toReturn;
+   };
+
+    //structuredError -> Message
+    var structuredErrorToMessage = function(se) {
+        var msg = [];
+        var i;
+        for(i = 0; i < se.length; i++){
+            if(typeof(se[i]) === 'string') {
+                msg.push(se[i]);
+            }
+            else if(se[i].type === "ColoredPart"){
+                msg.push(new types.ColoredPart(se[i].text, locObjToVector(se[i].loc)));
+            }
+
+            else if(se[i].type === "GradientPart"){
+                var j;
+                var parts = [];
+                for(j = 0; j < se[i].parts.length; j++){
+                    var coloredPart = se[i].parts[j];
+                    parts.push(new types.ColoredPart(coloredPart.text, locObjToVector(coloredPart.loc)));
+                }
+                msg.push(new types.GradientPart(parts));
+            }
+
+            else if(se[i].type === "MultiPart"){
+                msg.push(new types.MultiPart(se[i].text, fixLocList(se[i].locs)));
+            }
+            else msg.push(se[i]+'');
+
+        }
+        return new types.Message(msg);
     };
 
+
+    var ErrorWithDomMessage = function(domMessage, structuredError) {
+	this.message = domMessage.textContent || domMessage.innerText || domMessage;
+	this.domMessage = domMessage;
+	if (structuredError) {
+            this.structuredError = JSON.parse(structuredError);
+            this.message = structuredErrorToMessage(this.structuredError.message).toString();
+        } else {
+            this.structuredError = undefined;
+        }
+        console.log(this);
+    };
 
 
     // convertDomSexpr: dom-sexpr -> dom-sexpr

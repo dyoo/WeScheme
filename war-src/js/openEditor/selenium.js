@@ -14,6 +14,10 @@ plt.wescheme.selenium.findParen = function(find) {
     //return window.jQuery('span:contains('+'\'' + find + '\''+')');
 };
 
+plt.wescheme.selenium.moveCursor = function(offset){
+    window.myEditor.defn.impl.moveCursor(offset);
+    return true;
+}
 
 plt.wescheme.selenium.hasColoredText = function(text, color){
     var spanArray = jQuery("span");
