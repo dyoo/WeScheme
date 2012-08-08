@@ -382,13 +382,25 @@ var Evaluator = (function() {
 
     //proper order is id offset line column span
     //badLocs is in   col id line offset span
-   var locObjToVector = function(badLocs) {
+    var locObjToVector = function(badLocs) {
         return types.vector([badLocs.id,
-                     parseInt(badLocs.offset),
-                     parseInt(badLocs.line),
-                     parseInt(badLocs.column),
-                     parseInt(badLocs.span)]);
-   };
+                             parseInt(badLocs.offset),
+                             parseInt(badLocs.line),
+                             parseInt(badLocs.column),
+                             parseInt(badLocs.span)]);
+    };
+
+
+    //return array of fixed locs
+    var fixLocList = function(badLocList) {
+        var toReturn = [];
+
+        var i;
+        for (i =0; i < badLocList.length; i++) {
+            toReturn.push(locObjToVector(badLocList[i]));
+        }
+        return toReturn;
+    };
 
 
     //structuredError -> Message
@@ -421,6 +433,8 @@ var Evaluator = (function() {
         }
         return new types.Message(msg);
     };
+
+
 
 
     var ErrorWithDomMessage = function(domMessage, structuredError) {
