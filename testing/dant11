@@ -44,7 +44,7 @@
 <tr>
 	<td>assertEval</td>
 	<td>window.jQuery(window.jQuery('span:contains(&quot;\&quot;red\&quot;&quot;)')[1]).css('background-color')</td>
-	<td>rgb(73, 121, 107)</td>
+	<td>rgb(123, 158, 147)</td>
 </tr>
 </tbody></table>
 </body>

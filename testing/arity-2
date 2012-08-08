@@ -38,7 +38,7 @@
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;2&quot;, &quot;rgb(73, 121, 107)&quot;)</td>
+	<td>window.plt.wescheme.selenium.hasColoredText(&quot;2&quot;, &quot;rgb(123, 158, 147)&quot;)</td>
 	<td>true</td>
 </tr>
 </tbody></table>

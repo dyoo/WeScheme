@@ -784,17 +784,16 @@ var helpers = {};
 				var locs = locations;
 				var i;
 
-				//ARGS IS INCONSISTENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				//REALLY INCONSISTENT!!!!!! SOMETIMES IT HAS STATE FIRST, SOMETIMES IS HAS A PRIMPROC LAST
-				//and when there's a state, it's apparently not an array, so .slice(1) doesn't work
-
 				//getting the actual arguments from args
 				var actualArgs = [];
 				for(i = 0; i < args.length; i++) {
-					if(! (state.isState(args[i]))){
+					if((! (state.isState(args[i])))
+					   && 
+					   (!((args[i].name !== undefined) && args[i].name === ""))) {
 						actualArgs.push(args[i]);
 					} 
 				}
+				window.wtf = args[2];
 				for(i = 0; i < actualArgs.length; i++){
 					if(! (locs.isEmpty())){
 						if(i != (pos -1)) {
@@ -829,8 +828,9 @@ var helpers = {};
 
 
 			if(args) { 
+				console.log("args is ", args);
 				var argColoredParts = getArgColoredParts(locationList.rest()); 
-
+				console.log("argColoredParts is ", argColoredParts);
 				if(argColoredParts.length > 0){
 				raise( types.incompleteExn(types.exnFailContract,
 							   new types.Message([
@@ -13091,7 +13091,7 @@ var callWithValues = function(f, vals) {
 };
 
 var procedureArity = function(aState, proc) {
-	check(aState, proc, isFunction, 'procedure-arity', 'procedure', 1, [proc]);
+	check(aState, proc, isFunction, 'procedure-arity', 'function name', 1, [proc]);
 			
 	var singleCaseArity = function(aCase) {
 		if (aCase instanceof types.ContinuationClosureValue) {
@@ -13345,18 +13345,19 @@ var onEvent = function(funName, inConfigName, numArgs) {
 
 var onEventBang = function(funName, inConfigName) {
     return function(aState, handler, effectHandler) {
-	check(aState, handler, isFunction, funName, 'procedure', 1, arguments);
-	check(aState, effectHandler, isFunction, funName, 'procedure', 2, arguments);
-	return new (WorldConfigOption.extend({
-		    init: function() {
-			this._super(funName);
-		    },
-		    configure: function(config) {
-			var newHash = {};
-			newHash[inConfigName] = handler;
-			newHash[inConfigName+'Effect'] = effectHandler;
-			return config.updateAll(newHash);
-		    }}))();
+    	console.log("in OnEventBang, arguments: ", arguments);
+		check(aState, handler, isFunction, funName, 'function name', 1, arguments);
+		check(aState, effectHandler, isFunction, funName, 'function name', 2, arguments);
+		return new (WorldConfigOption.extend({
+			    init: function() {
+				this._super(funName);
+			    },
+			    configure: function(config) {
+				var newHash = {};
+				newHash[inConfigName] = handler;
+				newHash[inConfigName+'Effect'] = effectHandler;
+				return config.updateAll(newHash);
+			    }}))();
     };
 };
 
@@ -13912,7 +13913,7 @@ PRIMITIVES['for-each'] =
 		     function(aState, f, firstArg, arglists) {
 		 	 var allArgs = [f, firstArg].concat(arglists);
 		 	 arglists.unshift(firstArg);
-			 check(aState, f, isFunction, 'for-each', 'procedure', 1, allArgs);
+			 check(aState, f, isFunction, 'for-each', 'function name', 1, allArgs);
 			 arrayEach(arglists, function(lst, i) {checkList(aState, lst, 'for-each', i+2, allArgs);});
 			 checkAllSameLength(aState, arglists, 'for-each', allArgs);
 
@@ -14163,7 +14164,7 @@ PRIMITIVES['apply'] =
 		 true, false,
 		 function(aState, f, firstArg, args) {
 		 	var allArgs = [f, firstArg].concat(args);
-		 	check(aState, f, isFunction, 'apply', 'procedure', 1, allArgs);
+		 	check(aState, f, isFunction, 'apply', 'function name', 1, allArgs);
 		 	args.unshift(firstArg);
 
 			var lastArg = args.pop();
@@ -14192,7 +14193,7 @@ PRIMITIVES['call-with-values'] =
 		 false, false,
 		 function(aState, g, r) {
 		 	check(aState, g, procArityContains(0), 'call-with-values', 'procedure (arity 0)', 1, arguments);
-			check(aState, r, isFunction, 'call-with-values', 'procedure', 2, arguments);
+			check(aState, r, isFunction, 'call-with-values', 'function name', 2, arguments);
 			return CALL(g, [],
 				function(res) {
 					return callWithValues(r, res);
@@ -14205,7 +14206,7 @@ PRIMITIVES['compose'] =
 		 0,
 		 true, false,
 		 function(aState, procs) {
-		 	arrayEach(procs, function(p, i) {check(aState, p, isFunction, 'compose', 'procedure', i+1, procs);});
+		 	arrayEach(procs, function(p, i) {check(aState, p, isFunction, 'compose', 'function name', i+1, procs);});
 
 			if (procs.length == 0) {
 				return PRIMITIVES['values'];
@@ -15641,7 +15642,7 @@ PRIMITIVES['map'] =
 		 function(aState, f, lst, arglists) {
 		 	var allArgs = [f, lst].concat(arglists);
 		 	arglists.unshift(lst);
-		 	check(aState, f, isFunction, 'map', 'procedure', 1, allArgs);
+		 	check(aState, f, isFunction, 'map', 'function name', 1, allArgs);
 		 	arrayEach(arglists, function(x, i) {checkList(aState, x, 'map', i+2, allArgs);});
 			checkAllSameLength(aState, arglists, 'map', allArgs);
 
@@ -15673,7 +15674,7 @@ PRIMITIVES['andmap'] =
 		 function(aState, f, lst, arglists) {
 		 	var allArgs = [f, lst].concat(arglists);
 		 	arglists.unshift(lst);
-		  	check(aState, f, isFunction, 'andmap', 'procedure', 1, allArgs);
+		  	check(aState, f, isFunction, 'andmap', 'function name', 1, allArgs);
 		  	arrayEach(arglists, function(x, i) {checkList(aState, x, 'andmap', i+2, allArgs);});
 			checkAllSameLength(aState, arglists, 'andmap', allArgs);
   
@@ -15705,7 +15706,7 @@ PRIMITIVES['ormap'] =
 		 function(aState, f, lst, arglists) {
 		 	var allArgs = [f, lst].concat(arglists);
 		 	arglists.unshift(lst);
-		  	check(aState, f, isFunction, 'ormap', 'procedure', 1, allArgs);
+		  	check(aState, f, isFunction, 'ormap', 'function name', 1, allArgs);
 		  	arrayEach(arglists, function(x, i) {checkList(aState, x, 'ormap', i+2, allArgs);});
 			checkAllSameLength(aState, arglists, 'ormap', allArgs);
 
@@ -15798,7 +15799,7 @@ PRIMITIVES['memf'] =
 		 2,
 		 false, true,
 		 function(aState, f, initList) {
-		 	check(aState, f, isFunction, 'memf', 'procedure', 1, arguments);
+		 	check(aState, f, isFunction, 'memf', 'function name', 1, arguments);
 			checkList(aState, initList, 'memf', 2, arguments);
 
 			var memfHelp = function(lst) {
@@ -15891,7 +15892,7 @@ PRIMITIVES['filter'] =
 		 2,
 		 false, false,
 		 function(aState, f, lst) {
-		 	check(aState, f, procArityContains(1), 'filter', 'procedure (arity 1)', 1, arguments);
+		 	check(aState, f, procArityContains(1), 'filter', 'function name (arity 1)', 1, arguments);
 			checkList(aState, lst, 'filter', 2);
 
 			var filterHelp = function(f, lst, acc) {
@@ -15920,7 +15921,7 @@ PRIMITIVES['foldl'] =
 		 function(aState, f, initAcc, lst, arglists) {
 		 	arglists.unshift(lst);
 			var allArgs = [f, initAcc].concat(arglists);
-		 	check(aState, f, isFunction, 'foldl', 'procedure', 1, allArgs);
+		 	check(aState, f, isFunction, 'foldl', 'function name', 1, allArgs);
 			arrayEach(arglists, function(x, i) {checkList(aState, x, 'foldl', i+3, allArgs);});
 			checkAllSameLength(aState, arglists, 'foldl', allArgs);
 	
@@ -15934,7 +15935,7 @@ PRIMITIVES['foldr'] =
 		 function(aState, f, initAcc, lst, arglists) {
 		 	arglists.unshift(lst);
 			var allArgs = [f, initAcc].concat(arglists);
-		 	check(aState, f, isFunction, 'foldr', 'procedure', 1, allArgs);
+		 	check(aState, f, isFunction, 'foldr', 'function name', 1, allArgs);
 			arrayEach(arglists, function(x, i) {checkList(aState, x, 'foldr', i+3, allArgs);});
 			checkAllSameLength(aState, arglists, 'foldr', allArgs);
 
@@ -15957,7 +15958,7 @@ PRIMITIVES['argmax'] =
 		 false, false,
 		 function(aState, f, initList) {
 		 	var args = arguments
-		 	check(aState, f, isFunction, 'argmax', 'procedure', 1, args);
+		 	check(aState, f, isFunction, 'argmax', 'function name', 1, args);
 			check(aState, initList, isPair, 'argmax', 'non-empty list', 2, args);
 
 			var argmaxHelp = function(lst, curMaxVal, curMaxElt) {
@@ -15991,7 +15992,7 @@ PRIMITIVES['argmin'] =
 		 false, false,
 		 function(aState, f, initList) {
 		 	var args = arguments;
-		 	check(aState, f, isFunction, 'argmin', 'procedure', 1, args);
+		 	check(aState, f, isFunction, 'argmin', 'function name', 1, args);
 			check(aState, initList, isPair, 'argmin', 'non-empty list', 2, args);
 
 			var argminHelp = function(lst, curMaxVal, curMaxElt) {
@@ -16025,7 +16026,7 @@ PRIMITIVES['build-list'] =
 		 false, false,
 		 function(aState, num, f) {
 		 	check(aState, num, isNatural, 'build-list', 'non-negative exact integer', 1, arguments);
-			check(aState, f, isFunction, 'build-list', 'procedure', 2, arguments);
+			check(aState, f, isFunction, 'build-list', 'function name', 2, arguments);
 
 			var buildListHelp = function(n, acc) {
 				if ( jsnums.greaterThanOrEqual(n, num) ) {
@@ -16168,7 +16169,7 @@ PRIMITIVES['hash-map'] =
 		 false, false,
 		 function(aState, ht, f) {
 		 	check(aState, ht, isHash, 'hash-map', 'hash', 1, arguments);
-			check(aState, f, isFunction, 'hash-map', 'procedure', 2, arguments);
+			check(aState, f, isFunction, 'hash-map', 'function name', 2, arguments);
 			
 			var keys = ht.hash.keys();
 			var hashMapHelp = function(i, acc) {
@@ -16192,7 +16193,7 @@ PRIMITIVES['hash-for-each'] =
 		 false, false,
 		 function(aState, ht, f) {
 		 	check(aState, ht, isHash, 'hash-for-each', 'hash', 1, arguments);
-			check(aState, f, isFunction, 'hash-for-each', 'procedure', 2, arguments);
+			check(aState, f, isFunction, 'hash-for-each', 'function name', 2, arguments);
 		     
 		 	var keys = ht.hash.keys();
 
@@ -16770,7 +16771,7 @@ PRIMITIVES['build-string'] =
 		 false, false,
 		 function(aState, num, f) {
 		 	check(aState, num, isNatural, 'build-string', 'non-negative exact integer', 1, arguments);
-			check(aState, f, isFunction, 'build-string', 'procedure', 2, arguments);
+			check(aState, f, isFunction, 'build-string', 'function name', 2, arguments);
 
 			var buildStringHelp = function(n, acc) {
 				if ( jsnums.greaterThanOrEqual(n, num) ) {
@@ -17211,7 +17212,7 @@ PRIMITIVES['build-vector'] =
 		 false, false,
 		 function(aState, num, f) {
 		 	check(aState, num, isNatural, 'build-vector', 'non-negative exact integer', 1, arguments);
-			check(aState, f, isFunction, 'build-vector', 'procedure', 2, arguments);
+			check(aState, f, isFunction, 'build-vector', 'function name', 2, arguments);
 
 			var buildVectorHelp = function(n, acc) {
 				if ( jsnums.greaterThanOrEqual(n, num) ) {
@@ -19440,7 +19441,7 @@ PRIMITIVES['make-world-config'] =
 		 function(aState, startup, shutdown, handlers) {
 		 	var allArgs = [startup, shutdown].concat(handlers);
 		 	check(aState, startup, isFunction, 'make-world-config', "function name", 1, allArgs);
-			check(aState, shutdown, procArityContains(1), 'make-world-config', 'procedure (arity 1)', 2, allArgs);
+			check(aState, shutdown, procArityContains(1), 'make-world-config', 'function name (arity 1)', 2, allArgs);
 			arrayEach(handlers, function(x, i) { check(aState, x, isFunction, 'make-world-config', 'handler', i+3, allArgs); });
 
 			if ( !procArityContains(handlers.length)(startup) ) {
@@ -20781,8 +20782,6 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
     if ( !types.isFunction(procValue) ) {
 	    var argStr = getArgStr('; arguments were:');
         var positionStack = state.captureCurrentContinuationMarks(aState).ref(types.symbol('moby-application-position-key'));
-        
-        console.log("positionStack is ", positionStack);
        
         var locationList = positionStack[positionStack.length - 1];
         var locs = locationList;
