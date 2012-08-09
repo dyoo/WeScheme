@@ -45,7 +45,9 @@ public class Feedback {
 		obj.put("id", this.id);
 		obj.put("author", this.author);
 		obj.put("type", this.type);
-		obj.put("date", this.date);
+		obj.put("feedbackText", this.feedbackText);
+		// date is represented at amount of milliseconds since the epoch.
+		obj.put("date", this.date.getTime());
 		return obj;
 	}
 }

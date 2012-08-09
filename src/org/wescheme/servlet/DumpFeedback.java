@@ -3,11 +3,13 @@ package org.wescheme.servlet;
 import java.io.IOException;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.wescheme.data.DAO;
 import org.wescheme.data.Feedback;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
@@ -34,7 +36,7 @@ import com.googlecode.objectify.Query;
  * @author dyoo
  *
  */
-public class DumpFeedback {
+public class DumpFeedback extends HttpServlet {
 	
 	public static final long LIMIT_MILLIS = 1000 * 25; // provide a little leeway
 
@@ -47,6 +49,9 @@ public class DumpFeedback {
 			response.sendError(401);
 			return;
 		}
+	
+		// Side effect: force loading of the classes.
+		DAO dao = new DAO();
 		
 		
 		// Next, start dumping content till we hit CPU limit
