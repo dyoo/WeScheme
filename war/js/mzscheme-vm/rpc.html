@@ -1,0 +1,64 @@
+<html>
+  <head>
+    <title>rpc</title>
+    <script src="easyXDM-min.js"></script>
+</head>
+<script type="text/javascript">
+//////////////////////////////////////////////////////////////////////
+
+var Compiler = function(options) {
+    this.compilationServletUrl = options.compilationServletUrl;
+};
+
+
+var encodeUrlParameters = function(hash) {
+    var chunks = [];
+    for (var key in hash) {
+	if (hash.hasOwnProperty(key)) {
+	    chunks.push(encodeURIComponent(key) +"="+ encodeURIComponent(hash[key]));
+	}
+    }
+    return chunks.join('&');
+};
+
+// The default value for it is:
+// compileProgram: string string (string -> any) (string -> any) -> void
+// Runs the compiler on the given program.
+Compiler.prototype.compileProgram = function(programName, code, onDone, onDoneError) {
+    var that = this;
+    var params = encodeUrlParameters({'name': programName,
+				      'program': code,
+				      'compiler-version' : '1'});
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+	if (xhr.readyState == 4) {
+	    if (xhr.status === 200) {
+                onDone(xhr.responseText);
+	    } else {
+                onDoneError(xhr.responseText);
+	    }
+	}
+    };
+    xhr.open("POST", this.compilationServletUrl, true);
+    xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhr.send(params);
+};
+
+var compiler = new Compiler({ compilationServletUrl: "/servlets/standalone.ss" });
+
+// If we're in the context of an iframe, provide an easyXDM interface to the compiler.
+if (window.top !== window) {
+    new easyXDM.Rpc({}, {
+        local: {
+            compileProgram: {
+                method: function(name, programText, fn, fnError){
+                    compiler.compileProgram(name, programText, fn, fnError);
+                }
+            }
+        }
+    });
+}
+</script>
+<body>
+</body>
+</html>

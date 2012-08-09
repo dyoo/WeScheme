@@ -173,4 +173,25 @@ goog.require('plt.wescheme.Program');
 		     xhr: function(settings) { return new XMLHttpRequest(settings); }
 		    });
     };
+
+
+    plt.wescheme.AjaxActions.prototype.sendFeedback = function(author, type, feedbackText, onSuccess) {
+	jQuery.ajax({cache : false,
+  		     data : {author : author,
+                             type : type,
+                             feedbackText : feedbackText },
+                     datatype: "text",
+                     type: "POST",
+                     url: "/addFeedback",
+                     success: function(data) {
+                         onSuccess();
+                     },
+                     error: function(xhr) {
+                         onSuccess();
+                     },
+		     xhr: function(settings) { return new XMLHttpRequest(settings); }
+                    });
+
+    };
+
 })();

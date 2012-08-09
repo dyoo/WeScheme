@@ -23,7 +23,6 @@ public class Schedule implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = -1498658908860600498L;
-	@SuppressWarnings("unused")
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
 	private Key key;

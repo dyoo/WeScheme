@@ -140,6 +140,26 @@
 
 
 
+  <servlet>
+    <servlet-name>AddFeedback</servlet-name>
+    <servlet-class>org.wescheme.servlet.AddFeedback</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AddFeedback</servlet-name>
+    <url-pattern>/addFeedback</url-pattern>
+  </servlet-mapping>
+
+
+  <servlet>
+    <servlet-name>DumpFeedback</servlet-name>
+    <servlet-class>org.wescheme.servlet.DumpFeedback</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DumpFeedback</servlet-name>
+    <url-pattern>/dumpFeedback</url-pattern>
+  </servlet-mapping>
+
+
 
 
 

@@ -31,7 +31,6 @@ public class WeSchemeUser{
     private byte[] _digest;			// the hash of the salted password
 	@Persistent
 	private boolean _active;		// is the account active?
-	@SuppressWarnings("unused")
 	@Persistent
 	private String _email;
 	

@@ -380,30 +380,28 @@ var Evaluator = (function() {
 
 
 
-    //FIXME: duplicated code from war-src/js/openEditor/interaction.js,
-    //has already caused a problem 
-
-
     //proper order is id offset line column span
     //badLocs is in   col id line offset span
-   var locObjToVector = function(badLocs) {
+    var locObjToVector = function(badLocs) {
         return types.vector([badLocs.id,
-                     parseInt(badLocs.offset),
-                     parseInt(badLocs.line),
-                     parseInt(badLocs.column),
-                     parseInt(badLocs.span)]);
-   };
+                             parseInt(badLocs.offset),
+                             parseInt(badLocs.line),
+                             parseInt(badLocs.column),
+                             parseInt(badLocs.span)]);
+    };
+
 
     //return array of fixed locs
     var fixLocList = function(badLocList) {
-       var toReturn = [];
+        var toReturn = [];
 
-       var i;
-       for (i =0; i < badLocList.length; i++) {
-           toReturn.push(locObjToVector(badLocList[i]));
-       }
-       return toReturn;
-   };
+        var i;
+        for (i =0; i < badLocList.length; i++) {
+            toReturn.push(locObjToVector(badLocList[i]));
+        }
+        return toReturn;
+    };
+
 
     //structuredError -> Message
     var structuredErrorToMessage = function(se) {
@@ -437,6 +435,8 @@ var Evaluator = (function() {
     };
 
 
+
+
     var ErrorWithDomMessage = function(domMessage, structuredError) {
 	this.message = domMessage.textContent || domMessage.innerText || domMessage;
 	this.domMessage = domMessage;
@@ -446,7 +446,6 @@ var Evaluator = (function() {
         } else {
             this.structuredError = undefined;
         }
-        console.log(this);
     };
 
 

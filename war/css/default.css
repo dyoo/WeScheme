@@ -146,6 +146,8 @@ h2 > a:hover{text-decoration: underline;}
 
 #toolbar ul{
     clear:			both;
+    list-style-type: none;
+
 }
 
 #toolbar li{
@@ -153,18 +155,21 @@ h2 > a:hover{text-decoration: underline;}
     text-align:		center;
     width:			20%;
     max-width:      125px;
-    list-style-position: inside;
-    display:        list-item;
-    background-repeat: no-repeat;
-    background-position: 0 50%;
-    clear:			right;
 }
 
-#toolbar li.run{list-style-image: url(run.png);}
-#toolbar li.stop{list-style-image: url(break.png);}
-#toolbar li.save{list-style-image: url(save.png);}
-#toolbar li.share{list-style-image: url(share.png);}
-#toolbar li.designrecipe{list-style-image: url(recipe.png);}
+#toolbar .button {
+  display: block;
+  width: 100%;
+  min-height: 20px;
+  background-repeat: no-repeat;
+  background-position: 15px 0px;
+}
+
+li.run .button{background-image: url(run.png);}
+li.stop .button{background-image: url(break.png);}
+li.save .button{background-image: url(save.png);}
+li.share .button{background-image: url(share.png);}
+li.recipe .button{background-image: url(recipe.png);}
 
 #toolbar li a, #toolbar li a:visited{
     display:		block;
@@ -172,8 +177,8 @@ h2 > a:hover{text-decoration: underline;}
     width:			100%;
     text-decoration:none;
     vertical-align: top;
-    margin-right:   50px;
 }
+
 #toolbar li a:hover{
     background:		#546DAF;
     color:			white;
@@ -371,13 +376,18 @@ span.top-aligned-inline-block {
 */
 
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px){
-
-    #toolbar li{
-        width:          75px;
-        padding:        4px 0px;
-        font-size:      1px;
-        border-left:    solid 1px gray;
-        
+    #toolbar li a{
+        width:        90px;
+        height:       30px;
+		border-left:  solid 1px gray;
     }
-    #toolbar li a{visibility: hidden;}
+
+	#toolbar li a:hover{background: none;}
+
+    #toolbar  .button{
+        font-size: 0px; 
+        background-position: 40px 5px; 
+        height: 30px;
+        float: left;
+    }
 }

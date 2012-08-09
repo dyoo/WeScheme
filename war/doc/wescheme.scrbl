@@ -203,7 +203,7 @@ Let's jump in and explore WeScheme by running a few programs.
 Open up a web browser to @url{http://www.wescheme.org}.  Press the
 @emph{Start Coding} button.  The following editor page should be
 divided into a top @emph{definitions} section, and a bottom
-@emph{interactions} section.  Click onto the @emph{interactions} top
+@emph{interactions} section.  Click onto the @emph{definitions} top
 half of the window and enter in the following text, quotes and all:
 
 @racketblock[
@@ -215,14 +215,14 @@ goes well, we should see a @racket["hello world"] appear on the bottom
 window.
 
 
-Next, change the line so it says:
+Next, add another line in the @emph{definitions} window:
 
 @racketblock[
 (bitmap/url "http://racket-lang.org/logo.png")
 ]
 
 Press the @emph{Run} button again.  We should now see an image in the
-@emph{Interactions} window.
+@emph{Interactions} window as well.
 
 Web images are values, as are strings, numbers, booleans, and
 structures.  You can even apply algebra on them.  Try:
@@ -313,7 +313,7 @@ function will be called every time an event occurs.
 }|
 
 To support some legacy WeScheme applications, the name
-@racket[to-redraw] is an alias for @racket[to-draw].
+@racket[on-redraw] is an alias for @racket[to-draw].
 }
 
 
@@ -591,6 +591,11 @@ and suggesting improvements.
    "Emmanuel Schanzer"      ;; same!
    "Robby Findler"
    "Matthew Flatt"
+
+   ;; The members of the Mongolian Horde working on the colored error messages:
+   "Michael Rowland"
+   "Daniel Kocoj"
+   "Andrew Tian"
 ) string<?))
 )
 

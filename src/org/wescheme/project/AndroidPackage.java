@@ -21,7 +21,6 @@ public class AndroidPackage implements Serializable {
 	 */
 	private static final long serialVersionUID = 1636299813888198554L;
 
-	@SuppressWarnings("unused")
 	@PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
     private Key key;

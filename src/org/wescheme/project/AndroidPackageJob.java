@@ -29,7 +29,6 @@ public class AndroidPackageJob implements Serializable {
 	 */
 	private static final long serialVersionUID = 2257895943724927957L;
 
-	@SuppressWarnings("unused")
 	@PrimaryKey
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
     private Long id;

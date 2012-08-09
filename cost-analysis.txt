@@ -1,0 +1,32 @@
+We make estimates based on previous usage, in particular blips where
+our usage went past free limits.  I'm paying about $2.10 a week at the
+moment.
+
+
+
+According to AppEngine's logs, we do exceed these limits fairly
+frequently.  Especially on:
+
+2012-06-20
+2012-06-21
+2012-06-22
+2012-06-14
+
+On the week of 6/18-6-22, I paid $2.65.
+
+
+
+On those days, the most significant costs were:
+
+    frontend instance hours (around 40 hours)
+    datastore reads (about half a million read requests)
+
+Frontend instance hours being high means multiple AppEngine servers
+needed to be spun up to support the load at that time, and corresponds
+roughly with server load.  It contributes the highest amount (70%) of
+our costs.  Datastore reads cover the next largest chunk of our costs
+(28%).
+
+
+On our worst day (2012-06-22), we used $1.19 out of our reserved
+$2.00.

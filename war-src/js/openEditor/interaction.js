@@ -308,12 +308,19 @@ WeSchemeInteractions = (function () {
 
     //////////////////////////////////////////////////////////////////////
 
+
+    // Initializes the evaluator to use round-robin compilation, given a list of
+    // servers.
+    var compilation_servers = plt.wescheme.WeSchemeProperties.compilation_servers.split(/\s+/);
+
+
     // Configures the evaluator to use round-robin compilation between
     // a set of servers.  Compilation will also fall back to other
     // servers under network failure.
     WeSchemeInteractions.prototype.initializeRoundRobinCompilation = function(evaluator, after) {
         var that = this;
         plt.wescheme.RoundRobin.initialize(
+            compilation_servers,
             function() {
                 evaluator.setCompileProgram(
                     plt.wescheme.RoundRobin.roundRobinCompiler);
