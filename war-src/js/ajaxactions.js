@@ -144,6 +144,12 @@ goog.require('plt.wescheme.Program');
   		    });
     };
 
+    // string string string (-> void) -> void
+    // Asynchronously record feedback from the author.
+    plt.wescheme.AjaxActions.prototype.sendFeedback = function(author, feedbackType, text, onSuccess) {
+
+    };
+
 
 
     // save: (U undefined number) string string (number -> void) (-> void) -> void
