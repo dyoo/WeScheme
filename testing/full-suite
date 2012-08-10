@@ -93,6 +93,31 @@
 <tr><td><a href="def-val3">def-val3</a></td></tr>
 <tr><td><a href="def-val4">def-val4</a></td></tr>
 <tr><td><a href="def15">def15</a></td></tr>
+<tr><td><a href="lambda-with-no-variable-in-parenthesis">lambda-with-no-variable-in-parenthesis</a></td></tr>
+<tr><td><a href="lambda-with-no-body">lambda-with-no-body</a></td></tr>
+<tr><td><a href="lambda-with-more-than-one-expression-for-function-body">lambda-with-more-than-one-expression-for-function-body</a></td></tr>
+<tr><td><a href="lambda-expression-with-variable-which-is-reused">lambda-expression-with-variable-which-is-reused</a></td></tr>
+<tr><td><a href="just-lambda-in-parenthesis">just-lambda-in-parenthesis</a></td></tr>
+<tr><td><a href="just-let-within-parentheses">just-let-within-parentheses</a></td></tr>
+<tr><td><a href="variables-not-within-parens">let-variables-not-within-parens</a></td></tr>
+<tr><td><a href="without-key-value-pair">let-without-key-value-pair</a></td></tr>
+<tr><td><a href="missing-parens-around-kv-pairs">let-missing-parens-around-kv-pairs</a></td></tr>
+<tr><td><a href="kv-pair-redefinition">let-kv-pair-redefinition</a></td></tr>
+<tr><td><a href="having-kv-pair-both-same-variable">let-having-kv-pair-both-same-variable</a></td></tr>
+<tr><td><a href="let-no-body">let-no-body</a></td></tr>
+<tr><td><a href="let-one-variable-not-in-kv-pair">let-one-variable-not-in-kv-pair</a></td></tr>
+<tr><td><a href="empty-parens-as-body">let-empty-parens-as-body</a></td></tr>
+<tr><td><a href="just-local-in-parens">just-local-in-parens</a></td></tr>
+<tr><td><a href="local-without-list-of-definitions">local-without-list-of-definitions</a></td></tr>
+<tr><td><a href="local-not-kv-pair">local-missing-parens-around-def-list</a></td></tr>
+<tr><td><a href="local-missing-body">local-missing-body</a></td></tr>
+<tr><td><a href="local-missing-variable-name">local-missing-variable-name</a></td></tr>
+<tr><td><a href="local-with-just-number-instead-of-def-list">local-with-just-number-instead-of-def-list</a></td></tr>
+<tr><td><a href="local-with-empty-parens-as-body">local-with-empty-parens-as-body</a></td></tr>
+<tr><td><a href="reuse-lambda-keyword">reuse-lambda-keyword</a></td></tr>
+<tr><td><a href="reuse-let-keyword">reuse-let-keyword</a></td></tr>
+<tr><td><a href="reuse-if-keyword">reuse-if-keyword</a></td></tr>
+<tr><td><a href="reuse-if-keyword">reuse-if-keyword</a></td></tr>
 </tbody></table>
 </body>
 </html>
