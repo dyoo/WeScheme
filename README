@@ -96,3 +96,23 @@ per application page.
     openEditor: war/openEditor/index.jsp, war/js/openEditor-calc.js
 
 ----------------------------------------------------------------------
+Things still to change, from summer 2012:
+some read errors like 1/0 (first ') ````,,,, not highlighted
+#(1234)
+(cond [4 5])  -> if: expected a boolean value, but found: 4 Shouldn't say "if"
+Wording choices like "found" vs. "given" and "but got 4" vs "but found: 4"
+remove "other arguments were" piece?
+greens look weird, color space????
+(list (define x 5)) -> define: this variable is not defined should read "define: found a definition that is not at the top level"
+(x) -> x: this variable is not defined should read "this function is not defined"
+
+To turn off color highlighting, change the colors in war-src/js/openEditor/interaction.js to white (i.e. new Color(255, 255, 255)).
+
+To use selenium test suite:
+1. install firefox
+2. install selenium IDE @ http://seleniumhq.org/download/
+3. open up firefox
+4. to open selenium, in firefox go to Tools -> Selenium IDE
+5. in the IDE, go to File -> Open Test Suite
+6. open full suite in testing/
+7. run with the green arrows in the IDE
