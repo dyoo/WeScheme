@@ -4,16 +4,16 @@
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link rel="selenium.base" href="http://localhost:8888/" />
-<title>just-lambda-with-parenthesis</title>
+<title>reuse-lambda-keyword</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
 <thead>
-<tr><td rowspan="1" colspan="3">just-lambda-with-parenthesis</td></tr>
+<tr><td rowspan="1" colspan="3">reuse-lambda-keyword</td></tr>
 </thead><tbody>
 <tr>
 	<td>assertEval</td>
-	<td>window.myEditor.defn.setCode(&quot;(lambda)&quot;)</td>
+	<td>window.myEditor.defn.setCode(&quot;(define (f lambda) 2)&quot;)</td>
 	<td>null</td>
 </tr>
 <tr>
@@ -31,6 +31,7 @@
 	<td>window.plt.wescheme.selenium.hasColoredText(&quot;lambda&quot;, &quot;rgb(240, 181, 194)&quot;) </td>
 	<td>true</td>
 </tr>
+
 </tbody></table>
 </body>
 </html>

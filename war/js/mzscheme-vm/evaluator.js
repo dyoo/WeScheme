@@ -380,6 +380,10 @@ var Evaluator = (function() {
 
 
 
+    //FIXME: duplicated code from war-src/js/openEditor/interaction.js,
+    //has already caused a problem 
+
+
     //proper order is id offset line column span
     //badLocs is in   col id line offset span
     var locObjToVector = function(badLocs) {
@@ -402,6 +406,16 @@ var Evaluator = (function() {
         return toReturn;
     };
 
+    //return array of fixed locs
+    var fixLocList = function(badLocList) {
+       var toReturn = [];
+
+       var i;
+       for (i =0; i < badLocList.length; i++) {
+           toReturn.push(locObjToVector(badLocList[i]));
+       }
+       return toReturn;
+   };
 
     //structuredError -> Message
     var structuredErrorToMessage = function(se) {

@@ -146,6 +146,7 @@ goog.require('plt.wescheme.Program');
 
 
 
+
     // save: (U undefined number) string string (number -> void) (-> void) -> void
     // Does a save.
     plt.wescheme.AjaxActions.prototype.save = function(pid, title, code, onSuccess, onFailure) {
@@ -175,6 +176,8 @@ goog.require('plt.wescheme.Program');
     };
 
 
+    // string string string (-> void) -> void
+    // Asynchronously record feedback from the author.
     plt.wescheme.AjaxActions.prototype.sendFeedback = function(author, type, feedbackText, onSuccess) {
 	jQuery.ajax({cache : false,
   		     data : {author : author,

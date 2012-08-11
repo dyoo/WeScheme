@@ -83,16 +83,6 @@
 </tr>
 <tr>
 	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;[&quot;, &quot;rgb(161, 200, 224)&quot;) </td>
-	<td>true</td>
-</tr>
-<tr>
-	<td>assertEval</td>
-	<td>window.plt.wescheme.selenium.hasColoredText(&quot;]&quot;, &quot;rgb(145, 191, 219)&quot;) </td>
-	<td>true</td>
-</tr>
-<tr>
-	<td>assertEval</td>
 	<td>window.plt.wescheme.selenium.hasColoredText(&quot;[(&quot;, &quot;rgb(146, 200, 142)&quot;) </td>
 	<td>true</td>
 </tr>

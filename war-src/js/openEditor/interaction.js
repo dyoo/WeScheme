@@ -777,6 +777,8 @@ WeSchemeInteractions = (function () {
             stacktraceDiv.appendChild(anchor);
         }
 
+        //do stuff with feedback here
+
         
         dom.appendChild(stacktraceDiv);
     
