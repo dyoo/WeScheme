@@ -151,7 +151,8 @@ var initializeWidget = (function () {
         };
 
 	var km = {};
-	km["Tab"] = "indentAuto";
+	km["Tab"] = CodeMirror.Pass;
+	km["Shift-Tab"] = CodeMirror.Pass;
 
         this.codeMirrorElement = 
             CodeMirror.fromTextArea(textElement,
@@ -301,9 +302,9 @@ var initializeWidget = (function () {
                 .append("How would use use this function with some inputs?")
                 .append(jQuery("<br/>"))
                 .append(jQuery("<span/>")
-                        .append("(")
+                        .append("HINT: (")
+                        .append(name)
                         .append(jQuery("<i/>")
-                        		.append(name)
                         		.append("&nbsp;...")
                         		.append(contract_domain.getValue())
                         		.append("...)"))
@@ -367,10 +368,11 @@ var initializeWidget = (function () {
                 .append(jQuery("<br/>"))
                 .append(jQuery("<span/>")
                         .append("(")
-                        .append(jQuery("<i/>").text(name))
-                        .append("  ...")
-                        .append(jQuery("<i>variables</i>"))
-                        .append("...)")
+                        .append(name)
+                        .append(jQuery("<i/>")
+                        		.append("  ...")
+                        		.append(jQuery("<i>variables</i>"))
+                        		.append("...)"))
                         .css("padding-left", "10px")
                         .append(jQuery("<br/>")))
                 .append("HINT: What changes from one example to another?");
