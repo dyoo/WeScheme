@@ -89,7 +89,7 @@ var initializeWidget = (function () {
                                              errorElement,
                                              isViolatingDependencies) {
         var that = this;
-
+        
         isViolatingDependencies = isViolatingDependencies || function() { return false; };
 
 
@@ -149,9 +149,9 @@ var initializeWidget = (function () {
         var onBlur = function() {
             // jQuery(errorElement).empty();
         };
-
+        
 	var km = {};
-	km["Tab"] = CodeMirror.Pass;
+	km["Tab"] = tabIndent? "indentAuto" : CodeMirror.Pass;
 	km["Shift-Tab"] = CodeMirror.Pass;
 
         this.codeMirrorElement = 

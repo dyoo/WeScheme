@@ -249,17 +249,21 @@
           <div class="section" id="design-recipe-examples">
             <div id="design-recipe-example1_wrapper">
               <span class="spacer">(EXAMPLE </span> 
-              <textarea id="design-recipe-example1_header"></textarea>
-              <textarea id="design-recipe-example1_body"></textarea>
-              <span class="spacer">)</span>
+              <div class="indent-wrapper">
+              	<textarea id="design-recipe-example1_header"></textarea>
+              	<textarea id="design-recipe-example1_body"></textarea>
+                <span class="spacer">)</span>
+              </div>
             </div>
             <span class="error" id="design-recipe-example1_error"></span>
             <hr/>
             <div id="design-recipe-example2_wrapper">
               <span class="spacer">(EXAMPLE </span>
-              <textarea id="design-recipe-example2_header"></textarea>
-              <textarea id="design-recipe-example2_body"></textarea>
-              <span class="spacer">)</span>
+              <div class="indent-wrapper">
+               	 <textarea id="design-recipe-example2_header"></textarea>
+             	 <textarea id="design-recipe-example2_body"></textarea>
+	             <span class="spacer">)</span>
+              </div>
             </div>
             <span class="error" id="design-recipe-example2_error"></span>
           </div>
@@ -268,9 +272,11 @@
           <div class="section" id="design-recipe-definition">
             <div id="design-recipe-definition_wrapper">
               <span class="spacer">(define </span>
-              <textarea id="design-recipe-definition_header"></textarea>
-              <textarea id="design-recipe-definition_body"></textarea>
-              <span class="spacer">)</span>
+              <div class="indent-wrapper">
+              	<textarea id="design-recipe-definition_header"></textarea>
+              	<textarea id="design-recipe-definition_body"></textarea>
+              	<span class="spacer">)</span>
+              </div>
             </div>
             <span class="error" id="design-recipe-definition_error"></span>
           </div>
