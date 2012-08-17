@@ -173,11 +173,12 @@ public class Program implements Serializable {
 			this.srcs_.add(new SourceCode(this.title_, ""));
 		}
 
-                // Return the very last source.  
+        // Return the very last source.  
 		return this.srcs_.get(this.srcs_.size() - 1);
 	}
 
 	private void setSource(SourceCode src) {
+		this.srcs_.clear();
 		this.srcs_.add(src);
 		this.updateTime();
 	}
