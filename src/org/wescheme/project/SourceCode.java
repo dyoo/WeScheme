@@ -9,6 +9,7 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 import org.jdom.Element;
+import org.wescheme.util.Base64;
 
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.Text;
@@ -55,7 +56,7 @@ public class SourceCode implements Serializable{
 	
 	public Element toXML() {
 		Element root = new Element("source");
-		root.setText(src_.getValue());
+		root.setText(Base64.encodeBytes(src_.getValue().getBytes()));
 		return root;
 	}
 	

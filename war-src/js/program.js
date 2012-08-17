@@ -3,7 +3,7 @@ goog.provide("plt.wescheme.Program");
 
 goog.require("plt.wescheme.SharedAs");
 goog.require("plt.wescheme.WeSchemeProperties");
-
+goog.require("plt.wescheme.base64");
 
 
 // if (typeof (plt) === 'undefined') {
@@ -66,7 +66,7 @@ goog.require("plt.wescheme.WeSchemeProperties");
 
 
     plt.wescheme.Program.prototype.getSourceCode = function() {
-	return this.dom.children("source").text();
+	return plt.wescheme.base64.decode(this.dom.children("source").text());
     };
 
     // isSourcePublic: -> boolean
