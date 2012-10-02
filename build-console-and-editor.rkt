@@ -12,6 +12,8 @@
 (define-runtime-path closure-zip-path (build-path "externals" "closure-library-20111110-r1376.zip"))
 (define-runtime-path compiler-jar-path (build-path "bin" "compiler.jar"))
 
+(define-runtime-path codemirror-dir (build-path "war" "js" "codemirror2"))
+
 
 
 (define (call-system #:pipe-input-from (pipe-input-from #f)
@@ -53,6 +55,15 @@
                #:pipe-output-to (string-append "war/js/" dest)))
 
 
+(define (ensure-codemirror-installed!)
+  (unless (directory-exists? codemirror-dir)
+    (fprintf (current-error-port) "Codemirror hasn't been pulled.\n  Trying to run: git submodule init/update now...\n")
+    (call-system "git" "submodule" "init")
+    (call-system "git" "submodule" "update")
+    
+    (unless (directory-exists? codemirror-dir)
+      (fprintf (current-error-port) "Codemirror could not be pulled successfully.  Exiting.\n")
+      (exit 0))))
 
 
 (define (ensure-closure-library-installed!)
@@ -69,6 +80,7 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(ensure-codemirror-installed!)
 (ensure-closure-library-installed!)
 
 
