@@ -89,7 +89,7 @@ var initializeWidget = (function () {
                                              errorElement,
                                              isViolatingDependencies) {
         var that = this;
-
+        
         isViolatingDependencies = isViolatingDependencies || function() { return false; };
 
 
@@ -149,9 +149,10 @@ var initializeWidget = (function () {
         var onBlur = function() {
             // jQuery(errorElement).empty();
         };
-
+        
 	var km = {};
-	km["Tab"] = "indentAuto";
+	km["Tab"] = tabIndent? "indentAuto" : CodeMirror.Pass;
+	km["Shift-Tab"] = CodeMirror.Pass;
 
         this.codeMirrorElement = 
             CodeMirror.fromTextArea(textElement,
@@ -298,14 +299,15 @@ var initializeWidget = (function () {
         var isExampleHeaderError = function(header) {
             var name = getFunctionNameFromContract();
             var result = jQuery("<span/>")
-                .append("An example header looks like:")
+                .append("How would use use this function with some inputs?")
                 .append(jQuery("<br/>"))
                 .append(jQuery("<span/>")
-                        .append("(")
-                        .append(jQuery("<i/>").text(name))
-                        .append("...")
-                        .append(jQuery("<i>inputs</i>"))
-                        .append("...)")
+                        .append("HINT: (")
+                        .append(name)
+                        .append(jQuery("<i/>")
+                        		.append("&nbsp;...")
+                        		.append(contract_domain.getValue())
+                        		.append("...)"))
                         .css("padding-left", "10px"));
                 
             // make sure the header begins with "(name", accounting for whitespace
@@ -326,7 +328,7 @@ var initializeWidget = (function () {
 
         var isExampleBodyError = function(body) {
             if(body.length===0){
-                return jQuery("<span/>").text("Complete the expected value for this example.");
+                return jQuery("<span/>").text("What should happen for this example?");
             }
             // make sure the body is well-formed
             if(!wellFormed(body)) {
@@ -362,17 +364,18 @@ var initializeWidget = (function () {
         var isDefinitionHeaderError = function(header) {
             var name = getFunctionNameFromContract();
             var result = jQuery("<span/>")
-                .append("An function header looks like:")
+                .append("A function header looks like:")
                 .append(jQuery("<br/>"))
                 .append(jQuery("<span/>")
                         .append("(")
-                        .append(jQuery("<i/>").text(name))
-                        .append("...")
-                        .append(jQuery("<i>variables</i>"))
-                        .append("...)")
+                        .append(name)
+                        .append(jQuery("<i/>")
+                        		.append("  ...")
+                        		.append(jQuery("<i>variables</i>"))
+                        		.append("...)"))
                         .css("padding-left", "10px")
                         .append(jQuery("<br/>")))
-                .append("HINT: Look at your examples if you get stuck. What changes from example to example?");
+                .append("HINT: What changes from one example to another?");
 
                 
             // make sure the header begins with "(name", accounting for whitespace
