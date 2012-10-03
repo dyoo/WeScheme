@@ -87,7 +87,8 @@ var initializeWidget = (function () {
     var ValidatedTextInputElement = function(textElement,
                                              isError,
                                              errorElement,
-                                             isViolatingDependencies) {
+                                             isViolatingDependencies,
+                                             tabIndent) {
         var that = this;
         
         isViolatingDependencies = isViolatingDependencies || function() { return false; };
@@ -151,8 +152,8 @@ var initializeWidget = (function () {
         };
         
 	var km = {};
-	km["Tab"] = tabIndent? "indentAuto" : CodeMirror.Pass;
-	km["Shift-Tab"] = CodeMirror.Pass;
+	km["Tab"] = (tabIndent? "indentAuto" : false);
+	km["Shift-Tab"] = false;
 
         this.codeMirrorElement = 
             CodeMirror.fromTextArea(textElement,
@@ -570,7 +571,8 @@ var initializeWidget = (function () {
                 isDefinitionBodyError,
                 document.getElementById("design-recipe-definition_error"),
                 function() { return isContractDependencyError() || 
-                             isExampleDependencyError(); });
+                             isExampleDependencyError(); },
+                             true);
 
             
             var bc3 = new BlockingConstraint('#design-recipe-insertCode',
