@@ -316,17 +316,13 @@
 	
 	<div id="toolbar">
 	  <ul>
-	    <li class="run">	
-	      <a id="run"><span class="button">Run</span></a>
-	    </li>
-	    <li class="stop">	
-	      <a id="stop"><span class="button">Stop</span></a>
-	    </li>
+	    <li><a id="run"><span>Run</span></a></li>
+	    <li><a id="stop"><span>Stop</span></a></li>
 	    <% if (userSession != null) { %>
-	    <li class="save"><a id="save"><span class="button">Save</span></a></li>
-	    <li class="share"><a id="share"><span class="button">Share</span></a></li>
+	    <li><a id="save"><span>Save</span></a></li>
+	    <li><a id="share"><span>Share</span></a></li>
 	    <% } %>
-        <li class="designrecipe"><a id="designrecipebutton"><span class="button">Recipe</span></a></li>
+        <li><a id="recipe"><span>Recipe</span></a></li>
 	  </ul>
           <ul></ul>
           <!-- This is here to force the div height.  This may be unnecessary
