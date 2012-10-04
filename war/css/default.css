@@ -155,6 +155,7 @@ h2 > a:hover{text-decoration: underline;}
     text-align:		center;
     width:			20%;
     max-width:      125px;
+    min-width:      80px;
 }
 
 #toolbar .button {
@@ -165,11 +166,11 @@ h2 > a:hover{text-decoration: underline;}
   background-position: 15px 0px;
 }
 
-li.run .button{background-image: url(run.png);}
-li.stop .button{background-image: url(break.png);}
-li.save .button{background-image: url(save.png);}
-li.share .button{background-image: url(share.png);}
-li.recipe .button{background-image: url(recipe.png);}
+a#run    span:before{content: url(run.png);    margin-right: 3px;}
+a#stop   span:before{content: url(break.png);  margin-right: 3px;}
+a#save   span:before{content: url(save.png);   margin-right: 3px;}
+a#share  span:before{content: url(share.png);  margin-right: 3px;}
+a#recipe span:before{content: url(recipe.png); margin-right: 3px;}
 
 #toolbar li a, #toolbar li a:visited{
     display:		block;
@@ -377,17 +378,11 @@ span.top-aligned-inline-block {
 
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px){
     #toolbar li a{
-        width:        90px;
-        height:       30px;
-		border-left:  solid 1px gray;
-    }
+        border-left:  solid 1px gray;
+		font-size: 0px;
+		padding-top: 10px;   
+		padding-bottom: 10px; 
+		}
 
 	#toolbar li a:hover{background: none;}
-
-    #toolbar  .button{
-        font-size: 0px; 
-        background-position: 40px 5px; 
-        height: 30px;
-        float: left;
-    }
 }
