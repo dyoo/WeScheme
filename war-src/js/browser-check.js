@@ -34,7 +34,7 @@ goog.require('plt.wescheme.cookies');
 
     var knownBadBrowsers = [ {browser: 'Explorer', lessThan: '8'},
 			     {browser: 'Safari', lessThan: '4'},
-			     {browser: 'Firefox', lessThan: '3.5.1'} ];
+			     {browser: 'Firefox', lessThan: '3.6'} ];
 
 
 

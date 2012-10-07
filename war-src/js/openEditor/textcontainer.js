@@ -150,7 +150,7 @@ var WeSchemeTextContainer;
 					mode: "scheme2",
 					extraKeys: km,
 					lineNumbers: (typeof (options.lineNumbers) !== 'undefined'? options.lineNumbers :  true),
-					//textWrapping: true,
+					lineWrapping: true,
 					matchBrackets: true,
 					value: options.content || "",
 					readOnly: (typeof (options.readOnly) !== 'undefined'? options.readOnly : false),

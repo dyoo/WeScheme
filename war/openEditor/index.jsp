@@ -415,7 +415,7 @@
     widget = initializeWidget(myEditor.defn.impl.editor,
                               myEditor.getTokenizer());
 
-    jQuery("#designrecipebutton").bind("click", function(e) { e.preventDefault(); e.stopPropagation(); widget.showWidget(); });
+    jQuery("#recipe").bind("click", function(e) { e.preventDefault(); e.stopPropagation(); widget.showWidget(); });
     });
     
     <% if (isEmbedded) { %>
