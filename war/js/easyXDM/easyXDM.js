@@ -1448,7 +1448,7 @@ easyXDM.stack.FlashTransport = function(config){
             easyXDM.Fn.set("flash_" + config.channel + "_init", function(){
                 setTimeout(function(){
                     pub.up.callback(true);
-                });
+			}, 0);
             });
             
             // set up the omMessage handler
@@ -1582,10 +1582,12 @@ easyXDM.stack.PostMessageTransport = function(config){
      * @param {Object} event The messageevent
      */
     function _window_onMessage(event){
-        var origin = _getOrigin(event);
-        if (origin == targetOrigin && event.data.substring(0, config.channel.length + 1) == config.channel + " ") {
-            pub.up.incoming(event.data.substring(config.channel.length + 1), origin);
-        }
+	setTimeout(function() {
+		var origin = _getOrigin(event);
+		if (origin == targetOrigin && event.data.substring(0, config.channel.length + 1) == config.channel + " ") {
+		    pub.up.incoming(event.data.substring(config.channel.length + 1), origin);
+			}
+	    }, 0);
     }
     
     return (pub = {
