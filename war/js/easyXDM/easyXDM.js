@@ -1582,12 +1582,10 @@ easyXDM.stack.PostMessageTransport = function(config){
      * @param {Object} event The messageevent
      */
     function _window_onMessage(event){
-	setTimeout(function() {
-		var origin = _getOrigin(event);
-		if (origin == targetOrigin && event.data.substring(0, config.channel.length + 1) == config.channel + " ") {
-		    pub.up.incoming(event.data.substring(config.channel.length + 1), origin);
-			}
-	    }, 0);
+        var origin = _getOrigin(event);
+        if (origin == targetOrigin && event.data.substring(0, config.channel.length + 1) == config.channel + " ") {
+            pub.up.incoming(event.data.substring(config.channel.length + 1), origin);
+        }
     }
     
     return (pub = {
