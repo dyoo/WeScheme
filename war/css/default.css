@@ -377,11 +377,14 @@ span.top-aligned-inline-block {
 */
 
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px){
+	#toolbar li {min-width: 50px;}
     #toolbar li a{
         border-left:  solid 1px gray;
-		font-size: 0px;
 		padding-top: 10px;   
-		padding-bottom: 10px; 
+		padding-bottom: 10px;
+		/* Hide the text by making is as small as possible, and match the BG color */ 
+		font-size: 0px;
+		color: black;
 		}
 
 	#toolbar li a:hover{background: none;}
