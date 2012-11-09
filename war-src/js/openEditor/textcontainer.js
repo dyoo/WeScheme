@@ -244,8 +244,14 @@ var WeSchemeTextContainer;
 		var name = "highlight" + (currentHighlightNumber+'x');//to prevent overwriting with prefixes
 
 		currentHighlightNumber++;
+            
+            if (stylesheet.insertRule) {
+                stylesheet.insertRule("." + name + " { background-color: " + color + ";}", 0);
+            } else {
+	        // IE8 compatibility
+                stylesheet.addRule("." + name, "{ background-color: " + color + "", 0);
+            }
 
-		stylesheet.insertRule("." + name + " { background-color: " + color + ";}", 0);
 		
 		var highlightedArea = this.editor.markText(this.handleAndColumnToPos(startHandleAndColumn), 
 					this.handleAndColumnToPos(endHandleAndColumn), 

@@ -18,7 +18,6 @@ var WeSchemeStatusBar;
 plt.wescheme.WeSchemeStatusBar = WeSchemeStatusBar = (function() {
     function WeSchemeStatusBar(statusbar) {
 	this.statusbar = statusbar;
-        this.oldBackground = this.statusbar.parent().css("background");
 
 	this.delay_till_fade = 5000; // five seconds until we fade the text.
 	this.fadeCallbackId = undefined;
@@ -63,14 +62,17 @@ plt.wescheme.WeSchemeStatusBar = WeSchemeStatusBar = (function() {
         var index = 0;
         var that = this;
         isBlinking = true;
+        var oldBackground = (this.statusbar.parent().css("background") 
+                             || "wheat");
+
         var intervalId = setInterval(function() {
             if (index++ % 2 == 0) {
                 that.statusbar.parent().css("background", "yellow");
             } else {
-                that.statusbar.parent().css("background", that.oldBackground);
+                that.statusbar.parent().css("background", oldBackground);
             }
             if (index > 10) {
-                that.statusbar.parent().css("background", that.oldBackground);
+                that.statusbar.parent().css("background", oldBackground);
                 isBlinking = false;
                 clearInterval(intervalId); 
             }
