@@ -79,7 +79,7 @@ plt.wescheme.WeSchemeStatusBar = WeSchemeStatusBar = (function() {
         var intervalId =
         setInterval(function() {
                 toggle();
-                if (index > 2) {
+                if (index > 1) {
                     // reset
                     that.statusbar.parent().css("background", oldBackground);
                     that.statusbar.css("color", oldTextcolor);
