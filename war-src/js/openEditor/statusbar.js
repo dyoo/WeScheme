@@ -64,19 +64,29 @@ plt.wescheme.WeSchemeStatusBar = WeSchemeStatusBar = (function() {
         isBlinking = true;
         var oldBackground = (this.statusbar.parent().css("background") 
                              || "wheat");
+        var oldTextcolor = this.statusbar.css("color") || "black";
 
-        var intervalId = setInterval(function() {
-            if (index++ % 2 == 0) {
-                that.statusbar.parent().css("background", "yellow");
+        var toggle = function() {
+            if (++index % 2 == 0) {
+                that.statusbar.parent().css("background", "white");
+                that.statusbar.css('color', 'black');
             } else {
-                that.statusbar.parent().css("background", oldBackground);
+                that.statusbar.parent().css("background", "black");
+                that.statusbar.css('color', 'white');
             }
-            if (index > 10) {
-                that.statusbar.parent().css("background", oldBackground);
-                isBlinking = false;
-                clearInterval(intervalId); 
-            }
-        }, 200);
+        }
+        toggle();
+        var intervalId =
+        setInterval(function() {
+                toggle();
+                if (index > 2) {
+                    // reset
+                    that.statusbar.parent().css("background", oldBackground);
+                    that.statusbar.css("color", oldTextcolor);
+                    isBlinking = false;
+                    clearInterval(intervalId); 
+                }
+            }, 1000);
     };
 
 
