@@ -38,7 +38,7 @@ plt.wescheme.WeSchemeStatusBar = WeSchemeStatusBar = (function() {
 		'before-share': 'Program is being shared',
 		'after-share': 'Program has been shared'};
 	    if (action === 'notify' &&
-		typeof(editorNotifyCategoryMap[category] !== 'undefined')) {
+		editorNotifyCategoryMap[category]) {
 		that.notify(editorNotifyCategoryMap[category]);
 	    } else if (action === 'notify' &&
 		       category === 'exception') {
@@ -105,7 +105,8 @@ plt.wescheme.WeSchemeStatusBar = WeSchemeStatusBar = (function() {
 
 	this.fadeCallbackId = setTimeout(
 	    function() {
-		that.statusbar.fadeOut("fast");
+		that.statusbar.fadeOut(
+                    "fast", function () { that.statusbar.text(""); });
 	    }, 
 	    this.delay_till_fade);
 	// FIXME: make transparent after a while.
