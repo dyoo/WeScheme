@@ -188,23 +188,9 @@ a#recipe span:before{content: url(recipe.png); margin-right: 3px;}
 
 
 .clickableAnchor {
-    background: black;
     color: white;
     cursor: pointer;
 }
-.clickableAnchor:hover {
-    background: #546DAF;
-}
-
-
-
-
-
-
-
-
-
-
 
 /* DEFINITIONS */
 #definitions{
