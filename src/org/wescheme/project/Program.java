@@ -106,6 +106,7 @@ public class Program implements Serializable {
 		p.title_ = this.getTitle();
 		p.backlink_ = this.getId();
 		p.author_ = this.author_;
+                p.notes = this.notes;
 		p.updateTime();
 
 		p = pm.makePersistent(p);
