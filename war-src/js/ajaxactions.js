@@ -24,6 +24,8 @@ goog.require('plt.wescheme.Program');
 	} else {
 	    data = { publicId: publicId };
 	}
+        // to prevent caching:
+        data.gensym = Math.random();
 	jQuery.ajax({cache : false,
   		     data : data,
   		     dataType: "xml",
@@ -47,8 +49,11 @@ goog.require('plt.wescheme.Program');
 	    var dom = jQuery(data);
 	    onSuccess(dom);
 	};
+        var data = {};
+        // to prevent caching:
+        data.gensym = Math.random();
 	jQuery.ajax({cache: false,
-		     data: {},
+		     data: data,
 		     dataType: "xml",
 		     type: "GET",
 		     url: "/listProjects",
@@ -154,22 +159,17 @@ goog.require('plt.wescheme.Program');
     //       (number -> void) (-> void) -> void
     // Does a save.
     plt.wescheme.AjaxActions.prototype.save = function(attrs, onSuccess, onFailure) {
-        var pid = attrs.pid;
-        var title = attrs.title;
-        var code = attrs.code;
-        var notes = attrs.notes;
-
-	var data;
-	if (pid) {
-	    data = { pid: pid,
-		     title: title,
-		     code: code,
-                     notes: notes};
-	} else {
-	    data = { title: title,
-		     code: code,
-                     notes : notes};
-	}
+        var i;
+	var data = {};
+        var attrNames = ['title', 'code', 'notes'];
+	if (attrs.pid) {
+	    data.pid = attrs.pid;
+        }
+        for (i=0; i < attrNames.length; i++) {
+            if (attrs.hasOwnProperty(attrNames[i])) {
+                data[attrNames[i]] = attrs[attrNames[i]];
+            }
+        }
 	jQuery.ajax({cache : false,
   		     data : data,
   		     dataType: "text",

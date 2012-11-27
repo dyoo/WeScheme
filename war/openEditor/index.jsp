@@ -336,6 +336,7 @@
 	<div id="fileInfo">
 	  <label id="filenamelabel" for="filename">Project name:</label>
 	  <input id="filename" type="text" style="width: 20%"/>
+          <a id="updateNotes" class="clickableAnchor">Update Notes...</a>
 	</div>
 
 

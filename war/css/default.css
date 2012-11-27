@@ -181,9 +181,19 @@ a#recipe span:before{content: url(recipe.png); margin-right: 3px;}
 }
 
 #toolbar li a:hover{
-    background:		#546DAF;
-    color:			white;
-    cursor:			pointer;
+    background: #546DAF;
+    color: white;
+    cursor: pointer;
+}
+
+
+.clickableAnchor {
+    background: black;
+    color: white;
+    cursor: pointer;
+}
+.clickableAnchor:hover {
+    background: #546DAF;
 }
 
 

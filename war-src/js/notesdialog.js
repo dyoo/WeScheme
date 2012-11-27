@@ -15,6 +15,7 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
     plt.wescheme.NotesDialog = function(pid) {
 	this.pid = pid;
 	this.actions = new plt.wescheme.AjaxActions();
+        this.textArea = jQuery("<textarea class='notesTextarea'></textarea>")
     };
 
 
@@ -27,10 +28,11 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
 	};
 
         var onClose = function() {
-            alert('onclose');
             if (that.pid) {
-                // save the content of notes.
-                onSuccess();
+                that.actions.save({ pid : that.pid,
+                                    notes : that.textArea.val() },
+                                  onSuccess,
+                                  onAbort);
             } else {
                 // otherwise, just close quietly.
                 onSuccess();
@@ -38,18 +40,18 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
         };
 
         if (that.pid) {
-            that.actions.loadProject(
+            that.actions.loadAProject(
                 that.pid,
                 null,
                 function(dom, aProgram) {
-                    var textArea = jQuery("<textarea class='notesTextarea'></textarea>")
+                    
                     if (aProgram.getNotes()) { 
-                        textArea.val(aProgram.getNotes());
+                        that.textArea.val(aProgram.getNotes());
                     } else {
-                        textArea.val("Enter your notes here.");
+                        that.textArea.val("Enter your notes here.");
                     }
 	            dialogWindow.append(jQuery("<p/>").text("Notes"));
-                    dialogWindow.append(textArea);
+                    dialogWindow.append(that.textArea);
 	            dialogWindow.dialog({title: 'Notes',
 			                 bgiframe : true,
 			                 modal : true,

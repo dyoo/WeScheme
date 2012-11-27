@@ -288,7 +288,7 @@ public class Program implements Serializable {
             if (this.notes == null) {
                 return "";
             }
-            return this.notes.toString();
+            return this.notes.getValue();
 	}
 	
     /** Sets the notes for the program, and touches the timestamp.
