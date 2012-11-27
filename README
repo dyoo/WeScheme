@@ -11,37 +11,9 @@ The user-level documentation for the project is maintained in:
 ----------------------------------------------------------------------
 Build dependencies:
 
-1.  Java SDK should be installed and in $PATH.
-
-
-2.  WeScheme runs on Google AppEngine 1.4.2 or later.  You'll probably
-need to add the plugins into eclipse.
-
-    http://code.google.com/appengine/downloads.html#Download_the_Google_Plugin_for_Eclipse
-
-
-To verify that the installation went ok, you may want to walk through the first few steps of:
-
-   http://code.google.com/appengine/docs/java/gettingstarted/
-
-and make sure you can run Appengine apps locally.
-
-
-3.  WeScheme also uses the Google Closure library:
-
-   http://code.google.com/closure/library/docs/gettingstarted.html
-
-to manage the dependencies between the JavaScript modules and do
-JavaScript minimization.  The WeScheme repository has a copy of the
-closure library that will be automatically installed when
-build-console-and-editor.rkt is executed.  (See Step 3 of Installing
-WeScheme for local development).
-
-
-
-Our current build tools assume a Unix-like environment to run shell
-commands.
-
+A Java SDK should be installed and in $PATH, as should Apache Ant.
+Finally, our current build tools assume a Unix-like environment to run
+shell commands.
 
 
 ----------------------------------------------------------------------
@@ -83,8 +55,25 @@ you must run this every time you change the JavaScript files.
 
 ----------------------------------------------------------------------
 
+Running WeScheme locally:
+
+After running build-console-and-editor.rkt, use Apache Ant with the
+'runserver' target.
+
+   $ ant runserver
+
+This will bring up a locally-running Webserver running off port 8080.
+
+
+----------------------------------------------------------------------
+
+Hacking WeScheme:
+
 The directory structure of WeScheme is a fairly typical Java web app.
-The majority of the JavaScript files are located in:
+
+Treat war as an output distribution directory.  Do not try to modify
+files in there directly.  Rather, the majority of the JavaScript files
+can be found in:
 
    war-src/js
 
@@ -92,10 +81,34 @@ which are packaged up via Closure into single JavaScript files, one
 per application page.
 
     console: war/console.jsp, war/js/console-calc.js
-    view: war/view.jsp, war/js/view-calc.js
+
+        Implements the directory listing of a user's programs.
+
+
     openEditor: war/openEditor/index.jsp, war/js/openEditor-calc.js
 
+        Implements main editor window; implements the main WeScheme interface
+        (REPL, text editor)
+
+
+    view: war/view.jsp, war/js/view-calc.js
+    run: war/run.jsp
+
+        Implements the viewing and running of programs outside of the
+        editing environment.
+
+
+
+
+
+
 ----------------------------------------------------------------------
+----------------------------------------------------------------------
+----------------------------------------------------------------------
+Other random notes from Summer 2012:
+
+
+
 Things still to change, from summer 2012:
 some read errors like 1/0 (first ') ````,,,, not highlighted
 #(1234)

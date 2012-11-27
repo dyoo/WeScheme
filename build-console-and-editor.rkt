@@ -3,6 +3,7 @@
 (require racket/file
          racket/runtime-path
          racket/path
+         racket/port
          net/url
          (for-syntax racket/base))
 
@@ -19,7 +20,7 @@
 (define appengine-url
   "http://googleappengine.googlecode.com/files/appengine-java-sdk-1.7.3.zip")
 (define appengine-zip-path
-  (build-path "externals" "closure-library-20111110-r1376.zip"))
+  (build-path "externals" "appengine-java-sdk-1.7.3.zip"))
 (define appengine-dir
   (build-path "lib" "appengine-java-sdk-1.7.3"))
 
@@ -88,15 +89,24 @@
   
 (define (ensure-appengine-installed!)
   (unless (directory-exists? appengine-dir)
-    (fprintf (current-error-port) "The Google AppEngine API hasn't been instaleld yet.")
-    (fprintf (current-error-port) "Trying to download it now...\n")
-    (fprintf (current-error-port) "it will be installed in: ~s" appengine-dir)
-    (call-with-output-file appengine-zip-path
-      (lambda (op)
-        (define ip (get-pure-port appengine-url))
-        (copy-port ip op)
-        (close-input-port ip)
-        (close-output-port op)))
+    (fprintf (current-error-port)
+             "The Google AppEngine API hasn't been installed yet.\n")
+    (cond [(file-exists? appengine-zip-path)
+           (void)]
+          [else
+           (fprintf (current-error-port)
+                    "Trying to download it now... saving to ~s\n" appengine-zip-path)
+           (fprintf (current-error-port) 
+                    "(This will take a while; the API download is about 90 MB.)\n")
+           (call-with-output-file appengine-zip-path
+             (lambda (op)
+               (define ip (get-pure-port (string->url appengine-url)))
+               (copy-port ip op)
+               (close-input-port ip)
+               (close-output-port op)))])
+    (fprintf (current-error-port) 
+             "The API will be installed in: ~s" appengine-dir)
+    (sleep 5)
     (unless (directory-exists? (build-path appengine-dir 'up))
       (make-directory* (build-path appengine-dir 'up)))
     (let ([zip-path (normalize-path appengine-zip-path)])
@@ -104,7 +114,9 @@
         (call-system "unzip" (path->string zip-path))))
     (unless (directory-exists? appengine-dir)
       (fprintf (current-error-port) "The Google AppEngine library could not be installed; please check.\n")
-      (exit 0))))
+      (exit 0))
+    (fprintf (current-error-port)
+             "Google AppEngine API installed.\n")))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

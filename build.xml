@@ -1,5 +1,5 @@
 <project>
-  <property name="sdk.dir" location="/home/dyoo/local/appengine-java-sdk" />
+  <property name="sdk.dir" location="lib/appengine-java-sdk-1.7.3" />
 
   <import file="${sdk.dir}/config/user/ant-macros.xml" />
 
