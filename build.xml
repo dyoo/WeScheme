@@ -1,4 +1,4 @@
-<project>
+<project default="compile">
   <property name="sdk.dir" location="lib/appengine-java-sdk-1.7.3" />
 
   <import file="${sdk.dir}/config/user/ant-macros.xml" />
@@ -36,6 +36,7 @@
         srcdir="src"
         destdir="war/WEB-INF/classes"
         classpathref="project.classpath"
+        includeantruntime="false"
         debug="on" />
   </target>
 

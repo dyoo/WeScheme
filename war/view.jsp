@@ -20,9 +20,11 @@
     boolean hasSource = false;
     boolean isPublic = false;
     String title = "";
+    String notes = "";
     try {
         aProgram = Queries.getProgramByPublicId(pm, publicId);
         title = aProgram.getTitle();
+        notes = aProgram.getNotes();
         isPublic = aProgram.getIsSourcePublic();
         hasSource = !("".equals(aProgram.getObject().toString()));
     } catch (RuntimeException e) {
@@ -53,6 +55,9 @@
 <div id="publicId"
      style="display: none"><c:out escapeXml="true" value="<%= publicId %>" /></div>
 
+<div id="notes">
+  <c:out escapeXml="true" value="<%= notes %>" />
+</div>
 
 <% if (aProgram == null) { %>
 <script type="text/javascript">
