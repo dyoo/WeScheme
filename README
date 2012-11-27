@@ -11,9 +11,10 @@ The user-level documentation for the project is maintained in:
 ----------------------------------------------------------------------
 Build dependencies:
 
-A Java SDK should be installed and in $PATH, as should Apache Ant.
+A Java SDK should be installed, as should Apache Ant.  Racket 5.3.1 is
+also a dependency.  All these should be accessible from $PATH.
 Finally, our current build tools assume a Unix-like environment to run
-shell commands.
+shell commands, including 'unzip' and 'git'.
 
 
 ----------------------------------------------------------------------
