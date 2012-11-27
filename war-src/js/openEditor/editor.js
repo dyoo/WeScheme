@@ -290,23 +290,19 @@ var WeSchemeEditor;
 	};
 
 	var onFirstSave = function() {
-	    that.actions.save(false, 
-		 that.filenameEntry.attr("value"),
-		 that.defn.getCode(),
-		 function(newPid) { afterSave(newPid);
-				    // We want the reload button to work from this
-				    // point forward, so let's change the history.
-//				    window.location = (
-//					"/openEditor?pid=" + encodeURIComponent(that.pid));
-				  },
-		 whenSaveBreaks);
+	    that.actions.save({ pid: false, 
+		                title: that.filenameEntry.attr("value"),
+		                code : that.defn.getCode()},
+		              afterSave,
+		              whenSaveBreaks);
 	};
+
 	var onUpdate = function() {
-	    that.actions.save(that.pid,
-		 that.filenameEntry.attr("value"),
-		 that.defn.getCode(),
-		 afterSave,
-		 whenSaveBreaks);
+	    that.actions.save({ pid: that.pid,
+		                title: that.filenameEntry.attr("value"),
+		                code : that.defn.getCode()},
+		              afterSave,
+		              whenSaveBreaks);
 	};
 
 	var afterFileNameChosen = function() {

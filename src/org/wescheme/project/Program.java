@@ -19,6 +19,8 @@ import org.wescheme.util.CacheHelpers;
 import org.wescheme.util.Queries;
 import org.wescheme.util.XML;
 
+import com.google.appengine.api.datastore.Text;
+
 
 @PersistenceCapable(identityType = IdentityType.APPLICATION)
 public class Program implements Serializable {
@@ -66,6 +68,9 @@ public class Program implements Serializable {
 	private Long backlink_;
 
 
+	@Persistent
+	private Text notes;
+	
 
 	private void updateTime(){
 		time_ = System.currentTimeMillis();
@@ -241,7 +246,8 @@ public class Program implements Serializable {
 		root.addContent(XML.makeElement("author", author_));
 		root.addContent(XML.makeElement("modified", time_));
 		root.addContent(XML.makeElement("published", published_));
-
+		root.addContent(XML.makeElement("notes", this.getNotes().toString()));
+		
 		Element sharedAsElt = new Element("sharedAs");
 		for(Program p : this.getBacklinkedPrograms(pm)) {
 			if (p.getPublicId() != null) {
@@ -278,6 +284,20 @@ public class Program implements Serializable {
 	}
 
 
+	public String getNotes() {
+            if (this.notes == null) {
+                return "";
+            }
+            return this.notes.toString();
+	}
+	
+    /** Sets the notes for the program, and touches the timestamp.
+     **/
+    public void updateNotes(String n) {
+        this.notes = new Text(n);
+        this.updateTime();
+    }
+	
 
 
 	/**

@@ -147,17 +147,28 @@ goog.require('plt.wescheme.Program');
 
 
 
-    // save: (U undefined number) string string (number -> void) (-> void) -> void
+    // save: { pid : (U undefined number),
+    //         title: string,
+    //         code: string,
+    //         notes: string },
+    //       (number -> void) (-> void) -> void
     // Does a save.
-    plt.wescheme.AjaxActions.prototype.save = function(pid, title, code, onSuccess, onFailure) {
+    plt.wescheme.AjaxActions.prototype.save = function(attrs, onSuccess, onFailure) {
+        var pid = attrs.pid;
+        var title = attrs.title;
+        var code = attrs.code;
+        var notes = attrs.notes;
+
 	var data;
 	if (pid) {
 	    data = { pid: pid,
 		     title: title,
-		     code: code };
+		     code: code,
+                     notes: notes};
 	} else {
 	    data = { title: title,
-		     code: code };
+		     code: code,
+                     notes : notes};
 	}
 	jQuery.ajax({cache : false,
   		     data : data,
