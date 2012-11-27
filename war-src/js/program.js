@@ -65,7 +65,7 @@ goog.require("plt.wescheme.base64");
     };
 
     // getNotes: -> string
-    plt.wescheme.Program.prototype.getPublicId = function() {
+    plt.wescheme.Program.prototype.getNotes = function() {
 	return this.dom.children("notes").text();
     };
 

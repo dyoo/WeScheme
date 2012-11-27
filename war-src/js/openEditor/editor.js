@@ -10,6 +10,7 @@ goog.provide('plt.wescheme.WeSchemeEditor');
 goog.require('plt.wescheme.AjaxActions');
 goog.require('plt.wescheme.WeSchemeIntentBus');
 goog.require('plt.wescheme.SharingDialog');
+goog.require('plt.wescheme.NotesDialog');
 goog.require('plt.wescheme.WeSchemeInteractions');
 goog.require('plt.wescheme.helpers');
 goog.require('plt.wescheme.tokenizer');
@@ -82,7 +83,8 @@ var WeSchemeEditor;
 
 		//////////////////////////////////////////////////////////////////////
 		// Flapjax stuff.
-		
+
+		// The program title:
 		that.filenameEntry = new FlapjaxValueHandler(
 		    attrs.filenameInput.get(0));
 
@@ -132,7 +134,8 @@ var WeSchemeEditor;
 		// logged in.
 		that.isLoggedInB = constantB(that._getIsLoggedIn());
 		
-		
+	
+	        // The program id pid as a behavior.
 		// A number or false behavior.
 		that.pidB = startsWith(
 		    that.loadedE.mapE(function(v) {
@@ -478,6 +481,17 @@ var WeSchemeEditor;
 	var dialog = new plt.wescheme.SharingDialog(this.pid, this.defn.getCode());
 	dialog.show();
     };
+
+
+    WeSchemeEditor.prototype.showNotesDialog = function() {
+        var dialog = new plt.wescheme.NotesDialog(this.pid);
+        var onSuccess = function() {
+        };
+        var onFail = function() {
+        };
+        dialog.show(onSuccess, onFail);
+    };
+
 
     WeSchemeEditor.prototype.run = function(after) {
 	var that = this;
