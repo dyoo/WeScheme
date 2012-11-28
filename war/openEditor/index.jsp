@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=640, initial-scale=.75, user-scalable=yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />	
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <link rel="apple-touch-icon-precomposed" href="css/images/BigLogo.png" />
+    <link rel="apple-touch-icon-precomposed" href="/css/images/BigLogo.png" />
 
 
     <!-- Add compatibility libraries for IE. -->
@@ -336,13 +336,13 @@
 	<div id="fileInfo">
 	  <label id="filenamelabel" for="filename">Project name:</label>
 	  <input id="filename" type="text" style="width: 20%"/>
-          <a id="updateNotes" class="clickableAnchor"><img src="http://www.pnsn.org/images/small_info_icon.png?1351723806"></a>
+          <a id="updateNotes" class="clickableAnchor"><img src="/images/small-info.png">Notes</a>
 	</div>
 
 
         <div id="documentation" class="documentation">
 	  <!-- <input id="docButton" type="button" value="Click me to hide documentation"/> -->
-	  <input id="resetButton" type="image" src="../images/home.png"/>
+	  <input id="resetButton" type="image" src="/images/home.png"/>
           <iframe id="docFrame" style="width:97%; height:95%"></iframe>
         </div> 
 
