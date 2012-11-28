@@ -59,7 +59,7 @@ public class LoadProjectServlet extends HttpServlet {
                 } else {
                     // Show the record, but without source.
                     resp.setContentType("text/json");
-                    resp.getWriter().print(prog.toXML(false, pm).toString());
+                    resp.getWriter().print(prog.toJSON(false, pm).toString());
                 }
             } else {
                 resp.sendError(400, "pid or publicId parameter missing");
