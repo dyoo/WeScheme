@@ -15,7 +15,9 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
     plt.wescheme.NotesDialog = function(pid) {
 	this.pid = pid;
 	this.actions = new plt.wescheme.AjaxActions();
-        this.textArea = jQuery("<textarea class='notesTextarea'></textarea>")
+        this.textArea = jQuery("<textarea class='notesTextarea'></textarea>");
+        this.textArea.css("width", '100%');
+        this.textArea.css("height", '100%');
     };
 
 
@@ -50,13 +52,15 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
                     } else {
                         that.textArea.val("Enter your notes here.");
                     }
-                    dialogWindow.append(that.textArea);
+                    dialogWindow.append(jQuery('<div/>').append(that.textArea).css('height', '100%'));
 	            dialogWindow.dialog({title: 'Notes',
 			                 bgiframe : true,
 			                 modal : true,
 			                 overlay : { opacity: 0.5,
 					             background: 'black'},
 			                 buttons : { "Save" : closeDialog },
+                                         width : 400,
+                                         height : 500,
                                          close : onClose 
 			                });
 	            dialogWindow.dialog("open");
@@ -70,6 +74,8 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
 			         overlay : { opacity: 0.5,
 					     background: 'black'},
 			         buttons : { "Close" : closeDialog },
+                                 width : 400,
+                                 height : 500,
                                  close : onClose
 			        });
 	    dialogWindow.dialog("open");
