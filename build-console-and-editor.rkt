@@ -156,6 +156,9 @@
 (printf "Building view\n")
 (build "view.js" "view-calc.js")
 
+(printf "Building run\n")
+(build "run.js" "run-calc.js")
+
 (printf "Building editor\n")
 (build "openEditor/index.js" "openEditor/openEditor-calc.js")
 

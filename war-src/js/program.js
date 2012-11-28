@@ -21,81 +21,81 @@ goog.require("plt.wescheme.base64");
 
 (function() {
 
-    plt.wescheme.Program = function(dom) {
-	this.dom = dom;
+    plt.wescheme.Program = function(json) {
+	this.json = json;
     };
 
 
     // getId: -> number
     plt.wescheme.Program.prototype.getId = function() {
-	return parseInt(this.dom.children("id").text());
+        return this.json.id;
     };
 
     // hasSharingUrls: -> boolean
     plt.wescheme.Program.prototype.hasSharingUrls = function() {
 	return (this.getSharedAsEntries().length > 0);
-	//	return this.dom.find('sharedAs > Entry').length > 0;
     };
 
     // getSharedAsEntries: -> [{publicId: string, title: string, modified: string} ...]
     plt.wescheme.Program.prototype.getSharedAsEntries = function() {
-	return new plt.wescheme.SharedAs(
-	    this.dom.children('sharedAs')).getEntries();
+	return new plt.wescheme.SharedAs(this.json.sharedAs);
     };
 
 
     // isPublished: -> boolean
     plt.wescheme.Program.prototype.isPublished = function() {
-	return this.dom.children("published").text() == 'true';
+	return this.json.published;
     };
 
     // getTitle: -> string
     plt.wescheme.Program.prototype.getTitle = function() {
-	return this.dom.children("title").text();
+	return this.json.title;
     };
 
     // getOwner: -> string
     plt.wescheme.Program.prototype.getOwner = function() {
-	return this.dom.children("owner").text();
+	return this.json.owner;
     };
 
     // getPublicId: -> string
     plt.wescheme.Program.prototype.getPublicId = function() {
-	return this.dom.children("publicId").text();
+	return this.json.publicId;
     };
 
     // getNotes: -> string
     plt.wescheme.Program.prototype.getNotes = function() {
-	return this.dom.children("notes").text();
+	return this.json.notes;
     };
 
     plt.wescheme.Program.prototype.getSourceCode = function() {
-	return plt.wescheme.base64.decode(this.dom.children("source").text());
+        return this.json.source.src;
+    };
+
+    plt.wescheme.Program.prototype.getPermissions = function() {
+        return this.json.permissions;
     };
 
     // isSourcePublic: -> boolean
     plt.wescheme.Program.prototype.isSourcePublic = function() {
-	return this.dom.find("isSourcePublic").text() == 'true';
+        return this.json.isSourcePublic;
     };
 
 
     // getObjectCode: -> string
     plt.wescheme.Program.prototype.getObjectCode = function() {
-	return this.dom.find("ObjectCode obj").text();
+        return this.json.object.obj;
     };
 
 
     // isAndroidPackageBuilt: -> boolean
     plt.wescheme.Program.prototype.isAndroidPackageBuilt = function() {
-	return this.dom.find("ObjectCode isAndroidPackageBuilt").text() === "true";
+        return false;
     };
 
     // getAndroidPackageUrl: -> string
     plt.wescheme.Program.prototype.getAndroidPackageUrl = function() {
-        return (plt.wescheme.WeSchemeProperties.wescheme_server_base + 
-                "/android?publicId=" + encodeURIComponent(this.getPublicId()));
+        return "";
     };
-
 
     // getPublicEditingUrl: -> string
     // Returns a url that, when visited, opens up the editor.

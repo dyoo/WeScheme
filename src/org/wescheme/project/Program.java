@@ -14,6 +14,7 @@ import javax.jdo.annotations.PrimaryKey;
 import javax.servlet.ServletContext;
 
 import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
 
 import org.jdom.Element;
 import org.wescheme.project.Compiler.BadCompilationResult;
@@ -281,17 +282,25 @@ public class Program implements Serializable {
         json.put("modified", this.time_);
         json.put("published", this.published_);
         json.put("notes", this.getNotes());
-        JSONObject sharedAs = new JSONObject();
+        JSONArray sharedAs = new JSONArray();
         for(Program p : this.getBacklinkedPrograms(pm)) {
             if (p.getPublicId() != null) {
                 JSONObject shared = new JSONObject();
                 shared.put("publicId", p.getPublicId());
                 shared.put("title", p.getTitle());
                 shared.put("modified", p.getTime());
-                sharedAs.put("Entry", shared);
+                sharedAs.add(shared);
             }
         }
         json.put("sharedAs", sharedAs);
+
+        JSONArray permissions = new JSONArray();
+        if (this.obj_ != null) {
+            for(String perm : this.obj_.getPermissions()) {
+                permissions.add(perm);
+            }
+        }
+        json.put("permissions", permissions);
         return json;
     }
 

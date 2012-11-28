@@ -42,10 +42,10 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
         };
 
         if (that.pid) {
-            that.actions.loadAProject(
+            that.actions.loadProject(
                 that.pid,
                 null,
-                function(dom, aProgram) {
+                function(aProgram) {
                     
                     if (aProgram.getNotes()) { 
                         that.textArea.val(aProgram.getNotes());

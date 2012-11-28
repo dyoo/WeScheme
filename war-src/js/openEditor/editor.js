@@ -428,7 +428,7 @@ var WeSchemeEditor;
 	var that = this;
 
 	
-	var whenLoadSucceeds = function(data, aProgram) {
+	var whenLoadSucceeds = function(aProgram) {
  	    that.pid = aProgram.getId();
  	    var publicUrl = getAbsoluteUrl(
  		"/openEditor?publicId=" +
@@ -455,13 +455,13 @@ var WeSchemeEditor;
 
 	if (attrs.pid) {
 	    plt.wescheme.WeSchemeIntentBus.notify("before-load", this);
-	    that.actions.loadAProject(attrs.pid,
+	    that.actions.loadProject(attrs.pid,
 			 undefined,
 			 whenLoadSucceeds,
 			 whenLoadFails);
 	} else if (attrs.publicId) {
 	    plt.wescheme.WeSchemeIntentBus.notify("before-load", this);
-	    that.actions.loadAProject(undefined,
+	    that.actions.loadProject(undefined,
 			 attrs.publicId,
 			 whenLoadSucceeds,
 			 whenLoadFails);

@@ -55,7 +55,7 @@
 <div id="publicId"
      style="display: none"><c:out escapeXml="true" value="<%= publicId %>" /></div>
 
-<div id="notes">
+<div id="notes" style="white-space: pre">
   <c:out escapeXml="true" value="<%= notes %>" />
 </div>
 

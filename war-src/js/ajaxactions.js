@@ -16,8 +16,8 @@ goog.require('plt.wescheme.Program');
     plt.wescheme.AjaxActions = function() {}
 
 
-    // loadAProject: number (jquery -> void) (-> void)
-    plt.wescheme.AjaxActions.prototype.loadAProject = function(pid, publicId, onSuccess, onFailure) {
+    // loadProject: number (jquery -> void) (-> void)
+    plt.wescheme.AjaxActions.prototype.loadProject = function(pid, publicId, onSuccess, onFailure) {
 	var pid;
 	if (pid) {
 	    data = { pid: pid };
@@ -28,12 +28,11 @@ goog.require('plt.wescheme.Program');
         data.gensym = Math.random();
 	jQuery.ajax({cache : false,
   		     data : data,
-  		     dataType: "xml",
+  		     dataType: "json",
   		     type: "GET",
   		     url: "/loadProject",
-  		     success: function(dom) {
-			 var jDom = jQuery(dom).find("Program");
-			 onSuccess(jDom, new plt.wescheme.Program(jDom));
+  		     success: function(json) {
+			 onSuccess(new plt.wescheme.Program(json));
 		     },
   		     error: function(xhr) {
 			 onFailure(xhr.statusText);
