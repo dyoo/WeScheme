@@ -13,6 +13,8 @@ import javax.jdo.annotations.IdentityType;
 import javax.jdo.annotations.PrimaryKey;
 import javax.servlet.ServletContext;
 
+import org.json.simple.JSONObject;
+
 import org.jdom.Element;
 import org.wescheme.project.Compiler.BadCompilationResult;
 import org.wescheme.util.CacheHelpers;
@@ -247,7 +249,7 @@ public class Program implements Serializable {
 		root.addContent(XML.makeElement("author", author_));
 		root.addContent(XML.makeElement("modified", time_));
 		root.addContent(XML.makeElement("published", published_));
-		root.addContent(XML.makeElement("notes", this.getNotes().toString()));
+		root.addContent(XML.makeElement("notes", this.getNotes()));
 		
 		Element sharedAsElt = new Element("sharedAs");
 		for(Program p : this.getBacklinkedPrograms(pm)) {
@@ -262,8 +264,37 @@ public class Program implements Serializable {
 		root.addContent(sharedAsElt);
 
 		return root;
-
 	}
+
+
+    public JSONObject toJSON(PersistenceManager pm) { return this.toJSON(true, pm); }
+    public JSONObject toJSON(boolean includeSource, PersistenceManager pm) {
+        JSONObject json = new JSONObject();
+        if (includeSource) { json.put("source", getSource().toJSON()); }
+        if (obj_ != null) { json.put("object", obj_.toJSON()); }
+        json.put("id", id);
+        if (publicId_ != null) { json.put("publicId", publicId_); }
+        json.put("isSourcePublic", this.getIsSourcePublic());
+        json.put("title", this.getTitle());
+        json.put("owner", this.owner_);
+        json.put("author", this.author_);
+        json.put("modified", this.time_);
+        json.put("published", this.published_);
+        json.put("notes", this.getNotes());
+        JSONObject sharedAs = new JSONObject();
+        for(Program p : this.getBacklinkedPrograms(pm)) {
+            if (p.getPublicId() != null) {
+                JSONObject shared = new JSONObject();
+                shared.put("publicId", p.getPublicId());
+                shared.put("title", p.getTitle());
+                shared.put("modified", p.getTime());
+                sharedAs.put("Entry", shared);
+            }
+        }
+        json.put("sharedAs", sharedAs);
+        return json;
+    }
+
 
 	public boolean isPublished() {
 

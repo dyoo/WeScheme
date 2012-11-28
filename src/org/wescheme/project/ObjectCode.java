@@ -13,6 +13,9 @@ import javax.jdo.annotations.PrimaryKey;
 import org.jdom.Element;
 import org.wescheme.util.XML;
 
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
+
 import com.google.appengine.api.datastore.Text;
 import com.google.appengine.api.datastore.Key;
 
@@ -121,4 +124,19 @@ public class ObjectCode implements Serializable {
 				isAndroidPackageBuilt()));
 		return root;
 	}	
+
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("obj", obj_.getValue());
+
+        JSONArray permElt = new JSONArray();
+        json.put("permissions", permElt);
+        for (String perm : this.getPermissions()) {
+            permElt.add(perm);
+        }
+
+        json.put("trusted", this.trusted_);
+        json.put("isAndroidPackageBuilt", isAndroidPackageBuilt());
+        return json;
+    }
 }

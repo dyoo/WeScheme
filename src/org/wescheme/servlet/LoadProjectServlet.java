@@ -7,7 +7,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.jdom.output.XMLOutputter;
 import org.wescheme.project.Program;
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
@@ -42,9 +41,8 @@ public class LoadProjectServlet extends HttpServlet {
                 Program prog = getProgramByPid(pm, req.getParameter("pid"));
                 if( null != userSession ){
                     if (isOwner(userSession, prog) || userSession.isAdmin()) {
-                        XMLOutputter outputter = new XMLOutputter();
                         resp.setContentType("text/xml");
-                        resp.getWriter().print(outputter.outputString(prog.toXML(pm)));
+                        resp.getWriter().print(prog.toJSON(pm).toString());
                     } else {
                         log.warning(userSession.getName() + " does not own " + req.getParameter("pid"));
                         resp.sendError(401, "Not owner");
@@ -56,14 +54,12 @@ public class LoadProjectServlet extends HttpServlet {
             } else if (req.getParameter("publicId") != null) {
                 Program prog = getProgramByPublicId(pm, req.getParameter("publicId"));
                 if (isOwner(userSession, prog) || prog.getIsSourcePublic()) {
-                    XMLOutputter outputter = new XMLOutputter();
                     resp.setContentType("text/xml");
-                    resp.getWriter().print(outputter.outputString(prog.toXML(pm)));
+                    resp.getWriter().print(prog.toJSON(pm).toString());
                 } else {
                     // Show the record, but without source.
-                    XMLOutputter outputter = new XMLOutputter();
                     resp.setContentType("text/xml");
-                    resp.getWriter().print(outputter.outputString(prog.toXML(false, pm)));
+                    resp.getWriter().print(prog.toXML(false, pm).toString());
                 }
             } else {
                 resp.sendError(400, "pid or publicId parameter missing");

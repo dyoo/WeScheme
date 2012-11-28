@@ -8,6 +8,8 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
+import org.json.simple.JSONObject;
+
 import org.jdom.Element;
 import org.wescheme.util.Base64;
 
@@ -59,5 +61,13 @@ public class SourceCode implements Serializable{
 		root.setText(Base64.encodeBytes(src_.getValue().getBytes()));
 		return root;
 	}
+
+   
+    public JSONObject toJSON() {
+        JSONObject json = new JSONObject();
+        json.put("src", this.src_.getValue());
+        json.put("name", this.name);
+        return json;
+    }
 	
 }
