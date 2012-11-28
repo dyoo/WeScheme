@@ -50,21 +50,19 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
                     } else {
                         that.textArea.val("Enter your notes here.");
                     }
-	            dialogWindow.append(jQuery("<p/>").text("Notes"));
                     dialogWindow.append(that.textArea);
 	            dialogWindow.dialog({title: 'Notes',
 			                 bgiframe : true,
 			                 modal : true,
 			                 overlay : { opacity: 0.5,
 					             background: 'black'},
-			                 buttons : { "Save notes" : closeDialog },
+			                 buttons : { "Save" : closeDialog },
                                          close : onClose 
 			                });
 	            dialogWindow.dialog("open");
                 },
                 onAbort);
         } else {
-	    dialogWindow.append(jQuery("<p/>").text("Notes"));
             dialogWindow.append(jQuery("<span>Please save the program first.</span>"));
 	    dialogWindow.dialog({title: 'Notes',
 			         bgiframe : true,
