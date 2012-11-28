@@ -41,7 +41,7 @@ public class LoadProjectServlet extends HttpServlet {
                 Program prog = getProgramByPid(pm, req.getParameter("pid"));
                 if( null != userSession ){
                     if (isOwner(userSession, prog) || userSession.isAdmin()) {
-                        resp.setContentType("text/xml");
+                        resp.setContentType("text/json");
                         resp.getWriter().print(prog.toJSON(pm).toString());
                     } else {
                         log.warning(userSession.getName() + " does not own " + req.getParameter("pid"));
@@ -54,11 +54,11 @@ public class LoadProjectServlet extends HttpServlet {
             } else if (req.getParameter("publicId") != null) {
                 Program prog = getProgramByPublicId(pm, req.getParameter("publicId"));
                 if (isOwner(userSession, prog) || prog.getIsSourcePublic()) {
-                    resp.setContentType("text/xml");
+                    resp.setContentType("text/json");
                     resp.getWriter().print(prog.toJSON(pm).toString());
                 } else {
                     // Show the record, but without source.
-                    resp.setContentType("text/xml");
+                    resp.setContentType("text/json");
                     resp.getWriter().print(prog.toXML(false, pm).toString());
                 }
             } else {
