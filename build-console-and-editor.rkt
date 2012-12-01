@@ -44,6 +44,9 @@
         cmd
         (find-executable-path cmd)))
 
+  (unless resolved-cmd
+    (error 'build (format "I could not find ~s in your PATH" cmd)))
+
   (define-values (a-subprocess subprocess-in subprocess-out subprocess-err)
     (apply subprocess stdout stdin (current-error-port) resolved-cmd args))
 
