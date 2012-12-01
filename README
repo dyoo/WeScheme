@@ -11,10 +11,14 @@ The user-level documentation for the project is maintained in:
 ----------------------------------------------------------------------
 Build dependencies:
 
-A Java SDK should be installed, as should Apache Ant.  Racket 5.3.1 is
+Java 1.6 SDK should be installed, as should Apache Ant.  Racket 5.3.1 is
 also a dependency.  All these should be accessible from $PATH.
 Finally, our current build tools assume a Unix-like environment to run
 shell commands, including 'unzip' and 'git'.
+
+Note: do NOT use Java 1.7.  It has a known incompatibility with the
+underlying Google Appengine software.
+(http://stackoverflow.com/questions/11006281/java-7-support-for-google-app-engine-java)
 
 
 ----------------------------------------------------------------------
