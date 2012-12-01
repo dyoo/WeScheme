@@ -89,6 +89,19 @@ function init(compilationServerUrl, publicId) {
 	var title = aProgram.getTitle();
 	var programCode = aProgram.getObjectCode();
 	var permissions = aProgram.getPermissions();
+  
+  var j = jQuery("#interactions");
+  j.dblclick(function (evt) {
+                            var elem = evt.target;
+                            if (elem.webkitRequestFullscreen) {
+                                elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                            } else {
+                                    if (elem.mozRequestFullScreen) {
+                                        elem.mozRequestFullScreen();
+                                    } else {
+                                           elem.requestFullscreen();
+                                           }
+                            }});
         // Change the title of the document to that of the program.
         document.title = title;
 	runner.runCompiledCode(title, programCode, permissions);
