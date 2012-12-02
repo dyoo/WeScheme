@@ -102,6 +102,21 @@ per application page.
         Implements the viewing and running of programs outside of the
         editing environment.
 
+----------------------------------------------------------------------
+The Selenium Test Suite.
+
+We use Selenium (http://seleniumhq.org)
+
+To use the suite:
+
+1. Install firefox
+2. Install selenium IDE @ http://seleniumhq.org/download/
+3. Open up firefox
+4. To open selenium, in firefox go to Tools -> Selenium IDE
+5. Visit the openEditor page of the wescheme instance in Firefox.
+6. in the IDE, go to File -> Open Test Suite
+7. Open "full-suite" in testing/
+8. Run with the green arrows in the Selenium IDE
 
 
 
@@ -126,11 +141,3 @@ greens look weird, color space????
 
 To turn off color highlighting, change the colors in war-src/js/openEditor/interaction.js to white (i.e. new Color(255, 255, 255)).
 
-To use selenium test suite:
-1. install firefox
-2. install selenium IDE @ http://seleniumhq.org/download/
-3. open up firefox
-4. to open selenium, in firefox go to Tools -> Selenium IDE
-5. in the IDE, go to File -> Open Test Suite
-6. open full suite in testing/
-7. run with the green arrows in the IDE
