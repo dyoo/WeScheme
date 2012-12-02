@@ -31,6 +31,7 @@
 <tr><td><a href="conditional-clause-too-many-elements">conditional-clause-too-many-elements</a></td></tr>
 <tr><td><a href="conditional-malformed-clause">conditional-malformed-clause</a></td></tr>
 <tr><td><a href="conditional-missing-question-answer">conditional-missing-question-answer</a></td></tr>
+<tr><td><a href="cond-mentions-cond-keyword">cond-mentions-cond-keyword</a></td></tr>
 <tr><td><a href="div-by-zero-1">div-by-zero-1</a></td></tr>
 <tr><td><a href="div-by-zero-2">div-by-zero-2</a></td></tr>
 <tr><td><a href="div-by-zero-3">div-by-zero-3</a></td></tr>

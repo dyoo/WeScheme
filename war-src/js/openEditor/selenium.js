@@ -30,3 +30,16 @@ plt.wescheme.selenium.hasColoredText = function(text, color){
     }
     return false;
 }
+
+// Look at all divs and see if we provide the expected
+// text somewhere.
+plt.wescheme.selenium.hasText = function(text){
+    var spanArray = jQuery("div");
+    var i;
+    for(i = 0; i < spanArray.length; i++){
+	var span = jQuery(spanArray[i]);
+	if(span.text() === text)
+            return true;
+    }
+    return false;
+}
