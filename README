@@ -119,6 +119,11 @@ To use the suite:
 8. Run with the green arrows in the Selenium IDE
 
 
+Note that the tests as currently written are have not yet been coded
+to respect some of the delays introduced by asynchronous JavaScript, so
+many of the tests will fail unless the speed of the testing framework is
+set to slightly slower than the "Fast" speed.
+
 
 
 
