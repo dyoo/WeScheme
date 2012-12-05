@@ -47,7 +47,7 @@
 
   <target name="runserver" depends="datanucleusenhance"
       description="Starts the development server.">
-    <dev_appserver war="war" />
+    <dev_appserver war="war" address="0.0.0.0"/>
   </target>
 
   <target name="update" depends="datanucleusenhance"
