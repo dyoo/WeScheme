@@ -117,6 +117,37 @@ var WeSchemeTextContainer;
 
 	//////////////////////////////////////////////////////////////////////
 
+
+
+
+
+
+
+    // extendEditorWithIOSKeys: editor -> void
+    //
+    // Adds an extra key panel for IOS devices to make parentheses easier to type.
+    // Plugin support provided by /war/js/ios-keyboard/iOSkeyboard.js.
+    var extendEditorWithIOSKeys = function(editor) {
+        // If the codemirror editor supports addKeyrow, we'll add it in:
+        if (typeof(editor.addKeyrow) == 'function') {
+            var keyArray = [{key:"("},
+                            {key:")"},
+                            {key:"["},
+                            {key:"]"},
+                            {key:"+"},
+                            {key:"-"},
+                            {key:"*"},
+                            {key:"/"},
+                            {key:'<img src="/images/ios-keyboard/undo.png">', fn: editor.undo},
+                            {key:'<img src="/images/ios-keyboard/redo.png">', fn: editor.redo}
+                           ];
+            editor.addKeyrow(keyArray, '/sounds/ios-keyboard/tock.aiff');
+        }
+    };
+
+
+
+
 	var CodeMirrorImplementation = function(parent, options, onSuccess) {
 
 		// Note: "parent" seems to be a "WeSchemeTextContainer".
@@ -158,6 +189,9 @@ var WeSchemeTextContainer;
 					onChange: function() {
 						that.behaviorE.sendEvent(that.editor.getValue());
 					}});
+
+            extendEditorWithIOSKeys(this.editor);
+
             // Under IE 7, some of these style settings appear to die.
             try { this.editor.getWrapperElement().style.width = options.width || "100%"; } catch (e) {}
             if (! (options.dynamicHeight)) {

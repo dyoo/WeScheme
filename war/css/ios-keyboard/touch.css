@@ -1,0 +1,203 @@
+/* override mobilesafari's highlighting of DOM elements */
+.CodeMirror{-webkit-tap-highlight-color: rgba(0,0,0,0);}
+.CodeMirror-scroll{  -webkit-overflow-scrolling:touch;}
+.CodeMirror-selected:first-of-type{ border-left: solid #416BF2 2px;}
+.CodeMirror-selected:last-of-type{ border-right: solid #416BF2 2px;}
+.CodeMirror div textarea{position: absolute; left: -500px;}
+#keys {
+  width:      100%;
+  text-align: center;
+  background: -webkit-linear-gradient(top, #9c9ba6, #57575f);
+  padding-top:10px;
+  box-shadow: inset 0 1px 0 #bfbfbf;
+  border-top: 1px solid #303236;
+  padding:    4px;
+  position:   absolute;
+  display:    none;
+  left:       0px;
+  z-index:    999;
+}
+
+#keys.iPad li {
+  background: -webkit-linear-gradient(top, #eeeef0, #d3d3d9);
+  margin:     4px 8px 8px 0px;
+  text-align: center;
+  font:       20px sans-serif;
+  text-shadow:0 1px 0 #fff;
+  display:    inline-block;
+  border:     1px solid black;
+  box-shadow:  0  2px 2px rgba(0,0,0,0.25),
+  inset 0 -2px 0   rgba(0,0,0,0.25),
+  inset 0  1px 0   #fff;
+  cursor:      pointer;
+  position:   relative;
+  border-radius: 5px;
+  -webkit-transition: all 0.1s ease-in-out;
+  -webkit-user-select: none;
+}
+
+#keys.iPhone li {
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #EEEFF0), color-stop(50%, #E0E0E4), color-stop(100%, #D3D3D9));
+  background-color: #E0E0E4;
+  box-shadow: #333 1px 1px 5px 0px;
+  height: 2.5em;
+  line-height: 2.5em;
+  font-size: 2em;
+  font-family: Helvetica;
+  font-weight: 800;  
+  border-radius: 5px;
+  width: 2.5em;
+  text-align: center;
+  display: inline-block;
+  margin: 0 2px;
+  -webkit-transition: all 0.1s ease-in-out;
+  -webkit-user-select: none;
+}
+
+/*******************************************************************
+The "Tool" div contains our faked magnifying glass and iOS popup,
+both of which are hidden/shown based on the tool's class
+*/
+
+#tool{
+  position: absolute;
+  display:  none;
+  padding:  0px;
+  margin:   0px;
+  display:  inline-block;
+  z-index:  501;
+}
+#tool.popup   #iOSpopup {visibility: visible; opacity: 1;}
+#tool.magnify #magnifier{display: inline-block;}
+
+#notch{
+    position: relative;
+    border: 10px solid transparent;
+    margin: 0px;
+    padding: 0px;
+    width: 0px;
+    height: 0px;
+    z-index:999;
+    margin-right: -20px; /* compensate for the notch width (border-width*2) */
+    display: none;
+}
+#notch.above{bottom: -20px; border-top:    10px solid black;}
+#notch.below{top:    -35px; border-bottom: 10px solid black;}
+
+#tool.magnify #notch, #tool.popup #notch{display: inline-block;}
+#tool.magnify #notch.above{bottom:  1px; border-top:  10px solid lightgray;}
+#tool.magnify #notch.below{top: -33px; border-bottom: 10px solid lightgray;}
+
+#iOSpopup{
+  position: relative;
+  top:       0px;
+  left:      0px;
+  border-radius: 5px;
+  border:     solid 1px black;
+  opacity:    0;
+  padding:    0px;
+  margin:     0px;
+  display:    inline-block;
+  visiblity:  hidden;
+  list-style: none;
+  z-index:    500;
+  box-shadow: 2px 2px 4px black;
+  -webkit-transition: opacity 0.2s linear;
+  background-image: -webkit-gradient(linear, 0% 0%, 0% 100%, color-stop(0%, #909090), 
+                                                             color-stop(50%, #525252), 
+                                                             color-stop(50%, #3B3B3B), 
+                                                             color-stop(100%, #151515));
+}
+
+#iOSpopup li{
+  float: left;
+  color: white;
+  font-size: 14px;
+  display: inline;
+  padding: 8px 12px;
+  margin: 0px;
+  font-weight:900;
+  font-family:Helvetica, Arial, Verdana, sans-serif;
+  display: block;
+  background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAAwCAYAAAA7BKuCAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAGRJREFUeNqMkAEKwCAMA1X8UZ+wPXtP6JNmsxWU0UXHBPFIbGlTACS/JfXDkEVkv9/DFajqVh3CH1JQhlLfAAcbSoTQ0NZVjayTLBtW+wauWvSx6WDPGLwyhYnsYc9z/gOXAAMAXS43h0s7kq0AAAAASUVORK5CYII=)
+    right no-repeat;
+}
+
+/**************************************************************************
+  SELECTION HELPERS
+  style the edges of CM-selected with blue borders
+*/
+.selectionDotTouchTarget{ 
+  display: none; 
+  position: absolute;
+  width: 20px;
+  margin-top: -8px;
+  margin-left: -8px;
+  height: 20px;
+  background: transparent;
+  z-index: 500;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+.selectionDotTouchTarget span{
+  margin: 5px;
+  position: relative;
+  display: block;
+  z-index: 900;
+  width: 8px;
+  height: 8px;
+  background: -webkit-linear-gradient(top, #2673F2, #1E57B6);
+  border-radius: 4px;
+  border: groove 1px white;
+  box-shadow: 0px 1px 2px 1px rgba(0, 0, 9, .5);
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+}
+
+#start.selectionDotTouchTarget span{top: -4px; left: -2px;}
+#end.selectionDotTouchTarget span{bottom: 0px; right: 2px;}
+
+#magnifier{
+  position: relative;
+  top:  0px;
+  left: 0px;
+  overflow: hidden;
+  background-color: white;
+  z-index: 999;
+  display: none;
+  /* this fixes the overflow:hidden in webKit browsers. 
+  See http://stackoverflow.com/questions/5736503/how-to-make-css3-rounded-corners-hide-overflow-in-chrome-opera */
+  
+-webkit-mask-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAA5JREFUeNpiYGBgAAgwAAAEAAGbA+oJAAAAAElFTkSuQmCC);
+  box-shadow:  2px 2px 4px black;
+}
+
+.circle{
+  width: 115px;
+  height: 115px;
+  border-radius: 57px;
+  background-image: url('../util/glass.png');
+}
+#tool.magnify .circle+#notch{display: none;}
+
+.rectangle{
+  border: 3px white ridge;
+  width: 100px;
+  height: 25px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.magnifiedStuff{
+  top: 0px;
+  left: 0px;
+  overflow: visible;
+  position: absolute;
+  display: block;
+  transform-origin: left top;
+  -webkit-transform-origin: left top;
+  user-select: none;
+  -webkit-user-select: none
+  overflow:hidden;
+}
