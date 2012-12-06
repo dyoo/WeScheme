@@ -29,14 +29,16 @@
             node.addEventListener("touchstart",
                                   function(e) {
                                       node.className="pressed";
-                                      keySound.play();
+                                      // keySound.play();
                                       currentState = WAITING_FOR_END;
+                                      e.stopPropagation();
                                       e.preventDefault();
                                   });
             node.addEventListener("touchmove",
                                   function(e) {
                                       node.className="pressed";
                                       currentState = WAITING_FOR_START;
+                                      e.stopPropagation();
                                       e.preventDefault();
                                   });
             node.addEventListener("touchend",
@@ -46,6 +48,7 @@
                                           config.fn();
                                       }
                                       currentState = WAITING_FOR_START;
+                                      e.stopPropagation();
                                       e.preventDefault();
                                   });
             return node;
@@ -58,8 +61,14 @@
 
         for(i in keyConfig){ keyList.appendChild(keyFactory(keyConfig[i])); }
         
+        var intervalId;
+
         var drawKeyboard = function(){
-            if(!keysVisible){keyList.style.display = 'none'; return;}
+            if(!keysVisible){
+                keyList.style.display = 'none';
+                if (intervalId) {clearInterval(intervalId); intervalId = undefined; } 
+                return;
+            }
             var isLandscape = Math.abs(window.orientation) === 90,
             keyWidth, keyHeight, keyboardHeight, i;
             
@@ -80,23 +89,33 @@
                 keyList.childNodes[i].style.lineHeight= keyHeight+"px";
                 keyList.childNodes[i].style.fontSize  = (0.5*keyHeight)+"px";
             }
-            keyList.style.position = 'fixed';
+            keyList.style.position = 'absolute';
             keyList.style.display = 'block';
             keyList.style.border = '0px';
             keyList.style.padding = '0px';
             keyList.style.margin = '0px';
-            keyList.style.left = '0px';
-            keyList.style.top = window.pageYOffset + "px";
-            //keyList.style.bottom = (keyboardHeight - (window.pageYOffset)) + "px";
+            
+
+            if (! intervalId) {
+                intervalId = setInterval(
+                    function() { 
+                        var viewportHeight = window.innerHeight; // document.documentElement.clientHeight;
+                        var documentHeight = document.body.clientHeight;
+                        var heightRatio = viewportHeight / documentHeight;
+                        keyList.style.width = document.documentElement.clientWidth;
+                        keyList.style.top = (((window.pageYOffset / heightRatio) + 760) * heightRatio) + 'px';
+                    },
+                    100);
+            }
         };
 
 
         /*****************************************************************************************
          *    Connect Event Handlers                                                           */
         if(iPad || iPhone){
-            CodeMirror.connect(window,"touchmove", drawKeyboard);
-            CodeMirror.connect(window,"scroll", drawKeyboard);
-            CodeMirror.connect(window,"orientationchange", drawKeyboard);
+            // CodeMirror.connect(window,"touchmove", drawKeyboard);
+            // CodeMirror.connect(window,"scroll", drawKeyboard);
+            // CodeMirror.connect(window,"orientationchange", drawKeyboard);
             cm.setOption("onBlur", function(){keysVisible = false; drawKeyboard();});
             cm.setOption("onFocus", function(){keysVisible = true; drawKeyboard();});
         }
