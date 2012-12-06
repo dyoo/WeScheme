@@ -34,14 +34,12 @@
                                       // keySound.play();
                                       currentState = WAITING_FOR_END;
                                       e.stopPropagation();
-                                      e.preventDefault();
                                   });
             node.addEventListener("touchmove",
                                   function(e) {
                                       node.className="pressed";
                                       currentState = WAITING_FOR_START;
                                       e.stopPropagation();
-                                      e.preventDefault();
                                   });
             node.addEventListener("touchend",
                                   function(e) {
@@ -51,7 +49,6 @@
                                       }
                                       currentState = WAITING_FOR_START;
                                       e.stopPropagation();
-                                      e.preventDefault();
                                   });
             return node;
         }
@@ -94,9 +91,14 @@
             keyList.style.position = 'absolute';
             keyList.style.display = 'block';            
             if (! intervalId) {
+                var oldPageOffset = undefined;
                 intervalId = setInterval(
                     function() { 
-                        keyList.style.bottom = (keyboardHeight - (window.pageYOffset)) + "px";
+                        var newPageOffset = window.pageYOffset;
+                        if (oldPageOffset != newPageOffset) {
+                            keyList.style.bottom = (keyboardHeight - (window.pageYOffset)) + "px";
+                        }
+                        oldPageOffset = newPageOffset;
                     },
                     100);
             }
@@ -121,8 +123,7 @@
                              drawKeyboard();
                          });
         }
-    }
-    
+    }    
     CodeMirror.defineExtension("addKeyrow", 
                                function(keyArray, keySound) { 
                                    return new FifthRow(this, keyArray, keySound);
