@@ -16,9 +16,11 @@
             var node = document.createElement('li');
             node.innerHTML = config.key;
             config.fn = config.fn || function(){
-                var e = document.createEvent('TextEvent');
-                e.initTextEvent('textInput', true, true, window, config.key, 1);
-                document.activeElement.dispatchEvent(e);
+                // var e = document.createEvent('TextEvent');
+                // e.initTextEvent('textInput', true, true, window, config.key, 1);
+                // document.activeElement.dispatchEvent(e);
+                cm.replaceSelection(config.key);
+                cm.setCursor(cm.getCursor(false));
             };
             
             // two states: WAITING_FOR_START and WAITING_FOR_END.
@@ -90,20 +92,11 @@
                 keyList.childNodes[i].style.fontSize  = (0.5*keyHeight)+"px";
             }
             keyList.style.position = 'absolute';
-            keyList.style.display = 'block';
-            keyList.style.border = '0px';
-            keyList.style.padding = '0px';
-            keyList.style.margin = '0px';
-            
-
+            keyList.style.display = 'block';            
             if (! intervalId) {
                 intervalId = setInterval(
                     function() { 
-                        var viewportHeight = window.innerHeight; // document.documentElement.clientHeight;
-                        var documentHeight = document.body.clientHeight;
-                        var heightRatio = viewportHeight / documentHeight;
-                        keyList.style.width = document.documentElement.clientWidth;
-                        keyList.style.top = (((window.pageYOffset / heightRatio) + 760) * heightRatio) + 'px';
+                        keyList.style.bottom = (keyboardHeight - (window.pageYOffset)) + "px";
                     },
                     100);
             }
@@ -113,11 +106,20 @@
         /*****************************************************************************************
          *    Connect Event Handlers                                                           */
         if(iPad || iPhone){
-            // CodeMirror.connect(window,"touchmove", drawKeyboard);
-            // CodeMirror.connect(window,"scroll", drawKeyboard);
-            // CodeMirror.connect(window,"orientationchange", drawKeyboard);
-            cm.setOption("onBlur", function(){keysVisible = false; drawKeyboard();});
-            cm.setOption("onFocus", function(){keysVisible = true; drawKeyboard();});
+            var _onBlur = cm.getOption('onBlur');
+            var _onFocus = cm.getOption('onFocus');
+            cm.setOption("onBlur", 
+                         function() {
+                             if (_onBlur) { _onBlur(); }
+                             keysVisible = false; 
+                             drawKeyboard();
+                         });
+            cm.setOption("onFocus",
+                         function(){
+                             if (_onFocus) { _onFocus(); }
+                             keysVisible = true; 
+                             drawKeyboard();
+                         });
         }
     }
     

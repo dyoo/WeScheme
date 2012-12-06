@@ -1,11 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
   <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
 
     <title>WeScheme</title>
     <!-- Tags for on mobile -->
-    <meta name="viewport" content="width=640, initial-scale=.75, user-scalable=yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />	
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <link rel="apple-touch-icon-precomposed" href="/css/images/BigLogo.png" />
