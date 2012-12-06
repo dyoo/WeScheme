@@ -34,12 +34,14 @@
                                       // keySound.play();
                                       currentState = WAITING_FOR_END;
                                       e.stopPropagation();
+                                      e.preventDefault();
                                   });
             node.addEventListener("touchmove",
                                   function(e) {
                                       node.className="pressed";
                                       currentState = WAITING_FOR_START;
                                       e.stopPropagation();
+                                      e.preventDefault();
                                   });
             node.addEventListener("touchend",
                                   function(e) {
@@ -49,6 +51,7 @@
                                       }
                                       currentState = WAITING_FOR_START;
                                       e.stopPropagation();
+                                      e.preventDefault();
                                   });
             return node;
         }
