@@ -4,6 +4,19 @@
 	  "http://java.sun.com/dtd/web-app_2_3.dtd">
 
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
+
+    <mime-mapping>
+        <extension>ogg</extension>
+        <mime-type>audio/ogg</mime-type>
+    </mime-mapping>
+
+    <mime-mapping>
+        <extension>mp3</extension>
+        <mime-type>audio/mpeg</mime-type>
+    </mime-mapping>
+
+
+
   <servlet>
     <servlet-name>/cron/keyServer</servlet-name>
     <servlet-class>org.wescheme.keys.KeyServer</servlet-class>

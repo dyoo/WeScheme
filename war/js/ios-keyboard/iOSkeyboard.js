@@ -6,13 +6,48 @@
         var keysVisible = false,
             iPhone  = (navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)),
             iPad    = (navigator.userAgent.match(/iPad/i)),
-            soundObject;
-        if (keySoundUrl) { 
-            soundObject = { sound: new Audio(keySoundUrl), 
-                            play: function(){ this.sound.play(); } };
-        } else {
             soundObject = { play: function() {} };
+        // By default, the soundObject doesn't do anything.  The following
+        // will try to customize soundObject if we can use the 
+        // Web Audio API:
+        // The regular HTML 5 audio API is a bit laggy, so we want to
+        // use the Web Audio API.
+        try {
+            var audioContext = new webkitAudioContext();
+            // Hack note: originalXMLHttpRequest comes from
+            // js/compat/XMLHttpRequest.  For complicated reasons,
+            // XMLHttpRequest was overwritten by a custom object.  I
+            // don't know yet if it's ok to rip it out, as it looks
+            // like something from Brendan's original security
+            // codebase.
+            var request = new originalXMLHttpRequest();
+            request.open('GET', keySoundUrl, true);
+            request.responseType = 'arraybuffer';
+            request.onload = 
+                function() {
+                    audioContext.decodeAudioData(
+                        request.response,
+                        function(buffer) {
+                            soundObject = { 
+                                play: function() {
+                                    var source = audioContext.createBufferSource();
+                                    source.buffer = buffer;
+                                    source.connect(audioContext.destination);
+                                    source.noteOn(0);
+
+                                }
+                            };
+                        },
+                        // on error, do nothing
+                        function() {});
+                };
+            request.send();
+        } catch(e) {
+            // no AudioContext support.
         }
+        
+        soundObject = { play: function() {} };
+
 
         /*****************************************************************************************
          *    Build Nodes we'll need                                                          */

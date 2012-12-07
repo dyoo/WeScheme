@@ -16,6 +16,10 @@
 
 (function () {
 
+    // Some functions really do need the original, so we expose it.
+    // Hacky, hacky, hacky...
+    window.originalXMLHttpRequest = window.XMLHttpRequest;
+
 	// Save reference to earlier defined object implementation (if any)
 	var oXMLHttpRequest	= window.XMLHttpRequest;
 

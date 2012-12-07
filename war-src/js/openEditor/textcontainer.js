@@ -141,7 +141,7 @@ var WeSchemeTextContainer;
                             {key:'<img src="/images/ios-keyboard/undo.png">', fn: editor.undo},
                             {key:'<img src="/images/ios-keyboard/redo.png">', fn: editor.redo}
                            ];
-            editor.addKeyrow(keyArray, '/sounds/ios-keyboard/tock.aiff');
+            editor.addKeyrow(keyArray, '/sounds/ios-keyboard/tock.mp3');
         }
     };
 
