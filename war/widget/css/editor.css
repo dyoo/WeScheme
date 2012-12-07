@@ -11,7 +11,7 @@ div#design-recipe-form .CodeMirror-scroll{
     border: 1px inset;
     font-weight: normal;
     min-width: 100px;
-    max-width: 450px;
+    max-width: 330px;
 }
 
 div#design-recipe-form .CodeMirror{
