@@ -2,11 +2,17 @@
 /*jslint plusplus: true, browser: true, vars: true */
 (function(){
     "use strict";
-    function FifthRow(cm, keyConfig, keySound) {
+    var FifthRow = function(cm, keyConfig, keySoundUrl) {
         var keysVisible = false,
-        iPhone  = (navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)),
-        iPad    = (navigator.userAgent.match(/iPad/i)),
-        keySound = {sound: new Audio(keySound), play: function(){this.sound.play()}};
+            iPhone  = (navigator.userAgent.match(/iPhone/i)) || (navigator.userAgent.match(/iPod/i)),
+            iPad    = (navigator.userAgent.match(/iPad/i)),
+            soundObject;
+        if (keySoundUrl) { 
+            soundObject = { sound: new Audio(keySoundUrl), 
+                            play: function(){ this.sound.play(); } };
+        } else {
+            soundObject = { play: function() {} };
+        }
 
         /*****************************************************************************************
          *    Build Nodes we'll need                                                          */
@@ -16,9 +22,6 @@
             var node = document.createElement('li');
             node.innerHTML = config.key;
             config.fn = config.fn || function(){
-                // var e = document.createEvent('TextEvent');
-                // e.initTextEvent('textInput', true, true, window, config.key, 1);
-                // document.activeElement.dispatchEvent(e);
                 cm.replaceSelection(config.key);
                 cm.setCursor(cm.getCursor(false));
             };
@@ -31,7 +34,7 @@
             node.addEventListener("touchstart",
                                   function(e) {
                                       node.className="pressed";
-                                      // keySound.play();
+                                      soundObject.play();
                                       currentState = WAITING_FOR_END;
                                       e.stopPropagation();
                                       e.preventDefault();
@@ -128,8 +131,8 @@
         }
     }    
     CodeMirror.defineExtension("addKeyrow", 
-                               function(keyArray, keySound) { 
-                                   return new FifthRow(this, keyArray, keySound);
+                               function(keyArray, keySoundUrl) { 
+                                   return new FifthRow(this, keyArray, keySoundUrl);
                                });
 })();
 
@@ -139,10 +142,10 @@
 (function(doc) {
     "use strict";
     var addEvent = 'addEventListener',
-    type = 'gesturestart',
-    qsa = 'querySelectorAll',
-    scales = [1, 1],
-    meta = qsa in doc ? doc[qsa]('meta[name=viewport]') : [];
+        type = 'gesturestart',
+        qsa = 'querySelectorAll',
+        scales = [1, 1],
+        meta = qsa in doc ? doc[qsa]('meta[name=viewport]') : [];
     function fix() {
         meta.content = 'width=device-width,minimum-scale=' + scales[0] + ',maximum-scale=' + scales[1];
         doc.removeEventListener(type, fix, true);
