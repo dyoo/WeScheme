@@ -2,6 +2,13 @@
 /*jslint plusplus: true, browser: true, vars: true */
 (function(){
     "use strict";
+
+
+    // WeScheme-specific hack: we need to get at the original
+    // XMLHttpRequest object rather than the one hacked by the
+    // compatiblity libraries.
+    var XMLHttpRequest = window.originalXMLHttpRequest;
+
     var FifthRow = function(cm, keyConfig, keySoundUrl) {
         var keysVisible = false,
             iPad    = (navigator.userAgent.match(/iPad/i)),
@@ -26,10 +33,12 @@
                             function(buffer) {
                                 soundObject = { 
                                     play: function() {
-                                        var source = audioContext.createBufferSource();
-                                        source.buffer = buffer;
-                                        source.connect(audioContext.destination);
-                                        source.noteOn(0);
+                                        try {
+                                            var source = audioContext.createBufferSource();
+                                            source.buffer = buffer;
+                                            source.connect(audioContext.destination);
+                                            source.noteOn(0);
+                                        } catch (e) {}
                                     }
                                 };
                             },
