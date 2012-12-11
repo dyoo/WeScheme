@@ -369,21 +369,34 @@ WeSchemeInteractions = (function () {
                         closeOnEscape: true
                     });
 
+                    var toggleFullScreen = function() {
+                        var elem = innerArea.get(0);
+
+                        // // If there's just one element in elem, make sure it fills the screen.
+                        // if (elem.children().length == 1) {
+                        //     jQuery(elem.children()).css("width", "100%").css("height", "100%");
+                        // }
+
+                        if (elem.webkitRequestFullscreen) {
+                            elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                        } else {
+                            if (elem.mozRequestFullScreen) {
+                                elem.mozRequestFullScreen();
+                            } else {
+                                elem.requestFullscreen();
+                            }
+                        }
+                    };
+                    jQuery("<span>Fullscreen</span>")
+                        .css("float", "right")
+                        .click(toggleFullScreen)
+                        .appendTo(dialog.parent().find(".ui-dialog-titlebar"));
+                    
+
                     var innerArea = jQuery("<div class='evaluatorToplevelNode'></div>");
+                    innerArea.css("background-color", "white");
                     dialog.append(innerArea);
                     dialog.dialog("open");
-                    dialog.dblclick(
-                        function (evt){
-                            var elem = evt.target;
-                            if (elem.webkitRequestFullscreen) {
-                                elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-                            } else {
-                                if (elem.mozRequestFullScreen) {
-                                    elem.mozRequestFullScreen();
-                                } else {
-                                    elem.requestFullscreen();
-                                }
-                            }});
                     return innerArea.get(0);
                 };
             evaluator.setImageProxy("/imageProxy");
