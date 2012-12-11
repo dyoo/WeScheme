@@ -2120,6 +2120,10 @@ var jsworld = {};
             var e;
             var f = function(w, k) { press(w, e, k); };
 	    var wrappedPress = function(e_) {
+                // If the keyCode is ESCAPE, let it pass through.
+                // That is, ignore it:
+                if (e_.keyCode == 27) { return; }
+
                 e = e_;
 		preventDefault(e);
 		stopPropagation(e);

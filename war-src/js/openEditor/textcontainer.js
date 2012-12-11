@@ -397,12 +397,18 @@ var WeSchemeTextContainer;
 
 
 	CodeMirrorImplementation.prototype.focus = function() {
-		this.editor.focus();
-		/*
-		var start = this.editor.getCursor(true);
-		var end = this.editor.getCursor(false);
-		this.editor.setSelection(start,end);
-		*/
+            // Hack: if iPad, ignore focus attempts: it doesn't make
+            // the keyboard show up.
+            if (navigator.userAgent.match(/iPad/i) != null) {
+                return;
+            }
+
+	    this.editor.focus();
+	    /*
+	      var start = this.editor.getCursor(true);
+	      var end = this.editor.getCursor(false);
+	      this.editor.setSelection(start,end);
+	    */
 	};
 	
 	CodeMirrorImplementation.prototype.refresh = function() {
