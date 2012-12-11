@@ -372,22 +372,18 @@ WeSchemeInteractions = (function () {
                     var innerArea = jQuery("<div class='evaluatorToplevelNode'></div>");
                     dialog.append(innerArea);
                     dialog.dialog("open");
-                    dialog.dblclick(function (evt){
-                                      console.log(evt);
-                                      var elem = evt.target;
-                                      console.log(evt.target);
-                                      console.log(elem);
-                                      console.log("enterFullscreen()");
-                                      if (elem.webkitRequestFullscreen) {
-                                          elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-                                      } else {
-                                              if (elem.mozRequestFullScreen) {
-                                                  elem.mozRequestFullScreen();
-                                              } else {
-                                                     elem.requestFullscreen();
-                                                     }
-                                      }}
-                                     );
+                    dialog.dblclick(
+                        function (evt){
+                            var elem = evt.target;
+                            if (elem.webkitRequestFullscreen) {
+                                elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                            } else {
+                                if (elem.mozRequestFullScreen) {
+                                    elem.mozRequestFullScreen();
+                                } else {
+                                    elem.requestFullscreen();
+                                }
+                            }});
                     return innerArea.get(0);
                 };
             evaluator.setImageProxy("/imageProxy");
