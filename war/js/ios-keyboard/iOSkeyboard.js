@@ -9,9 +9,11 @@
     // compatiblity libraries.
     var XMLHttpRequest = window.originalXMLHttpRequest;
 
+    var iPad    = (navigator.userAgent.match(/iPad/i));
+
+
     var FifthRow = function(cm, keyConfig, keySoundUrl) {
         var keysVisible = false,
-            iPad    = (navigator.userAgent.match(/iPad/i)),
             soundObject = { play: function() {} };
 
         // Note: by default, the soundObject doesn't do anything.  The
@@ -133,28 +135,28 @@
 
         /*****************************************************************************************
          *    Connect Event Handlers                                                           */
-        if(iPad){
-            var _onBlur = cm.getOption('onBlur');
-            var _onFocus = cm.getOption('onFocus');
-            cm.setOption("onBlur", 
-                         function() {
-                             if (_onBlur) { _onBlur(); }
-                             keysVisible = false; 
-                             drawKeyboard();
-                         });
-            cm.setOption("onFocus",
-                         function(){
-                             if (_onFocus) { _onFocus(); }
-                             keysVisible = true; 
-                             drawKeyboard();
-                         });
-            window.addEventListener('orientationchange', drawKeyboard, false);
-            window.addEventListener('scroll',            drawKeyboard, false);
-        }
+        var _onBlur = cm.getOption('onBlur');
+        var _onFocus = cm.getOption('onFocus');
+        cm.setOption("onBlur", 
+                     function() {
+                         if (_onBlur) { _onBlur(); }
+                         keysVisible = false; 
+                         drawKeyboard();
+                     });
+        cm.setOption("onFocus",
+                     function(){
+                         if (_onFocus) { _onFocus(); }
+                         keysVisible = true; 
+                         drawKeyboard();
+                     });
+        window.addEventListener('orientationchange', drawKeyboard, false);
+        window.addEventListener('scroll',            drawKeyboard, false);
     }
     CodeMirror.defineExtension("addKeyrow", 
                                function(keyArray, keySoundUrl) { 
-                                   return new FifthRow(this, keyArray, keySoundUrl);
+                                   if (iPad) {
+                                       return new FifthRow(this, keyArray, keySoundUrl);
+                                   }
                                });
 })();
 

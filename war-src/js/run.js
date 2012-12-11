@@ -92,6 +92,14 @@ function init(compilationServerUrl, publicId) {
         
         var j = jQuery("#interactions");
 
+
+        var supportsFullScreen = function() {
+            var elem = document.createElement('div');
+            return ((elem.webkitRequestFullscreen ||
+                     elem.mozRequestFullScreen || 
+                     elem.requestFullscreen) !== undefined);
+        };
+
         var toggleFullscreen = function() {
             var elem;
             if (j.find("canvas").length == 1) {
@@ -109,11 +117,13 @@ function init(compilationServerUrl, publicId) {
                 }
             }
         };
-        jQuery("<div><img src='/images/fullscreen.png' width='16' height='16'></div>")
-            .css("float", "right")
-            .css("cursor", "auto")
-            .click(toggleFullscreen)
-            .appendTo(j);
+        if(supportsFullScreen()) {
+            jQuery("<div><img src='/images/fullscreen.png' width='16' height='16'></div>")
+                .css("float", "right")
+                .css("cursor", "auto")
+                .click(toggleFullscreen)
+                .appendTo(j);
+        }
 
         // Change the title of the document to that of the program.
         document.title = title;

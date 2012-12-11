@@ -369,6 +369,13 @@ WeSchemeInteractions = (function () {
                         closeOnEscape: true
                     });
 
+                    var supportsFullScreen = function() {
+                        var elem = document.createElement("div");
+                        return ((elem.webkitRequestFullscreen ||
+                                 elem.mozRequestFullScreen || 
+                                 elem.requestFullscreen) !== undefined);
+                    };
+
                     var toggleFullScreen = function() {
                         var elem;
                         if (innerArea.find("canvas").length == 1) {
@@ -388,12 +395,14 @@ WeSchemeInteractions = (function () {
                             }
                         }
                     };
-                    jQuery("<span><img src='/images/fullscreen.png' width='16' height='16'></span>")
-                        .css("float", "right")
-                        .css("cursor", "auto")
-                        .click(toggleFullScreen)
-                        .appendTo(dialog.parent().find(".ui-dialog-titlebar"));
-                    
+
+                    if (supportsFullScreen()) {
+                        jQuery("<span><img src='/images/fullscreen.png' width='16' height='16'></span>")
+                            .css("float", "right")
+                            .css("cursor", "auto")
+                            .click(toggleFullScreen)
+                            .appendTo(dialog.parent().find(".ui-dialog-titlebar"));
+                    }   
 
                     var innerArea = jQuery("<div class='evaluatorToplevelNode'></div>");
                     innerArea.css("background-color", "white");
