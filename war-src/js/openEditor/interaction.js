@@ -370,13 +370,14 @@ WeSchemeInteractions = (function () {
                     });
 
                     var toggleFullScreen = function() {
-                        var elem = innerArea.get(0);
-
-                        // // If there's just one element in elem, make sure it fills the screen.
-                        // if (elem.children().length == 1) {
-                        //     jQuery(elem.children()).css("width", "100%").css("height", "100%");
-                        // }
-
+                        var elem;
+                        if (innerArea.find("canvas").length == 1) {
+                            // If there's a unique canvas, highlight that one.
+                            elem = innerArea.find("canvas").get(0);
+                        } else { 
+                            // Otherwise, just highlight the whole toplevel node.
+                            elem = innerArea.get(0);
+                        }
                         if (elem.webkitRequestFullscreen) {
                             elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
                         } else {
@@ -387,8 +388,9 @@ WeSchemeInteractions = (function () {
                             }
                         }
                     };
-                    jQuery("<span>Fullscreen</span>")
+                    jQuery("<span><img src='/images/fullscreen.png' width='16' height='16'></span>")
                         .css("float", "right")
+                        .css("cursor", "auto")
                         .click(toggleFullScreen)
                         .appendTo(dialog.parent().find(".ui-dialog-titlebar"));
                     

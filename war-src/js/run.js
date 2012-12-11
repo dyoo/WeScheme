@@ -91,18 +91,30 @@ function init(compilationServerUrl, publicId) {
 	var permissions = aProgram.getPermissions();
         
         var j = jQuery("#interactions");
-        j.dblclick(
-            function (evt) {
-                var elem = evt.target;
-                if (elem.webkitRequestFullscreen) {
-                    elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+
+        var toggleFullscreen = function() {
+            var elem;
+            if (j.find("canvas").length == 1) {
+                elem = j.find("canvas").get(0);
+            } else {
+                elem = j.get(0);
+            }
+            if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+            } else {
+                if (elem.mozRequestFullScreen) {
+                    elem.mozRequestFullScreen();
                 } else {
-                    if (elem.mozRequestFullScreen) {
-                        elem.mozRequestFullScreen();
-                    } else {
-                        elem.requestFullscreen();
-                    }
-                }});
+                    elem.requestFullscreen();
+                }
+            }
+        };
+        jQuery("<div><img src='/images/fullscreen.png' width='16' height='16'></div>")
+            .css("float", "right")
+            .css("cursor", "auto")
+            .click(toggleFullscreen)
+            .appendTo(j);
+
         // Change the title of the document to that of the program.
         document.title = title;
 	runner.runCompiledCode(title, programCode, permissions);

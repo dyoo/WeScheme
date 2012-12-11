@@ -31,6 +31,9 @@
 <script src="/js/mzscheme-vm/evaluator-min.js" type="text/javascript"></script>
 <script src="/js/loadScript-min.js" type="text/javascript"></script>
 <script src="/js/run-calc-min.js" type="text/javascript"></script>
+
+<link rel="stylesheet" type="text/css" href="/css/fullscreen.css" id="style" />
+
 </head>
 
 <body onload="init('<%= compilationServerUrl %>', '<%= publicId%>')">
