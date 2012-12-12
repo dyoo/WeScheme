@@ -372,6 +372,17 @@ span.top-aligned-inline-block {
 }
 */
 
+
+/*******************************************
+  PrettyPrint Compiler Output
+  - style using inline-block, to allow text-alignment flow
+  - everything has a left-padding, which is used for spacing between elements if they're on the same line
+  - when on different lines, however, the padding acts as indenting from the within the s-exp
+  - multiple nested s-exps will cause the padding to stack, increasing the indenting depth
+*/
+
+.replOutput * {display: inline-block; padding-left: 10px;}
+
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px){
 	#toolbar li {min-width: 50px;}
     #toolbar li a{

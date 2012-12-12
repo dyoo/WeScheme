@@ -166,7 +166,6 @@ WeSchemeInteractions = (function () {
         that.interactions.addToInteractions(parentDiv);
 
         that.interactions.clearLine();
-
         // // FIXME: figure out how to get the line height
         // dynamically, because I have no idea how to do
         // this correctly at the moment.
@@ -342,6 +341,7 @@ WeSchemeInteractions = (function () {
 
         var evaluator = new Evaluator({
             write: function(thing) {
+                thing.className = "replOutput";
                 that.addToInteractions(thing);
             },
             transformDom : function(dom) {
@@ -372,6 +372,22 @@ WeSchemeInteractions = (function () {
                     var innerArea = jQuery("<div class='evaluatorToplevelNode'></div>");
                     dialog.append(innerArea);
                     dialog.dialog("open");
+                   dialog.dblclick(function (evt){
+                                   console.log(evt);
+                                   var elem = evt.target;
+                                   console.log(evt.target);
+                                   console.log(elem);
+                                   console.log("enterFullscreen()");
+                                   if (elem.webkitRequestFullscreen) {
+                                    elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                                   } else {
+                                      if (elem.mozRequestFullScreen) {
+                                        elem.mozRequestFullScreen();
+                                      } else {
+                                        elem.requestFullscreen();
+                                      }
+                                   }
+                                   });
                     return innerArea.get(0);
                 };
             evaluator.setImageProxy("/imageProxy");
