@@ -42,10 +42,10 @@ html:hover{
   margin: 0;
 }
 
-.cm-s-scheme span.cm-scheme-string	{color: green;}
-.cm-s-scheme span.cm-scheme-number	{color: blue;}
-.cm-s-scheme span.cm-scheme-boolean     {color: darkred;}
-.cm-s-scheme span.cm-scheme-character	{color: orange;}
+.wescheme-string, .cm-s-scheme span.cm-scheme-string	{color: green;}
+.wescheme-number, .cm-s-scheme span.cm-scheme-number	{color: blue;}
+.wescheme-boolean, .cm-s-scheme span.cm-scheme-boolean     {color: darkred;}
+.wescheme-character, .cm-s-scheme span.cm-scheme-character	{color: orange;}
 .cm-s-scheme span.cm-scheme-symbol	{color: steelblue;}
 .cm-s-scheme span.cm-scheme-punctuation {color: black;}
 .cm-s-scheme span.cm-scheme-rparen      {color: black;}
