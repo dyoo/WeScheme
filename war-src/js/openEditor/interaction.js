@@ -16,7 +16,7 @@ goog.require("plt.wescheme.WeSchemeProperties");
 goog.require("plt.wescheme.RoundRobin");
 
 var WeSchemeInteractions;
-
+var debugNode;
 
 
 WeSchemeInteractions = (function () {
@@ -339,10 +339,26 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.makeFreshEvaluator = function(afterInit) {
         var that = this;
 
+        var rewrapOutput = function(node){
+            var oldDisplay = node.style.display;
+            // force the node to be super-wide, and measure the height
+            node.style.display = 'block'; node.style.width ='100000px';
+            var forcedHeight = Math.ceil(node.offsetHeight);
+            // let it relax, and compare the height to the forced height to see if it fits on one line
+            node.style.width = null; node.style.display = oldDisplay;
+            var multiline = forcedHeight !== Math.ceil(node.offsetHeight);
+            // give all the children line breaks if necessary, and process *their* children in the process
+            for(var i = 0; i < node.children.length-1; i++){
+              node.children[i].style.display = multiline? 'block' : 'inline-block';
+              rewrapOutput(node.children[i]);
+            }
+        }
+                        
         var evaluator = new Evaluator({
             write: function(thing) {
                 thing.className = "replOutput";
                 that.addToInteractions(thing);
+                rewrapOutput(thing);
             },
             transformDom : function(dom) {
                 var result = that._transformDom(dom);
