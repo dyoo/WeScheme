@@ -356,7 +356,7 @@ WeSchemeInteractions = (function () {
                         
         var evaluator = new Evaluator({
             write: function(thing) {
-                thing.className = "replOutput";
+                thing.className += " replOutput";
                 that.addToInteractions(thing);
                 rewrapOutput(thing);
             },
