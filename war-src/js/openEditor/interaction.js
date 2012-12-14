@@ -349,13 +349,29 @@ WeSchemeInteractions = (function () {
                 return result;
             }
         });
+
+        var dialog = jQuery("<div/>");
+        var onFullScreenChange = function() {
+            if (document.fullscreen || document.mozFullScreen || document.webkitIsFullScreen) {
+                // do nothing if we're full-screen.
+            } else {
+                // if we came out of fullscreen, try closing
+                if (dialog.dialog && dialog.dialog("isOpen")) {
+                    dialog.dialog('close');
+                }
+            }
+        };
+        jQuery(document).bind("fullscreenchange", onFullScreenChange);
+        jQuery(document).bind("mozfullscreenchange", onFullScreenChange);
+        jQuery(document).bind("webkitfullscreenchange", onFullScreenChange);
+
         that.initializeRoundRobinCompilation(
             evaluator,
             function() {
                 evaluator.makeToplevelNode = function() {
-                    var dialog = jQuery("<div/>");
                     var handleClose = function(event, ui) {
                         that.evaluator.requestBreak();
+                        dialog.dialog("destroy");
                     };
 
                     dialog.dialog( {

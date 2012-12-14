@@ -52,6 +52,8 @@ var WeSchemeEditor;
 	this.userName = attrs.userName; // string
 	this.actions = new plt.wescheme.AjaxActions();
 
+        this.onResize = undefined;
+
 	// defn is assumed to be Containers.
 	// The only container we've got so far are TextContainers.
 	this.defn = attrs.defn;  // TextAreaContainer
@@ -220,6 +222,18 @@ var WeSchemeEditor;
 	f(valueNow(aBooleanBehavior));
 	aBooleanBehavior.changes().mapE(f);
     }
+
+
+    WeSchemeEditor.prototype.setOnResize = function(onResize) {
+        this.onResize = onResize;
+    };
+
+
+    // Force a refresh on the size of the editor.
+    WeSchemeEditor.prototype.forceOnResize = function() {
+        this.onResize();
+    };
+
 
     WeSchemeEditor.prototype.highlight = function(id, offset, line, column, span, color) {
     	if(id === '<no-location>'){ 

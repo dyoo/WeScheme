@@ -239,7 +239,7 @@ var initializeEditor;
 
 	// The display should consist of the top, the middle, and the bottom.
 	// The middle should expand to the size of the viewport minus the top and bottom.
-	var onResize = function(e) {
+	var onResize = function() {
 
 	    var viewportSize = vsm.getSize();
 	    var desiredWidth = viewportSize.width;
@@ -316,6 +316,11 @@ var initializeEditor;
 	goog.events.listen(vsm,
 			   goog.events.EventType.RESIZE,
 			   onResize);
+        myEditor.setOnResize(onResize);
+        jQuery.bind("fullscreenchange", 
+                    function() { 
+                        onResize();
+                    });
 
 	setTimeout(onResize, 0);
     };
