@@ -87,10 +87,6 @@ body {
     position: absolute;
 }
 
-
-
-
-
 .form {
     display: inline-block;
 }
@@ -383,6 +379,21 @@ span.top-aligned-inline-block {
 
 .replOutput {display: inline-block;}
 .replOutput * {display: inline-block; padding-left: 10px;}
+
+
+
+/************************************************
+Define coloring for basic WeScheme types, and re-use them for our CM instances 
+*/
+.wescheme-string,     .cm-scheme-string    {color: green;}
+.wescheme-number,     .cm-scheme-number    {color: blue;}
+.wescheme-boolean,    .cm-scheme-boolean   {color: darkred;}
+.wescheme-character,  .cm-scheme-character {color: orange;}
+.wescheme-symbol,     .cm-scheme-symbol    {color: steelblue;}
+.wescheme-comment,    .cm-scheme-comment   {color: orange; }
+/* CM-only stuff */
+span.cm-scheme-punctuation                 {color: black;}
+span.cm-scheme-rparen                      {color: black;}
 
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px){
 	#toolbar li {min-width: 50px;}
