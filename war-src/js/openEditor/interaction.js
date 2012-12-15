@@ -338,7 +338,7 @@ WeSchemeInteractions = (function () {
 
     WeSchemeInteractions.prototype.makeFreshEvaluator = function(afterInit) {
         var that = this;
-
+        // rewrap the REPL output according to DrRacket's conventions
         var rewrapOutput = function(node){
             var oldDisplay = node.style.display;
             // force the node to be super-wide, and measure the height
@@ -352,6 +352,11 @@ WeSchemeInteractions = (function () {
               node.children[i].style.display = multiline? 'block' : 'inline-block';
               rewrapOutput(node.children[i]);
             }
+        }
+        // rewrap content on window resize
+        window.onresize = function(){
+          var repls = document.getElementsByClassName('replOutput');
+          for(var i=0; i<repls.length; i++){ rewrapOutput(repls[i])};
         }
                         
         var evaluator = new Evaluator({
