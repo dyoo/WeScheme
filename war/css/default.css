@@ -316,7 +316,12 @@ p.location-paragraph {
     margin-bottom: 0px;
 }
 
-
+span.socialBookmarks{
+    display: block;
+    width:   100%;
+    text-align: center;
+    border-top: solid 1px black;
+}
 
 a.socialBookmarklet {
     border: 0px solid black;
@@ -324,6 +329,7 @@ a.socialBookmarklet {
 
 img.socialBookmarklet {
     border: 0px solid black;
+    padding: 5px;
 }
 
 
