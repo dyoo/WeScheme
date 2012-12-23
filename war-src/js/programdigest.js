@@ -44,14 +44,12 @@ goog.require("plt.wescheme.SharedAs");
 
     plt.wescheme.ProgramDigest.prototype.hasSharingUrls = function() {
 	return (this.getSharedAsEntries().length > 0);
-	//return this.dom.find('sharedAs Entry').length > 0;
     };
 
 
     // getSharedAsEntries: -> [{publicId: string, title: string, modified: string} ...]
     plt.wescheme.ProgramDigest.prototype.getSharedAsEntries = function() {
-	return new plt.wescheme.SharedAs(
-	    this.dom.children('sharedAs')).getEntries();
+	return plt.wescheme.SharedAs.fromDom(this.dom.children('sharedAs')).getEntries();
     };
 
 
