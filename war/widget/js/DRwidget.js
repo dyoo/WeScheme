@@ -158,12 +158,13 @@ var initializeWidget = (function () {
         this.codeMirrorElement = 
             CodeMirror.fromTextArea(textElement,
                                     { matchBrackets: true,
-				      extraKeys: km,
-				      mode: "scheme2",
+                                      extraKeys: km,
+                                      mode: "scheme2",
                                       value: "",
                                       onChange: onChange,
                                       onBlur: onBlur,
-                                      onFocus: onFocus
+                                      onFocus: onFocus,
+                                      lineWrapping: true
                                     });
     };
 
