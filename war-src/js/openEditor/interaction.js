@@ -330,31 +330,42 @@ WeSchemeInteractions = (function () {
                 after();
             });
     };
-
+                        
+    // calculateWidth : node -> number
+    // cache and return the width of the current node, and all of its children
+    function calculateWidth(node){
+      node.cachedWidth = 1;
+      for(var i = 0; i < node.children.length; i++)
+        node.cachedWidth += (node.children[i].cachedWidth || calculateWidth(node.children[i]));
+      return node.cachedWidth = Math.max(node.cachedWidth, node.offsetWidth);
+    }
+                        
     // rewrap the REPL output according to DrRacket's conventions
-    var rewrapOutput = function(node){
+    // compare width of the line to the interactions window
+    // If the wrapping status has changed, re-check- all the children
+    WeSchemeInteractions.prototype.rewrapOutput = function(node){
       var that = this;
-      var oldDisplay = node.style.display;
-      // force the node to be super-wide, and measure the height
-      node.style.display = 'block'; node.style.width ='100000px';
-      var forcedHeight = Math.ceil(node.offsetHeight);
-      // let it relax, and compare the height to the forced height to see if it fits on one line
-      node.style.width = null; node.style.display = oldDisplay;
-      var multiline = forcedHeight !== Math.ceil(node.offsetHeight);
-      // give all the children line breaks if necessary, and process *their* children in the process
-      for(var i = 0; i < node.children.length-1; i++){
-        node.children[i].style.display = multiline? 'block' : 'inline-block';
-        rewrapOutput(node.children[i]);
+      var oldWrap   = (node.className.indexOf("wrapped") > -1),    // original wrap state
+          width     = node.cachedWidth || calculateWidth(node),   // current width (use cache if possible)
+          maxWidth  = document.getElementById('inter').offsetWidth,// maximum width
+          newWrap   = width > maxWidth;                           // should we wrap?
+      if((!oldWrap && newWrap) || (oldWrap && !newWrap)){
+         node.className=newWrap? node.className+" wrapped" : node.className.replace(/ wrapped/g, "");
+         for(var i = 0; i < node.children.length; i++){ that.rewrapOutput(node.children[i]); }
       }
     }
-                        
-    // rewrap content on window resize
-    var rewrapPreviousInteractions = function(){
-      var repls = document.getElementsByClassName('replOutput');
-      for(var i=0; i<repls.length; i++){ rewrapOutput(repls[i])};
+
+    // rewrap all REPL content onresize, throttled by 250ms
+    WeSchemeInteractions.prototype.rewrapThrottle = null;
+    WeSchemeInteractions.prototype.rewrapPreviousInteractions = function(){
+      var that = this;
+      clearTimeout(WeSchemeInteractions.prototype.rewrapThrottle);
+      WeSchemeInteractions.prototype.rewrapThrottle = setTimeout(function(){
+         var repls = document.getElementsByClassName('replOutput');
+         for(var i=0; i<repls.length; i++){WeSchemeInteractions.prototype.rewrapOutput(repls[i])};
+       }, 250);
     }
-                        
-    window.onresize = rewrapPreviousInteractions;
+    window.onresize = WeSchemeInteractions.prototype.rewrapPreviousInteractions;
                         
     WeSchemeInteractions.prototype.makeFreshEvaluator = function(afterInit) {
         var that = this;
@@ -363,7 +374,7 @@ WeSchemeInteractions = (function () {
             write: function(thing) {
                 thing.className += " replOutput";
                 that.addToInteractions(thing);
-                rewrapOutput(thing);
+                that.rewrapOutput(thing);
             },
             transformDom : function(dom) {
                 var result = that._transformDom(dom);

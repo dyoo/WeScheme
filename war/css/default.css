@@ -377,16 +377,17 @@ span.top-aligned-inline-block {
 
 /*******************************************
   PrettyPrint Compiler Output
-  - style using inline-block, to allow text-alignment flow
-  - everything has a left-padding, which is used for spacing between elements if they're on the same line
-  - when on different lines, however, the padding acts as indenting from the within the s-exp
-  - multiple nested s-exps will cause the padding to stack, increasing the indenting depth
+  - style using float: left, to allow text-alignment flow
+  - everything has a left-padding of 10px, which provides spacing and indenting
+  - if an expr is wrapped, every element clears left
 */
 
 .replOutput {display: inline-block;}
-.replOutput * {display: inline-block; padding-left: 10px;}
+.replOutput * {float: left; padding-left: 10px;}
+.wrapped > * {clear: left;}
 
-
+/* Rationals, Parens, and first child after lParen NEVER have padding or clearing */
+.Rational *, .lParen, .rParen, .lParen+*{padding-left: 0px; clear: none;}
 
 /************************************************
 Define coloring for basic WeScheme types, and re-use them for our CM instances 
