@@ -356,11 +356,11 @@ WeSchemeInteractions = (function () {
     }
 
     // rewrap all REPL content onresize, throttled by 250ms
-    WeSchemeInteractions.prototype.rewrapThrottle = null;
+    var rewrapThrottle = null;
     WeSchemeInteractions.prototype.rewrapPreviousInteractions = function(){
       var that = this;
-      clearTimeout(WeSchemeInteractions.prototype.rewrapThrottle);
-      WeSchemeInteractions.prototype.rewrapThrottle = setTimeout(function(){
+      clearTimeout(rewrapThrottle);
+      rewrapThrottle = setTimeout(function(){
          var repls = document.getElementsByClassName('replOutput');
          for(var i=0; i<repls.length; i++){WeSchemeInteractions.prototype.rewrapOutput(repls[i])};
        }, 250);
