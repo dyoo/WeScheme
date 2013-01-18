@@ -359,7 +359,6 @@ WeSchemeInteractions = (function () {
     // rewrap all REPL content onresize, throttled by 250ms
     var rewrapThrottle = null;
     var rewrapPreviousInteractions = function(){
-      var that = this;
       clearTimeout(rewrapThrottle);
       rewrapThrottle = setTimeout(function(){
          var repls = document.getElementsByClassName('replOutput');
