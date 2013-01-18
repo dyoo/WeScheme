@@ -356,7 +356,7 @@ WeSchemeInteractions = (function () {
 
     // rewrap all REPL content onresize, throttled by 250ms
     var rewrapThrottle = null;
-    WeSchemeInteractions.prototype.rewrapPreviousInteractions = function(){
+    var rewrapPreviousInteractions = function(){
       var that = this;
       clearTimeout(rewrapThrottle);
       rewrapThrottle = setTimeout(function(){
@@ -364,7 +364,7 @@ WeSchemeInteractions = (function () {
          for(var i=0; i<repls.length; i++){ rewrapOutput(repls[i])};
        }, 250);
     }
-    window.onresize = WeSchemeInteractions.prototype.rewrapPreviousInteractions;
+    jQuery(window).on('resize', rewrapPreviousInteractions);
                         
     WeSchemeInteractions.prototype.makeFreshEvaluator = function(afterInit) {
         var that = this;
