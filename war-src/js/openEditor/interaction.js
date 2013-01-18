@@ -334,10 +334,12 @@ WeSchemeInteractions = (function () {
     // calculateWidth : node -> number
     // cache and return the width of the current node, and all of its children
     function calculateWidth(node){
-      node.cachedWidth = 1;
-      for(var i = 0; i < node.children.length; i++)
-        node.cachedWidth += (node.children[i].cachedWidth || calculateWidth(node.children[i]));
-      return node.cachedWidth = Math.max(node.cachedWidth, node.offsetWidth);
+        node.cachedWidth = 1;
+        for(var i = 0; i < node.children.length; i++) {
+            node.cachedWidth += (node.children[i].cachedWidth || calculateWidth(node.children[i]));
+        }
+        node.cachedWidth = Math.max(node.cachedWidth, node.offsetWidth);
+        return node.cachedWidth;
     }
                         
     // rewrap the REPL output according to DrRacket's conventions
