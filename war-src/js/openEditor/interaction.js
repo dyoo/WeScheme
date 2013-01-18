@@ -343,15 +343,14 @@ WeSchemeInteractions = (function () {
     // rewrap the REPL output according to DrRacket's conventions
     // compare width of the line to the interactions window
     // If the wrapping status has changed, re-check- all the children
-    WeSchemeInteractions.prototype.rewrapOutput = function(node){
-      var that = this;
+    var rewrapOutput = function(node){
       var oldWrap   = (node.className.indexOf("wrapped") > -1),    // original wrap state
           width     = node.cachedWidth || calculateWidth(node),   // current width (use cache if possible)
           maxWidth  = document.getElementById('inter').offsetWidth,// maximum width
           newWrap   = width > maxWidth;                           // should we wrap?
       if((!oldWrap && newWrap) || (oldWrap && !newWrap)){
          node.className=newWrap? node.className+" wrapped" : node.className.replace(/ wrapped/g, "");
-         for(var i = 0; i < node.children.length; i++){ that.rewrapOutput(node.children[i]); }
+         for(var i = 0; i < node.children.length; i++){ rewrapOutput(node.children[i]); }
       }
     }
 
@@ -362,7 +361,7 @@ WeSchemeInteractions = (function () {
       clearTimeout(rewrapThrottle);
       rewrapThrottle = setTimeout(function(){
          var repls = document.getElementsByClassName('replOutput');
-         for(var i=0; i<repls.length; i++){WeSchemeInteractions.prototype.rewrapOutput(repls[i])};
+         for(var i=0; i<repls.length; i++){ rewrapOutput(repls[i])};
        }, 250);
     }
     window.onresize = WeSchemeInteractions.prototype.rewrapPreviousInteractions;
@@ -374,7 +373,7 @@ WeSchemeInteractions = (function () {
             write: function(thing) {
                 thing.className += " replOutput";
                 that.addToInteractions(thing);
-                that.rewrapOutput(thing);
+                rewrapOutput(thing);
             },
             transformDom : function(dom) {
                 var result = that._transformDom(dom);
