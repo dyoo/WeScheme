@@ -7210,7 +7210,19 @@ var Class = (function(){
 	return innerClass;
 })();
  
+function makeLParen(){
+   var node = document.createElement('span');
+   node.appendChild(document.createTextNode("("));
+   node.className = "lParen";
+   return node;
+}
 
+function makeRParen(){
+   var node = document.createElement('span');
+   node.appendChild(document.createTextNode(")"));
+   node.className = "rParen";
+   return node;
+}
 
 //////////////////////////////////////////////////////////////////////
 
@@ -7339,15 +7351,16 @@ var Struct = Class.extend({
 
 	toDomNode: function(cache) {
 	    //    cache.put(this, true);
-	    var node = document.createElement("div");
+	    var node = document.createElement("div"),
+            constructor= document.createElement("span");
+            constructor.appendChild(document.createTextNode(this._constructorName));
 	    var i;
-	    node.appendChild(document.createTextNode("("));
-	    node.appendChild(document.createTextNode(this._constructorName));
+	    node.appendChild(makeLParen());
+	    node.appendChild(constructor);
 	    for(i = 0; i < this._fields.length; i++) {
-		node.appendChild(document.createTextNode(" "));
-		appendChild(node, toDomNode(this._fields[i], cache));
+                appendChild(node, toDomNode(this._fields[i], cache));
 	    }
-	    node.appendChild(document.createTextNode(")"));
+	    node.appendChild(makeRParen());
 	    return node;
 	},
 
@@ -7512,8 +7525,11 @@ Box.prototype.toDisplayedString = function(cache) {
 };
 
 Box.prototype.toDomNode = function(cache) {
-    var parent = document.createElement("span");
-    parent.appendChild(document.createTextNode('#&'));
+    var parent = document.createElement("span"),
+    boxSymbol = document.createElement("span");
+    boxSymbol.appendChild(document.createTextNode("#&"));
+    parent.className = "wescheme-box";
+    parent.appendChild(boxSymbol);
     parent.appendChild(toDomNode(this.val, cache));
     return parent;
 };
@@ -7641,6 +7657,17 @@ Symbol.prototype.toWrittenString = function(cache) {
 Symbol.prototype.toDisplayedString = function(cache) {
     return this.val;
 };
+
+Symbol.prototype.toDomNode = function(cache) {
+    var wrapper = document.createElement("span");
+    wrapper.className = "wescheme-symbol";
+    wrapper.style.fontFamily = 'monospace';
+    wrapper.style.whiteSpace = "pre";
+    wrapper.appendChild(document.createTextNode("'" + this.val));
+    return wrapper;
+};
+
+
 
 //////////////////////////////////////////////////////////////////////
 
@@ -7839,40 +7866,41 @@ Cons.prototype.toDisplayedString = function(cache) {
 
 Cons.prototype.toDomNode = function(cache) {
     //    cache.put(this, true);
-    var node = document.createElement("span");
-    node.appendChild(document.createTextNode("("));
-    node.appendChild(document.createTextNode("list"));
-    node.appendChild(document.createTextNode(" "));
+    var node = document.createElement("span"),
+        abbr = document.createElement("span");
+    node.className = "wescheme-cons";
+    abbr.appendChild(document.createTextNode("list"));
+ 
+     node.appendChild(makeLParen());
+     node.appendChild(abbr);
     var p = this;
     while ( p instanceof Cons ) {
-	appendChild(node, toDomNode(p.first(), cache));
-	p = p.rest();
-	if ( p !== Empty.EMPTY ) {
-	    appendChild(node, document.createTextNode(" "));
-	}
+      appendChild(node, toDomNode(p.first(), cache));
+      p = p.rest();
     }
     if ( p !== Empty.EMPTY ) {
 	return explicitConsDomNode(this, cache);
     }
-    node.appendChild(document.createTextNode(")"));
+ node.appendChild(makeRParen());
     return node;
 };
 
 var explicitConsDomNode = function(p, cache) {
     var topNode = document.createElement("span");
-    var node = topNode;
-    while ( p instanceof Cons ) {
-	node.appendChild(document.createTextNode("("));
-	node.appendChild(document.createTextNode("cons"));
-	node.appendChild(document.createTextNode(" "));
-	appendChild(node, toDomNode(p.first(), cache));
-	node.appendChild(document.createTextNode(" "));
+    var node = topNode, constructor = document.createElement("span");
+       constructor.appendChild(document.createTextNode("cons"));
 
-	var restSpan = document.createElement("span");
-	node.appendChild(restSpan);
-	node.appendChild(document.createTextNode(")"));
-	node = restSpan;
-	p = p.rest();
+    node.className = "wescheme-cons";
+    while ( p instanceof Cons ) {
+      node.appendChild(makeLParen());
+      node.appendChild(constructor);
+      appendChild(node, toDomNode(p.first(), cache));
+
+      var restSpan = document.createElement("span");
+      node.appendChild(restSpan);
+      node.appendChild(makeRParen());
+      node = restSpan;
+      p = p.rest();
     }
     appendChild(node, toDomNode(p, cache));
     return topNode;
@@ -7952,16 +7980,19 @@ Vector.prototype.toDisplayedString = function(cache) {
 
 Vector.prototype.toDomNode = function(cache) {
     //    cache.put(this, true);
-    var node = document.createElement("span");
-    node.appendChild(document.createTextNode("#("));
+    var node = document.createElement("span"),
+        lVect = document.createElement("span"),
+        rVect = document.createElement("span");
+    lVect.appendChild(document.createTextNode("#("));
+    lVect.className = "lParen";
+    rVect.appendChild(document.createTextNode(")"));
+    rVect.className = "rParen";
+    node.className = "wescheme-vector";
+    node.appendChild(lVect);
     for (var i = 0; i < this.length(); i++) {
-	appendChild(node,
-		    toDomNode(this.ref(i), cache));
-	if (i !== this.length()-1) {
-	    appendChild(node, document.createTextNode(" "));
-	}
+      appendChild(node, toDomNode(this.ref(i), cache));
     }
-    node.appendChild(document.createTextNode(")"));
+    node.appendChild(rVect);
     return node;
 };
 
@@ -8465,19 +8496,19 @@ var toDomNode = function(x, cache) {
 
     if (typeof(x) == 'object') {
 	    if (cache.containsKey(x)) {
-		var node = document.createElement("span");
-                node.style['font-family'] = 'monospace';
-		node.appendChild(document.createTextNode("..."));
-		return node;
+        var node = document.createElement("span");
+        node.style['font-family'] = 'monospace';
+        node.appendChild(document.createTextNode("..."));
+        return node;
 	    }
 	    cache.put(x, true);
     }
 
     if (x == undefined || x == null) {
-	var node = document.createElement("span");
-        node.style['font-family'] = 'monospace';
-	node.appendChild(document.createTextNode("#<undefined>"));
-	return node;
+      var node = document.createElement("span");
+      node.style['font-family'] = 'monospace';
+      node.appendChild(document.createTextNode("#<undefined>"));
+      return node;
     }
     if (typeof(x) == 'string') {
         return textToDomNode(toWrittenString(x));
@@ -8508,6 +8539,7 @@ var textToDomNode = function(text) {
     var i;
     var wrapper = document.createElement("span");
     var newlineDiv;
+    wrapper.className = "wescheme-string";
     wrapper.style.fontFamily = 'monospace';
     wrapper.style.whiteSpace = "pre";
     if (chunks.length > 0) {
@@ -8529,25 +8561,29 @@ var textToDomNode = function(text) {
 var numberToDomNode = function(n) {
     var node;
     if (jsnums.isExact(n)) {
-	if (jsnums.isInteger(n)) {
-	    node = document.createElement("span");
-	    node.appendChild(document.createTextNode(n.toString()));
-	    return node;
-	} else if (jsnums.isRational(n)) {
-	    return rationalToDomNode(n);
-	} else if (isComplex(n)) {
-	    node = document.createElement("span");
-	    node.appendChild(document.createTextNode(n.toString()));
-	    return node;
-	} else {
-	    node = document.createElement("span");
-	    node.appendChild(document.createTextNode(n.toString()));
-	    return node;
-	}
+      if (jsnums.isInteger(n)) {
+          node = document.createElement("span");
+          node.className = "wescheme-number Integer";
+          node.appendChild(document.createTextNode(n.toString()));
+          return node;
+      } else if (jsnums.isRational(n)) {
+          return rationalToDomNode(n);
+      } else if (isComplex(n)) {
+          node = document.createElement("span");
+          node.className = "wescheme-number Complex";
+          node.appendChild(document.createTextNode(n.toString()));
+          return node;
+      } else {
+          node = document.createElement("span");
+          node.className = "wescheme-number";
+          node.appendChild(document.createTextNode(n.toString()));
+          return node;
+      }
     } else {
-	node = document.createElement("span");
-	node.appendChild(document.createTextNode(n.toString()));
-	return node;
+      node = document.createElement("span");
+      node.className = "wescheme-number";
+      node.appendChild(document.createTextNode(n.toString()));
+      return node;
     }
 };
 
@@ -8557,16 +8593,16 @@ var rationalToDomNode = function(n) {
     var chunks = jsnums.toRepeatingDecimal(jsnums.numerator(n),
 					   jsnums.denominator(n),
 					   {limit: 25});
-    repeatingDecimalNode.appendChild(document.createTextNode(chunks[0] + '.'))
-    repeatingDecimalNode.appendChild(document.createTextNode(chunks[1]));
+    var firstPart = document.createElement("span");
+    firstPart.appendChild(document.createTextNode(chunks[0] + '.' + chunks[1]));
+    repeatingDecimalNode.appendChild(firstPart);
     if (chunks[2] === '...') {
-	repeatingDecimalNode.appendChild(
-	    document.createTextNode(chunks[2]));
+      firstPart.appendChild(document.createTextNode(chunks[2]));
     } else if (chunks[2] !== '0') {
-	var overlineSpan = document.createElement("span");
-	overlineSpan.style.textDecoration = 'overline';
-	overlineSpan.appendChild(document.createTextNode(chunks[2]));
-	repeatingDecimalNode.appendChild(overlineSpan);
+      var overlineSpan = document.createElement("span");
+      overlineSpan.style.textDecoration = 'overline';
+      overlineSpan.appendChild(document.createTextNode(chunks[2]));
+      repeatingDecimalNode.appendChild(overlineSpan);
     }
 
 
@@ -8575,8 +8611,11 @@ var rationalToDomNode = function(n) {
     numeratorNode.appendChild(document.createTextNode(String(jsnums.numerator(n))));
     var denominatorNode = document.createElement("sub");
     denominatorNode.appendChild(document.createTextNode(String(jsnums.denominator(n))));
+    var barNode = document.createElement("span");
+    barNode.appendChild(document.createTextNode("/"));
+
     fractionalNode.appendChild(numeratorNode);
-    fractionalNode.appendChild(document.createTextNode("/"));
+    fractionalNode.appendChild(barNode);
     fractionalNode.appendChild(denominatorNode);
 
     
@@ -8595,6 +8634,7 @@ var rationalToDomNode = function(n) {
 	    (!showingRepeating ? 'inline' : 'none')
     };
     numberNode.style['cursor'] = 'pointer';
+    numberNode.className = "wescheme-number Rational";
     return numberNode;
 
 };
@@ -8966,9 +9006,10 @@ PrimProc.prototype.toDisplayedString = function(cache) {
 
 
 PrimProc.prototype.toDomNode = function(cache) {
-    var div = document.createElement("span");
-    div.appendChild(document.createTextNode("#<function:"+ this.name +">"));
-    return div;
+    var node = document.createElement("span");
+    node.className = "wescheme-primproc";
+    node.appendChild(document.createTextNode("#<function:"+ this.name +">"));
+    return node;
 };
 
 
@@ -8979,9 +9020,10 @@ var CasePrimitive = function(name, cases) {
 
 
 CasePrimitive.prototype.toDomNode = function(cache) {
-    var div = document.createElement("span");
-    div.appendChild(document.createTextNode("#<function:"+ this.name +">"));
-    return div;    
+    var node = document.createElement("span");
+    node.className = "wescheme-caseprimitive";
+    node.appendChild(document.createTextNode("#<function:"+ this.name +">"));
+    return node;
 };
 
 CasePrimitive.prototype.toWrittenString = function(cache) {
