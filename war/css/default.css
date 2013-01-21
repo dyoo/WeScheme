@@ -87,10 +87,6 @@ body {
     position: absolute;
 }
 
-
-
-
-
 .form {
     display: inline-block;
 }
@@ -377,6 +373,34 @@ span.top-aligned-inline-block {
     z-index: 4;
 }
 */
+
+
+/*******************************************
+  PrettyPrint Compiler Output
+  - style using float: left, to allow text-alignment flow
+  - everything has a left-padding of 10px, which provides spacing and indenting
+  - if an expr is wrapped, every element clears left
+*/
+
+.replOutput {display: inline-block;}
+.replOutput * {float: left; padding-left: 10px;}
+.wrapped > * {clear: left;}
+
+/* Rationals, Parens, and first child after lParen NEVER have padding or clearing */
+.Rational *, .lParen, .rParen, .lParen+*{padding-left: 0px; clear: none;}
+
+/************************************************
+Define coloring for basic WeScheme types, and re-use them for our CM instances 
+*/
+.wescheme-string,     .cm-scheme-string    {color: green;}
+.wescheme-number,     .cm-scheme-number    {color: blue;}
+.wescheme-boolean,    .cm-scheme-boolean   {color: darkred;}
+.wescheme-character,  .cm-scheme-character {color: orange;}
+.wescheme-symbol,     .cm-scheme-symbol    {color: steelblue;}
+.wescheme-comment,    .cm-scheme-comment   {color: orange; }
+/* CM-only stuff */
+span.cm-scheme-punctuation                 {color: black;}
+span.cm-scheme-rparen                      {color: black;}
 
 @media only screen and (max-width: 480px), only screen and (max-device-width: 480px){
 	#toolbar li {min-width: 50px;}
