@@ -365,7 +365,7 @@ WeSchemeInteractions = (function () {
          for(var i=0; i<repls.length; i++){ rewrapOutput(repls[i])};
        }, 250);
     }
-    jQuery(window).on('resize', rewrapPreviousInteractions);
+    jQuery(window).bind('resize', rewrapPreviousInteractions);
                         
     WeSchemeInteractions.prototype.makeFreshEvaluator = function(afterInit) {
         var that = this;
