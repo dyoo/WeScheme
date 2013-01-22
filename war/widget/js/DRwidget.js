@@ -734,7 +734,9 @@ var initializeWidget = (function () {
             var node= document.getElementById('design-recipe-form');
             connect(node, "click", function(event){event.target.focus(); event.stop(); return false;});
             editor.addWidget(pos, node, true);	// display the DR widget just below the line, and scroll so it's visible
-            hlLine = editor.setLineClass(editor.getCursor().line, "activeline");
+            hlLine = editor.addLineClass(editor.getCursor().line,
+                                         "wrap",
+                                         "activeline");
             contract_name.focus();
         };
         
@@ -772,7 +774,7 @@ var initializeWidget = (function () {
  
        var hideWidget = function (widget){
             document.getElementById('design-recipe-form').style.left = '-1000px';
-            editor.setLineClass(hlLine, "");
+            editor.removeLineClass(hlLine, "wrap", "activeline");
             editor.focus();
             clearForm();
         };
