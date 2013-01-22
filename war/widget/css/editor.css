@@ -1,4 +1,4 @@
-div#design-recipe-form .CodeMirror {background: white; border: solid 1px black;}
+div#design-recipe-form .CodeMirror {background: white; border: solid 1px black;   max-width: 330px;}
 div#design-recipe-form .CodeMirror-scroll {height: 300px;}
 div#design-recipe-form .activeline{background:	wheat !important;}
 
@@ -11,7 +11,6 @@ div#design-recipe-form .CodeMirror-scroll{
     border: 1px inset;
     font-weight: normal;
     min-width: 100px;
-    max-width: 330px;
 }
 
 div#design-recipe-form .CodeMirror{
@@ -26,7 +25,7 @@ div#design-recipe-form .CodeMirror-lines {
 div#design-recipe-form {
 	border:			solid 1px black;
 	min-height:		160px;
-	min-width:		350px;
+	width:      560px;
 	padding:		0px; 
 	margin-left:	10px;
 	font-size:		14px;
