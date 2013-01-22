@@ -382,7 +382,7 @@ span.top-aligned-inline-block {
   - if an expr is wrapped, every element clears left
 */
 
-.replOutput {display: inline-block;}
+
 .replOutput * {float: left; padding-left: 10px;}
 .wrapped > * {clear: left;}
 
