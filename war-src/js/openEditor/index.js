@@ -72,15 +72,16 @@ var initializeEditor;
 	var doubleCheck = function(){
 	    return "Are you sure you want to leave the Editor? (all unsaved changes will be lost)";
 	};
+
 	if (warnOnExit) {
 	    window.onbeforeunload = doubleCheck;
-
-            // // If the editor is dirty
-            // changes(myEditor.isDirtyB).mapE(function(v) {
-            //     if (v) {
-            //     } else {
-            //     }
-            // });
+            myEditor.suppressWarningBeforeUnloadB.changes().mapE(function(v) {
+	        if (v) {
+                    window.onbeforeunload = undefined;
+                } else { 
+	            window.onbeforeunload = doubleCheck;
+                }
+            });
 	}
     };
 

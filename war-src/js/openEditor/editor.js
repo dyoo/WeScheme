@@ -59,6 +59,17 @@ var WeSchemeEditor;
 	this.defn = attrs.defn;  // TextAreaContainer
 	this.isOwner = false;
 
+
+        this.suppressWarningBeforeUnloadE = receiverE();
+        // suppressWarningBeforeUnloadB: Behavior boolean
+        // Used to suppress the save warning.  Use
+        // suppressWarningBeforeUnloadE.sendEvent() to trigger.
+        this.suppressWarningBeforeUnloadB = startsWith(
+            this.suppressWarningBeforeUnloadE,
+            false);
+
+
+
 	new plt.wescheme.WeSchemeInteractions(
 	    attrs.interactions,
 	    function(interactions) {
@@ -300,7 +311,7 @@ var WeSchemeEditor;
 	    that.savedE.sendEvent(true);
 	    plt.wescheme.WeSchemeIntentBus.notify("after-save", that);
             if (success) { success(); }
-	};
+        }
 	var whenSaveBreaks = function() {
 	    alert("Unable to save");
             if (fail) { fail(); }
@@ -310,7 +321,11 @@ var WeSchemeEditor;
 	    that.actions.save({ pid: false, 
 		                title: that.filenameEntry.attr("value"),
 		                code : that.defn.getCode()},
-		              afterSave,
+		              function(pid) {
+                                  that.suppressWarningBeforeUnloadE.sendEvent(true);
+	                          window.location = 
+		                      "/openEditor?pid=" + encodeURIComponent(pid);
+                              },
 		              whenSaveBreaks);
 	};
 
@@ -332,11 +347,10 @@ var WeSchemeEditor;
 					    that.defn.getCode(),
 					    function(x) {
 						afterSave(x);
-						window.location = (
-						    "/openEditor?pid=" + encodeURIComponent(that.pid)
-						);
-					    }
-					    ,
+                                                that.suppressWarningBeforeUnloadE.sendEvent(true);
+						window.location = 
+						    "/openEditor?pid=" + encodeURIComponent(that.pid);
+					    },
 					    whenSaveBreaks);
 		} else {
 		    onUpdate();
