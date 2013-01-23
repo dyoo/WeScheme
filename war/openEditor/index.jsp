@@ -21,8 +21,6 @@
 
     <link rel="stylesheet" type="text/css" href="/css/default.css" id="style" />
 
-    <link rel="stylesheet" type="text/css" href="/css/fullscreen.css" id="style" />
-      
 
     <!-- dynamic script loading -->
     <script src="/js/loadScript-min.js" type="text/javascript"></script>
