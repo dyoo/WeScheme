@@ -207,7 +207,7 @@ var initializeWidget = (function () {
 
 
 
-    // editor: CodeMirror2 editor
+    // editor: CodeMirror editor
     var initializeWidget = function(editor, tokenizer) {
         
         var contract_name, contract_domain, contract_range,
