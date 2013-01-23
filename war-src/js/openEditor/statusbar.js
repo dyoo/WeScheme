@@ -36,7 +36,9 @@ plt.wescheme.WeSchemeStatusBar = WeSchemeStatusBar = (function() {
 		'before-run': 'Program is being executed',
 		'after-run': 'Program has been executed',
 		'before-share': 'Program is being shared',
-		'after-share': 'Program has been shared'};
+		'after-share': 'Program has been shared',
+                'before-editor-reload-on-save': 'Please wait; saving program...'
+            };
 	    if (action === 'notify' &&
 		editorNotifyCategoryMap[category]) {
 		that.notify(editorNotifyCategoryMap[category]);

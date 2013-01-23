@@ -321,11 +321,7 @@ var WeSchemeEditor;
 	    that.actions.save({ pid: false, 
 		                title: that.filenameEntry.attr("value"),
 		                code : that.defn.getCode()},
-		              function(pid) {
-                                  that.suppressWarningBeforeUnloadE.sendEvent(true);
-	                          window.location = 
-		                      "/openEditor?pid=" + encodeURIComponent(pid);
-                              },
+		              doPageReload,
 		              whenSaveBreaks);
 	};
 
@@ -345,11 +341,9 @@ var WeSchemeEditor;
 		if (valueNow(that.isPublishedB)) {
 		    that.actions.makeAClone(that.pid,
 					    that.defn.getCode(),
-					    function(x) {
-						afterSave(x);
-                                                that.suppressWarningBeforeUnloadE.sendEvent(true);
-						window.location = 
-						    "/openEditor?pid=" + encodeURIComponent(that.pid);
+					    function(newPid) {
+						afterSave(newPid);
+                                                doPageReload(newPid);
 					    },
 					    whenSaveBreaks);
 		} else {
@@ -357,6 +351,13 @@ var WeSchemeEditor;
 		}
 	    }
 	};
+
+        var doPageReload = function(pid) {
+            that.suppressWarningBeforeUnloadE.sendEvent(true);
+            plt.wescheme.WeSchemeIntentBus.notify("before-editor-reload-on-save", that)
+	    window.location = 
+		"/openEditor?pid=" + encodeURIComponent(pid);
+        };
 	
 
 	that.filenameEntry.attr("value", 
