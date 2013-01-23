@@ -52,6 +52,7 @@
     <script src="/js/jquery/jquery.blockUI-min.js" type="text/javascript"></script>
     
     <script src="/js/codemirror2/lib/codemirror-min.js" type="text/javascript"></script>
+    <script src="/js/codemirror2/addon/edit/matchbrackets.js" type="text/javascript"></script>
     <script src="/js/codemirror2-contrib/scheme2/scheme2-min.js" type="text/javascript"></script>
 
     <link rel="stylesheet" type="text/css" href="/css/codemirror.css" id="style" />

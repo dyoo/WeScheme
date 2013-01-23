@@ -180,11 +180,11 @@ var WeSchemeTextContainer;
 					theme: (options.theme || "scheme"),
 					mode: "scheme2",
 					extraKeys: km,
-					lineNumbers: (typeof (options.lineNumbers) !== 'undefined'? options.lineNumbers :  true),
+					lineNumbers: (typeof (options.lineNumbers) !== undefined? options.lineNumbers :  true),
 					lineWrapping: true,
-					matchBrackets: true,
+					matchBrackets: (options.matchBrackets !== undefined ? options.matchBrackets : true),
 					value: options.content || "",
-					readOnly: (typeof (options.readOnly) !== 'undefined'? options.readOnly : false)
+					readOnly: (typeof (options.readOnly) !== undefined? options.readOnly : false)
 
 				});
             this.editor.on('change',
@@ -234,8 +234,8 @@ var WeSchemeTextContainer;
 			this.behaviorE.sendEvent(code);
 		}
 
-		if (typeof(startOffset) !== 'undefined') {
-			if (typeof(endOffset) !== 'undefined') {
+		if (typeof(startOffset) !== undefined) {
+			if (typeof(endOffset) !== undefined) {
 				return code.substring(startOffset, endOffset);
 			} else {
 				return code.substring(startOffset);
@@ -406,11 +406,7 @@ var WeSchemeTextContainer;
             }
 
 	    this.editor.focus();
-	    /*
-	      var start = this.editor.getCursor(true);
-	      var end = this.editor.getCursor(false);
-	      this.editor.setSelection(start,end);
-	    */
+            this.editor.refresh();
 	};
 	
 	CodeMirrorImplementation.prototype.refresh = function() {
