@@ -339,13 +339,21 @@ var WeSchemeEditor;
 		onFirstSave();
 	    } else {
 		if (valueNow(that.isPublishedB)) {
-		    that.actions.makeAClone(that.pid,
-					    that.defn.getCode(),
-					    function(newPid) {
-						afterSave(newPid);
-                                                doPageReload(newPid);
-					    },
-					    whenSaveBreaks);
+		    that.actions.makeAClone(
+                        that.pid,
+			that.defn.getCode(),
+			function(newPid) {
+	                    that.actions.save(
+                                { pid: newPid, 
+		                  title: that.filenameEntry.attr("value"),
+		                  code : that.defn.getCode()},
+                                function() {
+			            afterSave(newPid);
+                                    doPageReload(newPid);
+                                },
+                                whenSaveBreaks);
+			},
+			whenSaveBreaks);
 		} else {
 		    onUpdate();
 		}
