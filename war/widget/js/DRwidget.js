@@ -161,11 +161,11 @@ var initializeWidget = (function () {
                                       extraKeys: km,
                                       mode: "scheme2",
                                       value: "",
-                                      onChange: onChange,
-                                      onBlur: onBlur,
-                                      onFocus: onFocus,
                                       lineWrapping: true
                                     });
+        this.codeMirrorElement.on('change', onChange);
+        this.codeMirrorElement.on('blur', onBlur);
+        this.codeMirrorElement.on('focus', onFocus);
     };
 
     ValidatedTextInputElement.prototype.isOk = function() {
