@@ -179,6 +179,11 @@ var initializeEditor;
 			    myEditor.load({pid : parseInt(pid) }, afterLoad1, afterLoad1);
 			} else if (publicId != null) {
 			    myEditor.load({publicId : publicId}, afterLoad1, afterLoad1);
+
+                            // TODO: use JQuery BBQ to look to see
+                            // if the pid or publicId exists
+                            // in the client-side hash part of the URL.
+
 			} else {
 			    // otherwise, dont load.
 			    afterLoad1();
