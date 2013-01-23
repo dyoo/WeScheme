@@ -184,11 +184,13 @@ var WeSchemeTextContainer;
 					lineWrapping: true,
 					matchBrackets: true,
 					value: options.content || "",
-					readOnly: (typeof (options.readOnly) !== 'undefined'? options.readOnly : false),
+					readOnly: (typeof (options.readOnly) !== 'undefined'? options.readOnly : false)
 
-					onChange: function() {
-						that.behaviorE.sendEvent(that.editor.getValue());
-					}});
+				});
+            this.editor.on('change',
+                           function() {
+		               that.behaviorE.sendEvent(that.editor.getValue());
+			   });
 
             extendEditorWithIOSKeys(this.editor);
 
