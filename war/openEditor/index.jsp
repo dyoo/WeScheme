@@ -20,7 +20,7 @@
 
 
     <link rel="stylesheet" type="text/css" href="/css/default.css" id="style" />
-
+    <link rel="stylesheet" type="text/css" href="/css/pretty-printing.css" id="style" />
 
     <!-- dynamic script loading -->
     <script src="/js/loadScript-min.js" type="text/javascript"></script>
