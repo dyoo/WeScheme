@@ -602,12 +602,15 @@ var initializeWidget = (function () {
             if (this.preventDefault) {this.preventDefault(); this.stopPropagation();}
             else {this.returnValue = false; this.cancelBubble = true;}
         };
-        var addStop = function(event) {
+        var addStopAndTarget = function(event) {
             if (!event.stop) { event.stop = stopEvent; }
+            if (event.target === undefined) {
+                event.target = event.srcElement;
+            }                
             return event;
         };
         var connect = function(node, type, handler) {
-            function wrapHandler(event) {handler(addStop(event || window.event));}
+            function wrapHandler(event) {handler(addStopAndTarget(event || window.event));}
             if (typeof node.addEventListener === "function") {
                 node.addEventListener(type, wrapHandler, false);
             } else {
@@ -732,7 +735,11 @@ var initializeWidget = (function () {
             pos = editor.getCursor(true);		// get the current cursor location
             pos.ch = 0;							// force the character to 0
             var node= document.getElementById('design-recipe-form');
-            connect(node, "click", function(event){event.target.focus(); event.stop(); return false;});
+            connect(node, "click",
+                    function(event){
+                        event.target.focus();
+                        event.stop();
+                        return false;});
             editor.addWidget(pos, node, true);	// display the DR widget just below the line, and scroll so it's visible
             hlLine = editor.addLineClass(editor.getCursor().line,
                                          "wrap",
