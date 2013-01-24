@@ -291,7 +291,7 @@ var WeSchemeTextContainer;
 		
 		var highlightedArea = this.editor.markText(this.handleAndColumnToPos(startHandleAndColumn), 
 					this.handleAndColumnToPos(endHandleAndColumn), 
-					name);
+					{className: name});
 
  		this.highlightedAreas.push(highlightedArea);
  		this.moveCursor(offset, span);
