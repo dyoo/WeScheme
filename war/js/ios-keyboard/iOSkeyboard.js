@@ -137,18 +137,16 @@
          *    Connect Event Handlers                                                           */
         var _onBlur = cm.getOption('onBlur');
         var _onFocus = cm.getOption('onFocus');
-        cm.setOption("onBlur", 
-                     function() {
+        cm.on("blur",function(cm, blur) {
                          if (_onBlur) { _onBlur(); }
                          keysVisible = false; 
                          drawKeyboard();
                      });
-        cm.setOption("onFocus",
-                     function(){
+        cm.on("focus", function(cm, focus){
                          if (_onFocus) { _onFocus(); }
                          keysVisible = true; 
                          drawKeyboard();
-                     });
+                      });
         window.addEventListener('orientationchange', drawKeyboard, false);
         window.addEventListener('scroll',            drawKeyboard, false);
     }
