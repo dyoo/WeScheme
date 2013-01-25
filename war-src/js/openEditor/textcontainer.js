@@ -285,7 +285,7 @@ var WeSchemeTextContainer;
                 stylesheet.insertRule("." + name + " { background-color: " + color + ";}", 0);
             } else {
 	        // IE8 compatibility
-                stylesheet.addRule("." + name, "{ background-color: " + color + "", 0);
+                stylesheet.addRule("." + name, "background-color: " + color + "", 0);
             }
 
 		
