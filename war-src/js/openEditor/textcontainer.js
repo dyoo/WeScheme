@@ -399,14 +399,8 @@ var WeSchemeTextContainer;
 
 
 	CodeMirrorImplementation.prototype.focus = function() {
-            // Hack: if iPad, ignore focus attempts: it doesn't make
-            // the keyboard show up.
-            if (navigator.userAgent.match(/iPad/i) != null) {
-                return;
-            }
-
 	    this.editor.focus();
-            this.editor.refresh();
+      this.editor.refresh();
 	};
 	
 	CodeMirrorImplementation.prototype.refresh = function() {
