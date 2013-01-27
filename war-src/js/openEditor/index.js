@@ -323,7 +323,7 @@ var initializeEditor;
 			   goog.events.EventType.RESIZE,
 			   onResize);
         myEditor.setOnResize(onResize);
-        jQuery.bind("fullscreenchange", 
+        jQuery(window).bind("fullscreenchange", 
                     function() { 
                         onResize();
                     });

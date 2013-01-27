@@ -285,13 +285,13 @@ var WeSchemeTextContainer;
                 stylesheet.insertRule("." + name + " { background-color: " + color + ";}", 0);
             } else {
 	        // IE8 compatibility
-                stylesheet.addRule("." + name, "{ background-color: " + color + "", 0);
+                stylesheet.addRule("." + name, "background-color: " + color + "", 0);
             }
 
 		
 		var highlightedArea = this.editor.markText(this.handleAndColumnToPos(startHandleAndColumn), 
 					this.handleAndColumnToPos(endHandleAndColumn), 
-					name);
+					{className: name});
 
  		this.highlightedAreas.push(highlightedArea);
  		this.moveCursor(offset, span);

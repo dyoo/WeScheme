@@ -20,7 +20,7 @@
 
 
     <link rel="stylesheet" type="text/css" href="/css/default.css" id="style" />
-
+    <link rel="stylesheet" type="text/css" href="/css/pretty-printing.css" id="style" />
 
     <!-- dynamic script loading -->
     <script src="/js/loadScript-min.js" type="text/javascript"></script>
@@ -51,7 +51,11 @@
     <script src="/js/jquery/jquery.center-in-client-min.js" type="text/javascript"></script>
     <script src="/js/jquery/jquery.blockUI-min.js" type="text/javascript"></script>
     
-    <script src="/js/codemirror2/lib/codemirror-min.js" type="text/javascript"></script>
+    <!-- Note: there's currently a regression where IE mis-parses the
+      Google Closure-minimized library for codemirror.js.  Keep using the unminimized version
+      of the library till we figure this out. -->
+    <script src="/js/codemirror2/lib/codemirror.js" type="text/javascript"></script>
+
     <script src="/js/codemirror2/addon/edit/matchbrackets.js" type="text/javascript"></script>
     <script src="/js/codemirror2-contrib/scheme2/scheme2-min.js" type="text/javascript"></script>
 
