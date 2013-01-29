@@ -399,8 +399,12 @@ var WeSchemeTextContainer;
 
 
 	CodeMirrorImplementation.prototype.focus = function() {
-	    this.editor.focus();
-      this.editor.refresh();
+            // The try/catch blocks are meant to work around
+            // an issue in IE8 and CodeMirror 3.1.  It may be obsolete
+            // as soon as the issue is resolved:
+            // https://github.com/marijnh/CodeMirror/issues/1200
+	    try { this.editor.focus(); } catch (e) {}
+            try { this.editor.refresh(); } catch (e) {}
 	};
 	
 	CodeMirrorImplementation.prototype.refresh = function() {
