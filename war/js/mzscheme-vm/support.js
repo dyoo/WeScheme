@@ -2283,7 +2283,11 @@ var jsworld = {};
 	    var drawer = {
 		_top: null,
 		_listener: function(w, oldW, k2) { 
-		    do_redraw(w, oldW, drawer._top, wrappedRedraw, redraw_css, k2); 
+		    do_redraw(w, oldW,
+                              drawer._top,
+                              wrappedRedraw,
+                              redraw_css, 
+                              k2); 
 		},
 		onRegister: function (top) { 
 		    drawer._top = top;
@@ -2873,6 +2877,13 @@ var jsworld = {};
 	return page.add(elt, positionLeft, positionTop);
     };
 
+
+
+    // getCurrentWorld: -> world
+    // Returns the currently running world.
+    Jsworld.getCurrentWorld = function() {
+        return world;
+    };
 
 
 })();
@@ -12252,6 +12263,51 @@ if (typeof(world) === 'undefined') {
     var _js = jsworld.Jsworld;
 
 
+
+
+
+
+//////////////////////////////////////////////////////////////////////
+// From:
+// https://gist.github.com/1579671
+
+// http://paulirish.com/2011/requestanimationframe-for-smart-animating/
+// http://my.opera.com/emoller/blog/2011/12/20/requestanimationframe-for-smart-er-animating
+
+// requestAnimationFrame polyfill by Erik Möller
+// fixes from Paul Irish and Tino Zijdel
+ 
+(function() {
+    var lastTime = 0;
+    var vendors = ['ms', 'moz', 'webkit', 'o'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] 
+                                   || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+ 
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); }, 
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+ 
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());
+//////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
     var caller;
     var setCaller = function(c) {
     	caller = function(op, args, k) {
@@ -12656,7 +12712,6 @@ if (typeof(world) === 'undefined') {
 		try {
 		    caller(config.lookup('onDraw'), [w],
 			    function(newDomTree) {
-//				plt.Kernel.setLastLoc(undefined);
 			    	deepUnwrapJsObjects(newDomTree, function(unwrappedTree) {
 					checkWellFormedDomTree(unwrappedTree, unwrappedTree, undefined);
 					var result = [toplevelNode, 
@@ -12666,7 +12721,6 @@ if (typeof(world) === 'undefined') {
 			    });
 		} catch (e) {
 		    handleError(e);
-//		    throw e;
 		}
 	    }
 
@@ -12676,12 +12730,10 @@ if (typeof(world) === 'undefined') {
 			    caller(config.lookup('onDrawCss'), [w],
 				    function(res) {
 					var result = helpers.deepListToArray(res);
-	//				plt.Kernel.setLastLoc(undefined);
 					k(result);
 				    });
 			} catch (e) {
 			    handleError(e);
-	//		    throw e;
 			}
 		    }
 	    }
@@ -12691,51 +12743,53 @@ if (typeof(world) === 'undefined') {
 	    wrappedHandlers.push(_js.on_draw(wrappedRedraw, wrappedRedrawCss));
 	} else if (config.lookup('onRedraw')) {
 	    var reusableCanvas = undefined;
-	    var reusableCanvasNode = undefined;
-	    
+	    var reusableCanvasNode = undefined;	    
 	    wrappedRedraw = function(w, k) {
-		try {
-			//console.log('in onRedraw handler');
-		    caller(config.lookup('onRedraw'), [w],
-			    function(aScene) {
-				// Performance hack: if we're using onRedraw, we know
-				// we've got a scene, so we optimize away the repeated
-				// construction of a canvas object.
-				if ( world.Kernel.isImage(aScene) ) {
-					var width = aScene.getWidth();
-					var height = aScene.getHeight();
+                var nextFrame = function(t) {
+		    try {
+                        // By the time we get here, the current world may have changed
+                        // already, so we need to reacquire the value of the
+                        // current world.
+                        w = _js.getCurrentWorld();
+		        caller(config.lookup('onRedraw'), [w],
+			       function(aScene) {
+				   // Performance hack: if we're using onRedraw, we know
+				   // we've got a scene, so we optimize away the repeated
+				   // construction of a canvas object.
+				   if ( world.Kernel.isImage(aScene) ) {
+				       var width = aScene.getWidth();
+				       var height = aScene.getHeight();
 
-					if (! reusableCanvas) {
-						reusableCanvas = world.Kernel.makeCanvas(width, height);
-						// Note: the canvas object may itself manage objects,
-						// as in the case of an excanvas.  In that case, we must make
-						// sure jsworld doesn't try to disrupt its contents!
-						reusableCanvas.jsworldOpaque = true;
-						reusableCanvasNode = _js.node_to_tree(reusableCanvas);
-					}
+				       if (! reusableCanvas) {
+					   reusableCanvas = world.Kernel.makeCanvas(width, height);
+					   // Note: the canvas object may itself manage objects,
+					   // as in the case of an excanvas.  In that case, we must make
+					   // sure jsworld doesn't try to disrupt its contents!
+					   reusableCanvas.jsworldOpaque = true;
+					   reusableCanvasNode = _js.node_to_tree(reusableCanvas);
+				       }
 
-				    setTimeout(
-					function() {
-					    reusableCanvas.width = width;
-					    reusableCanvas.height = height;			
-					    var ctx = reusableCanvas.getContext("2d");
-					    aScene.render(ctx, 0, 0);
-					},
-					0);
+				       setTimeout(
+					   function() {
+					       reusableCanvas.width = width;
+					       reusableCanvas.height = height;			
+					       var ctx = reusableCanvas.getContext("2d");
+					       aScene.render(ctx, 0, 0);
+					   },
+					   0);
 
-					k([toplevelNode, reusableCanvasNode]);
-				} else {
-					k([toplevelNode, _js.node_to_tree(types.toDomNode(aScene))]);
-				}
-			   });
-		} catch (e) {
-		    handleError(e);
-//		    throw e;
-		}
+				       k([toplevelNode, reusableCanvasNode]);
+				   } else {
+				       k([toplevelNode, _js.node_to_tree(types.toDomNode(aScene))]);
+				   }
+			       });
+		    } catch (e) {
+		        handleError(e);
+		    }
+                };
+                window.requestAnimationFrame(nextFrame);
 	    }
-	    
 	    wrappedRedrawCss = function(w, k) {
-		    //console.log('in RedrawCss handler');
 		k([[reusableCanvas, 
 		    ["width", reusableCanvas.width + "px"],
 		    ["height", reusableCanvas.height + "px"]]]);
