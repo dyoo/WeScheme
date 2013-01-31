@@ -2,7 +2,8 @@ div#design-recipe-form .CodeMirror {background: white; border: solid 1px black; 
 div#design-recipe-form .CodeMirror-scroll {height: 300px;}
 div#design-recipe-form .activeline{background:	wheat !important;}
 
-div#design-recipe-form div#form .CodeMirror{border: none;}
+/* override CM's default height of 300px */
+div#design-recipe-form .CodeMirror{height: auto;}
 div#design-recipe-form .CodeMirror-scroll{
     height: auto;
     overflow-y: hidden;

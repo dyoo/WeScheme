@@ -180,15 +180,17 @@ var WeSchemeTextContainer;
 					theme: (options.theme || "scheme"),
 					mode: "scheme2",
 					extraKeys: km,
-					lineNumbers: (typeof (options.lineNumbers) !== 'undefined'? options.lineNumbers :  true),
+					lineNumbers: (typeof (options.lineNumbers) !== undefined? options.lineNumbers :  true),
 					lineWrapping: true,
-					matchBrackets: true,
+					matchBrackets: (options.matchBrackets !== undefined ? options.matchBrackets : true),
 					value: options.content || "",
-					readOnly: (typeof (options.readOnly) !== 'undefined'? options.readOnly : false),
+					readOnly: (typeof (options.readOnly) !== undefined? options.readOnly : false)
 
-					onChange: function() {
-						that.behaviorE.sendEvent(that.editor.getValue());
-					}});
+				});
+            this.editor.on('change',
+                           function() {
+		               that.behaviorE.sendEvent(that.editor.getValue());
+			   });
 
             extendEditorWithIOSKeys(this.editor);
 
@@ -232,8 +234,8 @@ var WeSchemeTextContainer;
 			this.behaviorE.sendEvent(code);
 		}
 
-		if (typeof(startOffset) !== 'undefined') {
-			if (typeof(endOffset) !== 'undefined') {
+		if (typeof(startOffset) !== undefined) {
+			if (typeof(endOffset) !== undefined) {
 				return code.substring(startOffset, endOffset);
 			} else {
 				return code.substring(startOffset);
@@ -283,13 +285,13 @@ var WeSchemeTextContainer;
                 stylesheet.insertRule("." + name + " { background-color: " + color + ";}", 0);
             } else {
 	        // IE8 compatibility
-                stylesheet.addRule("." + name, "{ background-color: " + color + "", 0);
+                stylesheet.addRule("." + name, "background-color: " + color + "", 0);
             }
 
 		
 		var highlightedArea = this.editor.markText(this.handleAndColumnToPos(startHandleAndColumn), 
 					this.handleAndColumnToPos(endHandleAndColumn), 
-					name);
+					{className: name});
 
  		this.highlightedAreas.push(highlightedArea);
  		this.moveCursor(offset, span);
@@ -397,18 +399,12 @@ var WeSchemeTextContainer;
 
 
 	CodeMirrorImplementation.prototype.focus = function() {
-            // Hack: if iPad, ignore focus attempts: it doesn't make
-            // the keyboard show up.
-            if (navigator.userAgent.match(/iPad/i) != null) {
-                return;
-            }
-
-	    this.editor.focus();
-	    /*
-	      var start = this.editor.getCursor(true);
-	      var end = this.editor.getCursor(false);
-	      this.editor.setSelection(start,end);
-	    */
+            // The try/catch blocks are meant to work around
+            // an issue in IE8 and CodeMirror 3.1.  It may be obsolete
+            // as soon as the issue is resolved:
+            // https://github.com/marijnh/CodeMirror/issues/1200
+	    try { this.editor.focus(); } catch (e) {}
+            try { this.editor.refresh(); } catch (e) {}
 	};
 	
 	CodeMirrorImplementation.prototype.refresh = function() {

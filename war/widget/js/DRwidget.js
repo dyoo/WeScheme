@@ -161,11 +161,11 @@ var initializeWidget = (function () {
                                       extraKeys: km,
                                       mode: "scheme2",
                                       value: "",
-                                      onChange: onChange,
-                                      onBlur: onBlur,
-                                      onFocus: onFocus,
                                       lineWrapping: true
                                     });
+        this.codeMirrorElement.on('change', onChange);
+        this.codeMirrorElement.on('blur', onBlur);
+        this.codeMirrorElement.on('focus', onFocus);
     };
 
     ValidatedTextInputElement.prototype.isOk = function() {
@@ -207,7 +207,7 @@ var initializeWidget = (function () {
 
 
 
-    // editor: CodeMirror2 editor
+    // editor: CodeMirror editor
     var initializeWidget = function(editor, tokenizer) {
         
         var contract_name, contract_domain, contract_range,
@@ -602,12 +602,15 @@ var initializeWidget = (function () {
             if (this.preventDefault) {this.preventDefault(); this.stopPropagation();}
             else {this.returnValue = false; this.cancelBubble = true;}
         };
-        var addStop = function(event) {
+        var addStopAndTarget = function(event) {
             if (!event.stop) { event.stop = stopEvent; }
+            if (event.target === undefined) {
+                event.target = event.srcElement;
+            }                
             return event;
         };
         var connect = function(node, type, handler) {
-            function wrapHandler(event) {handler(addStop(event || window.event));}
+            function wrapHandler(event) {handler(addStopAndTarget(event || window.event));}
             if (typeof node.addEventListener === "function") {
                 node.addEventListener(type, wrapHandler, false);
             } else {
@@ -732,9 +735,15 @@ var initializeWidget = (function () {
             pos = editor.getCursor(true);		// get the current cursor location
             pos.ch = 0;							// force the character to 0
             var node= document.getElementById('design-recipe-form');
-            connect(node, "click", function(event){event.target.focus(); event.stop(); return false;});
+            connect(node, "click",
+                    function(event){
+                        event.target.focus();
+                        event.stop();
+                        return false;});
             editor.addWidget(pos, node, true);	// display the DR widget just below the line, and scroll so it's visible
-            hlLine = editor.setLineClass(editor.getCursor().line, "activeline");
+            hlLine = editor.addLineClass(editor.getCursor().line,
+                                         "wrap",
+                                         "activeline");
             contract_name.focus();
         };
         
@@ -772,7 +781,7 @@ var initializeWidget = (function () {
  
        var hideWidget = function (widget){
             document.getElementById('design-recipe-form').style.left = '-1000px';
-            editor.setLineClass(hlLine, "");
+            editor.removeLineClass(hlLine, "wrap", "activeline");
             editor.focus();
             clearForm();
         };

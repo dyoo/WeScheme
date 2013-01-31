@@ -173,7 +173,8 @@ WeSchemeInteractions = (function () {
                 //stylesheet: "/js/codemirror/contrib/scheme/css/schemecolors-interactive.css",
                 content: nextCode,
                 makeTransparentIframe: true,
-                readOnly: true },
+                readOnly: 'nocursor',
+                matchBrackets: false },
             function(container) {
                 var newId = makeFreshId();
                 that.interactions.previousInteractionsTextContainers[newId] = container;
