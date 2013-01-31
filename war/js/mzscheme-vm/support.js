@@ -10673,7 +10673,7 @@ if (typeof(world) === 'undefined') {
     //////////////////////////////////////////////////////////////////////
     // SceneImage: primitive-number primitive-number (listof image) -> Scene
     var SceneImage = function(width, height, children, withBorder) {
-        BaseImage.call(this, 0, 0);
+        BaseImage.call(this, Math.floor(width/2), Math.floor(height/2));
         this.width = width;
         this.height = height;
         this.children = children; // arrayof [image, number, number]
@@ -11015,40 +11015,41 @@ if (typeof(world) === 'undefined') {
     // Rotates image by angle degrees in a counter-clockwise direction.
     // based on http://stackoverflow.com/questions/3276467/adjusting-div-width-and-height-after-rotated
     var RotateImage = function(angle, img) {
-        var sin   = Math.sin(angle * Math.PI / 180),
-        cos   = Math.cos(angle * Math.PI / 180);
-        
+        var sin = Math.sin(angle * Math.PI / 180);
+        var cos = Math.cos(angle * Math.PI / 180);
+        var width = img.getWidth();
+        var height = img.getHeight();
+
         // (w,0) rotation
-        var x1 = Math.floor(cos * img.getWidth()),
-        y1 = Math.floor(sin * img.getWidth());
+        var x1 = cos * width;
+        var y1 = sin * width;
         
         // (0,h) rotation
-        var x2 = Math.floor(-sin * img.getHeight()),
-        y2 = Math.floor( cos * img.getHeight());
+        var x2 = -sin * height;
+        var y2 = cos * height;
         
         // (w,h) rotation
-        var x3 = Math.floor(cos * img.getWidth() - sin * img.getHeight()),
-        y3 = Math.floor(sin * img.getWidth() + cos * img.getHeight());
+        var x3 = cos * width - sin * height;
+        var y3 = sin * width + cos * height;
         
-        var minX = Math.min(0, x1, x2, x3),
-        maxX = Math.max(0, x1, x2, x3),
-        minY = Math.min(0, y1, y2, y3),
-        maxY = Math.max(0, y1, y2, y3);
+        var minX = Math.min(0, x1, x2, x3);
+        var maxX = Math.max(0, x1, x2, x3);
+        var minY = Math.min(0, y1, y2, y3);
+        var maxY = Math.max(0, y1, y2, y3);
         
-        var rotatedWidth  = maxX - minX,
-        rotatedHeight = maxY - minY;
+        var rotatedWidth  = maxX - minX;
+        var rotatedHeight = maxY - minY;
         
         // resize the image
         BaseImage.call(this, 
-                       Math.floor(rotatedWidth / 2),
-                       Math.floor(rotatedHeight / 2));
-        
-        this.img        = img;
-        this.width      = rotatedWidth;
-        this.height = rotatedHeight;
-        this.angle      = angle;
-        this.translateX = -minX;
-        this.translateY = -minY;
+		       Math.floor(rotatedWidth / 2),
+		       Math.floor(rotatedHeight / 2));
+        this.img	= img;
+        this.width	= Math.floor(rotatedWidth);
+        this.height = Math.floor(rotatedHeight);
+        this.angle	= angle;
+        this.translateX = Math.floor(-minX);
+        this.translateY = Math.floor(-minY);
     };
 
     RotateImage.prototype = heir(BaseImage.prototype);
