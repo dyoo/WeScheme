@@ -56,8 +56,11 @@
           <fileset dir="test-src">
             <include name="**/*Test*.java"/>
           </fileset>
-          <formatter type="failure"/>
-          <formatter type="plain" usefile="false"/>
+          <!-- FIXME: I don't know how to deal with java class exceptions here.  -->
+          <!-- Something is truly screwed up with the classloader, and I don't know why yet. -->
+          <!-- Uncommenting the formatting tags below will raise an exception. -->
+          <!--           <formatter type="failure"/> -->
+          <!--           <formatter type="plain" usefile="false"/> -->
       </batchtest>
     </junit>
   </target>
