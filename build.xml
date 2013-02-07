@@ -40,6 +40,30 @@
         debug="on" />
   </target>
 
+
+  <!-- Runs junit test suite -->
+  <target name="test" depends="datanucleusenhance">
+    <mkdir dir="test-build"/>
+    <javac srcdir="test-src"
+           destdir="test-build"
+           classpathref="project.classpath"
+           includeantruntime="false"
+           debug="on"/>
+    <junit>
+      <classpath refid="project.classpath"/>
+      <classpath path="test-build"/>
+      <batchtest fork="false">
+          <fileset dir="test-src">
+            <include name="**/*Test*.java"/>
+          </fileset>
+          <formatter type="failure"/>
+          <formatter type="plain" usefile="false"/>
+      </batchtest>
+    </junit>
+  </target>
+
+
+
   <target name="datanucleusenhance" depends="compile"
       description="Performs JDO enhancement on compiled data classes.">
     <enhance_war war="war" />
