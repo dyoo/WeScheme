@@ -43,6 +43,12 @@ public class ObjectCode implements Serializable {
 	private AndroidPackage androidPackage;
 	@Persistent
 	private Boolean androidPackageBuilt = false;
+
+	
+	// A string representing the provided symbols of this program.
+	@Persistent
+	private Set<String> provides;
+	
 	
 	public ObjectCode() {
 		this("", new HashSet<String>(), false);
@@ -110,6 +116,13 @@ public class ObjectCode implements Serializable {
 		this.androidPackageBuilt = b;
 	}
 	
+	public Set<String> getProvides() {
+		if (this.provides == null) {
+			this.provides = new HashSet<String>();
+		}				
+		return this.provides;
+	}	
+	
 	
 	public Element toXML() {		
 		Element root = new Element("ObjectCode");
@@ -135,6 +148,12 @@ public class ObjectCode implements Serializable {
             permElt.add(perm);
         }
 
+        JSONArray providesElt = new JSONArray();
+        json.put("provides", providesElt);
+        for (String p : this.getProvides()) {
+        	providesElt.add(p);
+        }
+        
         json.put("trusted", this.trusted_);
         json.put("isAndroidPackageBuilt", isAndroidPackageBuilt());
         return json;
