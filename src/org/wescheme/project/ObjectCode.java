@@ -51,19 +51,17 @@ public class ObjectCode implements Serializable {
 	
 	
 	public ObjectCode() {
-		this("", new HashSet<String>(), false);
+            this("", new HashSet<String>(), new HashSet<String>(), false);
 	}
 	
-	public ObjectCode(String obj, Set<String> permissions){
-		this(obj, permissions, false);
-	}
-	
-	public ObjectCode(String obj, Set<String> permissions, boolean trust){
-		obj_ = new Text(obj);
-		this.permissions = permissions;
-		trusted_ = trust;
-		androidPackageBuilt = false;
-	}
+    public ObjectCode(String obj, Set<String> permissions, Set<String> provides, boolean trust){
+        obj_ = new Text(obj);
+        this.permissions = permissions;
+        this.provides = provides;
+        trusted_ = trust;
+        androidPackageBuilt = false;
+    }
+
 	
 	public Key getKey() { return this.key; }
 	

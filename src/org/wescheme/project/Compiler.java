@@ -32,6 +32,7 @@ public class Compiler extends HttpServlet
         boolean isBad();
         String getCompiledCode();
         Set<String> getPermissions();
+        Set<String> getProvides();
         String getErrorMessage();
     }
 	
@@ -52,6 +53,8 @@ public class Compiler extends HttpServlet
         public Set<String> getPermissions() { return permissions; }
         public Set<String> getProvides() { return provides; }
     }
+
+
 	
     public static class BadCompilationResult extends Throwable implements CompilationResult {
 		private static final long serialVersionUID = 3258083004919853680L;
@@ -64,6 +67,7 @@ public class Compiler extends HttpServlet
         public String getCompiledCode() { throw new UnsupportedOperationException(); }
         public String getErrorMessage() { return this.errorMessage; }
         public Set<String> getPermissions() { throw new UnsupportedOperationException(); }
+        public Set<String> getProvides() { throw new UnsupportedOperationException(); }
     }
 	
 	
@@ -75,6 +79,7 @@ public class Compiler extends HttpServlet
         } else {
             return new ObjectCode(result.getCompiledCode(),
                                   result.getPermissions(),
+                                  result.getProvides(),
                                   false);
         }
     }
