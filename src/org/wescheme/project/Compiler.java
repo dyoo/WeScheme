@@ -72,7 +72,7 @@ public class Compiler extends HttpServlet
 	
 	
 	
-    public static ObjectCode compile(ServletContext ctx, SourceCode src) throws BadCompilationResult {
+    public static ObjectCode compileObjectCode(ServletContext ctx, SourceCode src) throws BadCompilationResult {
         CompilationResult result = Compiler.compile(ctx, src.getName(), src.toString());
         if (result.isBad()) {
             throw (BadCompilationResult) result;
@@ -97,6 +97,7 @@ public class Compiler extends HttpServlet
 
 			
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
             conn.setDoOutput(true);
             OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
             wr.write(data);

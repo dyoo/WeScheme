@@ -120,7 +120,11 @@ public class ObjectCode implements Serializable {
 		}				
 		return this.provides;
 	}	
-	
+
+	public void setProvides(Set<String> provides) {
+		this.provides = provides;
+	}
+
 	
 	public Element toXML() {		
 		Element root = new Element("ObjectCode");

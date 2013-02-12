@@ -149,15 +149,18 @@ public class Program implements Serializable {
 	}
 
 	public void build(ServletContext ctx, PersistenceManager pm) throws IOException, BadCompilationResult {
-		ObjectCode obj = this.getObject();
-		ObjectCode newCode = org.wescheme.project.Compiler.compile(ctx, this.getSource());
-		obj.setObj(newCode.getObj());
-		obj.setPermissions(newCode.getPermissions());
-		this.updateTime();
-		if ((new WeSchemeProperties(ctx)).getAndroidPackagerUrl() != null) {
-			AndroidPackager.queueAndroidPackageBuild
-			(ctx, getTitle(), obj, pm);
-		}
+            // The code is a little odd here, but we try to reuse the existing ObjectCode here associated
+            // to the program.
+            ObjectCode obj = this.getObject();
+            ObjectCode newCode = org.wescheme.project.Compiler.compileObjectCode(ctx, this.getSource());
+            obj.setObj(newCode.getObj());
+            obj.setPermissions(newCode.getPermissions());
+            obj.setProvides(newCode.getProvides());
+            this.updateTime();
+            if ((new WeSchemeProperties(ctx)).getAndroidPackagerUrl() != null) {
+                AndroidPackager.queueAndroidPackageBuild
+                    (ctx, getTitle(), obj, pm);
+            }
 	}
 
 	public void updateTitle(String newTitle) {
