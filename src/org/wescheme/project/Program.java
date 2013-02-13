@@ -304,6 +304,15 @@ public class Program implements Serializable {
             }
         }
         json.put("permissions", permissions);
+
+        JSONArray provides = new JSONArray();
+        if (this.obj_ != null) {
+            for(String provide : this.obj_.getProvides()) {
+                provides.add(provide);
+            }
+        }
+        json.put("provides", provides);
+
         return json;
     }
 
