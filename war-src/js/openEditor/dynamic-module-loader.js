@@ -7,7 +7,7 @@ goog.provide("plt.wescheme.makeDynamicModuleLoader");
     plt.wescheme.makeDynamicModuleLoader = function(rootLibraryPath) {
 
         var handleBuiltInCollection = function(aName, onSuccess, onFail) {
-            loadScript(rootLibraryPath + "/" + aName + "-min.js",
+            loadScript(rootLibraryPath + "/" + aName + "-min.js?__gensym="+encodeURIComponent('' + Math.random()),
                        onSuccess,
                        onFail);
         };
