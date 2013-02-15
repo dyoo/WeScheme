@@ -474,7 +474,7 @@ WeSchemeInteractions = (function () {
                 };
                 evaluator.setImageProxy("/imageProxy");
                 evaluator.setRootLibraryPath("/js/mzscheme-vm/collects");
-                evaluator.setDynamicModuleLoader(plt.wescheme.makeDynamicModuleLoader(this.rootLibraryPath));
+                evaluator.setDynamicModuleLoader(plt.wescheme.makeDynamicModuleLoader("/js/mzscheme-vm/collects"));
                 afterInit(evaluator);
             }); 
     };

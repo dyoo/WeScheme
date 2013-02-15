@@ -5,14 +5,33 @@ goog.provide("plt.wescheme.makeDynamicModuleLoader");
     // The dynamic module loader will either cause bytecode from publicId-shared
     // programs to load, or those in the built-in collections.
     plt.wescheme.makeDynamicModuleLoader = function(rootLibraryPath) {
-        return function(aName, onSuccess, onFail) {
-            // FIXME: is this a WeScheme URL?
 
-            // Otherwise, treat it as a built-in and pull it from the
-            // set of built in collections.
+        var handleBuiltInCollection = function(aName, onSuccess, onFail) {
             loadScript(rootLibraryPath + "/" + aName + "-min.js",
                        onSuccess,
                        onFail);
+        };
+
+        var handleWeschemeModule = function(aName, onSuccess, onFail) {
+            var m = aName.match(/wescheme\/(\\w+)/);
+            throw new Error("unimplemented.");
+        };
+
+        var isWeschemeModule = function(aName) {
+            var m = aName.match(/wescheme\/(\\w+)/);
+            if (m) { return true; }
+            return false;
+        };
+
+
+        return function(aName, onSuccess, onFail) {
+            window.COLLECTIONS = window.COLLECTIONS || {};
+            // FIXME: is this a WeScheme URL?
+            if (isWeschemeModule(aName)) {
+                handleWeschemeModule(aName, onSuccess, onFail);
+            } else {
+                handleBuiltInCollection(aName, onSuccess, onFail);
+            }
         };
     };
 }());
