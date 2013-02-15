@@ -14,6 +14,7 @@ goog.require("plt.wescheme.WeSchemeTextContainer");
 goog.require("plt.wescheme.tokenizer");
 goog.require("plt.wescheme.WeSchemeProperties");
 goog.require("plt.wescheme.RoundRobin");
+goog.require("plt.wescheme.makeDynamicModuleLoader");
 
 var WeSchemeInteractions;
 
@@ -471,13 +472,9 @@ WeSchemeInteractions = (function () {
                                    });
                     return innerArea.get(0);
                 };
-            evaluator.setImageProxy("/imageProxy");
+                evaluator.setImageProxy("/imageProxy");
                 evaluator.setRootLibraryPath("/js/mzscheme-vm/collects");
-                evaluator.setDynamicModuleLoader(function(aName, onSuccess, onFail) {
-                    loadScript(this.rootLibraryPath + "/" + aName + "-min.js",
-                               onSuccess,
-                               onFail);
-                });
+                evaluator.setDynamicModuleLoader(plt.wescheme.makeDynamicModuleLoader(this.rootLibraryPath));
                 afterInit(evaluator);
             }); 
     };
