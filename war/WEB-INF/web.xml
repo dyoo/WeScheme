@@ -225,6 +225,15 @@
   </servlet-mapping>
 
 
+  <servlet>
+    <servlet-name>getModuleProviderRecord</servlet-name>
+    <servlet-class>org.wescheme.servlet.GetModuleProviderRecord</servlet-class>
+  </servlet>  
+  <servlet-mapping>
+    <servlet-name>getModuleProviderRecord</servlet-name>
+    <url-pattern>/getModuleProviderRecord</url-pattern>
+  </servlet-mapping>
+
 
   <servlet>
     <servlet-name>build</servlet-name>
