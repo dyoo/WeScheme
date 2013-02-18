@@ -3,7 +3,7 @@
 // interactive evaluation.
 
 goog.require("plt.wescheme.AjaxActions");
-
+goog.require("plt.wescheme.makeDynamicModuleLoader");
 
 
 
@@ -18,11 +18,8 @@ var Runner = function(compilationServerUrl, interactionsDiv) {
     });
     this.evaluator.setImageProxy("/imageProxy");
     this.evaluator.setRootLibraryPath("/js/mzscheme-vm/collects");
-    this.evaluator.setDynamicModuleLoader(function(aName, onSuccess, onFail) {
-        loadScript(this.rootLibraryPath + "/" + aName + "-min.js",
-                   onSuccess,
-                   onFail);
-    });
+    this.evaluator.setDynamicModuleLoader(
+        plt.wescheme.makeDynamicModuleLoader("/js/mzscheme-vm/collects"));
 };
 
 
