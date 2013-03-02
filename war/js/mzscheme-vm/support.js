@@ -10707,9 +10707,7 @@ if (typeof(world) === 'undefined') {
     SceneImage.prototype.render = function(ctx, x, y) {
         var i;
         var childImage, childX, childY;
-        // Clear the scene.
-        ctx.clearRect(x, y, this.width, this.height);
-        // Then ask every object to render itself.
+        // Ask every object to render itself.
         for(i = 0; i < this.children.length; i++) {
             childImage = this.children[i][0];
             childX = this.children[i][1];
