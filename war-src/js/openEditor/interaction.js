@@ -446,9 +446,10 @@ WeSchemeInteractions = (function () {
                     };
 
                     if (supportsFullScreen()) {
-                        jQuery("<span><img src='/images/fullscreen.png' width='16' height='16'></span>")
-                            .css("float", "right")
+                        jQuery("<span><img src='/images/fullscreen.png' width='12' height='12'></span>")
+                            .css("float", "left")
                             .css("cursor", "auto")
+                            .css("margin-top", "5px")
                             .click(toggleFullScreen)
                             .appendTo(dialog.parent().find(".ui-dialog-titlebar"));
                     }   
