@@ -188,7 +188,7 @@ var Evaluator = (function() {
 	var that = this;
         this.compileProgram(programName, code,
                             function(responseText) {
-		                that._onCompilationSuccess(eval('(' + responseText + ')'), 
+		                that._onCompilationSuccess((0,eval)('(' + responseText + ')'), 
 					                   onDone, onDoneError);
                             },
                             function(responseErrorText) {
