@@ -28,7 +28,7 @@ goog.require("plt.wescheme.AjaxActions");
                     try {
                         window.COLLECTIONS[aName] = { 
                             'name': aName,  
-                            'bytecode' : eval('(' + aProgram.getObjectCode() + ')'),
+                            'bytecode' : (0,eval)('(' + aProgram.getObjectCode() + ')'),
                             'provides' : aProgram.getProvides() 
                         };
                     } catch(e) {
