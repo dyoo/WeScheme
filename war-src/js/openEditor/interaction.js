@@ -715,25 +715,16 @@ WeSchemeInteractions = (function () {
 
         // INVARIANT: colors.length === altColors.length.
 
-        // to turn off highlighting, have the only color be white
-        // var colors = [new Color (255, 255, 255)];
         var colorIndex = 0;
-        var currItem;
         var currColor = colors[colorIndex];
         var i;
 
-        for(i = 0; i < args.length; i++){
-            //in the event that there are no more preset colors, reset it
-            if(colorIndex >= colors.length){
-                colorIndex = 0;
-            }
-            currColor = colors[colorIndex];
-            
-            if(types.isColoredPart(args[i])) {
-                colorAndLink(that, msgDom, currColor, args[i].text, [args[i].location]);
-                colorIndex++;
-            }
-            else if(types.isGradientPart(args[i])) {
+        for (i = 0; i < args.length; i++){
+            currColor = colors[colorIndex];         
+            if (types.isColoredPart(args[i])) {
+                colorAndLink(that, msgDom, currColor, args[i].text, currColor, [args[i].location]);
+                colorIndex = (colorIndex + 1) % colors.length;
+            } else if(types.isGradientPart(args[i])) {
                 var parts = args[i].coloredParts;
                 var currTint;
                 var altIndex = 0;
@@ -742,27 +733,25 @@ WeSchemeInteractions = (function () {
                 var change = 2/(parts.length+1);
 
                 for (j = 0; j < parts.length; j++){
-                    if(altIndex >= altColors[colorIndex].length) {
+                    if (altIndex >= altColors[colorIndex].length) {
                         altIndex = 0;
                         percentage = percentage - change;
                     }
                     currColor = altColors[colorIndex][altIndex];
                     currTint = nextTint(currColor.red, currColor.green, currColor.blue, percentage);
-                    colorAndLink(that, msgDom, currTint, parts[j].text, [parts[j].location])
+                    colorAndLink(that, msgDom, currTint, parts[j].text, currTint, [parts[j].location])
                     altIndex++;
                 }
-                colorIndex++;
-            }
-            else if(types.isMultiPart(args[i])) {
+                colorIndex = (colorIndex + 1) % colors.length;
+            } else if(types.isMultiPart(args[i])) {
                 if(args[i].locations.length > 0){ //should really go to the source of the multipart to fix
-                    colorAndLink(that, msgDom, currColor, args[i].text, args[i].locations);
-                    colorIndex++;
+                    colorAndLink(that, msgDom, currColor, args[i].text, currColor, args[i].locations);
+                    colorIndex = (colorIndex + 1) % colors.length;
                 }
                 else {
                     msgDom.appendChild(document.createTextNode(args[i].text+''));
                 }
-            } 
-            else {
+            } else {
                 msgDom.appendChild(document.createTextNode(args[i]+''));
             }
         }
@@ -770,20 +759,21 @@ WeSchemeInteractions = (function () {
 
     //that, dom, Color, string, nonempty array[loc]
     //does the coloring and makes a link to the location in the definitions
-    var colorAndLink = function(that, msgDom, color, text, locs) {
+    var colorAndLink = function(that, msgDom, errorColor, text, locsColor, locs) {
         var i;
         var x;
         var pieces = [];
         for(i = 0; i < locs.length; i++){
-            pieces.push(that.addToCurrentHighlighter(locs[i].ref(0), locs[i].ref(1), locs[i].ref(2), locs[i].ref(3), locs[i].ref(4), color+''));
+            pieces.push(that.addToCurrentHighlighter(locs[i].ref(0), locs[i].ref(1), locs[i].ref(2), locs[i].ref(3), locs[i].ref(4), 
+                                                     locsColor+''));
         }
         if(locs[0].ref(0) === "<no-location>"){
             var aChunk = jQuery("<span/>").text(text);
             jQuery(msgDom).append(aChunk);
         }
         else {
-            var clickFunction = makeCursorLink(that, locs, pieces, color);
-            var aChunk = jQuery("<span/>").css("background-color", color+'')
+            var clickFunction = makeCursorLink(that, locs, pieces, errorColor);
+            var aChunk = jQuery("<span/>").css("background-color", errorColor+'')
                                           .addClass("colored-link")
                                           .click(clickFunction);
             var aLink = jQuery("<a/>").text(text+'')
