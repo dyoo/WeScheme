@@ -719,59 +719,89 @@ WeSchemeInteractions = (function () {
         var currColor = colors[colorIndex];
         var i;
 
+
+        // Helper: iterate across elts, and pick a new tint.  Apply f on each elt with that new tint.
+        var foreachTint = function(elts, f) {
+            var currTint;
+            var altIndex = 0;
+            var j;
+            var percentage = 1;
+            var change = 2/(elts.length+1);
+            for (j = 0; j < elts.length; j++){
+                if (altIndex >= altColors[colorIndex].length) {
+                    altIndex = 0;
+                    percentage = percentage - change;
+                }
+                currColor = altColors[colorIndex][altIndex];
+                currTint = nextTint(currColor.red, currColor.green, currColor.blue, percentage);
+                f(elts[j], currTint);
+                altIndex++;
+            }
+        };
+
+        var doColoredPart = function(part) {
+            colorAndLink(that, msgDom, currColor, part.text, [currColor], [part.location]);
+            colorIndex = (colorIndex + 1) % colors.length;
+        };
+
+        var doGradientPart = function(part) {
+            var parts = part.coloredParts;
+            foreachTint(parts,
+                        function(subpart, currTint) {
+                            colorAndLink(that, msgDom, currTint, subpart.text, [currTint], [subpart.location])
+                        });
+            colorIndex = (colorIndex + 1) % colors.length;
+        };
+
+        var doMultiPart = function(part) {
+            var locTints = [];
+            if(part.locations.length > 0){ //should really go to the source of the multipart to fix
+                foreachTint(part.locations,
+                            function(loc, tint) {
+                                locTints.push(tint);
+                            });
+                colorAndLink(that, msgDom, currColor, part.text, 
+                             locTints, part.locations);
+                colorIndex = (colorIndex + 1) % colors.length;
+            }
+            else {
+                msgDom.appendChild(document.createTextNode(part.text+''));
+            }
+        };
+
+        var doPlainPart = function(part) {
+            msgDom.appendChild(document.createTextNode(part+''));
+            
+        };
+
         for (i = 0; i < args.length; i++){
             currColor = colors[colorIndex];         
             if (types.isColoredPart(args[i])) {
-                colorAndLink(that, msgDom, currColor, args[i].text, currColor, [args[i].location]);
-                colorIndex = (colorIndex + 1) % colors.length;
+                doColoredPart(args[i]);
             } else if(types.isGradientPart(args[i])) {
-                var parts = args[i].coloredParts;
-                var currTint;
-                var altIndex = 0;
-                var j;
-                var percentage = 1;
-                var change = 2/(parts.length+1);
-
-                for (j = 0; j < parts.length; j++){
-                    if (altIndex >= altColors[colorIndex].length) {
-                        altIndex = 0;
-                        percentage = percentage - change;
-                    }
-                    currColor = altColors[colorIndex][altIndex];
-                    currTint = nextTint(currColor.red, currColor.green, currColor.blue, percentage);
-                    colorAndLink(that, msgDom, currTint, parts[j].text, currTint, [parts[j].location])
-                    altIndex++;
-                }
-                colorIndex = (colorIndex + 1) % colors.length;
+                doGradientPart(args[i]);
             } else if(types.isMultiPart(args[i])) {
-                if(args[i].locations.length > 0){ //should really go to the source of the multipart to fix
-                    colorAndLink(that, msgDom, currColor, args[i].text, currColor, args[i].locations);
-                    colorIndex = (colorIndex + 1) % colors.length;
-                }
-                else {
-                    msgDom.appendChild(document.createTextNode(args[i].text+''));
-                }
+                doMultiPart(args[i]);
             } else {
-                msgDom.appendChild(document.createTextNode(args[i]+''));
+                doPlainPart(args[i]);
             }
         }
     };
 
     //that, dom, Color, string, nonempty array[loc]
     //does the coloring and makes a link to the location in the definitions
-    var colorAndLink = function(that, msgDom, errorColor, text, locsColor, locs) {
+    var colorAndLink = function(that, msgDom, errorColor, text, locColors, locs) {
         var i;
         var x;
         var pieces = [];
         for(i = 0; i < locs.length; i++){
             pieces.push(that.addToCurrentHighlighter(locs[i].ref(0), locs[i].ref(1), locs[i].ref(2), locs[i].ref(3), locs[i].ref(4), 
-                                                     locsColor+''));
+                                                     locColors[i]+''));
         }
         if(locs[0].ref(0) === "<no-location>"){
             var aChunk = jQuery("<span/>").text(text);
             jQuery(msgDom).append(aChunk);
-        }
-        else {
+        } else {
             var clickFunction = makeCursorLink(that, locs, pieces, errorColor);
             var aChunk = jQuery("<span/>").css("background-color", errorColor+'')
                                           .addClass("colored-link")
