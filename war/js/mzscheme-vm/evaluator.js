@@ -189,7 +189,7 @@ var Evaluator = (function() {
         this.compileProgram(programName, code,
                             function(responseText) {
                                 var result = JSON.parse(responseText);
-                                that._onCompilationSuccess((0, eval)('(' + result.bytecode + ')'),
+		                that._onCompilationSuccess((0,eval)('(' + result.bytecode + ')'), 
 					                   onDone, onDoneError);
                             },
                             function(responseErrorText) {
@@ -244,11 +244,12 @@ var Evaluator = (function() {
 	interpret.run(this.aState, onDoneSuccess, onDoneFail);
     };
 
+    var hasOwnProperty = {}.hasOwnProperty;
 
     var encodeUrlParameters = function(hash) {
 	var chunks = [];
 	for (var key in hash) {
-	    if (hash.hasOwnProperty(key)) {
+	    if (hasOwnProperty.call(hash, key)) {
 		chunks.push(encodeURIComponent(key) +"="+ encodeURIComponent(hash[key]));
 	    }
 	}
@@ -286,8 +287,8 @@ var Evaluator = (function() {
 
     var isEqualHash = function(hash1, hash2) {
 	for (var key in hash1) {
-	    if (hash1.hasOwnProperty(key)) {
-		if (hash2.hasOwnProperty(key)) {
+	    if (hasOwnProperty.call(hash1, key)) {
+		if (hasOwnProperty.call(hash2, key)) {
 		    if (hash1[key] !== hash2[key]) {
 			return false;
 		    }
@@ -297,8 +298,8 @@ var Evaluator = (function() {
 	    }
 	}
 	for (var key in hash2) {
-	    if (hash2.hasOwnProperty(key)) {
-		if (hash1.hasOwnProperty(key)) {
+	    if (hasOwnProperty.call(hash2, key)) {
+		if (hasOwnProperty.call(hash1, key)) {
 		    if (hash1[key] !== hash2[key]) {
 			return false;
 		    }
@@ -337,6 +338,7 @@ var Evaluator = (function() {
 							 onDoneSuccess,
 							 onDoneFail) {
 	this.executeCompiledProgram(compiledBytecode, onDoneSuccess, onDoneFail);
+
     };
     
 

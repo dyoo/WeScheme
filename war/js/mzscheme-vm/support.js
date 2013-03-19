@@ -49,6 +49,8 @@ var debugF = function(f_s) {
 }
 
 
+var hasOwnProperty = {}.hasOwnProperty;
+
 var deepEqual = function (obj1, obj2) {
     if (obj1 === obj2) {
 	return true;
@@ -71,14 +73,14 @@ var deepEqual = function (obj1, obj2) {
     }
 
     for (var i in obj1) {
-	if ( obj1.hasOwnProperty(i) && i !== '_eqHashCode' && i !== '_isList') {
-	    if ( !(obj2.hasOwnProperty(i) && deepEqual(obj1[i], obj2[i])) )
+	if ( hasOwnProperty.call(obj1, i) && i !== '_eqHashCode' && i !== '_isList') {
+	    if ( !(hasOwnProperty.call(obj2, i) && deepEqual(obj1[i], obj2[i])) )
 		return false;
 	}
     }
     for (var i in obj2) {
-	if ( obj2.hasOwnProperty(i) && i !== '_eqHashCode' && i !== '_isList') {
-	    if ( !(obj1.hasOwnProperty(i) && deepEqual(obj1[i], obj2[i])) )
+	if ( hasOwnProperty.call(obj2, i) && i !== '_eqHashCode' && i !== '_isList') {
+	    if ( !(hasOwnProperty.call(obj1, i) && deepEqual(obj1[i], obj2[i])) )
 		return false;
 	}
     }
@@ -2508,7 +2510,7 @@ var jsworld = {};
     function copy_attribs(node, attribs) {
 	if (attribs)
 	    for (a in attribs) {
-		if (attribs.hasOwnProperty(a)) {
+		if (Object.hasOwnProperty.call(attribs, a)) {
 		    if (typeof attribs[a] == 'function')
 			add_ev(node, a, attribs[a]);
 		    else{
@@ -7098,6 +7100,9 @@ var appendChild = function(parent, child) {
 };
 
 
+
+var hasOwnProperty = {}.hasOwnProperty;
+
 //////////////////////////////////////////////////////////////////////
 
 
@@ -7644,9 +7649,8 @@ var symbolCache = {};
 // makeInstance: string -> Symbol.
 Symbol.makeInstance = function(val) {
     // To ensure that we can eq? symbols with equal values.
-    if (!(val in symbolCache)) {
+    if (!(hasOwnProperty.call(symbolCache, val))) {
 	symbolCache[val] = new Symbol(val);
-    } else {
     }
     return symbolCache[val];
 };
@@ -7682,6 +7686,11 @@ Symbol.prototype.toDomNode = function(cache) {
 
 //////////////////////////////////////////////////////////////////////
 
+
+
+
+
+
 // Keywords
 
 var Keyword = function(val) {
@@ -7690,12 +7699,12 @@ var Keyword = function(val) {
 
 var keywordCache = {};
     
+
 // makeInstance: string -> Keyword.
 Keyword.makeInstance = function(val) {
     // To ensure that we can eq? symbols with equal values.
-    if (!(val in keywordCache)) {
+    if (!(hasOwnProperty.call(keywordCache, val))) {
 	keywordCache[val] = new Keyword(val);
-    } else {
     }
     return keywordCache[val];
 };
@@ -9558,10 +9567,12 @@ State.prototype.save = function() {
 };
 
 
+var hasOwnProperty = {}.hasOwnProperty;
+
 var copyHash = function(hash) {
     var result = {};
     for (var key in hash) {
-	if (hash.hasOwnProperty(key)) {
+	if (hasOwnProperty.call(hash, key)) {
 	    result[key] = hash[key];
 	}
     }
@@ -9817,8 +9828,8 @@ var getStackTraceFromContinuationMarks = function(contMarkSet) {
 
 var isEqualHash = function(hash1, hash2) {
     for (var key in hash1) {
-	if (hash1.hasOwnProperty(key)) {
-	    if (hash2.hasOwnProperty(key)) {
+	if (hasOwnProperty.call(hash1, key)) {
+	    if (hasOwnProperty.call(hash2, key)) {
 		if (hash1[key] !== hash2[key]) {
 		    return false;
 		}
@@ -9828,8 +9839,8 @@ var isEqualHash = function(hash1, hash2) {
 	}
     }
     for (var key in hash2) {
-	if (hash2.hasOwnProperty(key)) {
-	    if (hash1.hasOwnProperty(key)) {
+	if (hasOwnProperty.call(hash2, key)) {
+	    if (hasOwnProperty.call(hash1, key)) {
 		if (hash1[key] !== hash2[key]) {
 		    return false;
 		}
@@ -9871,12 +9882,12 @@ var world = {};
     var augment = function(o, a) {
 	var oo = {};
 	for (var e in o) {
-	    if (o.hasOwnProperty(e)) {
+	    if (Object.hasOwnProperty.call(o, e)) {
 		oo[e] = o[e];
 	    }
 	}
 	for (var e in a) {
-	    if (a.hasOwnProperty(e)) {
+	    if (Object.hasOwnProperty.call(a, e)) {
 		oo[e] = a[e];
 	    }
 	}
@@ -10419,7 +10430,7 @@ if (typeof(world) === 'undefined') {
         C.prototype = obj;
         var c = new C();
         for (property in obj) {
-            if (obj.hasOwnProperty(property)) {
+            if (Object.hasOwnProperty.call(obj, property)) {
                 c[property] = obj[property];
             }
         }
