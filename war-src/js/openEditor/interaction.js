@@ -664,7 +664,6 @@ WeSchemeInteractions = (function () {
     //structuredError -> Message
     var structuredErrorToMessage = function(se) {
         var msg = [];
-
         var i;
         for(i = 0; i < se.length; i++){
             if(typeof(se[i]) === 'string') {
@@ -683,21 +682,26 @@ WeSchemeInteractions = (function () {
                 }
                 msg.push(new types.GradientPart(parts));
             }
-
             else if(se[i].type === "MultiPart"){
                 msg.push(new types.MultiPart(se[i].text, fixLocList(se[i].locs)));
             }
             else msg.push(se[i]+'');
-
         }
         return new types.Message(msg);
     };
 
+
+    // that: ???
+    // msgDom: dom.  The target element that we write output to.
+    // args: arrayof (U string ColoredPart GradiantPart MultiPart)
     // Special multi-color highlighting
-    var specialFormatting = function(that, msgDom, msg) {
+    var formatColoredMessage = function(that, msgDom, args) {
         //pink, blue, green, yellow, gray
-        var colors = [new Color(240, 181, 194), new Color(161, 200, 224), new Color(146, 200, 142), 
-                  new Color(255, 239, 0), new Color(186,186,186)];
+        var colors = [new Color(240, 181, 194),
+                      new Color(161, 200, 224), 
+                      new Color(146, 200, 142), 
+                      new Color(255, 239, 0), 
+                      new Color(186,186,186)];
 
         //these colors are different versions of the same color, used for gradient purposes
         //to allow for greater differentiation between nearby colors
@@ -709,12 +713,13 @@ WeSchemeInteractions = (function () {
             [new Color(186,186,186), new Color(100,100,100), new Color(147,147,147), new Color(212,212,212)]    //shades of gray
         ];
 
-        //to turn off highlighting, have the only color be white
-      //  var colors = [new Color (255, 255, 255)];
+        // INVARIANT: colors.length === altColors.length.
+
+        // to turn off highlighting, have the only color be white
+        // var colors = [new Color (255, 255, 255)];
         var colorIndex = 0;
         var currItem;
         var currColor = colors[colorIndex];
-        var args = msg.args;
         var i;
 
         for(i = 0; i < args.length; i++){
@@ -742,13 +747,9 @@ WeSchemeInteractions = (function () {
                         percentage = percentage - change;
                     }
                     currColor = altColors[colorIndex][altIndex];
-
                     currTint = nextTint(currColor.red, currColor.green, currColor.blue, percentage);
-
                     colorAndLink(that, msgDom, currTint, parts[j].text, [parts[j].location])
-
                     altIndex++;
-
                 }
                 colorIndex++;
             }
@@ -847,7 +848,7 @@ WeSchemeInteractions = (function () {
 
         if(types.isMessage(msg)) {
             //if it is a Message, do special formatting
-            specialFormatting(that, msgDom, msg);
+            formatColoredMessage(that, msgDom, msg.args);
         }
         else {
             if(err.domMessage){
