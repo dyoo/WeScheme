@@ -60,7 +60,7 @@ goog.provide("plt.wescheme.helpers");
 	var encodeKeyPairs = function(attrs) {
 	    var key, buffer = [];
 	    for (key in attrs) {
-		if (attrs.hasOwnProperty(key)) {
+		if (Object.hasOwnProperty.call(attrs, key)) {
 		    buffer.push(key + "=" + encodeURIComponent(attrs[key]));
 		}
 	    }

@@ -32,21 +32,29 @@ public class Compiler extends HttpServlet
         boolean isBad();
         String getCompiledCode();
         Set<String> getPermissions();
+        Set<String> getProvides();
         String getErrorMessage();
     }
 	
     public static class GoodCompilationResult implements CompilationResult {
         private String compiledCode;
         private Set<String> permissions;
-        public GoodCompilationResult(String compiledCode, Set<String> permissions) {
+        private Set<String> provides;
+        public GoodCompilationResult(String compiledCode, 
+                                     Set<String> permissions,
+                                     Set<String> provides) {
             this.compiledCode = compiledCode;
             this.permissions = new HashSet<String>(permissions);
+            this.provides = new HashSet<String>(provides);
         }
         public boolean isBad() { return false; }
         public String getCompiledCode() { return this.compiledCode; }
         public String getErrorMessage() { return null; }
         public Set<String> getPermissions() { return permissions; }
+        public Set<String> getProvides() { return provides; }
     }
+
+
 	
     public static class BadCompilationResult extends Throwable implements CompilationResult {
 		private static final long serialVersionUID = 3258083004919853680L;
@@ -59,17 +67,19 @@ public class Compiler extends HttpServlet
         public String getCompiledCode() { throw new UnsupportedOperationException(); }
         public String getErrorMessage() { return this.errorMessage; }
         public Set<String> getPermissions() { throw new UnsupportedOperationException(); }
+        public Set<String> getProvides() { throw new UnsupportedOperationException(); }
     }
 	
 	
 	
-    public static ObjectCode compile(ServletContext ctx, SourceCode src) throws BadCompilationResult {
+    public static ObjectCode compileObjectCode(ServletContext ctx, SourceCode src) throws BadCompilationResult {
         CompilationResult result = Compiler.compile(ctx, src.getName(), src.toString());
         if (result.isBad()) {
             throw (BadCompilationResult) result;
         } else {
             return new ObjectCode(result.getCompiledCode(),
                                   result.getPermissions(),
+                                  result.getProvides(),
                                   false);
         }
     }
@@ -87,6 +97,7 @@ public class Compiler extends HttpServlet
 
 			
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
             conn.setDoOutput(true);
             OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
             wr.write(data);
@@ -96,12 +107,9 @@ public class Compiler extends HttpServlet
                 try {
                     JSONObject obj = (JSONObject) jsonParser.parse(readStream(conn.getInputStream()));
                     String compiledCode = (String) obj.get("bytecode");
-                    JSONArray perms = (JSONArray) obj.get("permissions");
-                    Set<String> permSet = new HashSet<String>();
-                    for (int i = 0; i < perms.size(); i++) {
-                    	permSet.add((String) perms.get(i));
-                    }
-                    return new GoodCompilationResult(compiledCode, permSet);		
+                    Set<String> perms = jsonStringArrayToSet((JSONArray) obj.get("permissions"));
+                    Set<String> provides = jsonStringArrayToSet((JSONArray) obj.get("provides"));
+                    return new GoodCompilationResult(compiledCode, perms, provides);
                 } catch (ParseException e) {
                     return new BadCompilationResult(e.toString());
                 }
@@ -116,6 +124,20 @@ public class Compiler extends HttpServlet
         } catch (IOException e) {
             return new BadCompilationResult(e.getMessage());
         }
+    }
+
+
+    /** Given either a (json array of strings),  or null, coerse it to a Set<String>.
+        A null value will be coersed to the empty set.
+     **/
+    private static Set<String> jsonStringArrayToSet(JSONArray arr) {
+        Set<String> aSet = new HashSet<String>();
+        if (arr == null) { return aSet; }
+
+        for (int i = 0; i < arr.size(); i++) {
+            aSet.add((String) arr.get(i));
+        }
+        return aSet;
     }
 
 	

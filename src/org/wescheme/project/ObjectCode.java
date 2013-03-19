@@ -43,21 +43,25 @@ public class ObjectCode implements Serializable {
 	private AndroidPackage androidPackage;
 	@Persistent
 	private Boolean androidPackageBuilt = false;
+
+	
+	// A string representing the provided symbols of this program.
+	@Persistent
+	private Set<String> provides;
+	
 	
 	public ObjectCode() {
-		this("", new HashSet<String>(), false);
+            this("", new HashSet<String>(), new HashSet<String>(), false);
 	}
 	
-	public ObjectCode(String obj, Set<String> permissions){
-		this(obj, permissions, false);
-	}
-	
-	public ObjectCode(String obj, Set<String> permissions, boolean trust){
-		obj_ = new Text(obj);
-		this.permissions = permissions;
-		trusted_ = trust;
-		androidPackageBuilt = false;
-	}
+    public ObjectCode(String obj, Set<String> permissions, Set<String> provides, boolean trust){
+        obj_ = new Text(obj);
+        this.permissions = permissions;
+        this.provides = provides;
+        trusted_ = trust;
+        androidPackageBuilt = false;
+    }
+
 	
 	public Key getKey() { return this.key; }
 	
@@ -110,6 +114,17 @@ public class ObjectCode implements Serializable {
 		this.androidPackageBuilt = b;
 	}
 	
+	public Set<String> getProvides() {
+		if (this.provides == null) {
+			this.provides = new HashSet<String>();
+		}				
+		return this.provides;
+	}	
+
+	public void setProvides(Set<String> provides) {
+		this.provides = provides;
+	}
+
 	
 	public Element toXML() {		
 		Element root = new Element("ObjectCode");
@@ -135,6 +150,12 @@ public class ObjectCode implements Serializable {
             permElt.add(perm);
         }
 
+        JSONArray providesElt = new JSONArray();
+        json.put("provides", providesElt);
+        for (String p : this.getProvides()) {
+        	providesElt.add(p);
+        }
+        
         json.put("trusted", this.trusted_);
         json.put("isAndroidPackageBuilt", isAndroidPackageBuilt());
         return json;

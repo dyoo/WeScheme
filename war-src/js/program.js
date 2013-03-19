@@ -75,6 +75,12 @@ goog.require("plt.wescheme.base64");
         return this.json.permissions;
     };
 
+    // getProvides: -> arrayof string
+    // Returns a list of the names provided by the program.
+    plt.wescheme.Program.prototype.getProvides = function() {
+        return this.json.provides;
+    };
+
     // isSourcePublic: -> boolean
     plt.wescheme.Program.prototype.isSourcePublic = function() {
         return this.json.isSourcePublic;

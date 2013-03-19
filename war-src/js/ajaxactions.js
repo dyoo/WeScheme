@@ -165,7 +165,7 @@ goog.require('plt.wescheme.Program');
 	    data.pid = attrs.pid;
         }
         for (i=0; i < attrNames.length; i++) {
-            if (attrs.hasOwnProperty(attrNames[i])) {
+            if (Object.hasOwnProperty.call(attrs, attrNames[i])) {
                 data[attrNames[i]] = attrs[attrNames[i]];
             }
         }
