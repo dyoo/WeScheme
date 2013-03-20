@@ -812,9 +812,11 @@ WeSchemeInteractions = (function () {
     // msgDom: dom.  The target element that we write output to.
     // args: arrayof (U string ColoredPart GradiantPart MultiPart)
     // Disabled multi-colored highlighting.
-    var formatUncoloredMessage = function(that, msgDom, msg) {
+    var formatUncoloredMessage = function(that, msgDom, msg, errorLoc) {
         var args = msg.args;
         var i;
+
+        var pinkColor = new Color(240,181,194);
 
         var doColoredPart = function(part) {
             msgDom.appendChild(document.createTextNode(part.text));
@@ -846,6 +848,13 @@ WeSchemeInteractions = (function () {
                 doPlainPart(args[i]);
             }
         }
+
+        that.addToCurrentHighlighter(errorLoc.id,
+                                     errorLoc.offset, 
+                                     errorLoc.line,
+                                     errorLoc.column, 
+                                     errorLoc.span,
+                                     pinkColor+"");
     };
 
 
@@ -935,7 +944,7 @@ WeSchemeInteractions = (function () {
                 //if it is a Message, do special formatting
                 formatColoredMessage(that, msgDom, msg);
             } else {
-                formatUncoloredMessage(that, msgDom, msg);
+                formatUncoloredMessage(that, msgDom, msg, getPrimaryErrorLocation(that, err));
             }
         } else {
             if(err.domMessage){
@@ -967,6 +976,23 @@ WeSchemeInteractions = (function () {
     
         return dom;
     };
+
+
+    // getPrimaryErrorLocation: error -> (U location false)
+    // Try to get the primary error location.  Return false
+    // if we can't localize it.
+    var getPrimaryErrorLocation = function(that, err) {
+        var i;
+        if(err.structuredError && err.structuredError.message) {
+            return err.structuredError.location;
+        }
+        var stacktrace = that.evaluator.getTraceFromExn(err);
+        for (i = 0; i < stacktrace.length; i++) {
+            return stacktrace[i];
+        }
+        return false;
+    };
+
 
     // createLocationHyperlink: location (or dom undefined) -> paragraph-anchor-element
     // Produce a hyperlink that, when clicked, will jump to the given location on the editor.
