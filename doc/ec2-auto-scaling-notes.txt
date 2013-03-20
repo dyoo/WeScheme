@@ -17,6 +17,34 @@ Creating the auto-scaling groups, attached to a particular load balancer:
 
 
 
+Listing the current auto-scaling groups in question:
+
+    $ as-describe-auto-scaling-groups --region us-east-2
+    $ as-describe-auto-scaling-groups --region us-west-2
+
+
+----------------------------------------------------------------------
+
+When we want to update the launch configuration of an autoscaling group:
+
+    0.  Set up the emergency servers and attach them to the load balancer.
+    1.  Create a new launch configuration.
+    2.  Update the autoscaling group to the new configuration.
+
+e.g, when we create a new image-id on the west coast, first create a fresh launch config
+
+    $ as-create-launch-config LaunchConfig-West-20130320 --image-id ami-33f56103 --instance-type m1.medium --group quicklaunch-1 --region us-west-2
+
+then update the autoscaling group;
+
+    $ as-update-auto-scaling-group WeSchemeCompilerGroup-West --region us-west-2 --min-size 0 --max-size 0
+    $ as-update-auto-scaling-group WeSchemeCompilerGroup-West --region us-west-2 --launch-configuration LaunchConfig-West-20130320
+    $ as-update-auto-scaling-group WeSchemeCompilerGroup-West --region us-west-2 --min-size 1 --max-size 10
+
+
+----------------------------------------------------------------------
+
+
 
 Creating the policies for adding a new instances to these group:
 
