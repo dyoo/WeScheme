@@ -814,6 +814,7 @@ WeSchemeInteractions = (function () {
     // Disabled multi-colored highlighting.
     var formatUncoloredMessage = function(that, msgDom, msg) {
         var args = msg.args;
+        var i;
 
         var doColoredPart = function(part) {
             msgDom.appendChild(document.createTextNode(part.text));
