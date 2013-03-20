@@ -97,7 +97,7 @@
               hideHeader, hideToolbar,
               hideProjectName,
               hideFooter, hideDefinitions, hideInteractions,
-              warnOnExit, interactionsText, definitionsText, autorunDefinitions, isEmbedded;
+              warnOnExit, interactionsText, definitionsText, autorunDefinitions, isEmbedded, noColorError;
           userName = pid = publicId = interactionsText = definitionsText = null;
           hideDefinitions = false;
           hideInteractions = false;
@@ -108,8 +108,8 @@
           hideFooter = false;
           warnOnExit = true;
           isEmbedded = false;
+          noColorError = false;
       
-
 
           userName = "<%= userSession != null? userSession.getName() : null %>";
 
@@ -185,6 +185,12 @@
           isEmbedded = <%= isEmbedded %>; // expose it on the JavaScript side too.
 
 
+          <% if (request.getParameter("noColorError") != null) { %>
+	     noColorError = true;
+          <% } %>
+
+
+
           initializeEditor({userName: userName,
                             pid : pid, 
                             publicId: publicId,
@@ -197,7 +203,8 @@
 	                    warnOnExit: warnOnExit,
 	                    initialInteractionsText: interactionsText,
 	                    initialDefinitionsText: definitionsText,
-	                    autorunDefinitions: autorunDefinitions });
+	                    autorunDefinitions: autorunDefinitions,
+                            noColorError: noColorError });
       });
     </script>
 	
