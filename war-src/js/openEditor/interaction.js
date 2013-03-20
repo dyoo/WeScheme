@@ -721,12 +721,23 @@ WeSchemeInteractions = (function () {
         // Most of these colors come from:
         // http://en.wikipedia.org/wiki/Web_colors
         var colors = [
-            [new Color(176, 196, 222), new Color(167, 224, 230), new Color(173, 216, 230), new Color(135, 206, 235)],    // shades of blue
-            [new Color(245, 245, 220), new Color(255, 245, 238), new Color(250, 235, 215), new Color(255, 228, 225)],    // shades of white
-            [new Color(230, 230, 250), new Color(216, 191, 216), new Color(221, 160, 221), new Color(238, 130, 238)],    // shades of purple
-            [new Color(224, 255, 255), new Color(175, 238, 238), new Color(127, 255, 212), new Color(64, 224, 208)],     // shades of cyan
-            [new Color(255, 255, 224), new Color(255, 250, 205), new Color(250, 250, 210), new Color(255, 239, 213)],     // shades of yellow
-            [new Color(255, 248, 220), new Color(255, 235, 205), new Color(255, 222, 173), new Color(245, 222, 179)]    // shades of brown
+            // shades of blue: LightSteelBlue, PowderBlue, LightBlue, SkyBlue
+            [new Color(176, 196, 222), new Color(176, 224, 230), new Color(173, 216, 230), new Color(135, 206, 235)],
+
+            // shades of white:  Beige, Seashell, AntiqueWhite, MistyRose
+            [new Color(245, 245, 220), new Color(255, 245, 238), new Color(250, 235, 215), new Color(255, 228, 225)],
+
+            // shades of purple: Lavender, Thistle, Plum, Violet
+            [new Color(230, 230, 250), new Color(216, 191, 216), new Color(221, 160, 221), new Color(238, 130, 238)],
+
+            // shades of cyan: LightCyan, PaleTurquoise, Aquamarine, Turquoise
+            [new Color(224, 255, 255), new Color(175, 238, 238), new Color(127, 255, 212), new Color(64, 224, 208)],
+
+            // shades of yellow: LightYellow, LemonChiffon, LightGoldenrodYellow, PapayaWhip
+            [new Color(255, 255, 224), new Color(255, 250, 205), new Color(250, 250, 210), new Color(255, 239, 213)],
+
+            // shades of brown: Cornsilk, BlanchedAlmond, NavajoWhite, Wheat
+            [new Color(255, 248, 220), new Color(255, 235, 205), new Color(255, 222, 173), new Color(245, 222, 179)]   
         ];
 
 
