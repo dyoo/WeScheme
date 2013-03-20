@@ -712,27 +712,27 @@ WeSchemeInteractions = (function () {
     // Special multi-color highlighting
     var formatColoredMessage = function(that, msgDom, msg) {
         var args = msg.args;
-        //pink, blue, green, yellow, gray
-        var colors = [new Color(240, 181, 194),
-                      new Color(161, 200, 224), 
-                      new Color(146, 200, 142), 
-                      new Color(255, 239, 0), 
-                      new Color(186,186,186)];
 
-        //these colors are different versions of the same color, used for gradient purposes
-        //to allow for greater differentiation between nearby colors
-        var altColors = [
-            [new Color(240,181,194), new Color(220, 20, 60), new Color(171, 78, 82), new Color(128, 0, 0)],    //shades of red/pink
-            [new Color(161,200,224), new Color(137,207,240), new Color(0, 147, 175), new Color(89, 89,187)],    //shades of blue
-            [new Color(146,200,142), new Color(123, 158, 147), new Color(41, 171,135), new Color(169, 186, 157)],    //shades of green
-            [new Color(255, 239, 0), new Color(255, 215, 0), new Color(250, 218,94), new Color(239,204, 0)],    //shades of yellow
-            [new Color(186,186,186), new Color(100,100,100), new Color(147,147,147), new Color(212,212,212)]    //shades of gray
+        // These colors are different versions of the same color, used
+        // for gradient purposes to allow for greater differentiation
+        // between nearby colors.  The first element in each sublist
+        // is the primary color.
+        // 
+        // Most of these colors come from:
+        // http://en.wikipedia.org/wiki/Web_colors
+        var colors = [
+            [new Color(176, 196, 222), new Color(167, 224, 230), new Color(173, 216, 230), new Color(135, 206, 235)],    // shades of blue
+            [new Color(255, 255, 224), new Color(255, 250, 205), new Color(250, 250, 210), new Color(255, 239, 213)],    // shades of yellow
+            [new Color(240, 248, 255), new Color(255, 245, 238), new Color(250, 235, 215), new Color(255, 228, 225)],    // shades of white
+            [new Color(255, 248, 220), new Color(255, 235, 205), new Color(255, 222, 173), new Color(245, 222, 179)],    // shades of brown
+            [new Color(230, 230, 250), new Color(216, 191, 216), new Color(221, 160, 221), new Color(238, 130, 238)],    // shades of purple
+            [new Color(224, 255, 255), new Color(175, 238, 238), new Color(127, 255, 212), new Color(64, 224, 208)]      // shades of cyan
         ];
 
-        // INVARIANT: colors.length === altColors.length.
+
 
         var colorIndex = 0;
-        var currColor = colors[colorIndex];
+        var currColor = colors[colorIndex][0];
         var i;
 
 
@@ -744,11 +744,11 @@ WeSchemeInteractions = (function () {
             var percentage = 1;
             var change = 2/(elts.length+1);
             for (j = 0; j < elts.length; j++){
-                if (altIndex >= altColors[colorIndex].length) {
+                if (altIndex >= colors[colorIndex].length) {
                     altIndex = 0;
                     percentage = percentage - change;
                 }
-                currColor = altColors[colorIndex][altIndex];
+                currColor = colors[colorIndex][altIndex];
                 currTint = nextTint(currColor.red, currColor.green, currColor.blue, percentage);
                 f(elts[j], currTint);
                 altIndex++;
@@ -791,7 +791,7 @@ WeSchemeInteractions = (function () {
         };
 
         for (i = 0; i < args.length; i++){
-            currColor = colors[colorIndex];         
+            currColor = colors[colorIndex][0];
             if (types.isColoredPart(args[i])) {
                 doColoredPart(args[i]);
             } else if(types.isGradientPart(args[i])) {
