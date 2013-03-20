@@ -278,10 +278,10 @@ var WeSchemeEditor;
 
     WeSchemeEditor.prototype.moveCursor = function(id, offset) {
     	if (id === '<definitions>') {
-		    this.defn.moveCursor(offset);
-		} else if (this.interactions.previousInteractionsTextContainers[id]) {
-		    this.interactions.previousInteractionsTextContainers[id].moveCursor(offset);
-		}
+	    this.defn.moveCursor(offset);
+	} else if (this.interactions.previousInteractionsTextContainers[id]) {
+	    this.interactions.previousInteractionsTextContainers[id].moveCursor(offset);
+	}
     };
 
     WeSchemeEditor.prototype.scrollIntoView = function(id, offset, margin) {

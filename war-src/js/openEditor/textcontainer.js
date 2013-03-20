@@ -301,7 +301,7 @@ var WeSchemeTextContainer;
 					{className: name});
 
  		this.highlightedAreas.push(highlightedArea);
- 		this.moveCursor(offset, span);
+ 		this.scrollIntoView(offset, span);
 
  		//return highlightedArea;
  		return { clear: function()  { return highlightedArea.clear(); },
