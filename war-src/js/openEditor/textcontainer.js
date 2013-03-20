@@ -89,6 +89,11 @@ var WeSchemeTextContainer;
 	WeSchemeTextContainer.prototype.moveCursor = function(offset) {
 		return this.impl.moveCursor(offset);
 	};
+
+	WeSchemeTextContainer.prototype.scrollIntoView = function(offset, margin) {
+		this.impl.scrollIntoView(offset, margin);
+	};
+
 	WeSchemeTextContainer.prototype.setSelection = function(id, offset, line, column, span) {
 		return this.impl.setSelection(id, offset, line, column, span);
 	};
@@ -96,6 +101,8 @@ var WeSchemeTextContainer;
 	WeSchemeTextContainer.prototype.focus = function() {
 		this.impl.focus();
 	};
+
+
 
 	WeSchemeTextContainer.prototype.getCursorStartPosition = function() {
 		return this.impl.getCursorStartPosition();
@@ -317,6 +324,17 @@ var WeSchemeTextContainer;
  			this.editor.setCursor({line: li, ch: col});
  		}
 	};
+
+    
+	CodeMirrorImplementation.prototype.scrollIntoView = function(offset, margin) {
+		var moveTo = this.findHandleAndColumn(offset);
+		var li = moveTo.handle;
+		var col = moveTo.column - 1; //off-by-one otherwise
+
+                this.editor.scrollIntoView({ line: li, ch:col }, margin);
+	};
+
+
 
 	CodeMirrorImplementation.prototype.setSelection = function(id, offset, line, column, span) {
 		offset--;

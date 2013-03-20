@@ -504,6 +504,11 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.setMoveCursor = function(moveCursor) {
         this.moveCursor = moveCursor;
     };
+
+    WeSchemeInteractions.prototype.setScrollIntoView = function(scrollIntoView) {
+        this.scrollIntoView = scrollIntoView;
+    };
+
     WeSchemeInteractions.prototype.addSetSelection = function(setSelection) {
         this.setSelection = setSelection;
     };
@@ -812,7 +817,7 @@ WeSchemeInteractions = (function () {
             jQuery(aChunk).append(aLink);
             jQuery(msgDom).append(aChunk);
         }
-    }
+    };
 
     //WeSchemeInteractions locations {find, clear, styleName} string -> function
     //takes in information, returns a function to run when clicked-
@@ -823,13 +828,14 @@ WeSchemeInteractions = (function () {
             var i;
             e.stopPropagation();
             e.preventDefault();
-            that.moveCursor(currItem.ref(0), parseInt(currItem.ref(1)));
-            that.focus(currItem.ref(0));
+            that.scrollIntoView(currItem.ref(0), parseInt(currItem.ref(1)));
+            that.focusOnPrompt();
             for(i = 0; i < pieces.length; i++){
                 catchAttention(pieces[i].styleName);
             }
         }
     };
+
     //takes in style name, then for all elements with that style name,
     //fades them out and back in
     var catchAttention = function(styleName){

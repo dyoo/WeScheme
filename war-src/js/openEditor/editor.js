@@ -86,6 +86,7 @@ var WeSchemeEditor;
 
 		that.interactions.addOnReset(function() {that.defn.unhighlightAll()});
 		that.interactions.setMoveCursor(function(id, offset){that.moveCursor(id, offset)});
+		that.interactions.setScrollIntoView(function(id, offset, margin){that.scrollIntoView(id, offset, margin)});
 		that.interactions.setFocus(function(id){that.focus(id)});
 		that.interactions.addSetSelection(function(id, offset, line, column, span){ 
 			that.setSelection(id, offset, line, column, span);});
@@ -281,6 +282,14 @@ var WeSchemeEditor;
 		} else if (this.interactions.previousInteractionsTextContainers[id]) {
 		    this.interactions.previousInteractionsTextContainers[id].moveCursor(offset);
 		}
+    };
+
+    WeSchemeEditor.prototype.scrollIntoView = function(id, offset, margin) {
+    	if (id === '<definitions>') {
+	    this.defn.scrollIntoView(offset, margin);
+	} else if (this.interactions.previousInteractionsTextContainers[id]) {
+	    this.interactions.previousInteractionsTextContainers[id].scrollIntoView(offset, margin);
+	}
     };
 
     WeSchemeEditor.prototype.focus = function(id) {
