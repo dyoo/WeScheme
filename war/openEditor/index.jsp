@@ -185,7 +185,7 @@
           isEmbedded = <%= isEmbedded %>; // expose it on the JavaScript side too.
 
 
-          <% if (request.getParameter("noColorError") != null) { %>
+          <% if (request.getParameter("noc") != null) { %>
 	     noColorError = true;
           <% } %>
 

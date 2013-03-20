@@ -34,6 +34,9 @@ WeSchemeInteractions = (function () {
         this.previousInteractionsDiv = document.createElement("div");
         this.previousInteractionsTextContainers = {};
         this.interactionsDiv.append(this.previousInteractionsDiv);
+        
+        this.withColoredErrorMessages = true;
+
 
         new Prompt(
             this,
@@ -82,6 +85,13 @@ WeSchemeInteractions = (function () {
             that.prompt.clear();
         })
     };
+
+
+    WeSchemeInteractions.prototype.disableColoredErrorMessages = function() {
+        this.withColoredErrorMessages = false;
+    };
+
+
 
     // clearLine: -> void
     // Make sure we're on a line that's clear of any floats.
@@ -700,7 +710,8 @@ WeSchemeInteractions = (function () {
     // msgDom: dom.  The target element that we write output to.
     // args: arrayof (U string ColoredPart GradiantPart MultiPart)
     // Special multi-color highlighting
-    var formatColoredMessage = function(that, msgDom, args) {
+    var formatColoredMessage = function(that, msgDom, msg) {
+        var args = msg.args;
         //pink, blue, green, yellow, gray
         var colors = [new Color(240, 181, 194),
                       new Color(161, 200, 224), 
@@ -793,6 +804,52 @@ WeSchemeInteractions = (function () {
         }
     };
 
+
+
+
+
+    // that: ???
+    // msgDom: dom.  The target element that we write output to.
+    // args: arrayof (U string ColoredPart GradiantPart MultiPart)
+    // Disabled multi-colored highlighting.
+    var formatUncoloredMessage = function(that, msgDom, msg) {
+        var args = msg.args;
+
+        var doColoredPart = function(part) {
+            msgDom.appendChild(document.createTextNode(part.text));
+        };
+        var doGradientPart = function(part) {
+            var parts = part.coloredParts;
+            var i;
+            for (i = 0; i < parts.length; i++) {
+                msgDom.appendChild(document.createTextNode(parts[i].text+''));
+            }
+        };
+
+        var doMultiPart = function(part) {
+            msgDom.appendChild(document.createTextNode(part.text+''));
+        };
+
+        var doPlainPart = function(part) {
+            msgDom.appendChild(document.createTextNode(part+''));
+        };
+
+        for (i = 0; i < args.length; i++){
+            if (types.isColoredPart(args[i])) {
+                doColoredPart(args[i]);
+            } else if(types.isGradientPart(args[i])) {
+                doGradientPart(args[i]);
+            } else if(types.isMultiPart(args[i])) {
+                doMultiPart(args[i]);
+            } else {
+                doPlainPart(args[i]);
+            }
+        }
+    };
+
+
+
+
     //that, dom, Color, string, nonempty array[loc]
     //does the coloring and makes a link to the location in the definitions
     var colorAndLink = function(that, msgDom, errorColor, text, locColors, locs) {
@@ -873,10 +930,13 @@ WeSchemeInteractions = (function () {
         msgDom['className'] = 'moby-error:message';
 
         if(types.isMessage(msg)) {
-            //if it is a Message, do special formatting
-            formatColoredMessage(that, msgDom, msg.args);
-        }
-        else {
+            if (that.withColoredErrorMessages) {
+                //if it is a Message, do special formatting
+                formatColoredMessage(that, msgDom, msg);
+            } else {
+                formatUncoloredMessage(that, msgDom, msg);
+            }
+        } else {
             if(err.domMessage){
               dom.appendChild(err.domMessage);
             }

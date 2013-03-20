@@ -247,6 +247,15 @@ var WeSchemeEditor;
     };
 
 
+    // Allow multi-colored error highlighting to be disabled
+    // experimentally.
+    // Forward this call off to the interactions, which handles
+    // evaluation and error handling.
+    WeSchemeEditor.prototype.disableColoredErrorMessages = function() {
+        this.interactions.disableColoredErrorMessages();
+    };
+
+
     WeSchemeEditor.prototype.highlight = function(id, offset, line, column, span, color) {
     	if(id === '<no-location>'){ 
     		//do nothing

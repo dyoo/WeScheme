@@ -132,6 +132,10 @@ var initializeEditor;
 			myEditor = _myEditor;
 
 
+                        if (attrs.noColorError) {
+                            myEditor.disableColoredErrorMessages();
+                        }
+                        
 			jQuery("#run").click(function()  { myEditor.run(); });
 			jQuery("#stop").click(function()  { myEditor.requestBreak(); });
 			jQuery("#save").click(function() { myEditor.save(); });
