@@ -698,7 +698,7 @@ WeSchemeInteractions = (function () {
                 msg.push(new types.GradientPart(parts));
             }
             else if(se[i].type === "MultiPart"){
-                msg.push(new types.MultiPart(se[i].text, fixLocList(se[i].locs)));
+                msg.push(new types.MultiPart(se[i].text, fixLocList(se[i].locs), se[i].solid));
             }
             else msg.push(se[i]+'');
         }
@@ -783,10 +783,17 @@ WeSchemeInteractions = (function () {
         var doMultiPart = function(part) {
             var locTints = [];
             if(part.locations.length > 0){ //should really go to the source of the multipart to fix
-                foreachTint(part.locations,
-                            function(loc, tint) {
-                                locTints.push(tint);
-                            });
+                if (part.solid) {
+                    foreachTint(part.locations,
+                                function(loc, tint) {
+                                    locTints.push(currColor);
+                                });                    
+                } else {
+                    foreachTint(part.locations,
+                                function(loc, tint) {
+                                    locTints.push(tint);
+                                });
+                }
                 colorAndLink(that, msgDom, currColor, part.text, 
                              locTints, part.locations);
                 colorIndex = (colorIndex + 1) % colors.length;
