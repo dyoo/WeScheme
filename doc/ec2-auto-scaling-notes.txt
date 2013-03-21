@@ -87,3 +87,47 @@ Changing the launch configuration:
 2.  Shut down existing instances by updating the max and min size of
     the groups down to zero.
 
+
+
+
+======================================================================
+
+The ec2 instances are configured with a keep-alive script to keep
+the web servers up and running.  Here are notes on what it's doing:
+
+Implementation details: I have a crontab entry that runs every minute:
+
+###############
+## Every minute, run the keep-alive.
+* * * * * cd /home/ubuntu && ./keep_alive.sh
+###############
+
+The keep_alive.sh checks the network connection, and if it's down, reruns the web server startup:
+
+
+
+#############################################
+ubuntu@ip-10-250-16-219:~$ cat keep_alive.sh 
+#!/bin/sh
+/home/ubuntu/racket/bin/racket /home/ubuntu/is_dead.rkt
+if [ $? -eq "1" ];
+then
+    /home/ubuntu/startup.sh
+else
+    :
+fi
+#############################################
+
+
+
+Checking whether the service is up or not is a HTTP GET:
+
+#############################################
+ubuntu@ip-10-250-16-219:~$ cat is_dead.rkt 
+#lang racket/base
+;; exits with 1 if the system thinks the local web server is down.
+(require net/url)
+(with-handlers ([exn:fail:network? (lambda (exn) (exit 1))])
+  (get-pure-port (string->url "http://localhost:8000/"))
+  (exit 0))
+#############################################
