@@ -727,11 +727,11 @@ WeSchemeInteractions = (function () {
             // shades of purple: Violet, Thistle, Plum,  Orchid
             [new Color(238, 130, 238), new Color(216, 191, 216), new Color(221, 160, 221), new Color(218, 112, 214)],
 
-            // shades of cyan: PaleTurquoise, Aquamarine, Turquoise
-            [new Color(175, 238, 238), new Color(127, 255, 212), new Color(64, 224, 208)],
-
             // shades of yellow: Moccasin, PaleGoldenrod, PeachPuff
             [new Color(255, 228, 181), new Color(238, 232, 170), new Color(255, 218, 185)],
+
+            // // shades of cyan: PaleTurquoise, Aquamarine, Turquoise
+            // [new Color(175, 238, 238), new Color(127, 255, 212), new Color(64, 224, 208)],
 
             // shades of brown: BurlyWood, Bisque, NavajoWhite, Wheat
             [new Color(222, 184, 135), new Color(255, 228, 196), new Color(255, 222, 173), new Color(245, 222, 179)]   
