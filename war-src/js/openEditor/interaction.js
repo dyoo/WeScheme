@@ -782,19 +782,21 @@ WeSchemeInteractions = (function () {
 
         var doMultiPart = function(part) {
             var locTints = [];
-            if(part.locations.length > 0){ //should really go to the source of the multipart to fix
+            var i;
+            var baseColor = currColor;
+            if(part.locations.length > 0){ 
+                // should really go to the source of the multipart to fix
                 if (part.solid) {
-                    foreachTint(part.locations,
-                                function(loc, tint) {
-                                    locTints.push(currColor);
-                                });                    
+                    for (i = 0; i < part.locations.length; i++) {
+                        locTints.push(baseColor);
+                    }
                 } else {
                     foreachTint(part.locations,
                                 function(loc, tint) {
                                     locTints.push(tint);
                                 });
                 }
-                colorAndLink(that, msgDom, currColor, part.text, 
+                colorAndLink(that, msgDom, baseColor, part.text, 
                              locTints, part.locations);
                 colorIndex = (colorIndex + 1) % colors.length;
             }

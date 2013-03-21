@@ -444,7 +444,7 @@ var Evaluator = (function() {
             }
 
             else if(se[i].type === "MultiPart"){
-                msg.push(new types.MultiPart(se[i].text, fixLocList(se[i].locs)));
+                msg.push(new types.MultiPart(se[i].text, fixLocList(se[i].locs), se[i].solid));
             }
             else msg.push(se[i]+'');
 

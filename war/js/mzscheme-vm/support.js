@@ -9109,9 +9109,10 @@ GradientPart.prototype.toString = function() {
 
 };
 
-var MultiPart = function(text, locations) {
+var MultiPart = function(text, locations, solid) {
     this.text = text;
     this.locations = locations;
+    this.solid = solid;
 };
 
 var isMultiPart = function(o) {
@@ -20511,7 +20512,7 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 
 	    helpers.raise(
 		types.incompleteExn(types.exnFailContract,
-            new types.Message([new types.MultiPart("function call", [op, cp]),
+            new types.Message([new types.MultiPart("function call", [op, cp], true),
                                 ": expected function, given: ",
                                 new types.ColoredPart(procValue, locationList.first())
                                 ]),
@@ -20614,8 +20615,9 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 			": expects ", 
 			''+(procValue.isRest ? 'at least ' : ''),
 			((procValue.locs != undefined) ? new types.MultiPart((procValue.numParams + " argument" + 
-							  ((procValue.numParams == 1) ? '' : 's')), 
-							  procValue.locs.slice(1))
+							                      ((procValue.numParams == 1) ? '' : 's')), 
+							                     procValue.locs.slice(1),
+                                                                            false)
 							:
 							(procValue.numParams + " argument" + 
 							  ((procValue.numParams == 1) ? '' : 's')))
