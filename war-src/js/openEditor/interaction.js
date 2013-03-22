@@ -184,7 +184,7 @@ WeSchemeInteractions = (function () {
                 //stylesheet: "/js/codemirror/contrib/scheme/css/schemecolors-interactive.css",
                 content: nextCode,
                 makeTransparentIframe: true,
-                readOnly: 'nocursor',
+                readOnly: true,
                 matchBrackets: false },
             function(container) {
                 var newId = makeFreshId();
@@ -541,13 +541,18 @@ WeSchemeInteractions = (function () {
     // Adds a note to the interactions.
     WeSchemeInteractions.prototype.addToInteractions = function (interactionVal) {
         var that = this;
+        var newArea;
+        var domNode;
         this.notifyBus("before-add-to-interactions", this);
         if (isDomNode(interactionVal)) {
-            this.previousInteractionsDiv.appendChild(interactionVal);
+            domNode = jQuery(interactionVal);
+            domNode.click(function(e){ e.stopPropagation(); });
+            jQuery(this.previousInteractionsDiv).append(domNode);
         } else {
-            var newArea = jQuery("<div style='width: 100%'></div>");
+            newArea = jQuery("<div style='width: 100%'></div>");
             newArea.text(interactionVal);
-            this.previousInteractionsDiv.appendChild(newArea.get(0));
+            newArea.click(function(e) { e.stopPropagation(); });
+            jQuery(this.previousInteractionsDiv).append(newArea);
         }
         this._scrollToBottom();
         this.notifyBus("after-add-to-interactions", this);
