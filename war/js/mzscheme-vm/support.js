@@ -10719,17 +10719,23 @@ if (typeof(world) === 'undefined') {
     SceneImage.prototype.render = function(ctx, x, y) {
         var i;
         var childImage, childX, childY;
+        ctx.save();
+        ctx.fillStyle="white";
+        ctx.fillRect(x, y, this.width, this.height);
+        ctx.restore();
+        
+        ctx.save();
+        ctx.rect(x, y, this.width, this.height);
+        ctx.clip();
         // Ask every object to render itself.
         for(i = 0; i < this.children.length; i++) {
             childImage = this.children[i][0];
             childX = this.children[i][1];
             childY = this.children[i][2];
-            ctx.save();
             childImage.render(ctx, childX + x, childY + y);
-            ctx.restore();
-
-
         }
+        ctx.restore();
+
         // Finally, draw the black border if withBorder is true
         if (this.withBorder) {
             ctx.strokeStyle = 'black';
