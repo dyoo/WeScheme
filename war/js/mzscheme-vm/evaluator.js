@@ -423,9 +423,11 @@ var Evaluator = (function() {
 
     //structuredError -> Message
     var structuredErrorToMessage = function(se) {
+                 console.log('structuredErrorToMessage');
         var msg = [];
         var i;
         for(i = 0; i < se.length; i++){
+                 console.log('pushing se part'+i+'which has type '+typeof(se[i]));
             if(typeof(se[i]) === 'string') {
                 msg.push(se[i]);
             }
@@ -470,12 +472,14 @@ var Evaluator = (function() {
     // convertDomSexpr: dom-sexpr -> dom-sexpr
     // Converts the s-expression (array) representation of a dom element.
     Evaluator.prototype._convertDomSexpr = function(domSexpr) {
+                 console.log('convertDomSexpr');
 	if (typeof(domSexpr) === 'number' ||
 	    typeof(domSexpr) === 'string') {
 	    var aSpan = document.createElement('span');
 	    aSpan.appendChild(document.createTextNode(domSexpr + ''));
 	    return aSpan;
 	} else if (typeof (domSexpr) === 'object') {
+                 console.log('here!!!');
 	    var anElt = document.createElement(domSexpr[0]);
 	    var attrs = domSexpr[1];
 	    for (var i = 0 ; i < attrs.length; i++) {
