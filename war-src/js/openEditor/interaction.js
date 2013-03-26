@@ -43,7 +43,7 @@ WeSchemeInteractions = (function () {
             this.interactionsDiv,
             function(prompt) {
                 that.prompt = prompt;
-                that.makeFreshEvaluator(function(e) {
+                makeFreshEvaluator(that, function(e) {
                     that.evaluator = e;
                     that.highlighter = function(id, offset, line, column, span, color) {
                         // default highlighter does nothing.  Subclasses will specialize that.
@@ -80,8 +80,8 @@ WeSchemeInteractions = (function () {
             that.resetters[i]();
         }
 
-        that.silenceCurrentEvaluator();
-        that.makeFreshEvaluator(function(e) {
+        silenceCurrentEvaluator(that);
+        makeFreshEvaluator(that, function(e) {
             that.evaluator = e;
             jQuery(that.previousInteractionsDiv).empty();
             that.notifyBus("after-reset", that);
@@ -91,14 +91,13 @@ WeSchemeInteractions = (function () {
 
     // Wrap a callback so that it does not apply if we have reset
     // the console already.
-    WeSchemeInteractions.prototype.withCancellingOnReset = function(f) {
+    var withCancellingOnReset = function(that, f) {
         var cancelled = false;
-        var that = this;
         var onReset = function() { 
             cancelled = true; 
             that.removeOnReset(onReset);
         };
-        this.addOnReset(onReset);
+        that.addOnReset(onReset);
         return function() {
             if (cancelled) { return; }
             f.apply(null, arguments);
@@ -399,16 +398,14 @@ WeSchemeInteractions = (function () {
     jQuery(window).bind('resize', rewrapPreviousInteractions);
                         
 
-    WeSchemeInteractions.prototype.silenceCurrentEvaluator = function() {
-        this.evaluator.write = function(thing) {};
-        this.evaluator.transformDom = function(thing) {};
-        this.evaluator.requestBreak();
+    var silenceCurrentEvaluator = function(that) {
+        that.evaluator.write = function(thing) {};
+        that.evaluator.transformDom = function(thing) {};
+        that.evaluator.requestBreak();
     };
 
 
-    WeSchemeInteractions.prototype.makeFreshEvaluator = function(afterInit) {
-        var that = this;
-         
+    var makeFreshEvaluator = function(that, afterInit) {         
         var evaluator = new Evaluator({
             write: function(thing) {
                 thing.className += " replOutput";
@@ -651,16 +648,18 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.runCode = function(aSource, sourceName, contK) {
         this.notifyBus("before-run", this);
         var that = this;
-        this.disableInput();
-        this.evaluator.executeProgram(sourceName,
+        that.disableInput();
+        that.evaluator.executeProgram(sourceName,
                                       aSource,
-                                      this.withCancellingOnReset(
+                                      withCancellingOnReset(
+                                          that,
                                           function() { 
                                               that.enableInput();
                                               that.focusOnPrompt();
                                               contK();
                                           }),
-                                      this.withCancellingOnReset(
+                                      withCancellingOnReset(
+                                          that,
                                           function(err) { 
                                               that.handleError(err); 
                                               that.enableInput();
