@@ -74,16 +74,35 @@ WeSchemeInteractions = (function () {
         var that = this;
         this.notifyBus("before-reset", this);
         var i;
-        for (i =0; i< that.resetters.length; i++){
+        // We walk the resetters backwards to allow resetters
+        // to remove themselves during iteration.
+        for (i = that.resetters.length - 1; i>= 0; i--){
             that.resetters[i]();
         }
 
+        that.silenceCurrentEvaluator();
         that.makeFreshEvaluator(function(e) {
             that.evaluator = e;
             jQuery(that.previousInteractionsDiv).empty();
             that.notifyBus("after-reset", that);
             that.prompt.clear();
         })
+    };
+
+    // Wrap a callback so that it does not apply if we have reset
+    // the console already.
+    WeSchemeInteractions.prototype.withCancellingOnReset = function(f) {
+        var cancelled = false;
+        var that = this;
+        var onReset = function() { 
+            cancelled = true; 
+            that.removeOnReset(onReset);
+        };
+        this.addOnReset(onReset);
+        return function() {
+            if (cancelled) { return; }
+            f.apply(null, arguments);
+        };
     };
 
 
@@ -379,6 +398,14 @@ WeSchemeInteractions = (function () {
     }
     jQuery(window).bind('resize', rewrapPreviousInteractions);
                         
+
+    WeSchemeInteractions.prototype.silenceCurrentEvaluator = function() {
+        this.evaluator.write = function(thing) {};
+        this.evaluator.transformDom = function(thing) {};
+        this.evaluator.requestBreak();
+    };
+
+
     WeSchemeInteractions.prototype.makeFreshEvaluator = function(afterInit) {
         var that = this;
          
@@ -530,6 +557,17 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.addOnReset = function(onReset) {
         this.resetters.push(onReset);
     };
+
+    WeSchemeInteractions.prototype.removeOnReset = function(onReset) {
+        var i;
+        for (i = 0; i < this.resetters.length; i++) {
+            if (onReset === this.resetters[i]) {
+                this.resetters.splice(i, 1);
+                return;
+            }
+        } 
+    };
+
     
 
     // Returns if x is a dom node.
@@ -616,21 +654,23 @@ WeSchemeInteractions = (function () {
         this.disableInput();
         this.evaluator.executeProgram(sourceName,
                                       aSource,
-                                      function() { 
-                                          that.enableInput();
-                                          that.focusOnPrompt();
-                                          contK();
-                                      },
-                                      function(err) { 
-                                          that.handleError(err); 
-                                          that.enableInput();
-                                          that.focusOnPrompt();
-                                          contK();
-                                      });
+                                      this.withCancellingOnReset(
+                                          function() { 
+                                              that.enableInput();
+                                              that.focusOnPrompt();
+                                              contK();
+                                          }),
+                                      this.withCancellingOnReset(
+                                          function(err) { 
+                                              that.handleError(err); 
+                                              that.enableInput();
+                                              that.focusOnPrompt();
+                                              contK();
+                                          }));
     };
 
     WeSchemeInteractions.prototype.handleError = function(err) {
-        this.addToInteractions(this.renderErrorAsDomNode(err));
+        this.addToInteractions(renderErrorAsDomNode(this, err));
         this.addToInteractions("\n");
     };
 
@@ -953,10 +993,9 @@ WeSchemeInteractions = (function () {
     };
 
 
-    // renderErrorAsDomNode: exception -> element
+    // renderErrorAsDomNode: WeSchemeInteractions exception -> element
     // Given an exception, produces error dom node to be displayed.
-    WeSchemeInteractions.prototype.renderErrorAsDomNode = function(err) {
-        var that = this;
+    var renderErrorAsDomNode = function(that, err) {
         var msg;
         var i;
         var dom = document.createElement('div');
@@ -970,7 +1009,7 @@ WeSchemeInteractions = (function () {
                 msg = structuredErrorToMessage(err.structuredError.message);
             }
             else {
-                msg = this.evaluator.getMessageFromExn(err);
+                msg = that.evaluator.getMessageFromExn(err);
             }
         }
 
@@ -995,15 +1034,15 @@ WeSchemeInteractions = (function () {
         dom.appendChild(msgDom);
 
         if(err.structuredError && err.structuredError.message) {
-            var link = this.createLocationHyperlink(err.structuredError.location);
+            var link = that.createLocationHyperlink(err.structuredError.location);
             dom.appendChild(link);
         }
 
-        var stacktrace = this.evaluator.getTraceFromExn(err);
+        var stacktrace = that.evaluator.getTraceFromExn(err);
         var stacktraceDiv = document.createElement("div");
         stacktraceDiv['className'] = 'error-stack-trace';
         for (i = 0; i < stacktrace.length; i++) {
-            var anchor = this.createLocationHyperlink(stacktrace[i]);
+            var anchor = that.createLocationHyperlink(stacktrace[i]);
             stacktraceDiv.appendChild(anchor);
         }
 
