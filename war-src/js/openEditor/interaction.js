@@ -786,21 +786,34 @@ WeSchemeInteractions = (function () {
             var locTints = [];
             var i;
             var baseColor = currColor;
+            var box;
             if(part.locations.length > 0){ 
                 // should really go to the source of the multipart to fix
                 if (part.solid) {
                     for (i = 0; i < part.locations.length; i++) {
                         locTints.push(baseColor);
                     }
+                    colorAndLink(that, msgDom, baseColor, part.text, 
+                                 locTints, part.locations);
+                    colorIndex = (colorIndex + 1) % colors.length;
+                    
                 } else {
-                    foreachTint(part.locations,
+                    foreachTint([undefined].concat(part.locations),
                                 function(loc, tint) {
                                     locTints.push(tint);
                                 });
+                    colorAndLink(that, msgDom, baseColor, part.text, 
+                                 locTints.slice(1), part.locations);
+                    for (i = 0; i < part.locations.length; i++) {
+                        box = jQuery("<tt/>");
+                        // white large box character.
+                        // http://www.fileformat.info/info/unicode/char/2b1c/index.htm
+                        box.text("\u2b1c"); 
+                        colorAndLink(that, msgDom, locTints.slice(1)[i], 
+                                     box, [locTints.slice(1)[i]], [part.locations[i]]);
+                    }
+                    colorIndex = (colorIndex + 1) % colors.length;
                 }
-                colorAndLink(that, msgDom, baseColor, part.text, 
-                             locTints, part.locations);
-                colorIndex = (colorIndex + 1) % colors.length;
             }
             else {
                 msgDom.appendChild(document.createTextNode(part.text+''));
@@ -888,19 +901,21 @@ WeSchemeInteractions = (function () {
         var i;
         var x;
         var pieces = [];
+        if (typeof text === 'string') {
+            text = jQuery("<span/>").text(text);
+        }
         for(i = 0; i < locs.length; i++){
             pieces.push(that.addToCurrentHighlighter(locs[i].ref(0), locs[i].ref(1), locs[i].ref(2), locs[i].ref(3), locs[i].ref(4), 
                                                      locColors[i]+''));
         }
         if(locs[0].ref(0) === "<no-location>"){
-            var aChunk = jQuery("<span/>").text(text);
-            jQuery(msgDom).append(aChunk);
+            jQuery(msgDom).append(text);
         } else {
             var clickFunction = makeCursorLink(that, locs, pieces, errorColor);
             var aChunk = jQuery("<span/>").css("background-color", errorColor+'')
                                           .addClass("colored-link")
                                           .click(clickFunction);
-            var aLink = jQuery("<a/>").text(text+'')
+            var aLink = jQuery("<a/>").append(text)
                                       .attr("href", "#")
                                       .click(clickFunction);
             jQuery(aChunk).append(aLink);
