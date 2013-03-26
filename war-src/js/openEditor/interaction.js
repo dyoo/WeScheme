@@ -438,7 +438,7 @@ WeSchemeInteractions = (function () {
 
                     var toggleFullScreen = function() {
                         var elem;
-                        if (innerArea.find("canvas").length == 1) {
+                        if (innerArea.find("canvas").length === 1) {
                             // If there's a unique canvas, highlight that one.
                             elem = innerArea.find("canvas").get(0);
                         } else { 
@@ -788,8 +788,7 @@ WeSchemeInteractions = (function () {
             var baseColor = currColor;
             var box;
             if(part.locations.length > 0){ 
-                // should really go to the source of the multipart to fix
-                if (part.solid) {
+                if (part.solid || part.locations.length === 1) {
                     for (i = 0; i < part.locations.length; i++) {
                         locTints.push(baseColor);
                     }
@@ -804,6 +803,7 @@ WeSchemeInteractions = (function () {
                                 });
                     colorAndLink(that, msgDom, baseColor, part.text, 
                                  locTints.slice(1), part.locations);
+                    jQuery(msgDom).append("\u00ab"); // left-pointing-double-angle quotation mark
                     for (i = 0; i < part.locations.length; i++) {
                         box = jQuery("<tt/>");
                         // white large box character.
@@ -812,6 +812,7 @@ WeSchemeInteractions = (function () {
                         colorAndLink(that, msgDom, locTints.slice(1)[i], 
                                      box, [locTints.slice(1)[i]], [part.locations[i]]);
                     }
+                    jQuery(msgDom).append("\u00bb"); // right-pointing-double-angle quotation mark
                     colorIndex = (colorIndex + 1) % colors.length;
                 }
             }
