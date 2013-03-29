@@ -80,13 +80,12 @@ WeSchemeInteractions = (function () {
             that.resetters[i]();
         }
 
-        silenceCurrentEvaluator(that);
-        makeFreshEvaluator(that, function(e) {
-            that.evaluator = e;
-            jQuery(that.previousInteractionsDiv).empty();
+
+        jQuery(that.previousInteractionsDiv).empty();
+        that.prompt.clear();
+        that.evaluator.reset(function() {
             that.notifyBus("after-reset", that);
-            that.prompt.clear();
-        })
+        });
     };
 
     // Wrap a callback so that it does not apply if we have reset
@@ -347,14 +346,14 @@ WeSchemeInteractions = (function () {
         plt.wescheme.RoundRobin.initialize(
             compilation_servers,
             function() {
-                evaluator.setCompileProgram(
-                    plt.wescheme.RoundRobin.roundRobinCompiler);
+                evaluator.compileProgram =
+                    plt.wescheme.RoundRobin.roundRobinCompiler;
                 after();
             },
             function() {
                 // Under this situation, all compilation servers are inaccessible.
-                evaluator.setCompileProgram(
-                    plt.wescheme.RoundRobin.roundRobinCompiler);
+                evaluator.compileProgram =
+                    plt.wescheme.RoundRobin.roundRobinCompiler;
                 alert("WeScheme appears to be busy or unavailable at this time." +
                       "  Please try again later.");
                 after();
@@ -398,15 +397,108 @@ WeSchemeInteractions = (function () {
     jQuery(window).bind('resize', rewrapPreviousInteractions);
                         
 
-    var silenceCurrentEvaluator = function(that) {
-        that.evaluator.write = function(thing) {};
-        that.evaluator.transformDom = function(thing) {};
-        that.evaluator.requestBreak();
-    };
 
 
     var makeFreshEvaluator = function(that, afterInit) {         
-        var evaluator = new Evaluator({
+        var afterReplInit = function(evaluator) {
+            var dialog = jQuery("<div/>");
+            var onFullScreenChange = function() {
+                if (document.fullscreen || document.mozFullScreen || document.webkitIsFullScreen) {
+                    // do nothing if we're full-screen.
+                } else {
+                    // if we came out of fullscreen, try closing
+                    if (dialog.dialog && dialog.dialog("isOpen")) {
+                        dialog.dialog('close');
+                    }
+                }
+            };
+            jQuery(document).bind("fullscreenchange", onFullScreenChange);
+            jQuery(document).bind("mozfullscreenchange", onFullScreenChange);
+            jQuery(document).bind("webkitfullscreenchange", onFullScreenChange);
+
+            that.initializeRoundRobinCompilation(
+                evaluator,
+                function() {
+                    evaluator.makeToplevelNode = function() {
+                        var handleClose = function(event, ui) {
+                            that.evaluator.requestBreak();
+                            dialog.dialog("destroy");
+                        };
+
+                        dialog.dialog( {
+                            bgiframe : true,
+                            position: ["left", "top"],
+                            modal : true,
+                            width: "auto",
+                            height: "auto",
+                            beforeclose: handleClose,
+                            resizable: false,
+                            closeOnEscape: true
+                        });
+
+                        var supportsFullScreen = function() {
+                            var elem = document.createElement("div");
+                            return ((elem.webkitRequestFullscreen ||
+                                     elem.mozRequestFullScreen || 
+                                     elem.requestFullscreen) !== undefined);
+                        };
+
+                        var toggleFullScreen = function() {
+                            var elem;
+                            if (innerArea.find("canvas").length === 1) {
+                                // If there's a unique canvas, highlight that one.
+                                elem = innerArea.find("canvas").get(0);
+                            } else { 
+                                // Otherwise, just highlight the whole toplevel node.
+                                elem = innerArea.get(0);
+                            }
+                            if (elem.webkitRequestFullscreen) {
+                                elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                            } else {
+                                if (elem.mozRequestFullScreen) {
+                                    elem.mozRequestFullScreen();
+                                } else {
+                                    elem.requestFullscreen();
+                                }
+                            }
+                        };
+
+                        if (supportsFullScreen()) {
+                            jQuery("<span><img src='/images/fullscreen.png' width='12' height='12'></span>")
+                                .css("float", "left")
+                                .css("cursor", "auto")
+                                .css("margin-top", "5px")
+                                .click(toggleFullScreen)
+                                .appendTo(dialog.parent().find(".ui-dialog-titlebar"));
+                        }   
+
+                        var innerArea = jQuery("<div class='evaluatorToplevelNode'></div>");
+                        innerArea.css("background-color", "white");
+                        dialog.append(innerArea);
+                        dialog.dialog("open");
+                        dialog.dblclick(function (evt){
+                            var elem = evt.target;
+                            if (elem.webkitRequestFullscreen) {
+                                elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+                            } else {
+                                if (elem.mozRequestFullScreen) {
+                                    elem.mozRequestFullScreen();
+                                } else {
+                                    elem.requestFullscreen();
+                                }
+                            }
+                        });
+                        return innerArea.get(0);
+                    };
+                    // evaluator.setImageProxy("/imageProxy");
+                    // evaluator.setRootLibraryPath("/js/mzscheme-vm/collects");
+                    // evaluator.setDynamicModuleLoader(plt.wescheme.makeDynamicModuleLoader("/js/mzscheme-vm/collects"));
+                    afterInit(evaluator);
+                });
+        };
+
+
+        plt.runtime.makeRepl({
             write: function(thing) {
                 thing.className += " replOutput";
                 that.addToInteractions(thing);
@@ -416,102 +508,7 @@ WeSchemeInteractions = (function () {
                 var result = that._transformDom(dom);
                 return result;
             }
-        });
-
-        var dialog = jQuery("<div/>");
-        var onFullScreenChange = function() {
-            if (document.fullscreen || document.mozFullScreen || document.webkitIsFullScreen) {
-                // do nothing if we're full-screen.
-            } else {
-                // if we came out of fullscreen, try closing
-                if (dialog.dialog && dialog.dialog("isOpen")) {
-                    dialog.dialog('close');
-                }
-            }
-        };
-        jQuery(document).bind("fullscreenchange", onFullScreenChange);
-        jQuery(document).bind("mozfullscreenchange", onFullScreenChange);
-        jQuery(document).bind("webkitfullscreenchange", onFullScreenChange);
-
-        that.initializeRoundRobinCompilation(
-            evaluator,
-            function() {
-                evaluator.makeToplevelNode = function() {
-                    var handleClose = function(event, ui) {
-                        that.evaluator.requestBreak();
-                        dialog.dialog("destroy");
-                    };
-
-                    dialog.dialog( {
-                        bgiframe : true,
-                        position: ["left", "top"],
-                        modal : true,
-                        width: "auto",
-                        height: "auto",
-                        beforeclose: handleClose,
-                        resizable: false,
-                        closeOnEscape: true
-                    });
-
-                    var supportsFullScreen = function() {
-                        var elem = document.createElement("div");
-                        return ((elem.webkitRequestFullscreen ||
-                                 elem.mozRequestFullScreen || 
-                                 elem.requestFullscreen) !== undefined);
-                    };
-
-                    var toggleFullScreen = function() {
-                        var elem;
-                        if (innerArea.find("canvas").length === 1) {
-                            // If there's a unique canvas, highlight that one.
-                            elem = innerArea.find("canvas").get(0);
-                        } else { 
-                            // Otherwise, just highlight the whole toplevel node.
-                            elem = innerArea.get(0);
-                        }
-                        if (elem.webkitRequestFullscreen) {
-                            elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-                        } else {
-                            if (elem.mozRequestFullScreen) {
-                                elem.mozRequestFullScreen();
-                            } else {
-                                elem.requestFullscreen();
-                            }
-                        }
-                    };
-
-                    if (supportsFullScreen()) {
-                        jQuery("<span><img src='/images/fullscreen.png' width='12' height='12'></span>")
-                            .css("float", "left")
-                            .css("cursor", "auto")
-                            .css("margin-top", "5px")
-                            .click(toggleFullScreen)
-                            .appendTo(dialog.parent().find(".ui-dialog-titlebar"));
-                    }   
-
-                    var innerArea = jQuery("<div class='evaluatorToplevelNode'></div>");
-                    innerArea.css("background-color", "white");
-                    dialog.append(innerArea);
-                    dialog.dialog("open");
-                    dialog.dblclick(function (evt){
-                                   var elem = evt.target;
-                                   if (elem.webkitRequestFullscreen) {
-                                    elem.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
-                                   } else {
-                                      if (elem.mozRequestFullScreen) {
-                                        elem.mozRequestFullScreen();
-                                      } else {
-                                        elem.requestFullscreen();
-                                      }
-                                   }
-                                   });
-                    return innerArea.get(0);
-                };
-                evaluator.setImageProxy("/imageProxy");
-                evaluator.setRootLibraryPath("/js/mzscheme-vm/collects");
-                evaluator.setDynamicModuleLoader(plt.wescheme.makeDynamicModuleLoader("/js/mzscheme-vm/collects"));
-                afterInit(evaluator);
-            }); 
+        }, afterReplInit); 
     };
 
 
@@ -649,23 +646,23 @@ WeSchemeInteractions = (function () {
         this.notifyBus("before-run", this);
         var that = this;
         that.disableInput();
-        that.evaluator.executeProgram(sourceName,
-                                      aSource,
-                                      withCancellingOnReset(
-                                          that,
-                                          function() { 
-                                              that.enableInput();
-                                              that.focusOnPrompt();
-                                              contK();
-                                          }),
-                                      withCancellingOnReset(
-                                          that,
-                                          function(err) { 
-                                              that.handleError(err); 
-                                              that.enableInput();
-                                              that.focusOnPrompt();
-                                              contK();
-                                          }));
+        that.evaluator.compileAndExecuteProgram(sourceName,
+                                                aSource,
+                                                withCancellingOnReset(
+                                                    that,
+                                                    function() { 
+                                                        that.enableInput();
+                                                        that.focusOnPrompt();
+                                                        contK();
+                                                    }),
+                                                withCancellingOnReset(
+                                                    that,
+                                                    function(err) { 
+                                                        that.handleError(err); 
+                                                        that.enableInput();
+                                                        that.focusOnPrompt();
+                                                        contK();
+                                                    }));
     };
 
     WeSchemeInteractions.prototype.handleError = function(err) {

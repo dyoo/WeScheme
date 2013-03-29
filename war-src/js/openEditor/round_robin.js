@@ -22,12 +22,12 @@ goog.provide("plt.wescheme.RoundRobin");
               // issue with Firefox 3.5.
               lazy: true
             }, 
-            { remote: { compileProgram: {} }});
+            { remote: { replCompile: {} }});
         // We initiate compilation of the empty program and see
         // if the server responds.  If it does, we add the server
         // to the list of known good servers.
         var startTime = new Date();
-        xhr.compileProgram("", 
+        xhr.replCompile("", 
                            "",
                            function(bytecode) {
                                liveServers.push( { xhr : xhr,
@@ -108,7 +108,7 @@ goog.provide("plt.wescheme.RoundRobin");
                               onDone, onDoneError) {
 
         if (n < liveServers.length) {
-            liveServers[n].xhr.compileProgram(
+            liveServers[n].xhr.replCompile(
                 programName,
                 code,
                 onDone,

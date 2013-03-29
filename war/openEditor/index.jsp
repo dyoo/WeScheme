@@ -75,9 +75,12 @@
     <script src="/js/submitpost-min.js" type="text/javascript"></script>
 
 
-    <!-- mzscheme-vm evaluator -->
-    <script src="/js/mzscheme-vm/support-min.js" type="text/javascript"></script>
-    <script src="/js/mzscheme-vm/evaluator-min.js" type="text/javascript"></script>
+    <!-- evaluator -->
+    <script src="/js/whalesong/collects/runtime.js" type="text/javascript"></script>
+    <script src="/js/whalesong/collects/library.js" type="text/javascript"></script>
+    <script src="/js/whalesong/repl.js" type="text/javascript"></script>
+
+
 
     <script src="/js/openEditor/openEditor-calc.js" type="text/javascript"></script>
 
