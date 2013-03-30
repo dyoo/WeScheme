@@ -80,7 +80,6 @@ WeSchemeInteractions = (function () {
             that.resetters[i]();
         }
 
-
         jQuery(that.previousInteractionsDiv).empty();
         that.prompt.clear();
         that.evaluator.reset(function() {
@@ -992,10 +991,11 @@ WeSchemeInteractions = (function () {
     // renderErrorAsDomNode: WeSchemeInteractions exception -> element
     // Given an exception, produces error dom node to be displayed.
     var renderErrorAsDomNode = function(that, err) {
+        console.log(err);
         var msg;
         var i;
         var dom = document.createElement('div');
-        if (types.isSchemeError(err) && types.isExnBreak(err.val)) {
+        if (typeof(types) !== 'undefined' && types.isSchemeError(err) && types.isExnBreak(err.val)) {
             dom['className'] = 'moby-break-error';
             msg = "Program stopped by user (user break)";
         } 
@@ -1003,16 +1003,19 @@ WeSchemeInteractions = (function () {
             dom['className'] = 'moby-error';
             if(err.structuredError && err.structuredError.message) {
                 msg = structuredErrorToMessage(err.structuredError.message);
-            }
-            else {
+            } else if (that.evaluator.getMessageFromExn) {
                 msg = that.evaluator.getMessageFromExn(err);
+            } else if (err.message) {
+                msg = err.message;
+            } else {
+                msg = err+'';
             }
         }
 
         var msgDom = document.createElement('div');
         msgDom['className'] = 'moby-error:message';
 
-        if(types.isMessage(msg)) {
+        if(typeof(types) !== 'undefined' && types.isMessage(msg)) {
             if (that.withColoredErrorMessages) {
                 //if it is a Message, do special formatting
                 formatColoredMessage(that, msgDom, msg);
@@ -1034,18 +1037,16 @@ WeSchemeInteractions = (function () {
             dom.appendChild(link);
         }
 
-        var stacktrace = that.evaluator.getTraceFromExn(err);
-        var stacktraceDiv = document.createElement("div");
-        stacktraceDiv['className'] = 'error-stack-trace';
-        for (i = 0; i < stacktrace.length; i++) {
-            var anchor = that.createLocationHyperlink(stacktrace[i]);
-            stacktraceDiv.appendChild(anchor);
+        if (that.evaluator.getTraceFromExn) {
+            var stacktrace = that.evaluator.getTraceFromExn(err);
+            var stacktraceDiv = document.createElement("div");
+            stacktraceDiv['className'] = 'error-stack-trace';
+            for (i = 0; i < stacktrace.length; i++) {
+                var anchor = that.createLocationHyperlink(stacktrace[i]);
+                stacktraceDiv.appendChild(anchor);
+            }
+            dom.appendChild(stacktraceDiv);
         }
-
-        //do stuff with feedback here
-
-        
-        dom.appendChild(stacktraceDiv);
     
         return dom;
     };
