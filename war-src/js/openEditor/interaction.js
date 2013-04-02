@@ -205,7 +205,7 @@ WeSchemeInteractions = (function () {
             function(container) {
                 var newId = makeFreshId();
                 that.interactions.previousInteractionsTextContainers[newId] = container;
-                that.interactions.runCode(nextCode, newId, function() {});
+                that.interactions.runCode(newId, nextCode, function() {});
             });
         //calling that.focus() doesn't work - the codeMirror box looks focused, but you can't type into it
         //if I focus on something else first, everything works fine
@@ -641,12 +641,12 @@ WeSchemeInteractions = (function () {
     };
 
     // Evaluate the source code and accumulate its effects.
-    WeSchemeInteractions.prototype.runCode = function(aSource, sourceName, contK) {
+    WeSchemeInteractions.prototype.runCode = function(sourceName, sourceCode, contK) {
         this.notifyBus("before-run", this);
         var that = this;
         that.disableInput();
         that.evaluator.compileAndExecuteProgram(sourceName,
-                                                aSource,
+                                                sourceCode,
                                                 withCancellingOnReset(
                                                     that,
                                                     function() { 
@@ -663,6 +663,7 @@ WeSchemeInteractions = (function () {
                                                         contK();
                                                     }));
     };
+
 
     WeSchemeInteractions.prototype.handleError = function(err) {
         this.addToInteractions(renderErrorAsDomNode(this, err));

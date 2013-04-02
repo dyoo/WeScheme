@@ -547,15 +547,14 @@ var WeSchemeEditor;
         dialog.show(onSuccess, onFail);
     };
 
-
     WeSchemeEditor.prototype.run = function(after) {
 	var that = this;
 	plt.wescheme.WeSchemeIntentBus.notify("before-run", this);
 	this.interactions.reset();
 	this.interactions.runCode(
-	    this.defn.getCode(), 
 	    "<definitions>",
-	    function() {
+            this.defn.getCode(), 	    
+            function() {
 		plt.wescheme.WeSchemeIntentBus.notify("after-run", that);
 		if (after) { after(); }
 	    });
