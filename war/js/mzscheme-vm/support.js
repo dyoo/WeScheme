@@ -10751,15 +10751,16 @@ if (typeof(world) === 'undefined') {
     SceneImage.prototype.render = function(ctx, x, y) {
         var i;
         var childImage, childX, childY;
+        // create a clipping region around the boundaries of the Scene
         ctx.save();
-        ctx.fillStyle="white";
+        ctx.fillStyle = "rgba(0,0,0,0)";
         ctx.fillRect(x, y, this.width, this.height);
         ctx.restore();
         
         ctx.save();
         ctx.rect(x, y, this.width, this.height);
         ctx.clip();
-        // Ask every object to render itself.
+        // Ask every object to render itself inside the region
         for(i = 0; i < this.children.length; i++) {
             // then, render the child images
             childImage = this.children[i][0];
@@ -10767,8 +10768,9 @@ if (typeof(world) === 'undefined') {
             childY = this.children[i][2];
             childImage.render(ctx, childX + x, childY + y);
         }
+        // unclip
         ctx.restore();
-        // Finally, draw the black border if withBorder is true
+
         if (this.withBorder) {
             ctx.strokeStyle = 'black';
             ctx.strokeRect(x, y, this.width, this.height);
