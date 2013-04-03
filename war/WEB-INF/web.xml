@@ -301,7 +301,14 @@
   </servlet-mapping>
 
 
-
+  <servlet>
+    <servlet-name>driveLogin</servlet-name>
+    <servlet-class>org.wescheme.drive.DriveLoginServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>driveLogin</servlet-name>
+    <url-pattern>/driveLogin</url-pattern>
+  </servlet-mapping>
 
 
 </web-app>

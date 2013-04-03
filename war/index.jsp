@@ -47,7 +47,7 @@ var onMyPrograms = function() {
 };
 
 var onLogin = function() {
-    window.location = '<%= us.createLoginURL("/login.jsp") %>';
+    window.location = '/driveLogin';
 };
 
 var onLogout = function() {
