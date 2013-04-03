@@ -93,7 +93,7 @@ goog.require("plt.wescheme.tokenizer");
         // // FIXME: figure out how to get the line height
         // dynamically, because I have no idea how to do
         // this correctly at the moment.
-        var n = new plt.wescheme.WeSchemeTextContainer(
+        new plt.wescheme.WeSchemeTextContainer(
             textareaSpan,
             {   dynamicHeight: true,
                 lineNumbers: false,
@@ -106,12 +106,18 @@ goog.require("plt.wescheme.tokenizer");
             function(container) {
                 var newId = makeFreshId();
                 that.interactions.previousInteractionsTextContainers[newId] = container;
-                that.interactions.runCode(newId, nextCode, function() {});
+                that.hide();
+                that.interactions.runCode(newId, 
+                                          nextCode,
+                                          function() {
+                                              that.show();
+                                              //calling that.focus() doesn't work - the codeMirror
+                                              //box looks focused, but you can't type into it if I
+                                              //focus on something else first, everything works fine
+                                              container.focus();
+                                              that.focus();
+                                          });
             });
-        //calling that.focus() doesn't work - the codeMirror box looks focused, but you can't type into it
-        //if I focus on something else first, everything works fine
-        n.focus();
-        that.focus();
     };
 
     // TODO: historyPreviousIsOk and historyNextIsOk don't have to be methods.
@@ -222,6 +228,7 @@ goog.require("plt.wescheme.tokenizer");
 
     Prompt.prototype.show = function() {
         this.div.show();
+        this.textContainer.refresh();
     };
 
     Prompt.prototype.focus = function() {

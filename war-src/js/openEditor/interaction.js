@@ -82,6 +82,7 @@ WeSchemeInteractions = (function () {
 
         jQuery(that.previousInteractionsDiv).empty();
         that.prompt.clear();
+        that.prompt.show();
         that.evaluator.reset(function() {
             that.notifyBus("after-reset", that);
         });
@@ -438,22 +439,17 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.runCode = function(sourceName, sourceCode, contK) {
         this.notifyBus("before-run", this);
         var that = this;
-        that.disableInput();
         that.evaluator.compileAndExecuteProgram(sourceName,
                                                 sourceCode,
                                                 withCancellingOnReset(
                                                     that,
                                                     function() { 
-                                                        that.enableInput();
-                                                        that.focusOnPrompt();
                                                         contK();
                                                     }),
                                                 withCancellingOnReset(
                                                     that,
                                                     function(err) { 
                                                         that.handleError(err); 
-                                                        that.enableInput();
-                                                        that.focusOnPrompt();
                                                         contK();
                                                     }));
     };
