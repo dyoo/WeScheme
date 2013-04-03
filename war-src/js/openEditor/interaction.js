@@ -444,12 +444,14 @@ WeSchemeInteractions = (function () {
                                                 withCancellingOnReset(
                                                     that,
                                                     function() { 
+                                                        that.notifyBus("after-run", that);
                                                         contK();
                                                     }),
                                                 withCancellingOnReset(
                                                     that,
                                                     function(err) { 
                                                         that.handleError(err); 
+                                                        that.notifyBus("after-run", that);
                                                         contK();
                                                     }));
     };
