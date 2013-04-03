@@ -89,7 +89,6 @@ goog.require("plt.wescheme.tokenizer");
         parentDiv.appendChild(textareaSpan);
         that.interactions.addToInteractions(parentDiv);
 
-        that.interactions.clearLine();
         // // FIXME: figure out how to get the line height
         // dynamically, because I have no idea how to do
         // this correctly at the moment.
@@ -112,6 +111,7 @@ goog.require("plt.wescheme.tokenizer");
                                           nextCode,
                                           function() {
 	                                      plt.wescheme.WeSchemeIntentBus.notify("after-run", that);
+                                              that.interactions.clearLine();
                                               that.show();
                                               //calling that.focus() doesn't work - the codeMirror
                                               //box looks focused, but you can't type into it if I

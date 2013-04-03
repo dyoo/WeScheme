@@ -70,10 +70,8 @@
     Repl.prototype.reset = function(afterReset) {
         var that = this;
         if (this.isRunning()) {
-            this.M.params.currentDisplayer = 
-                function(MACHINE, domNode) {};
-            this.M.params.currentErrorDisplayer =
-                function(MACHINE, domNode) {};
+            this.M.params.currentDisplayer = function(MACHINE, domNode) {};
+            this.M.params.currentErrorDisplayer = function(MACHINE, domNode) {};
             interruptEvaluation(
                 that,
                 function() {

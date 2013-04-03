@@ -73,11 +73,13 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.reset = function(afterReset) {
         var that = this;
         that.notifyBus("before-reset", that);
+        that.handleError = function(err) {};
         that.evaluator.reset(
             withCancellingOnReset(
                 that,
                 function() {
                     var i;
+                    delete that.handleError;
                     // We walk the resetters backwards to allow resetters
                     // to remove themselves during iteration.
                     for (i = that.resetters.length - 1; i >= 0; i--){
@@ -441,17 +443,20 @@ WeSchemeInteractions = (function () {
     // Evaluate the source code and accumulate its effects.
     WeSchemeInteractions.prototype.runCode = function(sourceName, sourceCode, contK) {
         var that = this;
+        that.prompt.hide();
         that.evaluator.compileAndExecuteProgram(sourceName,
                                                 sourceCode,
                                                 withCancellingOnReset(
                                                     that,
                                                     function() { 
+                                                        that.prompt.show();
                                                         contK();
                                                     }),
                                                 withCancellingOnReset(
                                                     that,
                                                     function(err) { 
                                                         that.handleError(err); 
+                                                        that.prompt.show();
                                                         contK();
                                                     }));
     };
@@ -889,13 +894,6 @@ WeSchemeInteractions = (function () {
         };
     };
 
-    WeSchemeInteractions.prototype.disableInput = function() {
-        this.prompt.hide();
-    };
-
-    WeSchemeInteractions.prototype.enableInput = function() {
-        this.prompt.show();
-    };
 
     WeSchemeInteractions.prototype.requestBreak = function() {
         this.evaluator.requestBreak(function() {});
