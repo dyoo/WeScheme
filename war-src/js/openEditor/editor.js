@@ -550,14 +550,15 @@ var WeSchemeEditor;
     WeSchemeEditor.prototype.run = function(after) {
 	var that = this;
 	plt.wescheme.WeSchemeIntentBus.notify("before-run", this);
-	this.interactions.reset();
-	this.interactions.runCode(
-	    "<definitions>",
-            this.defn.getCode(), 	    
-            function() {
-		plt.wescheme.WeSchemeIntentBus.notify("after-run", that);
-		if (after) { after(); }
-	    });
+	this.interactions.reset(function() {
+	    that.interactions.runCode(
+	        "<definitions>",
+                that.defn.getCode(),
+                function() {
+		    plt.wescheme.WeSchemeIntentBus.notify("after-run", that);
+		    if (after) { after(); }
+	        });
+        });
     };
     
     WeSchemeEditor.prototype.getDefinitionsText = function() {

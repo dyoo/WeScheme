@@ -107,9 +107,11 @@ goog.require("plt.wescheme.tokenizer");
                 var newId = makeFreshId();
                 that.interactions.previousInteractionsTextContainers[newId] = container;
                 that.hide();
+	        plt.wescheme.WeSchemeIntentBus.notify("before-run", that);
                 that.interactions.runCode(newId, 
                                           nextCode,
                                           function() {
+	                                      plt.wescheme.WeSchemeIntentBus.notify("after-run", that);
                                               that.show();
                                               //calling that.focus() doesn't work - the codeMirror
                                               //box looks focused, but you can't type into it if I

@@ -70,22 +70,25 @@ WeSchemeInteractions = (function () {
 
     // reset: -> void
     // Clears out the interactions.
-    WeSchemeInteractions.prototype.reset = function() {
+    WeSchemeInteractions.prototype.reset = function(afterReset) {
         var that = this;
-        this.notifyBus("before-reset", this);
-        var i;
-        // We walk the resetters backwards to allow resetters
-        // to remove themselves during iteration.
-        for (i = that.resetters.length - 1; i>= 0; i--){
-            that.resetters[i]();
-        }
-
-        jQuery(that.previousInteractionsDiv).empty();
-        that.prompt.clear();
-        that.prompt.show();
-        that.evaluator.reset(function() {
-            that.notifyBus("after-reset", that);
-        });
+        that.notifyBus("before-reset", that);
+        that.evaluator.reset(
+            withCancellingOnReset(
+                that,
+                function() {
+                    var i;
+                    // We walk the resetters backwards to allow resetters
+                    // to remove themselves during iteration.
+                    for (i = that.resetters.length - 1; i >= 0; i--){
+                        that.resetters[i]();
+                    }
+                    jQuery(that.previousInteractionsDiv).empty();
+                    that.prompt.clear();
+                    that.prompt.show();
+                    that.notifyBus("after-reset", that);
+                    afterReset();
+                }));
     };
 
     // Wrap a callback so that it does not apply if we have reset
@@ -215,7 +218,7 @@ WeSchemeInteractions = (function () {
                 function() {
                     evaluator.makeToplevelNode = function() {
                         var handleClose = function(event, ui) {
-                            that.evaluator.requestBreak();
+                            that.evaluator.requestBreak(function() {});
                             dialog.dialog("destroy");
                         };
 
@@ -437,21 +440,18 @@ WeSchemeInteractions = (function () {
 
     // Evaluate the source code and accumulate its effects.
     WeSchemeInteractions.prototype.runCode = function(sourceName, sourceCode, contK) {
-        this.notifyBus("before-run", this);
         var that = this;
         that.evaluator.compileAndExecuteProgram(sourceName,
                                                 sourceCode,
                                                 withCancellingOnReset(
                                                     that,
                                                     function() { 
-                                                        that.notifyBus("after-run", that);
                                                         contK();
                                                     }),
                                                 withCancellingOnReset(
                                                     that,
                                                     function(err) { 
                                                         that.handleError(err); 
-                                                        that.notifyBus("after-run", that);
                                                         contK();
                                                     }));
     };
@@ -898,7 +898,7 @@ WeSchemeInteractions = (function () {
     };
 
     WeSchemeInteractions.prototype.requestBreak = function() {
-        this.evaluator.requestBreak();
+        this.evaluator.requestBreak(function() {});
     };
 
     WeSchemeInteractions.prototype.toString = function() { return "WeSchemeInteractions()"; };
