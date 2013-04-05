@@ -115,7 +115,7 @@ public class CredentialMediator {
   /**
    * @return Client information parsed from client_secrets.json.
    */
-  protected GoogleClientSecrets getClientSecrets() {
+  public GoogleClientSecrets getClientSecrets() {
     return secrets;
   }
 

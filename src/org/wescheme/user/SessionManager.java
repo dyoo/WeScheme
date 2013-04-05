@@ -1,7 +1,10 @@
 package org.wescheme.user;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.cache.Cache;
@@ -10,20 +13,29 @@ import javax.cache.CacheFactory;
 import javax.cache.CacheManager;
 import javax.jdo.JDOObjectNotFoundException;
 import javax.jdo.PersistenceManager;
+import javax.servlet.ServletContext;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.wescheme.drive.CredentialMediator;
+import org.wescheme.drive.CredentialMediator.InvalidClientSecretsException;
 import org.wescheme.keys.KeyManager;
+import org.wescheme.servlet.BaseServlet;
 import org.wescheme.util.*;
 import org.wescheme.util.Crypt.KeyNotFoundException;
 import org.wescheme.util.Crypt.Token;
 
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.services.oauth2.Oauth2;
+import com.google.api.services.oauth2.model.Userinfo;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.gson.Gson;
 public class SessionManager {
     Logger logger = Logger.getLogger(SessionManager.class.getName());
 	
@@ -107,6 +119,18 @@ public class SessionManager {
         } else {
             return null;
         }
+    }
+    
+    public Session authGoogleOAuth(Userinfo info)
+    {
+    	if (info != null)
+    	{
+    		return new Session(info, false); // FIXME can we determine whether a user is an admin from this?
+    	}
+    	else
+    	{
+    		return null;
+    	}
     }
 
     public Session authWeScheme(HttpServletRequest req, HttpServletResponse resp) {
@@ -195,5 +219,46 @@ public class SessionManager {
     public void logout(HttpServletRequest req, HttpServletResponse resp) {
         Cookies.removeCookie("session", req, resp);
         Cookies.removeCookie("token", req, resp);
+    }
+    
+    // Drive login stuff
+    /**
+     * Default MIME type of files created or handled by DrEdit.
+     *
+     * This is also set in the Google APIs Console under the Drive SDK tab.
+     */
+    public static final String DEFAULT_MIMETYPE = "text/plain";
+
+    /**
+     * MIME type to use when sending responses back to DrEdit JavaScript client.
+     */
+    public static final String JSON_MIMETYPE = "application/json";
+
+    /**
+     * Path component under war/ to locate client_secrets.json file.
+     */
+    public static final String CLIENT_SECRETS_FILE_PATH
+        = "/WEB-INF/client_secrets.json";
+
+    /**
+     * Scopes for which to request access from the user.
+     */
+    public static final List<String> SCOPES = Arrays.asList(
+        // Required to access and manipulate files.
+        "https://www.googleapis.com/auth/drive.file",
+        // Required to identify the user in our data store.
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/userinfo.profile");
+
+    protected void sendError(HttpServletResponse resp, int code, String message) {
+      try {
+        resp.sendError(code, message);
+      } catch (IOException e) {
+        throw new RuntimeException(message);
+      }
+    }
+
+    protected InputStream getClientSecretsStream(ServletContext servletContext) {
+      return servletContext.getResourceAsStream(CLIENT_SECRETS_FILE_PATH);
     }
 }

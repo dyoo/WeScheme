@@ -9,7 +9,6 @@
    SessionManager sm = new SessionManager(); 
    Session s = sm.authenticate(request, response);
    if( s == null ) {
-       UserService us = UserServiceFactory.getUserService();
        // Not logged in: we should send them off to the login page.
        //response.sendRedirect(us.createLoginURL("/login.jsp"));
        response.sendRedirect("/driveLogin");
