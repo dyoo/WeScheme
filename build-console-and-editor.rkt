@@ -4,6 +4,7 @@
          racket/runtime-path
          racket/path
          racket/port
+         racket/cmdline
          net/url
          (for-syntax racket/base))
 
@@ -129,12 +130,22 @@
 
 
 
+
+(define current-wescheme-properties 
+  (make-parameter "wescheme.properties"))
+
+(void (command-line
+       #:once-each 
+       [("--properties") prop-file "wescheme properties file" 
+        (current-wescheme-properties prop-file)]))
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(printf "Building properties file for JS\n")
-(copy-file "wescheme.properties" "war/wescheme.properties"
+(printf "Using properties file ~a\n" (current-wescheme-properties))
+(copy-file (current-wescheme-properties) "war/wescheme.properties"
            #t)
 (call-system "python" "bin/make-properties.py"
-             #:pipe-input-from "wescheme.properties"
+             #:pipe-input-from (current-wescheme-properties)
              #:pipe-output-to "war-src/js/wescheme-properties.js")
 
 
