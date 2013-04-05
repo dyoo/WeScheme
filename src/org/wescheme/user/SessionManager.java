@@ -220,45 +220,4 @@ public class SessionManager {
         Cookies.removeCookie("session", req, resp);
         Cookies.removeCookie("token", req, resp);
     }
-    
-    // Drive login stuff
-    /**
-     * Default MIME type of files created or handled by DrEdit.
-     *
-     * This is also set in the Google APIs Console under the Drive SDK tab.
-     */
-    public static final String DEFAULT_MIMETYPE = "text/plain";
-
-    /**
-     * MIME type to use when sending responses back to DrEdit JavaScript client.
-     */
-    public static final String JSON_MIMETYPE = "application/json";
-
-    /**
-     * Path component under war/ to locate client_secrets.json file.
-     */
-    public static final String CLIENT_SECRETS_FILE_PATH
-        = "/WEB-INF/client_secrets.json";
-
-    /**
-     * Scopes for which to request access from the user.
-     */
-    public static final List<String> SCOPES = Arrays.asList(
-        // Required to access and manipulate files.
-        "https://www.googleapis.com/auth/drive.file",
-        // Required to identify the user in our data store.
-        "https://www.googleapis.com/auth/userinfo.email",
-        "https://www.googleapis.com/auth/userinfo.profile");
-
-    protected void sendError(HttpServletResponse resp, int code, String message) {
-      try {
-        resp.sendError(code, message);
-      } catch (IOException e) {
-        throw new RuntimeException(message);
-      }
-    }
-
-    protected InputStream getClientSecretsStream(ServletContext servletContext) {
-      return servletContext.getResourceAsStream(CLIENT_SECRETS_FILE_PATH);
-    }
 }

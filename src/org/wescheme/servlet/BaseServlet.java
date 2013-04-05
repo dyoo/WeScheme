@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.wescheme.drive;
+package org.wescheme.servlet;
 
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.http.HttpTransport;
@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.wescheme.drive.CredentialMediator;
 import org.wescheme.drive.CredentialMediator.InvalidClientSecretsException;
 
 /**

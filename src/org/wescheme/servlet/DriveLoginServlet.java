@@ -12,7 +12,7 @@
  * the License.
  */
 
-package org.wescheme.drive;
+package org.wescheme.servlet;
 
 //import org.wescheme.drive.model.State;
 import com.google.api.client.auth.oauth2.Credential;
@@ -30,7 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.wescheme.user.Session;
 import org.wescheme.user.SessionManager;
-import org.wescheme.user.UnauthorizedUserException;
 
 
 /**
