@@ -303,7 +303,7 @@
 
   <servlet>
     <servlet-name>driveLogin</servlet-name>
-    <servlet-class>org.wescheme.drive.DriveLoginServlet</servlet-class>
+    <servlet-class>org.wescheme.servlet.DriveLoginServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>driveLogin</servlet-name>

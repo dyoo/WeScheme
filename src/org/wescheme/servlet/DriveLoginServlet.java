@@ -51,11 +51,13 @@ public class DriveLoginServlet extends BaseServlet {
       throws IOException, ServletException {
 	req.setAttribute("client_id", new Gson().toJson(getClientId(req, resp)));
 	SessionManager sm = new SessionManager();
+	log.info("calling authGoogleOAuth");
 	Session s = sm.authGoogleOAuth(getUserInformation(req, resp));
 	if (s != null)
 	{
 		try
 		{
+			log.info("issuing session...");
 			sm.issueSession(s, resp);
 		}
 		catch (Exception e)
@@ -77,7 +79,8 @@ public class DriveLoginServlet extends BaseServlet {
         return;
       }
     }*/
-    req.getRequestDispatcher("/WEB-INF/templates/index.jsp").forward(req, resp);
+	// TODO redirect to the right spot (look for the destination in the url?)
+    req.getRequestDispatcher("/console.jsp").forward(req, resp);
   }
   
 
