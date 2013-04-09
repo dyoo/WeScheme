@@ -1,5 +1,15 @@
 EC2 Auto scaling notes
 
+Prerequisites:
+
+    The autoscaling tools:
+    http://aws.amazon.com/developertools/2535?_encoding=UTF8&jiveRedirect=1
+
+    The cloudwatch tools:
+    http://aws.amazon.com/developertools/2534?_encoding=UTF8&jiveRedirect=1
+
+
+
 
 Creating the launch configuration:
 
