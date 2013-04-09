@@ -64,11 +64,11 @@ Creating the policies for adding a new instances to these group:
 
 
 
-Adding a CloudWatch alarm that will trigger this scaling-up policy on high load.  5 minutes at 80% CPU:
+Adding a CloudWatch alarm that will trigger this scaling-up policy on high load.  1 minute at 40% CPU:
 
-    $ mon-put-metric-alarm MyHighCPUAlarm --comparison-operator GreaterThanThreshold --evaluation-periods 1 --metric-name CPUUtilization --namespace "AWS/EC2" --period 300 --statistic Average --threshold 80 --alarm-actions  arn:aws:autoscaling:us-west-2:093537034380:scalingPolicy:0c0d1a8a-8828-4395-99ae-8fb35b098e85:autoScalingGroupName/WeSchemeCompilerGroup:policyName/MyScaleUpPolicy --dimensions "AutoScalingGroupName=WeSchemeCompilerGroup" --region us-west-2
+    $ mon-put-metric-alarm MyHighCPUAlarm --comparison-operator GreaterThanThreshold --evaluation-periods 1 --metric-name CPUUtilization --namespace "AWS/EC2" --period 60 --statistic Average --threshold 40 --alarm-actions  arn:aws:autoscaling:us-west-2:093537034380:scalingPolicy:0c0d1a8a-8828-4395-99ae-8fb35b098e85:autoScalingGroupName/WeSchemeCompilerGroup:policyName/MyScaleUpPolicy --dimensions "AutoScalingGroupName=WeSchemeCompilerGroup" --region us-west-2
 
-    $ mon-put-metric-alarm MyHighCPUAlarm --comparison-operator GreaterThanThreshold --evaluation-periods 1 --metric-name CPUUtilization --namespace "AWS/EC2" --period 300 --statistic Average --threshold 80 --alarm-actions arn:aws:autoscaling:us-east-1:093537034380:scalingPolicy:62cdf7ae-1d9e-4436-bc77-603c00f63e5f:autoScalingGroupName/WeSchemeCompilerGroup-East:policyName/MyScaleUpPolicy --dimensions "AutoScalingGroupName=WeSchemeCompilerGroup-East" --region us-east-1
+    $ mon-put-metric-alarm MyHighCPUAlarm --comparison-operator GreaterThanThreshold --evaluation-periods 1 --metric-name CPUUtilization --namespace "AWS/EC2" --period 60 --statistic Average --threshold 40 --alarm-actions arn:aws:autoscaling:us-east-1:093537034380:scalingPolicy:62cdf7ae-1d9e-4436-bc77-603c00f63e5f:autoScalingGroupName/WeSchemeCompilerGroup-East:policyName/MyScaleUpPolicy --dimensions "AutoScalingGroupName=WeSchemeCompilerGroup-East" --region us-east-1
 
 
 
@@ -79,12 +79,13 @@ Creating the other policy for dropping instances:
 
     $ as-put-scaling-policy MyScaleDownPolicy --auto-scaling-group WeSchemeCompilerGroup-East --adjustment=-1 --type ChangeInCapacity --cooldown 300 --region us-east-1
 
-and adding the corresponding CloudWatch alarms on idleness:
+
+and adding the corresponding CloudWatch alarms on idleness < 10% CPU for at least 30 minutes.:
 
 
-    $ mon-put-metric-alarm MyLowCPUAlarm --comparison-operator LessThanThreshold --evaluation-periods=1 --metric-name CPUUtilization --namespace "AWS/EC2" --period 300 --statistic Average --threshold 40 --alarm-actions arn:aws:autoscaling:us-west-2:093537034380:scalingPolicy:3a6b57eb-c9c2-4360-8de8-5056b414c66b:autoScalingGroupName/WeSchemeCompilerGroup:policyName/MyScaleDownPolicy --dimensions "AutoScalingGroupName=WeSchemeCompilerGroup" --region us-west-2
+    $ mon-put-metric-alarm MyLowCPUAlarm --comparison-operator LessThanThreshold --evaluation-periods=1 --metric-name CPUUtilization --namespace "AWS/EC2" --period 1800 --statistic Average --threshold 10 --alarm-actions arn:aws:autoscaling:us-west-2:093537034380:scalingPolicy:3a6b57eb-c9c2-4360-8de8-5056b414c66b:autoScalingGroupName/WeSchemeCompilerGroup:policyName/MyScaleDownPolicy --dimensions "AutoScalingGroupName=WeSchemeCompilerGroup" --region us-west-2
 
-    $ mon-put-metric-alarm MyLowCPUAlarm --comparison-operator LessThanThreshold --evaluation-periods=1 --metric-name CPUUtilization --namespace "AWS/EC2" --period 300 --statistic Average --threshold 40 --alarm-actions arn:aws:autoscaling:us-east-1:093537034380:scalingPolicy:b09438e3-8e77-4e20-9e03-40484c295922:autoScalingGroupName/WeSchemeCompilerGroup-East:policyName/MyScaleDownPolicy --dimensions "AutoScalingGroupName=WeSchemeCompilerGroup-East" --region us-east-1
+    $ mon-put-metric-alarm MyLowCPUAlarm --comparison-operator LessThanThreshold --evaluation-periods=1 --metric-name CPUUtilization --namespace "AWS/EC2" --period 1800 --statistic Average --threshold 10 --alarm-actions arn:aws:autoscaling:us-east-1:093537034380:scalingPolicy:b09438e3-8e77-4e20-9e03-40484c295922:autoScalingGroupName/WeSchemeCompilerGroup-East:policyName/MyScaleDownPolicy --dimensions "AutoScalingGroupName=WeSchemeCompilerGroup-East" --region us-east-1
 
 
 ----------------------------------------------------------------------
