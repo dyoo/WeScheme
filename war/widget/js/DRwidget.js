@@ -301,7 +301,7 @@ var initializeWidget = (function () {
         var isExampleHeaderError = function(header) {
             var name = getFunctionNameFromContract();
             var result = jQuery("<span/>")
-                .append("How would use use this function with some inputs?")
+                .append("How would you use this function with some inputs?")
                 .append(jQuery("<br/>"))
                 .append(jQuery("<span/>")
                         .append("HINT: (")
