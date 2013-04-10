@@ -28,6 +28,7 @@ goog.require("plt.wescheme.tokenizer");
         var that = this;
         this.interactions = interactions;
         this.div = jQuery("<div><span class='top-aligned-inline-block'>&gt;&nbsp;</span><span class='top-aligned-inline-block' style='width: 90%'/></div>");
+        this.div.css("clear", "left");
         parentDiv.append(this.div);
 
         var innerDivElt = this.div.find("span").get(1);
