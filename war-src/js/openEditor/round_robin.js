@@ -149,13 +149,38 @@ goog.provide("plt.wescheme.RoundRobin");
     };
 
 
+    // TODO: add a real LRU cache for compilations.
+    // The following does a minor bit of caching for the very
+    // last compilation.
+    var lastCompiledName = null;
+    var lastCompiledCode = null;
+    var lastCompiledResult = null;
+
+
     // The name "round-robin" is historical: we really contact the
     // servers in order, starting from liveServers[0], liveServers[1], ...
     var roundRobinCompiler = 
         function(programName, code, onDone, onDoneError) {
+            var onDoneWithCache = function() {
+
+                // Cache the last result:
+                var result = [].slice.call(arguments, 0);
+                lastCompiledName = programName;
+                lastCompiledCode = code;
+                lastCompiledResult = result;
+
+                return onDone.apply(null, arguments);
+            };
+            
+            if ((programName === lastCompiledName) &&
+                (code === lastCompiledCode)) {
+                return onDone.apply(null, lastCompiledResult);
+            }
+
+
             if (liveServers.length > 0) {
                 tryServerN(0, 0,
-                           programName, code, onDone, onDoneError);
+                           programName, code, onDoneWithCache, onDoneError);
             } else {
                 onAllCompilationServersFailing(onDoneError);
             }
