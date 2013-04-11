@@ -50,6 +50,9 @@ goog.provide("plt.wescheme.RoundRobin");
                                    });
                            },
                            function(err) {
+                               if (err.status == 503) {
+                                   initializeServer(serverUrl, afterInitialize);
+                               }
                            });
     };
 
@@ -113,10 +116,19 @@ goog.provide("plt.wescheme.RoundRobin");
                 code,
                 onDone,
                 function(errorStruct) {
+                    // If we get a 503, just try again.
+                    if (errorStruct.status == 503) {
+                        tryServerN(n,
+                                   countFailures,
+                                   programName,
+                                   code,
+                                   onDone,
+                                   onDoneError);
+                    }                    
                     // If the content of the message is the
                     // empty string, communication with
                     // the server failed.
-                    if (errorStruct.message === "") {
+                    else if (errorStruct.message === "") {
                         if (countFailures >= liveServers.length) {
                             onAllCompilationServersFailing(onDoneError);
                         } else {
