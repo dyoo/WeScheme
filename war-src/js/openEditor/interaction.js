@@ -646,26 +646,34 @@ WeSchemeInteractions = (function () {
 
     // Evaluate the source code and accumulate its effects.
     WeSchemeInteractions.prototype.runCode = function(aSource, sourceName, contK) {
-        this.notifyBus("before-run", this);
         var that = this;
-        that.disableInput();
-        that.evaluator.executeProgram(sourceName,
-                                      aSource,
-                                      withCancellingOnReset(
-                                          that,
-                                          function() { 
-                                              that.enableInput();
-                                              that.focusOnPrompt();
-                                              contK();
-                                          }),
-                                      withCancellingOnReset(
-                                          that,
-                                          function(err) { 
-                                              that.handleError(err); 
-                                              that.enableInput();
-                                              that.focusOnPrompt();
-                                              contK();
-                                          }));
+        setTimeout(
+            withCancellingOnReset(
+                that,
+                function() {
+                    that.notifyBus("before-run", that);
+
+                    that.disableInput();
+                    that.evaluator.executeProgram(
+                        sourceName,
+                        aSource,
+                        withCancellingOnReset(
+                            that,
+                            function() { 
+                                that.enableInput();
+                                that.focusOnPrompt();
+                                contK();
+                            }),
+                        withCancellingOnReset(
+                            that,
+                            function(err) { 
+                                that.handleError(err); 
+                                that.enableInput();
+                                that.focusOnPrompt();
+                                contK();
+                            }));
+                }),
+            0);
     };
 
     WeSchemeInteractions.prototype.handleError = function(err) {
