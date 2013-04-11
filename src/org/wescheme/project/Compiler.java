@@ -90,32 +90,39 @@ public class Compiler extends HttpServlet
      */
     public static CompilationResult compile(ServletContext ctx, String programName, String programSource){
         try {
-        	URL url = new URL(new WeSchemeProperties(ctx).getCompilationServerUrl());					
+            URL url = new URL(new WeSchemeProperties(ctx).getCompilationServerUrl());					
             String data = "name=" + URLEncoder.encode(programName, "UTF-8") +
                 "&format=json" + 
                 "&program=" + URLEncoder.encode(programSource, "UTF-8");
 
-			
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setDoOutput(true);
-            OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
-            wr.write(data);
-            wr.flush();
-				
-            if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+            while (true) {
                 try {
-                    JSONObject obj = (JSONObject) jsonParser.parse(readStream(conn.getInputStream()));
-                    String compiledCode = (String) obj.get("bytecode");
-                    Set<String> perms = jsonStringArrayToSet((JSONArray) obj.get("permissions"));
-                    Set<String> provides = jsonStringArrayToSet((JSONArray) obj.get("provides"));
-                    return new GoodCompilationResult(compiledCode, perms, provides);
-                } catch (ParseException e) {
-                    return new BadCompilationResult(e.toString());
+                    conn.setRequestMethod("POST");
+                    conn.setDoOutput(true);
+                    OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
+                    wr.write(data);
+                    wr.flush();
+                    if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                        try {
+                            JSONObject obj = (JSONObject) jsonParser.parse(readStream(conn.getInputStream()));
+                            String compiledCode = (String) obj.get("bytecode");
+                            Set<String> perms = jsonStringArrayToSet((JSONArray) obj.get("permissions"));
+                            Set<String> provides = jsonStringArrayToSet((JSONArray) obj.get("provides"));
+                            return new GoodCompilationResult(compiledCode, perms, provides);
+                        } catch (ParseException e) {
+                            return new BadCompilationResult(e.toString());
+                        }
+                    } else if (conn.getResponseCode() == HttpURLConnection.HTTP_UNAVAILABLE) {
+                        // Retry if the compiler server fails due to being temporarily overloaded.
+                        continue;
+                    } else {
+                        String errorMessage = readStream(conn.getErrorStream());
+                        return new BadCompilationResult(errorMessage);
+                    }
+                } finally {
+                    conn.disconnect();
                 }
-            } else {
-                String errorMessage = readStream(conn.getErrorStream());
-                return new BadCompilationResult(errorMessage);
             }
         } catch (MalformedURLException e) {
             return new BadCompilationResult(e.getMessage());
