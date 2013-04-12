@@ -35,7 +35,7 @@
 
 </head>
 
-<body onload="init('<%= compilationServerUrl %>', '<%= publicId%>')">
+<body onload="plt.wescheme.runner.init('<%= compilationServerUrl %>', '<%= publicId%>')">
 <div id="interactions">
 </div>
 

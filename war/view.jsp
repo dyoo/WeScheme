@@ -17,7 +17,6 @@
     String publicId = request.getParameter("publicId");
     String encodedId = java.net.URLEncoder.encode(publicId, "utf-8");
     PersistenceManager pm = PMF.get().getPersistenceManager();
-    boolean hasSource = false;
     boolean isPublic = false;
     String title = "";
     String notes = "";
@@ -26,7 +25,6 @@
         title = aProgram.getTitle();
         notes = aProgram.getNotes();
         isPublic = aProgram.getIsSourcePublic();
-        hasSource = !("".equals(aProgram.getObject().toString()));
     } catch (RuntimeException e) {
         aProgram = null;
     } finally {
@@ -70,7 +68,7 @@ WeScheme is unable to find your program.
 
 
 
-<% if (aProgram != null && hasSource) { %>
+<% if (aProgram != null) { %>
 <a id="runIt" class="linkbutton"
    href="/run?publicId=<%= encodedId %>">Run it!</a>
 <% } %>
