@@ -89,8 +89,13 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
                                    newDialog.append(jQuery("<p/>"));
                                    newDialog.append(jQuery(plt.wescheme.helpers.generateSocialBookmarks(title, anchor.href)));
 
-                                   // Ignore errMessage.
+                                   // Quietly ignore errMessage.
                                    // We'll deal with it during Run time.
+                                   try {
+                                       if (console.log && errMessage) {
+                                           console.log(errMessage);
+                                       }
+                                   } catch(e) {}
                                    //
                                    // // Add error message content if something weird happened during the build.
                                    // if (errMessage !== false) {

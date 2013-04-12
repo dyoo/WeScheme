@@ -39,7 +39,7 @@ goog.provide("plt.wescheme.runner");
     };
 
 
-    Runner.prototype.runSourceCode = function(sourceCode, permStringArray) {
+    Runner.prototype.runSourceCode = function(title, sourceCode, permStringArray) {
         var that = this;
         var onSuccessRun = function() {
         };
