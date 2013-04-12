@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.jdom.Element;
 import org.jdom.output.XMLOutputter;
+import org.wescheme.project.DriveProgram;
 import org.wescheme.project.Program;
 import org.wescheme.project.ProgramDigest;
 import org.wescheme.user.Session;
@@ -22,6 +23,10 @@ import org.wescheme.util.CacheHelpers;
 import org.wescheme.util.PMF;
 import org.wescheme.util.Queries;
 
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.File;
+import com.google.api.services.drive.model.FileList;
+
 /**
  * Produces a list of projects of the logged-in user, in descending order of modification time.
  * 
@@ -30,7 +35,7 @@ import org.wescheme.util.Queries;
  * @author dyoo
  *
  */
-public class ListProjectsServlet extends HttpServlet {
+public class ListProjectsServlet extends BaseServlet {
 	
     private static final long serialVersionUID = 6291188410939739681L;
     private static final Logger log = Logger.getLogger(ListProjectsServlet.class.getName());
@@ -55,7 +60,8 @@ public class ListProjectsServlet extends HttpServlet {
 	
         try {
             Session userSession = authenticate(req, resp);		
-            String outputString = getOutputString(userSession);			
+            //String outputString = getOutputString(userSession);
+            String outputString = getDriveOutputString(req, resp); 
             resp.setContentType("text/xml");
             PrintWriter w = resp.getWriter();
             w.write(outputString);
@@ -105,6 +111,21 @@ public class ListProjectsServlet extends HttpServlet {
 
         return getFromDatabase(userSession);
     }
+	
+	private String getDriveOutputString(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        Drive service = getDriveService(req, resp);
+        FileList driveFiles = service.files().list().execute();
+        Element elt = new Element("ProgramDigests");
+        for (File f : driveFiles.getItems())
+        {
+        	log.info("displaying program: " + f.getTitle());
+        	elt.addContent(DriveProgram.getEmptyProgram(f).toXmlProgramDigest());
+        }
+
+        XMLOutputter outputter = new XMLOutputter();
+        String outputString = outputter.outputString(elt); 			
+        return outputString;				
+	}
 	
     /**
      * Gets the set of ProgramDigests for the user with the given session.

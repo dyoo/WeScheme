@@ -19,6 +19,7 @@ import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson.JacksonFactory;
+import com.google.api.services.drive.Drive;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -67,6 +68,7 @@ public abstract class BaseServlet extends HttpServlet {
   public static final List<String> SCOPES = Arrays.asList(
       // Required to access and manipulate files.
       "https://www.googleapis.com/auth/drive.file",
+      "https://www.googleapis.com/auth/drive.install",
       // Required to identify the user in our data store.
       "https://www.googleapis.com/auth/userinfo.email",
       "https://www.googleapis.com/auth/userinfo.profile");
@@ -151,5 +153,22 @@ public abstract class BaseServlet extends HttpServlet {
       sendError(resp, 500, message);
       throw new RuntimeException(message);
     }
+  }
+  
+  /**
+   * Build and return a Drive service object based on given request parameters.
+   *
+   * @param req Request to use to fetch code parameter or accessToken session
+   *            attribute.
+   * @param resp HTTP response to use for redirecting for authorization if
+   *             needed.
+   * @return Drive service object that is ready to make requests, or null if
+   *         there was a problem.
+   */
+  protected Drive getDriveService(HttpServletRequest req,
+      HttpServletResponse resp) {
+    Credential credentials = getCredential(req, resp);
+
+    return new Drive.Builder(TRANSPORT, JSON_FACTORY, credentials).build();
   }
 }

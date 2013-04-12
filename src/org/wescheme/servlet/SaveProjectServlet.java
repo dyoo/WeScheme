@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.wescheme.project.DriveProgram;
 import org.wescheme.project.NameGenerator;
 import org.wescheme.project.Program;
 import org.wescheme.user.Session;
@@ -15,8 +16,13 @@ import org.wescheme.user.SessionManager;
 import org.wescheme.util.CacheHelpers;
 import org.wescheme.util.PMF;
 
+import com.google.api.client.auth.oauth2.Credential;
+import com.google.api.client.http.ByteArrayContent;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.File;
 
-public class SaveProjectServlet extends HttpServlet{
+
+public class SaveProjectServlet extends BaseServlet{
     private static final Logger log = Logger.getLogger(SaveProjectServlet.class.getName());
     private static final long serialVersionUID = 4038563388689831368L;
 
@@ -38,7 +44,7 @@ public class SaveProjectServlet extends HttpServlet{
             if( null != userSession ){			
                 CacheHelpers.notifyUserProgramsDirtied(userSession.getName());
                 if (pid == null) {
-                    saveNewProgram(pm, userSession, resp, title, code, notes);
+                    saveNewProgram(userSession, req, resp, title, code, notes);
                 } else {
                     saveExistingProgram(pm, userSession, resp, pid, title, code, notes);
                 }
@@ -55,21 +61,30 @@ public class SaveProjectServlet extends HttpServlet{
 
     // TODO: we're passing quite a few parameters.  It may be time to
     // refactor to a parameter class here.
-    private void saveNewProgram(PersistenceManager pm, Session userSession,
+    private void saveNewProgram(Session userSession,
+    							HttpServletRequest req,
                                 HttpServletResponse resp,
                                 String title, String code, 
                                 String notes) throws IOException {
         Program prog = new Program(code, userSession.getName());
         prog.updateTitle(title);
         if (notes != null) { prog.updateNotes(notes); }
-        prog.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueBase62Id(pm));
-        pm.makePersistent(prog);
-
+        ////prog.setPublicId(NameGenerator.getInstance(getServletContext()).generateUniqueBase62Id(pm));
+        ////pm.makePersistent(prog);
+        log.info("saving via drive service");
+        Drive service = getDriveService(req, resp);
+        DriveProgram programToSave = new DriveProgram(prog);
+        File file = programToSave.toFile();
+        log.info("mimetype: " + file.getMimeType() + "  file json: " + programToSave.getJsonRepresentation());
+        file = service.files().insert(file,
+                ByteArrayContent.fromString(file.getMimeType(), programToSave.getJsonRepresentation()))
+                .execute();
+        log.info("done saving to drive. id is: " + file.getId());
         resp.setContentType("text/plain"); 
-        resp.getWriter().println(prog.getId());					
+        resp.getWriter().println(file.getId());					
     }
 
-
+    //// FIXME update this for programs stored in drive
     // Save a program that has an existing pid.
     private void saveExistingProgram(PersistenceManager pm, Session userSession,
                                      HttpServletResponse resp,
