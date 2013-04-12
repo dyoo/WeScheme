@@ -1,6 +1,7 @@
 <html>
   <head>
     <title>rpc</title>
+    <script src="json2.js"></script>
     <script src="easyXDM-min.js"></script>
 </head>
 <script type="text/javascript">
@@ -14,7 +15,7 @@ var Compiler = function(options) {
 var encodeUrlParameters = function(hash) {
     var chunks = [];
     for (var key in hash) {
-	if (hash.hasOwnProperty(key)) {
+	if (Object.hasOwnProperty.call(hash, key)) {
 	    chunks.push(encodeURIComponent(key) +"="+ encodeURIComponent(hash[key]));
 	}
     }
@@ -28,11 +29,14 @@ Compiler.prototype.compileProgram = function(programName, code, onDone, onDoneEr
     var that = this;
     var params = encodeUrlParameters({'name': programName,
 				      'program': code,
+                                      'format': 'json',
 				      'compiler-version' : '1'});
     var xhr = new XMLHttpRequest();
     xhr.onreadystatechange = function() {
 	if (xhr.readyState == 4) {
-	    if (xhr.status === 200) {
+            if (xhr.status === 503) {
+                that.compileProgram(programName, code, onDone, onDoneError);
+            } else if (xhr.status === 200) {
                 onDone(xhr.responseText);
 	    } else {
                 onDoneError(xhr.responseText);
