@@ -91,11 +91,6 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
 
                                    // Quietly ignore errMessage.
                                    // We'll deal with it during Run time.
-                                   try {
-                                       if (console.log && errMessage) {
-                                           console.log(errMessage);
-                                       }
-                                   } catch(e) {}
                                    //
                                    // // Add error message content if something weird happened during the build.
                                    // if (errMessage !== false) {

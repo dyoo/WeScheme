@@ -28,6 +28,10 @@
 
 <script src="/js/jquery/jquery-1.3.2-min.js" type="text/javascript"></script>
 <script src="/editor/jquery.createdomnodes-min.js" type="text/javascript"></script>
+<script src="/js/easyXDM/easyXDM-min.js" type="text/javascript"></script>
+<script type="text/javascript">
+    easyXDM.DomHelper.requiresJSON("/js/easyXDM/json2-min.js");
+</script>
 <script src="/js/mzscheme-vm/support-min.js" type="text/javascript"></script>
 <script src="/js/mzscheme-vm/evaluator-min.js" type="text/javascript"></script>
 <script src="/js/loadScript-min.js" type="text/javascript"></script>

@@ -3,8 +3,9 @@
 // interactive evaluation.
 
 goog.require("plt.wescheme.AjaxActions");
+goog.require("plt.wescheme.WeSchemeProperties");
 goog.require("plt.wescheme.makeDynamicModuleLoader");
-
+goog.require("plt.wescheme.RoundRobin");
 goog.provide("plt.wescheme.runner");
 
 (function() {
@@ -96,6 +97,32 @@ goog.provide("plt.wescheme.runner");
     };
 
 
+    // Configures the evaluator to use round-robin compilation between
+    // a set of servers.  Compilation will also fall back to other
+    // servers under network failure.
+    var initializeRoundRobinCompilation = function(evaluator, after) {
+        var that = this;
+        // Initializes the evaluator to use round-robin compilation, given a list of
+        // servers.
+        var compilation_servers = plt.wescheme.WeSchemeProperties.compilation_servers.split(/\s+/);
+        plt.wescheme.RoundRobin.initialize(
+            compilation_servers,
+            function() {
+                evaluator.setCompileProgram(
+                    plt.wescheme.RoundRobin.roundRobinCompiler);
+                after();
+            },
+            function() {
+                // Under this situation, all compilation servers are inaccessible.
+                evaluator.setCompileProgram(plt.wescheme.RoundRobin.roundRobinCompiler);
+                alert("WeScheme appears to be busy or unavailable at this time." +
+                      "  Please try again later.");
+                after();
+            });
+    };
+
+
+
 
     function init(compilationServerUrl, publicId) { 
         var runner = 
@@ -146,10 +173,16 @@ goog.provide("plt.wescheme.runner");
             if (programCode) {
 	        runner.runCompiledCode(programCode, permissions);
             } else  {
+
+
                 ///
                 // FIXME: add call to queue/retrieve a server-side compilation here.
                 ///
-	        runner.runSourceCode(title, sourceCode, permissions);
+                // Only do this if we have no other choice.
+                initializeRoundRobinCompilation(runner.evaluator,
+                                                function() {
+	                                            runner.runSourceCode(title, sourceCode, permissions);
+                                                });
             }
         };
         new plt.wescheme.AjaxActions().loadProject(
