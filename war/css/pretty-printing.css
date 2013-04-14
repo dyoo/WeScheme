@@ -6,7 +6,7 @@
 */
 
 
-.replOutput * {float: left; padding-left: 10px;}
+span.replOutput * {float: left; padding-left: 10px;}
 .wrapped > * {clear: left;}
 
 /* Rationals, Parens, and first child after lParen NEVER have padding or clearing */
