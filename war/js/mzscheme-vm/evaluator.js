@@ -219,7 +219,9 @@ var Evaluator = (function() {
 	var xhr = new XMLHttpRequest();
 	xhr.onreadystatechange = function() {
 	    if (xhr.readyState == 4) {
-		if (xhr.status === 200) {
+                if (xhr.status == 503) {
+                    that.compileProgram(programName, code, onDone, onDoneError);
+                } else if (xhr.status === 200) {
                     onDone(xhr.responseText);
 		} else {
                     onDoneError(xhr.responseText);

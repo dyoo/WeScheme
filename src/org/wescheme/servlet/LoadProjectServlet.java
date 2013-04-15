@@ -56,11 +56,16 @@ public class LoadProjectServlet extends HttpServlet {
                 Program prog = getProgramByPublicId(pm, req.getParameter("publicId"));
                 if (isOwner(userSession, prog) || prog.getIsSourcePublic()) {
                     resp.setContentType("text/json");
-                    resp.getWriter().print(prog.toJSON(pm).toString());
+                    resp.getWriter().print(prog.toJSON(true, pm).toString());
                 } else {
-                    // Show the record, but without source.
+                    // The intent is to how the record, but without source.
+                    //
+                    // Kludge: however, we're weakening this with respect to 
+                    // letting Run work even when the server hasn't finished 
+                    // doing a server-side bytecode compile.
                     resp.setContentType("text/json");
-                    resp.getWriter().print(prog.toJSON(false, pm).toString());
+                    //resp.getWriter().print(prog.toJSON(false, pm).toString());
+                    resp.getWriter().print(prog.toJSON(true, pm).toString());
                 }
             } else {
                 resp.sendError(400, "pid or publicId parameter missing");

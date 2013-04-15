@@ -489,7 +489,16 @@ var WeSchemeEditor;
  		"/openEditor?publicId=" +
  		    encodeURIComponent(aProgram.getPublicId()));
  	    that.filenameEntry.attr("value", aProgram.getTitle());
- 	    that.defn.setCode(aProgram.getSourceCode());
+
+            if (attrs.pid) {
+ 	        that.defn.setCode(aProgram.getSourceCode());
+            } else {
+                if (attrs.publicId && aProgram.isSourcePublic()) {
+ 	            that.defn.setCode(aProgram.getSourceCode());
+                } else {
+ 	            that.defn.setCode(";;  << Source code has not been shared >>");
+                }
+            }
 	    
 	    if (that.userName === aProgram.getOwner()) {
 		that._setIsOwner(true);

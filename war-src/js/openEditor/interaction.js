@@ -43,7 +43,7 @@ WeSchemeInteractions = (function () {
             this.interactionsDiv,
             function(prompt) {
                 that.prompt = prompt;
-                that.makeFreshEvaluator(function(e) {
+                makeFreshEvaluator(that, function(e) {
                     that.evaluator = e;
                     that.highlighter = function(id, offset, line, column, span, color) {
                         // default highlighter does nothing.  Subclasses will specialize that.
@@ -74,16 +74,34 @@ WeSchemeInteractions = (function () {
         var that = this;
         this.notifyBus("before-reset", this);
         var i;
-        for (i =0; i< that.resetters.length; i++){
+        // We walk the resetters backwards to allow resetters
+        // to remove themselves during iteration.
+        for (i = that.resetters.length - 1; i>= 0; i--){
             that.resetters[i]();
         }
 
-        that.makeFreshEvaluator(function(e) {
+        silenceCurrentEvaluator(that);
+        makeFreshEvaluator(that, function(e) {
             that.evaluator = e;
             jQuery(that.previousInteractionsDiv).empty();
             that.notifyBus("after-reset", that);
             that.prompt.clear();
         })
+    };
+
+    // Wrap a callback so that it does not apply if we have reset
+    // the console already.
+    var withCancellingOnReset = function(that, f) {
+        var cancelled = false;
+        var onReset = function() { 
+            cancelled = true; 
+            that.removeOnReset(onReset);
+        };
+        that.addOnReset(onReset);
+        return function() {
+            if (cancelled) { return; }
+            f.apply(null, arguments);
+        };
     };
 
 
@@ -379,9 +397,15 @@ WeSchemeInteractions = (function () {
     }
     jQuery(window).bind('resize', rewrapPreviousInteractions);
                         
-    WeSchemeInteractions.prototype.makeFreshEvaluator = function(afterInit) {
-        var that = this;
-         
+
+    var silenceCurrentEvaluator = function(that) {
+        that.evaluator.write = function(thing) {};
+        that.evaluator.transformDom = function(thing) {};
+        that.evaluator.requestBreak();
+    };
+
+
+    var makeFreshEvaluator = function(that, afterInit) {         
         var evaluator = new Evaluator({
             write: function(thing) {
                 thing.className += " replOutput";
@@ -438,7 +462,7 @@ WeSchemeInteractions = (function () {
 
                     var toggleFullScreen = function() {
                         var elem;
-                        if (innerArea.find("canvas").length == 1) {
+                        if (innerArea.find("canvas").length === 1) {
                             // If there's a unique canvas, highlight that one.
                             elem = innerArea.find("canvas").get(0);
                         } else { 
@@ -530,6 +554,17 @@ WeSchemeInteractions = (function () {
     WeSchemeInteractions.prototype.addOnReset = function(onReset) {
         this.resetters.push(onReset);
     };
+
+    WeSchemeInteractions.prototype.removeOnReset = function(onReset) {
+        var i;
+        for (i = 0; i < this.resetters.length; i++) {
+            if (onReset === this.resetters[i]) {
+                this.resetters.splice(i, 1);
+                return;
+            }
+        } 
+    };
+
     
 
     // Returns if x is a dom node.
@@ -611,26 +646,38 @@ WeSchemeInteractions = (function () {
 
     // Evaluate the source code and accumulate its effects.
     WeSchemeInteractions.prototype.runCode = function(aSource, sourceName, contK) {
-        this.notifyBus("before-run", this);
         var that = this;
-        this.disableInput();
-        this.evaluator.executeProgram(sourceName,
-                                      aSource,
-                                      function() { 
-                                          that.enableInput();
-                                          that.focusOnPrompt();
-                                          contK();
-                                      },
-                                      function(err) { 
-                                          that.handleError(err); 
-                                          that.enableInput();
-                                          that.focusOnPrompt();
-                                          contK();
-                                      });
+        setTimeout(
+            withCancellingOnReset(
+                that,
+                function() {
+                    that.notifyBus("before-run", that);
+
+                    that.disableInput();
+                    that.evaluator.executeProgram(
+                        sourceName,
+                        aSource,
+                        withCancellingOnReset(
+                            that,
+                            function() { 
+                                that.enableInput();
+                                that.focusOnPrompt();
+                                contK();
+                            }),
+                        withCancellingOnReset(
+                            that,
+                            function(err) { 
+                                that.handleError(err); 
+                                that.enableInput();
+                                that.focusOnPrompt();
+                                contK();
+                            }));
+                }),
+            0);
     };
 
     WeSchemeInteractions.prototype.handleError = function(err) {
-        this.addToInteractions(this.renderErrorAsDomNode(err));
+        this.addToInteractions(renderErrorAsDomNode(this, err));
         this.addToInteractions("\n");
     };
 
@@ -790,21 +837,35 @@ WeSchemeInteractions = (function () {
             var locTints = [];
             var i;
             var baseColor = currColor;
+            var box;
             if(part.locations.length > 0){ 
-                // should really go to the source of the multipart to fix
-                if (part.solid) {
+                if (part.solid || part.locations.length === 1) {
                     for (i = 0; i < part.locations.length; i++) {
                         locTints.push(baseColor);
                     }
+                    colorAndLink(that, msgDom, baseColor, part.text, 
+                                 locTints, part.locations);
+                    colorIndex = (colorIndex + 1) % colors.length;
+                    
                 } else {
-                    foreachTint(part.locations,
+                    foreachTint([undefined].concat(part.locations),
                                 function(loc, tint) {
                                     locTints.push(tint);
                                 });
+                    colorAndLink(that, msgDom, baseColor, part.text, 
+                                 locTints.slice(1), part.locations);
+                    jQuery(msgDom).append("\u00ab"); // left-pointing-double-angle quotation mark
+                    for (i = 0; i < part.locations.length; i++) {
+                        box = jQuery("<tt/>");
+                        // white large box character.
+                        // http://www.fileformat.info/info/unicode/char/2b1c/index.htm
+                        box.text("\u2b1c"); 
+                        colorAndLink(that, msgDom, locTints.slice(1)[i], 
+                                     box, [locTints.slice(1)[i]], [part.locations[i]]);
+                    }
+                    jQuery(msgDom).append("\u00bb"); // right-pointing-double-angle quotation mark
+                    colorIndex = (colorIndex + 1) % colors.length;
                 }
-                colorAndLink(that, msgDom, baseColor, part.text, 
-                             locTints, part.locations);
-                colorIndex = (colorIndex + 1) % colors.length;
             }
             else {
                 msgDom.appendChild(document.createTextNode(part.text+''));
@@ -892,19 +953,21 @@ WeSchemeInteractions = (function () {
         var i;
         var x;
         var pieces = [];
+        if (typeof text === 'string') {
+            text = jQuery("<span/>").text(text);
+        }
         for(i = 0; i < locs.length; i++){
             pieces.push(that.addToCurrentHighlighter(locs[i].ref(0), locs[i].ref(1), locs[i].ref(2), locs[i].ref(3), locs[i].ref(4), 
                                                      locColors[i]+''));
         }
         if(locs[0].ref(0) === "<no-location>"){
-            var aChunk = jQuery("<span/>").text(text);
-            jQuery(msgDom).append(aChunk);
+            jQuery(msgDom).append(text);
         } else {
             var clickFunction = makeCursorLink(that, locs, pieces, errorColor);
             var aChunk = jQuery("<span/>").css("background-color", errorColor+'')
                                           .addClass("colored-link")
                                           .click(clickFunction);
-            var aLink = jQuery("<a/>").text(text+'')
+            var aLink = jQuery("<a/>").append(text)
                                       .attr("href", "#")
                                       .click(clickFunction);
             jQuery(aChunk).append(aLink);
@@ -941,10 +1004,9 @@ WeSchemeInteractions = (function () {
     };
 
 
-    // renderErrorAsDomNode: exception -> element
+    // renderErrorAsDomNode: WeSchemeInteractions exception -> element
     // Given an exception, produces error dom node to be displayed.
-    WeSchemeInteractions.prototype.renderErrorAsDomNode = function(err) {
-        var that = this;
+    var renderErrorAsDomNode = function(that, err) {
         var msg;
         var i;
         var dom = document.createElement('div');
@@ -958,7 +1020,7 @@ WeSchemeInteractions = (function () {
                 msg = structuredErrorToMessage(err.structuredError.message);
             }
             else {
-                msg = this.evaluator.getMessageFromExn(err);
+                msg = that.evaluator.getMessageFromExn(err);
             }
         }
 
@@ -983,15 +1045,15 @@ WeSchemeInteractions = (function () {
         dom.appendChild(msgDom);
 
         if(err.structuredError && err.structuredError.message) {
-            var link = this.createLocationHyperlink(err.structuredError.location);
+            var link = that.createLocationHyperlink(err.structuredError.location);
             dom.appendChild(link);
         }
 
-        var stacktrace = this.evaluator.getTraceFromExn(err);
+        var stacktrace = that.evaluator.getTraceFromExn(err);
         var stacktraceDiv = document.createElement("div");
         stacktraceDiv['className'] = 'error-stack-trace';
         for (i = 0; i < stacktrace.length; i++) {
-            var anchor = this.createLocationHyperlink(stacktrace[i]);
+            var anchor = that.createLocationHyperlink(stacktrace[i]);
             stacktraceDiv.appendChild(anchor);
         }
 

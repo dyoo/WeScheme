@@ -89,17 +89,20 @@ goog.require("plt.wescheme.WeSchemeIntentBus");
                                    newDialog.append(jQuery("<p/>"));
                                    newDialog.append(jQuery(plt.wescheme.helpers.generateSocialBookmarks(title, anchor.href)));
 
-                                   // Add error message content if something weird happened during the build.
-                                   if (errMessage !== false) {
-                                       newDialog.append(
-                                           jQuery("<p/>").text("However, the program won't be able to run because of the following: "));
-                                       newDialog.append(jQuery("<tt/>").css("color", "red").text(errMessage));
-                                       if (isPublic) {
-                                           newDialog.append(
-                                               jQuery("<p/>")
-                                                   .text("Although it won't run, its source can still be viewed."));
-                                       }
-                                   }
+                                   // Quietly ignore errMessage.
+                                   // We'll deal with it during Run time.
+                                   //
+                                   // // Add error message content if something weird happened during the build.
+                                   // if (errMessage !== false) {
+                                   //     newDialog.append(
+                                   //         jQuery("<p/>").text("However, the program won't be able to run because of the following: "));
+                                   //     newDialog.append(jQuery("<tt/>").css("color", "red").text(errMessage));
+                                   //     if (isPublic) {
+                                   //         newDialog.append(
+                                   //             jQuery("<p/>")
+                                   //                 .text("Although it won't run, its source can still be viewed."));
+                                   //     }
+                                   // }
 
                                    newDialog.dialog("open");
                                },
