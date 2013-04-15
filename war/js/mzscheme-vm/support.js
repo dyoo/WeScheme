@@ -49,8 +49,6 @@ var debugF = function(f_s) {
 }
 
 
-var hasOwnProperty = {}.hasOwnProperty;
-
 var deepEqual = function (obj1, obj2) {
     if (obj1 === obj2) {
 	return true;
@@ -73,14 +71,14 @@ var deepEqual = function (obj1, obj2) {
     }
 
     for (var i in obj1) {
-	if ( hasOwnProperty.call(obj1, i) && i !== '_eqHashCode' && i !== '_isList') {
-	    if ( !(hasOwnProperty.call(obj2, i) && deepEqual(obj1[i], obj2[i])) )
+	if ( obj1.hasOwnProperty(i) && i !== '_eqHashCode' && i !== '_isList') {
+	    if ( !(obj2.hasOwnProperty(i) && deepEqual(obj1[i], obj2[i])) )
 		return false;
 	}
     }
     for (var i in obj2) {
-	if ( hasOwnProperty.call(obj2, i) && i !== '_eqHashCode' && i !== '_isList') {
-	    if ( !(hasOwnProperty.call(obj1, i) && deepEqual(obj1[i], obj2[i])) )
+	if ( obj2.hasOwnProperty(i) && i !== '_eqHashCode' && i !== '_isList') {
+	    if ( !(obj1.hasOwnProperty(i) && deepEqual(obj1[i], obj2[i])) )
 		return false;
 	}
     }
@@ -2510,7 +2508,7 @@ var jsworld = {};
     function copy_attribs(node, attribs) {
 	if (attribs)
 	    for (a in attribs) {
-		if (Object.hasOwnProperty.call(attribs, a)) {
+		if (attribs.hasOwnProperty(a)) {
 		    if (typeof attribs[a] == 'function')
 			add_ev(node, a, attribs[a]);
 		    else{
@@ -7100,9 +7098,6 @@ var appendChild = function(parent, child) {
 };
 
 
-
-var hasOwnProperty = {}.hasOwnProperty;
-
 //////////////////////////////////////////////////////////////////////
 
 
@@ -7649,8 +7644,9 @@ var symbolCache = {};
 // makeInstance: string -> Symbol.
 Symbol.makeInstance = function(val) {
     // To ensure that we can eq? symbols with equal values.
-    if (!(hasOwnProperty.call(symbolCache, val))) {
+    if (!(val in symbolCache)) {
 	symbolCache[val] = new Symbol(val);
+    } else {
     }
     return symbolCache[val];
 };
@@ -7686,11 +7682,6 @@ Symbol.prototype.toDomNode = function(cache) {
 
 //////////////////////////////////////////////////////////////////////
 
-
-
-
-
-
 // Keywords
 
 var Keyword = function(val) {
@@ -7699,12 +7690,12 @@ var Keyword = function(val) {
 
 var keywordCache = {};
     
-
 // makeInstance: string -> Keyword.
 Keyword.makeInstance = function(val) {
     // To ensure that we can eq? symbols with equal values.
-    if (!(hasOwnProperty.call(keywordCache, val))) {
+    if (!(val in keywordCache)) {
 	keywordCache[val] = new Keyword(val);
+    } else {
     }
     return keywordCache[val];
 };
@@ -9109,10 +9100,9 @@ GradientPart.prototype.toString = function() {
 
 };
 
-var MultiPart = function(text, locations, solid) {
+var MultiPart = function(text, locations) {
     this.text = text;
     this.locations = locations;
-    this.solid = solid;
 };
 
 var isMultiPart = function(o) {
@@ -9568,12 +9558,10 @@ State.prototype.save = function() {
 };
 
 
-var hasOwnProperty = {}.hasOwnProperty;
-
 var copyHash = function(hash) {
     var result = {};
     for (var key in hash) {
-	if (hasOwnProperty.call(hash, key)) {
+	if (hash.hasOwnProperty(key)) {
 	    result[key] = hash[key];
 	}
     }
@@ -9829,8 +9817,8 @@ var getStackTraceFromContinuationMarks = function(contMarkSet) {
 
 var isEqualHash = function(hash1, hash2) {
     for (var key in hash1) {
-	if (hasOwnProperty.call(hash1, key)) {
-	    if (hasOwnProperty.call(hash2, key)) {
+	if (hash1.hasOwnProperty(key)) {
+	    if (hash2.hasOwnProperty(key)) {
 		if (hash1[key] !== hash2[key]) {
 		    return false;
 		}
@@ -9840,8 +9828,8 @@ var isEqualHash = function(hash1, hash2) {
 	}
     }
     for (var key in hash2) {
-	if (hasOwnProperty.call(hash2, key)) {
-	    if (hasOwnProperty.call(hash1, key)) {
+	if (hash2.hasOwnProperty(key)) {
+	    if (hash1.hasOwnProperty(key)) {
 		if (hash1[key] !== hash2[key]) {
 		    return false;
 		}
@@ -9883,12 +9871,12 @@ var world = {};
     var augment = function(o, a) {
 	var oo = {};
 	for (var e in o) {
-	    if (Object.hasOwnProperty.call(o, e)) {
+	    if (o.hasOwnProperty(e)) {
 		oo[e] = o[e];
 	    }
 	}
 	for (var e in a) {
-	    if (Object.hasOwnProperty.call(a, e)) {
+	    if (a.hasOwnProperty(e)) {
 		oo[e] = a[e];
 	    }
 	}
@@ -10430,7 +10418,7 @@ if (typeof(world) === 'undefined') {
         C.prototype = obj;
         var c = new C();
         for (property in obj) {
-            if (Object.hasOwnProperty.call(obj, property)) {
+            if (obj.hasOwnProperty(property)) {
                 c[property] = obj[property];
             }
         }
@@ -10751,31 +10739,27 @@ if (typeof(world) === 'undefined') {
     SceneImage.prototype.render = function(ctx, x, y) {
         var i;
         var childImage, childX, childY;
-<<<<<<< Updated upstream
+        // create a clipping region around the boundaries of the Scene
         ctx.save();
-        ctx.fillStyle="white";
+        ctx.fillStyle = "rgba(0,0,0,0)";
         ctx.fillRect(x, y, this.width, this.height);
         ctx.restore();
-        
         ctx.save();
         ctx.rect(x, y, this.width, this.height);
         ctx.clip();
-=======
->>>>>>> Stashed changes
-        // Ask every object to render itself.
+
+        // Ask every object to render itself inside the region
         for(i = 0; i < this.children.length; i++) {
+            // then, render the child images
             childImage = this.children[i][0];
             childX = this.children[i][1];
             childY = this.children[i][2];
             childImage.render(ctx, childX + x, childY + y);
-<<<<<<< Updated upstream
-=======
-            ctx.restore();
->>>>>>> Stashed changes
         }
+ 
+        // unclip
         ctx.restore();
 
-        // Finally, draw the black border if withBorder is true
         if (this.withBorder) {
             ctx.strokeStyle = 'black';
             ctx.strokeRect(x, y, this.width, this.height);
@@ -11024,7 +11008,6 @@ if (typeof(world) === 'undefined') {
             y1 = Math.max(placeY, 0) - placeY;
             y2 = Math.max(placeY, 0);
         }
- 
         // calculate the vertices of this image by translating the verticies of the sub-images
         var i, v1 = img1.getVertices(), v2 = img2.getVertices(), xs = [], ys = [];
         for(i=0; i<v1.length; i++){
@@ -11081,19 +11064,47 @@ if (typeof(world) === 'undefined') {
     // TODO: special case for ellipse?
     var RotateImage = function(angle, img) {
         BaseImage.call(this);
-        var sin   = Math.sin(angle * Math.PI / 180);
-        var cos   = Math.cos(angle * Math.PI / 180);
+        var rad   = angle * Math.PI / 180;
+        var sin   = Math.sin(rad);
+        var cos   = Math.cos(rad);
         var width = img.getWidth();
         var height= img.getHeight();
  
-        // rotate each point as if it were rotated about (0,0)
-        var vertices = img.getVertices(), xs = [], ys = [];
-        for(var i=0; i<vertices.length; i++){
-            xs[i] = Math.round(vertices[i].x*cos - vertices[i].y*sin);
-            ys[i] = Math.round(vertices[i].x*sin + vertices[i].y*cos);
+        var vertices = img.getVertices(), xs = [], ys = [], translateX, translateY;
+ 
+        // special-case for a ellipse: calculate bounding box corners using code from
+        // http://stackoverflow.com/questions/87734/how-do-you-calculate-the-axis-aligned-bounding-box-of-an-ellipse
+        if(img instanceof EllipseImage){
+            var ux = width/2  * cos,
+                uy = width/2  * sin,
+                vx = height/2 * Math.cos(rad+Math.PI/2),
+                vy = height/2 * Math.sin(rad+Math.PI/2);
+ 
+            var bbox_halfwidth  = Math.sqrt(ux*ux + vx*vx),
+                bbox_halfheight = Math.sqrt(uy*uy + vy*vy);
+ 
+            xs = [img.width/2 - bbox_halfwidth,   width/2 + bbox_halfwidth,
+                  img.width/2 - bbox_halfwidth,   width/2 + bbox_halfwidth];
+            ys = [img.height/2 - bbox_halfheight, height/2 - bbox_halfheight,
+                  img.height/2 + bbox_halfheight, height/2 + bbox_halfheight];
+ 
+        } else {
+        // normal case for polygon: rotate each point as if it were rotated about (0,0)
+            for(var i=0; i<vertices.length; i++){
+                xs[i] = Math.round(vertices[i].x*cos - vertices[i].y*sin);
+                ys[i] = Math.round(vertices[i].x*sin + vertices[i].y*cos);
+            }
         }
  
-        // store the vertices as something private, so this.getVertices() will still return undefined
+        // figure out what translation is necessary to shift the vertices back to 0,0
+        translateX = Math.floor(-Math.min.apply( Math, xs ));
+        translateY = Math.floor(-Math.min.apply( Math, ys ));
+        for(var i=0; i<vertices.length; i++){
+            xs[i] += translateX;
+            ys[i] += translateY;
+       }
+ 
+        // store the vertices as something private, so the raw this.vertices will still be undefined
         this._vertices = zipVertices(xs,ys);
         var rotatedWidth  = Math.max.apply( Math, xs ) - Math.min.apply( Math, xs );
         var rotatedHeight = Math.max.apply( Math, ys ) - Math.min.apply( Math, ys );
@@ -11102,8 +11113,8 @@ if (typeof(world) === 'undefined') {
         this.width      = Math.floor(rotatedWidth);
         this.height     = Math.floor(rotatedHeight);
         this.angle      = angle;
-        this.translateX = Math.floor(-Math.min.apply( Math, xs ));
-        this.translateY = Math.floor(-Math.min.apply( Math, ys ));
+        this.translateX = translateX;
+        this.translateY = translateY;
     };
 
     RotateImage.prototype = heir(BaseImage.prototype);
@@ -11113,7 +11124,7 @@ if (typeof(world) === 'undefined') {
     // translate the canvas using the calculated values, then draw at the rotated (x,y) offset.
     RotateImage.prototype.render = function(ctx, x, y) {
         ctx.save();
-        ctx.translate(x+this.translateX, y + this.translateY);
+        ctx.translate(x+this.translateX, y+this.translateY);
         ctx.rotate(this.angle * Math.PI / 180);
         this.img.render(ctx, 0, 0);
         ctx.restore();
@@ -17462,7 +17473,7 @@ PRIMITIVES['place-image'] =
 								   [], 
 								   false);
           newScene = newScene.add(background, background.getWidth()/2, background.getHeight()/2);
-          newScene = newScene.add(picture, jsnums.toFixnum(x), background.getHeight() - jsnums.toFixnum(y));
+          newScene = newScene.add(picture, jsnums.toFixnum(x), jsnums.toFixnum(y));
 			    return newScene;
 			}
 		 });
@@ -20221,7 +20232,7 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 
 	    helpers.raise(
 		types.incompleteExn(types.exnFailContract,
-            new types.Message([new types.MultiPart("function call", [op, cp], true),
+            new types.Message([new types.MultiPart("function call", [op, cp]),
                                 ": expected function, given: ",
                                 new types.ColoredPart(procValue, locationList.first())
                                 ]),
@@ -20324,9 +20335,8 @@ var selectProcedureByArity = function(aState, n, procValue, operands) {
 			": expects ", 
 			''+(procValue.isRest ? 'at least ' : ''),
 			((procValue.locs != undefined) ? new types.MultiPart((procValue.numParams + " argument" + 
-							                      ((procValue.numParams == 1) ? '' : 's')), 
-							                     procValue.locs.slice(1),
-                                                                            false)
+							  ((procValue.numParams == 1) ? '' : 's')), 
+							  procValue.locs.slice(1))
 							:
 							(procValue.numParams + " argument" + 
 							  ((procValue.numParams == 1) ? '' : 's')))
