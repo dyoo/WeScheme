@@ -70,14 +70,14 @@ WeScheme is unable to find your program.
 
 <% if (aProgram != null) { %>
 <a id="runIt" class="linkbutton"
-   href="/run?publicId=<%= encodedId %>">Run it!</a>
+   href="/run?publicId=<%= encodedId %>">Play</a>
 <% } %>
 
 
 <% if (aProgram != null && isPublic) { %>
 <a id="viewSource" 
    class="linkbutton"
-   href="/openEditor?publicId=<%= encodedId %>">View source</a>
+   href="/openEditor?publicId=<%= encodedId %>">Edit</a>
 <% } %>
 
 <% if (false) { %>
