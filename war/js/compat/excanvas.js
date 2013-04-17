@@ -492,6 +492,8 @@ if (!document.createElement('canvas').getContext) {
     return gradient;
   };
 
+  // MODIFIED 4/17/13 by Emmanuel Schanzer, to include IE8 Fixes from
+  // http://dev.sencha.com/playpen/tm/excanvas-patch/
   contextPrototype.drawImage = function(image, var_args) {
     var dx, dy, dw, dh, sx, sy, sw, sh;
 
@@ -545,12 +547,10 @@ if (!document.createElement('canvas').getContext) {
 
     var W = 10;
     var H = 10;
+    var scaleX = scaleY = 1;
 
-    // For some reason that I've now forgotten, using divs didn't work
-    vmlStr.push(' <g_vml_:group',
-                ' coordsize="', Z * W, ',', Z * H, '"',
-                ' coordorigin="0,0"' ,
-                ' style="width:', W, 'px;height:', H, 'px;position:absolute;');
+    // Use a DIV instead of a vml group, to make things work on IE8 Standards
+    vmlStr.push(' <div style="position:absolute;');
 
     // If filters are necessary (rotation exists), create them
     // filters are bog-slow, so only create them if abbsolutely necessary
@@ -584,18 +584,33 @@ if (!document.createElement('canvas').getContext) {
     } else {
       vmlStr.push('top:', mr(d.y / Z), 'px;left:', mr(d.x / Z), 'px;');
     }
+    vmlStr.push(' ">' );
 
-    vmlStr.push(' ">' ,
-                '<g_vml_:image src="', image.src, '"',
-                ' style="width:', Z * dw, 'px;',
-                ' height:', Z * dh, 'px;"',
-                ' cropleft="', sx / w, '"',
-                ' croptop="', sy / h, '"',
-                ' cropright="', (w - sx - sw) / w, '"',
-                ' cropbottom="', (h - sy - sh) / h, '"',
-                ' />',
-                '</g_vml_:group>');
+    // Draw a special cropping div if needed
+    if (sx || sy) {
+    // Apply scales to width and height
+      vmlStr.push('<div style="overflow: hidden; width:', Math.ceil((dw + sx * dw / sw) * scaleX), 'px;',
+                  ' height:', Math.ceil((dh + sy * dh / sh) * scaleY), 'px;',
+                  ' filter:progid:DxImageTransform.Microsoft.Matrix(Dx=',
+                  -sx * dw / sw * scaleX, ',Dy=', -sy * dh / sh * scaleY, ');">');
+    }
 
+    vmlStr.push('<div style="width:', Math.round(scaleX * w * dw / sw), 'px;',
+                ' height:', Math.round(scaleY * h * dh / sh), 'px;',
+                ' filter:');
+ 
+    // If there is a globalAlpha, apply it to image
+    if(this.globalAlpha < 1) {
+      vmlStr.push(' progid:DXImageTransform.Microsoft.Alpha(opacity=' + (this.globalAlpha * 100) + ')');
+    }
+ 
+    vmlStr.push(' progid:DXImageTransform.Microsoft.AlphaImageLoader(src=', image.src, ',sizingMethod=scale)">');
+ 
+    // Close the crop div if necessary
+    if (sx || sy) vmlStr.push('</div>');
+    // Close the image div, and the containing div
+    vmlStr.push('</div></div>');
+ 
     this.clip_.insertAdjacentHTML('BeforeEnd',
                                     vmlStr.join(''));
   };
@@ -918,6 +933,7 @@ if (!document.createElement('canvas').getContext) {
     this.clip_.style.clip = 'rect('+top+'px,'+right+'px,'+bottom+'px,'+left+'px)';
     // replace the stack item with this new one, so all future drawing goes to the new clipping region
     this.cStack_[0] = this.clip_;
+
   };
 
   contextPrototype.arcTo = function() {
