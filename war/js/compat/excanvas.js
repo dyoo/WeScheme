@@ -278,7 +278,22 @@ if (!document.createElement('canvas').getContext) {
         return 'square';
     }
   }
-
+ var clipID = 0;
+  function createClip(el){
+ clipID++;
+    var clip = document.createElement('div');
+ clip.id = 'region'+clipID;
+    clip.style.width = el.style.width;
+    clip.style.height = el.style.height;
+    clip.style.left = '0px';
+    clip.style.right = '0px';
+    clip.style.position = 'absolute';
+    clip.style.padding = '0px';
+    clip.style.overflow = 'hidden';
+    el.appendChild(clip);
+    return clip;
+  }
+ 
   /**
    * This class implements CanvasRenderingContext2D interface as described by
    * the WHATWG.
@@ -290,6 +305,7 @@ if (!document.createElement('canvas').getContext) {
 
     this.mStack_ = [];
     this.aStack_ = [];
+    this.cStack_ = [];
     this.currentPath_ = [];
 
     // Canvas context properties
@@ -314,11 +330,14 @@ if (!document.createElement('canvas').getContext) {
     this.arcScaleX_ = 1;
     this.arcScaleY_ = 1;
     this.lineScale_ = 1;
+ 
+    this.clip_ = createClip(el);
+    this.cStack_.push(this.clip_);
   }
 
   var contextPrototype = CanvasRenderingContext2D_.prototype;
   contextPrototype.clearRect = function() {
-    this.element_.innerHTML = '';
+    this.clip_.innerHTML = '';
   };
 
   contextPrototype.beginPath = function() {
@@ -337,7 +356,6 @@ if (!document.createElement('canvas').getContext) {
   contextPrototype.lineTo = function(aX, aY) {
     var p = this.getCoords_(aX, aY);
     this.currentPath_.push({type: 'lineTo', x: p.x, y: p.y});
-
     this.currentX_ = p.x;
     this.currentY_ = p.y;
   };
@@ -578,7 +596,7 @@ if (!document.createElement('canvas').getContext) {
                 ' />',
                 '</g_vml_:group>');
 
-    this.element_.insertAdjacentHTML('BeforeEnd',
+    this.clip_.insertAdjacentHTML('BeforeEnd',
                                     vmlStr.join(''));
   };
 
@@ -762,7 +780,7 @@ if (!document.createElement('canvas').getContext) {
 
     lineStr.push('</g_vml_:shape>');
 
-    this.element_.insertAdjacentHTML('beforeEnd', lineStr.join(''));
+    this.clip_.insertAdjacentHTML('beforeEnd', lineStr.join(''));
   };
 
   contextPrototype.fill = function() {
@@ -789,12 +807,15 @@ if (!document.createElement('canvas').getContext) {
     copyState(this, o);
     this.aStack_.push(o);
     this.mStack_.push(this.m_);
+    this.cStack_.push(this.clip_);
+    this.clip_ = createClip(this.clip_);
     this.m_ = matrixMultiply(createMatrixIdentity(), this.m_);
   };
 
   contextPrototype.restore = function() {
     copyState(this.aStack_.pop(), this);
     this.m_ = this.mStack_.pop();
+    this.clip_ = this.cStack_.pop();
   };
 
   function matrixIsFinite(m) {
@@ -881,7 +902,22 @@ if (!document.createElement('canvas').getContext) {
 
   /******** STUBS ********/
   contextPrototype.clip = function() {
-    // TODO: Implement
+    // skip if there's nothing to clip
+    if(!this.currentPath_ || this.currentPath_.length == 0) return;
+    // otherwise, clip using the path's bounding box
+    var path = this.currentPath_;
+    var xs = [], ys = [];
+    for(var i=1; i<path.length; i++){
+      if(path[i].type == 'close') continue;
+      xs.push(path[i].x/Z + Z2); // inexplicably make up for use of Z's in getCoords_
+      ys.push(path[i].y/Z + Z2); // inexplicably make up for use of Z's in getCoords_
+    }
+    var left = Math.min.apply(Math, xs), right = Math.max.apply(Math, xs),
+        top = Math.min.apply(Math, ys), bottom = Math.max.apply(Math, ys);
+    this.clip_ = createClip(this.clip_);
+    this.clip_.style.clip = 'rect('+top+'px,'+right+'px,'+bottom+'px,'+left+'px)';
+    // replace the stack item with this new one, so all future drawing goes to the new clipping region
+    this.cStack_[0] = this.clip_;
   };
 
   contextPrototype.arcTo = function() {
