@@ -364,7 +364,7 @@ var WeSchemeEditor;
             that.suppressWarningBeforeUnloadE.sendEvent(true);
             plt.wescheme.WeSchemeIntentBus.notify("before-editor-reload-on-save", that)
 	    window.location = 
-		"/openEditor?pid=" + encodeURIComponent(pid);
+		"/openEditor?publicId=" + encodeURIComponent(pid); //// Changed to publicId from pid in order to use string ids from drive
         };
 	
 

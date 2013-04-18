@@ -1,26 +1,21 @@
 package org.wescheme.project;
 
-import java.util.ArrayList;
-
-import javax.jdo.PersistenceManager;
+import java.lang.reflect.Type;
 
 import org.jdom.Element;
-import org.mortbay.log.Log;
 import org.wescheme.util.XML;
 
 import com.google.api.services.drive.model.File;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 
 public class DriveProgram {
-	/*this.title_ = "Unknown";
-	this.srcs_ = new ArrayList<SourceCode>();
-	this.srcs_.add(new SourceCode(this.title_, src));
-	this.obj_ = new ObjectCode();
-	this.isSourcePublic = false;
-	this.isDeleted = false;
-	this.owner_ 	= ownerName;
-	this.author_ = owner_;
-	this.backlink_ = null;*/
 	private String title;
 	private SourceCode source;
 	private boolean isSourcePublic;
@@ -28,6 +23,8 @@ public class DriveProgram {
 	private String owner;
 	private String author;
 	private String fileId;
+	//// Missing backlink from Wescheme Program object
+	//// FIXME maintain last modified date/time
 	
 	public DriveProgram() {}
 	
@@ -54,7 +51,6 @@ public class DriveProgram {
 		DriveProgram p = new DriveProgram();
 		p.setTitle(file.getTitle());
 		p.setId(file.getId());
-		//// FIXME add any other information that's necessary
 		return p;
 	}
 	
@@ -115,21 +111,18 @@ public class DriveProgram {
 	
 	public String getJsonRepresentation()
 	{
-		Gson gson = new Gson();
-		return gson.toJson(this);
+		GsonBuilder gson = new GsonBuilder();
+		gson.registerTypeAdapter(SourceCode.class, new SourceSerializer());
+		return gson.create().toJson(this);
 	}
 	  /**
 	   * @return Representation of this ClientFile as a Drive file.
 	   */
 	  public File toFile() {
 	    File file = new File();
-	    ////file.setId(resource_id);  // on create this doesn't have one
 	    file.setTitle(title);
-	    //file.setDescription(description);
 	    file.setMimeType("application/json");
-	    //file.setLabels(labels);
 	    file.setEditable(true);
-	    //file.setParents(parents);
 	    file.setFileExtension("wescheme");
 	    return file;
 	  }
@@ -138,16 +131,28 @@ public class DriveProgram {
 	  {
 		  Element root = new Element("ProgramDigest");
 
-		  ////FIXME use correct ids
-		  root.addContent(XML.makeElement("id", getId()));		
-		  //if(program.getPublicId() != null)
-			//  root.addContent(XML.makeElement("publicId", program.getPublicId()));
-		  root.addContent(XML.makeElement("title", getTitle() + "(" + getId() + ")")); // Id for testing purposes
+		  root.addContent(XML.makeElement("id", getId()));	
+		  root.addContent(XML.makeElement("title", getTitle())); 
 		  root.addContent(XML.makeElement("owner", getOwner()));
 		  root.addContent(XML.makeElement("author", getAuthor()));
 		  ////root.addContent(XML.makeElement("modified", getTime()));
 		  root.addContent(XML.makeElement("published", isSourcePublic()));
 		  return root;
 	  }
+	  
+
+	    
+	    private class SourceSerializer implements JsonSerializer<SourceCode> {
+			@Override
+			public JsonElement serialize(SourceCode src, Type typeOfSrc,
+					JsonSerializationContext context) throws JsonParseException  {
+				JsonObject sourceElmt = new JsonObject();
+				JsonElement code = new JsonPrimitive(src.toString());
+				JsonElement name = new JsonPrimitive(src.getName());
+				sourceElmt.add("src", code);
+				sourceElmt.add("name", name);
+				return sourceElmt;
+			}
+	    }
 	
 }
