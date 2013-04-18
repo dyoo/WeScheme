@@ -76,9 +76,9 @@
 
 
     <!-- evaluator -->
-    <script src="/js/whalesong/collects/runtime.js" type="text/javascript"></script>
-    <script src="/js/whalesong/collects/library.js" type="text/javascript"></script>
-    <script src="/js/whalesong/repl.js" type="text/javascript"></script>
+    <script src="/js/whalesong/collects/runtime-min.js" type="text/javascript"></script>
+    <script src="/js/whalesong/collects/library-min.js" type="text/javascript"></script>
+    <script src="/js/whalesong/repl-min.js" type="text/javascript"></script>
 
 
 

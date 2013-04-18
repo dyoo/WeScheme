@@ -27,7 +27,7 @@
         if (! that._xhr) { 
             that._xhr = new easyXDM.Rpc(
                 { remote: that.compilerUrl || 'rpc.html' },
-                { remote: { replCompile: {} } });
+                { remote: { replCompile: {}, moduleCompile: {} } });
         }
         return that._xhr;
     };
@@ -133,7 +133,20 @@
 
     Repl.prototype.compileProgram = function(programName, code,
                                              onDone, onDoneError) {
-        getXhr(this).replCompile(programName, code, onDone, onDoneError);
+        var that = this;
+        getXhr(this).replCompile(
+            programName, 
+            code,
+            onDone, 
+            function(err) {
+                // If we get a 503, try again.
+                if (err.status == 503) {
+                    that.compileProgram(programName, code,
+                                        onDone, onDoneError);
+                } else {
+                    onDoneError(err);
+                }
+            });
     };
 
 
@@ -142,7 +155,7 @@
         var that = this;
         if (compiledResult.type === 'error') {
             return onDoneFail(compiledResult);
-        } else {
+        } else if (compiledResult.type === 'repl') {
             // compiledResult.compiledCodes is an array of function chunks.
             // The evaluation leaves the value register of the machine
             // to contain the list of values from toplevel evaluation.
@@ -152,10 +165,14 @@
                          // Indirect eval usage here is deliberate.
                          var codeFunction = (0,eval)(code);
                          var onGoodEvaluation = function() {
-                             var resultList = that.M.v;
-                             while(resultList !== plt.baselib.lists.EMPTY) {
-                                 print(that, resultList.first);
-                                 resultList = resultList.rest;
+                             var resultCount = that.M.a;
+                             var results = [];
+                             var i;
+                             for (i = 0; i < resultCount; i++) {
+                                 results.push(that.M.e[that.M.e.length - 1 - i]);
+                             }
+                             for (i = 0; i < results.length; i++) {
+                                 print(that, results[i]);
                              };
                              k();
                          };
@@ -165,6 +182,10 @@
                          codeFunction(that.M, onGoodEvaluation, onBadEvaluation);
                      },
                      onDoneSuccess);
+        } else if (compiledResult.type === 'module') {
+            throw new Error("internal error: not yet implemented");
+        } else {
+            throw new Error("internal error: unexpected compilation result");
         }
     };
 
