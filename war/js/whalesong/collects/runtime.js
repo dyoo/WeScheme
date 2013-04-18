@@ -4648,7 +4648,7 @@ if (!(this.plt)) { this.plt = {}; }
         }
 
         if (baselib.functions.isProcedure(x)) {
-            return '#<procedure:' + x.displayName + '>';
+            return '#<function:' + x.displayName + '>';
         }
 
         if (typeof(x) !== 'object' && typeof(x) !== 'function') {
@@ -4691,7 +4691,7 @@ if (!(this.plt)) { this.plt = {}; }
         }
 
         if (baselib.functions.isProcedure(x)) {
-            return '#<procedure:' + x.displayName + '>';
+            return '#<function:' + x.displayName + '>';
         }
 
         if (typeof(x) !== 'object' && typeof(x) !== 'function') {
@@ -4995,7 +4995,7 @@ if (!(this.plt)) { this.plt = {}; }
 
         if (baselib.functions.isProcedure(x)) {
             node = document.createElement("span");
-            node.appendChild(document.createTextNode('#<procedure:' + x.displayName + '>'));
+            node.appendChild(document.createTextNode('#<function:' + x.displayName + '>'));
             $(node).addClass("procedure");
             return node;
         }
@@ -5363,7 +5363,6 @@ if (!(this.plt)) { this.plt = {}; }
             dottedPair = true;
             subelts.push(params.recur(p));
         }
-
 
         if (params.getMode() === 'constructor') {
             if (dottedPair) {
@@ -7860,7 +7859,6 @@ var LLRBTree = {};
             node.append(params.recur(this._fields[i]));
         }
         node.append($('<span/>').text(")").addClass('rParen'));
-        console.log(node);
         return node.get(0);
     };
 
@@ -8538,7 +8536,6 @@ var LLRBTree = {};
                     "Not a procedure: ~e",
                     [proc]),
                 MACHINE.captureContinuationMarks()));
-
         }
 
         oldVal = MACHINE.v;
@@ -8884,22 +8881,35 @@ var LLRBTree = {};
 
     // A continuation prompt tag labels a prompt frame.
     var ContinuationPromptTag = function(name) {
-	this.name = name;         // String
+	this.name = name;         // (U String false)
 
     };
 
     ContinuationPromptTag.prototype.toDomNode = function(params) {
         var dom = document.createElement("span");
-        dom.appendChild(document.createTextNode('#<continuation-prompt-tag:' + this.name + '>'));
+        if (this.name) {
+            dom.appendChild(document.createTextNode('#<continuation-prompt-tag:' 
+                                                    + this.name + '>'));
+        } else {
+            dom.appendChild(document.createTextNode('#<continuation-prompt-tag>'));
+        }
         return dom;
     };
 
     ContinuationPromptTag.prototype.toWrittenString = function(cache) {
-        return '#<continuation-prompt-tag' + this.name + '>';
+        if (this.name) {
+            return '#<continuation-prompt-tag' + this.name + '>';
+        } else {
+            return '#<continuation-prompt-tag>';
+        }
     };
 
     ContinuationPromptTag.prototype.toDisplayedString = function(cache) {
-        return '#<continuation-prompt-tag' + this.name + '>';
+        if (this.name) {
+            return '#<continuation-prompt-tag' + this.name + '>';
+        } else {
+            return '#<continuation-prompt-tag>';
+        }
     };
 
 
@@ -12466,7 +12476,7 @@ var LLRBTree = {};
                 sym = checkSymbol(M, "make-continuation-prompt-tag", 0);
                 return new baselib.contmarks.ContinuationPromptTag(sym.toString());
             }
-            return new baselib.contmarks.ContinuationPromptTag(void(0));
+            return new baselib.contmarks.ContinuationPromptTag(false);
         });
 
     installPrimitiveProcedure(
@@ -12801,7 +12811,9 @@ var LLRBTree = {};
         });
 
 
-
+    // The default prompt handler for a given prompt tag will assume
+    // it's consuming a zero-argument thunk, and will call it in a
+    // context where that prompt has been reestablished.
     var makeDefaultPromptHandler = function(promptTag) {
         return makeClosure(
             "default-prompt-handler",
@@ -12816,6 +12828,29 @@ var LLRBTree = {};
             },
             []);
     };
+
+
+    // FIXME: we should be able to take in an arbitrary continuation
+    // as an optional second argument!
+    //
+   // I need to change the representation of continuations to be able to
+    // detect this at runtime.
+    installPrimitiveProcedure(
+        'continuation-prompt-available?',
+        1,
+        function(M) {
+            var promptTag = checkPromptTag(M, 'continuation-prompt-available?', 0);
+            var i;
+            for (i = 0; i < M.c.length; i++) {
+                var frame = M.c[i];
+                if (frame instanceof PromptFrame && frame.tag === promptTag) {
+                    return true;
+                }
+            }
+            return false;
+        });
+
+
 
     // The default abort prompt handler consumes a thunk and applies
     // it, in a context where a new prompt has been initialized.
@@ -12838,7 +12873,7 @@ var LLRBTree = {};
             // First, find the continuation prompt.
             while(true) {
                 frame = M.c.pop();
-                if (frame instanceof PromptFrame) {
+                if (frame instanceof PromptFrame && frame.tag === promptTag) {
                     break;
                 } else if (M.c.length === 0) {
                     raiseContractError(
@@ -12868,7 +12903,7 @@ var LLRBTree = {};
             if (M.a >= 2) {
                 promptTag = checkPromptTag(M, 'call-with-continuation-prompt', 1);
             } else {
-                promptTag = DEFAULT_CONTINUATION_PROMPT_TAG;
+                promptTag = baselib.contmarks.DEFAULT_CONTINUATION_PROMPT_TAG;
             }
             if (M.a >= 3) {
                 if (M.e[M.e.length - 1 - 3] === false) {
@@ -12877,7 +12912,11 @@ var LLRBTree = {};
                     handler = checkProcedure(M, 'call-with-continuation-prompt', 2);
                 }
             } else {
-                handler = makeDefaultPromptHandler(promptTag);
+                if (promptTag === baselib.contmarks.DEFAULT_CONTINUATION_PROMPT_TAG) {
+                    handler = defaultPromptHandler;
+                } else {
+                    handler = makeDefaultPromptHandler(promptTag);
+                }
             }
 
             M.p = proc;
@@ -13256,8 +13295,8 @@ var LLRBTree = {};
                                                  fail(err);
                                              });
             },
-            function() {
-                fail();
+            function(err) {
+                fail(err);
             });
     };
 
@@ -13401,7 +13440,7 @@ var LLRBTree = {};
     };
     Machine.prototype.addPrompt = function(promptTag, abortHandlerClosure) {
         this.c.push(new PromptFrame(justReturn,
-                                    DEFAULT_CONTINUATION_PROMPT_TAG,
+                                    promptTag,
                                     this.e.length,
                                     abortHandlerClosure));
     };

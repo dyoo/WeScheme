@@ -789,7 +789,6 @@ WeSchemeInteractions = (function () {
     // renderErrorAsDomNode: WeSchemeInteractions exception -> element
     // Given an exception, produces error dom node to be displayed.
     var renderErrorAsDomNode = function(that, err) {
-        console.log(err);
         var msg;
         var i;
         var dom = document.createElement('div');
