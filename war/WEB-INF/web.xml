@@ -309,6 +309,16 @@
     <servlet-name>driveLogin</servlet-name>
     <url-pattern>/driveLogin</url-pattern>
   </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>driveEntry</servlet-name>
+    <servlet-class>org.wescheme.servlet.DriveEntryServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>driveEntry</servlet-name>
+    <url-pattern>/driveEntry</url-pattern>
+  </servlet-mapping>
+  
 
 
 </web-app>

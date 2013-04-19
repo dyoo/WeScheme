@@ -175,7 +175,7 @@ goog.require('plt.wescheme.Program');
   		     type: "POST",
   		     url: "/saveProject",
   		     success: function(data) {
-			 var newPid = parseInt(data);
+			 var newPid = data; //// Changed from parseInt()
 			 onSuccess(newPid);
 		     },
 		     error: function(xhr) {

@@ -80,7 +80,7 @@ var addProgramEntry = function(digest, aProgramDigest, programListUl) {
     var anchor = jQuery("<span/>")
 	.addClass("ProgramTitle")
 	.append(jQuery("<a/>")
-		.attr("href", "/openEditor?pid="+id)
+		.attr("href", "/openEditor?publicId="+id)
 		.attr("target", "_editor" + id)
 		.text(title));
 

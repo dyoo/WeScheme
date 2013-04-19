@@ -1,6 +1,7 @@
 package org.wescheme.servlet;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 import javax.jdo.PersistenceManager;
 import javax.servlet.http.HttpServlet;
@@ -13,11 +14,18 @@ import org.wescheme.user.SessionManager;
 import org.wescheme.util.PMF;
 import org.wescheme.util.Queries;
 
+import com.google.api.client.googleapis.json.GoogleJsonResponseException;
+import com.google.api.client.http.GenericUrl;
+import com.google.api.client.http.HttpResponse;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.File;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.datastore.KeyFactory;
+
+import java.util.Scanner;
 import java.util.logging.Logger;
 
-public class LoadProjectServlet extends HttpServlet {
+public class LoadProjectServlet extends BaseServlet {
 
     /**
      * Returns program output if either pid or publicId is provided.
@@ -53,7 +61,9 @@ public class LoadProjectServlet extends HttpServlet {
                     resp.sendError(403);
                 }					
             } else if (req.getParameter("publicId") != null) {
-                Program prog = getProgramByPublicId(pm, req.getParameter("publicId"));
+            	//// FIXME Decide whether drive program ids are actually public ids
+            	//// and remove code that uses legacy programs if they are no longer used
+                /*Program prog = getProgramByPublicId(pm, req.getParameter("publicId"));
                 if (isOwner(userSession, prog) || prog.getIsSourcePublic()) {
                     resp.setContentType("text/json");
                     resp.getWriter().print(prog.toJSON(pm).toString());
@@ -61,7 +71,8 @@ public class LoadProjectServlet extends HttpServlet {
                     // Show the record, but without source.
                     resp.setContentType("text/json");
                     resp.getWriter().print(prog.toJSON(false, pm).toString());
-                }
+                }*/
+            	getAndPutDriveProgram(req.getParameter("publicId"), req, resp);
             } else {
                 resp.sendError(400, "pid or publicId parameter missing");
                 return;
@@ -69,6 +80,57 @@ public class LoadProjectServlet extends HttpServlet {
         } finally {
             pm.close();
         }
+    }
+    
+    private void getAndPutDriveProgram(String programId, HttpServletRequest req, HttpServletResponse resp) throws IOException
+    {
+    	Drive service = getDriveService(req, resp);
+    	File file = null;
+    	try {
+    		file = service.files().get(programId).execute();
+    	} catch (GoogleJsonResponseException e) {
+    		if (e.getStatusCode() == 401) {
+    			// The user has revoked our token or it is otherwise bad.
+    			// Delete the local copy so that their next page load will recover.
+    			deleteCredential(req, resp);
+    			sendError(resp, 401, "Unauthorized");
+    			return;
+    		}
+    	}
+
+    	if (file != null) {
+    		String content = downloadFileContent(service, file);
+    		if (content == null) {
+    			content = "";
+    		}
+    		resp.setContentType(JSON_MIMETYPE);
+    		//resp.getWriter().print(DriveProgram.fromJson(file, content));
+    		resp.getWriter().print(content); //// May need to convert into wescheme Program object
+    	} else {
+    		sendError(resp, 404, "File not found");
+    	}
+    }
+
+
+    /**
+     * Download the content of the given file.
+     *
+     * @param service Drive service to use for downloading.
+     * @param file File metadata object whose content to download.
+     * @return String representation of file content.  String is returned here
+     *         because this app is setup for text/plain files.
+     * @throws IOException Thrown if the request fails for whatever reason.
+     */
+    private String downloadFileContent(Drive service, File file)
+    		throws IOException {
+    	GenericUrl url = new GenericUrl(file.getDownloadUrl());
+    	HttpResponse response = service.getRequestFactory().buildGetRequest(url)
+    			.execute();
+    	try {
+    		return new Scanner(response.getContent()).useDelimiter("\\A").next();
+    	} catch (java.util.NoSuchElementException e) {
+    		return "";
+    	}
     }
 	
     private Program getProgramByPid(PersistenceManager pm, String pid) {
