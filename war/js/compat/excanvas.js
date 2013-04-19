@@ -184,6 +184,7 @@ if (!document.createElement('canvas').getContext) {
     clip.style.position = 'absolute';
     clip.style.padding = '0px';
     clip.style.overflow = 'hidden';
+    clip.style.display = 'inline';
     el.appendChild(clip);
     return clip;
   }
@@ -537,10 +538,6 @@ if (!document.createElement('canvas').getContext) {
       computedStyle[p] = style[p];
     }
                                                     
-    if(computedStyle.family && computedStyle.family.indexOf(' ')>-1){
-      computedStyle.family = computedStyle.family.split(' ')[1];
-    }
-
     // Compute the size
     var canvasFontSize = parseFloat(element.currentStyle.fontSize),
         fontSize = parseFloat(style.size);
@@ -805,7 +802,6 @@ if (!document.createElement('canvas').getContext) {
     // get the original size
     var w = image.width;
     var h = image.height;
-                                                    alert('original WxH:'+w+'x'+h);
 	
     // and remove overides
     if(rts) {
@@ -1277,8 +1273,7 @@ if (!document.createElement('canvas').getContext) {
         offset = {x: 0, y: 0},
         lineStr = [];
 
-    var fontStyle = getComputedStyle(processFontStyle(this.font),
-                                     this.clip_);
+    var fontStyle = getComputedStyle(processFontStyle(this.font), this.clip_);
 
     var vmlStyleString = fontStyle.style + ' ' + fontStyle.variant + ' ' + fontStyle.weight + ' ' +
                           fontStyle.size + 'px ' + fontStyle.family;
@@ -1370,7 +1365,7 @@ if (!document.createElement('canvas').getContext) {
   contextPrototype.measureText = function(text) {
     if (!this.textMeasureEl_) {             
       var s = '<span style="position:absolute;' +
-          'top:-20000px;left:0;padding:0;margin:0;border:none;' +
+          'top:-2000px;left:0px;padding:0;margin:0;border:none;' +
           'white-space:pre;"></span>';
       document.body.insertAdjacentHTML('beforeEnd', s);
       this.textMeasureEl_ = document.body.lastChild;
