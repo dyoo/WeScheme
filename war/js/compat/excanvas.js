@@ -175,16 +175,15 @@ if (!document.createElement('canvas').getContext) {
   };
 
   function createClip(el){
-    var clip = document.createElement('div');
-    clip.className = 'ExCanvasClippingDiv';
-    clip.style.width = el.style.width;
-    clip.style.height = el.style.height;
-    clip.style.left = '0px';
-    clip.style.right = '0px';
+    var clip            = document.createElement('div');
+    clip.className      = 'ExCanvasClippingDiv';
+    clip.style.width    = el.style.width;
+    clip.style.height   = el.style.height;
+    clip.style.left     = '0px';
+    clip.style.right    = '0px';
     clip.style.position = 'absolute';
-    clip.style.padding = '0px';
+    clip.style.padding  = '0px';
     clip.style.overflow = 'hidden';
-    clip.style.display = 'inline';
     el.appendChild(clip);
     return clip;
   }
@@ -269,7 +268,6 @@ if (!document.createElement('canvas').getContext) {
     o2.arcScaleX_    = o1.arcScaleX_;
     o2.arcScaleY_    = o1.arcScaleY_;
     o2.lineScale_    = o1.lineScale_;
-	  o2.rotation_	   = o1.rotation_; // used for images
   }
 
   var colorData = {
@@ -616,8 +614,7 @@ if (!document.createElement('canvas').getContext) {
     this.arcScaleX_ = 1;
     this.arcScaleY_ = 1;
     this.lineScale_ = 1;
-  	this.rotation_ = 0;
-                                                    
+    // for clipping
     this.clip_ = createClip(canvasElement);
     this.cStack_.push(this.clip_);
 
@@ -851,50 +848,33 @@ if (!document.createElement('canvas').getContext) {
     // FIX: divs give better quality then vml image and also fixes transparent PNG's
     vmlStr.push(' <div style="position:absolute;');
 
-    // If filters are necessary (rotation exists), create them
-    // filters are bog-slow, so only create them if abbsolutely necessary
-    // The following check doesn't account for skews (which don't exist
-    // in the canvas spec (yet) anyway.
-                                                    
-    if (this.m_[0][0] != 1 || this.m_[0][1] ||
-        this.m_[1][1] != 1 || this.m_[1][0]) {
-      var filter = [];
-
-      // Scaling images using width & height instead of Transform Matrix
-      // because of quality loss
-      var c = mc(this.rotation_);	
-      var s = ms(this.rotation_);
+      // If filters are necessary (rotation exists), create them
+      // filters are bog-slow, so only create them if abbsolutely necessary
+      // The following check doesn't account for skews (which don't exist
+      // in the canvas spec (yet) anyway.
       
-      // Inverse rotation matrix
-      var irm = [
-        [c,  -s, 0],
-        [s, c, 0],
-        [0,  0, 1]
-      ];	
-	
-      // Get unrotated matrix to get only scaling values
-      var urm = matrixMultiply(irm, this.m_);	  
-      scaleX = urm[0][0];
-      scaleY = urm[1][1];
-    
-      // Apply only rotation and translation to Matrix
-      filter.push('M11=', c, ',',
-                  'M12=', -s, ',',
-                  'M21=', s, ',',
-                  'M22=', c, ',',
-                  'Dx=', d.x / Z, ',',
-                  'Dy=', d.y / Z);
-
+      if (this.m_[0][0] != 1 || this.m_[0][1] ||
+          this.m_[1][1] != 1 || this.m_[1][0]) {
+      var filter = [];
+      
+      // Note the 12/21 reversal
+      filter.push('M11=', this.m_[0][0], ',',
+                  'M12=', this.m_[1][0], ',',
+                  'M21=', this.m_[0][1], ',',
+                  'M22=', this.m_[1][1], ',',
+                  'Dx=', mr(d.x / Z), ',',
+                  'Dy=', mr(d.y / Z), '');
+      
       // Bounding box calculation (need to minimize displayed area so that
       // filters don't waste time on unused pixels.
       var max = d;
       var c2 = getCoords(this, dx + dw, dy);
       var c3 = getCoords(this, dx, dy + dh);
       var c4 = getCoords(this, dx + dw, dy + dh);
-
+      
       max.x = m.max(max.x, c2.x, c3.x, c4.x);
       max.y = m.max(max.y, c2.y, c3.y, c4.y);
-
+      
       vmlStr.push('padding:0 ', mr(max.x / Z), 'px ', mr(max.y / Z),
                   'px 0;filter:progid:DXImageTransform.Microsoft.Matrix(',
                   filter.join(''), ", sizingmethod='clip');");
@@ -1217,8 +1197,6 @@ if (!document.createElement('canvas').getContext) {
     var c = mc(aRot);
     var s = ms(aRot);
 
-    this.rotation_ += aRot;
-	
     var m1 = [
       [c,  s, 0],
       [-s, c, 0],
@@ -1275,7 +1253,7 @@ if (!document.createElement('canvas').getContext) {
 
     var fontStyle = getComputedStyle(processFontStyle(this.font), this.clip_);
 
-    var vmlStyleString = fontStyle.style + ' ' + fontStyle.variant + ' ' + fontStyle.weight + ' ' +
+    var fontStyleString = fontStyle.style + ' ' + fontStyle.variant + ' ' + fontStyle.weight + ' ' +
                           fontStyle.size + 'px ' + fontStyle.family;
 
     var elementStyle = this.clip_.currentStyle;
@@ -1348,7 +1326,7 @@ if (!document.createElement('canvas').getContext) {
                  '<g_vml_:textpath on="true" string="',
                  encodeHtmlAttribute(text),
                  '" style="v-text-align:', textAlign,
-                 ';font:', encodeHtmlAttribute(vmlStyleString),
+                 ';font:', encodeHtmlAttribute(fontStyleString),
                  '" /></g_vml_:line>');
 
     this.clip_.insertAdjacentHTML('beforeEnd', lineStr.join(''));
@@ -1365,7 +1343,7 @@ if (!document.createElement('canvas').getContext) {
   contextPrototype.measureText = function(text) {
     if (!this.textMeasureEl_) {             
       var s = '<span style="position:absolute;' +
-          'top:-2000px;left:0px;padding:0;margin:0;border:none;' +
+          'top:-20000px;left:0px;padding:0;margin:0;border:none;' +
           'white-space:pre;"></span>';
       document.body.insertAdjacentHTML('beforeEnd', s);
       this.textMeasureEl_ = document.body.lastChild;
