@@ -120,23 +120,32 @@
             // divide that by the number of keys to get the avg key width, then subtract some padding for space between keys
             // maximum limits on width, and height/width ratios are specific to orientation
             keyWidth  = Math.min(Math.round(window.innerWidth/keyConfig.length), isLandscape? 85 : 65) - 13;
-            keyHeight = 0.75*keyWidth;
+            keyHeight = Math.min(28, 0.75*keyWidth);
             keyboardHeight = isLandscape? 380 : 290;
             for(i=0; i < keyList.childNodes.length; i++){
                 keyList.childNodes[i].style.width     = keyWidth+"px";
                 keyList.childNodes[i].style.lineHeight= keyHeight+"px";
+                keyList.childNodes[i].style.height    = keyHeight+"px";
                 keyList.childNodes[i].style.fontSize  = (0.5*keyHeight)+"px";
             }
             keyList.style.position = 'absolute';
             keyList.style.display = 'block';
             keyList.style.bottom = (keyboardHeight - (window.pageYOffset)) + "px";
+            footer.style.height = keyList.offsetHeight + "px";
+            footer.style.width = "100%";
+            footer.style.display = keysVisible? 'block' : 'none';
         };
 
 
         /*****************************************************************************************
          *    Connect Event Handlers                                                           */
-        var _onBlur = cm.getOption('onBlur');
-        var _onFocus = cm.getOption('onFocus');
+        var _onBlur = cm.getOption('onBlur'),
+            _onFocus = cm.getOption('onFocus'),
+            footer = document.createElement("div");
+        footer.style.position = "absolute";
+        footer.style.top = window.innerWidth;
+        footer.style.display = "none";
+        document.body.appendChild(footer);
         cm.on("blur",function(cm, blur) {
                          if (_onBlur) { _onBlur(); }
                          keysVisible = false; 
