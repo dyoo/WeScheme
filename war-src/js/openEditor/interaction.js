@@ -209,9 +209,6 @@ WeSchemeInteractions = (function () {
                 that.interactions.previousInteractionsTextContainers[newId] = container;
                 that.interactions.runCode(nextCode, newId, function() {});
             });
-        //calling that.focus() doesn't work - the codeMirror box looks focused, but you can't type into it
-        //if I focus on something else first, everything works fine
-        n.focus();
         that.focus();
     };
 
