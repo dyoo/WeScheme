@@ -562,8 +562,8 @@ if (!document.createElement('canvas').getContext) {
   }
                                                     
   function buildStyle(style) {
-    return style.style + ' ' + style.variant + ' ' + style.weight +
-        ' ' + style.size + 'px ' + style.family;
+    return style.style + ' ' + style.variant + ' ' + style.weight + ' ' +
+        style.size + 'px ' + style.family;
   }
 
   var lineCapMap = {
@@ -615,13 +615,12 @@ if (!document.createElement('canvas').getContext) {
     overlayEl.style.filter = 'alpha(opacity=0)';
     canvasElement.appendChild(overlayEl);
 
-    this.element_ = el;
     this.arcScaleX_ = 1;
     this.arcScaleY_ = 1;
     this.lineScale_ = 1;
     // for clipping
-    this.clip_ = createClip(canvasElement);
-    this.cStack_.push(this.clip_);
+    this.element_ = createClip(canvasElement);
+    this.cStack_.push(this.element_);
 
   }
 
@@ -631,7 +630,7 @@ if (!document.createElement('canvas').getContext) {
       this.textMeasureEl_.removeNode(true);
       this.textMeasureEl_ = null;
     }
-    this.clip_.innerHTML = '';
+    this.element_.innerHTML = '';
   };
 
   contextPrototype.beginPath = function() {
@@ -916,7 +915,7 @@ if (!document.createElement('canvas').getContext) {
     
     vmlStr.push('</div></div>');
     
-    this.clip_.insertAdjacentHTML('beforeEnd', vmlStr.join(''));
+    this.element_.insertAdjacentHTML('beforeEnd', vmlStr.join(''));
   };
 
   contextPrototype.stroke = function(aFill) {
@@ -1003,7 +1002,7 @@ if (!document.createElement('canvas').getContext) {
 
     lineStr.push('</g_vml_:shape>');
 
-    this.clip_.insertAdjacentHTML('beforeEnd', lineStr.join(''));
+    this.element_.insertAdjacentHTML('beforeEnd', lineStr.join(''));
   };
 
   function appendStroke(ctx, lineStr) {
@@ -1153,8 +1152,8 @@ if (!document.createElement('canvas').getContext) {
     copyState(this, o);
     this.aStack_.push(o);
     this.mStack_.push(this.m_);
-    this.cStack_.push(this.clip_);
-    this.clip_ = createClip(this.clip_);
+    this.cStack_.push(this.element_);
+    this.element_ = createClip(this.element_);
     this.m_ = matrixMultiply(createMatrixIdentity(), this.m_);
   };
 
@@ -1162,7 +1161,7 @@ if (!document.createElement('canvas').getContext) {
     if (this.aStack_.length) {
       copyState(this.aStack_.pop(), this);
       this.m_ = this.mStack_.pop();
-      this.clip_ = this.cStack_.pop();
+      this.element_ = this.cStack_.pop();
     }
   };
 
@@ -1256,11 +1255,12 @@ if (!document.createElement('canvas').getContext) {
         offset = {x: 0, y: 0},
         lineStr = [];
 
-    var fontStyle = getComputedStyle(processFontStyle(this.font), this.clip_);
+    var fontStyle = getComputedStyle(processFontStyle(this.font),
+                                     this.element_);
 
     var fontStyleString = buildStyle(fontStyle);
 
-    var elementStyle = this.clip_.currentStyle;
+    var elementStyle = this.element_.currentStyle;
     var textAlign = this.textAlign.toLowerCase();
     switch (textAlign) {
       case 'left':
@@ -1333,7 +1333,7 @@ if (!document.createElement('canvas').getContext) {
                  ';font:', encodeHtmlAttribute(fontStyleString),
                  '" /></g_vml_:line>');
 
-    this.clip_.insertAdjacentHTML('beforeEnd', lineStr.join(''));
+    this.element_.insertAdjacentHTML('beforeEnd', lineStr.join(''));
   };
 
   contextPrototype.fillText = function(text, x, y, maxWidth) {
@@ -1347,14 +1347,14 @@ if (!document.createElement('canvas').getContext) {
   contextPrototype.measureText = function(text) {
     if (!this.textMeasureEl_) {             
       var s = '<span style="position:absolute;' +
-          'top:-20000px;left:0px;padding:0;margin:0;border:none;' +
+          'top:-20000px;left:0;padding:0;margin:0;border:none;' +
           'white-space:pre;"></span>';
       document.body.insertAdjacentHTML('beforeEnd', s);
       this.textMeasureEl_ = document.body.lastChild;
     }
     this.textMeasureEl_.innerHTML = '';
     // FIX: Apply current font style to textMeasureEl to get correct size
-    var fontStyle = getComputedStyle(processFontStyle(this.font), this.clip_);
+    var fontStyle = getComputedStyle(processFontStyle(this.font), this.element_);
     this.textMeasureEl_.style.font = buildStyle(fontStyle);
                                                     
     // Don't use innerHTML or innerText because they allow markup/whitespace.
@@ -1379,10 +1379,10 @@ if (!document.createElement('canvas').getContext) {
     }
     var left = Math.min.apply(Math, xs), right = Math.max.apply(Math, xs),
         top = Math.min.apply(Math, ys), bottom = Math.max.apply(Math, ys);
-    this.clip_ = createClip(this.clip_);
-    this.clip_.style.clip = 'rect('+top+'px,'+right+'px,'+bottom+'px,'+left+'px)';
+    this.element_ = createClip(this.element_);
+    this.element_.style.clip = 'rect('+top+'px,'+right+'px,'+bottom+'px,'+left+'px)';
     // replace the stack item with this new one, so all future drawing goes to the new clipping region
-    this.cStack_[0] = this.clip_;
+    this.cStack_[0] = this.element_;
   };
 
   contextPrototype.arcTo = function() {
