@@ -531,7 +531,7 @@ if (!document.createElement('canvas').getContext) {
 
   function getComputedStyle(style, element) {
     var computedStyle = {};
-
+                                                    
     for (var p in style) {
       computedStyle[p] = style[p];
     }
@@ -559,6 +559,11 @@ if (!document.createElement('canvas').getContext) {
     computedStyle.size *= 0.981;
 
     return computedStyle;
+  }
+                                                    
+  function buildStyle(style) {
+    return style.style + ' ' + style.variant + ' ' + style.weight +
+        ' ' + style.size + 'px ' + style.family;
   }
 
   var lineCapMap = {
@@ -1253,8 +1258,7 @@ if (!document.createElement('canvas').getContext) {
 
     var fontStyle = getComputedStyle(processFontStyle(this.font), this.clip_);
 
-    var fontStyleString = fontStyle.style + ' ' + fontStyle.variant + ' ' + fontStyle.weight + ' ' +
-                          fontStyle.size + 'px ' + fontStyle.family;
+    var fontStyleString = buildStyle(fontStyle);
 
     var elementStyle = this.clip_.currentStyle;
     var textAlign = this.textAlign.toLowerCase();
@@ -1351,7 +1355,7 @@ if (!document.createElement('canvas').getContext) {
     this.textMeasureEl_.innerHTML = '';
     // FIX: Apply current font style to textMeasureEl to get correct size
     var fontStyle = getComputedStyle(processFontStyle(this.font), this.clip_);
-    this.textMeasureEl_.style.font = fontStyle.style+' '+fontStyle.variant+' '+fontStyle.weight+' '+fontStyle.size+' '+fontStyle.family;
+    this.textMeasureEl_.style.font = buildStyle(fontStyle);
                                                     
     // Don't use innerHTML or innerText because they allow markup/whitespace.
     this.textMeasureEl_.appendChild(document.createTextNode(text));
