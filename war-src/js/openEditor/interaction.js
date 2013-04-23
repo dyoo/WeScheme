@@ -209,9 +209,6 @@ WeSchemeInteractions = (function () {
                 that.interactions.previousInteractionsTextContainers[newId] = container;
                 that.interactions.runCode(nextCode, newId, function() {});
             });
-        //calling that.focus() doesn't work - the codeMirror box looks focused, but you can't type into it
-        //if I focus on something else first, everything works fine
-        n.focus();
         that.focus();
     };
 
@@ -730,9 +727,13 @@ WeSchemeInteractions = (function () {
 
     //structuredError -> Message
     var structuredErrorToMessage = function(se) {
+                        console.log('structuredErrorToMessage2');
+
         var msg = [];
         var i;
         for(i = 0; i < se.length; i++){
+                        console.log('2pushing se part'+i+'which has type '+typeof(se[i]));
+
             if(typeof(se[i]) === 'string') {
                 msg.push(se[i]);
             }

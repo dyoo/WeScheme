@@ -145,8 +145,8 @@ var WeSchemeTextContainer;
                             {key:"-"},
                             {key:"*"},
                             {key:"/"},
-                            {key:'<img src="/images/ios-keyboard/undo.png">', fn: editor.undo},
-                            {key:'<img src="/images/ios-keyboard/redo.png">', fn: editor.redo}
+                            {key:'<img src="/images/ios-keyboard/undo.png">', fn: function(){editor.undo();}},
+                            {key:'<img src="/images/ios-keyboard/redo.png">', fn: function(){editor.redo();}}
                            ];
             editor.addKeyrow(keyArray, '/sounds/ios-keyboard/tock.mp3');
         }
