@@ -5,13 +5,15 @@
   - if an expr is wrapped, every element clears left
 */
 
-
-span.replOutput * {float: left; padding-left: 10px;}
+.replOutput * {float: left; padding-left: 10px;}
+.replOutput br{float: none;}
 .wrapped > * {clear: left;}
 
 /* Rationals, Parens, and first child after lParen NEVER have padding or clearing */
 .Rational *, .lParen, .rParen, .lParen+*{padding-left: 0px; clear: none;}
 
+/* for IE, in which Canvases actually have children */
+canvas.replOutput * {padding-left: 0px; clear: none;}
 /************************************************
 Define coloring for basic WeScheme types, and re-use them for our CM instances 
 */
