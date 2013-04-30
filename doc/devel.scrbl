@@ -1,6 +1,17 @@
 #lang scribble/base
+@(require scribble/manual)
+@title{WeScheme Development}
 
-@title{Developing WeScheme}
+
+@section{Architecture}
+
+
+
+
+
+
+
+@section{Installation}
 
 This document shows how to set up a WeScheme environment locally.
 
@@ -31,12 +42,12 @@ changes are made to the javascript source files in war-src/js.
 
 
 You may also need to change wescheme.properties if you are doing
-any development on the android packager or compilation server.
+any development on the compilation server.
 
 
 
 
-@itemize[
+@itemlist[
 @item{Download WeScheme from github}
 @item{Download Google Closure}
 @item{Download and configure Eclipse}
@@ -44,7 +55,22 @@ any development on the android packager or compilation server.
 
 
 @section{Build process}
-@itemize[
+@itemlist[
 @item{Run @filepath{build-console-and-editor.sh}}
 @item{Run the deployment from Eclipse, or use @filepath{build.xml}}
 ]
+
+
+
+
+
+@section{The Editor}
+
+
+@section{The Console}
+
+
+@section{Sharing}
+
+
+@section{Miscellaneous}
