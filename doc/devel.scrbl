@@ -7,12 +7,12 @@
 
 WeScheme.org is an online development environment that tries to
 provide a DrRacket-like experience on the web, without the need for
-plugins.  Unlike some other non-Javascript programming environments on
-the web, evaluation is handled on the client browser.  An unusual part
-of the system is that compilation is done server-side, which allows us
-in principle to take advantage of Racket's language extension
-features.
-
+plugins or anything other than a plain web browser.  Unlike some other
+non-Javascript programming environments on the web, evaluation is
+handled on the client browser.  An unusual part of the system is that
+compilation is done server-side.  This split allows us to do some
+sophisticated work during compilation, even to take advantage of some
+Racket features to do compilation for us.
 
 
 
@@ -43,9 +43,10 @@ There's a simplification on this diagram with regards to the EC2
 compiler server.  There are actually two separate EC2 instances to
 serve both the east and west coast of the US,
 
-    http://balanced-wescheme-compilers-1567676416.us-west-2.elb.amazonaws.com
-    http://LoadBalancerEast-1672652775.us-east-1.elb.amazonaws.com
-
+@itemlist[
+@item{@url{http://balanced-wescheme-compilers-1567676416.us-west-2.elb.amazonaws.com}}
+@item{@url{http://LoadBalancerEast-1672652775.us-east-1.elb.amazonaws.com}}
+]
 and both are EC2 load balancers that spread load across a few EC2
 instances.  A separate document (ec2-auto-scaling-notes.txt) should
 describe the details of the setup.
@@ -55,17 +56,20 @@ Both the AppEngine and EC2 sides are intended to scale: on heavy load,
 both AppEngine and EC2 should, in principle, automatically turn on
 additional servers to continue to provide service.
 
-
-In the environment, whenever a use enters an expression or presses
-Run, a compilation request is sent from the client directly to the EC2
-compilation server.  This is to reduce the amount of network latency
-between interactions.
+Once a user visits wescheme.org, they are presented with an editing
+environment, and their web browser runs an evaluator that can
+interpret compiled code from the compiler servers.  Within the
+environment, whenever the user enters an expression or presses Run, a
+compilation request is sent from the browser client directly to the
+EC2 compilation server.  This is to reduce the amount of network
+latency between interactions.
 
 When a program is shared publically, WeScheme on the AppEngine side
-will generate a unique "publicId", and initiate a compilation of the
-program between AppEngine and EC2.  We add this extra level of
-indirection because we do not trust the client to produce compiled
-code that can be run by other folks.
+generates a unique "publicId", and initiates a compilation of the
+program between AppEngine and EC2.  This is different from the
+client-initiated compilation!  We add this extra level of indirection
+because we do not trust the client to produce compiled code that can
+be run by other folks.
 
 
 On the software end of things, we use a combination of Java servlets
@@ -74,70 +78,80 @@ interactions go through event-driven JavaScript.  We use the
 CodeMirror library to provide basic text editor functionality.
 
 
-
-
 @section{Installation}
 
-This document shows how to set up a WeScheme environment locally.
+This document shows how to set up a WeScheme environment that runs
+locally.  As a caveat: you MUST use Java 1.6, as (at the time of this
+writing) Java 1.7 is not compatible with AppEngine.
 
 
 The source to WeScheme can be found at github:
-
-   https://github.com/dyoo/WeScheme
-
-
-Build dependencies:
-
-WeScheme runs on Google AppEngine 1.4.2.  Check out the repository,
-and add it as a project within Eclipse.
+@url{https://github.com/dyoo/WeScheme}
 
 
+As soon as you check the project out, look at wescheme.properties.  It
+defines the network endpoints of both the appengine and ec2 side of things.
 
-WeScheme uses the Google Closure library:
+@filebox["wescheme.properties"]{
+@verbatim|{
+WESCHEME_SERVER_BASE = http://www.wescheme.org
+## Main server to depend on for server-side compilation:
+COMPILATION_SERVER_URL = http://balanced-wescheme-compilers-1567676416.us-west-2.elb.amazonaws.com/servlets/standalone.ss
+## Round-robin compilation servers.
+COMPILATION_SERVERS = http://balanced-wescheme-compilers-1567676416.us-west-2.elb.amazonaws.com/rpc.html http://LoadBalancerEast-1672652775.us-east-1.elb.amazonaws.com/rpc.html
+}|}
 
-   http://code.google.com/closure/library/docs/gettingstarted.html
-
-to manage the dependencies between the JavaScript modules.  The
-majority of these are located in:
-
-   war-src/js
-
-The script "build-console-and-editor.sh" should be executed after any
-changes are made to the javascript source files in war-src/js.
-
-
-You may also need to change wescheme.properties if you are doing
-any development on the compilation server.
-
-
-
-
-@itemlist[
-@item{Download WeScheme from github}
-@item{Download Google Closure}
-@item{Download and configure Eclipse}
-]
+Usually, you do not need to touch this file unless you're making
+modifications to the compilation servers and therefore need to test
+your local appengine instance against it.  @tt{COMPILATION_SERVER_URL}
+is the URL used by AppEngine when it contacts the EC2 servers during a
+Sharing.  @tt{COMPILATION_SERVERS} are the web services that the
+browser client will use during interactive development.
 
 
-@section{Build process}
-@itemlist[
-@item{Run @filepath{build-console-and-editor.sh}}
-@item{Run the deployment from Eclipse, or use @filepath{build.xml}}
-]
+To build the Java side of things, execute: @tt{ant compile}
+
+To build the JavaScript side of the software, execute:
+@filepath{build-console-and-editor.sh}.  Remember to do this whenever
+the JavaScript side of things change.  This invokes the Google Closure
+JavaScript compiler to package and compress the JavaScript.
+
+
+To run the web server in local mode, execute @tt{ant runserver}.
 
 
 
 
 @section{Directory structure overview}
 
+Initially, when you check out the repository, @filepath{war} holds
+static resources.  The build process will copy over other resources
+into @filepath{war} for deployment.
+
+The source to the Java servlets are in @filepath{src}.
+
+Most JavaScript files are in @filepath{war-src}.
 
 
 
 
-@section{The Editor}
 
 
-@section{Program evaluation}
+@section{The Editor and evaluation}
+
+The core of the editor can be found in
+@filepath{war-src/js/openEditor}.
+
+
+
+
+
+The run.jsp servlet is very similar to the editor, but with fewer
+loaded libraries.  There's unfortunately a bit of messy duplication
+here between the libraries used for running a Shared program vs
+running during interactive development.
+
+
 
 
 @section{The compiler server}
@@ -151,7 +165,11 @@ any development on the compilation server.
 
 @section{Known Issues}
 
-The EC2 load balancers.
+The EC2 load balancers should not be treated as reliable resources.
+Unfortunately, we've found that EC2 elastic load balancing fails on
+high load by producing HTTP 503 errors.  We're working around this on
+the client side by just having the software repeat a request that's
+denied due to 503.
 
 We've been hitting persistent out-of-memory issues with the
 compilation servers running on EC2.
