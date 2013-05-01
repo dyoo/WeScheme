@@ -26,8 +26,8 @@ program storage through Google AppEngine services.
 
 @verbatim|{
 
-    AppEngine   <-------> Client web browser
-  program storage          ^  client-side evaluation
+    AppEngine   <-------- Client web browser
+  program storage          /  client-side evaluation
   static resources        /
         ^                /
         |               /
@@ -71,6 +71,12 @@ program between AppEngine and EC2.  This is different from the
 client-initiated compilation!  We add this extra level of indirection
 because we do not trust the client to produce compiled code that can
 be run by other folks.
+
+The arrow from the EC2 side back to AppEngine is deliberate: sometimes
+the compilation servers need to process programs that themselves
+require other wescheme modules.  This means that the compiler
+@link["https://github.com/bootstrapworld/wescheme-compiler2012/blob/master/wescheme-module-provider.rkt"]{needs
+to ask WeScheme.org} what symbols are provided by that module.
 
 
 On the software end of things, we use a combination of Java servlets
@@ -183,6 +189,7 @@ source editor's implementation} uses CodeMirror; the link should show
 both the interface and the implementation in terms of CodeMirror.
 
 
+@subsection{Running a program}
 When a user presses the Run button, this invokes the
 @link["https://github.com/dyoo/WeScheme/blob/97fc56aae75c041607a3ddb049c7bb8f77361520/war-src/js/openEditor/editor.js#L560-L571"]{run
 method} of the editor.  This grabs the content of the source ditor,
@@ -190,19 +197,50 @@ and in turn delegates to the
 @link["https://github.com/dyoo/WeScheme/blob/97fc56aae75c041607a3ddb049c7bb8f77361520/war-src/js/openEditor/interaction.js#L648-L677"]{runCode
 method of the interactions} class to do evaluation.
 
+The
+@link["https://github.com/dyoo/WeScheme/blob/97fc56aae75c041607a3ddb049c7bb8f77361520/war-src/js/openEditor/interaction.js#L657"]{reference
+to the evaluator} in @tt{runCode} is a call to the @link["https://github.com/dyoo/WeScheme/blob/97fc56aae75c041607a3ddb049c7bb8f77361520/war/js/mzscheme-vm/evaluator.js#L185"]{runtime library},
+which is responsible for taking the code, compiling it, running it,
+and printing out any results from the evaluation.  In order for the
+editor and the evaluator to cooperate, we
+@link["https://github.com/dyoo/WeScheme/blob/97fc56aae75c041607a3ddb049c7bb8f77361520/war-src/js/openEditor/interaction.js#L439-L512"]{customize
+it during initialization}.  The editor customizes the evaluator in a
+few places to handle things like World (which need to be shown in a
+different dialog window), to support the image proxying service for
+working around same-domain-policy restrictions on image manipulation,
+and dynamic module loading.
+
+
+During a program's compilation or execution, an exceptional condition
+may occur.  The editor traps errors and presents them in
+@link["https://github.com/dyoo/WeScheme/blob/97fc56aae75c041607a3ddb049c7bb8f77361520/war-src/js/openEditor/interaction.js#L679-L682"]{interactions.handleError}.
+There's some logic involved in seeing if the error is of a particular
+class such as a
+@link["https://github.com/dyoo/WeScheme/blob/97fc56aae75c041607a3ddb049c7bb8f77361520/war-src/js/openEditor/interaction.js#L732-L758"]{multi-colored
+error message}; the wescheme-compiler in fact will turn errors caught
+at compile time, such as a read error, into
+@link["https://github.com/bootstrapworld/wescheme-compiler2012/blob/master/compiler-service.rkt#L290-L319"]{instances
+of multi-colored errors}.
+
 
 
 
 @section{The compiler server}
 
+[fill me in]
 
 @section{The Console}
 
+[fill me in]
 
 @section{Sharing}
 
+[fill me in]
 
-@section{Known Issues}
+
+
+
+@section{Known issues}
 
 The EC2 load balancers should not be treated as reliable resources.
 Unfortunately, we've found that EC2 elastic load balancing fails on
@@ -211,7 +249,13 @@ the client side by just having the software repeat a request that's
 denied due to 503.
 
 We've been hitting persistent out-of-memory issues with the
-compilation servers running on EC2.
+compilation servers running on EC2.  We're working around the issue by
+having
+@link["https://github.com/bootstrapworld/wescheme-compiler2012/tree/master/keep-alive-scripts"]{keep-alive
+scripts} running in crontab.  I believe this is due to a bug in
+Racket, and by the time a release rolls out with a
+@link["http://lists.racket-lang.org/users/archive/2013-April/057450.html"]{fix
+to a specific memory leak}, this problem should hopefully be subdued.
 
 
 
@@ -219,3 +263,4 @@ compilation servers running on EC2.
 
 @section{Miscellaneous}
 
+[fill me in]
