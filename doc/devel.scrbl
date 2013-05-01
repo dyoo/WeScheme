@@ -49,8 +49,9 @@ serve both the east and west coast of the US,
 ]
 
 Both are EC2 load balancers that spread load across a few EC2
-instances.  A separate document (ec2-auto-scaling-notes.txt) describes
-the details of the setup.
+instances.  A separate document
+(@link["https://github.com/dyoo/WeScheme/blob/master/doc/ec2-auto-scaling-notes.txt"]{ec2-auto-scaling-notes.txt})
+describes the details of the setup.
 
 
 Both the AppEngine and EC2 sides are intended to scale: on heavy load,
