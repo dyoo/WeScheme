@@ -193,10 +193,11 @@ both the interface and the implementation in terms of CodeMirror.
 @subsection{Running a program}
 When a user presses the Run button, this invokes the
 @link["https://github.com/dyoo/WeScheme/blob/97fc56aae75c041607a3ddb049c7bb8f77361520/war-src/js/openEditor/editor.js#L560-L571"]{run
-method} of the editor.  This grabs the content of the source ditor,
+method} of the editor.  This grabs the content of the source editor,
 and in turn delegates to the
 @link["https://github.com/dyoo/WeScheme/blob/97fc56aae75c041607a3ddb049c7bb8f77361520/war-src/js/openEditor/interaction.js#L648-L677"]{runCode
 method of the interactions} class to do evaluation.
+
 
 The
 @link["https://github.com/dyoo/WeScheme/blob/97fc56aae75c041607a3ddb049c7bb8f77361520/war-src/js/openEditor/interaction.js#L657"]{reference
@@ -211,6 +212,10 @@ different dialog window), to support the image proxying service for
 working around same-domain-policy restrictions on image manipulation,
 and dynamic module loading.
 
+Evaluations with the Interactions bottom pane go through a
+similar process, as seen in
+@link["https://github.com/dyoo/WeScheme/blob/97fc56aae75c041607a3ddb049c7bb8f77361520/war-src/js/openEditor/interaction.js#L207-L211"]{Prompt.onEvaluation}.
+
 
 During a program's compilation or execution, an exceptional condition
 may occur.  The editor traps errors and presents them in
@@ -221,7 +226,9 @@ class such as a
 error message}; the wescheme-compiler in fact will turn errors caught
 at compile time, such as a read error, into
 @link["https://github.com/bootstrapworld/wescheme-compiler2012/blob/master/compiler-service.rkt#L290-L319"]{instances
-of multi-colored errors}.
+of multi-colored errors}.  The system handles compile time and runtime
+errors uniformily through this mechanism.
+
 
 
 
