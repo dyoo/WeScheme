@@ -1,18 +1,18 @@
 #lang scribble/base
 @(require scribble/manual)
-@title{WeScheme Development}
+@title{WeScheme Development Internals}
 
 
 @section{Introduction}
 
-WeScheme.org is an online development environment that tries to
-provide a DrRacket-like experience on the web, without the need for
-plugins or anything other than a plain web browser.  Unlike some other
-non-Javascript programming environments on the web, evaluation is
-handled on the client browser.  An unusual part of the system is that
-compilation is done server-side.  This split allows us to do some
-sophisticated work during compilation, even to take advantage of some
-Racket features to do compilation for us.
+@url{http://www.wescheme.org} is an online development environment
+that tries to provide a DrRacket-like experience on the web, without
+the need for plugins or anything other than a plain web browser.
+Unlike some other non-Javascript programming environments on the web,
+evaluation is handled on the client browser.  An unusual part of the
+system is that compilation is done server-side.  This split allows us
+to do some sophisticated work during compilation, even to take
+advantage of some Racket features to do compilation for us.
 
 
 
@@ -40,16 +40,17 @@ server-side compilation
 }|
 
 There's a simplification on this diagram with regards to the EC2
-compiler server.  There are actually two separate EC2 instances to
+compiler server.  There are actually two separate EC2 subsystems to
 serve both the east and west coast of the US,
 
 @itemlist[
 @item{@url{http://balanced-wescheme-compilers-1567676416.us-west-2.elb.amazonaws.com}}
 @item{@url{http://LoadBalancerEast-1672652775.us-east-1.elb.amazonaws.com}}
 ]
-and both are EC2 load balancers that spread load across a few EC2
-instances.  A separate document (ec2-auto-scaling-notes.txt) should
-describe the details of the setup.
+
+Both are EC2 load balancers that spread load across a few EC2
+instances.  A separate document (ec2-auto-scaling-notes.txt) describes
+the details of the setup.
 
 
 Both the AppEngine and EC2 sides are intended to scale: on heavy load,
@@ -117,7 +118,8 @@ the JavaScript side of things change.  This invokes the Google Closure
 JavaScript compiler to package and compress the JavaScript.
 
 
-To run the web server in local mode, execute @tt{ant runserver}.
+To run the web server in local mode, execute @tt{ant runserver}.  This
+should bring up a web server on port 8888.
 
 
 
@@ -125,14 +127,26 @@ To run the web server in local mode, execute @tt{ant runserver}.
 @section{Directory structure overview}
 
 Initially, when you check out the repository, @filepath{war} holds
-static resources.  The build process will copy over other resources
-into @filepath{war} for deployment.
+static resources.  The build process in
+@filepath{build-console-and-editor.rkt} will copy and compress
+resources into @filepath{war} for deployment.
 
-The source to the Java servlets are in @filepath{src}.
+The source to the Java servlets are in @filepath{src}.  These deal
+with the AppEngine side of the system, providing definitions for
+Program loading and storing and sharing.
 
-Most JavaScript files are in @filepath{war-src}.
+Most JavaScript files are in @filepath{war-src}, and are written with
+respect to
+@link["https://developers.google.com/closure/library/"]{Google Closure
+Library} and a few other libraries just as JQuery.
 
 
+Of special note: the files in @filepath{war/js/mzscheme-vm} contain
+the heart of the client-side runtime library for evaluating programs.
+The files in this directory come out of the
+@link["https://github.com/bootstrapworld/wescheme-compiler2012"]{wescheme-compiler}
+project.  Changes to wescheme-compiler should be coupled with an update
+to the files in here.
 
 
 
@@ -140,16 +154,41 @@ Most JavaScript files are in @filepath{war-src}.
 @section{The Editor and evaluation}
 
 The core of the editor can be found in
-@filepath{war-src/js/openEditor}.
+@filepath{war-src/js/openEditor}.  These include the definitions for
+the editor itself (@filepath{war-src/js/openEditor/editor.js}), and
+the evaluation engine
+(@filepath{war-src/js/openEditor/interaction.js}).
+
+These are all tied together with the static .jsp file in
+@link["https://github.com/dyoo/WeScheme/blob/master/war/openEditor/index.jsp"]{@filepath{war/openEditor/index.jsp}}
 
 
 
+It may be instructive to compare the Editor to the non-interactive Run
+servlet,
+@link["https://github.com/dyoo/WeScheme/blob/master/war/run.jsp"]{@filepath{war/run.jsp}},
+which deliberately strips out most of the environment except for the
+absolute necessary to do evaluation.  There's unfortunately a bit of
+messy duplication here between the libraries used for running a Shared
+program vs running during interactive development.
 
 
-The run.jsp servlet is very similar to the editor, but with fewer
-loaded libraries.  There's unfortunately a bit of messy duplication
-here between the libraries used for running a Shared program vs
-running during interactive development.
+The editor has a instance of a WeSchemeTextContainer, an abstraction
+that's intended to allow us to fit in different implementations of
+source editors as needed.  In the past, we used to have one based just
+on raw textareas and another on the defunct Mozilla Bespin editor.
+Nowdays, our
+@link["https://github.com/dyoo/WeScheme/blob/master/war-src/js/openEditor/textcontainer.js"]{main
+source editor's implementation} uses CodeMirror; the link should show
+both the interface and the implementation in terms of CodeMirror.
+
+
+When a user presses the Run button, this invokes the
+@link["https://github.com/dyoo/WeScheme/blob/97fc56aae75c041607a3ddb049c7bb8f77361520/war-src/js/openEditor/editor.js#L560-L571"]{run
+method} of the editor.  This grabs the content of the source ditor,
+and in turn delegates to the
+@link["https://github.com/dyoo/WeScheme/blob/97fc56aae75c041607a3ddb049c7bb8f77361520/war-src/js/openEditor/interaction.js#L648-L677"]{runCode
+method of the interactions} class to do evaluation.
 
 
 
