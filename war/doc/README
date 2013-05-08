@@ -1,0 +1,12 @@
+Run Makefile to generate the docs.
+
+This is a huge, kludgy approach to the problem of reusing
+documentation from Racket for WeScheme, in the sense that we
+essentially copy-and-paste the content.  We try to be good about it by
+doing this copy-and-pasting structurally rather than textually, but
+this is still not great.
+
+Note that this expects to be run under DrRacket 5.3.2.  Some of the
+processing we're doing is very sensitive to the exact English prose
+used in the documentation of Racket, so if we use another version,
+there are probably a few things that will need adjustment.

@@ -1,0 +1,1 @@
+("5.3.2" ("d7b7776992899087f71f6a9496338957ecf5e488" . "3147e1e2a0b0ef89e33b75c9d4d6cfd2d7c81f90") (collects #"racket" #"base.rkt") #"/Users/dyoo/work/wescheme-docs/extract-docstring.rkt" (collects #"racket" #"base" #"lang" #"reader.rkt"))

@@ -239,15 +239,6 @@ can explore the functions in @secref["sec:world-image-api"].
 
 
 
-@section{Keyboard Shortcuts}
-Aside from the normal browser shortcuts for cutting, copying and pasting text, WeScheme provides two keyboard shortcuts that you will find useful:
-@itemlist[
-
-@item{F5 is a shortcut for the "Run" button in the toolbar. This will run whatever is in the Definitions window, and also clear the Interactions window.}
-
-@item{Control-P is a shortcut for the Previous entry in the Interactions window. Pressing this repeatedly will scroll backwards through the command history, even if you've already cleared the Interactions window by pressing Run.}
-
-]
 
 @section[#:tag "sec:world-image-api"]{World programming and Images API}
 @declare-exporting["mock-bindings.rkt"]
