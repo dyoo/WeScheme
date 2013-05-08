@@ -11193,6 +11193,9 @@ if (typeof(world) === 'undefined') {
 
     CropImage.prototype.render = function(ctx, x, y) {
         ctx.save();
+        ctx.beginPath();
+        ctx.rect(x, y, this.width, this.height);
+        ctx.clip();
         ctx.translate(-this.x, -this.y);
         this.img.render(ctx, x, y);
         ctx.restore();
@@ -17540,7 +17543,7 @@ PRIMITIVES['put-pinhole'] =
     new PrimProc('put-pinhole',
 		 3,
 		 false, false,
-		 function(aState, x, y, img) {
+		 function(aState, img, x, y) {
       check(aState, img, isImage, "put-pinhole", "image", 1, arguments);
 			check(aState, x, isReal, "put-pinhole", "real", 2, arguments);
 			check(aState, y, isReal, "put-pinhole", "real", 3, arguments);
